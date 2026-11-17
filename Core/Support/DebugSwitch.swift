@@ -217,6 +217,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// looked at without waiting for a real battery event. It is not written to the history. Unset in
     /// normal use.
     case powerNotificationDemo = "DOCK_NOTIFY_DEMO"
+    /// Enable touch-optimized Dynamic Island metrics & 44pt targets on non-touch Macs (e.g. testing M5 OLED posture).
+    case touchIsland = "DOCK_TOUCH_ISLAND"
 
     var kind: Kind {
         switch self {
@@ -230,7 +232,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .menuHoverSuspend, .hoverMonitorLean, .stripHoverPoll, .resizeCursor, .chipPressDown, .titleSettle,
              .finderReopenEvent, .liveEvents:
             return .killSwitch
-        case .displayTrace, .launchTrace, .chipProbe, .clickTrace,
+        case .displayTrace, .launchTrace, .chipProbe, .clickTrace, .touchIsland,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
              .devSkipPermissions, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:

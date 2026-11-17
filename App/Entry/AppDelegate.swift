@@ -128,6 +128,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var colorPicker = ColorPickerService(toast: shortcutToast)
     private var notchSubscription: AnyCancellable?
     private var notchSkinSubscription: AnyCancellable?
+    private var islandTouchSubscription: AnyCancellable?
+    private var islandNonNotchSubscription: AnyCancellable?
+    private var islandKeylineSubscription: AnyCancellable?
     private lazy var dragShakeWatcher = DragShakeWatcher(shelf: shelfStore)
     private var shelfShakeSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
@@ -525,6 +528,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] skin in self?.notchPanel.skin = skin }
+            notchPanel.bindShelfStore(shelfStore)
+            islandTouchSubscription = settingsStore.$islandTouchMode
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] mode in self?.notchPanel.touchModeSetting = mode }
+            islandNonNotchSubscription = settingsStore.$islandNonNotchBehavior
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] behavior in self?.notchPanel.nonNotchBehavior = behavior }
+            islandKeylineSubscription = settingsStore.$islandKeylineEnabled
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] on in self?.notchPanel.keylineEnabled = on }
             notchPanel.onOpenSettings = { [weak self] in self?.openSettings(nil) }
             notchPanel.theme = { [weak self] in self?.settingsStore.nowPlayingTheme ?? .auto }
             liveEventCenter.register(sink: notchPanel, for: .notch)

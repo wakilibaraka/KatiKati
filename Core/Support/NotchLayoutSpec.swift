@@ -11,6 +11,7 @@ import Foundation
 enum LiveIslandSkin: String, CaseIterable, Sendable {
     case classic
     case boring
+    case dynamicIsland
 }
 
 enum NotchTab: String, CaseIterable, Sendable {

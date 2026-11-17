@@ -178,6 +178,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var shelfStorage: ShelfStorage
     /// Look of the notch Live Island (`boring` = full panel with music + calendar; default).
     @Published private(set) var notchSkin: LiveIslandSkin
+    @Published private(set) var islandTouchMode: IslandTouchModeSetting
+    @Published private(set) var islandNonNotchBehavior: IslandNonNotchIdleBehavior
+    @Published private(set) var islandKeylineEnabled: Bool
     /// Where event notifications show — exactly one place by default, never duplicated (8b-5).
     @Published private(set) var liveEventRoute: LiveEventRoute
     /// OS Notification Center banners for Live Island events (8b-4c). Opt-in, default OFF; only fires
@@ -412,6 +415,9 @@ final class AppSettingsStore: ObservableObject {
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: true,
             Keys.notchSkin: LiveIslandSkin.boring.rawValue,
+            Keys.islandTouchMode: IslandTouchModeSetting.automatic.rawValue,
+            Keys.islandNonNotchBehavior: IslandNonNotchIdleBehavior.compactPill.rawValue,
+            Keys.islandKeylineEnabled: true,
             Keys.themeVibrancy: Double(DockThemeStyle.identityVibrancy),
             Keys.themeContrast: 1.0,
             Keys.themeTranslucency: Double(DockThemeStyle.identityTranslucency),
@@ -478,6 +484,9 @@ final class AppSettingsStore: ObservableObject {
         shelfExpiryDays = ShelfPolicy.expiryChoices.contains(defaults.integer(forKey: ShelfStore.expiryDaysKey)) ? defaults.integer(forKey: ShelfStore.expiryDaysKey) : 1
         shelfStorage = ShelfStorage(rawValue: defaults.string(forKey: ShelfStore.storageKey) ?? "") ?? .reference
         notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .boring
+        islandTouchMode = IslandTouchModeSetting(rawValue: defaults.string(forKey: Keys.islandTouchMode) ?? "") ?? .automatic
+        islandNonNotchBehavior = IslandNonNotchIdleBehavior(rawValue: defaults.string(forKey: Keys.islandNonNotchBehavior) ?? "") ?? .compactPill
+        islandKeylineEnabled = defaults.object(forKey: Keys.islandKeylineEnabled) as? Bool ?? true
         liveEventRoute = LiveEventRoute(rawValue: defaults.string(forKey: Keys.liveEventRoute) ?? "") ?? .automatic
         liveEventOSBanners = defaults.bool(forKey: Keys.liveEventOSBanners)
         chipPreviewEnabled = defaults.bool(forKey: Keys.chipPreviewEnabled)
@@ -1321,6 +1330,24 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value.rawValue, forKey: Keys.notchSkin)
     }
 
+    func setIslandTouchMode(_ value: IslandTouchModeSetting) {
+        guard islandTouchMode != value else { return }
+        islandTouchMode = value
+        defaults.set(value.rawValue, forKey: Keys.islandTouchMode)
+    }
+
+    func setIslandNonNotchBehavior(_ value: IslandNonNotchIdleBehavior) {
+        guard islandNonNotchBehavior != value else { return }
+        islandNonNotchBehavior = value
+        defaults.set(value.rawValue, forKey: Keys.islandNonNotchBehavior)
+    }
+
+    func setIslandKeylineEnabled(_ value: Bool) {
+        guard islandKeylineEnabled != value else { return }
+        islandKeylineEnabled = value
+        defaults.set(value, forKey: Keys.islandKeylineEnabled)
+    }
+
     func setLiveEventOSBanners(_ value: Bool) {
         guard liveEventOSBanners != value else { return }
         liveEventOSBanners = value
@@ -1706,6 +1733,9 @@ private enum Keys {
     static let dockIslandEnabled = "com.katikati.liveIsland.dock"
     static let notchIslandEnabled = "com.katikati.liveIsland.notch"
     static let notchSkin = "com.katikati.liveIsland.notchSkin"
+    static let islandTouchMode = "com.katikati.liveIsland.touchMode"
+    static let islandNonNotchBehavior = "com.katikati.liveIsland.nonNotchBehavior"
+    static let islandKeylineEnabled = "com.katikati.liveIsland.keylineEnabled"
     static let liveEventRoute = "com.katikati.liveIsland.eventRoute"
     static let liveEventOSBanners = "com.katikati.liveIsland.osBanners"
     static let chipPreviewEnabled = "com.katikati.chips.previewEnabled"

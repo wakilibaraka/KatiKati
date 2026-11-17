@@ -35,8 +35,24 @@ final class NotchPanelController: LiveEventSink {
     private var shrinkWork: DispatchWorkItem?
     var theme: () -> NowPlayingTheme = { .auto }
     var onOpenSettings: () -> Void = {}
+    private let islandBridge = IslandLiveBridge()
+    private var islandStateSubscription: AnyCancellable?
+    private var islandOutsideClickMonitor: Any?
+    var touchModeSetting: IslandTouchModeSetting = .automatic {
+        didSet { guard touchModeSetting != oldValue else { return }; syncDynamicIslandConfiguration() }
+    }
+    var nonNotchBehavior: IslandNonNotchIdleBehavior = .compactPill {
+        didSet { guard nonNotchBehavior != oldValue else { return }; syncDynamicIslandConfiguration() }
+    }
+    var keylineEnabled: Bool = true {
+        didSet { guard keylineEnabled != oldValue else { return }; syncDynamicIslandConfiguration() }
+    }
     var skin: LiveIslandSkin = .boring {
-        didSet { guard skin != oldValue else { return }; model.skin = skin; syncModelSizes(); syncWindow() }
+        didSet { guard skin != oldValue else { return }; model.skin = skin; syncDynamicIslandConfiguration(); syncModelSizes(); syncWindow(immediate: skin == .dynamicIsland) }
+    }
+
+    func bindShelfStore(_ store: ShelfStore) {
+        islandBridge.bindShelfStore(store)
     }
 
     init(displayID: CGDirectDisplayID, design: NotchDesign) { self.displayID = displayID; self.design = design }
@@ -56,6 +72,8 @@ final class NotchPanelController: LiveEventSink {
         guard panel == nil, let screen = targetScreen() else { return }
         metrics = Self.metrics(for: screen)
         model.skin = skin
+        model.islandBridge = islandBridge
+        syncDynamicIslandConfiguration()
         model.collapse = { [weak self] in self?.collapse() }
         model.openSettings = { [weak self] in self?.onOpenSettings() }
         model.requestOpen = { [weak self] in self?.openByClick() }
@@ -132,6 +150,10 @@ final class NotchPanelController: LiveEventSink {
     }
 
     private func hide() {
+        removeIslandOutsideClickMonitor()
+        islandStateSubscription?.cancel()
+        islandStateSubscription = nil
+        islandBridge.stop()
         trackPill.hide(animated: false)
         batteryPill.hide(animated: false)
         batteryTimer?.invalidate(); batteryTimer = nil
@@ -154,6 +176,10 @@ final class NotchPanelController: LiveEventSink {
 
     func show(_ event: LiveEvent) {
         guard panel != nil else { return }
+        if skin == .dynamicIsland {
+            islandBridge.show(event)
+            return
+        }
         // 50d/50e: a new song brightens the ear glow and drops a small pill instead of opening the notch.
         if case .trackChanged = event {
             model.glowBoost = 1
@@ -365,6 +391,10 @@ final class NotchPanelController: LiveEventSink {
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
     /// clips while it animates open) and shrinks only after the close spring has finished.
     private func windowFrame(on screen: NSScreen, expanded: Bool? = nil) -> CGRect {
+        if skin == .dynamicIsland {
+            let stageSize = CGSize(width: max(560, model.openSize.width + 64), height: 240)
+            return NotchGeometry.panelFrame(size: stageSize, in: screen.frame)
+        }
         let isExpanded = expanded ?? model.isExpanded
         if !isWide && !metrics.hasHardwareNotch {
             return NotchGeometryCalculator.calculate(
@@ -453,15 +483,98 @@ final class NotchPanelController: LiveEventSink {
         return true
     }
 
+    private func syncDynamicIslandConfiguration() {
+        guard skin == .dynamicIsland else {
+            islandBridge.stop()
+            islandStateSubscription?.cancel()
+            islandStateSubscription = nil
+            removeIslandOutsideClickMonitor()
+            return
+        }
+        if panel != nil {
+            islandBridge.start()
+        }
+        guard let screen = targetScreen() else { return }
+        let topology = ScreenTouchCapabilities.resolveTopology(for: screen)
+        let touchEnabled = ScreenTouchCapabilities.isTouchModeActive(for: screen, setting: touchModeSetting)
+        let driver = islandBridge.driver
+        driver.keylineSetting = topology.keylineSetting(userEnabled: keylineEnabled)
+        driver.stageWidth = max(560, Double(model.openSize.width + 64))
+        driver.updateDisplayTopology(topology, touchEnabled: touchEnabled, nonNotchBehavior: nonNotchBehavior)
+
+        if islandStateSubscription == nil {
+            islandStateSubscription = driver.$scene
+                .receive(on: RunLoop.main)
+                .sink { [weak self] scene in
+                    guard let self else { return }
+                    if scene.presentation == .expanded {
+                        self.installIslandOutsideClickMonitor()
+                    } else {
+                        self.removeIslandOutsideClickMonitor()
+                    }
+                }
+        }
+    }
+
+    private func installIslandOutsideClickMonitor() {
+        guard islandOutsideClickMonitor == nil else { return }
+        islandOutsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, self.skin == .dynamicIsland, self.islandBridge.driver.scene.presentation == .expanded else { return }
+                let loc = NSEvent.mouseLocation
+                guard let panelFrame = self.panel?.frame else {
+                    self.islandBridge.driver.store.collapse()
+                    return
+                }
+                if !panelFrame.contains(loc) {
+                    self.islandBridge.driver.store.collapse()
+                }
+            }
+        }
+    }
+
+    private func removeIslandOutsideClickMonitor() {
+        if let monitor = islandOutsideClickMonitor {
+            NSEvent.removeMonitor(monitor)
+            islandOutsideClickMonitor = nil
+        }
+    }
+
     /// The hosting view lives inside a plain autoresizing container so SwiftUI's intrinsic size can never
     /// drive the panel (that fed back into window sizing during an update-constraints pass and crashed).
     /// The container also owns the tracking area whose *enter* starts the hover poll.
     private func container<V: View>(for view: V) -> NSView {
         let container = NotchTrackingContainer(frame: .zero)
-        container.onEnter = { [weak self] in self?.startHoverPolling() }
+        container.onEnter = { [weak self] in
+            guard let self, self.skin != .dynamicIsland else { return }
+            self.startHoverPolling()
+        }
         container.onScroll = { [weak self] event in
-            guard let self else { return false }
+            guard let self, self.skin != .dynamicIsland else { return false }
             return self.handleScroll(event)
+        }
+        container.shouldAcceptHit = { [weak self, weak container] point in
+            guard let self, let container else { return true }
+            guard self.skin == .dynamicIsland else { return true }
+            let driver = self.islandBridge.driver
+            let frame = driver.frame
+            let topDownY = container.bounds.height - point.y
+            let p = CGPoint(x: point.x, y: topDownY)
+            if driver.scene.presentation == .expanded {
+                let expandedRect = frame.drawn.rect.insetBy(dx: -8, dy: -8)
+                return expandedRect.contains(p)
+            }
+            if driver.topology.hidesAtRest(activeCount: driver.snapshot.activities.count, nonNotchBehavior: driver.nonNotchIdleBehavior),
+               driver.scene.presentation == .idle {
+                return false
+            }
+            let pillHit = IslandTouchHitPolicy.interactiveHitRect(for: frame.pill.rect, touchEnabled: driver.touchMode)
+            if pillHit.contains(p) { return true }
+            if frame.bubble.width > 0 {
+                let bubbleHit = IslandTouchHitPolicy.interactiveHitRect(for: frame.bubble.rect, touchEnabled: driver.touchMode)
+                if bubbleHit.contains(p) { return true }
+            }
+            return false
         }
         let host = NSHostingView(rootView: view)
         host.frame = container.bounds
@@ -476,6 +589,14 @@ final class NotchPanelController: LiveEventSink {
 final class NotchTrackingContainer: NSView {
     var onEnter: () -> Void = {}
     var onScroll: ((NSEvent) -> Bool)?
+    var shouldAcceptHit: ((CGPoint) -> Bool)?
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        if let shouldAcceptHit, !shouldAcceptHit(point) {
+            return nil
+        }
+        return super.hitTest(point)
+    }
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
@@ -511,6 +632,15 @@ final class NotchPanelCoordinator: LiveEventSink {
     var theme: () -> NowPlayingTheme = { .auto } { didSet { controllers.values.forEach { $0.theme = theme } } }
     var onOpenSettings: () -> Void = {} { didSet { controllers.values.forEach { $0.onOpenSettings = onOpenSettings } } }
     var skin: LiveIslandSkin = .boring { didSet { controllers.values.forEach { $0.skin = skin } } }
+    var touchModeSetting: IslandTouchModeSetting = .automatic { didSet { controllers.values.forEach { $0.touchModeSetting = touchModeSetting } } }
+    var nonNotchBehavior: IslandNonNotchIdleBehavior = .compactPill { didSet { controllers.values.forEach { $0.nonNotchBehavior = nonNotchBehavior } } }
+    var keylineEnabled: Bool = true { didSet { controllers.values.forEach { $0.keylineEnabled = keylineEnabled } } }
+    private weak var shelfStore: ShelfStore?
+
+    func bindShelfStore(_ store: ShelfStore) {
+        shelfStore = store
+        controllers.values.forEach { $0.bindShelfStore(store) }
+    }
 
     var isUsable: Bool { controllers.values.contains { $0.isUsable } }
 
@@ -540,6 +670,10 @@ final class NotchPanelCoordinator: LiveEventSink {
         for (id, design) in wanted where controllers[id] == nil {
             let c = NotchPanelController(displayID: id, design: design)
             c.theme = theme; c.onOpenSettings = onOpenSettings; c.skin = skin
+            c.touchModeSetting = touchModeSetting
+            c.nonNotchBehavior = nonNotchBehavior
+            c.keylineEnabled = keylineEnabled
+            if let shelfStore { c.bindShelfStore(shelfStore) }
             controllers[id] = c
             c.setEnabled(true)
         }

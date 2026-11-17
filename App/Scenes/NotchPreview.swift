@@ -13,6 +13,14 @@ struct NotchPreview: View {
 
     private var size: CGSize { NotchGeometry.previewSize(for: skin, expanded: isExpanded) }
 
+    private var skinTitle: String {
+        switch skin {
+        case .boring: return String(localized: "Full")
+        case .classic: return String(localized: "Compact")
+        case .dynamicIsland: return String(localized: "Dynamic Island")
+        }
+    }
+
     var body: some View {
         VStack(spacing: 8) {
             Button { isExpanded.toggle() } label: {
@@ -25,7 +33,7 @@ struct NotchPreview: View {
                     .frame(height: size.height)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Text(skin == .boring ? "Full" : "Compact"))
+            .accessibilityLabel(Text(verbatim: skinTitle))
             .accessibilityHint(Text("Click to expand or collapse the demo preview."))
             .help(Text("Click to expand or collapse the demo preview."))
             caption
@@ -36,15 +44,24 @@ struct NotchPreview: View {
 
     private var silhouette: some View {
         ZStack {
-            // The floating-island rendering, which is what the app draws on a display without a
-            // notch: in a settings row there is no bezel above the shape, so the hardware notch's
-            // flared ears have nothing to meet and the silhouette reads as cut off.
-            NotchContinuousMaskShape(
-                topCornerRadius: isExpanded ? NotchDesignSpec.openCornerRadii.topFlaring : NotchDesignSpec.closedCornerRadii.topFlaring,
-                bottomCornerRadius: isExpanded ? NotchDesignSpec.openCornerRadii.bottomSquircle : NotchDesignSpec.closedCornerRadii.bottomSquircle,
-                flaringTopEars: false
-            )
-            .fill(Color.black)
+            if skin == .dynamicIsland {
+                NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
+                    .fill(Color.black)
+                    .overlay(
+                        NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
+                            .stroke(Color.white.opacity(0.16), lineWidth: 1.5)
+                    )
+            } else {
+                // The floating-island rendering, which is what the app draws on a display without a
+                // notch: in a settings row there is no bezel above the shape, so the hardware notch's
+                // flared ears have nothing to meet and the silhouette reads as cut off.
+                NotchContinuousMaskShape(
+                    topCornerRadius: isExpanded ? NotchDesignSpec.openCornerRadii.topFlaring : NotchDesignSpec.closedCornerRadii.topFlaring,
+                    bottomCornerRadius: isExpanded ? NotchDesignSpec.openCornerRadii.bottomSquircle : NotchDesignSpec.closedCornerRadii.bottomSquircle,
+                    flaringTopEars: false
+                )
+                .fill(Color.black)
+            }
             if isExpanded { placeholderPlates }
         }
         .opacity(isEnabled ? 1 : 0.45)
@@ -74,7 +91,7 @@ struct NotchPreview: View {
         HStack(spacing: 6) {
             Text("Preview")
             Text(verbatim: "·")
-            Text(skin == .boring ? "Full" : "Compact")
+            Text(verbatim: skinTitle)
             if !isEnabled {
                 Text(verbatim: "·")
                 Text("Off")
@@ -82,5 +99,22 @@ struct NotchPreview: View {
         }
         .font(.caption)
         .foregroundStyle(.secondary)
+    }
+}
+
+private struct NotchPreviewContinuousShape: Shape {
+    let radius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        Path(
+            continuousRectCGPath(
+                x: Double(rect.minX),
+                y: Double(rect.minY),
+                width: Double(rect.width),
+                height: Double(rect.height),
+                radius: Double(radius),
+                smoothing: 0.72
+            )
+        )
     }
 }

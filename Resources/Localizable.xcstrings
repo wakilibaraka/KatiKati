@@ -123722,6 +123722,193 @@
           }
         }
       }
+    },
+    "Activity": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Activity" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "实时活动" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "即時動態" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アクティビティ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aktivität" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Activité" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Actividad" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Actividad" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Atividade" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Atividade" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Attività" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "활동" } }
+      }
+    },
+    "Always On": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Always On" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "始终开启" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "永遠開啟" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "常にオン" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Immer an" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Toujours activé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Siempre activado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Siempre activado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sempre ativado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Sempre ativo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sempre attivo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "항상 켬" } }
+      }
+    },
+    "Dynamic Island": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "灵动岛" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "動態島" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Dynamic Island" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "다이나믹 아일랜드" } }
+      }
+    },
+    "Floating Pill": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Floating Pill" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "悬浮胶囊" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "懸浮膠囊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フローティングカプセル" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schwebende Pille" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pilule flottante" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cápsula flotante" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cápsula flotante" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Cápsula flutuante" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Cápsula flutuante" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Capsula flottante" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "플로팅 캡슐" } }
+      }
+    },
+    "Island Playground": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Island Playground" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "灵动岛实验场" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "動態島實驗場" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アイランド・プレイグラウンド" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Island-Spielplatz" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Terrain d'essai Island" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Zona de pruebas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Zona de pruebas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Área de testes" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Área de testes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Area di prova" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "아일랜드 플레이그라운드" } }
+      }
+    },
+    "Non-Notch Idle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Non-Notch Idle" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "无刘海屏闲置外观" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "無瀏海螢幕閒置外觀" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ノッチなし待機表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ohne Notch (Inaktiv)" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Écran sans encoche" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sin notch en reposo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Sin notch en reposo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sem notch (ocioso)" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Sem notch (inativo)" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Senza notch a riposo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "노치 없음 대기 상태" } }
+      }
+    },
+    "OLED Keyline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "OLED Keyline" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "OLED 描边光环" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "OLED 描邊光環" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "OLED キーライン" } },
+        "de": { "stringUnit": { "state": "translated", "value": "OLED-Kontur" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Contour OLED" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Contorno OLED" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Contorno OLED" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Contorno OLED" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Contorno OLED" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Bordo OLED" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "OLED 외곽선" } }
+      }
+    },
+    "Open Playground": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open Playground" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开实验场" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "打開實驗場" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "プレイグラウンドを開く" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Spielplatz öffnen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrir le terrain d'essai" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abrir pruebas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Abrir pruebas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Abrir testes" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Abrir testes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Apri area di prova" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "플레이그라운드 열기" } }
+      }
+    },
+    "Suite": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Suite" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "百宝箱" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "百寶箱" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スイート" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Suite" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Suite" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Suite" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Suite" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Suíte" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Suíte" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Suite" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스위트" } }
+      }
+    },
+    "Touch Optimization": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Touch Optimization" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "触控优化" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "觸控優化" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "タッチ最適化" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Touch-Optimierung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Optimisation tactile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Optimización táctil" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Optimización táctil" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Otimização por toque" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Otimização por toque" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ottimizzazione touch" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "터치 최적화" } }
+      }
+    },
+    "Wide Bar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Wide Bar" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "宽条模式" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "寬條模式" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ワイドバー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Breite Leiste" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Barre large" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Barra ancha" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Barra ancha" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Barra larga" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Barra larga" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Barra larga" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "와이드 바" } }
+      }
     }
   },
   "version": "1.0"

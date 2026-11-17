@@ -7,6 +7,7 @@ import SwiftUI
 struct LiveIslandSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @Environment(\.settingsStageVisible) private var stageVisible
+    @State private var showPlayground = false
 
     var body: some View {
         // Rule 8: the preview above the rows is a demo, and it says so. The notch page is not signed
@@ -34,10 +35,52 @@ struct LiveIslandSettingsBlock: View {
                 Picker("Notch Style", selection: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) })) {
                     Text("Full").tag(LiveIslandSkin.boring)
                     Text("Compact").tag(LiveIslandSkin.classic)
+                    Text("Dynamic Island").tag(LiveIslandSkin.dynamicIsland)
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
             .help(Text("Full uses a multi-panel layout; Compact uses a simpler player card."))
+            if store.notchSkin == .dynamicIsland {
+                SettingsDivider()
+                SettingsRow(Text("Touch Optimization")) {
+                    Picker(
+                        "Touch Optimization",
+                        selection: Binding(get: { store.islandTouchMode }, set: { store.setIslandTouchMode($0) })
+                    ) {
+                        Text("Automatic").tag(IslandTouchModeSetting.automatic)
+                        Text("Always On").tag(IslandTouchModeSetting.alwaysOn)
+                        Text("Off").tag(IslandTouchModeSetting.off)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsRow(Text("Non-Notch Idle")) {
+                    Picker(
+                        "Non-Notch Idle",
+                        selection: Binding(get: { store.islandNonNotchBehavior }, set: { store.setIslandNonNotchBehavior($0) })
+                    ) {
+                        Text("Floating Pill").tag(IslandNonNotchIdleBehavior.compactPill)
+                        Text("Auto-Hide").tag(IslandNonNotchIdleBehavior.autoHideAtRest)
+                        Text("Wide Bar").tag(IslandNonNotchIdleBehavior.wideBarAtRest)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("OLED Keyline"),
+                    isOn: Binding(get: { store.islandKeylineEnabled }, set: { store.setIslandKeylineEnabled($0) })
+                )
+                SettingsDivider()
+                SettingsRow(Text("Island Playground")) {
+                    Button(String(localized: "Open Playground")) {
+                        showPlayground = true
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .sheet(isPresented: $showPlayground) {
+                    IslandPlaygroundSheet(store: store)
+                }
+            }
             SettingsDivider()
             NotchAnimationPicker()
             SettingsDivider()
@@ -516,5 +559,135 @@ private struct NotchDisplayRows: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in screens = NSScreen.screens }
+    }
+}
+
+private struct IslandPlaygroundSheet: View {
+    @ObservedObject var store: AppSettingsStore
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var bridge = IslandLiveBridge()
+    @State private var simulatedTopology = "m5_oled"
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Island Playground")
+                    .font(.headline)
+                Spacer()
+                Button(String(localized: "Close")) {
+                    bridge.clearPlayground()
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+
+            // Simulated screen backdrop + interactive Dynamic Island stage
+            ZStack(alignment: .top) {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: simulatedTopology == "m5_oled"
+                                ? [Color.black, Color(white: 0.08)]
+                                : [Color(red: 0.1, green: 0.14, blue: 0.24), Color(red: 0.05, green: 0.06, blue: 0.1)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                IslandSurfaceView(driver: bridge.driver, registry: bridge.registry) {
+                    Text(verbatim: "KatiKati Bento Suite")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 54)
+                }
+            }
+            .frame(width: 520, height: 220)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            HStack(spacing: 8) {
+                Picker(selection: $simulatedTopology) {
+                    Text(verbatim: "M5 OLED Touch").tag("m5_oled")
+                    Text(verbatim: "M1-M4 Notch").tag("classic_notch")
+                    Text(verbatim: "External Display").tag("external")
+                } label: {
+                    Text(verbatim: "Topology")
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: simulatedTopology) { _, next in
+                    applyTopology(next)
+                }
+            }
+
+            HStack(spacing: 8) {
+                Button { bridge.runPlayground(.singleTimer) } label: { Text(verbatim: "Timer") }
+                Button { bridge.runPlayground(.splitMusicAndTimer) } label: { Text(verbatim: "Split (Music + Timer)") }
+                Button { bridge.runPlayground(.downloadAlert) } label: { Text(verbatim: "Download Alert") }
+                Button { bridge.runPlayground(.aiAgentAndCall) } label: { Text(verbatim: "AI Agent + Call") }
+                Button { bridge.runPlayground(.etaDelivery) } label: { Text(verbatim: "ETA Template") }
+            }
+            .buttonStyle(.bordered)
+
+            HStack(spacing: 8) {
+                Button { bridge.driver.store.expand() } label: { Text(verbatim: "Expand") }
+                Button { bridge.driver.store.collapse() } label: { Text(verbatim: "Collapse") }
+                Button { bridge.clearPlayground() } label: { Text(verbatim: "Reset Idle") }
+                Spacer()
+                Text(verbatim: "Tip: drag down from pill to test 1:1 rubber-banding")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.borderless)
+        }
+        .padding(18)
+        .frame(width: 560)
+        .onAppear {
+            applyTopology(simulatedTopology)
+            bridge.runPlayground(.splitMusicAndTimer)
+        }
+    }
+
+    private func applyTopology(_ id: String) {
+        let topology: IslandDisplayTopology
+        switch id {
+        case "m5_oled":
+            topology = IslandDisplayTopology.resolve(
+                screenWidth: 1728,
+                screenHeight: 1117,
+                safeAreaTop: 46,
+                auxLeftWidth: 798,
+                auxRightWidth: 798,
+                menuBarHeight: 46,
+                isBuiltinDisplay: true,
+                isOLED: true,
+                supportsMultiTouch: true
+            )
+        case "classic_notch":
+            topology = IslandDisplayTopology.resolve(
+                screenWidth: 1728,
+                screenHeight: 1117,
+                safeAreaTop: 38,
+                auxLeftWidth: 760,
+                auxRightWidth: 760,
+                menuBarHeight: 38,
+                isBuiltinDisplay: true,
+                isOLED: false,
+                supportsMultiTouch: false
+            )
+        default:
+            topology = IslandDisplayTopology.resolve(
+                screenWidth: 2560,
+                screenHeight: 1440,
+                safeAreaTop: 0,
+                auxLeftWidth: nil,
+                auxRightWidth: nil,
+                menuBarHeight: 24,
+                isBuiltinDisplay: false,
+                isOLED: false,
+                supportsMultiTouch: false
+            )
+        }
+        let touch = topology.isTouchOptimized(setting: store.islandTouchMode)
+        bridge.driver.stageWidth = 520
+        bridge.driver.keylineSetting = topology.keylineSetting(userEnabled: store.islandKeylineEnabled)
+        bridge.driver.updateDisplayTopology(topology, touchEnabled: touch, nonNotchBehavior: store.islandNonNotchBehavior)
     }
 }

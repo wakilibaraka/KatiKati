@@ -34,15 +34,27 @@ enum NotchGeometry {
     /// The original single-row panel's open size (the `classic` skin).
     static let classicOpenSize = CGSize(width: 480, height: 142.5)
 
+    static let dynamicIslandOpenSize = CGSize(width: 480, height: 180)
+    static let dynamicIslandPreviewSize = CGSize(width: 480, height: 180)
+
     static func openSize(for skin: LiveIslandSkin) -> CGSize {
-        skin == .boring ? openSize : classicOpenSize
+        switch skin {
+        case .boring: return openSize
+        case .classic: return classicOpenSize
+        case .dynamicIsland: return dynamicIslandOpenSize
+        }
     }
 
     /// Silhouette the Settings/guide demo draws: the skin's open panel, or the closed capsule.
     static func previewSize(for skin: LiveIslandSkin, expanded: Bool) -> CGSize {
-        expanded
-            ? openSize(for: skin)
-            : CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight)
+        guard expanded else {
+            return CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight)
+        }
+        switch skin {
+        case .boring: return openSize
+        case .classic: return classicOpenSize
+        case .dynamicIsland: return dynamicIslandPreviewSize
+        }
     }
     /// Extra width the closed notch grows by on each side to show the live activity.
     static let sneakSide: CGFloat = 64

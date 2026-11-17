@@ -16,6 +16,7 @@ final class NotchModel: ObservableObject {
     @Published var isOpen = false
     @Published var event: LiveEventPresentation?
     @Published var skin: LiveIslandSkin = .boring
+    @Published var islandBridge: IslandLiveBridge?
     /// 0...1 lift of the music glow; the controller sets 1 on a track change and eases it back (50d).
     @Published var glowBoost = 0.0
     @Published var tab: NotchTab = .home
@@ -112,6 +113,23 @@ struct NotchIslandView: View {
     private static let closedFade = AnyTransition.opacity
 
     var body: some View {
+        if model.skin == .dynamicIsland, let bridge = model.islandBridge {
+            let resolution = NotchTheme.resolve(
+                hasHardwareNotch: metrics.hasHardwareNotch,
+                tintsPlate: !metrics.hasHardwareNotch,
+                tokens: DockThemeStyleTokens.resolve(style: .obsidianDark, appearance: .dark)
+            )
+            IslandSurfaceView(driver: bridge.driver, registry: bridge.registry, themeResolution: resolution) {
+                NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                    .frame(maxWidth: .infinity, maxHeight: 140)
+            }
+        } else {
+            legacyNotchBody
+        }
+    }
+
+    @ViewBuilder
+    private var legacyNotchBody: some View {
         let expanded = model.isExpanded
         let activity = feed.activity
         let style = NotchOpenAnimation(rawValue: openAnimation) ?? .boring
