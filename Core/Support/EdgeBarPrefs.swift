@@ -410,6 +410,49 @@ enum SideDeckBadges {
     static func stagedShelfCount(_ items: [TendederoItem]) -> Int { items.count }
 }
 
+/// OW-1 (behavior ported from `alztrk/OpenWidget`, MIT — see NOTICE): the deck's HUD has two densities.
+/// `.compactSingleLine` folds the stack into one horizontal row of live readings; `.expanded` is the pane
+/// as it was. Stored, so the choice survives a relaunch.
+enum WidgetHUDDensityMode: String, CaseIterable, Sendable {
+    case expanded
+    case compactSingleLine
+
+    static let defaultsKey = "com.katikati.deck.hudDensity"
+
+    var isCompact: Bool { self == .compactSingleLine }
+    var toggled: WidgetHUDDensityMode { isCompact ? .expanded : .compactSingleLine }
+
+    /// The button that switches to the other density.
+    var toggleSymbol: String { isCompact ? "rectangle.expand.vertical" : "rectangle.compress.vertical" }
+
+    /// An empty or stale stored value reads as the pane the owner already knows.
+    static func parse(_ raw: String?) -> WidgetHUDDensityMode {
+        guard let raw, let mode = WidgetHUDDensityMode(rawValue: raw) else { return .expanded }
+        return mode
+    }
+}
+
+/// OW-1: three text steps for widget labels. A factor, not a point size, so each widget scales from its own
+/// base; `.regular` is exactly 1.0, so nothing moves unless the owner asks for it.
+enum WidgetTextScale: Double, CaseIterable, Sendable {
+    case small = 0.9
+    case regular = 1.0
+    case large = 1.15
+
+    static let defaultsKey = "com.katikati.deck.textScale"
+
+    var factor: Double { rawValue }
+
+    /// Rounded, so a 11 pt label is 10 / 11 / 13 — never a half point on a non-Retina edge.
+    func scaled(_ size: CGFloat) -> CGFloat { (size * CGFloat(rawValue)).rounded() }
+
+    /// Nearest step to whatever was stored: a hand-edited 1.3 lands on 1.15 instead of being rejected.
+    static func parse(_ raw: Double?) -> WidgetTextScale {
+        guard let raw else { return .regular }
+        return allCases.min { abs($0.rawValue - raw) < abs($1.rawValue - raw) } ?? .regular
+    }
+}
+
 /// SD-2: ↑/↓ selection in the deck. Pure, so the wrap and the clamping are tested without a window.
 struct SideDeckSelection: Equatable, Sendable {
     private(set) var index = 0

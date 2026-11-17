@@ -30153,6 +30153,23 @@
         }
       }
     },
+    "Expand": {
+      "comment": "Edge deck · compact HUD",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "展开" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Expand" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "展開" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "展開" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Erweitern" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Développer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Expandir" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Expandir" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Expandir" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Expandir" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Espandi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "펼치기" } }
+      }
+    },
     "Expand Snippets Anywhere": {
       "extractionState": "manual",
       "localizations": {
@@ -86030,6 +86047,23 @@
             "value": "텍스트"
           }
         }
+      }
+    },
+    "Text Size": {
+      "comment": "Edge deck · widget label size",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "字号" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Text Size" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "字號" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "文字サイズ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Textgröße" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Taille du texte" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tamaño del texto" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Tamaño del texto" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tamanho do texto" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tamanho do texto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Dimensione testo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "텍스트 크기" } }
       }
     },
     "Text Snippets": {

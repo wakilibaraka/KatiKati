@@ -301,21 +301,85 @@ private struct WindowDrawerView: View {
     @ObservedObject var controller: WindowDrawerController
     @ObservedObject private var mirror = NotificationMirrorService.shared
     @ObservedObject private var shelf = TendederoClotheslineController.shared
+    @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
     @AppStorage(SideDeckPrefs.pinKey) private var pinned = false
+    // OW-1: the HUD's two densities and the label scale live in `WidgetHUDDensityMode` / `WidgetTextScale`.
+    @AppStorage(WidgetHUDDensityMode.defaultsKey) private var densityRaw = WidgetHUDDensityMode.expanded.rawValue
+    @AppStorage(WidgetTextScale.defaultsKey) private var textScaleRaw = WidgetTextScale.regular.rawValue
+    @State private var holdsMonitor = false
     @FocusState private var searchFocused: Bool
+
+    private var density: WidgetHUDDensityMode { WidgetHUDDensityMode.parse(densityRaw) }
+    private var textScale: WidgetTextScale { WidgetTextScale.parse(textScaleRaw) }
 
     var body: some View {
         VStack(spacing: 0) {
             searchBar
-            HStack(spacing: 0) {
-                rail
-                Divider()
-                content
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            if density.isCompact {
+                compactStrip
+            } else {
+                HStack(spacing: 0) {
+                    rail
+                    Divider()
+                    content
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
         }
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .onAppear { searchFocused = true }
+        .onAppear {
+            searchFocused = true
+            syncMonitorHold()
+        }
+        .onChange(of: densityRaw) { _ in syncMonitorHold() }
+        .onDisappear { releaseMonitorHold() }
+    }
+
+    /// Compact needs readings, and readings cost a 1 s timer: hold it only while the strip is on screen.
+    private func syncMonitorHold() {
+        if density.isCompact, !holdsMonitor {
+            monitor.acquire()
+            holdsMonitor = true
+        } else if !density.isCompact {
+            releaseMonitorHold()
+        }
+    }
+
+    private func releaseMonitorHold() {
+        guard holdsMonitor else { return }
+        monitor.release()
+        holdsMonitor = false
+    }
+
+    /// OW-1: the whole stack as one line — the same live readings the pane shows, at the owner's text step.
+    /// A missing reading is left out rather than drawn as a zero.
+    private var compactStrip: some View {
+        let s = monitor.snapshot
+        let size = textScale.scaled(11)
+        let unread = SideDeckBadges.unreadNotificationCount(mirror.historyStore.entries)
+        let staged = SideDeckBadges.stagedShelfCount(shelf.store.items)
+        return HStack(spacing: 12) {
+            reading("cpu", SystemMonitorFormat.percent(s.cpu), size: size)
+            reading("memorychip", SystemMonitorFormat.percent(s.memory.fraction), size: size)
+            reading("arrow.down", SystemMonitorFormat.bytes(s.down) + "/s", size: size)
+            if unread > 0 { reading("bell.fill", "\(unread)", size: size) }
+            if staged > 0 { reading("tray.full", "\(staged)", size: size) }
+            Spacer(minLength: 0)
+        }
+        .lineLimit(1)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func reading(_ symbol: String, _ value: String, size: CGFloat) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: symbol).font(.system(size: max(9, textScale.scaled(10))))
+            Text(verbatim: value)
+        }
+        .font(.system(size: size, weight: .medium, design: .rounded).monospacedDigit())
+        .foregroundStyle(.secondary)
+        .accessibilityElement(children: .combine)
     }
 
     /// SD-2: one field for every tab. Its placeholder is the pure tab helper, so it always names what
@@ -333,10 +397,37 @@ private struct WindowDrawerView: View {
                 .buttonStyle(.plain)
                 .help(Text("Clear"))
             }
+            // OW-1: fold the stack into one line, and pick the label step the strip draws at.
+            Button { densityRaw = density.toggled.rawValue } label: {
+                Image(systemName: density.toggleSymbol).font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help(density.isCompact ? Text("Expand") : Text("Compact"))
+            Menu {
+                ForEach(WidgetTextScale.allCases, id: \.self) { scale in
+                    Button { textScaleRaw = scale.rawValue } label: { textScaleTitle(scale) }
+                }
+            } label: {
+                Image(systemName: "textformat.size").font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(Text("Text Size"))
         }
         .padding(.horizontal, 10).padding(.vertical, 7)
         .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.06)))
         .padding(.horizontal, 10).padding(.vertical, 8)
+    }
+
+    private func textScaleTitle(_ scale: WidgetTextScale) -> Text {
+        switch scale {
+        case .small: return Text("Small")
+        case .regular: return Text("Medium")
+        case .large: return Text("Large")
+        }
     }
 
     @ViewBuilder private var content: some View {

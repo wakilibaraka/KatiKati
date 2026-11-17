@@ -416,6 +416,29 @@ final class SideDeckLogicTests: XCTestCase {
         XCTAssertEqual(selection.index, 0)
     }
 
+    // MARK: HUD density and text scale (slice OW-1)
+
+    func testHUDDensityDefaultsToExpandedAndToggles() {
+        XCTAssertEqual(WidgetHUDDensityMode.parse(nil), .expanded)
+        XCTAssertEqual(WidgetHUDDensityMode.parse(""), .expanded)
+        XCTAssertEqual(WidgetHUDDensityMode.parse("sideways"), .expanded)
+        XCTAssertEqual(WidgetHUDDensityMode.parse("compactSingleLine"), .compactSingleLine)
+        XCTAssertTrue(WidgetHUDDensityMode.compactSingleLine.isCompact)
+        XCTAssertFalse(WidgetHUDDensityMode.expanded.isCompact)
+        XCTAssertEqual(WidgetHUDDensityMode.expanded.toggled, .compactSingleLine)
+        XCTAssertEqual(WidgetHUDDensityMode.compactSingleLine.toggled, .expanded)
+    }
+
+    func testTextScaleParsesToTheNearestStepAndRoundsSizes() {
+        XCTAssertEqual(WidgetTextScale.parse(nil), .regular)
+        XCTAssertEqual(WidgetTextScale.parse(0.92), .small)
+        XCTAssertEqual(WidgetTextScale.parse(1.3), .large)
+        XCTAssertEqual(WidgetTextScale.regular.factor, 1.0)
+        XCTAssertEqual(WidgetTextScale.small.scaled(11), 10)
+        XCTAssertEqual(WidgetTextScale.regular.scaled(11), 11)
+        XCTAssertEqual(WidgetTextScale.large.scaled(11), 13)
+    }
+
     // MARK: Dictionary / Terminal are modules (slice DI-1)
 
     func testDictionaryAndTerminalAreOneSectionEach() {

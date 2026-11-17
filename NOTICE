@@ -54,7 +54,13 @@ This project is derived from and incorporates code from the following works:
 - License: MIT License
 - Description: Ideas and rules re-implemented in compact form for the edge deck's productivity buttons: to-do list and one-at-a-time time tracker (`Core/Support/TaskList.swift`), clipboard history rules — normalisation, growing-text merge, one-line preview (`ClipboardHistory.swift`), and the window-snapper zone table with the Accessibility move sequence (`WindowSnap.swift`, `Platform/Windows/WindowSnapService.swift`). Hop's reminders, estimates, image/file clipboard, markup, converters and other modules are not used.
 
-## 10. LaunchNow (launcher features — ideas studied, code written fresh)
+## 10. OpenWidget (behavior ported, MIT)
+- Repository: https://github.com/alztrk/OpenWidget
+- Copyright (c) alztrk
+- License: MIT License
+- Description: Behavioral source for three small KatiKati slices, re-implemented natively in Swift rather than copied: the compact single-line HUD density and three-step widget text scale (`Core/Support/EdgeBarPrefs.swift` — `WidgetHUDDensityMode`, `WidgetTextScale`), the fullscreen/low-power telemetry throttling policy (`TelemetryPollingPolicy` in `Core/Support/SystemMonitorMath.swift`) and the scratchpad/rig-inventory card shape (`ScratchpadStore`, `MacRigSpecSnapshot`). None of OpenWidget's code, assets or project files are included; the screens are written in KatiKati's own SwiftUI/AppKit stack.
+
+## 11. LaunchNow (launcher features — ideas studied, code written fresh)
 - Repository: https://github.com/ggkevinnnn/LaunchNow
 - License: GNU General Public License v3.0 (GPL-3.0)
 - Description: A Launchpad alternative. Its feature set (hidden apps, drag-to-reorder, keyboard page turning, layout reset) informed the KatiKati launcher.
