@@ -131,8 +131,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .tilingFocusNext, .tilingFocusPrevious,
              .tilingSwapNext, .tilingSwapPrevious,
              .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return .off
-        // Phase 31 radial dial: off by default, user assigns
-        case .radialDial, .radialDialSnap, .radialDialTools: return .off
+        // Phase 31 radial dial: ⌃⌥R by default for main dial, sub-page shortcuts off by default
+        case .radialDial: return .key(ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
         case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate, .dockFocus: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))

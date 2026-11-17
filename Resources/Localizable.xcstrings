@@ -100115,101 +100115,6 @@
         }
       }
     },
-    "You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "يمكنك أيضاً استدعاء القرص الدائري باستخدام الاختصار المعين في قسم الاختصارات أعلاه."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sie können das Radial-Zifferblatt auch mit dem oben im Abschnitt „Kurzbefehle“ zugewiesenen Kurzbefehl aufrufen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "También puedes invocar el dial radial con el atajo asignado en la sección Atajos arriba."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "También puedes invocar el dial radial con el atajo asignado en la sección Atajos arriba."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous pouvez également afficher le cadran radial avec le raccourci assigné dans la section Raccourcis ci-dessus."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puoi anche visualizzare il quadrante radiale con la combinazione di tasti assegnata nella sezione Scorciatoie sopra."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上記の「ショートカット」セクションで割り当てたショートカットでもラジアルダイヤルを呼び出せます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "위의 단축키 섹션에서 지정한 단축키로도 방사형 다이얼을 불러올 수 있습니다."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "U kunt de radiale draaiknop ook oproepen met de sneltoets die hierboven in het gedeelte Sneltoetsen is toegewezen."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Você também pode exibir o mostrador radial com o atalho atribuído na seção Atalhos acima."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Também pode exibir o mostrador radial com o atalho atribuído na secção Atalhos acima."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вы также можете вызывать радиальное меню с помощью сочетания клавиш, назначенного в разделе «Сочетания клавиш» выше."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "您也可以使用上方「快捷键」部分分配的快捷键呼出径向表盘。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "您也可以使用上方「快捷鍵」部分分配的快捷鍵呼叫徑向輪盤。"
-          }
-        }
-      }
-    },
     "You can change this later in Settings › Notch.": {
       "extractionState": "manual",
       "localizations": {
@@ -124044,6 +123949,23 @@
         "pt-PT": {"stringUnit": {"state": "translated", "value": "Digitalizar texto"}},
         "it": {"stringUnit": {"state": "translated", "value": "Scansiona testo"}},
         "ko": {"stringUnit": {"state": "translated", "value": "텍스트 스캔"}}
+      }
+    },
+    "Keyboard Shortcut": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Keyboard Shortcut"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "键盘快捷键"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "鍵盤快捷鍵"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "キーボードショートカット"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Tastaturkurzbefehl"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Raccourci clavier"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Atajo de teclado"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Atajo de teclado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Atalho de teclado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Atalho de teclado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scorciatoia da tastiera"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "키보드 단축키"}}
       }
     }
   },

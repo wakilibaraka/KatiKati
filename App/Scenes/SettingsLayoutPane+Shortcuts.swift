@@ -339,16 +339,18 @@ extension SettingsLayoutPane {
     /// The Radial Dial page (split from Shortcuts, upgraded in SLICE RD-2 with slice customizer & triggers).
     @ViewBuilder
     var radialDialSections: some View {
-        SettingsCard(
-            Text("Radial Dial"),
-            note: Text("You can also summon the Radial Dial with the shortcut assigned in the Shortcuts section above.")
-        ) {
+        let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
+        SettingsCard(Text("Radial Dial")) {
             SettingsToggleRow(
                 Text("Enable Radial Dial"),
                 isOn: $dialEnabled,
                 info: String(localized: "Summons a circular pie menu at your cursor for lightning-fast window snapping, app launching, and quick actions with spring physics.")
             )
             if dialEnabled {
+                SettingsDivider()
+                SettingsRow(Text("Keyboard Shortcut")) {
+                    shortcutControls(.radialDial, duplicated: duplicated)
+                }
                 SettingsDivider()
                 SettingsRowPair(
                     left: {
@@ -469,18 +471,23 @@ extension SettingsLayoutPane {
     /// match every other page (`Docs/SETTINGS.md` rules 3 and 6).
     func shortcutRow(_ action: ShortcutAction, duplicated: Set<ShortcutAction>) -> some View {
         SettingsRow(Text(verbatim: Self.shortcutActionName(action))) {
-            HStack(spacing: SettingsMetrics.controlSpacing) {
-                if case .warn(let why) = ShortcutValidator.check(store.shortcutBindings[action] ?? .off, for: action, among: store.shortcutBindings) {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                        .help(Text(verbatim: why))
-                } else if duplicated.contains(action) {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                        .help(Text("Another action uses the same shortcut"))
-                }
-                ShortcutFailureIcon(action: action)
-                shortcutPicker(action)
-                ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
+            shortcutControls(action, duplicated: duplicated)
+        }
+    }
+
+    /// Reusable trailing shortcut controls: conflict warning, registration status, menu picker, and Record button.
+    func shortcutControls(_ action: ShortcutAction, duplicated: Set<ShortcutAction>) -> some View {
+        HStack(spacing: SettingsMetrics.controlSpacing) {
+            if case .warn(let why) = ShortcutValidator.check(store.shortcutBindings[action] ?? .off, for: action, among: store.shortcutBindings) {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                    .help(Text(verbatim: why))
+            } else if duplicated.contains(action) {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                    .help(Text("Another action uses the same shortcut"))
             }
+            ShortcutFailureIcon(action: action)
+            shortcutPicker(action)
+            ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
         }
     }
 

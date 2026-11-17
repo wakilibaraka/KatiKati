@@ -278,4 +278,16 @@ final class RadialDialGeometryTests: XCTestCase {
         XCTAssertGreaterThan(measuredHeight, 200)
         XCTAssertLessThanOrEqual(measuredHeight, 1074, "Radial Dial Settings pane height (\(measuredHeight) pt) must stay <= 1074 pt")
     }
+
+    func testRadialDialDefaultKeyboardShortcut() {
+        let expected = ShortcutTrigger.key(ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option))
+        XCTAssertEqual(ShortcutAction.radialDial.defaultTrigger, expected)
+        if case .key(let key) = ShortcutAction.radialDial.defaultTrigger {
+            XCTAssertEqual(key.glyphs, "⌃⌥R")
+        } else {
+            XCTFail("Expected key trigger for radialDial")
+        }
+        let defaults = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map { ($0, $0.defaultTrigger) })
+        XCTAssertEqual(ShortcutValidator.check(expected, for: .radialDial, among: defaults), .ok)
+    }
 }
