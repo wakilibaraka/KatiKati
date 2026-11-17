@@ -37,6 +37,9 @@ All notable changes to KatiKati are documented in this file.
   teal fill instead of going white.
 
 ### Changed
+- **Slices ship on green (standing rule 9).** Every slice is committed and pushed as it finishes — Core plus its
+  targeted test run first, then the UI half plus the localization gate — and plan or rule edits travel in the
+  same pass, so `origin/main` always holds the last verified slice.
 - **Search ranks like a launcher should** (⌥Space and the command bar): one matcher now scores every app, window
   and menu row by nanolight's tiers — the whole name first, then the name's start, a word's start, the words'
   initials (`vsc` finds Visual Studio Code), the query anywhere inside, then letters merely in order — and small

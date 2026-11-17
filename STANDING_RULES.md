@@ -70,6 +70,13 @@
    never only retroactively at slice end, so the owner can follow progress line by
    line. A step without a note is an unfinished step.
 
+9. **Slices land on green, on the remote (owner 2026-11-17).** A slice exists nowhere
+   until it is committed **and pushed**. The order is fixed: pure Core + its targeted
+   `-only-testing:` run → commit → push; then the UI half → the localization/gate run →
+   commit → push. Every plan edit (`HYBRID_PLAN.md` slice note, rule change) travels in
+   the same pass, so `origin/main` always holds the last verified slice. A green commit
+   that is still local is an unfinished step, exactly like a step without a note (§1.8).
+
 
 ## 2. Architecture invariants (HYBRID_PLAN §§3–4)
 
