@@ -336,15 +336,15 @@
     "semantic_hash": "929476631486ebc331fbc2a812aea63a"
   },
   "App/Composition/PinnedFolderCoverStore.swift": {
-    "mtime": 1793828839.9145389,
-    "seen": 1793829921.514484,
-    "ast_hash": "a7577336f86655fb63d5dd91b45b1ed0",
+    "mtime": 1794910474.405168,
+    "seen": 1794910722.0206609,
+    "ast_hash": "c11f16b7163a7988cf8fd0b7a2e06e54",
     "semantic_hash": ""
   },
   "App/Composition/PinnedFolderStore.swift": {
-    "mtime": 1793829645.9224167,
-    "seen": 1793829921.514486,
-    "ast_hash": "8bb80c9553f5073d2c91b0532dccba9d",
+    "mtime": 1794910467.1015596,
+    "seen": 1794910722.020662,
+    "ast_hash": "93fdc68811b91c70cf11e56b5d5d8f51",
     "semantic_hash": ""
   },
   "App/Composition/ProcessLister.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1794907187.3422177,
-    "seen": 1794907911.457658,
-    "ast_hash": "b299abe57a869ddc7c01ae03e28a69e6",
+    "mtime": 1794910478.9321988,
+    "seen": 1794910722.0206919,
+    "ast_hash": "946b2f57c82fec933024bde1758729ce",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1794865963.1816273,
-    "seen": 1794866106.348643,
-    "ast_hash": "da1b36c701dff8dd2e859f34f5dfae39",
+    "mtime": 1794910480.887615,
+    "seen": 1794910722.0207071,
+    "ast_hash": "2c94b1b7a4bd7a33a2d2d096f1a045a9",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1794909795.6509485,
-    "seen": 1794910096.369324,
-    "ast_hash": "98bcb8a71639eec382ada21643bef7a0",
+    "mtime": 1794910493.4274745,
+    "seen": 1794910722.0207412,
+    "ast_hash": "b21a236b1ca355c03036bc08ee1c991e",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1086,10 +1086,10 @@
     "semantic_hash": "a91aa33dc9a4a7125d32f3757ca408c8"
   },
   "App/Scenes/PinnedFolderChip.swift": {
-    "mtime": 1792090570.0178413,
-    "seen": 1792295707.060483,
-    "ast_hash": "c8629f812098d1bd3004a982895bd967",
-    "semantic_hash": "c8629f812098d1bd3004a982895bd967"
+    "mtime": 1794910490.263038,
+    "seen": 1794910722.0208042,
+    "ast_hash": "7edcc71362061491d22008a55e5d8f74",
+    "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialCenterHub.swift": {
     "mtime": 1792445422.0085917,
@@ -1854,9 +1854,9 @@
     "semantic_hash": "9c73f11229ab321d6891c37ea5073678"
   },
   "Core/Support/FolderContentsLoader.swift": {
-    "mtime": 1793829439.9919124,
-    "seen": 1793829921.515085,
-    "ast_hash": "d05862759ba7decb3f60a1c7bfdc6f32",
+    "mtime": 1794910380.8765755,
+    "seen": 1794910722.02095,
+    "ast_hash": "91b28a6ce7882ba0421e06da72d453a6",
     "semantic_hash": ""
   },
   "Core/Support/FolderDropPlan.swift": {
@@ -3396,9 +3396,9 @@
     "semantic_hash": "3613393d4b45e4874c211e9ec5abfe3a"
   },
   "Tests/Unit/DownloadActivityTests.swift": {
-    "mtime": 1793829458.9056098,
-    "seen": 1793829921.515648,
-    "ast_hash": "2031fba6f59f089d2b62d3653f9cd4de",
+    "mtime": 1794910383.4814432,
+    "seen": 1794910722.0212202,
+    "ast_hash": "e08effb34589eadcd21fc39644e435ba",
     "semantic_hash": ""
   },
   "Tests/Unit/DownloadManagerTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1794909302.8153677,
-    "seen": 1794909452.5700018,
-    "ast_hash": "de6360bb0ce52475160ba5c45c65d5a8",
+    "mtime": 1794910531.1127791,
+    "seen": 1794910722.021527,
+    "ast_hash": "44a1809a1b0b242dc7e47ee1a93ee956",
     "semantic_hash": ""
   },
   "README.md": {
