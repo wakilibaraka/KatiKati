@@ -34515,6 +34515,23 @@
         }
       }
     },
+    "Game Mode • Throttled": {
+      "comment": "System flyout · telemetry throttled",
+      "localizations": {
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "游戏模式 · 已限频" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Game Mode • Throttled" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "遊戲模式 · 已限頻" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ゲームモード・制限中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Spielmodus · gedrosselt" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mode jeu · limité" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Modo juego · limitado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Modo juego · limitado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Modo jogo · limitado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Modo jogo · limitado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Modalità gioco · limitata" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "게임 모드 · 제한됨" } }
+      }
+    },
     "General": {
       "localizations": {
         "zh-Hans": {

@@ -8,7 +8,19 @@ struct SystemMonitorFlyoutView: View {
     var body: some View {
         let s = monitor.snapshot
         VStack(alignment: .leading, spacing: 12) {
-            Text("System").font(.headline)
+            HStack(spacing: 8) {
+                Text("System").font(.headline)
+                Spacer(minLength: 0)
+                // OW-2: the header says why the readings are moving slowly.
+                if monitor.isThrottled {
+                    Text("Game Mode • Throttled")
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Capsule().fill(Color.primary.opacity(0.08)))
+                        .help(Text("Telemetry slows down while a full-screen app or Low Power Mode is active."))
+                }
+            }
             meter(Text("CPU"), fraction: s.cpu, detail: SystemMonitorFormat.percent(s.cpu))
             meter(Text("Memory"), fraction: s.memory.fraction,
                   detail: "\(SystemMonitorFormat.bytes(Double(s.memory.used))) / \(SystemMonitorFormat.bytes(Double(s.memory.total)))")

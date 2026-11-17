@@ -228,5 +228,28 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(converted.formattedRAM, "4.0/16 GB RAM")
         XCTAssertEqual(converted.formattedDiskFree, "60 GB Free")
     }
+
+    // MARK: Telemetry throttling (slice OW-2)
+
+    func testDesktopCadenceStaysBetweenOneAndTwoSeconds() {
+        let decision = TelemetryPollingPolicy.decision(isFullscreenGame: false, isLowPowerMode: false)
+        XCTAssertEqual(decision.interval, 1)
+        XCTAssertFalse(decision.isThrottled)
+        XCTAssertEqual(TelemetryPollingPolicy.decision(isFullscreenGame: false, isLowPowerMode: false,
+                                                      desktopInterval: 5).interval, 2,
+                       "a caller cannot ask for a faster tick than the sampler allows")
+        XCTAssertEqual(TelemetryPollingPolicy.decision(isFullscreenGame: false, isLowPowerMode: false,
+                                                      desktopInterval: 0.2).interval, 1)
+    }
+
+    func testFullscreenOrLowPowerThrottlesToTenSeconds() {
+        let game = TelemetryPollingPolicy.decision(isFullscreenGame: true, isLowPowerMode: false)
+        XCTAssertEqual(game.interval, 10)
+        XCTAssertTrue(game.isThrottled)
+        let lowPower = TelemetryPollingPolicy.decision(isFullscreenGame: false, isLowPowerMode: true)
+        XCTAssertEqual(lowPower.interval, 10)
+        XCTAssertTrue(lowPower.isThrottled)
+        XCTAssertEqual(TelemetryPollingPolicy.decision(isFullscreenGame: true, isLowPowerMode: true).interval, 10)
+    }
 }
 

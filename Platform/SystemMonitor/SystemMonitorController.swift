@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 /// Drives the System monitor flyout. Lazy and ref-counted like `SystemStatusService`: the 1 s timer exists only
@@ -5,7 +6,10 @@ import Foundation
 @MainActor
 final class SystemMonitorController: ObservableObject {
     @Published private(set) var snapshot = SystemSnapshot()
+    /// OW-2: true while a full-screen app or Low Power Mode has the sampler on its slow cadence.
+    @Published private(set) var isThrottled = false
     private var timer: Timer?
+    private var currentInterval: TimeInterval = 1
     private var holders = 0
     private var lastCPU: CPUTicks?
     private var lastNet: NetCounters?
@@ -23,10 +27,31 @@ final class SystemMonitorController: ObservableObject {
         lastTime = Date()
         ticksSinceDiskStat = Self.diskStatIntervalTicks
         refresh()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
+        schedule(interval: currentInterval)
+    }
+
+    /// OW-2: the cadence is decided per tick, so a game going full screen (or Low Power Mode turning on)
+    /// slows the sampler without a restart, and leaving it brings the 1 s cadence straight back.
+    private func schedule(interval: TimeInterval) {
+        currentInterval = interval
+        timer?.invalidate()
+        let next = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.tick() }
         }
-        timer?.tolerance = 0.2
+        next.tolerance = min(0.2, interval * 0.1)
+        timer = next
+    }
+
+    private func tick() {
+        refresh()
+        let decision = TelemetryPollingPolicy.decision(
+            isFullscreenGame: TelemetryEnvironment.isFullscreenGame(),
+            isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
+        )
+        isThrottled = decision.isThrottled
+        if let interval = decision.interval, abs(interval - currentInterval) > 0.05 {
+            schedule(interval: interval)
+        }
     }
 
     func release() {
@@ -67,4 +92,30 @@ final class SystemMonitorController: ObservableObject {
     }
 
     deinit { timer?.invalidate() }
+}
+
+/// OW-2: the cheap "another app owns the screen" test, read once per polling tick — a frontmost regular app
+/// with a layer-0 window as tall as a screen. KatiKati itself never counts, so the badge only appears for a
+/// real game or full-screen app in front.
+enum TelemetryEnvironment {
+    static func isFullscreenGame() -> Bool {
+        guard let front = NSWorkspace.shared.frontmostApplication,
+              front.processIdentifier != ProcessInfo.processInfo.processIdentifier,
+              front.activationPolicy == .regular,
+              let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements],
+                                                       kCGNullWindowID) as? [[String: Any]]
+        else { return false }
+        let screenHeights = NSScreen.screens.map(\.frame.height)
+        for window in windows {
+            guard (window[kCGWindowOwnerPID as String] as? pid_t) == front.processIdentifier,
+                  (window[kCGWindowLayer as String] as? Int) == 0,
+                  let bounds = window[kCGWindowBounds as String] as? [String: Any],
+                  let height = (bounds["Height"] as? NSNumber)?.doubleValue,
+                  let width = (bounds["Width"] as? NSNumber)?.doubleValue,
+                  width > 600
+            else { continue }
+            if screenHeights.contains(where: { abs($0 - CGFloat(height)) < 2 }) { return true }
+        }
+        return false
+    }
 }

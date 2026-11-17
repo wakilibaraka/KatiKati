@@ -54,6 +54,30 @@ struct DiskUsage: Equatable, Sendable {
     var usedFraction: Double { total == 0 ? 0 : min(1, max(0, 1 - Double(free) / Double(total))) }
 }
 
+/// OW-2 (behavior ported from `alztrk/OpenWidget`, MIT — see NOTICE): how often the telemetry sampler may
+/// run. A full-screen app or Low Power Mode is a reason to stop asking the machine every second; the
+/// desktop cadence is the 1–2 s range the flyout was built on.
+enum TelemetryPollingPolicy {
+    struct Decision: Equatable, Sendable {
+        /// `nil` would mean stop polling; today both throttled inputs still read at the slow cadence.
+        var interval: TimeInterval?
+        var isThrottled: Bool
+    }
+
+    static let throttledInterval: TimeInterval = 10
+
+    /// `desktopInterval` is clamped to 1…2 s, so a caller cannot ask for a faster tick than the sampler
+    /// was designed for. Either throttled input wins over the desktop cadence.
+    static func decision(isFullscreenGame: Bool,
+                         isLowPowerMode: Bool,
+                         desktopInterval: TimeInterval = 1) -> Decision {
+        if isFullscreenGame || isLowPowerMode {
+            return Decision(interval: throttledInterval, isThrottled: true)
+        }
+        return Decision(interval: min(max(desktopInterval, 1), 2), isThrottled: false)
+    }
+}
+
 /// One refresh worth of numbers for the flyout.
 struct SystemSnapshot: Equatable, Sendable {
     var cpu: Double = 0
