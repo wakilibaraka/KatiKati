@@ -57,7 +57,7 @@ final class KeptAppStoreTests: XCTestCase {
 
     func testFreshInstallKeepsMailSafariSettingsAndMessagesAfterFinder() {
         let store = KeptAppStore(defaults: makeDefaults(finderSeeded: false))
-        store.seedDefaultAppsForFreshInstall(lineage: .pristine) { _ in true }
+        store.seedDefaultAppsForFreshInstall(lineage: .pristine, importsDockPins: false) { _ in true }
         XCTAssertEqual(store.bundleIDs, [FinderTaskbarPolicy.bundleID, "com.apple.mail", "com.apple.Safari", "com.apple.systempreferences", "com.apple.MobileSMS"])
     }
 

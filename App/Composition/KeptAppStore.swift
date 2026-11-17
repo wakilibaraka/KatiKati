@@ -86,12 +86,14 @@ final class KeptAppStore: ObservableObject {
 
     /// Fresh installs only (`InstallLineage`); upgraders never get them, and un-keeping one is never undone. Only apps
     /// that are installed on this Mac are added, in order, after what is already kept.
-    func seedDefaultAppsForFreshInstall(lineage: InstallLineage, isInstalled: (String) -> Bool) {
+    func seedDefaultAppsForFreshInstall(lineage: InstallLineage, importsDockPins: Bool = true,
+                                        isInstalled: (String) -> Bool) {
         guard lineage == .pristine else { return }
         for id in Self.freshInstallDefaultApps where isInstalled(id) { add(id) }
         // Slice B (OpenTaskbar behavior): a fresh install also starts from the system Dock's pins, so the bar
-        // looks like the Dock the user already arranged. Upgraders keep their own list.
-        importDockPins(isInstalled: isInstalled)
+        // looks like the Dock the user already arranged. Upgraders keep their own list. Tests pass false so the
+        // expectation does not depend on the Dock of the machine running them.
+        if importsDockPins { importDockPins(isInstalled: isInstalled) }
         logger.info("seeded default kept apps (fresh install)")
     }
 

@@ -43,6 +43,8 @@ final class BarProfileCommandTests: XCTestCase {
     func testDefineOffersTheTypedWord() {
         XCTAssertEqual(rows("define serendipity"), [.define("serendipity")])
         XCTAssertEqual(rows("def  Word "), [.define("Word")])
-        XCTAssertTrue(rows("define").isEmpty)
+        // A bare keyword is not a mode: it falls through to the search fallbacks, but must never become a
+        // definition of the literal word "define".
+        XCTAssertFalse(rows("define").contains { if case .define = $0 { return true } else { return false } })
     }
 }

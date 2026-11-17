@@ -264,7 +264,7 @@ final class BreatherScheduleEngineTests: XCTestCase {
     func testScratchpadCountsWordsAndCharacters() {
         let doc = ScratchpadDocument(text: "two words\nand a third")
         XCTAssertEqual(doc.wordCount, 5)
-        XCTAssertEqual(doc.characterCount, 18)
+        XCTAssertEqual(doc.characterCount, 21, "every character counts, the newline included")
         XCTAssertFalse(doc.isEmpty)
         XCTAssertTrue(ScratchpadDocument(text: "  \n ").isEmpty)
         XCTAssertEqual(ScratchpadStore.wordCount(in: ""), 0)
