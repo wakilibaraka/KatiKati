@@ -366,9 +366,9 @@
     "semantic_hash": "f6a9fc3326d65f1e3c167681c18ec1f2"
   },
   "App/Composition/RunningApplicationStore.swift": {
-    "mtime": 1794840021.6780326,
-    "seen": 1794840433.40989,
-    "ast_hash": "d0fb82238523b9b66925806fa1e50f2b",
+    "mtime": 1794909641.2185123,
+    "seen": 1794910096.369233,
+    "ast_hash": "b6510ed0de474894a7a8e212e968827c",
     "semantic_hash": ""
   },
   "App/Composition/SettingsCoordinator.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1794907471.8971758,
-    "seen": 1794907911.457705,
-    "ast_hash": "d3a178489a0af9257c415e9829e7578d",
+    "mtime": 1794909795.6509485,
+    "seen": 1794910096.369324,
+    "ast_hash": "98bcb8a71639eec382ada21643bef7a0",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1794882055.709857,
-    "seen": 1794882107.3281631,
-    "ast_hash": "004cad2bb0ac44e998b00a6f00e31a06",
+    "mtime": 1794909594.3533235,
+    "seen": 1794910096.36934,
+    "ast_hash": "1bff2379ca5adddaea808c339b9a77e5",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LauncherChip.swift": {
-    "mtime": 1794880699.910425,
-    "seen": 1794880980.6952388,
-    "ast_hash": "9f13d37ad069fd68602263ba654d375e",
+    "mtime": 1794909644.9275386,
+    "seen": 1794910096.369366,
+    "ast_hash": "45d30192701aaa3f88ceb0f8d8ffc671",
     "semantic_hash": ""
   },
   "App/Scenes/LauncherFABView.swift": {
@@ -2346,9 +2346,9 @@
     "semantic_hash": "be3a07fefbbda3b534c0d35e1a72aca8"
   },
   "Core/Support/StripWheelScroll.swift": {
-    "mtime": 1794904914.1734974,
-    "seen": 1794905888.1758358,
-    "ast_hash": "7e78e225b17aa12b645e10c7aa59ccbf",
+    "mtime": 1794909862.8926318,
+    "seen": 1794910096.369726,
+    "ast_hash": "1ea6ed876712b899882a92348bf712c9",
     "semantic_hash": ""
   },
   "Core/Support/SystemGaugeModel.swift": {
@@ -4146,9 +4146,9 @@
     "semantic_hash": "72dd00358dfa51bc9e99153d60acbf76"
   },
   "Tests/Unit/StripWheelScrollTests.swift": {
-    "mtime": 1794904964.6584136,
-    "seen": 1794905888.176787,
-    "ast_hash": "ef0f309c1d9b3bff346b598502a47fce",
+    "mtime": 1794909700.23545,
+    "seen": 1794910096.370114,
+    "ast_hash": "f24fbff55753f5cf98d5c317d1dc94c7",
     "semantic_hash": ""
   },
   "Tests/Unit/SyncPassSchedulerTests.swift": {
