@@ -2412,26 +2412,40 @@ private struct DockUtilitiesClusterView: View {
             .reportStripChipFrame(id: "pop", zone: .pop)
         case .screenshots:
             DockScreenshotsUtilityButton(dockScale: dockScale, isRail: isRail, onAnchoredTap: onScreenshotsTap)
+                .floatingContextMenu {
+                    DockUtilityMenuBuilder.menu(for: .screenshots, store: settingsStore, onOpen: onScreenshotsTap)
+                }
                 .reportStripChipFrame(id: "utility-screenshots", zone: .section)
         case .clipboard:
             DockClipboardUtilityButton(dockScale: dockScale, isRail: isRail, onAnchoredTap: onClipboardTap)
+                .floatingContextMenu {
+                    DockUtilityMenuBuilder.menu(for: .clipboard, store: settingsStore, onOpen: onClipboardTap)
+                }
                 .reportStripChipFrame(id: "utility-clipboard", zone: .section)
         case .dictionary:
-            if isRail {
-                RailDictionaryTile(dockScale: dockScale, onOpen: onDictionary)
-                    .reportStripChipFrame(id: "utility-dictionary", zone: .section)
-            } else {
-                DictionaryDockChip(dockScale: dockScale, onOpen: onDictionary)
-                    .reportStripChipFrame(id: "utility-dictionary", zone: .section)
+            Group {
+                if isRail {
+                    RailDictionaryTile(dockScale: dockScale, onOpen: onDictionary)
+                } else {
+                    DictionaryDockChip(dockScale: dockScale, onOpen: onDictionary)
+                }
             }
+            .floatingContextMenu {
+                DockUtilityMenuBuilder.menu(for: .dictionary, store: settingsStore, onOpen: onDictionary)
+            }
+            .reportStripChipFrame(id: "utility-dictionary", zone: .section)
         case .terminal:
-            if isRail {
-                RailTerminalTile(dockScale: dockScale, onOpen: onTerminal)
-                    .reportStripChipFrame(id: "utility-terminal", zone: .section)
-            } else {
-                TerminalDockChip(dockScale: dockScale, onOpen: onTerminal)
-                    .reportStripChipFrame(id: "utility-terminal", zone: .section)
+            Group {
+                if isRail {
+                    RailTerminalTile(dockScale: dockScale, onOpen: onTerminal)
+                } else {
+                    TerminalDockChip(dockScale: dockScale, onOpen: onTerminal)
+                }
             }
+            .floatingContextMenu {
+                DockUtilityMenuBuilder.menu(for: .terminal, store: settingsStore, onOpen: onTerminal)
+            }
+            .reportStripChipFrame(id: "utility-terminal", zone: .section)
         case .downloads:
             downloadsUtilityTile
         case .trash:
@@ -2472,6 +2486,11 @@ private struct DockUtilitiesClusterView: View {
                 label: "Downloads"
             ) {
                 onUnpinnedDownloadsTap(downloadsURL.path)
+            }
+            .floatingContextMenu {
+                DockUtilityMenuBuilder.menu(for: .downloads, store: settingsStore, downloadsPath: downloadsURL.path) {
+                    onUnpinnedDownloadsTap(downloadsURL.path)
+                }
             }
             .reportStripChipFrame(id: "utility-downloads", zone: .section)
         }

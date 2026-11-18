@@ -543,3 +543,47 @@ enum LiveIslandMenuBuilder {
         return menu
     }
 }
+
+enum DockUtilityMenuBuilder {
+    @MainActor
+    static func menu(
+        for kind: DockUtilityKind,
+        store: AppSettingsStore,
+        downloadsPath: String? = nil,
+        onOpen: @escaping () -> Void
+    ) -> NSMenu {
+        let menu = NSMenu()
+        switch kind {
+        case .screenshots:
+            menu.addItem(ClosureMenuItem(String(localized: "Capture Area")) { CaptureController.captureAreaToClipboard() })
+            menu.addItem(ClosureMenuItem(String(localized: "Open Screenshots")) { onOpen() })
+            menu.addItem(.separator())
+            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.screenshots, false) })
+        case .clipboard:
+            let monitor = ProductivityServices.shared.clipboard
+            if let latest = monitor.history.displayOrder.first {
+                menu.addItem(ClosureMenuItem(String(localized: "Paste Latest Plain")) { monitor.pastePlain(latest) })
+                menu.addItem(ClosureMenuItem(String(localized: "Clear Unpinned")) { monitor.clearAll(keepingPinned: true) })
+                menu.addItem(.separator())
+            }
+            menu.addItem(ClosureMenuItem(String(localized: "Open Clipboard")) { onOpen() })
+            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.clipboard, false) })
+        case .dictionary:
+            menu.addItem(ClosureMenuItem(String(localized: "Open Dictionary")) { onOpen() })
+            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.dictionary, false) })
+        case .terminal:
+            menu.addItem(ClosureMenuItem(String(localized: "Toggle Terminal")) { onOpen() })
+            menu.addItem(ClosureMenuItem(String(localized: "Hide Terminal")) { store.setDockUtilityVisible(.terminal, false) })
+        case .downloads:
+            if let path = downloadsPath {
+                menu.addItem(ClosureMenuItem(String(localized: "Open in Finder")) {
+                    NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
+                })
+            }
+            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.downloads, false) })
+        case .drawer, .trash:
+            break
+        }
+        return menu
+    }
+}
