@@ -2142,9 +2142,9 @@
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
-    "mtime": 1794847692.6998832,
-    "seen": 1794847806.270176,
-    "ast_hash": "d27c47620acc08cab38246a7554473bd",
+    "mtime": 1794998202.547147,
+    "seen": 1794998655.237998,
+    "ast_hash": "dd8ef69d8bc6998999314c106b09126a",
     "semantic_hash": ""
   },
   "Core/Support/PinchGesture.swift": {
@@ -3900,9 +3900,9 @@
     "semantic_hash": "52c07ff03b860d17eed002105e1985f0"
   },
   "Tests/Unit/PDFReducePlanTests.swift": {
-    "mtime": 1794847707.575893,
-    "seen": 1794847806.2704709,
-    "ast_hash": "10c9a412e17dc7839ba8ef65bd9694e4",
+    "mtime": 1794998211.0756478,
+    "seen": 1794998655.2385101,
+    "ast_hash": "f6af8100b9df21d4eedffcf443872cae",
     "semantic_hash": ""
   },
   "Tests/Unit/PanelGeometryTests.swift": {
@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1794994310.5638378,
-    "seen": 1794996059.228204,
-    "ast_hash": "e91d321d80b8fc8e7402f451f5f02fef",
+    "mtime": 1794998511.2766738,
+    "seen": 1794998655.237548,
+    "ast_hash": "1d33fbe455eb1173cb674554e12832a1",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
