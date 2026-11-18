@@ -1464,9 +1464,9 @@
     "semantic_hash": "f86e91927f891eb79b4c020d214cb544"
   },
   "Core/Support/AgentUsage/AgentStoreParsers.swift": {
-    "mtime": 1792581059.7320714,
-    "seen": 1792581247.740673,
-    "ast_hash": "66921dfd3465e9bda44f2effd67b6285",
+    "mtime": 1795001408.7324166,
+    "seen": 1795001785.561444,
+    "ast_hash": "97bce9f106e7afdba1ab2acd4e6e3f5b",
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentUsageModels.swift": {
@@ -6606,9 +6606,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/ClaudeHookStatus.swift": {
-    "mtime": 1792597813.8806064,
-    "seen": 1792598511.416429,
-    "ast_hash": "1c0dde5113770af4f3ec0ab39d641c5f",
+    "mtime": 1795001767.2449694,
+    "seen": 1795001785.561446,
+    "ast_hash": "78b56dc6dae009a8ac9234312bdaf78d",
     "semantic_hash": ""
   },
   "App/Composition/FocusFollowService.swift": {
@@ -6924,9 +6924,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentApproval.swift": {
-    "mtime": 1793190233.615172,
-    "seen": 1793190252.336628,
-    "ast_hash": "8719a89829f1ab973b70f0f3699f026e",
+    "mtime": 1795001775.2043457,
+    "seen": 1795001785.561441,
+    "ast_hash": "1b459e413cdf7ba066b7dd8a91faff7a",
     "semantic_hash": ""
   },
   "Core/Support/BarProfile.swift": {
@@ -6984,9 +6984,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/AgentApprovalTests.swift": {
-    "mtime": 1793190233.6269746,
-    "seen": 1793190252.3368819,
-    "ast_hash": "1e4d61434ad0d732cb5a49da7b111d0e",
+    "mtime": 1795001777.5424206,
+    "seen": 1795001785.561738,
+    "ast_hash": "5fb84423e7ee11c5f4cf629e7a10a43e",
     "semantic_hash": ""
   },
   "Tests/Unit/BarProfileCommandTests.swift": {
@@ -7140,9 +7140,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/AgentProcessScanTests.swift": {
-    "mtime": 1793837819.130989,
-    "seen": 1793838428.2576158,
-    "ast_hash": "cc00e8ecbc374648033ebe85f8eae5e3",
+    "mtime": 1795001411.464338,
+    "seen": 1795001785.561739,
+    "ast_hash": "d099f09b677245f3aab699334bf03db7",
     "semantic_hash": ""
   },
   "Core/Support/LidSleepSudoers.swift": {
