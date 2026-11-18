@@ -271,3 +271,7 @@ public struct WeatherCarouselConfig: Codable, Equatable, Sendable {
         try? JSONEncoder().encode(self)
     }
 }
+
+public extension Notification.Name {
+    static let weatherCarouselConfigDidChange = Notification.Name("com.katikati.weather.carouselConfigDidChange")
+}

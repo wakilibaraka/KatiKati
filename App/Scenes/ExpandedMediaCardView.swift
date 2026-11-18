@@ -767,7 +767,7 @@ struct ExpandedMediaCardView: View {
 
 // MARK: - Wheel Scroll Vertical Paging Interceptor
 
-private struct VerticalWheelScrollNSViewRepresentable: NSViewRepresentable {
+struct VerticalWheelScrollNSViewRepresentable: NSViewRepresentable {
     var onStep: (Int) -> Void
 
     func makeNSView(context: Context) -> VerticalWheelNSView {
@@ -781,7 +781,7 @@ private struct VerticalWheelScrollNSViewRepresentable: NSViewRepresentable {
     }
 }
 
-private final class VerticalWheelNSView: NSView {
+final class VerticalWheelNSView: NSView {
     var onStep: ((Int) -> Void)?
     private var lastScrollTime: TimeInterval = 0
     private var accumulatedDelta: CGFloat = 0

@@ -822,6 +822,9 @@ struct WeatherSettingsBlock: View {
     @AppStorage(WeatherPrefs.animationsKey) private var weatherAnimations = true
     @AppStorage(WeatherPrefs.onePageKey) private var weatherOnePage = true
     @State private var thresholds = WeatherPrefs.thresholds()
+    @State private var carouselConfig = WeatherCarouselConfig.decode(UserDefaults.standard.data(forKey: WeatherCarouselConfig.defaultsKey)) ?? .default
+    @State private var savedCities = UserDefaults.standard.data(forKey: SavedCities.storageKey)
+        .flatMap { try? JSONDecoder().decode(SavedCities.self, from: $0) } ?? SavedCities()
 
     /// Every row is a shared variant, so a control's alignment follows its type instead of this
     /// block's opinion (`Docs/SETTINGS.md` rule 3).
@@ -877,6 +880,58 @@ struct WeatherSettingsBlock: View {
         )
         SettingsDivider()
         SettingsToggleRow(Text("Show Overview on one page"), isOn: $weatherOnePage)
+        SettingsDivider()
+        SettingsRowPair(
+            left: {
+                SettingsRow(Text("Carousel Page 2")) {
+                    Picker("Carousel Page 2", selection: carouselSlotBinding(\.page2)) {
+                        ForEach(WeatherCarouselSlotMode.allCases) { mode in
+                            Text(verbatim: mode.title).tag(mode)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+            },
+            right: {
+                SettingsRow(Text("Carousel Page 3")) {
+                    Picker("Carousel Page 3", selection: carouselSlotBinding(\.page3)) {
+                        ForEach(WeatherCarouselSlotMode.allCases) { mode in
+                            Text(verbatim: mode.title).tag(mode)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+            }
+        )
+        SettingsDivider()
+        SettingsRow(Text("Pinned Weather Locations (Max 3)")) {
+            HStack(spacing: 6) {
+                if savedCities.cities.isEmpty {
+                    Text("Add cities in Weather panel").font(.caption).foregroundStyle(.secondary)
+                } else {
+                    ForEach(savedCities.cities) { city in
+                        let token = WeatherLocationSelection.city(city.id).token
+                        let selected = carouselConfig.pinnedLocationTokens.contains(token)
+                        Button {
+                            var next = carouselConfig.pinnedLocationTokens
+                            if let idx = next.firstIndex(of: token) {
+                                next.remove(at: idx)
+                            } else if next.count < WeatherCarouselConfig.maxPinnedLocations {
+                                next.append(token)
+                            }
+                            carouselConfig.pinnedLocationTokens = WeatherCarouselConfig.normalizedTokens(next)
+                            persistCarouselConfig()
+                        } label: {
+                            Text(verbatim: city.name)
+                                .font(.caption)
+                                .padding(.horizontal, 8).padding(.vertical, 3)
+                                .background(Capsule().fill(selected ? Color.accentColor.opacity(0.24) : Color.primary.opacity(0.08)))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
         // "Weather Animations" moved to the Widget Appearance card (2026-10-15), where the other
         // widget-animation row already lives and where it shares a line instead of owning one.
         SettingsDivider()
@@ -922,5 +977,17 @@ struct WeatherSettingsBlock: View {
             thresholds[keyPath: key] = value
             if let data = try? JSONEncoder().encode(thresholds) { UserDefaults.standard.set(data, forKey: WeatherThresholds.storageKey) }
         })
+    }
+
+    private func carouselSlotBinding(_ key: WritableKeyPath<WeatherCarouselConfig, WeatherCarouselSlotMode>) -> Binding<WeatherCarouselSlotMode> {
+        Binding(get: { carouselConfig[keyPath: key] }, set: { value in
+            carouselConfig[keyPath: key] = value
+            persistCarouselConfig()
+        })
+    }
+
+    private func persistCarouselConfig() {
+        UserDefaults.standard.set(carouselConfig.encoded(), forKey: WeatherCarouselConfig.defaultsKey)
+        NotificationCenter.default.post(name: .weatherCarouselConfigDidChange, object: nil)
     }
 }

@@ -9,12 +9,15 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
     /// 5g-B: saved cities (≤5) and which place the panel/pill show. `.current` = device location.
     @Published public private(set) var savedCities: SavedCities
     @Published public private(set) var selection: WeatherLocationSelection
+    @Published public private(set) var carouselConfig: WeatherCarouselConfig
+    @Published public private(set) var cachedStatesByToken: [String: WeatherState] = [:]
     /// True when there is no usable location at all (current denied/failed and no saved city):
     /// the tiles show the city search instead of a made-up default city.
     @Published public private(set) var needsLocation = false
 
     private let logger = Logger(subsystem: "com.katikati.app", category: "WeatherService")
     private var refreshTimer: Timer?
+    private var configObserver: NSObjectProtocol?
     private let cache: WeatherCache?
     /// Where the app stands on Location Services, so the panel can offer the right button.
     @Published public private(set) var locationStatus: CLAuthorizationStatus = .notDetermined
@@ -36,8 +39,17 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
         savedCities = defaults.data(forKey: SavedCities.storageKey)
             .flatMap { try? JSONDecoder().decode(SavedCities.self, from: $0) } ?? SavedCities()
         selection = WeatherLocationSelection(token: defaults.string(forKey: SavedCities.selectionKey))
+        carouselConfig = WeatherCarouselConfig.decode(defaults.data(forKey: WeatherCarouselConfig.defaultsKey)) ?? .default
         super.init()
         selection = savedCities.resolved(selection)
+        seedCachedStates()
+        configObserver = NotificationCenter.default.addObserver(
+            forName: .weatherCarouselConfigDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.reloadCarouselFromDefaults() }
+        }
 
         // Offline from the first frame: show the last forecast for this place until a fresh one arrives.
         // With no cache the state stays empty (the chips draw their "add a city" state) — a made-up
@@ -92,6 +104,51 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
                 // Defer prompting off launch/periodic background refreshes; user-initiated Weather
                 // actions trigger `requestLocationAccess()` explicitly.
                 fallBackFromCurrentLocation()
+            }
+        }
+        await prefetchPinnedCities()
+    }
+
+    public func reloadCarouselFromDefaults() {
+        let d = UserDefaults.standard
+        savedCities = d.data(forKey: SavedCities.storageKey)
+            .flatMap { try? JSONDecoder().decode(SavedCities.self, from: $0) } ?? savedCities
+        carouselConfig = WeatherCarouselConfig.decode(d.data(forKey: WeatherCarouselConfig.defaultsKey)) ?? .default
+        seedCachedStates()
+        Task { await prefetchPinnedCities() }
+    }
+
+    private func seedCachedStates() {
+        var map: [String: WeatherState] = [:]
+        if let cur = cache?.load(token: WeatherLocationSelection.current.token) {
+            map[WeatherLocationSelection.current.token] = cur
+        }
+        for city in savedCities.cities {
+            let token = WeatherLocationSelection.city(city.id).token
+            if let st = cache?.load(token: token) { map[token] = st }
+        }
+        cachedStatesByToken = map
+    }
+
+    private func prefetchPinnedCities() async {
+        let activeToken = savedCities.resolved(selection).token
+        let pinnedTokens = carouselConfig.pinnedLocationTokens.isEmpty
+            ? savedCities.cities.prefix(WeatherCarouselConfig.maxPinnedLocations).map { WeatherLocationSelection.city($0.id).token }
+            : carouselConfig.pinnedLocationTokens
+        for token in pinnedTokens where token != activeToken {
+            if let existing = cachedStatesByToken[token], Date().timeIntervalSince(existing.lastUpdated) < 900 {
+                continue
+            }
+            if case .city(let cid) = WeatherLocationSelection(token: token), let city = savedCities.city(id: cid) {
+                guard let url = URL(string: WeatherRequest.forecastURL(latitude: city.latitude, longitude: city.longitude)) else { continue }
+                if let (data, resp) = try? await URLSession.shared.data(from: url),
+                   (resp as? HTTPURLResponse)?.statusCode == 200,
+                   var parsed = try? WeatherResponseParsing.parse(data: data, cityName: city.name, previousHourly: cachedStatesByToken[token]?.hourly ?? []) {
+                    parsed.latitude = city.latitude
+                    parsed.longitude = city.longitude
+                    cachedStatesByToken[token] = parsed
+                    cache?.save(parsed, token: token)
+                }
             }
         }
     }
@@ -220,8 +277,10 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
             var newState = try WeatherResponseParsing.parse(data: data, cityName: city, previousHourly: currentState.hourly)
             newState.latitude = latitude
             newState.longitude = longitude
+            let activeToken = savedCities.resolved(selection).token
             self.currentState = newState
-            cache?.save(newState, token: savedCities.resolved(selection).token)
+            self.cachedStatesByToken[activeToken] = newState
+            cache?.save(newState, token: activeToken)
         } catch {
             logger.warning("Weather refresh failed: \(error.localizedDescription, privacy: .public)")
             showCachedForecast()
