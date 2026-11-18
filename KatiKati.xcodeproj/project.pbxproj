@@ -289,6 +289,7 @@
 		DB60000000000000000000D2 /* DesktopWidgetChromeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB60000000000000000000D1 /* DesktopWidgetChromeView.swift */; };
 		DB60000000000000000000E2 /* DesktopFolderBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB60000000000000000000E1 /* DesktopFolderBoxView.swift */; };
 		DB60000000000000000000F2 /* DesktopWidgetPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB60000000000000000000F1 /* DesktopWidgetPanelController.swift */; };
+		DB6000000000000000000102 /* DesktopCanvasCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000101 /* DesktopCanvasCoordinator.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1588,6 +1589,7 @@
 		DB60000000000000000000D1 /* DesktopWidgetChromeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopWidgetChromeView.swift; path = App/Scenes/Desktop/DesktopWidgetChromeView.swift; sourceTree = SOURCE_ROOT; };
 		DB60000000000000000000E1 /* DesktopFolderBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopFolderBoxView.swift; path = App/Scenes/Desktop/DesktopFolderBoxView.swift; sourceTree = SOURCE_ROOT; };
 		DB60000000000000000000F1 /* DesktopWidgetPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopWidgetPanelController.swift; path = App/Entry/DesktopWidgetPanelController.swift; sourceTree = SOURCE_ROOT; };
+		DB6000000000000000000101 /* DesktopCanvasCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopCanvasCoordinator.swift; path = App/Composition/DesktopCanvasCoordinator.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3847,6 +3849,7 @@
 				DB60000000000000000000D2 /* DesktopWidgetChromeView.swift in Sources */,
 				DB60000000000000000000E2 /* DesktopFolderBoxView.swift in Sources */,
 				DB60000000000000000000F2 /* DesktopWidgetPanelController.swift in Sources */,
+				DB6000000000000000000102 /* DesktopCanvasCoordinator.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
