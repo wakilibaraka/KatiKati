@@ -276,10 +276,10 @@
     "semantic_hash": "8d81eb7722d8d11084c0de55a16e60e5"
   },
   "App/Composition/LiveEventCenter.swift": {
-    "mtime": 1791999130.8011942,
-    "seen": 1792295707.0604,
-    "ast_hash": "96156e4c9345f4384d76004f030ee0bd",
-    "semantic_hash": "96156e4c9345f4384d76004f030ee0bd"
+    "mtime": 1795004549.2488978,
+    "seen": 1795004947.627414,
+    "ast_hash": "9fbb07bb0ef5e33a5e8ed5c890e3f20c",
+    "semantic_hash": ""
   },
   "App/Composition/LiveEventPresentation.swift": {
     "mtime": 1794872600.9709918,
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795002596.0179632,
-    "seen": 1795002901.0280142,
-    "ast_hash": "db385bafdaaecea4afa3ba7c7441397c",
+    "mtime": 1795004572.31009,
+    "seen": 1795004947.627518,
+    "ast_hash": "a93771702fbd8ebd6f764baaaf9ca10c",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795004061.063405,
-    "seen": 1795004485.889868,
-    "ast_hash": "7c3806ccab145500553be569ed8adab3",
+    "mtime": 1795004577.5259464,
+    "seen": 1795004947.627595,
+    "ast_hash": "64e7c32b4ca18fc20f0687af23cc6c3d",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1254,9 +1254,9 @@
     "semantic_hash": "717402a24a46a7dc79bb42d492ae3d43"
   },
   "App/Scenes/StripWheelScrollInterceptor.swift": {
-    "mtime": 1795004054.856189,
-    "seen": 1795004485.8901901,
-    "ast_hash": "aa9fd48a0958b7784bafb5e234dadb39",
+    "mtime": 1795004575.8527532,
+    "seen": 1795004947.627815,
+    "ast_hash": "4eae51be476cc4a8a78c1273c3c3e8a8",
     "semantic_hash": ""
   },
   "App/Scenes/TeleprompterView.swift": {
@@ -3726,10 +3726,10 @@
     "semantic_hash": "c30eee7e65f0cd28eb9707c7c4d7f748"
   },
   "Tests/Unit/LiveSurfaceRoutingTests.swift": {
-    "mtime": 1791999130.9344883,
-    "seen": 1792295707.060752,
-    "ast_hash": "2d87bb1b8a8d09405534e67e6e38b15d",
-    "semantic_hash": "2d87bb1b8a8d09405534e67e6e38b15d"
+    "mtime": 1795004579.183426,
+    "seen": 1795004947.6287072,
+    "ast_hash": "7e81874927922ddcd7a9377c5b19aaff",
+    "semantic_hash": ""
   },
   "Tests/Unit/ManualPanelHostTests.swift": {
     "mtime": 1791999130.9575155,
@@ -4650,9 +4650,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchBehavior.swift": {
-    "mtime": 1795002571.3920627,
-    "seen": 1795002901.028706,
-    "ast_hash": "eaaed8f1e3773fee278d173dcf411c82",
+    "mtime": 1795004540.4807186,
+    "seen": 1795004947.628114,
+    "ast_hash": "327fb7f6c6e484668fe6d20de123d36e",
     "semantic_hash": ""
   },
   "Core/Support/NotchEdgeStyle.swift": {
