@@ -141511,6 +141511,22 @@
         "it": { "stringUnit": { "state": "translated", "value": "Cartella senza nome" } },
         "ko": { "stringUnit": { "state": "translated", "value": "무제 폴더" } }
       }
+    },
+    "Grant Access": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Grant Access" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "授予访问权限" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "授予存取權限" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アクセスを許可" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zugriff gewähren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Autoriser l’accès" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Conceder acceso" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Otorgar acceso" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Conceder acesso" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Conceder acesso" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Consenti accesso" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "접근 권한 허용" } }
+      }
     }
   },
   "version": "1.0"
