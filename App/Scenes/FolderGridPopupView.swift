@@ -260,12 +260,15 @@ struct FolderGridPopupView: View {
     /// A back button at the root folder too, for a folder browsed from inside another popup (the
     /// drawer pop). nil = the root has no back button, as for a pinned folder.
     var onBackAtRoot: (() -> Void)?
+    var flyoutPreset: UtilityFlyoutPreset = .compactGrid
 
     @StateObject private var model: FolderPopupModel
     /// Empty = the root folder.
     @State private var drillStack: [URL] = []
     /// Off until the first content is in: the first population appears whole, never cell by cell.
     @State private var animatesGridChanges = false
+    @State private var hoveredPath: String?
+    @State private var selectedPath: String?
 
     init(rootURL: URL,
          initialEntries: [FolderContentsLoader.Entry]?,
@@ -276,9 +279,11 @@ struct FolderGridPopupView: View {
          onContentResize: @escaping (CGSize) -> Void = { _ in },
          onPinFolder: ((URL) -> Void)? = nil,
          isFolderPinned: ((URL) -> Bool)? = nil,
-         onBackAtRoot: (() -> Void)? = nil) {
+         onBackAtRoot: (() -> Void)? = nil,
+         flyoutPreset: UtilityFlyoutPreset = .compactGrid) {
         self.rootURL = rootURL
         self.onBackAtRoot = onBackAtRoot
+        self.flyoutPreset = flyoutPreset
         self.context = context
         self.usesLiquidGlass = usesLiquidGlass
         self.onFileOpened = onFileOpened
@@ -307,6 +312,29 @@ struct FolderGridPopupView: View {
     }
 
     var body: some View {
+        Group {
+            if flyoutPreset != .compactGrid && onBackAtRoot == nil {
+                folderCardDeckBody
+            } else {
+                compactGridBody
+            }
+        }
+        // The panel as a whole fades in and out in AppKit (`panel.alphaValue`); the content adds
+        // no scale or opacity of its own.
+        .onAppear {
+            model.display(url: rootURL)
+            if model.didFirstLoad { animatesGridChanges = true }
+        }
+        .onDisappear { model.stop() }
+        .onChange(of: model.didFirstLoad) { loaded in
+            guard loaded else { return }
+            // Timeout path: the first fill lands unanimated; animation opens one turn later.
+            DispatchQueue.main.async { animatesGridChanges = true }
+        }
+        .onChange(of: drillStack) { _ in model.display(url: currentURL) }
+    }
+
+    private var compactGridBody: some View {
         StackPopupChrome(title: FileManager.default.displayName(atPath: currentURL.path),
                          note: note,
                          layout: layout,
@@ -345,19 +373,148 @@ struct FolderGridPopupView: View {
                 onFileOpened()
             }
         }
-        // The panel as a whole fades in and out in AppKit (`panel.alphaValue`); the content adds
-        // no scale or opacity of its own.
-        .onAppear {
-            model.display(url: rootURL)
-            if model.didFirstLoad { animatesGridChanges = true }
+    }
+
+    /// Shelf-inspired Card Deck preset for Downloads & Pinned Folders (`shelfDeck` / `cleanFloat`).
+    private var folderCardDeckBody: some View {
+        let entries = model.entries
+        let visibleCount = min(max(entries.count, 1), 3)
+        let cardsHeight: CGFloat = entries.isEmpty ? 156 : CGFloat(visibleCount) * 114 + CGFloat(max(0, visibleCount - 1)) * 8 + 14
+        let plateWidth: CGFloat = 316
+        let plateHeight: CGFloat = 12 + 36 + 8 + cardsHeight + 12
+        let plateSize = CGSize(width: plateWidth, height: plateHeight)
+        let arrowH: CGFloat = context.arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight
+        let totalSize = CGSize(width: plateSize.width + 2 * StackPopupMetrics.panelMargin,
+                               height: plateSize.height + arrowH + 2 * StackPopupMetrics.panelMargin)
+
+        return StackUtilityBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    if !drillStack.isEmpty {
+                        Button { _ = drillStack.removeLast() } label: {
+                            Image(systemName: "chevron.left").font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 24, height: 24)
+                                .background(Circle().fill(.white.opacity(0.14)))
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        Image(systemName: currentURL.path.hasSuffix("/Downloads") ? "arrow.down.circle.fill" : "folder.fill")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.cyan)
+                    }
+                    Text(verbatim: FileManager.default.displayName(atPath: currentURL.path))
+                        .font(.system(size: 13.5, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    if !entries.isEmpty {
+                        Text(verbatim: "\(entries.count)")
+                            .font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(.white.opacity(0.85))
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .background(Capsule().fill(.white.opacity(0.16)))
+                    }
+                    Spacer(minLength: 4)
+                    Button {
+                        NSWorkspace.shared.open(currentURL)
+                        onFileOpened()
+                    } label: {
+                        Label("Finder", systemImage: "arrow.up.right.square")
+                            .font(.system(size: 10.5, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.9))
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Capsule().fill(.white.opacity(0.14)))
+                    }
+                    .buttonStyle(.plain)
+                    .help(Text("Open in Finder"))
+                }
+                .padding(.horizontal, 14)
+                .frame(height: 36)
+
+                if let note {
+                    Text(verbatim: note)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(.white.opacity(0.75))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: cardsHeight)
+                } else if entries.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: "tray").font(.system(size: 24)).foregroundStyle(.white.opacity(0.5))
+                        Text("This folder is empty").font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.75))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: cardsHeight)
+                } else {
+                    ScrollView(.vertical, showsIndicators: entries.count > 3) {
+                        LazyVStack(spacing: 8) {
+                            ForEach(Array(entries.enumerated()), id: \.element.url) { idx, entry in
+                                folderDeckRow(entry: entry, index: idx)
+                            }
+                        }
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 14)
+                    }
+                    .frame(width: plateWidth, height: cardsHeight)
+                }
+            }
+            .padding(.top, 12).padding(.bottom, 12)
+            .frame(width: plateWidth, height: plateHeight, alignment: .top)
         }
-        .onDisappear { model.stop() }
-        .onChange(of: model.didFirstLoad) { loaded in
-            guard loaded else { return }
-            // Timeout path: the first fill lands unanimated; animation opens one turn later.
-            DispatchQueue.main.async { animatesGridChanges = true }
+        .onAppear { onContentResize(totalSize) }
+        .onChange(of: totalSize) { _, newSize in onContentResize(newSize) }
+    }
+
+    @ViewBuilder
+    private func folderDeckRow(entry: FolderContentsLoader.Entry, index: Int) -> some View {
+        let path = entry.url.path
+        let isHovered = hoveredPath == path
+        let isSelected = selectedPath == path
+        if entry.isDirectory {
+            HStack(spacing: 10) {
+                Image(nsImage: FolderIconResolver.resolve(path, size: 36))
+                    .resizable().aspectRatio(contentMode: .fit).frame(width: 36, height: 36)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: entry.name).font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                    Text("Folder · Click to open").font(.system(size: 10)).foregroundStyle(.white.opacity(0.6))
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.55))
+            }
+            .padding(.horizontal, 12).padding(.vertical, 10)
+            .frame(width: 280)
+            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color(white: 0.14).opacity(0.92)))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(.white.opacity(isHovered ? 0.34 : 0.16), lineWidth: 1))
+            .scaleEffect(isHovered ? 1.015 : 1.0)
+            .onHover { hoveredPath = $0 ? path : (hoveredPath == path ? nil : hoveredPath) }
+            .onTapGesture { drillStack.append(entry.url) }
+            .onDrag { FileDragItemProvider.make(for: entry.url) }
+            .floatingContextMenu { cellMenu(for: entry) }
+        } else {
+            let pres = ShelfCardPresentation.classify(url: entry.url, index: index, showTextExcerpt: true)
+            ShelfFloatingCardView(
+                entry: entry,
+                presentation: pres,
+                isExample: false,
+                isPinned: false,
+                isSelected: isSelected,
+                isHovered: isHovered,
+                showsPinButton: false,
+                showsRemoveButton: false,
+                onPin: {},
+                onCopy: { ShelfCardQuickActions.copyToPasteboard(entry) },
+                onQuickLook: { ShelfCardQuickActions.quickLook(path: path) },
+                onRemove: {},
+                onSingleClick: { selectedPath = (selectedPath == path) ? nil : path },
+                onDoubleClick: { open(entry) }
+            )
+            .scaleEffect(isHovered ? 1.015 : 1.0)
+            .rotationEffect(.degrees((isHovered || isSelected) ? 0 : pres.tiltDegrees))
+            .onHover { hoveredPath = $0 ? path : (hoveredPath == path ? nil : hoveredPath) }
+            .onDrag { FileDragItemProvider.make(for: entry.url) }
+            .floatingContextMenu { cellMenu(for: entry) }
         }
-        .onChange(of: drillStack) { _ in model.display(url: currentURL) }
     }
 
     private func open(_ entry: FolderContentsLoader.Entry) {

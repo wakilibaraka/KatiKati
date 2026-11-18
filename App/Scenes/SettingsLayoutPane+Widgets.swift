@@ -273,6 +273,38 @@ extension SettingsLayoutPane {
                 }
             }
             SettingsDivider()
+            SettingsRow(Text("Utility Popups")) {
+                HStack(spacing: 8) {
+                    Picker("Flyout Style", selection: Binding(
+                        get: { store.dockUtilities.flyoutPreset },
+                        set: { store.setUtilityFlyoutPreset($0) }
+                    )) {
+                        ForEach(UtilityFlyoutPreset.allCases) { preset in
+                            Text(verbatim: preset.localizedTitle).tag(preset)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                    Picker("Popup Placement", selection: Binding(
+                        get: { store.dockUtilities.popoverPlacement },
+                        set: { store.setUtilityPopoverPlacement($0) }
+                    )) {
+                        ForEach(UtilityPopoverPlacement.allCases) { mode in
+                            Text(verbatim: mode.localizedTitle).tag(mode)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                    Picker("Dismissal", selection: Binding(
+                        get: { store.dockUtilities.dismissalBehavior },
+                        set: { store.setUtilityDismissalBehavior($0) }
+                    )) {
+                        ForEach(UtilityDismissalBehavior.allCases) { rule in
+                            Text(verbatim: rule.localizedTitle).tag(rule)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+            }
+            SettingsDivider()
             SettingsToggleRow(Text("Keep windows above the taskbar"), isOn: Binding(
                 get: { store.windowLiftEnabled },
                 set: { store.setWindowLiftEnabled($0) }
@@ -387,10 +419,11 @@ extension SettingsLayoutPane {
         let pickerRows = 3 * (Self.widgetRowHeight + 4)
         // Slice G's search row sits between the pickers and the list; it takes a row's height from the list.
         let searchRow = Self.widgetRowHeight + 4
-        // Dock II Wings quick row takes one row's height back so the page stays under 1074 pt.
+        // Dock II Wings quick row + Utility Popups row take one row each so the page stays under 1074 pt.
         let wingRow = Self.widgetRowHeight + 4
+        let utilityPopupsRow = Self.widgetRowHeight + 4
         let previewHeight: CGFloat = stageVisible ? 0 : 62
-        return max(Self.widgetRowHeight, Self.widgetListMaxHeight - pickerRows - searchRow - wingRow - previewHeight
+        return max(Self.widgetRowHeight, Self.widgetListMaxHeight - pickerRows - searchRow - wingRow - utilityPopupsRow - previewHeight
             - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0))
     }
 

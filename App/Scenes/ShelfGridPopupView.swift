@@ -546,23 +546,11 @@ extension ShelfGridPopupView {
     }
 
     private func triggerQuickLook(path: String) {
-        let p = Process()
-        p.executableURL = URL(fileURLWithPath: "/usr/bin/qlmanage")
-        p.arguments = ["-p", path]
-        p.standardOutput = FileHandle.nullDevice
-        p.standardError = FileHandle.nullDevice
-        try? p.run()
+        ShelfCardQuickActions.quickLook(path: path)
     }
 
     private func copyEntryToPasteboard(_ entry: FolderContentsLoader.Entry) {
-        let pb = NSPasteboard.general
-        pb.clearContents()
-        let ext = entry.url.pathExtension.lowercased()
-        if (ext == "txt" || ext == "md"), let text = try? String(contentsOf: entry.url, encoding: .utf8) {
-            pb.writeObjects([entry.url as NSURL, text as NSString])
-        } else {
-            pb.writeObjects([entry.url as NSURL])
-        }
+        ShelfCardQuickActions.copyToPasteboard(entry)
     }
 
     private func triggerClipboardPaste() {
@@ -625,13 +613,37 @@ private struct ShelfFloatingBackdropHost<Content: View>: View {
     }
 }
 
-private struct ShelfFloatingCardView: View {
+enum ShelfCardQuickActions {
+    static func quickLook(path: String) {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/bin/qlmanage")
+        p.arguments = ["-p", path]
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        try? p.run()
+    }
+
+    static func copyToPasteboard(_ entry: FolderContentsLoader.Entry) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        let ext = entry.url.pathExtension.lowercased()
+        if (ext == "txt" || ext == "md"), let text = try? String(contentsOf: entry.url, encoding: .utf8) {
+            pb.writeObjects([entry.url as NSURL, text as NSString])
+        } else {
+            pb.writeObjects([entry.url as NSURL])
+        }
+    }
+}
+
+struct ShelfFloatingCardView: View {
     let entry: FolderContentsLoader.Entry
     let presentation: ShelfCardPresentation
     let isExample: Bool
     let isPinned: Bool
     let isSelected: Bool
     let isHovered: Bool
+    var showsPinButton: Bool = true
+    var showsRemoveButton: Bool = true
     let onPin: () -> Void
     let onCopy: () -> Void
     let onQuickLook: () -> Void
@@ -745,11 +757,15 @@ private struct ShelfFloatingCardView: View {
 
     private var hoverToolbar: some View {
         HStack(spacing: 4) {
-            hoverIconButton(isPinned ? "pin.fill" : "pin", tint: isPinned ? .orange : .white, help: "Pin", action: onPin)
+            if showsPinButton {
+                hoverIconButton(isPinned ? "pin.fill" : "pin", tint: isPinned ? .orange : .white, help: "Pin", action: onPin)
+            }
             if isHovered {
                 hoverIconButton("doc.on.doc", help: "Copy", action: onCopy)
                 hoverIconButton("eye.fill", help: "Quick Look", action: onQuickLook)
-                hoverIconButton("xmark", help: "Remove from Shelf", action: onRemove)
+                if showsRemoveButton {
+                    hoverIconButton("xmark", help: "Remove from Shelf", action: onRemove)
+                }
             }
         }
     }

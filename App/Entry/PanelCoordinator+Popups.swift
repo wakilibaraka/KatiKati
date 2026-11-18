@@ -143,7 +143,8 @@ extension PanelCoordinator {
                 onFileOpened: { [weak self] in self?.closeFolderPopup() },
                 onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) },
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
-                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
+                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true },
+                flyoutPreset: settingsStore.dockUtilities.flyoutPreset
             ).environment(\.dockThemeStyle, settingsStore.themeMaterial)
              .environment(\.themeTuning, settingsStore.themeTuning))
         }
@@ -207,10 +208,12 @@ extension PanelCoordinator {
     }
 
     private func openScreenshotsPopup(anchorVisibleRect: CGRect) {
+        let preset = settingsStore.dockUtilities.flyoutPreset
         presentPopup(content: .screenshots, anchorVisibleRect: anchorVisibleRect) { [weak self] context in
             let view = DockScreenshotsUtilityHostedView(
                 context: context,
                 usesLiquidGlass: usesLiquidGlass,
+                flyoutPreset: preset,
                 isPinned: Binding(get: { self?.isPopupPinned ?? false },
                                   set: { self?.isPopupPinned = $0 }),
                 onClose: { self?.closeFolderPopup() },
@@ -223,10 +226,12 @@ extension PanelCoordinator {
     }
 
     private func openClipboardPopup(anchorVisibleRect: CGRect) {
+        let preset = settingsStore.dockUtilities.flyoutPreset
         presentPopup(content: .clipboard, anchorVisibleRect: anchorVisibleRect) { [weak self] context in
             let view = DockClipboardUtilityHostedView(
                 context: context,
                 usesLiquidGlass: usesLiquidGlass,
+                flyoutPreset: preset,
                 isPinned: Binding(get: { self?.isPopupPinned ?? false },
                                   set: { self?.isPopupPinned = $0 }),
                 onClose: { self?.closeFolderPopup() },
