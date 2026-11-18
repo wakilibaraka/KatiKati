@@ -79,6 +79,21 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let addItemsItem = NSMenuItem(title: String(localized: "Add Widget or Utility"), action: nil, keyEquivalent: "")
     private let addItemsMenu = NSMenu()
     private lazy var customizeLayoutItem = NSMenuItem(title: String(localized: "Customize Dock Layout…"), action: #selector(toggleDockEditMode), keyEquivalent: "")
+    /// Desktop Folder Boxes submenu hooks (injected as closures so unit tests compiling this file do not pull App coordinators).
+    struct DesktopBoxesMenuHooks: Sendable {
+        var isEnabled: @MainActor () -> Bool = { false }
+        var hasBoxes: @MainActor () -> Bool = { false }
+        var isHiddenAll: @MainActor () -> Bool = { false }
+        var setEnabled: @MainActor (Bool) -> Void = { _ in }
+        var addFolderBox: @MainActor () -> Void = {}
+        var createStarterInboxBox: @MainActor () -> Void = {}
+        var toggleQuickReveal: @MainActor () -> Void = {}
+        var toggleHideAll: @MainActor () -> Void = {}
+        var openSettings: @MainActor () -> Void = {}
+    }
+    private let desktopBoxes: DesktopBoxesMenuHooks
+    private let desktopBoxesItem = NSMenuItem(title: String(localized: "Desktop Boxes"), action: nil, keyEquivalent: "")
+    private let desktopBoxesMenu = NSMenu()
     /// Hat and row of the taskbar height slider; the same value as the grip on the bar.
     private let taskbarSizeSectionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private let taskbarSizeSliderView = TaskbarSizeMenuItemView(accessibilityTitle: String(localized: "Taskbar Size"))
@@ -97,7 +112,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onMenuVisibilityChanged: @escaping (Bool) -> Void = { _ in },
          onRequestAccessibility: @escaping () -> Void = {},
          onQuit: @escaping () -> Void,
-         connectedScreens: @escaping () -> [(uuid: String, title: String)] = { [] }) {
+         connectedScreens: @escaping () -> [(uuid: String, title: String)] = { [] },
+         desktopBoxes: DesktopBoxesMenuHooks = DesktopBoxesMenuHooks()) {
         self.store = store
         self.settingsCoordinator = settingsCoordinator
         self.isAccessibilityTrusted = isAccessibilityTrusted
@@ -113,6 +129,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.onMenuVisibilityChanged = onMenuVisibilityChanged
         self.onQuit = onQuit
         self.connectedScreens = connectedScreens
+        self.desktopBoxes = desktopBoxes
         super.init()
         configureStatusItem()
         HoverTrace.statusItem(site: "statusMenuController", length: statusItem.length, square: true,
@@ -206,6 +223,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         menu.addItem(addItemsItem)
         customizeLayoutItem.target = self
         menu.addItem(customizeLayoutItem)
+        desktopBoxesItem.submenu = desktopBoxesMenu
+        menu.addItem(desktopBoxesItem)
         menu.addItem(.separator())
 
         // 单/多屏模式一行（owner 2026-10-21 起，唤醒滑块与四个开关已离开菜单）。
@@ -341,6 +360,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         // 被清空，`commitDraft()` 拿到 nil，整个确认功能静默失效（本轮踩过并修掉）。
         taskbarSizeSliderView.sync(height: store.dockPanelHeight)
         rebuildTaskbarScreenMenu()
+        rebuildDesktopBoxesMenu()
     }
 
     /// 重建「单/多屏模式 ▸」。**只从 `prepareMenuForPresentation` 调**——它是唯一
@@ -809,5 +829,95 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     @objc private func toggleDockEditMode() {
         menu.cancelTrackingWithoutAnimation()
         DispatchQueue.main.async { [onToggleEditMode] in onToggleEditMode() }
+    }
+
+    private func rebuildDesktopBoxesMenu() {
+        desktopBoxesMenu.removeAllItems()
+        let enabled = desktopBoxes.isEnabled()
+
+        let toggleItem = NSMenuItem(
+            title: String(localized: "Enable Desktop Boxes"),
+            action: #selector(toggleDesktopBoxesEnabledFromMenu),
+            keyEquivalent: ""
+        )
+        toggleItem.target = self
+        toggleItem.state = enabled ? .on : .off
+        desktopBoxesMenu.addItem(toggleItem)
+
+        if enabled {
+            desktopBoxesMenu.addItem(.separator())
+            let addItem = NSMenuItem(
+                title: String(localized: "Add Folder Box…"),
+                action: #selector(addDesktopFolderBoxFromMenu),
+                keyEquivalent: ""
+            )
+            addItem.target = self
+            desktopBoxesMenu.addItem(addItem)
+
+            let starterItem = NSMenuItem(
+                title: String(localized: "Create Starter Box"),
+                action: #selector(createStarterBoxFromMenu),
+                keyEquivalent: ""
+            )
+            starterItem.target = self
+            desktopBoxesMenu.addItem(starterItem)
+
+            if desktopBoxes.hasBoxes() {
+                desktopBoxesMenu.addItem(.separator())
+                let revealItem = NSMenuItem(
+                    title: String(localized: "Quick Reveal Desktop Boxes"),
+                    action: #selector(toggleDesktopQuickRevealFromMenu),
+                    keyEquivalent: ""
+                )
+                revealItem.target = self
+                desktopBoxesMenu.addItem(revealItem)
+
+                let hideTitle = desktopBoxes.isHiddenAll()
+                    ? String(localized: "Show All Desktop Boxes")
+                    : String(localized: "Hide All Desktop Boxes")
+                let hideItem = NSMenuItem(
+                    title: hideTitle,
+                    action: #selector(toggleDesktopHideAllFromMenu),
+                    keyEquivalent: ""
+                )
+                hideItem.target = self
+                desktopBoxesMenu.addItem(hideItem)
+            }
+        }
+
+        desktopBoxesMenu.addItem(.separator())
+        let settingsMenuItem = NSMenuItem(
+            title: String(localized: "Desktop Boxes Settings…"),
+            action: #selector(openDesktopBoxesSettingsFromMenu),
+            keyEquivalent: ""
+        )
+        settingsMenuItem.target = self
+        desktopBoxesMenu.addItem(settingsMenuItem)
+    }
+
+    @objc private func toggleDesktopBoxesEnabledFromMenu() {
+        desktopBoxes.setEnabled(!desktopBoxes.isEnabled())
+    }
+
+    @objc private func addDesktopFolderBoxFromMenu() {
+        menu.cancelTrackingWithoutAnimation()
+        DispatchQueue.main.async { [desktopBoxes] in desktopBoxes.addFolderBox() }
+    }
+
+    @objc private func createStarterBoxFromMenu() {
+        desktopBoxes.createStarterInboxBox()
+    }
+
+    @objc private func toggleDesktopQuickRevealFromMenu() {
+        DispatchQueue.main.async { [desktopBoxes] in desktopBoxes.toggleQuickReveal() }
+    }
+
+    @objc private func toggleDesktopHideAllFromMenu() {
+        desktopBoxes.toggleHideAll()
+    }
+
+    @objc private func openDesktopBoxesSettingsFromMenu() {
+        menu.cancelTrackingWithoutAnimation()
+        DispatchQueue.main.async { [desktopBoxes] in desktopBoxes.openSettings() }
     }
 }

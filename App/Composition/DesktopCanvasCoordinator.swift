@@ -142,6 +142,7 @@ final class DesktopCanvasCoordinator {
     // MARK: - Box Actions
 
     func presentAddFolderBoxPanel() {
+        NSApp.activate(ignoringOtherApps: true)
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -398,7 +399,7 @@ final class DesktopCanvasCoordinator {
     private func syncBlankDesktopMonitor() {
         if doubleClickDesktop {
             if blankDesktopMonitor == nil {
-                blankDesktopMonitor = BlankDesktopClickMonitor { [weak self] in self?.toggleQuickReveal() }
+                blankDesktopMonitor = BlankDesktopClickMonitor { [weak self] in self?.toggleHideAll() }
             }
             blankDesktopMonitor?.start()
         } else {

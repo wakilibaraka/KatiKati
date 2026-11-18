@@ -477,49 +477,7 @@ extension SettingsLayoutPane {
 
     /// Reusable trailing shortcut controls: conflict warning, registration status, menu picker, and Record button.
     func shortcutControls(_ action: ShortcutAction, duplicated: Set<ShortcutAction>) -> some View {
-        HStack(spacing: SettingsMetrics.controlSpacing) {
-            if case .warn(let why) = ShortcutValidator.check(store.shortcutBindings[action] ?? .off, for: action, among: store.shortcutBindings) {
-                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                    .help(Text(verbatim: why))
-            } else if duplicated.contains(action) {
-                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
-                    .help(Text("Another action uses the same shortcut"))
-            }
-            ShortcutFailureIcon(action: action)
-            shortcutPicker(action)
-            ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
-        }
-    }
-
-    /// The binding menu. Its own label is hidden, so the row carries the name for VoiceOver too.
-    func shortcutPicker(_ action: ShortcutAction) -> some View {
-        Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off },
-                                  set: { store.setShortcut(action, $0) })) {
-            Text("Off").tag(ShortcutTrigger.off)
-            Divider()
-            ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
-            Divider()
-            ForEach(ShortcutTapKey.allCases, id: \.self) { key in
-                (Text("Double-tap") + Text(verbatim: key == .fn ? " fn" : " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
-            }
-            Divider()
-            ForEach(ShortcutTapKey.allCases, id: \.self) { key in
-                (Text("Hold") + Text(verbatim: key == .fn ? " fn" : " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.hold(key))
-            }
-            if case let .key(custom) = store.shortcutBindings[action] ?? .off {
-                Divider()
-                Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
-            }
-            if store.hyperkeyEnabled {
-                Divider()
-                ForEach(ShortcutKeyNames.hyperChoices, id: \.self) { code in
-                    Text(verbatim: "Hyper+" + (ShortcutKeyNames.name(for: code) ?? "?")).tag(ShortcutTrigger.hyper(code))
-                }
-            }
-        } label: { EmptyView() }
-        .pickerStyle(.menu)
-        .fixedSize()
-        .accessibilityLabel(Text(verbatim: Self.shortcutActionName(action)))
+        ShortcutActionControls(store: store, action: action, duplicated: duplicated)
     }
 
     /// One snap group. The caption and its rows both disappear when the find field excludes them,
@@ -1212,12 +1170,60 @@ private struct LiveTouchVisualizerBox: View {
 }
 
 /// Orange stop sign on a row whose binding could not be registered; the previous binding is gone, so say so.
-private struct ShortcutFailureIcon: View {
+struct ShortcutFailureIcon: View {
     let action: ShortcutAction
     @ObservedObject private var state = ShortcutRegistrationState.shared
     var body: some View {
         if let why = state.failures[action] {
             Image(systemName: "xmark.octagon.fill").foregroundColor(.red).help(Text(verbatim: why))
+        }
+    }
+}
+
+/// Reusable trailing shortcut controls (conflict icon, failure status, trigger menu, and key recorder).
+struct ShortcutActionControls: View {
+    @ObservedObject var store: AppSettingsStore
+    let action: ShortcutAction
+    let duplicated: Set<ShortcutAction>
+
+    var body: some View {
+        HStack(spacing: SettingsMetrics.controlSpacing) {
+            if case .warn(let why) = ShortcutValidator.check(store.shortcutBindings[action] ?? .off, for: action, among: store.shortcutBindings) {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                    .help(Text(verbatim: why))
+            } else if duplicated.contains(action) {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.orange)
+                    .help(Text("Another action uses the same shortcut"))
+            }
+            ShortcutFailureIcon(action: action)
+            Picker(selection: Binding(get: { store.shortcutBindings[action] ?? .off },
+                                      set: { store.setShortcut(action, $0) })) {
+                Text("Off").tag(ShortcutTrigger.off)
+                Divider()
+                ForEach(ShortcutChord.allCases, id: \.self) { Text(verbatim: $0.glyphs).tag(ShortcutTrigger.chord($0)) }
+                Divider()
+                ForEach(ShortcutTapKey.allCases, id: \.self) { key in
+                    (Text("Double-tap") + Text(verbatim: key == .fn ? " fn" : " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.doubleTap(key))
+                }
+                Divider()
+                ForEach(ShortcutTapKey.allCases, id: \.self) { key in
+                    (Text("Hold") + Text(verbatim: key == .fn ? " fn" : " \(key.glyph) (\(key.isRight ? "R" : "L"))")).tag(ShortcutTrigger.hold(key))
+                }
+                if case let .key(custom) = store.shortcutBindings[action] ?? .off {
+                    Divider()
+                    Text(verbatim: custom.glyphs).tag(ShortcutTrigger.key(custom))
+                }
+                if store.hyperkeyEnabled {
+                    Divider()
+                    ForEach(ShortcutKeyNames.hyperChoices, id: \.self) { code in
+                        Text(verbatim: "Hyper+" + (ShortcutKeyNames.name(for: code) ?? "?")).tag(ShortcutTrigger.hyper(code))
+                    }
+                }
+            } label: { EmptyView() }
+            .pickerStyle(.menu)
+            .fixedSize()
+            .accessibilityLabel(Text(verbatim: SettingsLayoutPane.shortcutActionName(action)))
+            ShortcutRecorderButton { store.setShortcut(action, .key($0)) }
         }
     }
 }

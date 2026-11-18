@@ -115,7 +115,9 @@ struct SettingsWindowContent: View {
             case .shelf:
                 ShelfSettingsBlock(store: store)
                     .background(SettingsPageHeightProbe(tab: .shelf))
-            case .widgets: WidgetLookSettingsBlock(store: store)
+            case .widgets:
+                WidgetLookSettingsBlock(store: store)
+                DesktopSettingsBlock(store: store)
             case .weather: weatherPane
             case .notch: notchPane
             case .notifications: SettingsNotificationsPane(store: store)

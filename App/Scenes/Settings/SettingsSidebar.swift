@@ -14,7 +14,7 @@ extension SettingsTab {
         case .dockItems: return "dock widgets chips order size presets motion reorder"
         case .drawer: return "drawer capsule left right background apps flank position"
         case .shelf: return "shelf file tray notch card stack shake storage expire unpinned system dock spaces"
-        case .widgets: return "pane tiles calendar glass clock tile colors notes stopwatch look"
+        case .widgets: return "pane tiles calendar glass clock tile colors notes stopwatch look desktop boxes folder quick reveal"
         case .weather: return "units temperature wind forecast warnings hero animations"
         case .notch: return "island skin style open panel"
         case .notifications: return "battery charging low power peripheral bluetooth history banners"

@@ -258,6 +258,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     ///（startTaskbarRuntime 建、suspend/终止拆），与全屏 tap 同一生命周期语义。
     private var scrollReverserMonitor: ScrollReverserMonitor?
     private var scrollReverserSettingSubscription: AnyCancellable?
+    private var desktopCanvasCoordinator: DesktopCanvasCoordinator?
+    private var desktopDefaultsObserver: NSObjectProtocol?
     /// Lives for the whole process: the guide windows need the appearance too, so it is never
     /// cancelled with the taskbar's subscriptions.
     private var appearanceSubscription: AnyCancellable?
@@ -301,7 +303,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         },
         onRequestAccessibility: { [weak self] in self?.requestAccessibilityFromMenu() },
         onQuit: { NSApp.terminate(nil) },
-        connectedScreens: { DisplayIdentity.connectedScreenOptions() }
+        connectedScreens: { DisplayIdentity.connectedScreenOptions() },
+        desktopBoxes: StatusMenuController.DesktopBoxesMenuHooks(
+            isEnabled: { DesktopCanvasConfig.isFeatureEnabled() },
+            hasBoxes: { [weak self] in !(self?.desktopCanvasCoordinator?.store.items.isEmpty ?? true) },
+            isHiddenAll: { [weak self] in self?.desktopCanvasCoordinator?.isHiddenAll ?? false },
+            setEnabled: { [weak self] on in self?.setDesktopCanvasEnabled(on) },
+            addFolderBox: { [weak self] in self?.addDesktopFolderBox() },
+            createStarterInboxBox: { [weak self] in self?.createDesktopStarterInboxBox() },
+            toggleQuickReveal: { [weak self] in self?.toggleDesktopQuickReveal() },
+            toggleHideAll: { [weak self] in self?.toggleDesktopHideAll() },
+            openSettings: { [weak self] in self?.openDesktopBoxesSettings() }
+        )
     )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -737,6 +750,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         edgeToggleHotKey?.stop()
         scrollReverserMonitor?.stop()
         scrollReverserMonitor = nil
+        tearDownDesktopCanvas()
         DocumentUsageStore.shared.stop()
         permissionCoordinator?.terminationRequested()
         windowLiftAvoidanceController?.stop()
@@ -1148,10 +1162,67 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         applyDockIconPreference()
         presentWelcomeGuideIfNeeded()
         nativeDockPreferencesService.reapplyDesiredIfNeeded()
+        syncDesktopCanvasState()
+        desktopDefaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.syncDesktopCanvasState() }
+        }
         // 探针结论（2026-07-06,阶段0探针3）：访达窗口 AX 属性表虽列有 AXDocument 但恒无值
         // （kAXErrorNoValue），AXProxy/AXTitleUIElement 也只有文件夹名无路径——「拖任务条访达
         // 窗口图标固定文件夹」不可行,已按预案砍掉,拖入固定区只走真实文件 URL（系统拖放）。
     }
+
+    func syncDesktopCanvasState() {
+        let shouldRun = DesktopCanvasConfig.isFeatureEnabled() && panelCoordinator != nil
+        if shouldRun {
+            if desktopCanvasCoordinator == nil {
+                let coordinator = DesktopCanvasCoordinator(
+                    settingsStore: settingsStore,
+                    displayTopologyStore: displayTopologyStore
+                )
+                coordinator.start()
+                desktopCanvasCoordinator = coordinator
+                DesktopCanvasManager.shared.setActive(coordinator)
+            }
+        } else if let existing = desktopCanvasCoordinator {
+            existing.tearDown()
+            desktopCanvasCoordinator = nil
+            DesktopCanvasManager.shared.setActive(nil)
+        }
+    }
+
+    private func tearDownDesktopCanvas() {
+        if let obs = desktopDefaultsObserver {
+            NotificationCenter.default.removeObserver(obs)
+            desktopDefaultsObserver = nil
+        }
+        desktopCanvasCoordinator?.flushNow()
+        desktopCanvasCoordinator?.tearDown()
+        desktopCanvasCoordinator = nil
+        DesktopCanvasManager.shared.setActive(nil)
+    }
+
+    func setDesktopCanvasEnabled(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: DesktopCanvasConfig.enabledKey)
+        syncDesktopCanvasState()
+    }
+
+    func addDesktopFolderBox() {
+        setDesktopCanvasEnabled(true)
+        desktopCanvasCoordinator?.presentAddFolderBoxPanel()
+    }
+
+    func createDesktopStarterInboxBox() {
+        setDesktopCanvasEnabled(true)
+        desktopCanvasCoordinator?.createStarterInboxBox()
+    }
+
+    func toggleDesktopQuickReveal() { desktopCanvasCoordinator?.toggleQuickReveal() }
+    func toggleDesktopHideAll() { desktopCanvasCoordinator?.toggleHideAll() }
+    func openDesktopBoxesSettings() { openSettings(selecting: .widgets) }
 
     /// Settings › Fixed Space Order (54d): the Dock's own `mru-spaces` state, nil when unreadable.
     func fixedSpaceOrderState() async -> Bool? {
@@ -1444,6 +1515,7 @@ extension AppDelegate: PermissionEffectHandler {
         scrollReverserSettingSubscription = nil
         scrollReverserMonitor?.stop()
         scrollReverserMonitor = nil
+        tearDownDesktopCanvas()
         DocumentUsageStore.shared.stop()
         panelCoordinator?.suspendAndRelease()
         panelCoordinator = nil

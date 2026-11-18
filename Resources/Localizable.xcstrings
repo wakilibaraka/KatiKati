@@ -141735,6 +141735,294 @@
         "it": { "stringUnit": { "state": "translated", "value": "Sposta nel Cestino non è disponibile su questo volume." } },
         "ko": { "stringUnit": { "state": "translated", "value": "이 볼륨에서는 휴지통으로 이동할 수 없습니다." } }
       }
+    },
+    "Desktop Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Desktop Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "桌面收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "桌面收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デスクトップボックス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibtisch-Boxen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Boîtes du bureau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cajas de escritorio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cajas del escritorio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Caixas da Mesa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Caixas da Secretária" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Riquadri sulla Scrivania" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "데스크톱 상자" } }
+      }
+    },
+    "Enable Desktop Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Enable Desktop Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "启用桌面收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "啟用桌面收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デスクトップボックスを有効にする" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibtisch-Boxen aktivieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Activer les boîtes du bureau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Activar cajas de escritorio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Activar cajas del escritorio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ativar Caixas da Mesa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ativar Caixas da Secretária" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Abilita riquadri sulla Scrivania" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "데스크톱 상자 활성화" } }
+      }
+    },
+    "Pin real Finder folders as floating glass boxes on your desktop.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pin real Finder folders as floating glass boxes on your desktop." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "将访达中的真实文件夹以悬浮玻璃收纳盒固定在桌面上。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "將 Finder 中的真實資料夾以懸浮玻璃收納盒釘選到桌面。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Finderの実フォルダをデスクトップ上のフローティングガラスボックスとして固定します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Fixiert echte Finder-Ordner als schwebende Glasboxen auf dem Schreibtisch." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Épinglez de vrais dossiers du Finder comme des boîtes en verre flottantes sur le bureau." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Fija carpetas reales del Finder como cajas de vidrio flotantes en tu escritorio." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Fija carpetas reales del Finder como cajas de vidrio flotantes en el escritorio." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Fixe pastas reais do Finder como caixas de vidro flutuantes na sua mesa." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Afixe pastas reais do Finder como caixas de vidro flutuantes na secretária." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Fissa vere cartelle del Finder come riquadri di vetro mobili sulla Scrivania." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "실제 Finder 폴더를 데스크톱 위의 플로팅 유리 상자로 고정합니다." } }
+      }
+    },
+    "Folder Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Folder Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文件夹收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "資料夾收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダボックス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ordner-Boxen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Boîtes de dossiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cajas de carpetas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cajas de carpetas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Caixas de Pastas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Caixas de Pastas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Riquadri cartelle" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더 상자" } }
+      }
+    },
+    "Desktop stays clean until you add a folder box.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Desktop stays clean until you add a folder box." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "添加文件夹收纳盒前，桌面会保持空白。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "加入資料夾收納盒前，桌面會保持整潔。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダボックスを追加するまでデスクトップはきれいなままです。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Der Schreibtisch bleibt leer, bis du eine Ordner-Box hinzufügst." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Le bureau reste épuré tant que vous n’ajoutez pas de boîte de dossier." } },
+        "es": { "stringUnit": { "state": "translated", "value": "El escritorio permanece limpio hasta que añadas una caja de carpeta." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "El escritorio se mantiene limpio hasta que agregues una caja de carpeta." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "A mesa permanece limpa até você adicionar uma caixa de pasta." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "A secretária permanece limpa até adicionar uma caixa de pasta." } },
+        "it": { "stringUnit": { "state": "translated", "value": "La Scrivania resta pulita finché non aggiungi un riquadro cartella." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더 상자를 추가하기 전까지는 데스크톱이 깨끗하게 유지됩니다." } }
+      }
+    },
+    "Add Folder Box…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add Folder Box…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "添加文件夹盒…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "加入資料夾盒…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダボックスを追加…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ordner-Box hinzufügen…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ajouter une boîte de dossier…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Añadir caja de carpeta…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agregar caja de carpeta…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Adicionar Caixa de Pasta…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Adicionar Caixa de Pasta…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aggiungi riquadro cartella…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더 상자 추가…" } }
+      }
+    },
+    "Create Starter Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Create Starter Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "创建示例收件盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "建立範例收件盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スターターボックスを作成" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Starter-Box erstellen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Créer une boîte de départ" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Crear caja inicial" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Crear caja inicial" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Criar Caixa Inicial" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Criar Caixa Inicial" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Crea riquadro iniziale" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시작 상자 만들기" } }
+      }
+    },
+    "Hide Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hide Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "隐藏收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "隱藏收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ボックスを隠す" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Box ausblenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Masquer la boîte" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ocultar caja" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ocultar caja" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ocultar Caixa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ocultar Caixa" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nascondi riquadro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "상자 가리기" } }
+      }
+    },
+    "Show Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ボックスを表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Box einblenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher la boîte" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar caja" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar caja" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar Caixa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar Caixa" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra riquadro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "상자 보기" } }
+      }
+    },
+    "Quick Reveal & Shortcuts": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Quick Reveal & Shortcuts" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "快速浮现与快捷键" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "快速浮現與快捷鍵" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "クイック表示とショートカット" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schnellanzeige & Kurzbefehle" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Affichage rapide et raccourcis" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar rápido y atajos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar rápido y atajos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Exibição Rápida e Atalhos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar Rápido e Atalhos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Comparsa rapida e scorciatoie" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "빠른 표시 및 단축키" } }
+      }
+    },
+    "Double-Click Blank Desktop to Hide Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Double-Click Blank Desktop to Hide Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "双击桌面空白处隐藏/显示收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "雙擊桌面空白處隱藏／顯示收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デスクトップの空白をダブルクリックしてボックスを隠す" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Leeren Schreibtisch doppelklicken, um Boxen auszublenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Double-cliquer sur le bureau vide pour masquer les boîtes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Doble clic en escritorio vacío para ocultar cajas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Doble clic en escritorio vacío para ocultar cajas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Clique duplo na mesa vazia para ocultar caixas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Duplo clique na secretária vazia para ocultar caixas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Doppio clic sulla Scrivania vuota per nascondere i riquadri" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "빈 데스크톱을 이중 클릭해 상자 가리기" } }
+      }
+    },
+    "Desktop Layout": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Desktop Layout" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "桌面布局" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "桌面佈局" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デスクトップレイアウト" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibtisch-Layout" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Disposition du bureau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Diseño de escritorio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Diseño del escritorio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Layout da Mesa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Disposição da Secretária" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Layout della Scrivania" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "데스크톱 레이아웃" } }
+      }
+    },
+    "Snap Gap": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Snap Gap" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "吸附间距" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "吸附間距" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スナップ間隔" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Einrastabstand" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Espacement d’alignement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Separación de ajuste" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Espacio de ajuste" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Espaço de Ajuste" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Espaço de Encaixe" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Distanza di aggancio" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "맞춤 간격" } }
+      }
+    },
+    "Edge Margin": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Edge Margin" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "屏幕边距" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "螢幕邊距" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画面の余白" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Randabstand" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Marge des bords" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Margen de borde" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Margen de borde" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Margem da Borda" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Margem da Borda" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Margine del bordo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "화면 여백" } }
+      }
+    },
+    "Show on All Spaces": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show on All Spaces" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在所有调度空间显示" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在所有空間顯示" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "すべての操作スペースに表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "In allen Spaces anzeigen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher sur tous les espaces" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar en todos los espacios" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar en todos los espacios" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar em Todos os Spaces" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar em Todos os Espaços" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra su tutti gli spazi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모든 스페이스에서 보기" } }
+      }
+    },
+    "Hide All Desktop Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hide All Desktop Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "隐藏全部桌面收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "隱藏全部桌面收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "すべてのデスクトップボックスを隠す" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Alle Schreibtisch-Boxen ausblenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Masquer toutes les boîtes du bureau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ocultar todas las cajas de escritorio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ocultar todas las cajas del escritorio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ocultar Todas as Caixas da Mesa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ocultar Todas as Caixas da Secretária" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nascondi tutti i riquadri sulla Scrivania" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모든 데스크톱 상자 가리기" } }
+      }
+    },
+    "Show All Desktop Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Show All Desktop Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示全部桌面收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示全部桌面收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "すべてのデスクトップボックスを表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Alle Schreibtisch-Boxen einblenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher toutes les boîtes du bureau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mostrar todas las cajas de escritorio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mostrar todas las cajas del escritorio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mostrar Todas as Caixas da Mesa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mostrar Todas as Caixas da Secretária" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra tutti i riquadri sulla Scrivania" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모든 데스크톱 상자 보기" } }
+      }
+    },
+    "Desktop Boxes Settings…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Desktop Boxes Settings…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "桌面收纳盒设置…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "桌面收納盒設定…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デスクトップボックス設定…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibtisch-Boxen-Einstellungen…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Réglages des boîtes du bureau…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ajustes de cajas de escritorio…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Configuración de cajas del escritorio…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ajustes das Caixas da Mesa…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Definições das Caixas da Secretária…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Impostazioni riquadri sulla Scrivania…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "데스크톱 상자 설정…" } }
+      }
     }
   },
   "version": "1.0"
