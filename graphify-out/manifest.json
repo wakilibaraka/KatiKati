@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795019657.308003,
-    "seen": 1795027280.465674,
-    "ast_hash": "c3efd06feeea666cda6c2ccc45c59f93",
+    "mtime": 1795027437.0526521,
+    "seen": 1795027789.3861618,
+    "ast_hash": "eb360893e7f91ffb63f410c80540f799",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1793819888.5843225,
-    "seen": 1793821372.723779,
-    "ast_hash": "ad7a3d15533dfd20072937926d36684e",
+    "mtime": 1795027476.7555428,
+    "seen": 1795027789.386224,
+    "ast_hash": "f2d3fd24f5f9263731619cb2bb4d03b9",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -1902,9 +1902,9 @@
     "semantic_hash": "ff5c4bbb981f04283e0cde0f931b7fa8"
   },
   "Core/Support/IslandLayoutSolver.swift": {
-    "mtime": 1795014398.623228,
-    "seen": 1795014817.730237,
-    "ast_hash": "fd785981e694ceddcf18be4cc8c60c1c",
+    "mtime": 1795027420.0338562,
+    "seen": 1795027789.386485,
+    "ast_hash": "a77c87b615b6884fbc117c4efc6dba65",
     "semantic_hash": ""
   },
   "Core/Support/IslandSlotSet.swift": {
@@ -1980,9 +1980,9 @@
     "semantic_hash": ""
   },
   "Core/Support/LayoutThumbnailModel.swift": {
-    "mtime": 1793842734.326881,
-    "seen": 1793842917.227764,
-    "ast_hash": "9212a98c932920d487ae4879beb84115",
+    "mtime": 1795027421.5821483,
+    "seen": 1795027789.386498,
+    "ast_hash": "cab5c2e78dd1095f7aaba642b74c4911",
     "semantic_hash": ""
   },
   "Core/Support/LiveActivityPolicy.swift": {
@@ -3582,9 +3582,9 @@
     "semantic_hash": "46d465216e2b6d7c9319060f064af595"
   },
   "Tests/Unit/IslandLayoutSolverTests.swift": {
-    "mtime": 1795014748.295254,
-    "seen": 1795014817.7305222,
-    "ast_hash": "d5125e27e55a6a0319bad17d16de6a97",
+    "mtime": 1795027513.7026093,
+    "seen": 1795027789.386785,
+    "ast_hash": "743537c1b8096ff6d6f3fdcaa7daee06",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandPanelGeometryTests.swift": {
@@ -3966,9 +3966,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/RailGeometryTests.swift": {
-    "mtime": 1795019735.407455,
-    "seen": 1795027280.4664059,
-    "ast_hash": "15066a057e6b7e10fdb3b3a7f0919579",
+    "mtime": 1795027617.0766969,
+    "seen": 1795027789.386855,
+    "ast_hash": "b16f620025d6b6c89a54d4555a7b650c",
     "semantic_hash": ""
   },
   "Tests/Unit/RecentlyClosedListTests.swift": {
@@ -4560,9 +4560,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LayoutModePickers.swift": {
-    "mtime": 1792459482.4068644,
-    "seen": 1792466431.6677482,
-    "ast_hash": "da1fb4481be6ba29bf5a2cab474f45c1",
+    "mtime": 1795027534.3551779,
+    "seen": 1795027789.3862941,
+    "ast_hash": "478ea5ce60677a5b1a25076a125267a9",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchDockChips.swift": {
@@ -4608,9 +4608,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Appearance.swift": {
-    "mtime": 1792459482.3757534,
-    "seen": 1792466431.667781,
-    "ast_hash": "054632ed2cdc147f31ef7fc344e10b34",
+    "mtime": 1795027499.65521,
+    "seen": 1795027789.3863392,
+    "ast_hash": "6b2bdb1f725a474d6a4aa726e208c1e4",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
