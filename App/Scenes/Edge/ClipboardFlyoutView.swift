@@ -808,38 +808,203 @@ struct DockClipboardStackFlyoutView: View {
 }
 
 /// Hosted unified borderless-panel containers for `Screenshots` and `Clipboard` when presented by
-/// `PanelCoordinator`, reusing `StackUtilityBackdropHost` (`v` pointer or clean float).
+/// `PanelCoordinator`, reusing `StackUtilityBackdropHost` (`v` pointer or clean float) and Shelf-inspired card surfaces.
 struct DockScreenshotsUtilityHostedView: View {
     let context: StackPopupContext
     let usesLiquidGlass: Bool
+    var flyoutPreset: UtilityFlyoutPreset = .shelfDeck
     @Binding var isPinned: Bool
     let onClose: () -> Void
     let onContentResize: (CGSize) -> Void
 
-    private static let plateSize = CGSize(width: 316, height: 344)
+    @ObservedObject private var controller = TendederoClotheslineController.shared
+    @State private var hoveredID: UUID?
+
+    private var shots: [TendederoItem] {
+        controller.store.items.filter {
+            switch $0.kind {
+            case .screenshot, .imageData: return true
+            default: return false
+            }
+        }
+    }
+
+    private var plateSize: CGSize {
+        let count = shots.count
+        let h: CGFloat
+        if count == 0 {
+            h = 196
+        } else if flyoutPreset == .compactGrid {
+            let rows = min(3, (count + 1) / 2)
+            h = 56 + CGFloat(rows) * 96 + CGFloat(max(0, rows - 1)) * 8 + 16
+        } else {
+            let visible = min(3, count)
+            h = 56 + CGFloat(visible) * 116 + CGFloat(max(0, visible - 1)) * 8 + 16
+        }
+        return CGSize(width: 316, height: h)
+    }
+
+    private var totalWindowSize: CGSize {
+        let arrowH: CGFloat = context.arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight
+        return CGSize(width: plateSize.width + 2 * StackPopupMetrics.panelMargin,
+                      height: plateSize.height + arrowH + 2 * StackPopupMetrics.panelMargin)
+    }
 
     var body: some View {
-        StackUtilityBackdropHost(plateSize: Self.plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    Spacer()
-                    DockUtilityPinButton(isPinned: $isPinned)
-                    Button(action: onClose) {
-                        Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.75))
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(.white.opacity(0.1)))
-                    }
-                    .buttonStyle(.plain)
+        StackUtilityBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
+            VStack(spacing: 8) {
+                headerRow
+                if shots.isEmpty {
+                    emptyState
+                } else if flyoutPreset == .compactGrid {
+                    compactGridBody
+                } else {
+                    shelfDeckBody
                 }
-                .padding(.top, 10).padding(.horizontal, 14)
-                DockScreenshotsFlyoutView()
             }
-            .frame(width: Self.plateSize.width, height: Self.plateSize.height, alignment: .top)
+            .padding(.top, 12).padding(.bottom, 12)
+            .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
         }
         .onAppear {
-            let total = StackPopupMetrics.panelSize(forPlate: Self.plateSize)
-            onContentResize(total)
+            controller.start()
+            controller.markAllRead()
+            onContentResize(totalWindowSize)
+        }
+        .onChange(of: totalWindowSize) { _, next in onContentResize(next) }
+    }
+
+    private var headerRow: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "camera.viewfinder").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.cyan)
+            Text("Screenshots").font(.system(size: 13.5, weight: .semibold)).foregroundStyle(.white)
+            if !shots.isEmpty {
+                Text(verbatim: "\(shots.count)")
+                    .font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Capsule().fill(.white.opacity(0.16)))
+            }
+            Spacer(minLength: 4)
+            if !shots.isEmpty {
+                Button("Clear") { controller.clearUnpinned() }
+                    .buttonStyle(.plain).font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .padding(.horizontal, 8).padding(.vertical, 4)
+                    .background(Capsule().fill(.white.opacity(0.12)))
+            }
+            DockUtilityPinButton(isPinned: $isPinned)
+            Button(action: onClose) {
+                Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .frame(width: 24, height: 24)
+                    .background(Circle().fill(.white.opacity(0.1)))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 14)
+        .frame(height: 36)
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "camera.viewfinder").font(.system(size: 24)).foregroundStyle(.white.opacity(0.5))
+            Text("No recent screenshots").font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.85))
+            Text("Captures and image drops appear here as draggable cards.")
+                .font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.6)).multilineTextAlignment(.center)
+        }
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var shelfDeckBody: some View {
+        ScrollView(.vertical, showsIndicators: shots.count > 3) {
+            LazyVStack(spacing: 8) {
+                ForEach(Array(shots.prefix(12).enumerated()), id: \.element.id) { idx, item in
+                    screenshotCanvasCard(item, index: idx)
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 4)
+        }
+    }
+
+    private var compactGridBody: some View {
+        let cols = [GridItem(.fixed(138), spacing: 8), GridItem(.fixed(138), spacing: 8)]
+        return ScrollView(.vertical, showsIndicators: shots.count > 6) {
+            LazyVGrid(columns: cols, spacing: 8) {
+                ForEach(shots.prefix(16)) { item in
+                    VStack(spacing: 4) {
+                        shotImage(item, size: CGSize(width: 138, height: 74))
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        Text(verbatim: item.title)
+                            .font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
+                    }
+                    .onTapGesture { controller.copy(item) }
+                    .onDrag { controller.dragProvider(for: item) }
+                }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 4)
+        }
+    }
+
+    private func screenshotCanvasCard(_ item: TendederoItem, index: Int) -> some View {
+        let isHovered = hoveredID == item.id
+        let isCopied = controller.copiedID == item.id
+        return ZStack(alignment: .bottomLeading) {
+            Color(white: 0.09)
+            shotImage(item, size: CGSize(width: 284, height: 114))
+            LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .center, endPoint: .bottom)
+            HStack {
+                Text(verbatim: isCopied ? "Copied" : item.title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(isCopied ? Color.green : Color.white)
+                    .lineLimit(1).truncationMode(.middle)
+                Spacer()
+            }
+            .padding(.horizontal, 10).padding(.bottom, 7)
+        }
+        .frame(width: 284, height: 114)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(Color.white.opacity(isHovered ? 0.38 : 0.16), lineWidth: 1)
+        )
+        .overlay(alignment: .topTrailing) {
+            if isHovered {
+                HStack(spacing: 4) {
+                    Button { controller.copy(item) } label: {
+                        Image(systemName: "doc.on.doc").font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white).frame(width: 22, height: 22)
+                            .background(Circle().fill(Color.black.opacity(0.6)))
+                    }.buttonStyle(.plain)
+                    Button { controller.quickLook(item) } label: {
+                        Image(systemName: "eye.fill").font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white).frame(width: 22, height: 22)
+                            .background(Circle().fill(Color.black.opacity(0.6)))
+                    }.buttonStyle(.plain)
+                }
+                .padding(8)
+            }
+        }
+        .scaleEffect(isHovered ? 1.015 : 1.0)
+        .animation(.spring(response: 0.22, dampingFraction: 0.8), value: isHovered)
+        .onHover { hoveredID = $0 ? item.id : (hoveredID == item.id ? nil : hoveredID) }
+        .onTapGesture { controller.copy(item) }
+        .onDrag { controller.dragProvider(for: item) }
+    }
+
+    @ViewBuilder
+    private func shotImage(_ item: TendederoItem, size: CGSize) -> some View {
+        switch item.kind {
+        case .screenshot(let url):
+            if let img = NSImage(contentsOf: url) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: size.width, height: size.height).clipped()
+            } else { Image(systemName: "photo").foregroundStyle(.white.opacity(0.5)).frame(width: size.width, height: size.height) }
+        case .imageData(let data):
+            if let img = NSImage(data: data) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: size.width, height: size.height).clipped()
+            } else { Image(systemName: "photo").foregroundStyle(.white.opacity(0.5)).frame(width: size.width, height: size.height) }
+        default:
+            Image(systemName: "doc").foregroundStyle(.white.opacity(0.5)).frame(width: size.width, height: size.height)
         }
     }
 }
@@ -847,34 +1012,253 @@ struct DockScreenshotsUtilityHostedView: View {
 struct DockClipboardUtilityHostedView: View {
     let context: StackPopupContext
     let usesLiquidGlass: Bool
+    var flyoutPreset: UtilityFlyoutPreset = .shelfDeck
     @Binding var isPinned: Bool
     let onClose: () -> Void
     let onContentResize: (CGSize) -> Void
 
-    private static let plateSize = CGSize(width: 316, height: 356)
+    @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+    @State private var query = ""
+    @State private var hoveredID: UUID?
+
+    private var entries: [ClipEntry] {
+        let base = monitor.history.entries
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return base }
+        return base.filter { $0.text.localizedStandardContains(trimmed) }
+    }
+
+    private var plateSize: CGSize {
+        let count = entries.count
+        let h: CGFloat
+        if count == 0 {
+            h = 196
+        } else if flyoutPreset == .compactGrid {
+            let visible = min(6, count)
+            h = 92 + CGFloat(visible) * 42 + CGFloat(max(0, visible - 1)) * 5 + 14
+        } else {
+            let visible = min(3, count)
+            h = 92 + CGFloat(visible) * 84 + CGFloat(max(0, visible - 1)) * 8 + 16
+        }
+        return CGSize(width: 316, height: h)
+    }
+
+    private var totalWindowSize: CGSize {
+        let arrowH: CGFloat = context.arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight
+        return CGSize(width: plateSize.width + 2 * StackPopupMetrics.panelMargin,
+                      height: plateSize.height + arrowH + 2 * StackPopupMetrics.panelMargin)
+    }
 
     var body: some View {
-        StackUtilityBackdropHost(plateSize: Self.plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    Spacer()
-                    DockUtilityPinButton(isPinned: $isPinned)
-                    Button(action: onClose) {
-                        Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.75))
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(.white.opacity(0.1)))
+        StackUtilityBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
+            VStack(spacing: 8) {
+                headerRow
+                searchField
+                if entries.isEmpty {
+                    emptyState
+                } else {
+                    ScrollView(.vertical, showsIndicators: entries.count > 3) {
+                        LazyVStack(spacing: flyoutPreset == .compactGrid ? 5 : 8) {
+                            ForEach(Array(entries.prefix(15).enumerated()), id: \.element.id) { idx, entry in
+                                if flyoutPreset == .compactGrid {
+                                    compactClipboardRow(entry)
+                                } else {
+                                    shelfClipboardCard(entry, index: idx)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 14).padding(.vertical, 4)
                     }
-                    .buttonStyle(.plain)
                 }
-                .padding(.top, 10).padding(.horizontal, 14)
-                DockClipboardStackFlyoutView()
             }
-            .frame(width: Self.plateSize.width, height: Self.plateSize.height, alignment: .top)
+            .padding(.top, 12).padding(.bottom, 12)
+            .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
         }
-        .onAppear {
-            let total = StackPopupMetrics.panelSize(forPlate: Self.plateSize)
-            onContentResize(total)
+        .onAppear { onContentResize(totalWindowSize) }
+        .onChange(of: totalWindowSize) { _, next in onContentResize(next) }
+    }
+
+    private var headerRow: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "doc.on.clipboard.fill").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.cyan)
+            Text("Clipboard").font(.system(size: 13.5, weight: .semibold)).foregroundStyle(.white)
+            if !monitor.history.entries.isEmpty {
+                Text(verbatim: "\(monitor.history.entries.count)")
+                    .font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Capsule().fill(.white.opacity(0.16)))
+            }
+            Spacer(minLength: 4)
+            if !monitor.history.entries.isEmpty {
+                Button("Clear") { monitor.clear() }
+                    .buttonStyle(.plain).font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .padding(.horizontal, 8).padding(.vertical, 4)
+                    .background(Capsule().fill(.white.opacity(0.12)))
+            }
+            DockUtilityPinButton(isPinned: $isPinned)
+            Button(action: onClose) {
+                Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .frame(width: 24, height: 24)
+                    .background(Circle().fill(.white.opacity(0.1)))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 14)
+        .frame(height: 36)
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
+            TextField("Filter copies…", text: $query)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.white.opacity(0.1)))
+        .padding(.horizontal, 14)
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "doc.on.clipboard").font(.system(size: 22)).foregroundStyle(.white.opacity(0.5))
+            Text(monitor.isRecording ? "Nothing copied yet" : "Clipboard recording is off")
+                .font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.75))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func compactClipboardRow(_ entry: ClipEntry) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: entry.pinned ? "pin.fill" : "doc.text")
+                .font(.system(size: 10.5)).foregroundStyle(entry.pinned ? Color.orange : .white.opacity(0.6))
+            Text(verbatim: ClipboardHistory.previewLine(entry.text))
+                .font(.system(size: 11.5, weight: .medium)).foregroundStyle(.white).lineLimit(1)
+            Spacer(minLength: 4)
+            Button { monitor.pastePlain(entry) } label: {
+                Image(systemName: "doc.on.doc").font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.8))
+            }.buttonStyle(.plain)
+            Button { monitor.togglePin(entry.id) } label: {
+                Image(systemName: entry.pinned ? "pin.slash" : "pin").font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.8))
+            }.buttonStyle(.plain)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 8)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(white: 0.14).opacity(0.92)))
+        .onTapGesture { monitor.copy(entry) }
+        .onDrag { NSItemProvider(object: entry.text as NSString) }
+    }
+
+    @ViewBuilder
+    private func shelfClipboardCard(_ entry: ClipEntry, index: Int) -> some View {
+        let isHovered = hoveredID == entry.id
+        let tilt: Double = (isHovered || entry.pinned) ? 0 : (index % 2 == 0 ? -0.6 : 0.6)
+        clipboardCardSurface(for: entry)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.white.opacity(isHovered ? 0.45 : 0.18), lineWidth: 1)
+            )
+            .overlay(alignment: .topTrailing) {
+                clipboardHoverOverlay(for: entry, isHovered: isHovered)
+            }
+            .scaleEffect(isHovered ? 1.015 : 1.0)
+            .rotationEffect(.degrees(tilt))
+            .animation(.spring(response: 0.22, dampingFraction: 0.8), value: isHovered)
+            .onHover { hoveredID = $0 ? entry.id : (hoveredID == entry.id ? nil : hoveredID) }
+            .onTapGesture { monitor.copy(entry) }
+            .onDrag { NSItemProvider(object: entry.text as NSString) }
+    }
+
+    @ViewBuilder
+    private func clipboardCardSurface(for entry: ClipEntry) -> some View {
+        let meta = ClipboardCardMetadata.classify(text: entry.text)
+        let isURL = entry.text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().hasPrefix("http")
+        let badge = ClipboardToastBadge.badge(for: entry.text)
+        switch meta.contentType {
+        case let .hexColor(hex, rgba):
+            hexColorCard(hex: hex, rgba: rgba)
+        case .text, .image:
+            if isURL {
+                linkCard(text: entry.text, badge: badge)
+            } else {
+                noteCard(text: entry.text, badge: badge)
+            }
+        }
+    }
+
+    private func hexColorCard(hex: String, rgba: DockRGBA) -> some View {
+        let swatch = Color(red: Double(rgba.r), green: Double(rgba.g), blue: Double(rgba.b), opacity: Double(rgba.a))
+        return HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(swatch)
+                .frame(width: 44, height: 44)
+                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(.white.opacity(0.35), lineWidth: 1))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: hex).font(.system(size: 13.5, weight: .bold, design: .monospaced)).foregroundStyle(.white)
+                Text("Color Swatch · Click to copy").font(.system(size: 10)).foregroundStyle(.white.opacity(0.65))
+            }
+            Spacer()
+        }
+        .padding(12)
+        .frame(width: 284, alignment: .leading)
+        .frame(minHeight: 74)
+        .background(Color(white: 0.12).opacity(0.92))
+    }
+
+    private func linkCard(text: String, badge: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label("Link", systemImage: "globe").font(.system(size: 10, weight: .bold)).foregroundStyle(.cyan)
+            Text(verbatim: ClipboardHistory.previewLine(text))
+                .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white).lineLimit(2)
+            Text(verbatim: badge).font(.system(size: 9.5)).foregroundStyle(.white.opacity(0.6))
+        }
+        .padding(12)
+        .frame(width: 284, alignment: .topLeading)
+        .frame(minHeight: 78, alignment: .topLeading)
+        .background(Color(white: 0.13).opacity(0.92))
+    }
+
+    private func noteCard(text: String, badge: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(verbatim: ClipboardHistory.previewLine(text))
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.black.opacity(0.9))
+                .lineLimit(3)
+            Text(verbatim: badge)
+                .font(.system(size: 9.5, weight: .medium))
+                .foregroundStyle(Color.black.opacity(0.55))
+        }
+        .padding(.horizontal, 12).padding(.vertical, 10).padding(.trailing, 34)
+        .frame(width: 284, alignment: .topLeading)
+        .frame(minHeight: 78, alignment: .topLeading)
+        .background(Color(white: 0.96))
+    }
+
+    @ViewBuilder
+    private func clipboardHoverOverlay(for entry: ClipEntry, isHovered: Bool) -> some View {
+        if isHovered || entry.pinned {
+            HStack(spacing: 4) {
+                Button { monitor.togglePin(entry.id) } label: {
+                    Image(systemName: entry.pinned ? "pin.fill" : "pin")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(entry.pinned ? .orange : .white)
+                        .frame(width: 20, height: 20)
+                        .background(Circle().fill(Color.black.opacity(0.58)))
+                }.buttonStyle(.plain)
+                if isHovered {
+                    Button { monitor.pastePlain(entry) } label: {
+                        Image(systemName: "arrow.turn.down.left")
+                            .font(.system(size: 10, weight: .semibold)).foregroundStyle(.white)
+                            .frame(width: 20, height: 20)
+                            .background(Circle().fill(Color.black.opacity(0.58)))
+                    }.buttonStyle(.plain).help(Text("Paste"))
+                }
+            }
+            .padding(8)
         }
     }
 }
