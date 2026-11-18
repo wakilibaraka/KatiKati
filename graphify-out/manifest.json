@@ -1,8 +1,8 @@
 {
   "App/Composition/AgentUsageService.swift": {
-    "mtime": 1792597843.183333,
-    "seen": 1792598511.415775,
-    "ast_hash": "d35a3a9716eb219b46e0b0d84e7d141d",
+    "mtime": 1795001882.8188787,
+    "seen": 1795001972.087043,
+    "ast_hash": "fa9eae9306d6f6bb795ecbdbc01d9383",
     "semantic_hash": ""
   },
   "App/Composition/AppComposition.swift": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1794994685.6689758,
-    "seen": 1794996059.228124,
-    "ast_hash": "96406c3a1ce346a53f7852956556b87b",
+    "mtime": 1795001885.1356032,
+    "seen": 1795001972.087255,
+    "ast_hash": "80350cd53f195ae8bbb3b5027c764b9b",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -978,9 +978,9 @@
     "semantic_hash": "07502b4589a51687d771cdafc811f2e3"
   },
   "App/Scenes/Notch/NotchAIPageView.swift": {
-    "mtime": 1794854472.5902174,
-    "seen": 1794854582.376987,
-    "ast_hash": "7d5408d9dbfa53e954328de55212fb1b",
+    "mtime": 1795001955.711802,
+    "seen": 1795001972.0874581,
+    "ast_hash": "49b20702e9dd9ee5b8650ae29a249fa8",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchCalendarPanel.swift": {
@@ -4566,9 +4566,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchDockChips.swift": {
-    "mtime": 1794990896.4710164,
-    "seen": 1794991309.571776,
-    "ast_hash": "c25d0c2e4373077f653996807ac0977e",
+    "mtime": 1795001960.1884859,
+    "seen": 1795001972.087466,
+    "ast_hash": "edcd3b70dbfd99fcfc64cf23242be159",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchEventCard.swift": {
@@ -6600,9 +6600,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/ClaudeHookConfig.swift": {
-    "mtime": 1793190233.6155765,
-    "seen": 1793190252.336632,
-    "ast_hash": "a575533a7feebafe802e93177966f1ed",
+    "mtime": 1795001875.4289634,
+    "seen": 1795001972.0879328,
+    "ast_hash": "35056b143a88143d5450f7a7bb788bef",
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/ClaudeHookStatus.swift": {
@@ -6894,9 +6894,9 @@
     "semantic_hash": ""
   },
   "App/Composition/ClaudeApprovalService.swift": {
-    "mtime": 1793190233.6009352,
-    "seen": 1793190252.3363998,
-    "ast_hash": "36e2d83644900a3a653e0cd1344e63ad",
+    "mtime": 1795001958.4708889,
+    "seen": 1795001972.087094,
+    "ast_hash": "c98f79855a3e8003fcd1ff76442e0a48",
     "semantic_hash": ""
   },
   "App/Composition/PopStore.swift": {
