@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1794994048.3928368,
-    "seen": 1794996059.2281091,
-    "ast_hash": "07aeef2e7b96779dd6546c87c8822305",
+    "mtime": 1795007218.7880073,
+    "seen": 1795009097.722141,
+    "ast_hash": "1614257aec73832d9c47be2e20ff4eb9",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1140,15 +1140,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
-    "mtime": 1792451351.9273088,
-    "seen": 1792451836.244065,
-    "ast_hash": "59cc1d7b67b96399bade79840a56de2a",
+    "mtime": 1795007176.2399898,
+    "seen": 1795009097.7224598,
+    "ast_hash": "b7ef326079c3da9dc1e1d33449c20fb1",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1794918827.7906585,
-    "seen": 1794919054.009996,
-    "ast_hash": "a657490497f98a5b4d8e16fe8370764e",
+    "mtime": 1795007181.8431673,
+    "seen": 1795009097.722471,
+    "ast_hash": "df6551b60625d0633f26c63135a7887e",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1793812587.7024493,
-    "seen": 1793814325.9906409,
-    "ast_hash": "26f98d32dce5c0f01ff7d625d4f98a33",
+    "mtime": 1795007239.9548547,
+    "seen": 1795009097.722549,
+    "ast_hash": "6a702de522ec7f1faf41c02398f41137",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -2502,10 +2502,10 @@
     "semantic_hash": "c67500d2664875a06720b0a5c719a093"
   },
   "Core/Support/WelcomeGuideStep.swift": {
-    "mtime": 1791999130.754767,
-    "seen": 1792295707.060626,
-    "ast_hash": "349f9db74f7543e7d70c53e744a967b6",
-    "semantic_hash": "349f9db74f7543e7d70c53e744a967b6"
+    "mtime": 1795007166.1795688,
+    "seen": 1795009097.723297,
+    "ast_hash": "6495693d6b8e3eba6b791670b4802d17",
+    "semantic_hash": ""
   },
   "Core/Support/WidgetLayoutModel.swift": {
     "mtime": 1795003982.5483682,
@@ -4296,10 +4296,10 @@
     "semantic_hash": "95ea6b80e13237dae8450c33b7c239bc"
   },
   "Tests/Unit/WelcomeGuideOnboardingTests.swift": {
-    "mtime": 1792041282.0594747,
-    "seen": 1792295707.0608158,
-    "ast_hash": "e678112faea190ada7f9122588aac4ce",
-    "semantic_hash": "e678112faea190ada7f9122588aac4ce"
+    "mtime": 1795007224.502342,
+    "seen": 1795009097.7240908,
+    "ast_hash": "a5898d3899e030977652afa683d9930e",
+    "semantic_hash": ""
   },
   "Tests/Unit/WidgetLayoutModelTests.swift": {
     "mtime": 1795004109.7567418,
@@ -4596,9 +4596,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1794878011.5692222,
-    "seen": 1794878479.160682,
-    "ast_hash": "57e77a47e269d2e2287266aa29d29eff",
+    "mtime": 1795007179.3866527,
+    "seen": 1795009097.722452,
+    "ast_hash": "7090e4547fc7bfdca35bf026bf6cbe11",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795004066.267241,
-    "seen": 1795004485.890142,
-    "ast_hash": "4cc4c36b4ff9d1d19aa9913eba94bb30",
+    "mtime": 1795007186.5032356,
+    "seen": 1795009097.722469,
+    "ast_hash": "9fcd21097eb93eb2067e594ceff27671",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
