@@ -155,7 +155,7 @@ struct DockWingHostView: View {
         case .friends:
             DockFriendsWidgetView(onOpenSettings: onOpenSettings)
         case .telemetry, .ram, .network, .disk, .battery:
-            DockTelemetryWidgetView()
+            DockTelemetryWidgetView(preset: preset)
         case .ai:
             DockAIWingWidgetView()
         }
@@ -305,7 +305,7 @@ struct DockUniversalWidgetCard: View {
         case .friends:
             DockFriendsWidgetView(onOpenSettings: onOpenSettings)
         case .telemetry, .ram, .network, .disk, .battery:
-            DockTelemetryWidgetView()
+            DockTelemetryWidgetView(preset: model.preset)
         case .ai:
             DockAIWingWidgetView()
         }

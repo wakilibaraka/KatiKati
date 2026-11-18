@@ -201,7 +201,7 @@ final class DockWingModelsTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertFalse(store.dockWings.hasAnyActiveWing)
+        XCTAssertEqual(store.dockWings, .recommendedDefault)
         XCTAssertFalse(store.dockWingGeoIPEnabled)
         XCTAssertFalse(store.dockWingSpotifyOAuthEnabled)
         XCTAssertFalse(store.dockWingTelemetryIOHIDEnabled)

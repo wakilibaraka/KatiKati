@@ -606,7 +606,7 @@ final class AppSettingsStore: ObservableObject {
         widgetOrder = storedWidgetLayout.visibleOrder
         stripPlacementMap = StripPlacementMap.decode(defaults.data(forKey: StripPlacementMap.defaultsKey)) ?? StripPlacementMap()
         userWidgetPresets = WidgetPresets.decode(defaults.data(forKey: WidgetPresets.defaultsKey))
-        dockWings = DockWingsConfiguration.decode(defaults.data(forKey: DockWingsConfiguration.defaultsKey)) ?? .default
+        dockWings = DockWingsConfiguration.resolvedInitialConfig(defaults: defaults)
         dockWingGeoIPEnabled = defaults.bool(forKey: Keys.dockWingGeoIPEnabled)
         dockWingSpotifyOAuthEnabled = defaults.bool(forKey: Keys.dockWingSpotifyOAuthEnabled)
         dockWingTelemetryIOHIDEnabled = defaults.bool(forKey: Keys.dockWingTelemetryIOHIDEnabled)
@@ -1726,7 +1726,7 @@ final class AppSettingsStore: ObservableObject {
     }
 
     func resetDockWings() {
-        setDockWings(.default)
+        setDockWings(.recommendedDefault)
     }
 
     private func setDockWings(_ next: DockWingsConfiguration) {

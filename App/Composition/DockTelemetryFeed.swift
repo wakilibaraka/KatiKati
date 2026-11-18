@@ -12,6 +12,8 @@ final class DockTelemetryFeed: ObservableObject {
 
     private let monitor = SystemMonitorController()
     private var history = SampleHistory(capacity: 30)
+    private var ramHistory = SampleHistory(capacity: 30)
+    private var networkHistory = SampleHistory(capacity: 30)
     private var cancellable: AnyCancellable?
     private var holders = 0
     private var tickCount = 0
@@ -38,6 +40,14 @@ final class DockTelemetryFeed: ObservableObject {
             if tickCount == 0 {
                 let mem = SystemMonitorSampler.memory()
                 state.memoryFraction = mem.fraction
+                state.memoryUsedBytes = mem.used
+                state.memoryTotalBytes = mem.total
+                ramHistory.append(mem.fraction)
+                state.ramHistory = ramHistory.normalized(ceiling: 1.0)
+                let disk = SystemMonitorSampler.disk()
+                state.diskUsedFraction = disk.usedFraction
+                state.diskFreeBytes = disk.free
+                state.diskTotalBytes = disk.total
                 seedInitialCPUSample()
             }
             refreshTemperature()
@@ -70,8 +80,21 @@ final class DockTelemetryFeed: ObservableObject {
         state.cpuUsage = snap.cpu
         state.cpuHistory = history.normalized(ceiling: 1.0)
         state.memoryFraction = snap.memory.fraction
+        state.memoryUsedBytes = snap.memory.used
+        state.memoryTotalBytes = snap.memory.total
+        ramHistory.append(snap.memory.fraction)
+        state.ramHistory = ramHistory.normalized(ceiling: 1.0)
         state.downBytesPerSec = snap.down
         state.upBytesPerSec = snap.up
+        let throughput = max(snap.down, snap.up)
+        networkHistory.append(throughput)
+        let peakNet = max(networkHistory.values.max() ?? 1, 250_000)
+        state.networkHistory = networkHistory.normalized(ceiling: peakNet)
+        state.diskUsedFraction = snap.disk.usedFraction
+        state.diskFreeBytes = snap.disk.free
+        state.diskTotalBytes = snap.disk.total
+        state.diskReadBytesPerSec = snap.diskRead
+        state.diskWriteBytesPerSec = snap.diskWrite
         state.frequencyGHz = nominalGHz
         state.thermalState = PowerThermal(ProcessInfo.processInfo.thermalState)
 
@@ -85,6 +108,7 @@ final class DockTelemetryFeed: ObservableObject {
         let useIOHID = iohidEnabled
         Task.detached(priority: .utility) {
             let gpu = SystemMonitorSampler.gpu()
+            let bat = SystemMonitorSampler.battery()
             let iohidTemp = useIOHID ? AppleSiliconSensorReader.readSoCTemperatureCelsius() : nil
             let fallbackBatteryTemp = iohidTemp == nil ? BatteryHealthReader.read()?.temperatureCelsius : nil
             let temp = iohidTemp ?? fallbackBatteryTemp
@@ -92,6 +116,9 @@ final class DockTelemetryFeed: ObservableObject {
                 guard let self else { return }
                 self.state.gpuUsage = gpu
                 self.state.temperatureCelsius = temp
+                self.state.batteryFraction = bat?.fraction
+                self.state.batteryCharging = bat?.isCharging ?? false
+                self.state.batteryWatts = bat?.watts
             }
         }
     }

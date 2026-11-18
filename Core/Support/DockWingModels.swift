@@ -211,6 +211,23 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
         return decoded
     }
 
+    static func resolvedInitialConfig(defaults: UserDefaults) -> DockWingsConfiguration {
+        guard let stored = decode(defaults.data(forKey: defaultsKey)) else {
+            defaults.set(true, forKey: cpuRamMigrationKey)
+            return .recommendedDefault
+        }
+        if !defaults.bool(forKey: cpuRamMigrationKey) {
+            defaults.set(true, forKey: cpuRamMigrationKey)
+            let isLegacyDefault = !stored.hasAnyActiveWing
+                || (stored.right.preset == .vpn && (stored.left.preset == .telemetry || stored.left.preset == .none))
+            if isLegacyDefault {
+                defaults.set(recommendedDefault.encoded(), forKey: defaultsKey)
+                return .recommendedDefault
+            }
+        }
+        return stored
+    }
+
     func encoded() -> Data? {
         try? JSONEncoder().encode(self)
     }
@@ -444,9 +461,21 @@ struct DockTelemetryState: Equatable, Sendable {
     var thermalState: PowerThermal = .nominal
     var cpuHistory: [Double] = []
     var memoryFraction: Double = 0
+    var memoryUsedBytes: UInt64 = 0
+    var memoryTotalBytes: UInt64 = 0
+    var ramHistory: [Double] = []
     var gpuUsage: Double? = nil
     var downBytesPerSec: Double = 0
     var upBytesPerSec: Double = 0
+    var networkHistory: [Double] = []
+    var diskUsedFraction: Double = 0
+    var diskFreeBytes: UInt64 = 0
+    var diskTotalBytes: UInt64 = 0
+    var diskReadBytesPerSec: Double = 0
+    var diskWriteBytesPerSec: Double = 0
+    var batteryFraction: Double? = nil
+    var batteryCharging: Bool = false
+    var batteryWatts: Double? = nil
 }
 
 enum DockSpotifyTrackKey {
