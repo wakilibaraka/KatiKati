@@ -1834,6 +1834,12 @@ final class AppSettingsStore: ObservableObject {
         setDockWings(.recommendedDefault)
     }
 
+    func swapDockWings() {
+        var next = dockWings
+        swap(&next.left, &next.right)
+        setDockWings(next)
+    }
+
     private func setDockWings(_ next: DockWingsConfiguration) {
         guard dockWings != next else { return }
         dockWings = next

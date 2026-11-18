@@ -198,6 +198,11 @@ struct DockWingHostView: View {
             sizeMenuItem(Text("Large"), size: .large, current: currentSize)
         }
         Divider()
+        if stripPlacement.isVertical {
+            Button("Swap Top & Bottom Wings") { settingsStore.swapDockWings() }
+        } else {
+            Button("Swap Left & Right Wings") { settingsStore.swapDockWings() }
+        }
         Button("Wing Settings...") {
             onOpenSettings()
         }
