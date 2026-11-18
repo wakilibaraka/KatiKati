@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1795028530.196122,
-    "seen": 1795028586.209627,
-    "ast_hash": "93884d1c4848509dc14537057d1623f3",
+    "mtime": 1795028613.387436,
+    "seen": 1795028663.966107,
+    "ast_hash": "559f363e64a3650ed587fd34bdc8d8ae",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
