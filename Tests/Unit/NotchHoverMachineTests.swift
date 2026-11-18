@@ -119,4 +119,113 @@ final class NotchHoverMachineTests: XCTestCase {
         XCTAssertEqual(NotchRestContent.time.left, .date)
         XCTAssertEqual(NotchRestContent.time.right, .time)
     }
+
+    func testTimeTravelBufferRingCapAndScrubbing() {
+        var buffer = NotchTimeTravelBuffer()
+        XCTAssertNil(buffer.step(delta: -1))
+
+        for index in 1...30 {
+            buffer.record(NotchTimeTravelEntry(icon: "bell", title: "Event \(index)"))
+        }
+        XCTAssertEqual(buffer.entries.count, NotchTimeTravelBuffer.maxCapacity)
+        XCTAssertEqual(buffer.entries.first?.title, "Event 6")
+        XCTAssertEqual(buffer.entries.last?.title, "Event 30")
+        XCTAssertNil(buffer.currentPosition)
+
+        // First scrub enters at newest entry (Event 30).
+        XCTAssertEqual(buffer.step(delta: -1)?.title, "Event 30")
+        XCTAssertEqual(buffer.currentPosition?.index, 25)
+        XCTAssertEqual(buffer.currentPosition?.total, 25)
+
+        // Step backward to oldest entry and verify lower clamp.
+        XCTAssertEqual(buffer.step(delta: -1)?.title, "Event 29")
+        XCTAssertEqual(buffer.step(delta: -50)?.title, "Event 6")
+        XCTAssertEqual(buffer.step(delta: -1)?.title, "Event 6")
+
+        // Step forward and clamp at newest.
+        XCTAssertEqual(buffer.step(delta: 2)?.title, "Event 8")
+        XCTAssertEqual(buffer.step(delta: 100)?.title, "Event 30")
+
+        buffer.resetCursor()
+        XCTAssertNil(buffer.currentPosition)
+    }
+
+    func testDeferredFocusQueueHoldsNonCriticalAndFlushesSummary() {
+        var queue = DeferredFocusQueue()
+        let regular1 = NotchTimeTravelEntry(icon: "doc", title: "Build Finished")
+        let regular2 = NotchTimeTravelEntry(icon: "tray", title: "Download Complete")
+        let critical = NotchTimeTravelEntry(icon: "exclamationmark.triangle", title: "Approval Required")
+
+        XCTAssertFalse(queue.shouldPresentImmediately(regular1, isCritical: false, isFocusActive: true))
+        XCTAssertTrue(queue.shouldPresentImmediately(critical, isCritical: true, isFocusActive: true))
+        XCTAssertFalse(queue.shouldPresentImmediately(regular2, isCritical: false, isFocusActive: true))
+        XCTAssertEqual(queue.held.count, 2)
+
+        let flushed = queue.flush()
+        XCTAssertEqual(flushed.items.map(\.title), ["Build Finished", "Download Complete"])
+        XCTAssertEqual(flushed.summary, "2 updates held while in Focus")
+        XCTAssertTrue(queue.held.isEmpty)
+        XCTAssertNil(queue.flush().summary)
+
+        XCTAssertTrue(queue.shouldPresentImmediately(regular1, isCritical: false, isFocusActive: false))
+    }
+
+    func testSuggestionBackoffMutesAfterFiveDismissals() {
+        var tracker = SuggestionBackoffTracker()
+        let rule = "sixthSense.mcpBloat"
+        XCTAssertTrue(tracker.shouldSuggest(ruleKey: rule))
+
+        for _ in 0..<4 {
+            tracker.recordDismissal(ruleKey: rule)
+            XCTAssertTrue(tracker.shouldSuggest(ruleKey: rule))
+        }
+        tracker.recordDismissal(ruleKey: rule)
+        XCTAssertFalse(tracker.shouldSuggest(ruleKey: rule))
+        XCTAssertTrue(tracker.shouldSuggest(ruleKey: "sixthSense.other"))
+
+        tracker.recordAccepted(ruleKey: rule)
+        XCTAssertTrue(tracker.shouldSuggest(ruleKey: rule))
+
+        for _ in 0..<5 { tracker.recordDismissal(ruleKey: rule) }
+        XCTAssertFalse(tracker.shouldSuggest(ruleKey: rule))
+        tracker.reset(ruleKey: rule)
+        XCTAssertTrue(tracker.shouldSuggest(ruleKey: rule))
+    }
+
+    func testNotchDesignResolvesDisplayUUIDBeforeDisplayID() {
+        let stored: [String: NotchDesign] = [
+            "UUID-MONITOR-A": .wideBar,
+            "42": .off,
+        ]
+        // UUID match takes precedence over transient display ID "42".
+        XCTAssertEqual(
+            NotchDesign.resolve(
+                display: "42",
+                displayUUID: "UUID-MONITOR-A",
+                hasHardwareNotch: true,
+                stored: stored
+            ),
+            .wideBar
+        )
+        // Falls back to legacy display ID when UUID isn't stored yet.
+        XCTAssertEqual(
+            NotchDesign.resolve(
+                display: "42",
+                displayUUID: "UUID-UNKNOWN",
+                hasHardwareNotch: true,
+                stored: stored
+            ),
+            .off
+        )
+        // Falls back to hardware notch default when neither key matches.
+        XCTAssertEqual(
+            NotchDesign.resolve(
+                display: "99",
+                displayUUID: nil,
+                hasHardwareNotch: false,
+                stored: stored
+            ),
+            .wideBar
+        )
+    }
 }

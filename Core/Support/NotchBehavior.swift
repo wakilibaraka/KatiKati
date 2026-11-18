@@ -31,8 +31,16 @@ enum NotchDesign: String, CaseIterable, Identifiable, Sendable {
         d.set(raw, forKey: defaultsKey)
     }
 
-    static func resolve(display: String, hasHardwareNotch: Bool, stored: [String: NotchDesign]) -> NotchDesign {
-        stored[display] ?? (hasHardwareNotch ? .notch : .wideBar)
+    static func resolve(
+        display: String,
+        displayUUID: String? = nil,
+        hasHardwareNotch: Bool,
+        stored: [String: NotchDesign]
+    ) -> NotchDesign {
+        if let displayUUID, !displayUUID.isEmpty, let match = stored[displayUUID] {
+            return match
+        }
+        return stored[display] ?? (hasHardwareNotch ? .notch : .wideBar)
     }
 }
 
@@ -148,5 +156,139 @@ enum NotchSizePreset: String, CaseIterable {
 
     static func current(_ d: UserDefaults = .standard) -> CGFloat {
         scale(preset: d.string(forKey: defaultsKey) ?? "", custom: d.object(forKey: customScaleKey) as? Double ?? 1)
+    }
+}
+
+// MARK: - Time Travel, Focus Deferral & Sixth-Sense Backoff
+
+struct NotchTimeTravelEntry: Equatable, Sendable, Identifiable {
+    let id: UUID
+    let icon: String
+    let title: String
+    let subtitle: String?
+    let timestamp: Date
+
+    init(
+        id: UUID = UUID(),
+        icon: String,
+        title: String,
+        subtitle: String? = nil,
+        timestamp: Date = Date()
+    ) {
+        self.id = id
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.timestamp = timestamp
+    }
+}
+
+/// Fixed-capacity ring buffer of recent notch events supporting `Option+Scroll` time travel.
+struct NotchTimeTravelBuffer: Equatable, Sendable {
+    static let maxCapacity = 25
+    private(set) var entries: [NotchTimeTravelEntry] = []
+    private(set) var cursor: Int?
+
+    var currentPosition: (index: Int, total: Int)? {
+        guard let cursor, entries.indices.contains(cursor) else { return nil }
+        return (cursor + 1, entries.count)
+    }
+
+    mutating func record(_ entry: NotchTimeTravelEntry) {
+        entries.append(entry)
+        if entries.count > Self.maxCapacity {
+            entries.removeFirst(entries.count - Self.maxCapacity)
+        }
+        cursor = nil
+    }
+
+    mutating func step(delta: Int) -> NotchTimeTravelEntry? {
+        guard !entries.isEmpty else {
+            cursor = nil
+            return nil
+        }
+        let next: Int
+        if let current = cursor {
+            next = min(max(current + delta, 0), entries.count - 1)
+        } else {
+            next = entries.count - 1
+        }
+        cursor = next
+        return entries[next]
+    }
+
+    mutating func resetCursor() {
+        cursor = nil
+    }
+}
+
+/// Holds non-critical notch alerts while macOS Focus is active and flushes a summary afterwards.
+struct DeferredFocusQueue: Equatable, Sendable {
+    private(set) var held: [NotchTimeTravelEntry] = []
+
+    /// Returns `true` when the alert should display immediately, or `false` if held for Focus.
+    mutating func shouldPresentImmediately(
+        _ entry: NotchTimeTravelEntry,
+        isCritical: Bool,
+        isFocusActive: Bool
+    ) -> Bool {
+        if isCritical || !isFocusActive {
+            return true
+        }
+        held.append(entry)
+        return false
+    }
+
+    mutating func flush() -> (items: [NotchTimeTravelEntry], summary: String?) {
+        guard !held.isEmpty else { return ([], nil) }
+        let items = held
+        held.removeAll()
+        let summary: String
+        if items.count == 1, let first = items.first {
+            summary = "1 update held while in Focus: \(first.title)"
+        } else {
+            summary = "\(items.count) updates held while in Focus"
+        }
+        return (items, summary)
+    }
+}
+
+/// Mutes recurring Sixth-Sense suggestions for a rule key after 5 dismissals until accepted or reset.
+struct SuggestionBackoffTracker: Equatable, Sendable {
+    static let dismissalThreshold = 5
+    static let defaultsKey = "com.katikati.notch.suggestionDismissals"
+    private(set) var dismissals: [String: Int]
+
+    init(dismissals: [String: Int] = [:]) {
+        self.dismissals = dismissals
+    }
+
+    func shouldSuggest(ruleKey: String) -> Bool {
+        (dismissals[ruleKey] ?? 0) < Self.dismissalThreshold
+    }
+
+    mutating func recordDismissal(ruleKey: String) {
+        dismissals[ruleKey, default: 0] += 1
+    }
+
+    mutating func recordAccepted(ruleKey: String) {
+        dismissals.removeValue(forKey: ruleKey)
+    }
+
+    mutating func reset(ruleKey: String? = nil) {
+        if let ruleKey {
+            dismissals.removeValue(forKey: ruleKey)
+        } else {
+            dismissals.removeAll()
+        }
+    }
+
+    static func load(_ defaults: UserDefaults = .standard) -> SuggestionBackoffTracker {
+        let dict = defaults.dictionary(forKey: defaultsKey) as? [String: Int] ?? [:]
+        return SuggestionBackoffTracker(dismissals: dict)
+    }
+
+    func save(_ defaults: UserDefaults = .standard) {
+        defaults.set(dismissals, forKey: Self.defaultsKey)
     }
 }

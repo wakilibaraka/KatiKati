@@ -19,6 +19,8 @@ final class NotchPanelController: LiveEventSink {
     private var cancellables = Set<AnyCancellable>()
     private var eventWork: DispatchWorkItem?
     private var hudExpireWork: DispatchWorkItem?
+    private var timeTravel = NotchTimeTravelBuffer()
+    private var timeTravelScrollDelta: CGFloat = 0
     private lazy var statusService = SystemStatusService()
     private var metrics = NotchMetrics(closedSize: CGSize(width: NotchGeometry.fallbackNotchWidth, height: NotchGeometry.fallbackHeight), hasHardwareNotch: false)
     private var holdsFeed = false
@@ -189,6 +191,7 @@ final class NotchPanelController: LiveEventSink {
         }
         let presentation = LiveEventPresentation(event)
         let now = Date()
+        timeTravel.record(NotchTimeTravelEntry(icon: presentation.symbol, title: presentation.headline, subtitle: presentation.detail, timestamp: now))
         model.activityQueue.enqueue(
             NotchActivityItem(
                 id: "event.\(presentation.symbol)",
@@ -432,8 +435,36 @@ final class NotchPanelController: LiveEventSink {
         }
     }
 
+    private func nextTimeTravelStep(for event: NSEvent) -> Int? {
+        if event.phase == .ended || event.phase == .cancelled {
+            timeTravelScrollDelta = 0
+            return nil
+        }
+        let dy = event.scrollingDeltaY
+        if !event.hasPreciseScrollingDeltas {
+            timeTravelScrollDelta = 0
+            return abs(dy) > 0.01 ? (dy > 0 ? -1 : 1) : nil
+        }
+        timeTravelScrollDelta += dy
+        guard abs(timeTravelScrollDelta) >= 28 else { return nil }
+        let step = timeTravelScrollDelta > 0 ? -1 : 1
+        timeTravelScrollDelta = 0
+        return step
+    }
+
     private func handleScroll(_ event: NSEvent) -> Bool {
-        guard panel != nil, event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty else {
+        let mods = event.modifierFlags.intersection([.command, .control, .option, .shift])
+        if panel != nil, mods == [.option], !timeTravel.entries.isEmpty {
+            if let delta = nextTimeTravelStep(for: event), let entry = timeTravel.step(delta: delta) {
+                let pos = timeTravel.currentPosition
+                let label = pos.map { "\(entry.title) (\($0.index)/\($0.total))" } ?? entry.title
+                let level = pos.map { Double($0.index) / Double(max(1, $0.total)) } ?? 1
+                showHardwareHUD(id: "notch.timeTravel", icon: entry.icon, title: label, level: level)
+            }
+            return true
+        }
+        timeTravelScrollDelta = 0
+        guard panel != nil, mods.isEmpty else {
             gesture = NotchGestureSupport()
             return false
         }
@@ -662,7 +693,12 @@ final class NotchPanelCoordinator: LiveEventSink {
             let stored = NotchDesign.stored()
             for screen in NSScreen.screens {
                 guard let id = screen.displayID else { continue }
-                let design = NotchDesign.resolve(display: String(id), hasHardwareNotch: screen.safeAreaInsets.top > 0, stored: stored)
+                let design = NotchDesign.resolve(
+                    display: String(id),
+                    displayUUID: DisplayIdentity.uuidString(for: screen),
+                    hasHardwareNotch: screen.safeAreaInsets.top > 0,
+                    stored: stored
+                )
                 if design != .off { wanted[id] = design }
             }
         }
