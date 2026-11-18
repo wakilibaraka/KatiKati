@@ -407,38 +407,63 @@ struct UtilitySettingsBlock: View {
     }
 }
 
-/// 2026-11 Dedicated section for the edge Drawer, temporary Shelf, and Space pinning.
-struct DrawerShelfSettingsBlock: View {
+/// Dedicated settings pane for the Background Apps Drawer capsule flanking the Dock bar.
+struct DrawerSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
+
+    var body: some View {
+        SettingsCard(
+            Text("Drawer"),
+            note: Text("Places the circular Background Apps Drawer capsule on the left or right flank of the bottom Dock bar (or inside Control Center when docked trailing).")
+        ) {
+            SettingsToggleRow(
+                Text("Drawer"),
+                isOn: Binding(get: { store.showDrawer }, set: { store.setShowDrawer($0) }),
+                note: Text("Show the Drawer button beside the Dock to list running background apps with no open window.")
+            )
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Drawer Position"),
+                selection: Binding(get: { store.drawerPlacement }, set: { store.setDrawerPlacement($0) }),
+                note: Text("Left puts the Drawer button before the Dock apps; Right puts it after them.")
+            ) {
+                Text("Left").tag(DrawerPlacement.left)
+                Text("Right").tag(DrawerPlacement.right)
+            }
+        }
+    }
+}
+
+/// Dedicated settings pane for the temporary Shelf card stack, Notch File Tray sync, and Space pinning.
+struct ShelfSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     /// 54d — read from the Dock itself, so a change made in System Settings shows here too.
     @State private var fixedSpaces = false
+    @AppStorage(ShelfPolicy.presentationStyleKey) private var presentationStyleRaw = ShelfPresentationStyle.floatingCardStack.rawValue
+    @AppStorage(ShelfPolicy.showTextExcerptKey) private var showTextExcerpt = true
+    @AppStorage(ShelfPolicy.notchAutoOpenOnDragKey) private var notchAutoOpenOnDrag = true
+    @AppStorage(ShelfPolicy.syncNotchTrayKey) private var syncNotchTray = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
-            SettingsCard(Text("Drawer")) {
-                SettingsToggleRow(
-                    Text("Drawer"),
-                    isOn: Binding(
-                        get: { store.showDrawer },
-                        set: { store.setShowDrawer($0) }
-                    )
+            SettingsCard(Text("Shelf")) {
+                SettingsPickerRow(
+                    Text("Shelf View Style"),
+                    selection: $presentationStyleRaw
+                ) {
+                    ForEach(ShelfPresentationStyle.allCases) { style in
+                        Text(verbatim: style.localizedTitle).tag(style.rawValue)
+                    }
+                }
+                SettingsDivider()
+                SettingsRowPair(
+                    left: { SettingsToggleRow(Text("Text Excerpt Previews"), isOn: $showTextExcerpt).padding(.trailing, 12) },
+                    right: { SettingsToggleRow(Text("Sync Notch Tray & Dock Shelf"), isOn: $syncNotchTray).padding(.leading, 12) }
                 )
                 SettingsDivider()
-                SettingsPickerRow(
-                    Text("Drawer Position"),
-                    selection: Binding(
-                        get: { store.drawerPlacement },
-                        set: { store.setDrawerPlacement($0) }
-                    )
-                ) {
-                    Text("Left").tag(DrawerPlacement.left)
-                    Text("Right").tag(DrawerPlacement.right)
-                }
-            }
-            SettingsCard(Text("Shelf")) {
-                SettingsToggleRow(
-                    Text("Shake to Shelf"),
-                    isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })
+                SettingsRowPair(
+                    left: { SettingsToggleRow(Text("Notch Auto-Open on Drag"), isOn: $notchAutoOpenOnDrag).padding(.trailing, 12) },
+                    right: { SettingsToggleRow(Text("Shake to Shelf"), isOn: Binding(get: { store.shelfShakeEnabled }, set: { store.setShelfShakeEnabled($0) })).padding(.leading, 12) }
                 )
                 SettingsDivider()
                 SettingsToggleRow(
@@ -478,8 +503,53 @@ struct DrawerShelfSettingsBlock: View {
                     note: Text("Stops macOS from rearranging Spaces by most recent use, so they stay in the order you made them. The Dock restarts once. Turning this off puts your earlier setting back.")
                 )
             }
+            SettingsCard(Text("How to Use Shelf & File Tray")) {
+                HStack(alignment: .top, spacing: 10) {
+                    howToTile(
+                        symbol: "cursorarrow.motionlines",
+                        title: Text("Shake Cursor"),
+                        detail: Text("Shake mouse while dragging any file or text to summon the Shelf under your cursor")
+                    ) {
+                        Button("Test Shake Shelf") { triggerTestShakeShelf() }
+                            .buttonStyle(SettingsGelButtonStyle())
+                            .controlSize(.small)
+                    }
+                    howToTile(
+                        symbol: "tray.and.arrow.down.fill",
+                        title: Text("Notch File Tray"),
+                        detail: Text("Drag files to the top notch to park, zip, or convert them")
+                    ) { EmptyView() }
+                    howToTile(
+                        symbol: "rectangle.stack.fill",
+                        title: Text("Dock Drop & Transform"),
+                        detail: Text("Drop files, links, or text onto the Dock Shelf icon to stack rich cards and transform them")
+                    ) { EmptyView() }
+                }
+            }
         }
         .task { fixedSpaces = await AppDelegate.shared?.fixedSpaceOrderState() ?? false }
+    }
+
+    private func howToTile<Footer: View>(symbol: String, title: Text, detail: Text, @ViewBuilder footer: () -> Footer) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 5) {
+                Image(systemName: symbol).font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.accentColor)
+                title.font(.system(size: 11.5, weight: .semibold))
+            }
+            detail.font(.system(size: 10.5)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            footer()
+        }
+        .padding(9)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    private func triggerTestShakeShelf() {
+        let shelf = AppDelegate.shared?.shelfStore ?? ShelfStore()
+        shelf.pulseForShake()
+        let panel = ShelfDropTargetPanel(shelf: shelf)
+        panel.present(near: NSEvent.mouseLocation)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { panel.close() }
     }
 
     /// 54d: it changes a macOS setting and restarts the Dock, so turning it on asks first. Off only puts

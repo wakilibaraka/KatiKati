@@ -9,9 +9,9 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsTwentyTwoTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 22, "twenty-two sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 22,
+    func testTheSidebarIsTwentyThreeTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 23, "twenty-three sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 23,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -26,9 +26,11 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
         XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
-        // 2026-11 reorganization: Menu Bar, Drawer & Shelf, AI Tracking elevated to dedicated tabs
+        // 2026-11 reorganization: Menu Bar, Drawer, Shelf, AI Tracking elevated to dedicated tabs
         XCTAssertEqual(SettingsTab(rawValue: "menuBar"), .menuBar)
-        XCTAssertEqual(SettingsTab(rawValue: "drawerShelf"), .drawerShelf)
+        XCTAssertEqual(SettingsTab(rawValue: "drawer"), .drawer)
+        XCTAssertEqual(SettingsTab(rawValue: "shelf"), .shelf)
+        XCTAssertEqual(SettingsTab(rawValue: "drawerShelf"), .shelf)
         XCTAssertEqual(SettingsTab(rawValue: "aiTracking"), .aiTracking)
         XCTAssertEqual(SettingsTab(rawValue: "info"), .general, "Info maps back to General for compatibility")
     }

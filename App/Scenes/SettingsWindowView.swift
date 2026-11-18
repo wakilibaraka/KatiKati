@@ -109,7 +109,12 @@ struct SettingsWindowContent: View {
             case .dockItems:
                 SettingsLayoutPane(store: store, mode: .widgets)
                     .background(SettingsPageHeightProbe(tab: .dockItems))
-            case .drawerShelf: drawerShelfPane
+            case .drawer:
+                DrawerSettingsBlock(store: store)
+                    .background(SettingsPageHeightProbe(tab: .drawer))
+            case .shelf:
+                ShelfSettingsBlock(store: store)
+                    .background(SettingsPageHeightProbe(tab: .shelf))
             case .widgets: WidgetLookSettingsBlock(store: store)
             case .weather: weatherPane
             case .notch: notchPane
@@ -285,10 +290,6 @@ struct SettingsWindowContent: View {
                 .labelsHidden().toggleStyle(.switch)
             }
         }
-    }
-
-    private var drawerShelfPane: some View {
-        DrawerShelfSettingsBlock(store: store)
     }
 
     private var aiTrackingPane: some View {

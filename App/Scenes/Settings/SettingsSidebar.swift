@@ -12,7 +12,8 @@ extension SettingsTab {
         case .menuBar: return "menu bar cpu memory gpu storage battery network disk drives"
         case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
         case .dockItems: return "dock widgets chips order size presets motion reorder"
-        case .drawerShelf: return "drawer shelf shake storage expire unpinned system dock spaces"
+        case .drawer: return "drawer capsule left right background apps flank position"
+        case .shelf: return "shelf file tray notch card stack shake storage expire unpinned system dock spaces"
         case .widgets: return "pane tiles calendar glass clock tile colors notes stopwatch look"
         case .weather: return "units temperature wind forecast warnings hero animations"
         case .notch: return "island skin style open panel"
@@ -89,7 +90,7 @@ struct SettingsSidebar: View {
 
     private static let sections: [SidebarSection] = [
         .system([.general, .menuBar, .appearance, .dockItems]),
-        .surfaces([.drawerShelf, .widgets, .weather, .notch, .notifications, .edgeBars]),
+        .surfaces([.drawer, .shelf, .widgets, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
         .productivity([.shortcuts, .radialDial, .aiTracking, .downloads, .clipboard, .tools]),
         .advanced([.advanced])

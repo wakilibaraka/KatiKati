@@ -8,7 +8,8 @@ enum SettingsTab: String, CaseIterable {
     case menuBar
     case appearance
     case dockItems
-    case drawerShelf
+    case drawer
+    case shelf
     case widgets
     case weather
     case notch
@@ -33,7 +34,8 @@ enum SettingsTab: String, CaseIterable {
         case "menuBar": self = .menuBar
         case "appearance": self = .appearance
         case "dockItems": self = .dockItems
-        case "drawerShelf": self = .drawerShelf
+        case "drawer": self = .drawer
+        case "shelf", "drawerShelf": self = .shelf
         case "widgets": self = .widgets
         case "weather": self = .weather
         case "notch": self = .notch
@@ -62,7 +64,8 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return String(localized: "Menu Bar")
         case .appearance: return String(localized: "Appearance")
         case .dockItems: return String(localized: "Dock Items")
-        case .drawerShelf: return String(localized: "Drawer & Shelf")
+        case .drawer: return String(localized: "Drawer")
+        case .shelf: return String(localized: "Shelf")
         case .widgets: return String(localized: "Widgets")
         case .weather: return String(localized: "Weather")
         case .notch: return String(localized: "Notch")
@@ -91,7 +94,8 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return String(localized: "System metrics, drive capacity, and status items.")
         case .appearance: return String(localized: "Themes, icons, and wallpaper.")
         case .dockItems: return String(localized: "Dock widgets: order, size, presets, and motion.")
-        case .drawerShelf: return String(localized: "Edge drawers, temporary shelf, and space pinning.")
+        case .drawer: return String(localized: "Background-app capsule and edge placement.")
+        case .shelf: return String(localized: "Floating card stack, shake-to-shelf, Notch File Tray, and space pinning.")
         case .widgets: return String(localized: "Widget panes: layout, colors, and style.")
         case .weather: return String(localized: "Weather units, layout, and warnings.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
@@ -118,7 +122,8 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return "menubar.rectangle"
         case .appearance: return "paintpalette"
         case .dockItems: return "square.grid.1x2"
-        case .drawerShelf: return "sidebar.squares.trailing"
+        case .drawer: return "sidebar.squares.trailing"
+        case .shelf: return "tray.and.arrow.down"
         case .widgets: return "square.grid.2x2"
         case .weather: return "cloud.sun"
         case .notch: return "capsule.tophalf.filled"
@@ -146,7 +151,8 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return (0.15, 0.65, 0.95)
         case .appearance: return (0.96, 0.33, 0.50)
         case .dockItems: return (0.72, 0.52, 0.20)
-        case .drawerShelf: return (0.92, 0.48, 0.15)
+        case .drawer: return (0.92, 0.48, 0.15)
+        case .shelf: return (0.48, 0.36, 0.88)
         case .widgets: return (0.58, 0.40, 0.93)
         case .weather: return (0.30, 0.72, 0.78)
         case .notch: return (0.30, 0.30, 0.34)

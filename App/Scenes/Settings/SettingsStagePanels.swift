@@ -462,3 +462,119 @@ struct StageEdgeBars: View {
         return rows + CGFloat(max(0, items.count - 1)) * spacing + (style == .bezelDock ? unit * 1.1 : unit * 0.5)
     }
 }
+
+/// Live preview for Drawer: shows the circular Background Apps Drawer capsule on the left or right flank of the Dock bar.
+struct StageDrawer: View {
+    @ObservedObject var store: AppSettingsStore
+
+    var body: some View {
+        GeometryReader { proxy in
+            let w = proxy.size.width, h = proxy.size.height
+            let scale = w / LayoutThumbnailModel.referenceScreen.width
+            let dockY = h - max(22, 26 * scale + 10)
+            let flankX = store.drawerPlacement == .left ? max(28, w * 0.19) : min(w - 28, w * 0.81)
+
+            ZStack {
+                if store.showDrawer {
+                    VStack(spacing: 4) {
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .frame(width: min(76, w * 0.22), height: 42)
+                            .overlay(
+                                LazyVGrid(columns: Array(repeating: GridItem(.fixed(12), spacing: 4), count: 3), spacing: 4) {
+                                    ForEach(0..<6, id: \.self) { _ in
+                                        RoundedRectangle(cornerRadius: 2.5).fill(.white.opacity(0.6)).frame(width: 12, height: 12)
+                                    }
+                                }
+                            )
+                            .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(.white.opacity(0.32), lineWidth: 0.75))
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 16, height: 16)
+                            .overlay(Image(systemName: "chevron.up").font(.system(size: 7, weight: .bold)).foregroundStyle(.white))
+                            .overlay(Circle().strokeBorder(Color.accentColor, lineWidth: 1.5))
+                    }
+                    .position(x: flankX, y: dockY - 34)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.showDrawer)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.drawerPlacement)
+    }
+}
+
+/// Live preview for Shelf: shows the Notch File Tray auto-open pill and the Floating Card Stack / Compact Grid above the Dock.
+struct StageShelf: View {
+    @ObservedObject var store: AppSettingsStore
+    @AppStorage(ShelfPolicy.presentationStyleKey) private var styleRaw = ShelfPresentationStyle.floatingCardStack.rawValue
+    @AppStorage(ShelfPolicy.showTextExcerptKey) private var showTextExcerpt = true
+    @AppStorage(ShelfPolicy.notchAutoOpenOnDragKey) private var notchAutoOpenOnDrag = true
+    @AppStorage(ShelfPolicy.syncNotchTrayKey) private var syncNotchTray = true
+
+    private var presentationStyle: ShelfPresentationStyle { ShelfPresentationStyle(rawValue: styleRaw) ?? .floatingCardStack }
+
+    var body: some View {
+        GeometryReader { proxy in
+            let w = proxy.size.width, h = proxy.size.height
+            VStack(spacing: 0) {
+                if notchAutoOpenOnDrag {
+                    HStack(spacing: 5) {
+                        Image(systemName: "tray.and.arrow.down.fill").font(.system(size: 8, weight: .semibold)).foregroundStyle(.cyan)
+                        Text("Notch File Tray").font(.system(size: 8, weight: .semibold)).foregroundStyle(.white)
+                        if syncNotchTray { Circle().fill(.green).frame(width: 4, height: 4) }
+                    }
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(Capsule().fill(Color.black.opacity(0.75)))
+                    .overlay(Capsule().strokeBorder(.white.opacity(0.24), lineWidth: 0.75))
+                    .padding(.top, max(16, h * 0.14))
+                }
+                Spacer(minLength: 0)
+                shelfPreview(width: min(110, w * 0.34))
+                    .padding(.bottom, max(24, h * 0.18))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: styleRaw)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: showTextExcerpt)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: notchAutoOpenOnDrag)
+    }
+
+    @ViewBuilder
+    private func shelfPreview(width: CGFloat) -> some View {
+        if presentationStyle == .floatingCardStack {
+            VStack(spacing: 4) {
+                Text("Browse").font(.system(size: 7.5, weight: .semibold)).foregroundStyle(.white)
+                    .padding(.horizontal, 12).padding(.vertical, 3)
+                    .background(Capsule().fill(Color(red: 0.44, green: 0.40, blue: 0.70).opacity(0.92)))
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(Color(white: 0.10))
+                    .frame(width: width * 0.82, height: 26)
+                    .overlay(RoundedRectangle(cornerRadius: 3).fill(.blue.opacity(0.4)).padding(4))
+                    .rotationEffect(.degrees(-2))
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(Color(white: 0.96))
+                    .frame(width: width * 0.82, height: showTextExcerpt ? 30 : 20)
+                    .overlay(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Capsule().fill(Color.black.opacity(0.75)).frame(width: width * 0.42, height: 2.5)
+                            if showTextExcerpt {
+                                Capsule().fill(Color.black.opacity(0.38)).frame(width: width * 0.62, height: 2)
+                                Capsule().fill(Color.black.opacity(0.32)).frame(width: width * 0.50, height: 2)
+                            }
+                        }.padding(.horizontal, 6)
+                    }
+                    .rotationEffect(.degrees(1.6))
+            }
+        } else {
+            LazyVGrid(columns: Array(repeating: GridItem(.fixed(16), spacing: 4), count: 3), spacing: 4) {
+                ForEach(0..<6, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 3, style: .continuous).fill(.white.opacity(0.65)).frame(width: 16, height: 16)
+                }
+            }
+            .padding(7)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.ultraThinMaterial))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(.white.opacity(0.3), lineWidth: 0.75))
+        }
+    }
+}
