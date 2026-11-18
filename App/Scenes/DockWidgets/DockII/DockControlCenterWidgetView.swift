@@ -5,6 +5,7 @@ import SwiftUI
 /// Uses `QuickToggleEngine`, `DisplayServicesBrightness`, and `SystemStatusService`.
 struct DockControlCenterWidgetView: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @ObservedObject private var toggles = QuickToggleEngine.shared
     @StateObject private var systemStatus = SystemStatusService()
@@ -20,60 +21,10 @@ struct DockControlCenterWidgetView: View {
         let btOn = toggles.states[.bluetooth] ?? false
         let vol = Double(systemStatus.currentVolumeLevel)
 
-        HStack(spacing: size == .small ? 8 : 11) {
-            if size != .small {
-                glyphButton(
-                    symbol: "airplayaudio",
-                    tint: airplayGreen,
-                    helpText: String(localized: "Display Settings")
-                ) {
-                    toggles.perform(.screenMirroring)
-                }
-                .accessibilityLabel(Text("Screen Mirroring"))
-            }
-
-            glyphButton(
-                symbol: "sun.max.fill",
-                tint: brightness > 0.05 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.45),
-                helpText: String(localized: "Brightness & Volume")
-            ) {
-                brightness = DisplayServicesBrightness.current() ?? brightness
-                showSliderCard.toggle()
-            }
-            .accessibilityLabel(Text("Brightness"))
-
-            glyphButton(
-                symbol: wifiOn ? "wifi" : "wifi.slash",
-                tint: wifiOn ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.42),
-                helpText: String(localized: "Wi-Fi")
-            ) {
-                toggles.perform(.wifi)
-            }
-            .accessibilityLabel(Text("Wi-Fi"))
-
-            if size == .large {
-                glyphButton(
-                    symbol: "dot.radiowaves.left.and.right",
-                    tint: btOn ? bluetoothCyan : DockWidgetStyle.ink.opacity(0.42),
-                    helpText: String(localized: "Bluetooth")
-                ) {
-                    toggles.perform(.bluetooth)
-                }
-                .accessibilityLabel(Text("Bluetooth"))
-            }
-
-            glyphButton(
-                symbol: volumeSymbol(for: vol),
-                tint: vol > 0.01 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.42),
-                helpText: String(localized: "Volume & Brightness")
-            ) {
-                brightness = DisplayServicesBrightness.current() ?? brightness
-                showSliderCard.toggle()
-            }
-            .accessibilityLabel(Text("Volume"))
+        Group {
+            if isVertical { verticalBody(wifiOn: wifiOn, btOn: btOn, vol: vol) }
+            else { horizontalBody(wifiOn: wifiOn, btOn: btOn, vol: vol) }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .popover(isPresented: $showSliderCard, arrowEdge: popoverEdge) {
             DockControlCenterSliderCard(
@@ -97,6 +48,62 @@ struct DockControlCenterWidgetView: View {
         .onDisappear {
             systemStatus.release()
         }
+    }
+
+    private func verticalBody(wifiOn: Bool, btOn: Bool, vol: Double) -> some View {
+        VStack(spacing: size == .small ? 5 : 6) {
+            brightnessButton
+            if size != .small { wifiButton(wifiOn); volumeButton(vol) }
+            if size == .large { bluetoothButton(btOn) }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func horizontalBody(wifiOn: Bool, btOn: Bool, vol: Double) -> some View {
+        HStack(spacing: size == .small ? 8 : 11) {
+            if size != .small {
+                glyphButton(symbol: "airplayaudio", tint: airplayGreen, helpText: String(localized: "Display Settings")) {
+                    toggles.perform(.screenMirroring)
+                }
+                .accessibilityLabel(Text("Screen Mirroring"))
+            }
+            brightnessButton
+            wifiButton(wifiOn)
+            if size == .large { bluetoothButton(btOn) }
+            volumeButton(vol)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+    }
+
+    private var brightnessButton: some View {
+        glyphButton(symbol: "sun.max.fill", tint: brightness > 0.05 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.45),
+                    helpText: String(localized: "Brightness & Volume")) {
+            brightness = DisplayServicesBrightness.current() ?? brightness
+            showSliderCard.toggle()
+        }
+        .accessibilityLabel(Text("Brightness"))
+    }
+
+    private func wifiButton(_ on: Bool) -> some View {
+        glyphButton(symbol: on ? "wifi" : "wifi.slash", tint: on ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.42),
+                    helpText: String(localized: "Wi-Fi")) { toggles.perform(.wifi) }
+            .accessibilityLabel(Text("Wi-Fi"))
+    }
+
+    private func bluetoothButton(_ on: Bool) -> some View {
+        glyphButton(symbol: "dot.radiowaves.left.and.right", tint: on ? bluetoothCyan : DockWidgetStyle.ink.opacity(0.42),
+                    helpText: String(localized: "Bluetooth")) { toggles.perform(.bluetooth) }
+            .accessibilityLabel(Text("Bluetooth"))
+    }
+
+    private func volumeButton(_ vol: Double) -> some View {
+        glyphButton(symbol: volumeSymbol(for: vol), tint: vol > 0.01 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.42),
+                    helpText: String(localized: "Volume & Brightness")) {
+            brightness = DisplayServicesBrightness.current() ?? brightness
+            showSliderCard.toggle()
+        }
+        .accessibilityLabel(Text("Volume"))
     }
 
     private func volumeSymbol(for level: Double) -> String {
