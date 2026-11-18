@@ -5,10 +5,19 @@ private struct DockBadgesByBundleIDKey: EnvironmentKey {
     static let defaultValue: [String: String] = [:]
 }
 
+private struct DockWingVerticalKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 extension EnvironmentValues {
     var dockBadgesByBundleID: [String: String] {
         get { self[DockBadgesByBundleIDKey.self] }
         set { self[DockBadgesByBundleIDKey.self] = newValue }
+    }
+
+    var dockWingVertical: Bool {
+        get { self[DockWingVerticalKey.self] }
+        set { self[DockWingVerticalKey.self] = newValue }
     }
 }
 
@@ -61,7 +70,13 @@ struct DockWingHostView: View {
     var body: some View {
         let preset = slot.preset
         let activeSize = sizeModel.size
-        let targetWidth = DockWingDimensions.scaledWidth(for: preset, size: activeSize, scale: dockScale)
+        let isVertical = stripPlacement.isVertical
+        let targetWidth = isVertical
+            ? metrics.panelHeight
+            : DockWingDimensions.scaledWidth(for: preset, size: activeSize, scale: dockScale)
+        let targetHeight = isVertical
+            ? DockWingDimensions.scaledVerticalHeight(for: preset, size: activeSize, scale: dockScale)
+            : metrics.panelHeight
 
         Group {
             if preset.isAssigned {
@@ -96,10 +111,10 @@ struct DockWingHostView: View {
 
                     wingContent(preset: preset, size: activeSize)
                         .nativeScaled(dockScale)
-                        .frame(width: targetWidth, height: metrics.panelHeight)
+                        .frame(width: targetWidth, height: targetHeight)
                         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 }
-                .frame(width: targetWidth, height: metrics.panelHeight)
+                .frame(width: targetWidth, height: targetHeight)
                 .dockPanelRim(
                     cornerRadius: cornerRadius,
                     style: theme.panelRimStyle(highlighted: isHovered),
@@ -109,7 +124,7 @@ struct DockWingHostView: View {
                 )
                 .rotation3DEffect(
                     .degrees(isHovered && !reduceMotion ? -1.5 : 0),
-                    axis: (x: 1, y: 0, z: 0),
+                    axis: isVertical ? (x: 0, y: stripPlacement == .left ? 1 : -1, z: 0) : (x: 1, y: 0, z: 0),
                     perspective: 0.85
                 )
                 .animation(
@@ -126,6 +141,7 @@ struct DockWingHostView: View {
                 )
                 .padding(PanelCoordinator.shadowPadding)
                 .environment(\.widgetSize, activeSize)
+                .environment(\.dockWingVertical, isVertical)
                 .environment(\.dockPopoverEdge, stripPlacement.previewEdge)
                 .environment(\.dockBadgesByBundleID, badgeStore.badgesByBundleID)
                 .environment(\.dockThemeStyle, settingsStore.themeMaterial)
@@ -548,6 +564,7 @@ private struct DockFloatingDragHandle<Content: View>: NSViewRepresentable {
 /// Dock II Wing & Universal Stack card for AI: spend, active agent turn, approvals, and Loadout.
 struct DockAIWingWidgetView: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
     @Environment(\.dockPopoverEdge) private var edge
     @ObservedObject private var usage = AgentUsageService.shared
     @ObservedObject private var approvals = ClaudeApprovalService.shared
@@ -556,23 +573,48 @@ struct DockAIWingWidgetView: View {
 
     var body: some View {
         let state = AIDockPresentation.resolve(usage: usage, approvals: approvals, timeTravel: timeTravel)
-        HStack(spacing: 8) {
-            ZStack {
-                Circle().fill(state.tint.opacity(0.18)).frame(width: 26, height: 26)
-                Image(systemName: state.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(state.tint)
-            }
-            VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: state.title).font(.system(size: 11.5, weight: .semibold, design: .rounded)).foregroundStyle(DockWidgetStyle.ink).lineLimit(1)
-                if size != .small { Text(verbatim: state.detail).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary).lineLimit(1) }
-            }
-            Spacer(minLength: 2)
-            if size == .large, let req = state.pendingRequest {
-                Button { approvals.decide(req, .allow) } label: {
-                    Image(systemName: "checkmark.circle.fill").font(.system(size: 14)).foregroundStyle(.green)
-                }.buttonStyle(.plain)
+        Group {
+            if isVertical {
+                VStack(spacing: 4) {
+                    ZStack {
+                        Circle().fill(state.tint.opacity(0.18)).frame(width: 26, height: 26)
+                        Image(systemName: state.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(state.tint)
+                    }
+                    if size != .small {
+                        Text(verbatim: state.title)
+                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(DockWidgetStyle.ink)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    if size == .large, let req = state.pendingRequest {
+                        Button { approvals.decide(req, .allow) } label: {
+                            Image(systemName: "checkmark.circle.fill").font(.system(size: 14)).foregroundStyle(.green)
+                        }.buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 6).padding(.horizontal, 4)
+            } else {
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle().fill(state.tint.opacity(0.18)).frame(width: 26, height: 26)
+                        Image(systemName: state.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(state.tint)
+                    }
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(verbatim: state.title).font(.system(size: 11.5, weight: .semibold, design: .rounded)).foregroundStyle(DockWidgetStyle.ink).lineLimit(1)
+                        if size != .small { Text(verbatim: state.detail).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary).lineLimit(1) }
+                    }
+                    Spacer(minLength: 2)
+                    if size == .large, let req = state.pendingRequest {
+                        Button { approvals.decide(req, .allow) } label: {
+                            Image(systemName: "checkmark.circle.fill").font(.system(size: 14)).foregroundStyle(.green)
+                        }.buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 10)
             }
         }
-        .padding(.horizontal, 10).frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
+        .frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
         .onTapGesture { showPopover.toggle() }
         .popover(isPresented: $showPopover, arrowEdge: edge) { AIDockPopoverView() }
         .onAppear { usage.startMonitoring() }

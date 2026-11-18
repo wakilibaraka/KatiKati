@@ -7,6 +7,7 @@ struct DockTelemetryWidgetView: View {
     var preset: DockWidgetPresetType = .telemetry
 
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @ObservedObject private var feed = DockTelemetryFeed.shared
     @State private var showDetails = false
@@ -24,32 +25,38 @@ struct DockTelemetryWidgetView: View {
         let spec = resolveSpec(for: feed.state)
         let sparkValues = normalizedSparkValues(spec.values, seedFloor: 0.08)
 
-        ZStack(alignment: .bottom) {
-            ThermalSparklineCanvas(
-                values: sparkValues,
-                fillColors: spec.fillColors,
-                strokeColors: spec.strokeColors
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.top, 18)
-            .padding(.bottom, 2)
+        Group {
+            if isVertical {
+                verticalBody(spec: spec, sparkValues: sparkValues)
+            } else {
+                ZStack(alignment: .bottom) {
+                    ThermalSparklineCanvas(
+                        values: sparkValues,
+                        fillColors: spec.fillColors,
+                        strokeColors: spec.strokeColors
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top, 18)
+                    .padding(.bottom, 2)
 
-            HStack(spacing: 6) {
-                Text(verbatim: spec.primary)
-                    .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(DockWidgetStyle.ink)
-                    .lineLimit(1)
+                    HStack(spacing: 6) {
+                        Text(verbatim: spec.primary)
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(DockWidgetStyle.ink)
+                            .lineLimit(1)
 
-                Spacer(minLength: 4)
+                        Spacer(minLength: 4)
 
-                Text(verbatim: spec.trailing)
-                    .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(spec.trailingColor)
-                    .lineLimit(1)
+                        Text(verbatim: spec.trailing)
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(spec.trailingColor)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, 9)
+                    .padding(.top, 5)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                }
             }
-            .padding(.horizontal, 9)
-            .padding(.top, 5)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
@@ -67,6 +74,64 @@ struct DockTelemetryWidgetView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "\(spec.primary) \(spec.trailing)"))
         .accessibilityAddTraits(.isButton)
+    }
+
+    private func verticalBody(spec: DisplaySpec, sparkValues: [Double]) -> some View {
+        let compactValue = verticalPrimaryMetric(for: feed.state)
+        let shortTag = verticalTagLabel
+        return ZStack(alignment: .bottom) {
+            ThermalSparklineCanvas(
+                values: sparkValues,
+                fillColors: spec.fillColors,
+                strokeColors: spec.strokeColors
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.top, size == .small ? 18 : 30)
+            .padding(.bottom, size == .small ? 2 : 16)
+
+            VStack(spacing: 2) {
+                Text(verbatim: shortTag)
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .foregroundStyle(DockWidgetStyle.ink.opacity(0.62))
+                    .lineLimit(1)
+                Text(verbatim: compactValue)
+                    .font(.system(size: 11.5, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(DockWidgetStyle.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.65)
+                Spacer(minLength: 0)
+                if size != .small {
+                    Text(verbatim: spec.trailing)
+                        .font(.system(size: 8.5, weight: .semibold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(spec.trailingColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var verticalTagLabel: String {
+        switch preset {
+        case .ram: return "RAM"
+        case .network: return "NET"
+        case .disk: return "SSD"
+        case .battery: return "BAT"
+        default: return "CPU"
+        }
+    }
+
+    private func verticalPrimaryMetric(for state: DockTelemetryState) -> String {
+        switch preset {
+        case .ram: return SystemMonitorFormat.percent(state.memoryFraction)
+        case .network: return DockVpnRateFormat.formatted(state.downBytesPerSec)
+        case .disk: return SystemMonitorFormat.percent(state.diskUsedFraction)
+        case .battery: return SystemMonitorFormat.percent(state.batteryFraction ?? 1.0)
+        default: return SystemMonitorFormat.percent(state.cpuUsage)
+        }
     }
 
     private func normalizedSparkValues(_ history: [Double], seedFloor: Double) -> [Double] {

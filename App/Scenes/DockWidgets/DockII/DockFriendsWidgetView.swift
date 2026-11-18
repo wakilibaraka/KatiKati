@@ -4,6 +4,7 @@ import SwiftUI
 /// Powered by `DockFriendsStore` and `BadgeStore` (with opt-in `CNContactStore` import in Settings).
 struct DockFriendsWidgetView: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @Environment(\.dockBadgesByBundleID) private var badgesByBundleID
     @ObservedObject private var friendsStore = DockFriendsStore.shared
@@ -28,7 +29,7 @@ struct DockFriendsWidgetView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "person.badge.plus")
                             .font(.system(size: 13, weight: .semibold))
-                        if size != .small {
+                        if !isVertical && size != .small {
                             Text("Add Friends")
                                 .font(.system(size: 11.5, weight: .medium, design: .rounded))
                                 .lineLimit(1)
@@ -40,6 +41,12 @@ struct DockFriendsWidgetView: View {
                 }
                 .buttonStyle(.plain)
                 .help(Text("Configure contacts in Wing Settings"))
+            } else if isVertical {
+                VStack(spacing: size == .small ? 4 : 6) {
+                    ForEach(visibleFriends) { friendAvatarButton($0) }
+                }
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 HStack(spacing: size == .small ? 6 : 9) {
                     ForEach(visibleFriends) { friend in

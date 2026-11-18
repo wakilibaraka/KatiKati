@@ -5,6 +5,7 @@ import SwiftUI
 /// Powered by `LiveActivityFeed` (`NowPlayingService`), `DockSpotifyActions` (Like & Share), and `LyricsStore`.
 struct DockSpotifyWidgetView: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @ObservedObject private var feed = LiveActivityFeed.shared
     @ObservedObject private var actions = DockSpotifyActions.shared
@@ -21,34 +22,61 @@ struct DockSpotifyWidgetView: View {
         let liked = actions.isLiked(title: state.title, artist: state.artist)
         let isSpotify = state.bundleIdentifier == "com.spotify.client" || state.appName == "Spotify"
 
-        HStack(spacing: 8) {
-            artworkThumbnail(state: state, isSpotify: isSpotify)
-                .onTapGesture {
-                    showDetail.toggle()
+        Group {
+            if isVertical {
+                VStack(spacing: size == .small ? 0 : 7) {
+                    artworkThumbnail(state: state, isSpotify: isSpotify)
+                        .onTapGesture { showDetail.toggle() }
+                    if size != .small {
+                        Button { feed.togglePlayPause() } label: {
+                            ZStack {
+                                Circle().fill(Color.white.opacity(0.92)).frame(width: 24, height: 24)
+                                Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Color.black)
+                                    .offset(x: state.isPlaying ? 0 : 0.7)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(state.isPlaying ? Text("Pause") : Text("Play"))
+                    }
+                    if size == .large {
+                        iconButton("forward.end.fill", size: 10) { feed.nextTrack() }
+                            .accessibilityLabel(Text("Next Track"))
+                    }
                 }
+                .padding(.vertical, 6).padding(.horizontal, 4)
+            } else {
+                HStack(spacing: 8) {
+                    artworkThumbnail(state: state, isSpotify: isSpotify)
+                        .onTapGesture {
+                            showDetail.toggle()
+                        }
 
-            if size != .small {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(verbatim: title)
-                        .font(.system(size: 11.5, weight: .semibold, design: .rounded))
-                        .foregroundStyle(DockWidgetStyle.ink)
-                        .lineLimit(1)
-                    Text(verbatim: artist)
-                        .font(.system(size: 10, weight: .regular, design: .rounded))
-                        .foregroundStyle(DockWidgetStyle.ink.opacity(DockWidgetStyle.secondaryOpacity))
-                        .lineLimit(1)
+                    if size != .small {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(verbatim: title)
+                                .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                                .foregroundStyle(DockWidgetStyle.ink)
+                                .lineLimit(1)
+                            Text(verbatim: artist)
+                                .font(.system(size: 10, weight: .regular, design: .rounded))
+                                .foregroundStyle(DockWidgetStyle.ink.opacity(DockWidgetStyle.secondaryOpacity))
+                                .lineLimit(1)
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            showDetail.toggle()
+                        }
+                    }
+
+                    transportRow(state: state, liked: liked, hasTrack: hasTrack)
                 }
-                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    showDetail.toggle()
-                }
+                .padding(.horizontal, 9)
+                .padding(.vertical, 5)
             }
-
-            transportRow(state: state, liked: liked, hasTrack: hasTrack)
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 5)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(alignment: .leading) {
             if let data = state.artworkData, let accent = ArtworkAccentCache.accent(for: data) {
