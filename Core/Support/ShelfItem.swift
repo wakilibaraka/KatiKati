@@ -36,6 +36,11 @@ enum ShelfPolicy {
     static let showTextExcerptKey = "com.katikati.shelf.showTextExcerpt"
     static let notchAutoOpenOnDragKey = "com.katikati.shelf.notchAutoOpenOnDrag"
     static let syncNotchTrayKey = "com.katikati.shelf.syncNotchTray"
+    static let hideExamplePreviewKey = "com.katikati.shelf.hideExamplePreview"
+
+    static func isExampleURL(_ url: URL) -> Bool {
+        url.lastPathComponent.hasPrefix("Example_") || url.path.contains("/ShelfExamples/")
+    }
 
     /// Pinned first, then newest first. Stable for equal dates.
     static func ordered(_ items: [ShelfItem]) -> [ShelfItem] {

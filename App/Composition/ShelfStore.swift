@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 /// 中转格（临时文件中转）的持久层：路径列表，**引用不搬家**——文件留在原处，拖出时由
@@ -89,6 +90,96 @@ final class ShelfStore: ObservableObject {
         } catch {
             return nil
         }
+    }
+
+    /// Reads file URLs, web links, text snippets, or copied images from the pasteboard onto the shelf.
+    @discardableResult
+    func stashFromClipboard() -> Bool {
+        let pb = NSPasteboard.general
+        if let urls = pb.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty {
+            stash(paths: urls.map(\.path))
+            return true
+        }
+        if let str = pb.string(forType: .string), !str.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
+            let host = URL(string: trimmed)?.host
+            return stashText(trimmed, suggestedName: host) != nil
+        }
+        if let image = NSImage(pasteboard: pb),
+           let tiff = image.tiffRepresentation,
+           let rep = NSBitmapImageRep(data: tiff),
+           let png = rep.representation(using: .png, properties: [:]) {
+            let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+            let url = Self.shelfFolder.appendingPathComponent("Clipboard \(stamp).png")
+            do {
+                try FileManager.default.createDirectory(at: Self.shelfFolder, withIntermediateDirectories: true)
+                try png.write(to: url, options: .atomic)
+                stash(paths: [url.path])
+                return true
+            } catch {
+                return false
+            }
+        }
+        return false
+    }
+
+    private static var shelfExamplesFolder: URL {
+        shelfFolder.appendingPathComponent("ShelfExamples", isDirectory: true)
+    }
+
+    /// Inserts three clearly marked `Example_` items (image, markdown excerpt, snippet) so users can try
+    /// click selection, double-click open, hover actions, drag-out, and transforms risk-free.
+    func stashSampleShowcase() {
+        let dir = Self.shelfExamplesFolder
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
+        let imgURL = dir.appendingPathComponent("Example_Moodboard_Card.png")
+        let noteURL = dir.appendingPathComponent("Example_Reading_Excerpt.md")
+        let snippetURL = dir.appendingPathComponent("Example_Quick_Snippet.txt")
+
+        if let png = Self.renderExampleMoodboardPNG() {
+            try? png.write(to: imgURL, options: .atomic)
+        }
+        let noteBody = "# Example: Workspace Notes\nThis sample Markdown card shows how Shelf previews notes inline. Single-click to expand or select for batch transforms; double-click to open in your editor."
+        try? noteBody.write(to: noteURL, atomically: true, encoding: .utf8)
+
+        let snippetBody = "Example · Quick Snippet\nDrag files here, shake mouse mid-drag, or click Paste to park links, screenshots, and clipboard text without cluttering Desktop."
+        try? snippetBody.write(to: snippetURL, atomically: true, encoding: .utf8)
+
+        stash(paths: [snippetURL.path, noteURL.path, imgURL.path])
+    }
+
+    private static func renderExampleMoodboardPNG() -> Data? {
+        let size = NSSize(width: 560, height: 260)
+        guard let rep = NSBitmapImageRep(
+            bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+            colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0
+        ) else { return nil }
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        NSColor(calibratedRed: 0.08, green: 0.09, blue: 0.12, alpha: 1).setFill()
+        NSRect(origin: .zero, size: size).fill()
+        let palette: [NSColor] = [
+            NSColor(calibratedRed: 0.25, green: 0.56, blue: 0.96, alpha: 0.9),
+            NSColor(calibratedRed: 0.58, green: 0.42, blue: 0.95, alpha: 0.9),
+            NSColor(calibratedRed: 0.20, green: 0.78, blue: 0.64, alpha: 0.9),
+            NSColor(calibratedRed: 0.95, green: 0.58, blue: 0.26, alpha: 0.9),
+        ]
+        for row in 0..<2 {
+            for col in 0..<4 {
+                palette[(row + col) % palette.count].withAlphaComponent(row == 0 ? 0.88 : 0.48).setFill()
+                let rect = NSRect(x: 24 + CGFloat(col) * 130, y: 140 - CGFloat(row) * 108, width: 118, height: 92)
+                NSBezierPath(roundedRect: rect, xRadius: 12, yRadius: 12).fill()
+            }
+        }
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 16, weight: .bold),
+            .foregroundColor: NSColor.white.withAlphaComponent(0.92),
+        ]
+        ("EXAMPLE · Shelf Image Card" as NSString).draw(at: NSPoint(x: 24, y: 12), withAttributes: attrs)
+        NSGraphicsContext.restoreGraphicsState()
+        return rep.representation(using: .png, properties: [:])
     }
 
     func togglePin(_ path: String) {

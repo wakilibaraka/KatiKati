@@ -96,4 +96,10 @@ final class ShelfLogicTests: XCTestCase {
         let zipActions = ShelfBatchTransformAction.eligibleActions(for: [zip])
         XCTAssertEqual(zipActions, [.zipItems, .copyAllPaths, .airDropShare])
     }
+
+    func testExampleURLDetection() {
+        XCTAssertTrue(ShelfPolicy.isExampleURL(URL(fileURLWithPath: "/tmp/Example_Wiki_Note.md")))
+        XCTAssertTrue(ShelfPolicy.isExampleURL(URL(fileURLWithPath: "/Users/me/Library/Application Support/KatiKati/ShelfExamples/note.txt")))
+        XCTAssertFalse(ShelfPolicy.isExampleURL(URL(fileURLWithPath: "/Users/me/Desktop/notes.md")))
+    }
 }
