@@ -79,7 +79,8 @@ enum IslandLayoutSolver {
         screenOriginX: CGFloat = 0,
         screenMinY: CGFloat = 0,
         appsTrailingClearance: CGFloat = 0,
-        contentInset: CGFloat = IslandChrome.contentInset
+        contentInset: CGFloat = IslandChrome.contentInset,
+        enforceMinimumWidgetWidths: Bool = true
     ) -> IslandLayout {
         let effectiveGap = max(0.5, gap)
         let effectiveMargin = max(0, margin)
@@ -88,11 +89,12 @@ enum IslandLayoutSolver {
         let chromeScale = IslandChrome.scale(barHeight: barHeight)
 
         func width(for section: BarSection) -> CGFloat {
-            // Floor stored overrides at the section's intrinsic minimum — legacy values (e.g. clock = 40
-            // from the old tile layout) starve the chip and render a clipped pill while the island math
-            // stays in-bounds. Phase 40e retired the slider that wrote these, but the rail still sets the
-            // width and pre-40e values still migrate in, so the floor stays.
-            if let custom = widgetWidths[section] { return max(custom, section.minimumWidgetWidth) }
+            // Floor stored overrides at the section's intrinsic minimum on horizontal bars — legacy
+            // values (e.g. clock = 40) starve horizontal pills. Vertical rails pass explicit compact
+            // square/tile lengths (`enforceMinimumWidgetWidths = false`) so split islands hug tiles.
+            if let custom = widgetWidths[section] {
+                return enforceMinimumWidgetWidths ? max(custom, section.minimumWidgetWidth) : max(1, custom)
+            }
             switch section {
             case .weather: return weatherWidth
             case .clock: return clockWidth

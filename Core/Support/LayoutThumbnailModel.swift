@@ -91,7 +91,8 @@ enum LayoutThumbnailModel {
             bottomMargin: inputs.bottomGap,
             centeredWidth: inputs.centeredWidth,
             // A rail card previews the rail's own ends (Phase 42), or the card and the bar disagree.
-            contentInset: placement.isVertical ? IslandChrome.railContentInset : IslandChrome.contentInset
+            contentInset: placement.isVertical ? IslandChrome.railContentInset : IslandChrome.contentInset,
+            enforceMinimumWidgetWidths: !placement.isVertical
         )
         let capsuleSpace = Self.capsuleSpace(barHeight: inputs.barHeight)
         var capsule: CGRect?

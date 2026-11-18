@@ -398,7 +398,8 @@ enum PanelGeometry {
         widgetLayout: WidgetLayout? = nil,
         tileStride: CGFloat? = nil,
         contentInset: CGFloat = IslandChrome.contentInset,
-        controlCentreTrailing: Bool = false
+        controlCentreTrailing: Bool = false,
+        enforceMinimumWidgetWidths: Bool = true
     ) -> CGRect {
         switch mode {
         case .windows:
@@ -471,7 +472,8 @@ enum PanelGeometry {
                 screenOriginX: screen.frame.minX,
                 screenMinY: screen.frame.minY,
                 appsTrailingClearance: capsuleSpace,
-                contentInset: contentInset
+                contentInset: contentInset,
+                enforceMinimumWidgetWidths: enforceMinimumWidgetWidths
             )
             guard slot < layout.islands.count else {
                 return dockTargetFrame(contentWidth: contentWidth, on: screen, placement: placement, metrics: metrics)
@@ -603,7 +605,8 @@ enum PanelGeometry {
                                        centeredWidth: centeredWidth,
                                        gap: gap, margin: margin, widgetLayout: layout,
                                        tileStride: IslandChrome.railChipStride(barHeight: metrics.panelHeight),
-                                       contentInset: IslandChrome.railContentInset)
+                                       contentInset: IslandChrome.railContentInset,
+                                       enforceMinimumWidgetWidths: false)
         return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics, topReserve: wingPlan.topReserve)
     }
 

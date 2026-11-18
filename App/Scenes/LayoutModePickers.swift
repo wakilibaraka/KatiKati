@@ -97,7 +97,7 @@ struct LayoutModePicker: View {
                         LayoutModeThumbnail(mode: mode, inputs: inputs, highlighted: isSelected,
                                             minimumIslandHeight: minimumIslandThickness)
                             .frame(width: cardSize.width, height: cardSize.height)
-                        LayoutModeTitle(mode: mode)
+                        LayoutModeTitle(mode: mode, isVertical: inputs.placement.isVertical)
                             .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
                             .lineLimit(1)
                     }
@@ -137,10 +137,12 @@ struct LayoutModePicker: View {
 /// Localized mode name. Literals, so the localization gate sees each key.
 struct LayoutModeTitle: View {
     let mode: BarLayoutMode
+    var isVertical = false
 
     var body: some View {
         switch mode {
-        case .windows: Text("Full Width")
+        case .windows:
+            if isVertical { Text("Full Height") } else { Text("Full Width") }
         case .split3: Text("Split 3")
         case .split4: Text("Split 4")
         case .split5: Text("Split 5")
@@ -254,10 +256,16 @@ struct ThemeSwatch: View {
 /// One-line description of a mode under the picker.
 struct LayoutModeDetail: View {
     let mode: BarLayoutMode
+    var isVertical = false
 
     var body: some View {
         switch mode {
-        case .windows: Text("One full-width bar across the bottom of the screen.")
+        case .windows:
+            if isVertical {
+                Text("One full-height rail along the side of the screen.")
+            } else {
+                Text("One full-width bar across the bottom of the screen.")
+            }
         case .split3: Text("Three sections: launcher and weather, apps and now playing, clock and widgets.")
         case .split4: Text("Four sections: launcher and weather, apps, now playing, clock and widgets.")
         case .split5: Text("Five sections: launcher, weather, apps and now playing, clock, widgets.")

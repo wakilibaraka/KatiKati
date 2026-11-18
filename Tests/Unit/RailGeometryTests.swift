@@ -124,7 +124,8 @@ final class RailGeometryTests: XCTestCase {
                                             placement: .right, metrics: metrics, gap: 10, margin: 12,
                                             widgetLayout: PanelGeometry.railWidgetLayout(layout),
                                             tileStride: IslandChrome.railChipStride(barHeight: metrics.panelHeight),
-                                            contentInset: inset)
+                                            contentInset: inset,
+                                            enforceMinimumWidgetWidths: false)
         }
         let rail = PanelGeometry.stripTargetFrame(slot: 0, contentLength: 120, mode: .split3,
                                                   stripPlacement: .left, on: screen, metrics: metrics,
@@ -280,6 +281,34 @@ final class RailGeometryTests: XCTestCase {
             visibleUtilityCount: 7
         ).insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
         XCTAssertGreaterThanOrEqual(trailing.height, sevenCount, "Split 3 trailing island must fit all 7 stacked utilities")
+    }
+
+    func testRailSplit5PreservesIslandGapWithActiveWings() {
+        let wings = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .telemetry),
+            right: DockWingSlotConfig(preset: .ram)
+        )
+        let plates = (0..<BarLayoutMode.split5.slotCount).map { slot in
+            let sections = BarSection.islands(for: .split5)[slot]
+            return PanelGeometry.stripTargetFrame(
+                slot: slot,
+                contentLength: sections.contains(.apps) ? 200 : 120,
+                mode: .split5,
+                stripPlacement: .left,
+                on: screen,
+                metrics: metrics,
+                gap: 10,
+                margin: 12,
+                widgetLayout: layout,
+                wingConfig: wings,
+                visibleUtilityCount: 7
+            ).insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        }.sorted { $0.maxY > $1.maxY }
+
+        for (upper, lower) in zip(plates, plates.dropFirst()) {
+            let sectionGap = upper.minY - lower.maxY
+            XCTAssertGreaterThanOrEqual(sectionGap, 9.9, "Vertical split5 should keep requested inter-island gap")
+        }
     }
 }
 

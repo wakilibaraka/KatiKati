@@ -61685,13 +61685,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "左边缘"
+            "value": "左边"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "左邊緣"
+            "value": "左邊"
           }
         },
         "ja": {
@@ -99090,13 +99090,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "右边缘"
+            "value": "右边"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "右邊緣"
+            "value": "右邊"
           }
         },
         "ja": {
@@ -140368,6 +140368,160 @@
           "stringUnit": {
             "state": "translated",
             "value": "實用工具彈窗"
+          }
+        }
+      }
+    },
+    "Full Height": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Height"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全高"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全高"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全高"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volle Höhe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pleine hauteur"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alto completo"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alto completo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altura total"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altura total"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altezza piena"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 높이"
+          }
+        }
+      }
+    },
+    "One full-height rail along the side of the screen.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One full-height rail along the side of the screen."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一条沿屏幕侧边铺开的全高边栏。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一條沿螢幕側邊鋪開的全高邊欄。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画面側面に沿って上下いっぱいに広がる1本のレール。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Leiste über die ganze Höhe am seitlichen Bildschirmrand."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une barre pleine hauteur le long du bord latéral de l’écran."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una barra vertical de alto completo en el lateral de la pantalla."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una barra vertical de alto completo en el lateral de la pantalla."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma barra vertical de altura total na lateral da tela."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma barra vertical de altura total na lateral do ecrã."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una barra a tutta altezza lungo il lato dello schermo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면 측면을 따라 위아래로 꽉 찬 세로 막대 하나."
           }
         }
       }

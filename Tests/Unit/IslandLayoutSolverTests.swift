@@ -464,4 +464,28 @@ final class IslandLayoutSolverTests: XCTestCase {
         XCTAssertEqual(leftWidth(108), 2 * 215, accuracy: 0.001)
         XCTAssertEqual(leftWidth(27), 215 / 2, accuracy: 0.001)
     }
+
+    func testRailDisablingMinimumWidgetWidthsPreservesCompactSizes() {
+        let layout = IslandLayoutSolver.layout(
+            screenWidth: 1000,
+            mode: .split3,
+            widgetOrder: BarSection.defaultOrder,
+            widgetWidths: [.clock: 40, .weather: 40],
+            tileStride: 42,
+            appCount: 4,
+            weatherWidth: 120,
+            clockWidth: 160,
+            clusterWidth: 40,
+            gap: 10,
+            margin: 12,
+            barHeight: 54,
+            bottomMargin: 8,
+            contentInset: IslandChrome.railContentInset,
+            enforceMinimumWidgetWidths: false
+        )
+        let weather = layout.islands.first { $0.sections.contains(.weather) }
+        XCTAssertNotNil(weather)
+        // [launcher: 40, weather: 40] + 2 * 8 inset + 9 divider = 105
+        XCTAssertEqual(weather!.frame.width, 40 + 40 + 2 * IslandChrome.railContentInset + IslandChrome.dividerGap, accuracy: 0.001)
+    }
 }

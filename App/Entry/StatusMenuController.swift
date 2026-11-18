@@ -70,6 +70,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let layoutMenu = NSMenu()
     private var layoutModeItems: [BarLayoutMode: NSMenuItem] = [:]
     private var bottomEdgeItems: [(gap: CGFloat, item: NSMenuItem)] = []
+    private var edgeHeaderItem: NSMenuItem?
     /// Hat and row of the taskbar height slider; the same value as the grip on the bar.
     private let taskbarSizeSectionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private let taskbarSizeSliderView = TaskbarSizeMenuItemView(accessibilityTitle: String(localized: "Taskbar Size"))
@@ -647,8 +648,9 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         }
         layoutMenu.addItem(.separator())
         let edgeHeader = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        edgeHeader.attributedTitle = Self.sectionTitle(String(localized: "Bottom Edge"))
+        edgeHeader.attributedTitle = Self.sectionTitle(Self.edgeSectionTitle(for: store.stripPlacementMap.global))
         edgeHeader.isEnabled = false
+        edgeHeaderItem = edgeHeader
         layoutMenu.addItem(edgeHeader)
         bottomEdgeItems = [
             (PanelLayoutMetrics.floatingBottomGap, String(localized: "Floating")),
@@ -672,6 +674,9 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// State only — never adds/removes rows, so it is safe while the menu is open.
     /// A custom bottom gap (slider) checks neither preset.
     private func refreshLayoutStates() {
+        let placement = store.stripPlacementMap.global
+        layoutModeItems[.windows]?.title = Self.layoutModeTitle(.windows, isVertical: placement.isVertical)
+        edgeHeaderItem?.attributedTitle = Self.sectionTitle(Self.edgeSectionTitle(for: placement))
         for (mode, item) in layoutModeItems {
             item.state = mode == store.barLayoutMode ? .on : .off
         }
@@ -680,13 +685,21 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         }
     }
 
-    static func layoutModeTitle(_ mode: BarLayoutMode) -> String {
+    static func layoutModeTitle(_ mode: BarLayoutMode, isVertical: Bool = false) -> String {
         switch mode {
-        case .windows: return String(localized: "Full Width")
+        case .windows: return isVertical ? String(localized: "Full Height") : String(localized: "Full Width")
         case .split3: return String(localized: "Split 3")
         case .split4: return String(localized: "Split 4")
         case .split5: return String(localized: "Split 5")
         case .centered: return String(localized: "Centered")
+        }
+    }
+
+    static func edgeSectionTitle(for placement: StripPlacement) -> String {
+        switch placement {
+        case .bottom: return String(localized: "Bottom Edge")
+        case .left: return String(localized: "Left Edge")
+        case .right: return String(localized: "Right Edge")
         }
     }
 

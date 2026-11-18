@@ -12,7 +12,7 @@ extension SettingsLayoutPane {
                 LayoutModePicker(selection: store.barLayoutMode, inputs: inputs) { store.setBarLayoutMode($0) }
                 // Fixed two-line box: the window is measured once per tab switch, so the
                 // pane height must not change with the selected mode.
-                LayoutModeDetail(mode: store.barLayoutMode)
+                LayoutModeDetail(mode: store.barLayoutMode, isVertical: store.stripPlacementMap.global.isVertical)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -70,8 +70,8 @@ extension SettingsLayoutPane {
                             store.setCenteredWidth($0)
                         }
                         .disabled(store.barLayoutMode != .centered)
-                        SettingsRow(Text("Bottom Edge")) {
-                            Picker("Bottom Edge", selection: Binding(
+                        SettingsRow(edgeRowTitle) {
+                            Picker(selection: Binding(
                                 get: { BottomEdgeChoice(gap: store.bottomGap) },
                                 set: { choice in
                                     switch choice {
@@ -85,6 +85,8 @@ extension SettingsLayoutPane {
                                 Text("Floating").tag(BottomEdgeChoice.floating)
                                 Text("Hugging").tag(BottomEdgeChoice.hugging)
                                 Text("Custom").tag(BottomEdgeChoice.custom)
+                            } label: {
+                                edgeRowTitle
                             }
                             .labelsHidden()
                             .pickerStyle(.segmented)
@@ -244,6 +246,14 @@ extension SettingsLayoutPane {
             .labelsHidden()
             .pickerStyle(.menu)
             .fixedSize()
+        }
+    }
+
+    private var edgeRowTitle: Text {
+        switch store.stripPlacementMap.global {
+        case .bottom: return Text("Bottom Edge")
+        case .left: return Text("Left Edge")
+        case .right: return Text("Right Edge")
         }
     }
 }
