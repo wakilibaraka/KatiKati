@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1794995418.0263221,
-    "seen": 1794996059.228052,
-    "ast_hash": "b8937d36ae8df8f5d48378730408b178",
+    "mtime": 1795017086.7393563,
+    "seen": 1795017202.2610712,
+    "ast_hash": "0d7d89cdb04ce966ae4799dcf05d792c",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795014699.8846557,
-    "seen": 1795014817.7301729,
-    "ast_hash": "bfe0496df7fb726b9a373c1483786c45",
+    "mtime": 1795017085.0694919,
+    "seen": 1795017202.261308,
+    "ast_hash": "277ff4bd54516225dfafa31eb8cb3711",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -3210,9 +3210,9 @@
     "semantic_hash": "2ca0a88d8fd48cd79ccc8c7a3c03376c"
   },
   "Tests/Unit/BarLayoutModeTests.swift": {
-    "mtime": 1795014704.6794572,
-    "seen": 1795014817.73046,
-    "ast_hash": "67284cde0708a7d5f6f0905e5f43503f",
+    "mtime": 1795017088.5569365,
+    "seen": 1795017202.2615948,
+    "ast_hash": "f7de30e6668073957dfdf5c84da89da9",
     "semantic_hash": ""
   },
   "Tests/Unit/BluetoothDevicesTests.swift": {
