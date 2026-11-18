@@ -17658,79 +17658,79 @@
         }
       }
     },
-    "Claude Code asks to use": {
+    "%@ asks to use": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code asks to use"
+            "value": "%@ asks to use"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code 请求使用"
+            "value": "%@ 请求使用"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code 請求使用"
+            "value": "%@ 請求使用"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code が使用を求めています："
+            "value": "%@ が使用を求めています："
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code möchte verwenden:"
+            "value": "%@ möchte verwenden:"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code demande à utiliser :"
+            "value": "%@ demande à utiliser :"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code pide usar:"
+            "value": "%@ pide usar:"
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code pide usar:"
+            "value": "%@ pide usar:"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Claude Code pede para usar:"
+            "value": "O %@ pede para usar:"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "O Claude Code pede para usar:"
+            "value": "O %@ pede para usar:"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code chiede di usare:"
+            "value": "%@ chiede di usare:"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Claude Code가 사용을 요청합니다:"
+            "value": "%@가 사용을 요청합니다:"
           }
         }
       }

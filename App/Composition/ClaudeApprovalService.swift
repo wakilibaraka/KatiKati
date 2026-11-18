@@ -184,7 +184,7 @@ private struct ClaudeApprovalCardView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: request.provider.symbol).font(.system(size: 11)).foregroundColor(.accentColor)
-                    Text(verbatim: "\(request.provider.displayName) asks to use").font(.system(size: 12)).foregroundColor(.secondary)
+                    Text(verbatim: String(format: String(localized: "%@ asks to use"), request.provider.displayName)).font(.system(size: 12)).foregroundColor(.secondary)
                     Text(verbatim: request.toolName).font(.system(size: 12, weight: .semibold))
                     Spacer(minLength: 0)
                     if service.requests.count > 1 {
