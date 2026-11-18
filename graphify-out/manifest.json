@@ -7530,9 +7530,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingModelsTests.swift": {
-    "mtime": 1795016283.6358035,
-    "seen": 1795016366.189928,
-    "ast_hash": "f997c88c8cd4961db8eb5f0e7e183acd",
+    "mtime": 1795018633.549259,
+    "seen": 1795018640.288161,
+    "ast_hash": "46cc4487930a5c631629e13b59418a55",
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingServicesTests.swift": {
