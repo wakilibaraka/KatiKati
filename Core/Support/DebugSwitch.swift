@@ -219,6 +219,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case powerNotificationDemo = "DOCK_NOTIFY_DEMO"
     /// Enable touch-optimized Dynamic Island metrics & 44pt targets on non-touch Macs (e.g. testing M5 OLED posture).
     case touchIsland = "DOCK_TOUCH_ISLAND"
+    /// Phase 60: force the desktop-layer widget canvas enabled (=1) regardless of defaults; default off.
+    case desktopCanvas = "DOCK_DESKTOP_CANVAS"
 
     var kind: Kind {
         switch self {
@@ -232,7 +234,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .menuHoverSuspend, .hoverMonitorLean, .stripHoverPoll, .resizeCursor, .chipPressDown, .titleSettle,
              .finderReopenEvent, .liveEvents:
             return .killSwitch
-        case .displayTrace, .launchTrace, .chipProbe, .clickTrace, .touchIsland,
+        case .displayTrace, .launchTrace, .chipProbe, .clickTrace, .touchIsland, .desktopCanvas,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
              .devSkipPermissions, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:

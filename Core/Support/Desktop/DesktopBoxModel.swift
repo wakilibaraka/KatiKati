@@ -27,6 +27,13 @@ enum DesktopCanvasConfig {
     static func clampedIconSize(_ value: CGFloat) -> CGFloat {
         min(max(value, iconSizeRange.lowerBound), iconSizeRange.upperBound)
     }
+
+    static func isFeatureEnabled(
+        defaults: UserDefaults = .standard,
+        environment: [String: String] = ProcessInfo.processInfo.environment
+    ) -> Bool {
+        defaults.bool(forKey: enabledKey) || DebugSwitch.desktopCanvas.isEnabled(in: environment)
+    }
 }
 
 enum DesktopWidgetKind: String, Codable, CaseIterable, Sendable {

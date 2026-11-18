@@ -275,6 +275,9 @@
 		DB6000000000000000000032 /* DesktopFolderOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000031 /* DesktopFolderOrdering.swift */; };
 		DB6000000000000000000033 /* DesktopFolderOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000031 /* DesktopFolderOrdering.swift */; };
 		DB6000000000000000000042 /* DesktopBoxCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000041 /* DesktopBoxCoreTests.swift */; };
+		DB6000000000000000000052 /* DesktopRevealPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000051 /* DesktopRevealPolicy.swift */; };
+		DB6000000000000000000053 /* DesktopRevealPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000051 /* DesktopRevealPolicy.swift */; };
+		DB6000000000000000000062 /* DesktopRevealPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6000000000000000000061 /* DesktopRevealPolicyTests.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1563,6 +1566,8 @@
 		DB6000000000000000000021 /* DesktopLayoutEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopLayoutEngine.swift; path = Core/Support/Desktop/DesktopLayoutEngine.swift; sourceTree = SOURCE_ROOT; };
 		DB6000000000000000000031 /* DesktopFolderOrdering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopFolderOrdering.swift; path = Core/Support/Desktop/DesktopFolderOrdering.swift; sourceTree = SOURCE_ROOT; };
 		DB6000000000000000000041 /* DesktopBoxCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopBoxCoreTests.swift; path = Tests/Unit/DesktopBoxCoreTests.swift; sourceTree = SOURCE_ROOT; };
+		DB6000000000000000000051 /* DesktopRevealPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopRevealPolicy.swift; path = Core/Support/Desktop/DesktopRevealPolicy.swift; sourceTree = SOURCE_ROOT; };
+		DB6000000000000000000061 /* DesktopRevealPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopRevealPolicyTests.swift; path = Tests/Unit/DesktopRevealPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3814,6 +3819,7 @@
 				DB6000000000000000000012 /* DesktopBoxModel.swift in Sources */,
 				DB6000000000000000000022 /* DesktopLayoutEngine.swift in Sources */,
 				DB6000000000000000000032 /* DesktopFolderOrdering.swift in Sources */,
+				DB6000000000000000000052 /* DesktopRevealPolicy.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
@@ -4003,6 +4009,8 @@
 				DB6000000000000000000023 /* DesktopLayoutEngine.swift in Sources */,
 				DB6000000000000000000033 /* DesktopFolderOrdering.swift in Sources */,
 				DB6000000000000000000042 /* DesktopBoxCoreTests.swift in Sources */,
+				DB6000000000000000000053 /* DesktopRevealPolicy.swift in Sources */,
+				DB6000000000000000000062 /* DesktopRevealPolicyTests.swift in Sources */,
 				A0000000000000000000B102 /* PeekHold.swift in Sources */,
 				7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,

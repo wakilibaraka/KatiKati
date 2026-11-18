@@ -411,6 +411,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self.terminalPanel.toggle(anchorRect: self.liveUtilityAnchorRect("utility-terminal"))
                 case .dictate: DictationController.shared.toggle()
                 case .dockFocus: NotificationCenter.default.post(name: .dockFocusToggle, object: nil)
+                case .desktopQuickReveal: NotificationCenter.default.post(name: DesktopCanvasNotification.quickReveal, object: nil)
+                case .desktopToggleHidden: NotificationCenter.default.post(name: DesktopCanvasNotification.toggleHidden, object: nil)
                 case .weather: WidgetPanelController.weather.toggle()
                 case .clock: WidgetPanelController.calendar.toggle()
                 case .keepAwake:

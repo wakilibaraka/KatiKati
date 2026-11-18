@@ -52,6 +52,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case dictate
     /// Slice D (OpenTaskbar behavior): take the keyboard onto the dock — arrows, Home/End, Enter, Esc. No default key.
     case dockFocus
+    /// Phase 60: elevate desktop boxes above windows temporarily / toggle hide all. Both default `.off`.
+    case desktopQuickReveal, desktopToggleHidden
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -110,6 +112,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .toggleTerminal: return 51
         case .dictate: return 52
         case .dockFocus: return 53
+        case .desktopQuickReveal: return 54
+        case .desktopToggleHidden: return 55
         }
     }
 
@@ -135,7 +139,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .radialDial: return .key(ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option))
         case .radialDialSnap, .radialDialTools: return .off
         case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
-        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate, .dockFocus: return .off
+        case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate, .dockFocus,
+             .desktopQuickReveal, .desktopToggleHidden: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
         case .windowDrawer: return .key(ShortcutKey(keyCode: 13, modifiers: ShortcutKey.control | ShortcutKey.option))
         }
