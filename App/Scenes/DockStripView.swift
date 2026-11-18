@@ -1415,7 +1415,15 @@ struct DockStripView: View {
             guard let target = WheelWindowCycle.next(ids: ids, front: front, direction: direction) else { return }
             runtime.activate(windowID: target)
         case .timeTravel:
-            break
+            guard let preview = SurfaceTimeTravelCoordinator.shared.activePreview else { return }
+            let hasInlineSurface = settingsStore.dockIslandEnabled || settingsStore.widgetLayout.instance(for: .ai).isVisible
+            if !hasInlineSurface {
+                LiveEventToastPresenter.shared.show(
+                    icon: preview.entry.icon,
+                    headline: "\(preview.entry.title) (\(preview.index)/\(preview.total))",
+                    detail: preview.entry.subtitle
+                )
+            }
         case .volume(let delta):
             guard let step = WheelVolumeThrottle.consume(delta: delta, state: &wheelVolumeState) else { return }
             let level = Double(wheelVolume.currentVolumeLevel) + Double(step)

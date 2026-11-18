@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 // Dynamic Island behavior choices (ported in spirit from vorssaint-utils, GPL-3.0): how the island opens,
@@ -290,5 +291,105 @@ struct SuggestionBackoffTracker: Equatable, Sendable {
 
     func save(_ defaults: UserDefaults = .standard) {
         defaults.set(dismissals, forKey: Self.defaultsKey)
+    }
+}
+
+struct TimeTravelPreview: Equatable, Sendable {
+    let entry: NotchTimeTravelEntry
+    let index: Int
+    let total: Int
+}
+
+/// Shared Time Travel, Focus Deferral & Sixth-Sense Backoff bus across Notch and Dock surfaces.
+@MainActor
+final class SurfaceTimeTravelCoordinator: ObservableObject {
+    static let shared = SurfaceTimeTravelCoordinator()
+
+    @Published private(set) var buffer = NotchTimeTravelBuffer()
+    @Published private(set) var activePreview: TimeTravelPreview?
+    @Published var suggestionBackoff = SuggestionBackoffTracker.load()
+
+    private var focusQueue = DeferredFocusQueue()
+    private var previewExpireWork: DispatchWorkItem?
+    private var scrollDelta: CGFloat = 0
+
+    var heldFocusCount: Int { focusQueue.held.count }
+
+    func record(_ entry: NotchTimeTravelEntry) {
+        buffer.record(entry)
+    }
+
+    @discardableResult
+    func step(delta: Int) -> TimeTravelPreview? {
+        guard let entry = buffer.step(delta: delta), let pos = buffer.currentPosition else { return nil }
+        let preview = TimeTravelPreview(entry: entry, index: pos.index, total: pos.total)
+        activePreview = preview
+        schedulePreviewClear()
+        return preview
+    }
+
+    @discardableResult
+    func scrub(deltaY: CGFloat, hasPreciseDeltas: Bool) -> TimeTravelPreview? {
+        guard !buffer.entries.isEmpty else { return nil }
+        let stepDir: Int?
+        if !hasPreciseDeltas {
+            scrollDelta = 0
+            stepDir = abs(deltaY) > 0.01 ? (deltaY > 0 ? -1 : 1) : nil
+        } else {
+            scrollDelta += deltaY
+            if abs(scrollDelta) >= 28 {
+                stepDir = scrollDelta > 0 ? -1 : 1
+                scrollDelta = 0
+            } else {
+                stepDir = nil
+            }
+        }
+        guard let stepDir else { return nil }
+        return step(delta: stepDir)
+    }
+
+    func resetScrollAccumulator() {
+        scrollDelta = 0
+    }
+
+    func shouldDeliverImmediately(
+        _ entry: NotchTimeTravelEntry,
+        isCritical: Bool,
+        isFocusActive: Bool
+    ) -> Bool {
+        focusQueue.shouldPresentImmediately(entry, isCritical: isCritical, isFocusActive: isFocusActive)
+    }
+
+    func flushFocusQueue() -> (items: [NotchTimeTravelEntry], summary: String?) {
+        let flushed = focusQueue.flush()
+        for item in flushed.items {
+            buffer.record(item)
+        }
+        return flushed
+    }
+
+    func dismissSuggestion(ruleKey: String) {
+        suggestionBackoff.recordDismissal(ruleKey: ruleKey)
+        suggestionBackoff.save()
+    }
+
+    func acceptSuggestion(ruleKey: String) {
+        suggestionBackoff.recordAccepted(ruleKey: ruleKey)
+        suggestionBackoff.save()
+    }
+
+    func resetSuggestion(ruleKey: String? = nil) {
+        suggestionBackoff.reset(ruleKey: ruleKey)
+        suggestionBackoff.save()
+    }
+
+    private func schedulePreviewClear() {
+        previewExpireWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.activePreview = nil
+            self?.buffer.resetCursor()
+        }
+        previewExpireWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2, execute: work)
     }
 }

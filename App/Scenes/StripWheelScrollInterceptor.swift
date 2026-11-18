@@ -63,7 +63,11 @@ final class WheelScrollInterceptorView: NSView {
         guard super.hitTest(point) != nil,
               let event = NSApp.currentEvent,
               event.type == .scrollWheel else { return nil }
-        return action(for: event) == .ignore ? nil : self
+        let resolved = action(for: event)
+        if case .timeTravel = resolved, SurfaceTimeTravelCoordinator.shared.buffer.entries.isEmpty {
+            return nil
+        }
+        return resolved == .ignore ? nil : self
     }
 
     /// 「反转鼠标滚轮方向」开着时**不用管**：那个 tap 插在 session 头部，这里收到的
@@ -74,8 +78,20 @@ final class WheelScrollInterceptorView: NSView {
         case .ignore:
             super.scrollWheel(with: event)
             return
-        case .cycleWindows, .volume, .timeTravel:
+        case .cycleWindows, .volume:
             perform?(action(for: event))
+            return
+        case .timeTravel(let fallbackDelta):
+            if event.phase == .ended || event.phase == .cancelled {
+                SurfaceTimeTravelCoordinator.shared.resetScrollAccumulator()
+                return
+            }
+            if SurfaceTimeTravelCoordinator.shared.scrub(
+                deltaY: event.scrollingDeltaY,
+                hasPreciseDeltas: event.hasPreciseScrollingDeltas
+            ) != nil {
+                perform?(.timeTravel(delta: fallbackDelta))
+            }
             return
         case .scrollStrip(let delta):
             guard let scrollView = resolveScrollViewIfNeeded(),
@@ -117,11 +133,13 @@ final class WheelScrollInterceptorView: NSView {
     }
 
     private static func input(from event: NSEvent) -> StripWheelScroll.Input {
-        StripWheelScroll.Input(
+        let isOptionPressed = event.modifierFlags.intersection([.command, .control, .option, .shift]) == [.option]
+        return StripWheelScroll.Input(
             deltaX: event.scrollingDeltaX,
             deltaY: event.scrollingDeltaY,
             hasPreciseDeltas: event.hasPreciseScrollingDeltas,
-            isDirectionInverted: event.isDirectionInvertedFromDevice
+            isDirectionInverted: event.isDirectionInvertedFromDevice,
+            isOptionPressed: isOptionPressed
         )
     }
 

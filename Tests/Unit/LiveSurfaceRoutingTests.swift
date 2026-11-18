@@ -171,4 +171,35 @@ final class LiveSurfaceRoutingTests: XCTestCase {
         XCTAssertTrue(d.plan(for: event, route: .automatic, usable: [], bannersEnabled: true, now: t0).postBanner)
         XCTAssertFalse(d.plan(for: event, route: .automatic, usable: [], bannersEnabled: true, now: t0.addingTimeInterval(2)).postBanner)
     }
+
+    @MainActor
+    func testSurfaceTimeTravelCoordinatorScrubsAndDefersFocus() {
+        let coord = SurfaceTimeTravelCoordinator()
+        coord.record(NotchTimeTravelEntry(icon: "bell", title: "Download Complete"))
+        coord.record(NotchTimeTravelEntry(icon: "doc.on.clipboard", title: "Copied Snippet"))
+
+        let first = coord.scrub(deltaY: 1, hasPreciseDeltas: false)
+        XCTAssertEqual(first?.entry.title, "Copied Snippet")
+        XCTAssertEqual(first?.index, 2)
+        XCTAssertEqual(coord.activePreview?.index, 2)
+
+        let second = coord.scrub(deltaY: 1, hasPreciseDeltas: false)
+        XCTAssertEqual(second?.entry.title, "Download Complete")
+        XCTAssertEqual(second?.index, 1)
+
+        // Focus mode holds non-critical events and flushes into Time Travel buffer afterwards.
+        XCTAssertFalse(coord.shouldDeliverImmediately(
+            NotchTimeTravelEntry(icon: "arrow.down.circle", title: "Model Ready"),
+            isCritical: false,
+            isFocusActive: true
+        ))
+        XCTAssertTrue(coord.shouldDeliverImmediately(
+            NotchTimeTravelEntry(icon: "timer", title: "Time's up"),
+            isCritical: true,
+            isFocusActive: true
+        ))
+        let flushed = coord.flushFocusQueue()
+        XCTAssertEqual(flushed.items.map(\.title), ["Model Ready"])
+        XCTAssertEqual(coord.buffer.entries.last?.title, "Model Ready")
+    }
 }

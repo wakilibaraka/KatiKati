@@ -33,10 +33,22 @@ protocol LiveEventSink: AnyObject {
 
 extension LiveEventToastPresenter: LiveEventSink {}
 
+extension LiveEvent {
+    /// Timer completions and Focus phase/cycle transitions bypass Focus deferral immediately.
+    var isCriticalForFocus: Bool {
+        switch self {
+        case .timerFinished, .focusPhaseChanged, .focusCycleCompleted:
+            return true
+        case .trackChanged, .stopwatchStopped, .countdownReachedToday, .clipboardCopied, .downloadFinished, .notice:
+            return false
+        }
+    }
+}
+
 @MainActor
 final class LiveEventCenter {
     private let feed: LiveActivityFeed
-    private let toast = LiveEventToastPresenter()
+    private let toast = LiveEventToastPresenter.shared
 
     /// Registered surfaces. A surface with no sink is simply not usable (e.g. the notch before it exists).
     private var sinks: [LiveSurface: LiveEventSink] = [:]
@@ -81,9 +93,17 @@ final class LiveEventCenter {
     /// Diff the current sources against the last snapshot and surface what changed. Split out from
     /// `start()` so it can be driven directly (tests / a forced refresh).
     func evaluate() {
+        let wasFocusRunning = previous.focusIsRunning
         let current = feed.sources(at: Date())
         let events = LiveEventDetector.events(from: previous, to: current)
         previous = current
+
+        if wasFocusRunning && !current.focusIsRunning {
+            let flushed = SurfaceTimeTravelCoordinator.shared.flushFocusQueue()
+            if let summary = flushed.summary {
+                toast.show(icon: "moon.zzz.fill", headline: summary, detail: nil)
+            }
+        }
 
         // The detector returns events most-alert-worthy first; the toast shows the top one only —
         // a second toast landing on top of the first is worse than dropping it.
@@ -98,6 +118,22 @@ final class LiveEventCenter {
     /// `shownOn` set.
     @discardableResult
     func deliver(_ event: LiveEvent, now: Date) -> Set<LiveSurface> {
+        let presentation = LiveEventPresentation(event)
+        let entry = NotchTimeTravelEntry(
+            icon: presentation.symbol,
+            title: presentation.headline,
+            subtitle: presentation.detail,
+            timestamp: now
+        )
+        let isFocusActive = feed.sources(at: now).focusIsRunning
+        guard SurfaceTimeTravelCoordinator.shared.shouldDeliverImmediately(
+            entry,
+            isCritical: event.isCriticalForFocus,
+            isFocusActive: isFocusActive
+        ) else {
+            return []
+        }
+        SurfaceTimeTravelCoordinator.shared.record(entry)
         let usable = Set(sinks.keys.filter { isSurfaceEnabled($0) })
         let plan = dispatcher.plan(for: event, route: route(), usable: usable, bannersEnabled: osBannersEnabled(), now: now)
         for surface in plan.surfaces { sinks[surface]?.show(event) }
@@ -114,13 +150,20 @@ final class LiveEventCenter {
 /// couple of seconds — the same shape as `ShortcutToastPresenter`, so the two feel like one family.
 @MainActor
 final class LiveEventToastPresenter {
+    static let shared = LiveEventToastPresenter()
+
     private var panel: NSPanel?
     private var hideWork: DispatchWorkItem?
 
     func show(_ event: LiveEvent) {
+        let presentation = LiveEventPresentation(event)
+        show(icon: presentation.symbol, headline: presentation.headline, detail: presentation.detail)
+    }
+
+    func show(icon: String, headline: String, detail: String?) {
         let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main
         guard let screen else { return }
-        let host = NSHostingView(rootView: LiveEventToastView(presentation: LiveEventPresentation(event)))
+        let host = NSHostingView(rootView: LiveEventToastView(symbol: icon, headline: headline, detail: detail))
         let size = host.fittingSize
         let panel = self.panel ?? {
             let p = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)
@@ -150,18 +193,20 @@ final class LiveEventToastPresenter {
 }
 
 private struct LiveEventToastView: View {
-    let presentation: LiveEventPresentation
+    let symbol: String
+    let headline: String
+    let detail: String?
 
     var body: some View {
         HStack(spacing: 9) {
-            Image(systemName: presentation.symbol)
+            Image(systemName: symbol)
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
             VStack(alignment: .leading, spacing: 1) {
-                Text(verbatim: presentation.headline)
+                Text(verbatim: headline)
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
-                if let detail = presentation.detail, !detail.isEmpty {
+                if let detail, !detail.isEmpty {
                     Text(verbatim: detail)
                         .font(.system(size: 11))
                         .foregroundStyle(.white.opacity(0.75))
