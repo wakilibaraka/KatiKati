@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795017959.8599691,
-    "seen": 1795018026.88905,
-    "ast_hash": "28473bc32245057fd78198234997b30e",
+    "mtime": 1795028502.954542,
+    "seen": 1795028586.209486,
+    "ast_hash": "9deb8a792dc6c065c5aff37b07269725",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1795018539.7244437,
-    "seen": 1795018623.830891,
-    "ast_hash": "e450f914c76b8ccfe3d8d174a3166046",
+    "mtime": 1795028530.196122,
+    "seen": 1795028586.209627,
+    "ast_hash": "93884d1c4848509dc14537057d1623f3",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
