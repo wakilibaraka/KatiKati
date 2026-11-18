@@ -348,7 +348,7 @@ enum WidgetMenuBuilder {
     }
 
     @MainActor
-    static func menu(for section: BarSection, store: AppSettingsStore) -> NSMenu {
+    static func menu(for section: BarSection, store: AppSettingsStore, isVertical: Bool = false) -> NSMenu {
         let menu = NSMenu()
         guard section != .apps else { return menu }
         let layout = store.widgetLayout
@@ -468,17 +468,22 @@ enum WidgetMenuBuilder {
 
         if let index = layout.order.firstIndex(of: section) {
             if index > 0 {
-                menu.addItem(ClosureMenuItem(String(localized: "Move Left")) {
+                let prevTitle = isVertical ? String(localized: "Move Up") : String(localized: "Move Left")
+                menu.addItem(ClosureMenuItem(prevTitle) {
                     store.setWidgetLayout(store.widgetLayout.moving(from: IndexSet(integer: index), to: index - 1))
                 })
             }
             if index < layout.order.count - 1 {
-                menu.addItem(ClosureMenuItem(String(localized: "Move Right")) {
+                let nextTitle = isVertical ? String(localized: "Move Down") : String(localized: "Move Right")
+                menu.addItem(ClosureMenuItem(nextTitle) {
                     store.setWidgetLayout(store.widgetLayout.moving(from: IndexSet(integer: index), to: index + 2))
                 })
             }
         }
         menu.addItem(.separator())
+        menu.addItem(ClosureMenuItem(String(localized: "Widget Settings…")) {
+            AppDelegate.shared?.openSettings(selecting: section == .weather ? .weather : .dockItems)
+        })
         let presetMenu = NSMenu(title: String(localized: "Apply Preset"))
         for preset in WidgetPresets.builtIns { presetMenu.addItem(ClosureMenuItem(preset.localizedTitle) { store.applyWidgetPreset(preset) }) }
         for preset in store.userWidgetPresets { presetMenu.addItem(ClosureMenuItem(preset.name) { store.applyWidgetPreset(preset) }) }

@@ -15,29 +15,39 @@ final class WidgetEditMode: ObservableObject {
 struct WidgetEditOverlay: View {
     let section: BarSection
     let width: CGFloat
+    var isVertical = false
     @EnvironmentObject private var settingsStore: AppSettingsStore
     @ObservedObject private var editMode = WidgetEditMode.shared
-    @State private var dragX: CGFloat = 0
-    private var compact: Bool { width < 90 }
+    @State private var dragOffset: CGFloat = 0
+    private var compact: Bool { isVertical || width < 90 }
 
     var body: some View {
-        HStack(spacing: compact ? 0 : 6) {
-            button("chevron.left") { move(by: -1) }
-            // Narrow widgets (launcher / widgets, 40 pt) get only the arrows; the ✓ lives on the wider ones.
+        let prevSymbol = isVertical ? "chevron.up" : "chevron.left"
+        let nextSymbol = isVertical ? "chevron.down" : "chevron.right"
+        let controls = Group {
+            button(prevSymbol) { move(by: -1) }
             if !compact { button("checkmark") { editMode.end() } }
-            button("chevron.right") { move(by: 1) }
+            button(nextSymbol) { move(by: 1) }
         }
-        .padding(.horizontal, compact ? 0 : 6)
+        Group {
+            if isVertical {
+                VStack(spacing: 0) { controls }
+            } else {
+                HStack(spacing: compact ? 0 : 6) { controls }
+                    .padding(.horizontal, compact ? 0 : 6)
+            }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.black.opacity(0.45)))
         .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.accentColor, lineWidth: 1.5))
-        .offset(x: dragX)
+        .offset(x: isVertical ? 0 : dragOffset, y: isVertical ? dragOffset : 0)
         .gesture(
             DragGesture(minimumDistance: 6)
-                .onChanged { dragX = $0.translation.width }
+                .onChanged { dragOffset = isVertical ? $0.translation.height : $0.translation.width }
                 .onEnded { value in
-                    dragX = 0
-                    move(by: Int((value.translation.width / max(40, width)).rounded()))
+                    let delta = isVertical ? value.translation.height : value.translation.width
+                    dragOffset = 0
+                    move(by: Int((delta / max(40, width)).rounded()))
                 }
         )
     }
