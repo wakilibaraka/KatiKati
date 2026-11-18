@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1794909594.3533235,
-    "seen": 1794910096.36934,
-    "ast_hash": "1bff2379ca5adddaea808c339b9a77e5",
+    "mtime": 1795014961.6823425,
+    "seen": 1795015076.156214,
+    "ast_hash": "56558dd19ded25a766cfcfe6f361b1a7",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
@@ -7200,9 +7200,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DictionaryTerminalDockWidgets.swift": {
-    "mtime": 1795005653.962297,
-    "seen": 1795007055.52316,
-    "ast_hash": "374cbc58530dd04d726746d2e14a593e",
+    "mtime": 1795014837.3121095,
+    "seen": 1795015076.156199,
+    "ast_hash": "2c982ed4400bd3c343d93d58c13049b5",
     "semantic_hash": ""
   },
   "App/Scenes/ToolChip.swift": {
