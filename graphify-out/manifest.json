@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1794882232.499128,
-    "seen": 1794883137.200329,
-    "ast_hash": "5995e753e494861d8e55217e8353ed7d",
+    "mtime": 1795043552.7083127,
+    "seen": 1795043932.5330749,
+    "ast_hash": "c3efd5e2b38038bb202329df912644c0",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795043458.8313258,
-    "seen": 1795043502.95772,
-    "ast_hash": "4233f48dd348ea9e2afbcd562594338d",
+    "mtime": 1795043885.8060875,
+    "seen": 1795043932.533175,
+    "ast_hash": "bda7d34d4bda8afebe5f03c945eafed2",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6960,9 +6960,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SettingsBackup.swift": {
-    "mtime": 1793190233.6173267,
-    "seen": 1793190252.336753,
-    "ast_hash": "8bc36d374856f6ce29985868fa157d70",
+    "mtime": 1795043542.136714,
+    "seen": 1795043932.532684,
+    "ast_hash": "5cdf0beec73b117d5fdb62418aab61aa",
     "semantic_hash": ""
   },
   "Platform/Accessibility/AppMenuSearchReader.swift": {
@@ -6972,9 +6972,9 @@
     "semantic_hash": ""
   },
   "Platform/Backup/SettingsBackupService.swift": {
-    "mtime": 1793190233.6228414,
-    "seen": 1793190252.3368251,
-    "ast_hash": "532e1f70396f971bebcd5e0ee693f651",
+    "mtime": 1795043545.0261662,
+    "seen": 1795043932.532762,
+    "ast_hash": "66bdcbe856b374725fc1fca4aec61df1",
     "semantic_hash": ""
   },
   "Scripts/bench_katikati.sh": {
@@ -7032,15 +7032,15 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsBackupServiceTests.swift": {
-    "mtime": 1793190233.6330626,
-    "seen": 1793190252.3370209,
-    "ast_hash": "066a85a5e6a3afba170552bbfa1a423e",
+    "mtime": 1795043550.7419534,
+    "seen": 1795043932.53299,
+    "ast_hash": "597dd3c807e13a9c23a9cb6b3dc097c7",
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsBackupTests.swift": {
-    "mtime": 1793190233.6342604,
-    "seen": 1793190252.337022,
-    "ast_hash": "8665c531eb8c6befc3d04238742cf46f",
+    "mtime": 1795043548.2660377,
+    "seen": 1795043932.53299,
+    "ast_hash": "0b02d8e45b49884a8d5b6f6ffbaa9484",
     "semantic_hash": ""
   },
   "Tools/Bench/benchtool.swift": {
