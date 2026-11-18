@@ -39,14 +39,16 @@ final class TerminalPanelController {
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let cfg = utilityConfigProvider()
+        let placement = stripPlacementProvider()
         let layout = PanelGeometry.utilityPanelFrame(
             plateSize: TerminalPanelView.plateSize,
             anchorVisibleRect: self.anchorRect,
             placement: cfg.popoverPlacement,
             flyoutPreset: cfg.flyoutPreset,
-            stripPlacement: stripPlacementProvider(),
+            stripPlacement: placement,
             on: PanelCoordinator.screenGeometry(screen)
         )
+        arrow.edge = placement == .left ? .leading : (placement == .right ? .trailing : .bottom)
         arrow.isHidden = !layout.showsArrow
         arrow.offsetFromCenter = layout.arrowOffsetFromCenter
         panel.setFrame(layout.frame, display: true)

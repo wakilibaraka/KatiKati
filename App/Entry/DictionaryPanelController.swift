@@ -41,14 +41,16 @@ final class DictionaryPanelController {
         if let word { model.lookup(word) }
 
         let cfg = utilityConfigProvider()
+        let placement = stripPlacementProvider()
         let layout = PanelGeometry.utilityPanelFrame(
             plateSize: DictionaryPanelView.plateSize,
             anchorVisibleRect: self.anchorRect,
             placement: cfg.popoverPlacement,
             flyoutPreset: cfg.flyoutPreset,
-            stripPlacement: stripPlacementProvider(),
+            stripPlacement: placement,
             on: PanelCoordinator.screenGeometry(screen)
         )
+        arrow.edge = placement == .left ? .leading : (placement == .right ? .trailing : .bottom)
         arrow.isHidden = !layout.showsArrow
         arrow.offsetFromCenter = layout.arrowOffsetFromCenter
         panel.setFrame(layout.frame, display: true)

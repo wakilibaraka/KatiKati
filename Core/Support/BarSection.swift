@@ -318,9 +318,9 @@ enum UtilityFlyoutPreset: String, Codable, CaseIterable, Identifiable, Sendable 
         }
     }
 
-    /// True only when both the preset and placement allow an anchored `v` pointer.
+    /// True only when both the preset and placement allow an anchored pointer (`v` / `<` / `>`).
     func resolvesArrowVisible(for placement: UtilityPopoverPlacement, isVerticalRail: Bool = false) -> Bool {
-        guard !isVerticalRail, placement == .anchored else { return false }
+        guard placement == .anchored else { return false }
         return self != .cleanFloat
     }
 }

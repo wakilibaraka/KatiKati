@@ -383,9 +383,7 @@ struct FolderGridPopupView: View {
         let plateWidth: CGFloat = 316
         let plateHeight: CGFloat = 12 + 36 + 8 + cardsHeight + 12
         let plateSize = CGSize(width: plateWidth, height: plateHeight)
-        let arrowH: CGFloat = context.arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight
-        let totalSize = CGSize(width: plateSize.width + 2 * StackPopupMetrics.panelMargin,
-                               height: plateSize.height + arrowH + 2 * StackPopupMetrics.panelMargin)
+        let totalSize = StackPopupMetrics.panelSize(forPlate: plateSize, arrowEdge: context.arrow.edge, arrowHidden: context.arrow.isHidden)
 
         return StackUtilityBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
             VStack(spacing: 8) {

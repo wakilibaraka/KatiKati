@@ -199,4 +199,23 @@ final class StackPopupGeometryTests: XCTestCase {
         // Too narrow for a clamp range: centre it.
         XCTAssertEqual(StackPopupOutline.clampedArrowCenterX(10, plateWidth: 80), 40)
     }
+
+    func testSideArrowsStayOffCornersAndProtrudeInward() {
+        let plate = CGSize(width: 316, height: 380)
+        let leading = StackPopupOutline.path(plateSize: plate, arrowEdge: .leading, arrowCenter: 4).boundingBoxOfPath
+        XCTAssertEqual(leading.minX, 0, accuracy: 0.05)
+        XCTAssertEqual(leading.width, plate.width + StackPopupMetrics.arrowHeight, accuracy: 0.05)
+        XCTAssertEqual(leading.height, plate.height, accuracy: 0.001)
+
+        let trailing = StackPopupOutline.path(plateSize: plate, arrowEdge: .trailing, arrowCenter: 378).boundingBoxOfPath
+        XCTAssertEqual(trailing.minX, 0, accuracy: 0.001)
+        XCTAssertEqual(trailing.maxX, plate.width + StackPopupMetrics.arrowHeight, accuracy: 0.05)
+        XCTAssertEqual(trailing.height, plate.height, accuracy: 0.001)
+
+        XCTAssertEqual(StackPopupOutline.clampedArrowCenter(4, plateSpan: plate.height), 42)
+        XCTAssertEqual(StackPopupOutline.clampedArrowCenter(378, plateSpan: plate.height), 338)
+        XCTAssertEqual(StackPopupMetrics.panelSize(forPlate: plate, arrowEdge: .leading),
+                       CGSize(width: plate.width + StackPopupMetrics.arrowHeight + 2 * StackPopupMetrics.panelMargin,
+                              height: plate.height + 2 * StackPopupMetrics.panelMargin))
+    }
 }

@@ -59,10 +59,16 @@ enum StackPopupMetrics {
         StackPlateMetrics.stack.plateSize(columns: columns, rows: rows, hasNote: hasNote, scrolls: false)
     }
 
-    /// Size of the popup window for a plate: the transparent border plus the arrow below it.
-    static func panelSize(forPlate plate: CGSize) -> CGSize {
-        CGSize(width: plate.width + 2 * panelMargin, height: plate.height + arrowHeight + 2 * panelMargin)
+    /// Size of the popup window for a plate: the transparent border plus the arrow on its active edge.
+    static func panelSize(forPlate plate: CGSize, arrowEdge: StackPopupArrowEdge = .bottom, arrowHidden: Bool = false) -> CGSize {
+        let arrowW = (!arrowHidden && (arrowEdge == .leading || arrowEdge == .trailing)) ? arrowHeight : 0
+        let arrowH = (!arrowHidden && arrowEdge == .bottom) ? arrowHeight : 0
+        return CGSize(width: plate.width + arrowW + 2 * panelMargin, height: plate.height + arrowH + 2 * panelMargin)
     }
+}
+
+enum StackPopupArrowEdge: Equatable, Sendable {
+    case bottom, leading, trailing
 }
 
 /// One grid cell's numbers. The folder / shelf / Trash popups use `native`. The drawer's are read
@@ -315,31 +321,51 @@ enum DrawerGridShape {
 /// The plate's outline: a rounded rectangle with the arrow on its bottom edge. One path feeds both
 /// the glass (`_setPath:`) and the frosted fallback's clip, so the two can never disagree.
 enum StackPopupOutline {
-    /// Keeps the arrow and its base fillets on the straight part of the bottom edge.
-    static func clampedArrowCenterX(_ x: CGFloat, plateWidth: CGFloat) -> CGFloat {
+    /// Keeps the arrow and its base fillets on the straight part of the edge, clear of corners.
+    static func clampedArrowCenter(_ pos: CGFloat, plateSpan: CGFloat) -> CGFloat {
         let inset = StackPopupMetrics.arrowInset
-        guard plateWidth > 2 * inset else { return plateWidth / 2 }
-        return min(max(x, inset), plateWidth - inset)
+        guard plateSpan > 2 * inset else { return plateSpan / 2 }
+        return min(max(pos, inset), plateSpan - inset)
     }
 
-    /// Top-left origin, y down; the arrow hangs below `plateSize.height`. `arrowCenterX == nil`
-    /// draws the plate alone.
+    static func clampedArrowCenterX(_ x: CGFloat, plateWidth: CGFloat) -> CGFloat {
+        clampedArrowCenter(x, plateSpan: plateWidth)
+    }
+
+    /// Top-left origin, y down; the arrow hangs outside `plateSize` on `arrowEdge`.
     static func path(plateSize: CGSize, arrowCenterX: CGFloat?) -> CGPath {
+        path(plateSize: plateSize, arrowEdge: .bottom, arrowCenter: arrowCenterX)
+    }
+
+    static func path(plateSize: CGSize, arrowEdge: StackPopupArrowEdge, arrowCenter: CGFloat?) -> CGPath {
         let m = StackPopupMetrics.self
+        let ox: CGFloat = (arrowEdge == .leading && arrowCenter != nil) ? m.arrowHeight : 0
         let (w, h, r) = (plateSize.width, plateSize.height, min(m.cornerRadius, min(plateSize.width, plateSize.height) / 2))
+        let t = m.arrowSharpHeight
         let path = CGMutablePath()
-        path.move(to: CGPoint(x: r, y: 0))
-        path.addArc(tangent1End: CGPoint(x: w, y: 0), tangent2End: CGPoint(x: w, y: h), radius: r)
-        path.addArc(tangent1End: CGPoint(x: w, y: h), tangent2End: CGPoint(x: 0, y: h), radius: r)
-        if let arrowCenterX {
-            let cx = clampedArrowCenterX(arrowCenterX, plateWidth: w)
-            let t = m.arrowSharpHeight
+        path.move(to: CGPoint(x: ox + r, y: 0))
+        path.addArc(tangent1End: CGPoint(x: ox + w, y: 0), tangent2End: CGPoint(x: ox + w, y: h), radius: r)
+        if arrowEdge == .trailing, let arrowCenter {
+            let cy = clampedArrowCenter(arrowCenter, plateSpan: h)
+            path.addArc(tangent1End: CGPoint(x: ox + w, y: cy - t), tangent2End: CGPoint(x: ox + w + t, y: cy), radius: m.arrowBaseRadius)
+            path.addArc(tangent1End: CGPoint(x: ox + w + t, y: cy), tangent2End: CGPoint(x: ox + w, y: cy + t), radius: m.arrowTipRadius)
+            path.addArc(tangent1End: CGPoint(x: ox + w, y: cy + t), tangent2End: CGPoint(x: ox + w, y: h), radius: m.arrowBaseRadius)
+        }
+        path.addArc(tangent1End: CGPoint(x: ox + w, y: h), tangent2End: CGPoint(x: ox, y: h), radius: r)
+        if arrowEdge == .bottom, let arrowCenter {
+            let cx = ox + clampedArrowCenter(arrowCenter, plateSpan: w)
             path.addArc(tangent1End: CGPoint(x: cx + t, y: h), tangent2End: CGPoint(x: cx, y: h + t), radius: m.arrowBaseRadius)
             path.addArc(tangent1End: CGPoint(x: cx, y: h + t), tangent2End: CGPoint(x: cx - t, y: h), radius: m.arrowTipRadius)
-            path.addArc(tangent1End: CGPoint(x: cx - t, y: h), tangent2End: CGPoint(x: 0, y: h), radius: m.arrowBaseRadius)
+            path.addArc(tangent1End: CGPoint(x: cx - t, y: h), tangent2End: CGPoint(x: ox, y: h), radius: m.arrowBaseRadius)
         }
-        path.addArc(tangent1End: CGPoint(x: 0, y: h), tangent2End: CGPoint(x: 0, y: 0), radius: r)
-        path.addArc(tangent1End: CGPoint(x: 0, y: 0), tangent2End: CGPoint(x: w, y: 0), radius: r)
+        path.addArc(tangent1End: CGPoint(x: ox, y: h), tangent2End: CGPoint(x: ox, y: 0), radius: r)
+        if arrowEdge == .leading, let arrowCenter {
+            let cy = clampedArrowCenter(arrowCenter, plateSpan: h)
+            path.addArc(tangent1End: CGPoint(x: ox, y: cy + t), tangent2End: CGPoint(x: ox - t, y: cy), radius: m.arrowBaseRadius)
+            path.addArc(tangent1End: CGPoint(x: ox - t, y: cy), tangent2End: CGPoint(x: ox, y: cy - t), radius: m.arrowTipRadius)
+            path.addArc(tangent1End: CGPoint(x: ox, y: cy - t), tangent2End: CGPoint(x: ox, y: 0), radius: m.arrowBaseRadius)
+        }
+        path.addArc(tangent1End: CGPoint(x: ox, y: 0), tangent2End: CGPoint(x: ox + w, y: 0), radius: r)
         path.closeSubpath()
         return path
     }

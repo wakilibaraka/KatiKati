@@ -8,7 +8,9 @@ import SwiftUI
 final class StackPopupArrowModel: ObservableObject {
     /// Arrow centre minus plate centre, in points.
     @Published var offsetFromCenter: CGFloat = 0
-    /// Phase 18d: beside a side rail the plate opens sideways, so the bottom arrow is dropped.
+    /// Which plate edge carries the pointer (`bottom` on bottom dock, `leading`/`trailing` on side rails).
+    @Published var edge: StackPopupArrowEdge = .bottom
+    /// Whether the arrow stem is hidden (Clean Float preset or floating placements).
     @Published var isHidden = false
     /// Bumped by a host that outlives one showing (the drawer) each time the plate goes away:
     /// a scrolled grid is rebuilt at its top while nobody is looking, never at the next open.
@@ -128,17 +130,21 @@ struct StackPopupChrome<Grid: View>: View {
         }
         .background {
             GeometryReader { proxy in
+                let center: CGFloat? = arrow.isHidden ? nil : ((arrow.edge == .bottom ? proxy.size.width : proxy.size.height) / 2 + arrow.offsetFromCenter)
                 StackPopupBackdrop(plateSize: proxy.size,
-                                   arrowCenterX: arrow.isHidden ? nil : proxy.size.width / 2 + arrow.offsetFromCenter,
+                                   arrowCenterX: center,
+                                   arrowEdge: arrow.edge,
                                    usesLiquidGlass: usesLiquidGlass)
             }
         }
-        .padding(.bottom, arrow.isHidden ? 0 : Metrics.arrowHeight)
+        .padding(.leading, !arrow.isHidden && arrow.edge == .leading ? Metrics.arrowHeight : 0)
+        .padding(.trailing, !arrow.isHidden && arrow.edge == .trailing ? Metrics.arrowHeight : 0)
+        .padding(.bottom, !arrow.isHidden && arrow.edge == .bottom ? Metrics.arrowHeight : 0)
         .padding(Metrics.panelMargin)
         // Only so the system scroller draws its light knob on this dark plate; nothing reads it.
         .environment(\.colorScheme, .dark)
         // Derived, not measured: `fittingSize` read inside this update returns zero.
-        .onChange(of: plateSize) { onPanelSizeChange(Metrics.panelSize(forPlate: $0)) }
+        .onChange(of: plateSize) { onPanelSizeChange(Metrics.panelSize(forPlate: $0, arrowEdge: arrow.edge, arrowHidden: arrow.isHidden)) }
     }
 
     private var header: some View {
@@ -300,17 +306,21 @@ struct StackUtilityBackdropHost<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
+        let center: CGFloat? = arrow.isHidden ? nil : ((arrow.edge == .bottom ? plateSize.width : plateSize.height) / 2 + arrow.offsetFromCenter)
         content()
             .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
             .clipShape(RoundedRectangle(cornerRadius: StackPopupMetrics.cornerRadius, style: .continuous))
             .background {
                 StackPopupBackdrop(
                     plateSize: plateSize,
-                    arrowCenterX: arrow.isHidden ? nil : plateSize.width / 2 + arrow.offsetFromCenter,
+                    arrowCenterX: center,
+                    arrowEdge: arrow.edge,
                     usesLiquidGlass: usesLiquidGlass
                 )
             }
-            .padding(.bottom, arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight)
+            .padding(.leading, !arrow.isHidden && arrow.edge == .leading ? StackPopupMetrics.arrowHeight : 0)
+            .padding(.trailing, !arrow.isHidden && arrow.edge == .trailing ? StackPopupMetrics.arrowHeight : 0)
+            .padding(.bottom, !arrow.isHidden && arrow.edge == .bottom ? StackPopupMetrics.arrowHeight : 0)
             .padding(StackPopupMetrics.panelMargin)
             .environment(\.colorScheme, .dark)
     }

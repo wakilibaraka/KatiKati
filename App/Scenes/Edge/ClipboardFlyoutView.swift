@@ -845,9 +845,7 @@ struct DockScreenshotsUtilityHostedView: View {
     }
 
     private var totalWindowSize: CGSize {
-        let arrowH: CGFloat = context.arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight
-        return CGSize(width: plateSize.width + 2 * StackPopupMetrics.panelMargin,
-                      height: plateSize.height + arrowH + 2 * StackPopupMetrics.panelMargin)
+        StackPopupMetrics.panelSize(forPlate: plateSize, arrowEdge: context.arrow.edge, arrowHidden: context.arrow.isHidden)
     }
 
     var body: some View {
@@ -1044,9 +1042,7 @@ struct DockClipboardUtilityHostedView: View {
     }
 
     private var totalWindowSize: CGSize {
-        let arrowH: CGFloat = context.arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight
-        return CGSize(width: plateSize.width + 2 * StackPopupMetrics.panelMargin,
-                      height: plateSize.height + arrowH + 2 * StackPopupMetrics.panelMargin)
+        StackPopupMetrics.panelSize(forPlate: plateSize, arrowEdge: context.arrow.edge, arrowHidden: context.arrow.isHidden)
     }
 
     var body: some View {

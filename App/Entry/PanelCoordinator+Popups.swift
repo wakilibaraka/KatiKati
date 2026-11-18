@@ -304,7 +304,9 @@ extension PanelCoordinator {
     /// whenever the plate is clamped off-centre, mid-tween included.
     private func setFolderPopupFrame(_ frame: NSRect, on panel: NSPanel, display: Bool) {
         panel.setFrame(frame, display: display)
-        let offset = popupAnchorVisibleRect.midX - frame.midX
+        let offset = stripPlacement.isVertical
+            ? (frame.midY - popupAnchorVisibleRect.midY)
+            : (popupAnchorVisibleRect.midX - frame.midX)
         if folderPopupArrow?.offsetFromCenter != offset { folderPopupArrow?.offsetFromCenter = offset }
     }
 
@@ -338,6 +340,7 @@ extension PanelCoordinator {
         let arrow = StackPopupArrowModel()
         let utilityCfg = settingsStore.dockUtilities
         let effectivePlacement = utilityCfg.effectivePlacementForPreset
+        arrow.edge = stripPlacement == .left ? .leading : (stripPlacement == .right ? .trailing : .bottom)
         arrow.isHidden = !utilityCfg.flyoutPreset.resolvesArrowVisible(
             for: effectivePlacement,
             isVerticalRail: stripPlacement.isVertical
@@ -435,9 +438,10 @@ extension PanelCoordinator {
         let cfg = settingsStore.dockUtilities
         let effectivePlacement = cfg.effectivePlacementForPreset
         if effectivePlacement != .anchored {
-            let arrowH: CGFloat = arrowHidden ? 0 : StackPopupMetrics.arrowHeight
+            let arrowW: CGFloat = (!arrowHidden && stripPlacement.isVertical) ? StackPopupMetrics.arrowHeight : 0
+            let arrowH: CGFloat = (!arrowHidden && !stripPlacement.isVertical) ? StackPopupMetrics.arrowHeight : 0
             let plateSize = CGSize(
-                width: max(120, size.width - StackPopupMetrics.panelMargin * 2),
+                width: max(120, size.width - arrowW - StackPopupMetrics.panelMargin * 2),
                 height: max(80, size.height - arrowH - StackPopupMetrics.panelMargin * 2)
             )
             return PanelGeometry.utilityPanelFrame(

@@ -9,14 +9,18 @@ import SwiftUI
 /// The view is `arrowHeight` taller than the plate: the arrow hangs in that strip.
 struct StackPopupBackdrop: View {
     let plateSize: CGSize
-    /// Arrow centre from the plate's left edge; `nil` = no arrow (beside a side rail).
+    /// Arrow centre along the active edge; `nil` = no arrow.
     let arrowCenterX: CGFloat?
+    var arrowEdge: StackPopupArrowEdge = .bottom
     let usesLiquidGlass: Bool
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.themeTuning) private var themeTuning
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+
+    private var arrowW: CGFloat { (arrowCenterX != nil && (arrowEdge == .leading || arrowEdge == .trailing)) ? StackPopupMetrics.arrowHeight : 0 }
+    private var arrowH: CGFloat { (arrowCenterX != nil && arrowEdge == .bottom) ? StackPopupMetrics.arrowHeight : 0 }
 
     /// The preset's plate tint, through the same `DockThemeStyle.plateOverlay` pass every other plate
     /// takes. Before this the pop only read `DockThemeTokens`, which carries text, separator and fill
@@ -41,17 +45,17 @@ struct StackPopupBackdrop: View {
     @ViewBuilder
     private var plateFill: some View {
         if let paint = plateOverlay {
-            StackPopupShape(plateSize: plateSize, arrowCenterX: arrowCenterX).fill(paint)
+            StackPopupShape(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenterX: arrowCenterX).fill(paint)
         }
     }
 
     var body: some View {
         Group {
             if #available(macOS 26.0, *), usesLiquidGlass {
-                StackGlassPlate(plateSize: plateSize, arrowCenterX: arrowCenterX)
+                StackGlassPlate(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenterX: arrowCenterX)
                     .overlay { plateFill }
             } else {
-                let shape = StackPopupShape(plateSize: plateSize, arrowCenterX: arrowCenterX)
+                let shape = StackPopupShape(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenterX: arrowCenterX)
                 StackFrostedPlate()
                     .clipShape(shape)
                     .overlay { plateFill }
@@ -59,17 +63,18 @@ struct StackPopupBackdrop: View {
                     .dockShadow(theme.stackPopupShadow)
             }
         }
-        .frame(width: plateSize.width, height: plateSize.height + StackPopupMetrics.arrowHeight)
+        .frame(width: plateSize.width + arrowW, height: plateSize.height + arrowH)
         .allowsHitTesting(false)
     }
 }
 
 struct StackPopupShape: Shape {
     let plateSize: CGSize
+    var arrowEdge: StackPopupArrowEdge = .bottom
     let arrowCenterX: CGFloat?
 
     func path(in rect: CGRect) -> Path {
-        Path(StackPopupOutline.path(plateSize: plateSize, arrowCenterX: arrowCenterX))
+        Path(StackPopupOutline.path(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenter: arrowCenterX))
             .offsetBy(dx: rect.minX, dy: rect.minY)
     }
 }
@@ -79,17 +84,18 @@ struct StackPopupShape: Shape {
 @available(macOS 26.0, *)
 private struct StackGlassPlate: NSViewRepresentable {
     let plateSize: CGSize
+    let arrowEdge: StackPopupArrowEdge
     let arrowCenterX: CGFloat?
 
     func makeNSView(context: Context) -> StackGlassContainer {
         let view = StackGlassContainer()
-        view.apply(plateSize: plateSize, arrowCenterX: arrowCenterX)
+        view.apply(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenterX: arrowCenterX)
         return view
     }
 
     // SwiftUI re-runs update, never re-creates the view: width and arrow follow the content here.
     func updateNSView(_ view: StackGlassContainer, context: Context) {
-        view.apply(plateSize: plateSize, arrowCenterX: arrowCenterX)
+        view.apply(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenterX: arrowCenterX)
     }
 }
 
@@ -97,6 +103,7 @@ private struct StackGlassPlate: NSViewRepresentable {
 final class StackGlassContainer: NSView {
     private let glass = NSGlassEffectView()
     private var plateSize = CGSize.zero
+    private var arrowEdge: StackPopupArrowEdge = .bottom
     private var arrowCenterX: CGFloat? = 0
 
     override init(frame frameRect: NSRect) {
@@ -115,9 +122,10 @@ final class StackGlassContainer: NSView {
 
     override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
-    func apply(plateSize: CGSize, arrowCenterX: CGFloat?) {
-        guard plateSize != self.plateSize || arrowCenterX != self.arrowCenterX else { return }
+    func apply(plateSize: CGSize, arrowEdge: StackPopupArrowEdge, arrowCenterX: CGFloat?) {
+        guard plateSize != self.plateSize || arrowEdge != self.arrowEdge || arrowCenterX != self.arrowCenterX else { return }
         self.plateSize = plateSize
+        self.arrowEdge = arrowEdge
         self.arrowCenterX = arrowCenterX
         needsLayout = true
     }
@@ -125,14 +133,19 @@ final class StackGlassContainer: NSView {
     override func layout() {
         super.layout()
         let arrow = StackPopupMetrics.arrowHeight
-        let full = CGRect(x: 0, y: 0, width: plateSize.width, height: plateSize.height + arrow)
-        // AppKit's y runs up: flip the outline, whose arrow hangs below the plate.
+        let hasArrow = arrowCenterX != nil
+        let arrowW = (hasArrow && (arrowEdge == .leading || arrowEdge == .trailing)) ? arrow : 0
+        let arrowH = (hasArrow && arrowEdge == .bottom) ? arrow : 0
+        let full = CGRect(x: 0, y: 0, width: plateSize.width + arrowW, height: plateSize.height + arrowH)
+        // AppKit's y runs up: flip the outline, whose y runs down in top-left coords.
         var flip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: full.height)
-        let outline = StackPopupOutline.path(plateSize: plateSize, arrowCenterX: arrowCenterX)
+        let outline = StackPopupOutline.path(plateSize: plateSize, arrowEdge: arrowEdge, arrowCenter: arrowCenterX)
         if let path = outline.copy(using: &flip), TEDockGlassSetPath(glass, path) {
             glass.frame = full
         } else {
-            glass.frame = CGRect(x: 0, y: arrow, width: plateSize.width, height: plateSize.height)
+            let gx = (hasArrow && arrowEdge == .leading) ? arrow : 0
+            let gy = (hasArrow && arrowEdge == .bottom) ? arrow : 0
+            glass.frame = CGRect(x: gx, y: gy, width: plateSize.width, height: plateSize.height)
         }
     }
 }

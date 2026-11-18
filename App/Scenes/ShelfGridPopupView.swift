@@ -278,7 +278,7 @@ extension ShelfGridPopupView {
         let plateWidth: CGFloat = 316
         let plateHeight: CGFloat = 12 + 36 + 8 + (showBar ? 38 : 0) + cardsHeight + 12
         let plateSize = CGSize(width: plateWidth, height: plateHeight)
-        let totalSize = StackPopupMetrics.panelSize(forPlate: plateSize)
+        let totalSize = StackPopupMetrics.panelSize(forPlate: plateSize, arrowEdge: context.arrow.edge, arrowHidden: context.arrow.isHidden)
 
         return ShelfFloatingBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
             VStack(spacing: 8) {
@@ -597,19 +597,7 @@ private struct ShelfFloatingBackdropHost<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        content()
-            .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
-            .clipShape(RoundedRectangle(cornerRadius: StackPopupMetrics.cornerRadius, style: .continuous))
-            .background {
-                StackPopupBackdrop(
-                    plateSize: plateSize,
-                    arrowCenterX: arrow.isHidden ? nil : plateSize.width / 2 + arrow.offsetFromCenter,
-                    usesLiquidGlass: usesLiquidGlass
-                )
-            }
-            .padding(.bottom, StackPopupMetrics.arrowHeight)
-            .padding(StackPopupMetrics.panelMargin)
-            .environment(\.colorScheme, .dark)
+        StackUtilityBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: arrow, content: content)
     }
 }
 

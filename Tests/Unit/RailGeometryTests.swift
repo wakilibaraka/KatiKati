@@ -200,6 +200,18 @@ final class RailGeometryTests: XCTestCase {
         let rightPlate = PanelGeometry.folderPopupPlateFrame(panelFrame: right)
         XCTAssertEqual(rightPlate.maxX, rightAnchor.minX - StackPopupMetrics.tipGap, accuracy: 0.001)
         XCTAssertGreaterThanOrEqual(rightPlate.minY, screen.frame.minY - 0.001, "clamped above the screen bottom")
+
+        let utilLeft = PanelGeometry.utilityPanelFrame(
+            plateSize: CGSize(width: 316, height: 320),
+            anchorVisibleRect: anchor,
+            placement: .anchored,
+            flyoutPreset: .shelfDeck,
+            stripPlacement: .left,
+            on: screen
+        )
+        XCTAssertTrue(utilLeft.showsArrow)
+        XCTAssertEqual(utilLeft.frame.minX + StackPopupMetrics.panelMargin, anchor.maxX + StackPopupMetrics.tipGap, accuracy: 0.001)
+        XCTAssertEqual(utilLeft.arrowOffsetFromCenter, 0, accuracy: 0.001)
     }
 
     func testTooltipAndChipPanelOpenBesideARail() {
