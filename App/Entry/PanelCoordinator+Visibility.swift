@@ -321,8 +321,9 @@ extension PanelCoordinator {
                 capsulePanel?.orderOut(nil)
             }
             if isWingOwner {
-                if settingsStore.dockWings.left.preset.isAssigned { orderWingFront(.leftWing) }
-                if settingsStore.dockWings.right.preset.isAssigned { orderWingFront(.rightWing) }
+                let wingConfig = settingsStore.dockWings.resolved(displayUUID: leftWingSizeModel.displayUUID)
+                if wingConfig.left.preset.isAssigned { orderWingFront(.leftWing) }
+                if wingConfig.right.preset.isAssigned { orderWingFront(.rightWing) }
                 if !settingsStore.surfaceWidgets.attachments(for: .floatingStack).isEmpty {
                     floatingWidgetStackPanel?.orderFrontRegardless()
                 }

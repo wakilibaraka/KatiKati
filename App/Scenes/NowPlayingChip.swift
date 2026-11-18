@@ -174,21 +174,46 @@ struct RailMediaTile: View {
 /// The dock-side renderer. Reads the shared app-wide feed and holds it only while on screen.
 struct LiveIslandDockCapsule: View {
     @ObservedObject private var feed = LiveActivityFeed.shared
+    @ObservedObject private var timeTravel = SurfaceTimeTravelCoordinator.shared
+    @ObservedObject private var agentUsage = AgentUsageService.shared
+    @ObservedObject private var approvals = ClaudeApprovalService.shared
     @EnvironmentObject var settingsStore: AppSettingsStore
     @State private var isHovering = false
     @State private var showPopup = false
+    @State private var showAIPopup = false
     @Environment(\.widgetSize) private var widgetSize
     /// Phase 18 (owner 2026-10-13): on a side rail the chip has its own vertical layout instead of the
     /// bottom pill scaled down — idle actions stacked, an activity as ring over value.
     @Environment(\.liveIslandVertical) private var isVertical
+    @Environment(\.dockPopoverEdge) private var edge
     @EnvironmentObject var runtime: AppRuntime
     @State private var keepAwakeOn = false
-    
+
+    private var hasAITakeover: Bool {
+        timeTravel.activePreview != nil || !approvals.requests.isEmpty || (agentUsage.snapshot.activeTurn?.isActive == true)
+    }
+
     var body: some View {
         let activity = feed.activity
 
         Group {
-            if isVertical {
+            if hasAITakeover {
+                let summary = AIDockPresentation.resolve(usage: agentUsage, approvals: approvals, timeTravel: timeTravel)
+                if isVertical {
+                    VStack(spacing: 4) {
+                        Image(systemName: summary.icon).font(.system(size: 13, weight: .semibold)).foregroundStyle(summary.tint)
+                        Text(verbatim: summary.title).font(.system(size: 10, weight: .semibold, design: .rounded)).lineLimit(1)
+                    }
+                } else {
+                    HStack(spacing: 6) {
+                        Image(systemName: summary.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(summary.tint)
+                        Text(verbatim: summary.title).font(.system(size: 11.5, weight: .semibold, design: .rounded)).lineLimit(1)
+                        if let level = summary.scrubLevel {
+                            ProgressView(value: level).progressViewStyle(.linear).frame(width: 28).tint(.cyan)
+                        }
+                    }
+                }
+            } else if isVertical {
                 if LiveIdleAction.showsIdleActions(for: activity.kind) {
                     idleActions(vertical: true)
                 } else {
@@ -217,14 +242,21 @@ struct LiveIslandDockCapsule: View {
         )
         .contentShape(Rectangle())
         .onHover { isHovering = $0 }
-        .onTapGesture(count: 2) { tap(for: activity, taps: 2) }
-        .onTapGesture { tap(for: activity, taps: 1) }
-        .onAppear { feed.retain() }
+        .onTapGesture(count: 2) {
+            if hasAITakeover { showAIPopup.toggle() } else { tap(for: activity, taps: 2) }
+        }
+        .onTapGesture {
+            if hasAITakeover { showAIPopup.toggle() } else { tap(for: activity, taps: 1) }
+        }
+        .onAppear { feed.retain(); agentUsage.startMonitoring() }
         .onDisappear { feed.release() }
         .help(helpText(for: activity))
         .animation(.easeInOut(duration: 0.18), value: activity.kind)
         .opacity(NotchDockCompanionPolicy.shouldHideDockCapsule(notchExpanded: feed.isNotchExpanded) ? 0.0 : 1.0)
         .animation(.spring(response: NotchMotionSpec.wingSneakSpring.response, dampingFraction: NotchMotionSpec.wingSneakSpring.dampingRatio), value: feed.isNotchExpanded)
+        .popover(isPresented: $showAIPopup, arrowEdge: edge) {
+            AIDockPopoverView()
+        }
         .popover(isPresented: $showPopup, arrowEdge: .top) {
             NowPlayingPopup(
                 state: feed.nowPlayingState,

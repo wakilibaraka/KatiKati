@@ -175,7 +175,7 @@ private final class ClaudeApprovalPanelController {
     }
 }
 
-private struct ClaudeApprovalCardView: View {
+struct ClaudeApprovalCardView: View {
     @ObservedObject var service: ClaudeApprovalService
     @AppStorage(AgentPermissionPolicy.autoApproveReadOnlyKey) private var autoApproveReads = false
 

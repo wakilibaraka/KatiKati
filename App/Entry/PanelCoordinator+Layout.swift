@@ -467,10 +467,15 @@ extension PanelCoordinator {
             let wingAnchor = splitUnion != .zero
                 ? splitUnion.insetBy(dx: -Self.shadowPadding, dy: -Self.shadowPadding)
                 : dockT
+            let wingDisplayUUID = DisplayIdentity.uuidString(for: screen)
+            let resolvedWingConfig = settingsStore.dockWings.resolved(
+                displayUUID: wingDisplayUUID,
+                displayID: screen.displayID.map(String.init)
+            )
             let wingLayout = PanelGeometry.wingPanelFrames(
                 dockFrame: wingAnchor,
                 capsuleFrame: capsuleT,
-                config: settingsStore.dockWings,
+                config: resolvedWingConfig,
                 stripPlacement: stripPlacement,
                 drawerPlacement: settingsStore.drawerPlacement,
                 controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
@@ -478,6 +483,8 @@ extension PanelCoordinator {
                 metrics: layoutMetrics,
                 margin: CGFloat(settingsStore.islandMargin)
             )
+            if leftWingSizeModel.displayUUID != wingDisplayUUID { leftWingSizeModel.displayUUID = wingDisplayUUID }
+            if rightWingSizeModel.displayUUID != wingDisplayUUID { rightWingSizeModel.displayUUID = wingDisplayUUID }
             if leftWingSizeModel.size != wingLayout.leftSize { leftWingSizeModel.size = wingLayout.leftSize }
             if rightWingSizeModel.size != wingLayout.rightSize { rightWingSizeModel.size = wingLayout.rightSize }
 

@@ -1938,7 +1938,7 @@ extension DockStripView {
         case .terminal:
             RailTerminalTile().nativeScaled(dockScale)
         case .ai:
-            EmptyView()
+            RailAITile().nativeScaled(dockScale)
         case .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
@@ -2001,7 +2001,9 @@ extension DockStripView {
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .ai:
-            EmptyView()
+            AIDockChip()
+                .environment(\.widgetSize, widgetSize)
+                .nativeScaled(dockScale)
         case .launcher:
             LauncherFABView(settingsStore: settingsStore) {
                 runtime.onToggleLauncher?()

@@ -17,9 +17,11 @@ extension EnvironmentValues {
 @MainActor
 final class DockWingResolvedSizeModel: ObservableObject {
     @Published var size: WidgetSize
+    @Published var displayUUID: String?
 
-    init(size: WidgetSize = .medium) {
+    init(size: WidgetSize = .medium, displayUUID: String? = nil) {
         self.size = size
+        self.displayUUID = displayUUID
     }
 }
 
@@ -30,6 +32,7 @@ struct DockWingHostView: View {
     let placement: DockWingPlacement
     let usesLiquidGlass: Bool
     @ObservedObject var sizeModel: DockWingResolvedSizeModel
+    var displayUUID: String? = nil
     @EnvironmentObject var settingsStore: AppSettingsStore
     @EnvironmentObject var badgeStore: BadgeStore
     @Environment(\.colorScheme) private var colorScheme
@@ -42,16 +45,17 @@ struct DockWingHostView: View {
         .resolved(for: colorScheme, style: settingsStore.themeMaterial)
     }
 
+    private var activeDisplayUUID: String? { displayUUID ?? sizeModel.displayUUID }
     private var metrics: PanelLayoutMetrics { settingsStore.layoutMetrics }
     private var dockScale: CGFloat { settingsStore.dockPanelHeight.scale }
     private var cornerRadius: CGFloat { DockShape.panelCornerRadius * dockScale }
 
     private var slot: DockWingSlotConfig {
-        settingsStore.dockWings.slot(for: placement)
+        settingsStore.dockWings.resolved(displayUUID: activeDisplayUUID).slot(for: placement)
     }
 
     private var stripPlacement: StripPlacement {
-        settingsStore.stripPlacement(forDisplay: nil)
+        settingsStore.stripPlacement(forDisplay: activeDisplayUUID)
     }
 
     var body: some View {
@@ -153,7 +157,7 @@ struct DockWingHostView: View {
         case .telemetry:
             DockTelemetryWidgetView()
         case .ai:
-            EmptyView()
+            DockAIWingWidgetView()
         }
     }
 
@@ -303,7 +307,7 @@ struct DockUniversalWidgetCard: View {
         case .telemetry:
             DockTelemetryWidgetView()
         case .ai:
-            EmptyView()
+            DockAIWingWidgetView()
         }
     }
 
@@ -538,5 +542,40 @@ private struct DockFloatingDragHandle<Content: View>: NSViewRepresentable {
             )
             onDragFinished(plateOrigin)
         }
+    }
+}
+
+/// Dock II Wing & Universal Stack card for AI: spend, active agent turn, approvals, and Loadout.
+struct DockAIWingWidgetView: View {
+    @Environment(\.widgetSize) private var size
+    @Environment(\.dockPopoverEdge) private var edge
+    @ObservedObject private var usage = AgentUsageService.shared
+    @ObservedObject private var approvals = ClaudeApprovalService.shared
+    @ObservedObject private var timeTravel = SurfaceTimeTravelCoordinator.shared
+    @State private var showPopover = false
+
+    var body: some View {
+        let state = AIDockPresentation.resolve(usage: usage, approvals: approvals, timeTravel: timeTravel)
+        HStack(spacing: 8) {
+            ZStack {
+                Circle().fill(state.tint.opacity(0.18)).frame(width: 26, height: 26)
+                Image(systemName: state.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(state.tint)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: state.title).font(.system(size: 11.5, weight: .semibold, design: .rounded)).foregroundStyle(DockWidgetStyle.ink).lineLimit(1)
+                if size != .small { Text(verbatim: state.detail).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary).lineLimit(1) }
+            }
+            Spacer(minLength: 2)
+            if size == .large, let req = state.pendingRequest {
+                Button { approvals.decide(req, .allow) } label: {
+                    Image(systemName: "checkmark.circle.fill").font(.system(size: 14)).foregroundStyle(.green)
+                }.buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 10).frame(maxWidth: .infinity, maxHeight: .infinity).contentShape(Rectangle())
+        .onTapGesture { showPopover.toggle() }
+        .popover(isPresented: $showPopover, arrowEdge: edge) { AIDockPopoverView() }
+        .onAppear { usage.startMonitoring() }
+        .accessibilityElement(children: .combine).accessibilityLabel(Text("AI")).accessibilityAddTraits(.isButton)
     }
 }
