@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1794915408.944587,
-    "seen": 1794916724.976476,
-    "ast_hash": "bb3f95f4e05791bd38aac1137872ca8e",
+    "mtime": 1794990898.0874696,
+    "seen": 1794991309.57179,
+    "ast_hash": "12970864ff7f14876e8863f7201d82f7",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -4566,9 +4566,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchDockChips.swift": {
-    "mtime": 1794873517.3808851,
-    "seen": 1794873740.55724,
-    "ast_hash": "c6f754522d82a2b473ba8eba2ea7a225",
+    "mtime": 1794990896.4710164,
+    "seen": 1794991309.571776,
+    "ast_hash": "c25d0c2e4373077f653996807ac0977e",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchEventCard.swift": {
