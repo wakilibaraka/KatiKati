@@ -261,4 +261,77 @@ final class DockWingModelsTests: XCTestCase {
         XCTAssertEqual(high.pressureLevel, .critical)
         XCTAssertEqual(high.pressureLabel, "Crit")
     }
+
+    func testLivecheckWingsAcrossAllLayoutModesAndPlacements() {
+        let screen = PanelScreenGeometry(
+            frame: CGRect(x: 0, y: 0, width: 1710, height: 1112),
+            visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1075),
+            safeAreaTop: 37
+        )
+        let metrics = PanelLayoutMetrics.tungstenEdge
+        let pad = metrics.shadowPadding
+        let config = DockWingsConfiguration.recommendedDefault
+
+        for placement in StripPlacement.allCases {
+            for mode in BarLayoutMode.allCases {
+                let islands = BarSection.islands(for: mode, order: BarSection.defaultOrder)
+                let appsSlot = islands.firstIndex { $0.contains(.apps) } ?? 0
+                let frames: [CGRect] = (0..<mode.slotCount).map { slot in
+                    let len: CGFloat = (slot == appsSlot) ? 260 : 140
+                    return PanelGeometry.stripTargetFrame(
+                        slot: slot,
+                        contentLength: len,
+                        mode: mode,
+                        stripPlacement: placement,
+                        on: screen,
+                        metrics: metrics,
+                        gap: 10,
+                        margin: 12,
+                        widgetLayout: .default
+                    )
+                }
+                let appsFrame = frames[appsSlot]
+                let splitUnion = frames.dropFirst().reduce(frames[0]) { $0.union($1) }
+                let anchor = mode.isSplit ? splitUnion : appsFrame
+                let capsule = PanelGeometry.stripCapsuleTargetFrame(
+                    forDock: appsFrame,
+                    stripPlacement: placement,
+                    on: screen,
+                    drawerPlacement: .right,
+                    metrics: metrics
+                )
+                let wingLayout = PanelGeometry.wingPanelFrames(
+                    dockFrame: anchor,
+                    capsuleFrame: capsule,
+                    config: config,
+                    stripPlacement: placement,
+                    drawerPlacement: .right,
+                    controlCentreTrailing: false,
+                    on: screen,
+                    metrics: metrics,
+                    margin: 12
+                )
+                let lp = wingLayout.leftFrame?.insetBy(dx: pad, dy: pad)
+                let rp = wingLayout.rightFrame?.insetBy(dx: pad, dy: pad)
+                let anchorPlate = anchor.insetBy(dx: pad, dy: pad)
+                let capPlate = capsule.insetBy(dx: pad, dy: pad)
+                let lOverlapsMenuBar = lp.map { $0.maxY > screen.visibleFrame.maxY } ?? false
+                let lOverlapsAnchor = lp?.intersects(anchorPlate) ?? false
+                let rOverlapsAnchor = rp?.intersects(anchorPlate) ?? false
+                let rOverlapsCap = rp?.intersects(capPlate) ?? false
+                let lRailOverhang = lp.map { placement.isVertical ? abs($0.width - anchorPlate.width) : 0 } ?? 0
+                XCTAssertFalse(lOverlapsMenuBar)
+                XCTAssertFalse(lOverlapsAnchor)
+                XCTAssertFalse(rOverlapsAnchor)
+                XCTAssertFalse(rOverlapsCap)
+                if mode == .centered {
+                    XCTAssertNotNil(lp, "Centered mode should host left wing on \(placement)")
+                    XCTAssertNotNil(rp, "Centered mode should host right wing on \(placement)")
+                    if !placement.isVertical {
+                        XCTAssertEqual(lRailOverhang, 0)
+                    }
+                }
+            }
+        }
+    }
 }
