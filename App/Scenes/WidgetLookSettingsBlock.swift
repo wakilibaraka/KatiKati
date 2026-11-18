@@ -224,7 +224,7 @@ private struct DockIIConfigureSheet: View {
     }
 
     private var surfacePinsSection: some View {
-        let surfaces: [WidgetSurfaceKind] = [.drawer, .shelfCard, .backgroundAppsPopup, .floatingStack]
+        let surfaces: [WidgetSurfaceKind] = [.drawer, .backgroundAppsPopup, .floatingStack]
         let items = store.surfaceWidgets.attachments(for: selectedSurface)
 
         return VStack(alignment: .leading, spacing: 10) {
