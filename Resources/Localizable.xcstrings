@@ -141447,6 +141447,70 @@
           }
         }
       }
+    },
+    "Rename": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Rename" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "重命名" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "重新命名" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "名称変更" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Umbenennen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Renommer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Renombrar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cambiar nombre" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Renomear" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Renomear" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Rinomina" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이름 변경" } }
+      }
+    },
+    "Cut": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cut" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "剪切" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "剪下" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "切り取り" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ausschneiden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Couper" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cortar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Cortar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Cortar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Cortar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Taglia" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "잘라내기" } }
+      }
+    },
+    "Extract": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Extract" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "解压缩" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "解壓縮" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "展開" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Entpacken" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Extraire" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Extraer" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Extraer" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Extrair" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Extrair" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Estrai" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "압축 풀기" } }
+      }
+    },
+    "Untitled Folder": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Untitled Folder" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "未命名文件夹" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "未命名檔案夾" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "名称未設定フォルダ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Unbenannter Ordner" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dossier sans titre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Carpeta sin título" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Carpeta sin título" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pasta sem título" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pasta sem título" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cartella senza nome" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "무제 폴더" } }
+      }
     }
   },
   "version": "1.0"
