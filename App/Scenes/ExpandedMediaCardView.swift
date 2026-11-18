@@ -186,18 +186,24 @@ struct ExpandedMediaCardView: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .stroke(Color.white.opacity(0.18), lineWidth: 1)
             )
-            .opensSourceApp(state.bundleIdentifier)
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) { NowPlayingTapRunner.openSource(state) }
+            .onTapGesture { showPopup.toggle() }
 
             // Track details + Scrubber Bar
             VStack(alignment: .leading, spacing: 2) {
                 MarqueeText(text: title, font: .system(size: 11.5, weight: mediaPreset == .graphiteCard ? .regular : .bold, design: .rounded), nearEnd: (progress ?? 0) > 0.88)
                     .foregroundStyle(.white)
-                    .opensSourceApp(state.bundleIdentifier)
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) { NowPlayingTapRunner.openSource(state) }
+                    .onTapGesture { showPopup.toggle() }
 
                 if unreadable == nil {
                     MarqueeText(text: artist, font: .system(size: 10, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.75))
-                        .opensSourceApp(state.bundleIdentifier)
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 2) { NowPlayingTapRunner.openSource(state) }
+                        .onTapGesture { showPopup.toggle() }
                 } else {
                     // The refused-player line is already the empty artist slot's own height, so the row
                     // does not grow — and it is the door to the fix, not only the report.
@@ -220,15 +226,20 @@ struct ExpandedMediaCardView: View {
                     let elapsed = NowPlayingProgress.elapsed(at: timelineNow, elapsed: state.elapsed,
                                                               asOf: state.elapsedAsOf, rate: state.rate,
                                                               duration: duration) ?? progress * duration
-                    HStack(spacing: 5) {
+                    HStack(spacing: 3) {
                         Text(verbatim: NotchLayoutSpec.clockText(elapsed))
+                            .fixedSize(horizontal: true, vertical: false)
+                            .layoutPriority(1)
 
                         MusicScrubBar(progress: progress, duration: duration, trackHeight: 3,
                                       tint: ArtworkAccentCache.accent(for: state.artworkData).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .white,
                                       onSeek: { feed.seek(to: $0) })
+                            .frame(minWidth: 16, maxWidth: .infinity)
                             .frame(height: 6)
 
                         Text(verbatim: NotchLayoutSpec.clockText(duration))
+                            .fixedSize(horizontal: true, vertical: false)
+                            .layoutPriority(1)
                     }
                     .font(.system(size: 8.5, weight: .medium, design: .rounded).monospacedDigit())
                     .foregroundStyle(Color.white.opacity(0.62))

@@ -34,6 +34,8 @@ struct DrawerView: View {
     @EnvironmentObject var keptAppStore: KeptAppStore
     @EnvironmentObject var runningApplicationStore: RunningApplicationStore
     @EnvironmentObject var appMembershipController: AppMembershipController
+    @EnvironmentObject var settingsStore: AppSettingsStore
+    var onOpenSettings: () -> Void = {}
 
     @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
     @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
@@ -68,16 +70,34 @@ struct DrawerView: View {
 
     var body: some View {
         let ids = backgroundMembers
+        let bgWidgets = settingsStore.surfaceWidgets.attachments(for: .backgroundAppsPopup)
+        let extraWidgetHeight = DockWidgetConfigStore.popupSectionExtraHeight(for: bgWidgets)
         let layout = DrawerGridShape.backgroundApps(count: ids.count, limits: limits)
-        return StackPopupChrome(title: "",
-                                note: ids.isEmpty ? String(localized: "No apps are running in the background") : nil,
+        let plate: StackPlateMetrics = ids.isEmpty ? .drawer : .backgroundApps
+        let deckWidth: CGFloat = DockWidgetConfigStore.defaultStackWidth
+        let note: String? = (ids.isEmpty && bgWidgets.isEmpty) ? String(localized: "No apps are running in the background") : nil
+
+        return StackPopupChrome(title: bgWidgets.isEmpty ? "" : String(localized: "Background Apps"),
+                                note: note,
                                 layout: ids.isEmpty ? .init(columns: min(3, limits.maxColumns), visibleRows: 0, scrolls: false) : layout,
-                                plate: ids.isEmpty ? .drawer : .backgroundApps,
+                                plate: plate,
                                 usesLiquidGlass: usesLiquidGlass,
                                 arrow: arrow,
                                 onPanelSizeChange: onPanelSizeChange,
                                 gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
-                                gridAnimationKey: ids) {
+                                gridAnimationKey: ids + bgWidgets.map(\.id),
+                                headerAccessory: AnyView(DockSurfacePinMenuButton(surface: .backgroundAppsPopup, settingsStore: settingsStore)),
+                                bottomAccessory: bgWidgets.isEmpty
+                                    ? nil
+                                    : AnyView(DockSurfacePinnedDeck(
+                                        surface: .backgroundAppsPopup,
+                                        usesLiquidGlass: usesLiquidGlass,
+                                        width: deckWidth,
+                                        settingsStore: settingsStore,
+                                        onOpenSettings: onOpenSettings
+                                    )),
+                                bottomAccessoryHeight: extraWidgetHeight,
+                                bottomAccessoryMinWidth: bgWidgets.isEmpty ? 0 : deckWidth + 2 * plate.sidePadding) {
             ForEach(ids, id: \.self) { backgroundChip($0).memoryPill($0, overlay: memoryOverlay) }
         }
         .onHover { MemoryOverlayController.shared.pointer(inside: $0) }
@@ -160,9 +180,9 @@ struct DrawerRootView: View {
     let keptAppStore: KeptAppStore
     let runningApplicationStore: RunningApplicationStore
     let appMembershipController: AppMembershipController
-    /// 4c: the panel's pinned theme style. Observed (not a plain value) so a theme change
-    /// re-runs this body and re-injects it into the whole subtree.
     @ObservedObject var settingsStore: AppSettingsStore
+    @ObservedObject var badgeStore: BadgeStore
+    var onOpenSettings: () -> Void = {}
 
     var body: some View {
         DrawerView(limits: limits,
@@ -170,11 +190,14 @@ struct DrawerRootView: View {
                    onPanelSizeChange: onPanelSizeChange,
                    usesLiquidGlass: usesLiquidGlass,
                    isDrawerOpen: isDrawerOpen,
-                   onPrimaryAction: onPrimaryAction)
+                   onPrimaryAction: onPrimaryAction,
+                   onOpenSettings: onOpenSettings)
             .environmentObject(runtime).environmentObject(drawerStore).environmentObject(messagingStore)
             .environmentObject(drawerOrderStore).environmentObject(dragController)
             .environmentObject(keptAppStore).environmentObject(runningApplicationStore)
             .environmentObject(appMembershipController)
+            .environmentObject(settingsStore)
+            .environment(\.dockBadgesByBundleID, badgeStore.badgesByBundleID)
             .environment(\.dockThemeStyle, settingsStore.themeMaterial)
             .environment(\.themeTuning, settingsStore.themeTuning)
             .environment(\.iconSet, settingsStore.iconSet)

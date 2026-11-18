@@ -88,9 +88,9 @@ public final class WeatherService: NSObject, ObservableObject, CLLocationManager
                 needsLocation = false
                 isFetchingLocation = true
                 locationManager.requestLocation()
-            case .notDetermined:
-                requestLocationAccess()
             default:
+                // Defer prompting off launch/periodic background refreshes; user-initiated Weather
+                // actions trigger `requestLocationAccess()` explicitly.
                 fallBackFromCurrentLocation()
             }
         }

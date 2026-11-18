@@ -24,6 +24,7 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(WidgetLook.storageKey) private var lookRaw = WidgetLook.default.rawValue
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
     @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.accentCard.rawValue
+    @State private var showDockIISheet = false
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Widget Appearance")) {
@@ -117,6 +118,329 @@ struct WidgetLookSettingsBlock: View {
                         }
                     }
                 )
+            }
+
+            SettingsCard(Text("Dock II Wings & Widgets")) {
+                wingConfigRow(Text("Left Wing"), placement: .leftWing)
+                SettingsDivider()
+                wingConfigRow(Text("Right Wing"), placement: .rightWing)
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Wing Spacing"),
+                    value: store.dockWings.gap,
+                    range: DockWingsConfiguration.minGap...DockWingsConfiguration.maxGap,
+                    step: 1
+                ) {
+                    store.setDockWingGap($0)
+                }
+                SettingsDivider()
+                SettingsRow(Text("Pins, Friends & Integrations")) {
+                    HStack(spacing: 8) {
+                        Button("Configure…") {
+                            showDockIISheet = true
+                        }
+                        .controlSize(.small)
+                        if store.dockWings.hasAnyActiveWing {
+                            Button("Reset Wings") {
+                                store.resetDockWings()
+                            }
+                            .controlSize(.small)
+                        }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showDockIISheet) {
+            DockIIConfigureSheet(store: store)
+        }
+    }
+
+    private func wingConfigRow(_ label: Text, placement: DockWingPlacement) -> some View {
+        let slot = store.dockWings.slot(for: placement)
+        return SettingsRow(label) {
+            HStack(spacing: 8) {
+                Picker("Preset", selection: Binding(
+                    get: { slot.preset },
+                    set: { store.setDockWing($0, placement: placement) }
+                )) {
+                    ForEach(DockWidgetPresetType.allCases) { preset in
+                        Text(verbatim: preset.localizedTitle).tag(preset)
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+
+                Picker("Size", selection: Binding(
+                    get: { slot.size },
+                    set: { store.setDockWingSize($0, placement: placement) }
+                )) {
+                    Text("Small").tag(WidgetSize.small)
+                    Text("Medium").tag(WidgetSize.medium)
+                    Text("Large").tag(WidgetSize.large)
+                }
+                .labelsHidden().pickerStyle(.segmented).fixedSize()
+                .disabled(!slot.preset.isAssigned)
+            }
+        }
+    }
+}
+
+private struct DockIIConfigureSheet: View {
+    @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var friendsStore = DockFriendsStore.shared
+    @ObservedObject private var spotifyAuth = SpotifyAuthService.shared
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var selectedSurface: WidgetSurfaceKind = .drawer
+    @State private var newFriendName = ""
+    @State private var newFriendHandle = ""
+    @State private var newFriendApp: DockFriendAppKind = .messages
+    @State private var contactQuery = ""
+    @State private var contactResults: [DockFriendsStore.ImportedContactCandidate] = []
+    @State private var spotifyClientIDDraft = SpotifyAuthService.shared.clientID
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("Dock II Widgets Configuration")
+                    .font(.headline)
+                Spacer()
+                Button("Done") { dismiss() }
+                    .keyboardShortcut(.defaultAction)
+            }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    surfacePinsSection
+                    Divider()
+                    friendsSection
+                    Divider()
+                    integrationsSection
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .padding(18)
+        .frame(width: 540, height: 560)
+    }
+
+    private var surfacePinsSection: some View {
+        let surfaces: [WidgetSurfaceKind] = [.drawer, .shelfCard, .backgroundAppsPopup, .floatingStack]
+        let items = store.surfaceWidgets.attachments(for: selectedSurface)
+
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Surface Pins")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Picker("Surface", selection: $selectedSurface) {
+                    ForEach(surfaces) { surface in
+                        Text(verbatim: surface.localizedTitle).tag(surface)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .fixedSize()
+            }
+
+            HStack(spacing: 6) {
+                ForEach(DockWidgetPresetType.allCases.filter(\.isAssigned)) { preset in
+                    let isPinned = store.surfaceWidgets.isPinned(preset, on: selectedSurface)
+                    Button {
+                        if isPinned {
+                            store.unpinSurfaceWidget(preset, from: selectedSurface)
+                        } else {
+                            store.pinSurfaceWidget(preset, size: .medium, to: selectedSurface)
+                        }
+                    } label: {
+                        Label(preset.localizedTitle, systemImage: isPinned ? "checkmark.circle.fill" : "plus.circle")
+                    }
+                    .controlSize(.small)
+                    .buttonStyle(.bordered)
+                }
+            }
+
+            if items.isEmpty {
+                Text("No widgets pinned to this surface yet.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(items) { item in
+                    HStack(spacing: 8) {
+                        Image(systemName: item.preset.symbolName)
+                            .frame(width: 16)
+                        Text(verbatim: item.preset.localizedTitle)
+                        Spacer()
+                        Picker("Size", selection: Binding(
+                            get: { item.size },
+                            set: { store.setSurfaceWidgetSize($0, for: item.preset, on: selectedSurface) }
+                        )) {
+                            Text("Small").tag(WidgetSize.small)
+                            Text("Medium").tag(WidgetSize.medium)
+                            Text("Large").tag(WidgetSize.large)
+                        }
+                        .labelsHidden().pickerStyle(.segmented).fixedSize()
+
+                        if selectedSurface != .floatingStack {
+                            Button("Float") {
+                                store.tearOffSurfaceWidget(item.preset, from: selectedSurface)
+                            }
+                            .controlSize(.small)
+                        }
+
+                        Button {
+                            store.unpinSurfaceWidget(item.preset, from: selectedSurface)
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
+            }
+        }
+    }
+
+    private var friendsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Friends HUD Contacts")
+                .font(.subheadline.weight(.semibold))
+
+            HStack(spacing: 8) {
+                TextField("Name", text: $newFriendName)
+                    .textFieldStyle(.roundedBorder)
+                TextField("Phone, email, or handle", text: $newFriendHandle)
+                    .textFieldStyle(.roundedBorder)
+                Picker("App", selection: $newFriendApp) {
+                    ForEach(DockFriendAppKind.allCases) { app in
+                        Text(verbatim: app.localizedTitle).tag(app)
+                    }
+                }
+                .labelsHidden().fixedSize()
+                Button("Add") {
+                    let trimmed = newFriendName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty else { return }
+                    friendsStore.addFriend(DockFriendContact(
+                        displayName: trimmed,
+                        handle: newFriendHandle.trimmingCharacters(in: .whitespacesAndNewlines),
+                        preferredApp: newFriendApp,
+                        accentIndex: friendsStore.friends.count
+                    ))
+                    newFriendName = ""
+                    newFriendHandle = ""
+                }
+                .disabled(newFriendName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+
+            if store.dockWingFriendsContactsEnabled {
+                HStack(spacing: 8) {
+                    TextField("Search macOS Contacts", text: $contactQuery)
+                        .textFieldStyle(.roundedBorder)
+                    Button("Import Contacts") {
+                        Task {
+                            contactResults = await friendsStore.searchSystemContacts(query: contactQuery)
+                        }
+                    }
+                    .controlSize(.small)
+                }
+                if !contactResults.isEmpty {
+                    ForEach(contactResults.prefix(5)) { candidate in
+                        HStack {
+                            Text(verbatim: candidate.displayName)
+                            Text(verbatim: candidate.handle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Button("Add") {
+                                friendsStore.addFriend(
+                                    DockFriendContact(
+                                        displayName: candidate.displayName,
+                                        handle: candidate.handle,
+                                        preferredApp: .messages,
+                                        accentIndex: friendsStore.friends.count
+                                    ),
+                                    avatarData: candidate.thumbnailData
+                                )
+                            }
+                            .controlSize(.small)
+                        }
+                    }
+                }
+            }
+
+            ForEach(friendsStore.friends) { friend in
+                HStack(spacing: 8) {
+                    Text(verbatim: friend.displayName)
+                        .font(.body.weight(.medium))
+                    Text(verbatim: friend.preferredApp.localizedTitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Toggle("Speaking", isOn: Binding(
+                        get: { friend.isSpeaking },
+                        set: {
+                            var copy = friend
+                            copy.isSpeaking = $0
+                            friendsStore.updateFriend(copy)
+                        }
+                    ))
+                    .toggleStyle(.checkbox)
+                    Button {
+                        friendsStore.removeFriend(id: friend.id)
+                    } label: {
+                        Image(systemName: "minus.circle")
+                    }
+                    .buttonStyle(.borderless)
+                }
+            }
+        }
+    }
+
+    private var integrationsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Opt-In Integrations")
+                .font(.subheadline.weight(.semibold))
+
+            Toggle("VPN City & Flag Lookup (GeoIP)", isOn: Binding(
+                get: { store.dockWingGeoIPEnabled },
+                set: { store.setDockWingGeoIPEnabled($0) }
+            ))
+
+            Toggle("Apple Silicon Thermal Sensors (IOHID)", isOn: Binding(
+                get: { store.dockWingTelemetryIOHIDEnabled },
+                set: { store.setDockWingTelemetryIOHIDEnabled($0) }
+            ))
+
+            Toggle("Contacts Access (Friends HUD)", isOn: Binding(
+                get: { store.dockWingFriendsContactsEnabled },
+                set: { store.setDockWingFriendsContactsEnabled($0) }
+            ))
+
+            Toggle("Spotify Library Like (OAuth PKCE)", isOn: Binding(
+                get: { store.dockWingSpotifyOAuthEnabled },
+                set: { store.setDockWingSpotifyOAuthEnabled($0) }
+            ))
+
+            if store.dockWingSpotifyOAuthEnabled {
+                HStack(spacing: 8) {
+                    TextField("Spotify Client ID", text: $spotifyClientIDDraft)
+                        .textFieldStyle(.roundedBorder)
+                        .onChange(of: spotifyClientIDDraft) { spotifyAuth.clientID = $0 }
+                    if spotifyAuth.isSignedIn {
+                        Button("Sign Out") { spotifyAuth.signOut() }
+                            .controlSize(.small)
+                    } else {
+                        Button("Sign In") {
+                            spotifyAuth.clientID = spotifyClientIDDraft
+                            spotifyAuth.signIn()
+                        }
+                        .controlSize(.small)
+                        .disabled(spotifyClientIDDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+                if let err = spotifyAuth.lastError {
+                    Text(verbatim: err)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
             }
         }
     }

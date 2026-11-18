@@ -334,7 +334,7 @@ enum DrawerCapsulePaging {
 struct PanelScreenGeometry: Equatable {
     var frame: CGRect
     var visibleFrame: CGRect
-    var safeAreaTop: CGFloat
+    var safeAreaTop: CGFloat = 0
 
     /// The drawer's top cap still follows top system UI. On displays without a notch,
     /// this usually tracks visibleFrame.maxY and may change when the menu bar auto-hides.
@@ -936,5 +936,166 @@ enum PanelGeometry {
     /// capsule's top, i.e. the bar's top edge. `plate` is `folderPopupPlateFrame` of the drawer.
     static func drawerBodyFloorY(plate: CGRect) -> CGFloat {
         plate.minY - StackPopupMetrics.tipGap
+    }
+
+    /// Pure frame solver for the Dock II left and right wing panels flanking `dockFrame` (and clearing
+    /// `capsuleFrame` when present). All returned frames include `metrics.shadowPadding` on every edge.
+    struct DockWingPanelLayout: Equatable, Sendable {
+        var leftFrame: CGRect?
+        var rightFrame: CGRect?
+        var leftSize: WidgetSize
+        var rightSize: WidgetSize
+    }
+
+    static func wingPanelFrames(
+        dockFrame: CGRect,
+        capsuleFrame: CGRect,
+        config: DockWingsConfiguration,
+        stripPlacement: StripPlacement,
+        drawerPlacement: DrawerPlacement,
+        controlCentreTrailing: Bool,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        margin: CGFloat = 12
+    ) -> DockWingPanelLayout {
+        guard config.hasAnyActiveWing else {
+            return DockWingPanelLayout(leftFrame: nil, rightFrame: nil,
+                                       leftSize: config.left.size, rightSize: config.right.size)
+        }
+
+        let scale = max(0.5, metrics.panelHeight / IslandChrome.nativeBarHeight)
+        let gap = DockWingsConfiguration.clampedGap(config.gap) * scale
+        let pad = metrics.shadowPadding
+        let dockPlate = dockFrame.insetBy(dx: pad, dy: pad)
+        let capsulePlate = capsuleFrame != .zero ? capsuleFrame.insetBy(dx: pad, dy: pad) : .zero
+
+        if stripPlacement.isVertical {
+            let maxAbove = max(0, screen.frame.maxY - margin - (dockPlate.maxY + gap))
+            let bottomAnchorY = (capsulePlate != .zero && capsulePlate.minY < dockPlate.minY)
+                ? capsulePlate.minY : dockPlate.minY
+            let maxBelow = max(0, (bottomAnchorY - gap) - (screen.frame.minY + margin))
+            let plateHeight = metrics.panelHeight
+
+            var leftFrame: CGRect?
+            if config.left.preset.isAssigned, maxAbove >= plateHeight {
+                let w = min(DockWingDimensions.scaledWidth(for: config.left.preset, size: .small, scale: scale),
+                            max(plateHeight, screen.frame.width - 2 * margin))
+                let rawX = dockPlate.midX - w / 2
+                let clampedX = min(max(rawX, screen.frame.minX + margin), screen.frame.maxX - margin - w)
+                leftFrame = CGRect(x: clampedX - pad, y: dockPlate.maxY + gap - pad,
+                                   width: w + 2 * pad, height: plateHeight + 2 * pad)
+            }
+
+            var rightFrame: CGRect?
+            if config.right.preset.isAssigned, maxBelow >= plateHeight {
+                let w = min(DockWingDimensions.scaledWidth(for: config.right.preset, size: .small, scale: scale),
+                            max(plateHeight, screen.frame.width - 2 * margin))
+                let rawX = dockPlate.midX - w / 2
+                let clampedX = min(max(rawX, screen.frame.minX + margin), screen.frame.maxX - margin - w)
+                rightFrame = CGRect(x: clampedX - pad, y: bottomAnchorY - gap - plateHeight - pad,
+                                    width: w + 2 * pad, height: plateHeight + 2 * pad)
+            }
+
+            return DockWingPanelLayout(leftFrame: leftFrame, rightFrame: rightFrame,
+                                       leftSize: .small, rightSize: .small)
+        }
+
+        let leftAnchorMaxX = (capsulePlate != .zero && capsulePlate.minX < dockPlate.minX && !controlCentreTrailing)
+            ? capsulePlate.minX : dockPlate.minX
+        let rightAnchorMinX = (capsulePlate != .zero && capsulePlate.maxX > dockPlate.maxX)
+            ? capsulePlate.maxX : dockPlate.maxX
+
+        let leftAvailable = max(0, leftAnchorMaxX - (screen.frame.minX + margin) - gap)
+        let rightAvailable = max(0, (screen.frame.maxX - margin) - (rightAnchorMinX + gap))
+        let totalBudget = (config.left.preset.isAssigned ? leftAvailable : 0)
+            + (config.right.preset.isAssigned ? rightAvailable : 0)
+
+        let resolved = DockWingLayoutPlanner.resolveSizes(
+            config: config,
+            availableWingBudget: totalBudget,
+            scale: scale
+        )
+
+        var leftFrame: CGRect?
+        if config.left.preset.isAssigned {
+            let desiredW = DockWingDimensions.scaledWidth(for: config.left.preset, size: resolved.left, scale: scale)
+            let w = min(desiredW, leftAvailable)
+            if w >= 40 * scale {
+                let x = leftAnchorMaxX - gap - w
+                leftFrame = CGRect(x: x - pad, y: dockFrame.minY,
+                                   width: w + 2 * pad, height: metrics.windowHeight)
+            }
+        }
+
+        var rightFrame: CGRect?
+        if config.right.preset.isAssigned {
+            let desiredW = DockWingDimensions.scaledWidth(for: config.right.preset, size: resolved.right, scale: scale)
+            let w = min(desiredW, rightAvailable)
+            if w >= 40 * scale {
+                let x = rightAnchorMinX + gap
+                rightFrame = CGRect(x: x - pad, y: dockFrame.minY,
+                                    width: w + 2 * pad, height: metrics.windowHeight)
+            }
+        }
+
+        return DockWingPanelLayout(leftFrame: leftFrame, rightFrame: rightFrame,
+                                   leftSize: resolved.left, rightSize: resolved.right)
+    }
+
+    /// Pure target frame for the torn-off Floating Widget Stack panel (bottom-left screen coordinates,
+    /// including `metrics.shadowPadding` on every edge). Uses `customOrigin` when user-dragged, or
+    /// anchors to the right flank / right wing above the dock otherwise, automatically dodging any active
+    /// `avoidRect` (such as an open Drawer or Shelf popup) and clamped within `screen.visibleFrame`.
+    static func floatingWidgetStackFrame(
+        size: CGSize,
+        dockFrame: CGRect,
+        customOrigin: CGPoint?,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge,
+        margin: CGFloat = 12,
+        rightFlankFrame: CGRect? = nil,
+        avoidRect: CGRect? = nil
+    ) -> CGRect {
+        let pad = metrics.shadowPadding
+        let plateW = max(160, size.width)
+        let plateH = max(60, size.height)
+        let dockPlate = dockFrame.insetBy(dx: pad, dy: pad)
+        let anchorPlate = rightFlankFrame.map { $0.insetBy(dx: pad, dy: pad) } ?? dockPlate
+
+        let defaultX = anchorPlate.maxX - plateW
+        var rawPlateX = customOrigin?.x ?? defaultX
+        var rawPlateY = customOrigin?.y ?? (dockPlate.maxY + 14)
+
+        let minX = screen.visibleFrame.minX + margin
+        let maxX = max(minX, screen.visibleFrame.maxX - margin - plateW)
+        let minY = screen.visibleFrame.minY + margin
+        let maxY = max(minY, screen.topUsableY - margin - plateH)
+
+        var clampedX = min(max(rawPlateX, minX), maxX)
+        var clampedY = min(max(rawPlateY, minY), maxY)
+
+        if let avoid = avoidRect {
+            let avoidPlate = avoid.insetBy(dx: pad, dy: pad)
+            let candidate = CGRect(x: clampedX, y: clampedY, width: plateW, height: plateH)
+            if candidate.intersects(avoidPlate) {
+                let rightSlideX = avoidPlate.maxX + 12
+                let leftSlideX = avoidPlate.minX - 12 - plateW
+                let upSlideY = avoidPlate.maxY + 12
+                if rightSlideX <= maxX {
+                    clampedX = rightSlideX
+                } else if leftSlideX >= minX {
+                    clampedX = leftSlideX
+                } else if upSlideY <= maxY {
+                    clampedY = upSlideY
+                }
+            }
+        }
+
+        return CGRect(
+            x: clampedX - pad,
+            y: clampedY - pad,
+            width: plateW + 2 * pad,
+            height: plateH + 2 * pad
+        )
     }
 }

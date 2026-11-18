@@ -58,6 +58,10 @@ struct StackPopupChrome<Grid: View>: View {
     var gridExtraHeight: CGFloat = 0
     /// Optional trailing control inside the header row (such as the Drawer's Grid/List toggle).
     var headerAccessory: AnyView? = nil
+    /// Optional widget deck rendered below the grid; its height and minimum width expand the plate cleanly.
+    var bottomAccessory: AnyView? = nil
+    var bottomAccessoryHeight: CGFloat = 0
+    var bottomAccessoryMinWidth: CGFloat = 0
     /// Draws a subtle accent highlight around the glass plate when an external drag hovers over it.
     var isDropTargeted: Bool = false
     /// The cells; they land in a `LazyVGrid` of `layout.columns` fixed columns.
@@ -71,7 +75,10 @@ struct StackPopupChrome<Grid: View>: View {
     private var plateSize: CGSize {
         let base = plate.plateSize(columns: layout.columns, rows: layout.visibleRows,
                                   hasNote: note != nil, scrolls: layout.scrolls)
-        return CGSize(width: base.width, height: base.height + gridExtraHeight)
+        return CGSize(
+            width: max(base.width, bottomAccessoryMinWidth),
+            height: base.height + gridExtraHeight + bottomAccessoryHeight
+        )
     }
     private var gridWidth: CGFloat { CGFloat(layout.columns) * plate.cell.cellSize.width }
     private var gridHeight: CGFloat { CGFloat(layout.visibleRows) * plate.cell.cellSize.height }
@@ -97,6 +104,12 @@ struct StackPopupChrome<Grid: View>: View {
                         .frame(width: gridWidth, height: gridHeight, alignment: .topLeading)
                         .padding(.leading, plate.sidePadding)
                 }
+            }
+            if let bottomAccessory, bottomAccessoryHeight > 0 {
+                bottomAccessory
+                    .padding(.horizontal, plate.sidePadding)
+                    .padding(.bottom, 8)
+                    .frame(width: plateSize.width, height: bottomAccessoryHeight, alignment: .topLeading)
             }
         }
         .frame(width: plateSize.width, height: plateSize.height, alignment: .top)

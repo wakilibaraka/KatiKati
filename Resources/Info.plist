@@ -42,6 +42,8 @@
   <string>Shows the weather for where you are in the weather widget.</string>
   <key>NSBluetoothAlwaysUsageDescription</key>
   <string>KatiKati turns Bluetooth on or off when you tap the Bluetooth switch in Quick Settings.</string>
+  <key>NSContactsUsageDescription</key>
+  <string>Lets you pick favorite contacts for the Dock II Friends HUD widget when enabled.</string>
   <key>NSCameraUsageDescription</key>
   <string>Shows the live camera mirror on the notch page you switch on. The camera is opened only while that page is on screen.</string>
   <key>NSMicrophoneUsageDescription</key>

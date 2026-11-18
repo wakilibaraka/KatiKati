@@ -368,6 +368,7 @@ extension PanelCoordinator {
         onLogicalVisibilityChanged?(false)
         orderDockSurfaceOut()
         capsulePanel?.orderOut(nil)
+        orderDockWingsOut()
         drawerPanel?.orderOut(nil)
         folderPopupPanel?.orderOut(nil)
         windowTitleTooltipPanel?.orderOut(nil)
@@ -405,7 +406,12 @@ extension PanelCoordinator {
         panelsAreVisible = false
         lastHideWasForFullscreen = true
         onLogicalVisibilityChanged?(false)
-        let fadingPanels = [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
+        let fadingPanels = [
+            dockGlassBackgroundPanel, dockPanel, capsulePanel,
+            leftWingGlassBackgroundPanel, leftWingPanel,
+            rightWingGlassBackgroundPanel, rightWingPanel,
+            floatingWidgetStackPanel
+        ].compactMap { $0 }
         NSAnimationContext.runAnimationGroup({ ctx in
             ctx.duration = 0.15
             for panel in fadingPanels { panel.animator().alphaValue = 0 }

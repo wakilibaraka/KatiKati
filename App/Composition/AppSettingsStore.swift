@@ -213,6 +213,14 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// Dock II flanking wing presets + opt-in integration toggles (off by default).
+    @Published private(set) var dockWings: DockWingsConfiguration
+    @Published private(set) var dockWingGeoIPEnabled: Bool
+    @Published private(set) var dockWingSpotifyOAuthEnabled: Bool
+    @Published private(set) var dockWingTelemetryIOHIDEnabled: Bool
+    @Published private(set) var dockWingFriendsContactsEnabled: Bool
+    @Published private(set) var surfaceWidgets: DockWidgetConfigStore
+    @Published private(set) var floatingWidgetStackOrigin: CGPoint?
 
     /// Slice DI-1: Dictionary and Terminal are `BarSection` modules, so these two switches are a view of
     /// the module list — one control (the module's eye) and one stored truth, never a second flag.
@@ -465,7 +473,11 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeTileStyle: EdgeTileStyle.glass.rawValue,
             Keys.deckTabFont: "",
             Keys.deckYRatioLeft: 0.5,
-            Keys.deckYRatioRight: 0.5
+            Keys.deckYRatioRight: 0.5,
+            Keys.dockWingGeoIPEnabled: false,
+            Keys.dockWingSpotifyOAuthEnabled: false,
+            Keys.dockWingTelemetryIOHIDEnabled: false,
+            Keys.dockWingFriendsContactsEnabled: false
         ])
 
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)
@@ -594,6 +606,19 @@ final class AppSettingsStore: ObservableObject {
         widgetOrder = storedWidgetLayout.visibleOrder
         stripPlacementMap = StripPlacementMap.decode(defaults.data(forKey: StripPlacementMap.defaultsKey)) ?? StripPlacementMap()
         userWidgetPresets = WidgetPresets.decode(defaults.data(forKey: WidgetPresets.defaultsKey))
+        dockWings = DockWingsConfiguration.decode(defaults.data(forKey: DockWingsConfiguration.defaultsKey)) ?? .default
+        dockWingGeoIPEnabled = defaults.bool(forKey: Keys.dockWingGeoIPEnabled)
+        dockWingSpotifyOAuthEnabled = defaults.bool(forKey: Keys.dockWingSpotifyOAuthEnabled)
+        dockWingTelemetryIOHIDEnabled = defaults.bool(forKey: Keys.dockWingTelemetryIOHIDEnabled)
+        dockWingFriendsContactsEnabled = defaults.bool(forKey: Keys.dockWingFriendsContactsEnabled)
+        surfaceWidgets = DockWidgetConfigStore.decode(defaults.data(forKey: DockWidgetConfigStore.defaultsKey)) ?? .default
+        if let originDict = defaults.dictionary(forKey: Keys.floatingWidgetStackOrigin),
+           let x = originDict["x"] as? Double,
+           let y = originDict["y"] as? Double {
+            floatingWidgetStackOrigin = CGPoint(x: x, y: y)
+        } else {
+            floatingWidgetStackOrigin = nil
+        }
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
         // Both knobs go through the same clamp the setters use, so a hand-edited key cannot put the
@@ -1686,6 +1711,110 @@ final class AppSettingsStore: ObservableObject {
         setWidgetLayout(widgetLayout.updating(section) { $0.size = size; $0.exactWidth = nil })
     }
 
+    // MARK: Dock II Wings
+
+    func setDockWing(_ preset: DockWidgetPresetType, size: WidgetSize? = nil, placement: DockWingPlacement) {
+        setDockWings(dockWings.assigning(preset, size: size, to: placement))
+    }
+
+    func setDockWingSize(_ size: WidgetSize, placement: DockWingPlacement) {
+        setDockWings(dockWings.updatingSize(size, for: placement))
+    }
+
+    func setDockWingGap(_ gap: CGFloat) {
+        setDockWings(dockWings.updatingGap(gap))
+    }
+
+    func resetDockWings() {
+        setDockWings(.default)
+    }
+
+    private func setDockWings(_ next: DockWingsConfiguration) {
+        guard dockWings != next else { return }
+        dockWings = next
+        defaults.set(next.encoded(), forKey: DockWingsConfiguration.defaultsKey)
+    }
+
+    func setDockWingGeoIPEnabled(_ enabled: Bool) {
+        dockWingGeoIPEnabled = enabled
+        defaults.set(enabled, forKey: Keys.dockWingGeoIPEnabled)
+    }
+
+    func setDockWingSpotifyOAuthEnabled(_ enabled: Bool) {
+        dockWingSpotifyOAuthEnabled = enabled
+        defaults.set(enabled, forKey: Keys.dockWingSpotifyOAuthEnabled)
+    }
+
+    func setDockWingTelemetryIOHIDEnabled(_ enabled: Bool) {
+        dockWingTelemetryIOHIDEnabled = enabled
+        defaults.set(enabled, forKey: Keys.dockWingTelemetryIOHIDEnabled)
+    }
+
+    func setDockWingFriendsContactsEnabled(_ enabled: Bool) {
+        dockWingFriendsContactsEnabled = enabled
+        defaults.set(enabled, forKey: Keys.dockWingFriendsContactsEnabled)
+    }
+
+    // MARK: Multi-Surface Universal Dock II Widgets (DWP-1)
+
+    func pinSurfaceWidget(
+        _ preset: DockWidgetPresetType,
+        size: WidgetSize = .medium,
+        to surface: WidgetSurfaceKind
+    ) {
+        setSurfaceWidgets(surfaceWidgets.pinning(preset, size: size, to: surface))
+    }
+
+    func unpinSurfaceWidget(_ preset: DockWidgetPresetType, from surface: WidgetSurfaceKind) {
+        setSurfaceWidgets(surfaceWidgets.unpinning(preset, from: surface))
+    }
+
+    func setSurfaceWidgetSize(
+        _ size: WidgetSize,
+        for preset: DockWidgetPresetType,
+        on surface: WidgetSurfaceKind
+    ) {
+        setSurfaceWidgets(surfaceWidgets.updatingSize(size, for: preset, on: surface))
+    }
+
+    func toggleSurfaceWidgetCollapsed(
+        for preset: DockWidgetPresetType,
+        on surface: WidgetSurfaceKind
+    ) {
+        setSurfaceWidgets(surfaceWidgets.togglingCollapsed(for: preset, on: surface))
+    }
+
+    func tearOffSurfaceWidget(
+        _ preset: DockWidgetPresetType,
+        from source: WidgetSurfaceKind,
+        removeFromSource: Bool = false
+    ) {
+        setSurfaceWidgets(surfaceWidgets.tearingOff(preset, from: source, removeFromSource: removeFromSource))
+    }
+
+    func moveSurfaceWidgets(on surface: WidgetSurfaceKind, from source: IndexSet, to destination: Int) {
+        setSurfaceWidgets(surfaceWidgets.moving(on: surface, from: source, to: destination))
+    }
+
+    func clearSurfaceWidgets(on surface: WidgetSurfaceKind) {
+        setSurfaceWidgets(surfaceWidgets.clearing(surface: surface))
+    }
+
+    func setFloatingWidgetStackOrigin(_ origin: CGPoint?) {
+        floatingWidgetStackOrigin = origin
+        if let origin {
+            defaults.set(["x": Double(origin.x), "y": Double(origin.y)], forKey: Keys.floatingWidgetStackOrigin)
+        } else {
+            defaults.removeObject(forKey: Keys.floatingWidgetStackOrigin)
+        }
+    }
+
+    private func setSurfaceWidgets(_ next: DockWidgetConfigStore) {
+        guard surfaceWidgets != next else { return }
+        surfaceWidgets = next
+        defaults.set(next.encoded(), forKey: DockWidgetConfigStore.defaultsKey)
+    }
+
     private static func storedDockPanelHeight(defaults: UserDefaults) -> DockPanelHeight {
         if let stored = storedNumericValue(defaults.object(forKey: Keys.dockPanelHeight)) {
             return DockPanelHeight(clamping: CGFloat(stored))
@@ -1841,6 +1970,11 @@ private enum Keys {
     static let themeVibrancy = "com.katikati.theme.vibrancy"
     static let themeContrast = "com.katikati.theme.contrast"
     static let themeTranslucency = "com.katikati.theme.translucency"
+    static let dockWingGeoIPEnabled = "com.katikati.dockII.vpnGeoIPEnabled"
+    static let dockWingSpotifyOAuthEnabled = "com.katikati.dockII.spotifyOAuthEnabled"
+    static let dockWingTelemetryIOHIDEnabled = "com.katikati.dockII.telemetryIOHIDEnabled"
+    static let dockWingFriendsContactsEnabled = "com.katikati.dockII.friendsContactsEnabled"
+    static let floatingWidgetStackOrigin = "com.katikati.dockII.floatingStackOrigin"
 }
 
 /// One-way first-run migrator from legacy Tungsten Edge (`com.tungsten.edge.*`) defaults

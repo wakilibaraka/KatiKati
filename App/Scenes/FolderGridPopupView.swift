@@ -316,7 +316,22 @@ struct FolderGridPopupView: View {
                          onPanelSizeChange: onContentResize,
                          onBack: drillStack.isEmpty ? onBackAtRoot : { _ = drillStack.removeLast() },
                          gridAnimation: animatesGridChanges ? .easeInOut(duration: DrawerAnimation.duration) : nil,
-                         gridAnimationKey: model.entries.map(\.url.path)) {
+                         gridAnimationKey: model.entries.map(\.url.path),
+                         noteAccessory: model.needsPermission ? AnyView(
+                            Button {
+                                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders") {
+                                    NSWorkspace.shared.open(url)
+                                }
+                            } label: {
+                                Label(String(localized: "Open System Settings"), systemImage: "gear")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundStyle(.white.opacity(0.9))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 4)
+                                    .background(Capsule().fill(Color.white.opacity(0.16)))
+                            }
+                            .buttonStyle(.plain)
+                         ) : nil) {
             ForEach(model.entries, id: \.url) { entry in
                 FolderGridCell(iconPath: entry.url.path,
                                staticIcon: nil,

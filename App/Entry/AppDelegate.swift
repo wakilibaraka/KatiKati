@@ -162,6 +162,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // The Control Centre panel is a window of its own: showing or hiding it reorders the window
         // list, and the drawer capsule shares the dock's plate — put it back on top every time.
         panel.onSurfaceChanged = { [weak self] in self?.panelCoordinator?.reassertUtilitySurfaces() }
+        panel.onWillShow = { [weak self] in
+            self?.launcherPanel.dismiss()
+            WidgetPanelController.weather.close()
+            WidgetPanelController.calendar.close()
+            self?.panelCoordinator?.closeAllDrawersAndPopups()
+        }
         return panel
     }()
     /// Shown from the edge deck's wifi button (`AppDelegate.shared?.toggleControlCenter()`).
@@ -180,6 +186,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
+        panel.onWillShow = { [weak self] in
+            self?.controlCenterPanel.hide()
+            WidgetPanelController.weather.close()
+            WidgetPanelController.calendar.close()
+            self?.panelCoordinator?.closeAllDrawersAndPopups()
+        }
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
         panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .horizontal }
         panel.pinnedRow = { [weak self] in self?.settingsStore.launcherPinnedRow ?? true }
@@ -1056,6 +1068,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 不存在"凭空造出一个状态栏图标"的问题。
         coordinator.onRequestTaskbarMenu = { [weak self] event, view in
             self?.statusMenuController.popUpFromTaskbar(with: event, in: view)
+        }
+        coordinator.onAccessoryWillOpen = { [weak self] kind in
+            guard kind == .drawer || kind == .popup else { return }
+            self?.launcherPanel.dismiss()
+            self?.controlCenterPanel.hide()
+            WidgetPanelController.weather.close()
+            WidgetPanelController.calendar.close()
+        }
+        WidgetPanelController.onAnyWillOpen = { [weak self] in
+            self?.launcherPanel.dismiss()
+            self?.controlCenterPanel.hide()
+            self?.panelCoordinator?.closeAllDrawersAndPopups()
         }
         coordinator.start()
         let windowLiftAvoidanceController = WindowLiftAvoidanceController(host: coordinator)

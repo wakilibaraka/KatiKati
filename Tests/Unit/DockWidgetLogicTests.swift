@@ -637,4 +637,61 @@ final class TickerModelTests: XCTestCase {
         XCTAssertEqual(TickerFormat.change(-0.004), "−0.4%")
         XCTAssertNil(TickerFormat.change(nil))
     }
+
+    // MARK: Universal Multi-Surface Widget Container (DWP-1)
+
+    func testUniversalWidgetPinningDeduplicatesAndCapsPerSurface() {
+        var store = DockWidgetConfigStore.default
+        store = store.pinning(.none, to: .drawer)
+        XCTAssertTrue(store.attachments(for: .drawer).isEmpty, ".none may never be pinned")
+
+        store = store.pinning(.spotify, size: .small, to: .drawer)
+        store = store.pinning(.spotify, size: .large, to: .drawer)
+        XCTAssertEqual(store.attachments(for: .drawer).count, 1)
+        XCTAssertEqual(store.attachment(.spotify, on: .drawer)?.size, .large)
+
+        for preset in [DockWidgetPresetType.controlCenter, .vpn, .friends, .telemetry] {
+            store = store.pinning(preset, size: .medium, to: .drawer)
+        }
+        XCTAssertEqual(store.attachments(for: .drawer).count, DockWidgetConfigStore.maxPerSurface)
+        XCTAssertFalse(store.isPinned(.telemetry, on: .drawer))
+    }
+
+    func testUniversalWidgetTearOffAndReorderAndRoundTrip() throws {
+        var store = DockWidgetConfigStore.default
+            .pinning(.vpn, size: .large, to: .shelfCard)
+            .pinning(.friends, size: .medium, to: .shelfCard)
+            .pinning(.telemetry, size: .small, to: .backgroundAppsPopup)
+
+        store = store.tearingOff(.vpn, from: .shelfCard, removeFromSource: true)
+        XCTAssertFalse(store.isPinned(.vpn, on: .shelfCard))
+        XCTAssertTrue(store.isPinned(.vpn, on: .floatingStack))
+        XCTAssertEqual(store.attachment(.vpn, on: .floatingStack)?.size, .large)
+
+        store = store.pinning(.spotify, size: .small, to: .floatingStack)
+        store = store.moving(on: .floatingStack, from: IndexSet(integer: 1), to: 0)
+        XCTAssertEqual(store.attachments(for: .floatingStack).map(\.preset), [.spotify, .vpn])
+
+        let encoded = try XCTUnwrap(store.encoded())
+        let decoded = try XCTUnwrap(DockWidgetConfigStore.decode(encoded))
+        XCTAssertEqual(decoded, store)
+        XCTAssertNil(DockWidgetConfigStore.decode(Data("bad-json".utf8)))
+    }
+
+    @MainActor
+    func testAppSettingsStorePersistsSurfaceWidgetsAndFloatingOrigin() {
+        let suite = "com.katikati.tests.dwp1.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let store = AppSettingsStore(defaults: defaults)
+        store.pinSurfaceWidget(.friends, size: .medium, to: .shelfCard)
+        store.tearOffSurfaceWidget(.friends, from: .shelfCard, removeFromSource: false)
+        store.setFloatingWidgetStackOrigin(CGPoint(x: 420, y: 120))
+
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(reloaded.surfaceWidgets.isPinned(.friends, on: .shelfCard))
+        XCTAssertTrue(reloaded.surfaceWidgets.isPinned(.friends, on: .floatingStack))
+        XCTAssertEqual(reloaded.floatingWidgetStackOrigin, CGPoint(x: 420, y: 120))
+    }
 }

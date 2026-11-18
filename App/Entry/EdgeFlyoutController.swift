@@ -157,6 +157,8 @@ final class ControlCenterPanelController {
     var onCapture: () -> Void = {}
     var onDrawer: () -> Void = {}
     var onQuit: () -> Void = {}
+    /// Called just before Control Center opens so competing panels (Launcher, Widgets, Drawers) close.
+    var onWillShow: () -> Void = {}
     /// Called after the panel is shown or hidden: raising it moves the whole window list, and the
     /// drawer capsule shares the dock's plate, so the bars put it back on top (`reassertUtilitySurfaces`).
     var onSurfaceChanged: () -> Void = {}
@@ -170,6 +172,7 @@ final class ControlCenterPanelController {
     func toggle() { isShown ? hide() : show() }
 
     func show() {
+        onWillShow()
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
                 ?? NSScreen.main ?? NSScreen.screens.first else { return }
         let maxHeight = max(240, screen.visibleFrame.height - 24 - CGFloat(bottomReserve()))

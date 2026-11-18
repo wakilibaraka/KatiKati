@@ -105,6 +105,18 @@ final class PanelCoordinator: NSObject {
     /// 但仍然**强持有**而不是 `_ =` 丢弃：丢弃后只靠视图层级间接留住容器，哪天给
     /// `ManualPanelHost` 加了 `deinit` 清理，胶囊会静默失效。
     var capsuleContentHost: ManualPanelHost?
+    var leftWingPanel: NSPanel?
+    var leftWingGlassBackgroundPanel: NonConstrainingPanel?
+    var leftWingGlassBackgroundView: DockTaskbarLiquidGlassBackgroundView?
+    var leftWingHost: ManualPanelHost?
+    let leftWingSizeModel = DockWingResolvedSizeModel()
+    var rightWingPanel: NSPanel?
+    var rightWingGlassBackgroundPanel: NonConstrainingPanel?
+    var rightWingGlassBackgroundView: DockTaskbarLiquidGlassBackgroundView?
+    var rightWingHost: ManualPanelHost?
+    let rightWingSizeModel = DockWingResolvedSizeModel()
+    var floatingWidgetStackPanel: NSPanel?
+    var floatingWidgetStackHost: ManualPanelHost?
     /// 抽屉真正承载 SwiftUI 的 hosting view（抽屉 contentView 是普通 NSView 容器,故 fittingSize 要读这个）。
     var drawerContentHost: NSView?
     /// 同一个宿主的带类型引用，给「每次打开只换 rootView」用。**只建一次**（2026-09-04）：
@@ -207,6 +219,8 @@ final class PanelCoordinator: NSObject {
     var layoutDimensionsSubscription: AnyCancellable?
     var widgetWidthsSubscription: AnyCancellable?
     var controlCentreTrailingSubscription: AnyCancellable?
+    var dockWingsSubscription: AnyCancellable?
+    var surfaceWidgetsSubscription: AnyCancellable?
     /// Height-change transaction generation: swallows animated relayouts other paths queue
     /// while a height change is in flight (see `beginPanelHeightChange`).
     var panelHeightChangeGeneration: UInt64 = 0
@@ -478,6 +492,9 @@ final class PanelCoordinator: NSObject {
         // 换掉 contentView 触发 SwiftUI 拆树；单独强持有的 host 要先置空。
         dockContentHost = nil
         capsuleContentHost = nil
+        leftWingHost = nil
+        rightWingHost = nil
+        floatingWidgetStackHost = nil
         drawerContentHost = nil
         drawerHosting = nil
         drawerHostedLimits = nil
@@ -487,7 +504,8 @@ final class PanelCoordinator: NSObject {
         windowTitleTooltipHosting = nil
         windowTitleTooltipHost = nil
         tearDownTaskbarGlassBackground()
-        for panel in [dockPanel, capsulePanel, drawerPanel, folderPopupPanel, windowTitleTooltipPanel] {
+        for panel in [dockPanel, capsulePanel, leftWingPanel, rightWingPanel, floatingWidgetStackPanel,
+                      drawerPanel, folderPopupPanel, windowTitleTooltipPanel] {
             guard let panel else { continue }
             panel.contentView = NSView()
             panel.orderOut(nil)
@@ -495,6 +513,9 @@ final class PanelCoordinator: NSObject {
         }
         dockPanel = nil
         capsulePanel = nil
+        leftWingPanel = nil
+        rightWingPanel = nil
+        floatingWidgetStackPanel = nil
         drawerPanel = nil
         folderPopupPanel = nil
         windowTitleTooltipPanel = nil
@@ -613,7 +634,13 @@ final class PanelCoordinator: NSObject {
             return
         }
         guard let panel = dockPanel, let screen = panel.screen ?? NSScreen.main else { return }
-        let panels = [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
+        let panels = [
+            dockGlassBackgroundPanel, dockPanel, capsulePanel,
+            leftWingGlassBackgroundPanel, leftWingPanel,
+            rightWingGlassBackgroundPanel, rightWingPanel
+        ]
+            .compactMap { $0 }
+            .filter(\.isVisible)
         let bounds = screen.frame
         let edge = DockScreenEdge.nearest(to: panel.frame, in: bounds)
         let offset: CGSize
@@ -657,7 +684,13 @@ final class PanelCoordinator: NSObject {
     /// 必须在每个桌面上都在的面板。抽屉 / 文件夹弹窗 / 悬停气泡是瞬时面板——下次弹出时
     /// `orderFrontRegardless` 自然落到当前桌面，用户永远不会在别的桌面上等它们，故不参与修复。
     var allSpacesPanels: [NSPanel] {
-        [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
+        [
+            dockGlassBackgroundPanel, dockPanel, capsulePanel,
+            leftWingGlassBackgroundPanel, leftWingPanel,
+            rightWingGlassBackgroundPanel, rightWingPanel,
+            floatingWidgetStackPanel
+        ]
+            .compactMap { $0 }
     }
 
     func panelCurrentScreen(panel: NSPanel) -> NSScreen {

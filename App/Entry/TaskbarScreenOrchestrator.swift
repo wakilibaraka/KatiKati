@@ -59,6 +59,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     var onRequestTaskbarMenu: ((NSEvent, NSView) -> Void)? {
         didSet { units.forEach { $0.coordinator.onRequestTaskbarMenu = onRequestTaskbarMenu } }
     }
+    var onAccessoryWillOpen: ((PanelCoordinator.AccessoryKind) -> Void)?
 
     private var started = false
     private var isSuspended = false
@@ -643,6 +644,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     /// 同时只开一个抽屉 / 弹窗 / 气泡：某单元要开时关掉其他单元的。
     /// 抽屉与弹窗互斥（同一层级的附属面板）；气泡只跟气泡互斥（悬停不该收掉别的屏上开着的抽屉）。
     private func closeAccessories(exceptFor unit: PanelCoordinator, opening kind: PanelCoordinator.AccessoryKind) {
+        onAccessoryWillOpen?(kind)
         for other in units where other.coordinator !== unit {
             switch kind {
             case .drawer, .popup:
@@ -652,6 +654,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             case .tooltip:
                 other.coordinator.dismissWindowTitleTooltip(suppressCurrentUntilExit: true)
             }
+        }
+    }
+
+    func closeAllDrawersAndPopups() {
+        for unit in units {
+            unit.coordinator.closeDrawer()
+            unit.coordinator.closeFolderPopup()
         }
     }
 

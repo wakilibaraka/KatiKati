@@ -420,7 +420,7 @@ private struct StackedClockCardView: View {
                         .lineLimit(1)
                 } else {
                     HStack(spacing: 2) {
-                        Text(verbatim: ":\(String(format: "%02d", sec))")
+                        Text(verbatim: "\(String(format: "%02d", sec))s")
                             .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
                             .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
                     }

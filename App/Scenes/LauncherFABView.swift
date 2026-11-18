@@ -15,20 +15,22 @@ struct LauncherFABView: View {
     }
 
     public var body: some View {
-        ZStack {
-            // Central icon rendered with ideal proportions (26pt glyph)
-            LauncherIconView(style: settingsStore.launcherIcon, size: 26)
+        Button {
+            onTap?()
+        } label: {
+            ZStack {
+                // Central icon rendered with ideal proportions (26pt glyph)
+                LauncherIconView(style: settingsStore.launcherIcon, size: 26)
+            }
+            .frame(width: 40, height: 40)
+            // The plate is the shared one now (Phase 40f) — this button is one of the two the recipe was
+            // named after, so its pixels are unchanged.
+            .dockTileChrome(isHovered: isHovered)
+            .contentShape(Rectangle())
         }
-        .frame(width: 40, height: 40)
-        // The plate is the shared one now (Phase 40f) — this button is one of the two the recipe was
-        // named after, so its pixels are unchanged.
-        .dockTileChrome(isHovered: isHovered)
-        .contentShape(Rectangle())
+        .buttonStyle(.plain)
         .onHover { hovering in
             isHovered = hovering
-        }
-        .onTapGesture {
-            onTap?()
         }
         .help(Text(verbatim: "Launcher"))
     }

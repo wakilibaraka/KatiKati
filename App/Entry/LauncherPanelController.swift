@@ -28,9 +28,12 @@ final class LauncherPanelController {
     var sideBarReserve: () -> (leading: Double, trailing: Double) = { (0, 0) }
     /// Bundle ids of the apps kept in the dock; they open page 1 as Pinned.
     var keptApps: () -> [String] = { [] }
+    /// Called just before the launcher appears so competing floating panels (Quick Settings, Widgets, Drawers) dismiss cleanly.
+    var onWillShow: () -> Void = {}
     private var backdrop: LauncherBackdrop?
     private var prefsObserver: AnyCancellable?
     private var scrollMonitor: Any?
+    private var outsideGlobalMonitor: Any?
     private var scrollAccum: CGFloat = 0
     private var scrollFired = false
     private var lastWheelTurn = Date.distantPast
@@ -41,6 +44,7 @@ final class LauncherPanelController {
 
     func show() {
         guard !isShown else { return }
+        onWillShow()
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
         guard let screen else { return }
         model.state = store.load()
@@ -84,6 +88,16 @@ final class LauncherPanelController {
     /// Swipe or scroll turns pages while the launcher shows sliding pages: a trackpad swipe turns one page per gesture,
     /// a mouse wheel one page per notch (debounced).
     private func installScrollMonitor() {
+        if outsideGlobalMonitor == nil {
+            outsideGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, let panel = self.panel, panel.isVisible else { return }
+                    if !panel.frame.contains(NSEvent.mouseLocation) {
+                        self.dismiss()
+                    }
+                }
+            }
+        }
         guard scrollMonitor == nil else { return }
         scrollMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
             self?.handleScroll(event)
@@ -94,6 +108,8 @@ final class LauncherPanelController {
     private func removeScrollMonitor() {
         if let scrollMonitor { NSEvent.removeMonitor(scrollMonitor) }
         scrollMonitor = nil
+        if let outsideGlobalMonitor { NSEvent.removeMonitor(outsideGlobalMonitor) }
+        outsideGlobalMonitor = nil
     }
 
     private func handleScroll(_ event: NSEvent) {

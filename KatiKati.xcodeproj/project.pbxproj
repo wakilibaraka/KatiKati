@@ -229,6 +229,25 @@
 		FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */; };
 		FA10A1000000000000000003 /* WidgetLayoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000001 /* WidgetLayoutModel.swift */; };
 		FA10A1000000000000000002 /* WidgetLayoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000001 /* WidgetLayoutModel.swift */; };
+		D211A0000000000000000002 /* DockWingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000001 /* DockWingModels.swift */; };
+		D211A0000000000000000003 /* DockWingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000001 /* DockWingModels.swift */; };
+		D211A0000000000000000012 /* DockWingModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000011 /* DockWingModelsTests.swift */; };
+		D211A0000000000000000022 /* GeoIPLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000021 /* GeoIPLookupService.swift */; };
+		D211A0000000000000000023 /* GeoIPLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000021 /* GeoIPLookupService.swift */; };
+		D211A0000000000000000032 /* DockVpnFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000031 /* DockVpnFeed.swift */; };
+		D211A0000000000000000042 /* AppleSiliconSensorReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000041 /* AppleSiliconSensorReader.swift */; };
+		D211A0000000000000000052 /* DockTelemetryFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000051 /* DockTelemetryFeed.swift */; };
+		D211A0000000000000000062 /* SpotifyAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000061 /* SpotifyAuthService.swift */; };
+		D211A0000000000000000072 /* DockSpotifyActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000071 /* DockSpotifyActions.swift */; };
+		D211A0000000000000000082 /* DockFriendsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000081 /* DockFriendsStore.swift */; };
+		D211A0000000000000000083 /* DockFriendsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000081 /* DockFriendsStore.swift */; };
+		D211A0000000000000000092 /* DockWingServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A0000000000000000091 /* DockWingServicesTests.swift */; };
+		D211A00000000000000000A2 /* DockWingHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A00000000000000000A1 /* DockWingHostView.swift */; };
+		D211A00000000000000000B2 /* DockSpotifyWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A00000000000000000B1 /* DockSpotifyWidgetView.swift */; };
+		D211A00000000000000000C2 /* DockControlCenterWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A00000000000000000C1 /* DockControlCenterWidgetView.swift */; };
+		D211A00000000000000000D2 /* DockVpnWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A00000000000000000D1 /* DockVpnWidgetView.swift */; };
+		D211A00000000000000000E2 /* DockFriendsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A00000000000000000E1 /* DockFriendsWidgetView.swift */; };
+		D211A00000000000000000F2 /* DockTelemetryWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211A00000000000000000F1 /* DockTelemetryWidgetView.swift */; };
 		7B5000000000000000040D12 /* FileNoteKeyProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040D11 /* FileNoteKeyProviderTests.swift */; };
 		7B5000000000000000040C13 /* FileNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040C11 /* FileNoteKeyProvider.swift */; };
 		7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040C11 /* FileNoteKeyProvider.swift */; };
@@ -1504,6 +1523,22 @@
 		FA10A1000000000000000021 /* WidgetPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPreset.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLayoutModelTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000001 /* WidgetLayoutModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLayoutModel.swift; sourceTree = "<group>"; };
+		D211A0000000000000000011 /* DockWingModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockWingModelsTests.swift; sourceTree = "<group>"; };
+		D211A0000000000000000001 /* DockWingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockWingModels.swift; sourceTree = "<group>"; };
+		D211A0000000000000000021 /* GeoIPLookupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GeoIPLookupService.swift; path = Platform/SystemStatus/GeoIPLookupService.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000031 /* DockVpnFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockVpnFeed.swift; path = App/Composition/DockVpnFeed.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000041 /* AppleSiliconSensorReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppleSiliconSensorReader.swift; path = Platform/SystemMonitor/AppleSiliconSensorReader.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000051 /* DockTelemetryFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockTelemetryFeed.swift; path = App/Composition/DockTelemetryFeed.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000061 /* SpotifyAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpotifyAuthService.swift; path = Platform/Media/SpotifyAuthService.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000071 /* DockSpotifyActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockSpotifyActions.swift; path = App/Composition/DockSpotifyActions.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000081 /* DockFriendsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockFriendsStore.swift; path = App/Composition/DockFriendsStore.swift; sourceTree = SOURCE_ROOT; };
+		D211A0000000000000000091 /* DockWingServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockWingServicesTests.swift; sourceTree = "<group>"; };
+		D211A00000000000000000A1 /* DockWingHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockWingHostView.swift; path = App/Scenes/DockWidgets/DockII/DockWingHostView.swift; sourceTree = SOURCE_ROOT; };
+		D211A00000000000000000B1 /* DockSpotifyWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockSpotifyWidgetView.swift; path = App/Scenes/DockWidgets/DockII/DockSpotifyWidgetView.swift; sourceTree = SOURCE_ROOT; };
+		D211A00000000000000000C1 /* DockControlCenterWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockControlCenterWidgetView.swift; path = App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift; sourceTree = SOURCE_ROOT; };
+		D211A00000000000000000D1 /* DockVpnWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockVpnWidgetView.swift; path = App/Scenes/DockWidgets/DockII/DockVpnWidgetView.swift; sourceTree = SOURCE_ROOT; };
+		D211A00000000000000000E1 /* DockFriendsWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockFriendsWidgetView.swift; path = App/Scenes/DockWidgets/DockII/DockFriendsWidgetView.swift; sourceTree = SOURCE_ROOT; };
+		D211A00000000000000000F1 /* DockTelemetryWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DockTelemetryWidgetView.swift; path = App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040D11 /* FileNoteKeyProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileNoteKeyProviderTests.swift; path = Tests/Unit/FileNoteKeyProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040C11 /* FileNoteKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FileNoteKeyProvider.swift; path = Platform/Notes/FileNoteKeyProvider.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040B11 /* HyperkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HyperkeyService.swift; path = App/Composition/HyperkeyService.swift; sourceTree = SOURCE_ROOT; };
@@ -2731,6 +2766,8 @@
 				D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */,
 				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
 				FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */,
+				D211A0000000000000000011 /* DockWingModelsTests.swift */,
+				D211A0000000000000000091 /* DockWingServicesTests.swift */,
 				FA10A1000000000000000041 /* LiveIdleActionTests.swift */,
 				FA10A1000000000000000031 /* WidgetPresetTests.swift */,
 				FA10A1000000000000000091 /* SkyPaletteTests.swift */,
@@ -2951,6 +2988,7 @@
 				37F23A0D3709ED117AF62CA3 /* IconSet.swift */,
 				BB0000000000000000000003 /* BarSection.swift */,
 				FA10A1000000000000000001 /* WidgetLayoutModel.swift */,
+				D211A0000000000000000001 /* DockWingModels.swift */,
 				FA10A1000000000000000021 /* WidgetPreset.swift */,
 				FA10A1000000000000000081 /* SkyPalette.swift */,
 				FA10A1000000000000000111 /* BackgroundAppClassifier.swift */,
@@ -3329,6 +3367,20 @@
 				B91752371735E2BCF330DF67 /* IconSet.swift in Sources */,
 				BB0000000000000000000004 /* BarSection.swift in Sources */,
 				FA10A1000000000000000002 /* WidgetLayoutModel.swift in Sources */,
+				D211A0000000000000000002 /* DockWingModels.swift in Sources */,
+				D211A0000000000000000022 /* GeoIPLookupService.swift in Sources */,
+				D211A0000000000000000032 /* DockVpnFeed.swift in Sources */,
+				D211A0000000000000000042 /* AppleSiliconSensorReader.swift in Sources */,
+				D211A0000000000000000052 /* DockTelemetryFeed.swift in Sources */,
+				D211A0000000000000000062 /* SpotifyAuthService.swift in Sources */,
+				D211A0000000000000000072 /* DockSpotifyActions.swift in Sources */,
+				D211A0000000000000000082 /* DockFriendsStore.swift in Sources */,
+				D211A00000000000000000A2 /* DockWingHostView.swift in Sources */,
+				D211A00000000000000000B2 /* DockSpotifyWidgetView.swift in Sources */,
+				D211A00000000000000000C2 /* DockControlCenterWidgetView.swift in Sources */,
+				D211A00000000000000000D2 /* DockVpnWidgetView.swift in Sources */,
+				D211A00000000000000000E2 /* DockFriendsWidgetView.swift in Sources */,
+				D211A00000000000000000F2 /* DockTelemetryWidgetView.swift in Sources */,
 				FA10A1000000000000000022 /* WidgetPreset.swift in Sources */,
 				FA10A1000000000000000082 /* SkyPalette.swift in Sources */,
 				FA10A1000000000000000112 /* BackgroundAppClassifier.swift in Sources */,
@@ -4200,6 +4252,8 @@
 				DD0000000000000000000017 /* DockWidgetLogicTests.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
+				D211A0000000000000000012 /* DockWingModelsTests.swift in Sources */,
+				D211A0000000000000000092 /* DockWingServicesTests.swift in Sources */,
 				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,
 				FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */,
 				FA10A1000000000000000092 /* SkyPaletteTests.swift in Sources */,
@@ -4300,6 +4354,9 @@
 				9743672C2E41F6EB7D15EAB5 /* IconSet.swift in Sources */,
 				BB0000000000000000000012 /* BarSection.swift in Sources */,
 				FA10A1000000000000000003 /* WidgetLayoutModel.swift in Sources */,
+				D211A0000000000000000003 /* DockWingModels.swift in Sources */,
+				D211A0000000000000000023 /* GeoIPLookupService.swift in Sources */,
+				D211A0000000000000000083 /* DockFriendsStore.swift in Sources */,
 				FA10A1000000000000000023 /* WidgetPreset.swift in Sources */,
 				FA10A1000000000000000083 /* SkyPalette.swift in Sources */,
 				FA10A1000000000000000113 /* BackgroundAppClassifier.swift in Sources */,

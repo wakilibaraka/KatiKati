@@ -192,6 +192,20 @@ extension PanelCoordinator {
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
             }
+        dockWingsSubscription = settingsStore.$dockWings
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+            }
+        surfaceWidgetsSubscription = settingsStore.$surfaceWidgets
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+            }
     }
 
     /// A height change is a **transaction**, not a content change: panel height, capsule width
@@ -358,6 +372,14 @@ extension PanelCoordinator {
         return sections[islandSlot].contains(.apps)
     }
 
+    /// Whether this coordinator unit owns the Dock II Left/Right Wing panels & Floating Widget Stack.
+    var isWingOwner: Bool {
+        let sections = BarSection.islands(for: settingsStore.barLayoutMode,
+                                          order: settingsStore.widgetOrder)
+        guard islandSlot < sections.count else { return islandSlot == 0 }
+        return sections[islandSlot].contains(.apps)
+    }
+
     /// 胶囊目标 frame（贴任务条右边、纵向居中）。只依赖传入的 dock **目标** frame。
     private func capsuleTargetFrame(forDock dockFrame: NSRect, on screen: NSScreen) -> NSRect {
         PanelGeometry.stripCapsuleTargetFrame(forDock: dockFrame, stripPlacement: stripPlacement,
@@ -434,11 +456,114 @@ extension PanelCoordinator {
             lastDrawerTargetFrame = drawerT
             pairs.append((drawer, drawerT))
         }
+
+        // Dock II Flanking Wings + Floating Widget Stack (lazy, only when assigned)
+        var showLeftWing = false
+        var showRightWing = false
+        var showFloatingStack = false
+        if isWingOwner {
+            let screenGeom = Self.screenGeometry(screen)
+            let splitUnion = settingsStore.barLayoutMode.isSplit ? (onQueryBarBoundingFrame?() ?? .zero) : .zero
+            let wingAnchor = splitUnion != .zero
+                ? splitUnion.insetBy(dx: -Self.shadowPadding, dy: -Self.shadowPadding)
+                : dockT
+            let wingLayout = PanelGeometry.wingPanelFrames(
+                dockFrame: wingAnchor,
+                capsuleFrame: capsuleT,
+                config: settingsStore.dockWings,
+                stripPlacement: stripPlacement,
+                drawerPlacement: settingsStore.drawerPlacement,
+                controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
+                on: screenGeom,
+                metrics: layoutMetrics,
+                margin: CGFloat(settingsStore.islandMargin)
+            )
+            if leftWingSizeModel.size != wingLayout.leftSize { leftWingSizeModel.size = wingLayout.leftSize }
+            if rightWingSizeModel.size != wingLayout.rightSize { rightWingSizeModel.size = wingLayout.rightSize }
+
+            let wingCornerRadius = DockShape.panelCornerRadius * settingsStore.dockPanelHeight.scale
+            if let leftFrame = wingLayout.leftFrame, let panel = ensureWingPanel(placement: .leftWing) {
+                if let bg = leftWingGlassBackgroundPanel {
+                    leftWingGlassBackgroundView?.apply(
+                        cornerRadius: wingCornerRadius,
+                        configuration: DockGlassPresentation.configuration
+                    )
+                    pairs.append((bg, DockLiquidGlassPanelGeometry.backgroundFrame(for: leftFrame, shadowPadding: Self.shadowPadding)))
+                }
+                pairs.append((panel, leftFrame))
+                showLeftWing = true
+            } else {
+                leftWingGlassBackgroundPanel?.orderOut(nil)
+                leftWingPanel?.orderOut(nil)
+            }
+
+            if let rightFrame = wingLayout.rightFrame, let panel = ensureWingPanel(placement: .rightWing) {
+                if let bg = rightWingGlassBackgroundPanel {
+                    rightWingGlassBackgroundView?.apply(
+                        cornerRadius: wingCornerRadius,
+                        configuration: DockGlassPresentation.configuration
+                    )
+                    pairs.append((bg, DockLiquidGlassPanelGeometry.backgroundFrame(for: rightFrame, shadowPadding: Self.shadowPadding)))
+                }
+                pairs.append((panel, rightFrame))
+                showRightWing = true
+            } else {
+                rightWingGlassBackgroundPanel?.orderOut(nil)
+                rightWingPanel?.orderOut(nil)
+            }
+
+            if !settingsStore.surfaceWidgets.attachments(for: .floatingStack).isEmpty,
+               let stack = ensureFloatingWidgetStackPanel() {
+                stack.host.layoutContent()
+                let fitting = stack.host.fittingSize
+                let plateSize = CGSize(
+                    width: max(DockWidgetConfigStore.defaultStackWidth + 20, fitting.width - 2 * Self.shadowPadding),
+                    height: max(64, fitting.height - 2 * Self.shadowPadding)
+                )
+                let avoidRect: CGRect? = folderPopupWantsOpen
+                    ? lastPopupTargetFrame
+                    : (drawerWantsOpen ? lastDrawerTargetFrame : nil)
+                let stackFrame = PanelGeometry.floatingWidgetStackFrame(
+                    size: plateSize,
+                    dockFrame: dockT,
+                    customOrigin: settingsStore.floatingWidgetStackOrigin,
+                    on: screenGeom,
+                    metrics: layoutMetrics,
+                    margin: CGFloat(settingsStore.islandMargin),
+                    rightFlankFrame: wingLayout.rightFrame ?? (capsuleOwner ? capsuleT : nil),
+                    avoidRect: avoidRect
+                )
+                pairs.append((stack.panel, stackFrame))
+                showFloatingStack = true
+            } else {
+                floatingWidgetStackPanel?.orderOut(nil)
+            }
+        } else {
+            orderDockWingsOut()
+        }
+
         let commit = setFrames(pairs, animated: anim, batched: batched)
         // A mode switch can hand capsule ownership to a surviving unit whose capsule was ordered
         // out; nothing else re-shows it until the next visibility flip (Phase 11-0, B2).
         if capsuleOwner, panelsAreVisible, !capsule.isVisible, !isSuspendedForPermissionLoss {
             capsule.orderFrontRegardless()
+        }
+        if showLeftWing, panelsAreVisible, let panel = leftWingPanel, !isSuspendedForPermissionLoss {
+            if !panel.isVisible || !(leftWingGlassBackgroundPanel?.isVisible ?? true) {
+                orderWingFront(.leftWing)
+            } else if let bg = leftWingGlassBackgroundPanel {
+                bg.order(.below, relativeTo: panel.windowNumber)
+            }
+        }
+        if showRightWing, panelsAreVisible, let panel = rightWingPanel, !isSuspendedForPermissionLoss {
+            if !panel.isVisible || !(rightWingGlassBackgroundPanel?.isVisible ?? true) {
+                orderWingFront(.rightWing)
+            } else if let bg = rightWingGlassBackgroundPanel {
+                bg.order(.below, relativeTo: panel.windowNumber)
+            }
+        }
+        if showFloatingStack, panelsAreVisible, let panel = floatingWidgetStackPanel, !panel.isVisible, !isSuspendedForPermissionLoss {
+            panel.orderFrontRegardless()
         }
         // The capsule overlaps the plate when the Control Centre holds the trailing end, and the
         // plate's windows are raised by the surface order (and by visibility flips) — so every
@@ -447,6 +572,39 @@ extension PanelCoordinator {
             reassertCapsuleSurface()
         }
         if drawerWantsOpen { syncDrawerArrow(after: commit) }
+    }
+
+    func repositionFloatingWidgetStackIfNeeded(animated: Bool) {
+        guard isWingOwner,
+              panelsAreVisible,
+              !settingsStore.surfaceWidgets.attachments(for: .floatingStack).isEmpty,
+              let dock = dockPanel,
+              let stackPanel = floatingWidgetStackPanel,
+              let stackHost = floatingWidgetStackHost else { return }
+        let screen = panelCurrentScreen(panel: dock)
+        let screenGeom = Self.screenGeometry(screen)
+        stackHost.layoutContent()
+        let fitting = stackHost.fittingSize
+        let plateSize = CGSize(
+            width: max(DockWidgetConfigStore.defaultStackWidth + 20, fitting.width - 2 * Self.shadowPadding),
+            height: max(64, fitting.height - 2 * Self.shadowPadding)
+        )
+        let avoidRect: CGRect? = folderPopupWantsOpen
+            ? lastPopupTargetFrame
+            : (drawerWantsOpen ? lastDrawerTargetFrame : nil)
+        let rightFlank = (rightWingPanel?.isVisible == true ? rightWingPanel?.frame : nil)
+            ?? (isCapsuleOwner && capsulePanel?.isVisible == true ? lastCapsuleTargetFrame : nil)
+        let target = PanelGeometry.floatingWidgetStackFrame(
+            size: plateSize,
+            dockFrame: lastDockTargetFrame == .zero ? dock.frame : lastDockTargetFrame,
+            customOrigin: settingsStore.floatingWidgetStackOrigin,
+            on: screenGeom,
+            metrics: layoutMetrics,
+            margin: CGFloat(settingsStore.islandMargin),
+            rightFlankFrame: rightFlank,
+            avoidRect: avoidRect
+        )
+        _ = setFrames([(stackPanel, target)], animated: animated, batched: false)
     }
 
     /// 量当前内容宽度后布局（内容变化的统一入口）。

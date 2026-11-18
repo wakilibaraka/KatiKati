@@ -16,14 +16,28 @@ struct ShelfGridPopupView: View {
     var onContentResize: (CGSize) -> Void = { _ in }
     var onPinFolder: ((URL) -> Void)?
     var isFolderPinned: ((URL) -> Bool)?
+    var settingsStore: AppSettingsStore? = nil
+    var onOpenSettings: () -> Void = {}
 
     /// Paths picked with ⌘/⇧-click (or by clicking while a selection exists). Drives the action bar.
     @State private var selected = Set<String>()
 
     var body: some View {
+        if let settingsStore {
+            ShelfObservedSettingsHost(settingsStore: settingsStore) { store in
+                shelfContent(settingsStore: store)
+            }
+        } else {
+            shelfContent(settingsStore: nil)
+        }
+    }
+
+    private func shelfContent(settingsStore: AppSettingsStore?) -> some View {
         // File attributes are read once per render in shelf order (the shelf is small; the
         // coordinator pruned it before showing the popup).
         let entries = FolderContentsLoader.entries(forPaths: shelfStore.itemPaths)
+        let shelfWidgets = settingsStore?.surfaceWidgets.attachments(for: .shelfCard) ?? []
+        let extraWidgetHeight = DockWidgetConfigStore.popupSectionExtraHeight(for: shelfWidgets)
         let showIntro = ShelfIntro.shouldShow(introSeen: shelfStore.introSeen, itemCount: entries.count)
         let livePaths = Set(entries.map(\.url.path))
         let picked = selected.intersection(livePaths)
@@ -37,8 +51,10 @@ struct ShelfGridPopupView: View {
             : entries.isEmpty
             ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
             : StackGridLayout.resolve(cellCount: entries.count, limits: context.limits, hasNote: note != nil)
+        let plateContentWidth = StackPlateMetrics.stack.plateSize(columns: layout.columns, rows: layout.visibleRows, hasNote: note != nil, scrolls: layout.scrolls).width - 2 * StackPlateMetrics.stack.sidePadding
+        let deckWidth = max(240, plateContentWidth)
 
-        StackPopupChrome(title: String(localized: "Shelf"),
+        return StackPopupChrome(title: String(localized: "Shelf"),
                          note: note,
                          layout: layout,
                          plate: .stack,
@@ -46,9 +62,21 @@ struct ShelfGridPopupView: View {
                          arrow: context.arrow,
                          onPanelSizeChange: onContentResize,
                          gridAnimation: .easeInOut(duration: DrawerAnimation.duration),
-                         gridAnimationKey: entries.map(\.url.path),
+                         gridAnimationKey: entries.map(\.url.path) + shelfWidgets.map(\.id),
                          intro: showIntro ? AnyView(ShelfIntroView()) : nil,
-                         noteAccessory: selecting ? AnyView(selectionBar(for: picked)) : nil) {
+                         noteAccessory: selecting ? AnyView(selectionBar(for: picked)) : nil,
+                         headerAccessory: settingsStore.map { AnyView(DockSurfacePinMenuButton(surface: .shelfCard, settingsStore: $0)) },
+                         bottomAccessory: (!shelfWidgets.isEmpty && settingsStore != nil)
+                             ? AnyView(DockSurfacePinnedDeck(
+                                 surface: .shelfCard,
+                                 usesLiquidGlass: usesLiquidGlass,
+                                 width: deckWidth,
+                                 settingsStore: settingsStore!,
+                                 onOpenSettings: onOpenSettings
+                             ))
+                             : nil,
+                         bottomAccessoryHeight: extraWidgetHeight,
+                         bottomAccessoryMinWidth: shelfWidgets.isEmpty ? 0 : deckWidth + 2 * StackPlateMetrics.stack.sidePadding) {
             ForEach(entries, id: \.url) { entry in
                 let pinned = shelfStore.isPinned(entry.url.path)
                 FolderGridCell(iconPath: entry.isAccessible ? entry.url.path : nil,
@@ -215,5 +243,14 @@ struct ShelfIntroView: View {
                 .foregroundStyle(.white.opacity(0.8))
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+}
+
+private struct ShelfObservedSettingsHost<Content: View>: View {
+    @ObservedObject var settingsStore: AppSettingsStore
+    let content: (AppSettingsStore) -> Content
+
+    var body: some View {
+        content(settingsStore)
     }
 }

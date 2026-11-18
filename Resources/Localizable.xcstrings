@@ -124188,6 +124188,1247 @@
         "it": {"stringUnit": {"state": "translated", "value": "Seleziona"}},
         "ko": {"stringUnit": {"state": "translated", "value": "선택"}}
       }
+    },
+    "Add Friends": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Add Friends"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "添加好友"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "新增好友"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フレンドを追加"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Freunde hinzufügen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ajouter des amis"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Añadir amigos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Agregar amigos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Adicionar amigos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Adicionar amigos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Aggiungi amici"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "친구 추가"}}
+      }
+    },
+    "App": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "App"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "应用"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "應用程式"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アプリ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "App"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "App"}},
+        "es": {"stringUnit": {"state": "translated", "value": "App"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "App"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "App"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "App"}},
+        "it": {"stringUnit": {"state": "translated", "value": "App"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "앱"}}
+      }
+    },
+    "Apple Silicon Thermal Sensors (IOHID)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Apple Silicon Thermal Sensors (IOHID)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Apple Silicon 温度传感器 (IOHID)"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Apple Silicon 溫度感測器 (IOHID)"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Apple Silicon 温度センサー (IOHID)"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Apple Silicon Temperatursensoren (IOHID)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Capteurs thermiques Apple Silicon (IOHID)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sensores térmicos de Apple Silicon (IOHID)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sensores térmicos de Apple Silicon (IOHID)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sensores térmicos Apple Silicon (IOHID)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sensores térmicos Apple Silicon (IOHID)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sensori termici Apple Silicon (IOHID)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Apple Silicon 온도 센서 (IOHID)"}}
+      }
+    },
+    "Brightness": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Brightness"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "亮度"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "亮度"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "輝度"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Helligkeit"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Luminosité"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Brillo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Brillo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Brilho"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Brilho"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Luminosità"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "밝기"}}
+      }
+    },
+    "Brightness & Volume": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Brightness & Volume"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "亮度与音量"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "亮度與音量"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "輝度と音量"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Helligkeit & Lautstärke"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Luminosité et volume"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Brillo y volumen"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Brillo y volumen"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Brilho e volume"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Brilho e volume"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Luminosità e volume"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "밝기 및 음량"}}
+      }
+    },
+    "CPU Load": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "CPU Load"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "CPU 负载"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "CPU 負載"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "CPU 負荷"}},
+        "de": {"stringUnit": {"state": "translated", "value": "CPU-Auslastung"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Charge CPU"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Carga de CPU"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Carga de CPU"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Carga da CPU"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Carga da CPU"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Carico CPU"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "CPU 부하"}}
+      }
+    },
+    "Clear Widgets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Clear Widgets"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "清空小组件"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "清除小工具"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィジェットをクリア"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Widgets entfernen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Effacer les widgets"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Limpiar widgets"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Borrar widgets"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Limpar widgets"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Limpar widgets"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cancella widget"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위젯 지우기"}}
+      }
+    },
+    "Close Floating Stack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Close Floating Stack"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "关闭悬浮卡片堆"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "關閉浮動卡片堆"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フローティングスタックを閉じる"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schwebenden Stapel schließen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Fermer la pile flottante"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cerrar pila flotante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cerrar pila flotante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fechar pilha flutuante"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Fechar pilha flutuante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Chiudi pila mobile"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "플로팅 스택 닫기"}}
+      }
+    },
+    "Collapse": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Collapse"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "折叠"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "摺疊"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "折りたたむ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Einklappen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réduire"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Contraer"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Contraer"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Recolher"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Recolher"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Comprimi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "접기"}}
+      }
+    },
+    "Configure contacts in Wing Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Configure contacts in Wing Settings"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请在侧翼设置中配置联系人"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "請在側翼設定中配置聯絡人"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウイング設定で連絡先を設定"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kontakte in den Flügel-Einstellungen konfigurieren"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Configurer les contacts dans les réglages des ailes"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Configurar contactos en Ajustes de alas"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Configurar contactos en Ajustes de alas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Configurar contatos nos Ajustes das alas"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Configurar contactos nas Definições das alas"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Configura i contatti nelle impostazioni delle ali"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "날개 설정에서 연락처 구성"}}
+      }
+    },
+    "Configure…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Configure…"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "配置…"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "設定…"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "設定…"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Konfigurieren…"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Configurer…"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Configurar…"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Configurar…"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Configurar…"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Configurar…"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Configura…"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "구성…"}}
+      }
+    },
+    "Connect VPN": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Connect VPN"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "连接 VPN"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "連接 VPN"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "VPN に接続"}},
+        "de": {"stringUnit": {"state": "translated", "value": "VPN verbinden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Connecter le VPN"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Conectar VPN"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Conectar VPN"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Conectar VPN"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ligar VPN"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Connetti VPN"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "VPN 연결"}}
+      }
+    },
+    "Contacts Access (Friends HUD)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Contacts Access (Friends HUD)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "通讯录访问（好友 HUD）"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "聯絡人取用（好友 HUD）"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "連絡先へのアクセス（フレンド HUD）"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kontaktezugriff (Freunde-HUD)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Accès aux contacts (HUD Amis)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Acceso a Contactos (HUD Amigos)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Acceso a Contactos (HUD Amigos)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Acesso aos Contatos (HUD Amigos)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Acesso aos Contactos (HUD Amigos)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Accesso ai contatti (HUD Amici)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "연락처 접근 (친구 HUD)"}}
+      }
+    },
+    "Custom URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Custom URL"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "自定义 URL"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "自訂 URL"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "カスタム URL"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Eigene URL"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "URL personnalisée"}},
+        "es": {"stringUnit": {"state": "translated", "value": "URL personalizada"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "URL personalizada"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "URL personalizada"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "URL personalizado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "URL personalizzato"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "사용자 지정 URL"}}
+      }
+    },
+    "Disconnect VPN": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Disconnect VPN"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "断开 VPN"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "中斷 VPN"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "VPN を切断"}},
+        "de": {"stringUnit": {"state": "translated", "value": "VPN trennen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Déconnecter le VPN"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Desconectar VPN"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Desconectar VPN"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Desconectar VPN"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Desligar VPN"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Disconnetti VPN"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "VPN 연결 해제"}}
+      }
+    },
+    "Discord": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Discord"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Discord"}}
+      }
+    },
+    "Display Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Display Settings"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "显示器设置"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "顯示器設定"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ディスプレイ設定"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Display-Einstellungen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réglages Moniteurs"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ajustes de pantalla"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ajustes de pantalla"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ajustes de Tela"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Definições de Ecrã"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impostazioni Schermi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "디스플레이 설정"}}
+      }
+    },
+    "Display Settings...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Display Settings..."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "显示器设置..."}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "顯示器設定..."}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ディスプレイ設定..."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Display-Einstellungen..."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réglages Moniteurs..."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ajustes de pantalla..."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ajustes de pantalla..."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ajustes de Tela..."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Definições de Ecrã..."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impostazioni Schermi..."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "디스플레이 설정..."}}
+      }
+    },
+    "Dock II Widgets Configuration": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dock II Widgets Configuration"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dock II 小组件配置"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dock II 小工具配置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock II ウィジェット設定"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock II-Widgets-Konfiguration"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Configuration des widgets Dock II"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Configuración de widgets Dock II"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Configuración de widgets Dock II"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Configuração dos widgets Dock II"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Configuração dos widgets Dock II"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Configurazione widget Dock II"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock II 위젯 구성"}}
+      }
+    },
+    "Dock II Wings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dock II Wings"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dock II 侧翼"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dock II 側翼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock II ウイング"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock II-Flügel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ailes Dock II"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Alas Dock II"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Alas Dock II"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Alas Dock II"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Alas Dock II"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ali Dock II"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock II 날개"}}
+      }
+    },
+    "Dock II Wings & Widgets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dock II Wings & Widgets"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Dock II 侧翼与小组件"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dock II 側翼與小工具"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock II ウイングとウィジェット"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock II-Flügel & -Widgets"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ailes et widgets Dock II"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Alas y widgets Dock II"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Alas y widgets Dock II"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Alas e widgets Dock II"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Alas e widgets Dock II"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ali e widget Dock II"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock II 날개 및 위젯"}}
+      }
+    },
+    "Dock Wings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Dock Wings"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "程序坞侧翼"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Dock 側翼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Dock ウイング"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dock-Flügel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ailes du Dock"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Alas del Dock"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Alas del Dock"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Alas do Dock"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Alas da Dock"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ali del Dock"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Dock 날개"}}
+      }
+    },
+    "Download": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Download"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "下载"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "下載"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ダウンロード"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Download"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Téléchargement"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Descarga"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Descarga"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Download"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Descarga"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Download"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "다운로드"}}
+      }
+    },
+    "Enter a Spotify Client ID first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Enter a Spotify Client ID first."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "请先输入 Spotify Client ID。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "請先輸入 Spotify Client ID。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "先に Spotify Client ID を入力してください。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Gib zuerst eine Spotify-Client-ID ein."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Saisissez d'abord un ID client Spotify."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Introduce primero un Client ID de Spotify."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ingresa primero un Client ID de Spotify."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Insira primeiro um Client ID do Spotify."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Introduza primeiro um Client ID do Spotify."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Inserisci prima un Client ID di Spotify."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "먼저 Spotify Client ID를 입력하세요."}}
+      }
+    },
+    "FaceTime": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "de": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "es": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "it": {"stringUnit": {"state": "translated", "value": "FaceTime"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "FaceTime"}}
+      }
+    },
+    "FaceTime Audio": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "FaceTime Audio"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "FaceTime 音频通话"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "FaceTime 語音通話"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "FaceTime オーディオ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "FaceTime-Audio"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "FaceTime audio"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Audio de FaceTime"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Audio de FaceTime"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Áudio do FaceTime"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Áudio do FaceTime"}},
+        "it": {"stringUnit": {"state": "translated", "value": "FaceTime Audio"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "FaceTime 오디오"}}
+      }
+    },
+    "FaceTime Video": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "FaceTime Video"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "FaceTime 视频通话"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "FaceTime 視訊通話"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "FaceTime ビデオ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "FaceTime-Video"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "FaceTime vidéo"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vídeo de FaceTime"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Video de FaceTime"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Vídeo do FaceTime"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Vídeo do FaceTime"}},
+        "it": {"stringUnit": {"state": "translated", "value": "FaceTime Video"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "FaceTime 비디오"}}
+      }
+    },
+    "Failed to exchange Spotify authorization code.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Failed to exchange Spotify authorization code."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "交换 Spotify 授权码失败。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "交換 Spotify 授權碼失敗。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Spotify 認証コードの交換に失敗しました。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spotify-Autorisierungscode konnte nicht eingelöst werden."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Échec de l'échange du code d'autorisation Spotify."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Error al canjear el código de autorización de Spotify."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Error al canjear el código de autorización de Spotify."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Falha ao trocar o código de autorização do Spotify."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Falha ao trocar o código de autorização do Spotify."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scambio del codice di autorizzazione Spotify non riuscito."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Spotify 인증 코드 교환에 실패했습니다."}}
+      }
+    },
+    "Float": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Float"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "悬浮"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "浮動"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フロート"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schweben"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Flotter"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Flotar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Flotar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Flutuar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Flutuar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Fluttua"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "플로트"}}
+      }
+    },
+    "Floating Stack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Floating Stack"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "悬浮卡片堆"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "浮動卡片堆"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フローティングスタック"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Schwebender Stapel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pile flottante"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pila flotante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Pila flotante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pilha flutuante"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Pilha flutuante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pila mobile"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "플로팅 스택"}}
+      }
+    },
+    "Friends HUD": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Friends HUD"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "好友 HUD"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "好友 HUD"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フレンド HUD"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Freunde-HUD"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "HUD Amis"}},
+        "es": {"stringUnit": {"state": "translated", "value": "HUD Amigos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "HUD Amigos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "HUD Amigos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "HUD Amigos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "HUD Amici"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "친구 HUD"}}
+      }
+    },
+    "Friends HUD Contacts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Friends HUD Contacts"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "好友 HUD 联系人"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "好友 HUD 聯絡人"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フレンド HUD の連絡先"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Freunde-HUD-Kontakte"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Contacts HUD Amis"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Contactos del HUD Amigos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Contactos del HUD Amigos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Contatos do HUD Amigos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Contactos do HUD Amigos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Contatti HUD Amici"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "친구 HUD 연락처"}}
+      }
+    },
+    "Hide Wing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Hide Wing"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "隐藏侧翼"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "隱藏側翼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウイングを隠す"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Flügel ausblenden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Masquer l'aile"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ocultar ala"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ocultar ala"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ocultar ala"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ocultar ala"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nascondi ala"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "날개 가리기"}}
+      }
+    },
+    "Import Contacts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Import Contacts"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "导入联系人"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "匯入聯絡人"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "連絡先を読み込む"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kontakte importieren"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Importer des contacts"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Importar contactos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Importar contactos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Importar contatos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Importar contactos"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Importa contatti"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "연락처 가져오기"}}
+      }
+    },
+    "Left Wing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Left Wing"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "左侧翼"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "左側翼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "左ウイング"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Linker Flügel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aile gauche"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ala izquierda"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ala izquierda"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ala esquerda"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ala esquerda"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ala sinistra"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "왼쪽 날개"}}
+      }
+    },
+    "Like": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Like"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "喜欢"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "喜歡"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "いいね"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Gefällt mir"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aimer"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Me gusta"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Me gusta"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Curtir"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Gostar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mi piace"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "좋아요"}}
+      }
+    },
+    "Messages": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Messages"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "信息"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "訊息"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "メッセージ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Nachrichten"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Messages"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mensajes"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mensajes"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Mensagens"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Mensagens"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Messaggi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "메시지"}}
+      }
+    },
+    "No lyrics cached. Enable synced lyrics in Now Playing settings to fetch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No lyrics cached. Enable synced lyrics in Now Playing settings to fetch."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "暂无缓存歌词。请在“正在播放”设置中启用同步歌词以获取。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "尚無快取歌詞。請在「正在播放」設定中啟用同步歌詞以擷取。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "歌詞がキャッシュされていません。「再生中」設定で同期歌詞を有効にして取得してください。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Keine Liedtexte zwischengespeichert. Aktiviere synchronisierte Liedtexte in den Wiedergabe-Einstellungen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucune parole en cache. Activez les paroles synchronisées dans les réglages Lecture en cours."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sin letras en caché. Activa las letras sincronizadas en los ajustes de Reproduciendo."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sin letras en caché. Activa las letras sincronizadas en los ajustes de Reproduciendo."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhuma letra em cache. Ative letras sincronizadas nos ajustes de Reproduzindo Agora."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sem letras em cache. Ative as letras sincronizadas nas definições A reproduzir."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun testo nella cache. Attiva i testi sincronizzati nelle impostazioni In riproduzione."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "캐시된 가사가 없습니다. 지금 재생 중 설정에서 동기화 가사를 켜세요."}}
+      }
+    },
+    "No macOS VPN profiles configured in System Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No macOS VPN profiles configured in System Settings."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "系统设置中未配置 macOS VPN 描述文件。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "系統設定中尚未配置 macOS VPN 描述檔。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "システム設定に macOS VPN プロファイルが構成されていません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Keine macOS-VPN-Profile in den Systemeinstellungen konfiguriert."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun profil VPN macOS configuré dans Réglages Système."}},
+        "es": {"stringUnit": {"state": "translated", "value": "No hay perfiles VPN de macOS configurados en Ajustes del Sistema."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "No hay perfiles VPN de macOS configurados en Configuración del Sistema."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum perfil de VPN do macOS configurado nos Ajustes do Sistema."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Nenhum perfil de VPN do macOS configurado nas Definições do Sistema."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun profilo VPN macOS configurato in Impostazioni di Sistema."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시스템 설정에 구성된 macOS VPN 프로필이 없습니다."}}
+      }
+    },
+    "No widgets pinned to this surface yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No widgets pinned to this surface yet."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "此面板尚未固定任何小组件。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "此面板尚未釘選任何小工具。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "このサーフェスにはまだウィジェットがピン留めされていません。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine Widgets an diese Fläche angeheftet."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun widget épinglé sur cette surface."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún no hay widgets fijados en esta superficie."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aún no hay widgets fijados en esta superficie."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum widget fixado nesta superfície ainda."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ainda não existem widgets afixados nesta superfície."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun widget fissato su questa superficie."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "이 영역에 아직 고정된 위젯이 없습니다."}}
+      }
+    },
+    "Now Playing Card": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Now Playing Card"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "正在播放卡片"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "正在播放卡片"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "再生中カード"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Wiedergabe-Karte"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Carte Lecture en cours"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tarjeta Reproduciendo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Tarjeta Reproduciendo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Cartão Reproduzindo Agora"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Cartão A reproduzir"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Scheda In riproduzione"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "지금 재생 중 카드"}}
+      }
+    },
+    "Opt-In Integrations": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Opt-In Integrations"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "可选集成"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "選用整合"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "オプトイン連携"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Optionale Integrationen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Intégrations facultatives"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Integraciones opcionales"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Integraciones opcionales"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Integrações opcionais"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Integrações opcionais"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Integrazioni facoltative"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "선택적 연동"}}
+      }
+    },
+    "Phone, email, or handle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Phone, email, or handle"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "电话、邮箱或账号"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "電話、電子郵件或帳號"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "電話番号、メール、またはハンドル"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Telefon, E-Mail oder Handle"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Téléphone, e-mail ou identifiant"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Teléfono, correo o usuario"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Teléfono, correo o usuario"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Telefone, e-mail ou usuário"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Telefone, e-mail ou identificador"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Telefono, email o handle"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "전화번호, 이메일 또는 핸들"}}
+      }
+    },
+    "Pin Widgets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pin Widgets"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "固定小组件"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "釘選小工具"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィジェットをピン留め"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Widgets anheften"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Épingler des widgets"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Fijar widgets"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Fijar widgets"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fixar widgets"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Afixar widgets"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Fissa widget"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위젯 고정"}}
+      }
+    },
+    "Pins, Friends & Integrations": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Pins, Friends & Integrations"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "固定、好友与集成"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "釘選、好友與整合"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ピン留め・フレンド・連携"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Pins, Freunde & Integrationen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Épingles, Amis et Intégrations"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Fijados, Amigos e Integraciones"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Fijados, Amigos e Integraciones"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fixados, Amigos e Integrações"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Afixados, Amigos e Integrações"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Fissati, Amici e Integrazioni"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "고정, 친구 및 연동"}}
+      }
+    },
+    "Remove Widget": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Remove Widget"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "移除小组件"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "移除小工具"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィジェットを削除"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Widget entfernen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Supprimer le widget"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Quitar widget"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Quitar widget"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Remover widget"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Remover widget"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Rimuovi widget"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "위젯 제거"}}
+      }
+    },
+    "Reset Wings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Reset Wings"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "重置侧翼"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "重設側翼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウイングをリセット"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Flügel zurücksetzen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réinitialiser les ailes"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Restablecer alas"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Restablecer alas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Redefinir alas"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Repor alas"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ripristina ali"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "날개 재설정"}}
+      }
+    },
+    "Right Wing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Right Wing"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "右侧翼"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "右側翼"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "右ウイング"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Rechter Flügel"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aile droite"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ala derecha"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ala derecha"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ala direita"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ala direita"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ala destra"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "오른쪽 날개"}}
+      }
+    },
+    "Search macOS Contacts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Search macOS Contacts"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "搜索 macOS 通讯录"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "搜尋 macOS 聯絡人"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "macOS 連絡先を検索"}},
+        "de": {"stringUnit": {"state": "translated", "value": "macOS-Kontakte durchsuchen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Rechercher dans Contacts macOS"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Buscar en Contactos de macOS"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Buscar en Contactos de macOS"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Buscar Contatos do macOS"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Pesquisar Contactos do macOS"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Cerca in Contatti macOS"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "macOS 연락처 검색"}}
+      }
+    },
+    "Share": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Share"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "分享"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "分享"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "共有"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Teilen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Partager"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Compartir"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Compartir"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Compartilhar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Partilhar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Condividi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "공유"}}
+      }
+    },
+    "Sign In": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Sign In"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "登录"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "登入"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サインイン"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Anmelden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Se connecter"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Iniciar sesión"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Iniciar sesión"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Iniciar sessão"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Iniciar sessão"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Accedi"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "로그인"}}
+      }
+    },
+    "Sign Out": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Sign Out"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "退出登录"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "登出"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サインアウト"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Abmelden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Se déconnecter"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cerrar sesión"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cerrar sesión"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Encerrar sessão"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Terminar sessão"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Esci"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "로그아웃"}}
+      }
+    },
+    "Slack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Slack"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Slack"}}
+      }
+    },
+    "Song details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Song details"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "歌曲详情"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "歌曲詳情"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "曲の詳細"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Titeldetails"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Détails du morceau"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Detalles de la canción"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Detalles de la canción"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Detalhes da música"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Detalhes da música"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Dettagli brano"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "곡 세부 정보"}}
+      }
+    },
+    "Sound": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Sound"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "声音"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "聲音"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サウンド"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Ton"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Son"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sonido"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sonido"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Som"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Som"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Suono"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "사운드"}}
+      }
+    },
+    "Speaking": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Speaking"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "正在讲话"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "正在說話"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "通話中"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spricht"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "En train de parler"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Hablando"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Hablando"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Falando"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "A falar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sta parlando"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "말하는 중"}}
+      }
+    },
+    "Speaking Indicator": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Speaking Indicator"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "讲话状态指示"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "說話狀態指示"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "発話インジケータ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Sprechanzeige"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Indicateur de parole"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Indicador de voz"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Indicador de voz"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Indicador de fala"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Indicador de fala"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Indicatore vocale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "말하기 표시기"}}
+      }
+    },
+    "Spotify / Music": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Spotify / Music"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Spotify / 音乐"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Spotify / 音樂"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Spotify / ミュージック"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spotify / Musik"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Spotify / Musique"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Spotify / Música"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Spotify / Música"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Spotify / Música"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Spotify / Música"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Spotify / Musica"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Spotify / 음악"}}
+      }
+    },
+    "Spotify Client ID": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Spotify Client ID"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Spotify Client ID"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Spotify Client ID"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Spotify Client ID"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spotify Client-ID"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "ID client Spotify"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Client ID de Spotify"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Client ID de Spotify"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Client ID do Spotify"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Client ID do Spotify"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Client ID di Spotify"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Spotify Client ID"}}
+      }
+    },
+    "Spotify Library Like (OAuth PKCE)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Spotify Library Like (OAuth PKCE)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Spotify 曲库收藏 (OAuth PKCE)"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Spotify 音樂庫喜愛項目 (OAuth PKCE)"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Spotify ライブラリのお気に入り (OAuth PKCE)"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Spotify-Bibliothek „Gefällt mir“ (OAuth PKCE)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Favoris de la bibliothèque Spotify (OAuth PKCE)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Me gusta de biblioteca de Spotify (OAuth PKCE)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Me gusta de biblioteca de Spotify (OAuth PKCE)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Curtir na biblioteca do Spotify (OAuth PKCE)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Gosto na biblioteca do Spotify (OAuth PKCE)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Mi piace nella libreria Spotify (OAuth PKCE)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Spotify 보관함 좋아요 (OAuth PKCE)"}}
+      }
+    },
+    "Spotify authorization returned an invalid response.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Spotify authorization returned an invalid response."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Spotify 授权返回了无效响应。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Spotify 授權傳回了無效的回應。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Spotify 認証から無効な応答が返されました。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Die Spotify-Autorisierung hat eine ungültige Antwort zurückgegeben."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "L'autorisation Spotify a renvoyé une réponse invalide."}},
+        "es": {"stringUnit": {"state": "translated", "value": "La autorización de Spotify devolvió una respuesta no válida."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "La autorización de Spotify devolvió una respuesta no válida."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "A autorização do Spotify retornou uma resposta inválida."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "A autorização do Spotify devolveu uma resposta inválida."}},
+        "it": {"stringUnit": {"state": "translated", "value": "L'autorizzazione Spotify ha restituito una risposta non valida."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Spotify 인증이 잘못된 응답을 반환했습니다."}}
+      }
+    },
+    "Surface": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Surface"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "展示位置"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "顯示位置"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "表示場所"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Fläche"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Surface"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Superficie"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Superficie"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Superfície"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Superfície"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Superficie"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "표시 영역"}}
+      }
+    },
+    "Surface Pins": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Surface Pins"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "多面板固定"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "多面板釘選"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "サーフェスのピン留め"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Angeheftete Flächen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Épingles de surface"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Fijados por superficie"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Fijados por superficie"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fixados por superfície"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Afixados por superfície"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Fissati su superficie"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "영역별 고정"}}
+      }
+    },
+    "System Telemetry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "System Telemetry"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "系统遥测"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "系統遙測"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "システムテレメトリ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Systemtelemetrie"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Télémétrie système"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Telemetría del sistema"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Telemetría del sistema"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Telemetria do sistema"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Telemetria do sistema"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Telemetria di sistema"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "시스템 원격 측정"}}
+      }
+    },
+    "Tear Off to Floating Stack": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Tear Off to Floating Stack"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "撕离为悬浮卡片堆"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "拆離至浮動卡片堆"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "フローティングスタックへ切り離す"}},
+        "de": {"stringUnit": {"state": "translated", "value": "In schwebenden Stapel lösen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Détacher vers la pile flottante"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Desacoplar a la pila flotante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Desacoplar a la pila flotante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Destacar para a pilha flutuante"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Destacar para a pilha flutuante"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Stacca nella pila mobile"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "플로팅 스택으로 떼어내기"}}
+      }
+    },
+    "Unlike": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unlike"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "取消喜欢"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "取消喜歡"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "いいねを取り消す"}},
+        "de": {"stringUnit": {"state": "translated", "value": "„Gefällt mir“ entfernen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ne plus aimer"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ya no me gusta"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ya no me gusta"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Descurtir"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Remover gosto"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Rimuovi Mi piace"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "좋아요 취소"}}
+      }
+    },
+    "Upload": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Upload"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "上传"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "上傳"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アップロード"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Upload"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Envoi"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Subida"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Subida"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Upload"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Envio"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Upload"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "업로드"}}
+      }
+    },
+    "VPN Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "VPN Active"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "VPN 已启用"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "VPN 已啟用"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "VPN 有効"}},
+        "de": {"stringUnit": {"state": "translated", "value": "VPN aktiv"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "VPN actif"}},
+        "es": {"stringUnit": {"state": "translated", "value": "VPN activa"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "VPN activa"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "VPN ativa"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "VPN ativa"}},
+        "it": {"stringUnit": {"state": "translated", "value": "VPN attiva"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "VPN 활성"}}
+      }
+    },
+    "VPN City & Flag Lookup (GeoIP)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "VPN City & Flag Lookup (GeoIP)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "VPN 城市与国旗查询 (GeoIP)"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "VPN 城市與國旗查詢 (GeoIP)"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "VPN 都市・国旗の検索 (GeoIP)"}},
+        "de": {"stringUnit": {"state": "translated", "value": "VPN-Stadt- & Flaggenabruf (GeoIP)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Recherche ville et drapeau VPN (GeoIP)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Búsqueda de ciudad y bandera VPN (GeoIP)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Búsqueda de ciudad y bandera VPN (GeoIP)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Consulta de cidade e bandeira VPN (GeoIP)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Consulta de cidade e bandeira VPN (GeoIP)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ricerca città e bandiera VPN (GeoIP)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "VPN 도시 및 국기 조회 (GeoIP)"}}
+      }
+    },
+    "VPN Status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "VPN Status"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "VPN 状态"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "VPN 狀態"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "VPN ステータス"}},
+        "de": {"stringUnit": {"state": "translated", "value": "VPN-Status"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "État du VPN"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Estado de VPN"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Estado de VPN"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Status da VPN"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Estado da VPN"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Stato VPN"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "VPN 상태"}}
+      }
+    },
+    "Volume & Brightness": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Volume & Brightness"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "音量与亮度"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "音量與亮度"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "音量と輝度"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Lautstärke & Helligkeit"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Volume et luminosité"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Volumen y brillo"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Volumen y brillo"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Volume e brilho"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Volume e brilho"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Volume e luminosità"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "음량 및 밝기"}}
+      }
+    },
+    "Wing Settings...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Wing Settings..."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "侧翼设置..."}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "側翼設定..."}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウイング設定..."}},
+        "de": {"stringUnit": {"state": "translated", "value": "Flügel-Einstellungen..."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réglages des ailes..."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ajustes de alas..."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ajustes de alas..."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ajustes das alas..."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Definições das alas..."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impostazioni ali..."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "날개 설정..."}}
+      }
+    },
+    "Wing Spacing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Wing Spacing"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "侧翼间距"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "側翼間距"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウイング間隔"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Flügelabstand"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Espacement des ailes"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Espaciado de alas"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Espaciado de alas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Espaçamento das alas"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Espaçamento das alas"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Spaziatura ali"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "날개 간격"}}
+      }
     }
   },
   "version": "1.0"

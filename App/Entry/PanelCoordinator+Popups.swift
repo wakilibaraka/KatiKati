@@ -154,8 +154,11 @@ extension PanelCoordinator {
                 onClosePopup: { [weak self] in self?.closeFolderPopup() },
                 onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) },
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
-                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
-            ).environment(\.dockThemeStyle, settingsStore.themeMaterial)
+                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true },
+                settingsStore: self?.settingsStore,
+                onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) }
+            ).environment(\.dockBadgesByBundleID, self?.badgeStore.badgesByBundleID ?? [:])
+             .environment(\.dockThemeStyle, settingsStore.themeMaterial)
              .environment(\.themeTuning, settingsStore.themeTuning))
         }
     }
@@ -194,8 +197,11 @@ extension PanelCoordinator {
                 onRemoveApp: { drawerStore.remove($0) },
                 onAddApp: { drawerStore.add($0) },
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
-                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true }
-            ).environment(\.dockThemeStyle, store.theme ?? settingsStore.themeMaterial)
+                isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true },
+                settingsStore: self?.settingsStore,
+                onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) }
+            ).environment(\.dockBadgesByBundleID, self?.badgeStore.badgesByBundleID ?? [:])
+             .environment(\.dockThemeStyle, store.theme ?? settingsStore.themeMaterial)
              .environment(\.themeTuning, settingsStore.themeTuning))
         }
     }
@@ -308,6 +314,7 @@ extension PanelCoordinator {
             anchorVisibleRect: anchorVisibleRect, size: lastPopupSize, on: screenGeometry, metrics: layoutMetrics,
             stripPlacement: stripPlacement)
         lastPopupTargetFrame = initialFrame
+        repositionFloatingWidgetStackIfNeeded(animated: true)
 
         if isSwitching {
             // 原地切换：alpha 保持 1,帧从当前位置滑向新目标,内容已瞬换。随时可再切（可打断）。
@@ -373,6 +380,7 @@ extension PanelCoordinator {
             anchorVisibleRect: popupAnchorVisibleRect, size: size, on: Self.screenGeometry(screen), metrics: layoutMetrics,
             stripPlacement: stripPlacement)
         lastPopupTargetFrame = target
+        repositionFloatingWidgetStackIfNeeded(animated: animated)
 
         if folderPopupFrameTimer != nil {
             // 正有一个手搓 tween 在飞（多半是刚触发的切换动画）——双重 defer 的兜底校正不能瞬时打断它,
@@ -484,6 +492,7 @@ extension PanelCoordinator {
         folderPopupWantsOpen = false
         openPopupContent = nil
         setAutoHideInhibitor(.folderPopupOpen, active: false)
+        repositionFloatingWidgetStackIfNeeded(animated: true)
         if let m = popupLocalMonitor  { NSEvent.removeMonitor(m); popupLocalMonitor  = nil }
         if let m = popupGlobalMonitor { NSEvent.removeMonitor(m); popupGlobalMonitor = nil }
         cancelFolderPopupFrameTween()   // 关闭时任何在飞的 tween 都要停,免得 orderOut 之后还偷偷挪 frame

@@ -28,6 +28,8 @@ final class WidgetPanelController {
                          _ state: WidgetPanelState, _ onHeight: @escaping (CGFloat) -> Void) -> AnyView
 
     static let keepBothOpenKey = "com.katikati.widgets.keepBothOpen"
+    /// Notified right before Weather or Calendar opens so overlapping Launcher/Control Center/Drawer close.
+    static var onAnyWillOpen: (() -> Void)?
 
     static let calendar = WidgetPanelController(side: .right) { layout, width, maxHeight, state, onHeight in
         AnyView(CalendarPanelView(layout: layout, width: width, maxHeight: maxHeight, onHeight: onHeight).environmentObject(state))
@@ -128,6 +130,7 @@ final class WidgetPanelController {
     }
 
     private func show() {
+        Self.onAnyWillOpen?()
         let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
             ?? NSScreen.main ?? NSScreen.screens[0]
         let layout = Self.currentLayout()

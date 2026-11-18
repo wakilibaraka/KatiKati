@@ -129,13 +129,22 @@ extension PanelCoordinator {
     }
 
     func tearDownTaskbarGlassBackground() {
-        guard let background = dockGlassBackgroundPanel else { return }
+        tearDownGlassBackground(panel: &dockGlassBackgroundPanel, view: &dockGlassBackgroundView)
+        tearDownGlassBackground(panel: &leftWingGlassBackgroundPanel, view: &leftWingGlassBackgroundView)
+        tearDownGlassBackground(panel: &rightWingGlassBackgroundPanel, view: &rightWingGlassBackgroundView)
+    }
+
+    private func tearDownGlassBackground(
+        panel: inout NonConstrainingPanel?,
+        view: inout DockTaskbarLiquidGlassBackgroundView?
+    ) {
+        guard let background = panel else { return }
         _ = TEDockGlassSetWindowBackgroundBlurRadius(background.windowNumber, 0)
         background.contentView = nil
         background.orderOut(nil)
         background.close()
-        dockGlassBackgroundView = nil
-        dockGlassBackgroundPanel = nil
+        view = nil
+        panel = nil
     }
 
     func orderDockSurfaceFront() {
@@ -277,5 +286,110 @@ extension PanelCoordinator {
         panel.backgroundColor = backgroundColor
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
+    }
+
+    // MARK: - Dock II Wings & Floating Widget Stack
+
+    func ensureWingPanel(placement: DockWingPlacement) -> NSPanel? {
+        switch placement {
+        case .leftWing:
+            if let existing = leftWingPanel { return existing }
+        case .rightWing:
+            if let existing = rightWingPanel { return existing }
+        }
+        let sizeModel = placement == .leftWing ? leftWingSizeModel : rightWingSizeModel
+        let initialRect = NSRect(origin: .zero, size: CGSize(width: 220, height: windowHeight))
+        if dockGlassBackgroundPanel != nil,
+           let (bgPanel, bgView) = makeTaskbarGlassBackground(contentPanelFrame: initialRect) {
+            switch placement {
+            case .leftWing:
+                leftWingGlassBackgroundPanel = bgPanel
+                leftWingGlassBackgroundView = bgView
+            case .rightWing:
+                rightWingGlassBackgroundPanel = bgPanel
+                rightWingGlassBackgroundView = bgView
+            }
+        }
+        let panel = makeFloatingPanel(
+            contentRect: initialRect,
+            usesLiquidGlass: usesLiquidGlass
+        )
+        configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
+        let root = DockWingHostView(
+            placement: placement,
+            usesLiquidGlass: usesLiquidGlass,
+            sizeModel: sizeModel,
+            onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) }
+        )
+        .environmentObject(settingsStore)
+        .environmentObject(badgeStore)
+        .modifier(PanelHeightResizeModifier(presentation: heightResizePresentation))
+        let hosting = FirstMouseHostingView(rootView: root)
+        hosting.wantsLayer = true
+        hosting.layer?.backgroundColor = NSColor(white: 1.0, alpha: 0.0).cgColor
+        let host = ManualPanelHost(contentView: hosting, in: panel)
+        switch placement {
+        case .leftWing:
+            leftWingHost = host
+            leftWingPanel = panel
+        case .rightWing:
+            rightWingHost = host
+            rightWingPanel = panel
+        }
+        pinResidentPanelsIfNeeded()
+        return panel
+    }
+
+    func ensureFloatingWidgetStackPanel() -> (panel: NSPanel, host: ManualPanelHost)? {
+        if let panel = floatingWidgetStackPanel, let host = floatingWidgetStackHost {
+            return (panel, host)
+        }
+        let panel = makeFloatingPanel(
+            contentRect: NSRect(origin: .zero, size: CGSize(width: 310, height: 180)),
+            usesLiquidGlass: usesLiquidGlass
+        )
+        configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: false)
+        let root = DockFloatingWidgetStackView(
+            usesLiquidGlass: usesLiquidGlass,
+            onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) },
+            onDragFinished: { [weak self] origin in
+                self?.settingsStore.setFloatingWidgetStackOrigin(origin)
+            }
+        )
+        .environmentObject(settingsStore)
+        .environmentObject(badgeStore)
+        let hosting = FirstMouseHostingView(rootView: root)
+        hosting.wantsLayer = true
+        hosting.layer?.backgroundColor = NSColor(white: 1.0, alpha: 0.0).cgColor
+        let host = ManualPanelHost(contentView: hosting, in: panel)
+        floatingWidgetStackHost = host
+        floatingWidgetStackPanel = panel
+        pinResidentPanelsIfNeeded()
+        return (panel, host)
+    }
+
+    func orderDockWingsOut() {
+        leftWingGlassBackgroundPanel?.orderOut(nil)
+        leftWingPanel?.orderOut(nil)
+        rightWingGlassBackgroundPanel?.orderOut(nil)
+        rightWingPanel?.orderOut(nil)
+        floatingWidgetStackPanel?.orderOut(nil)
+    }
+
+    func orderWingFront(_ placement: DockWingPlacement) {
+        switch placement {
+        case .leftWing:
+            leftWingGlassBackgroundPanel?.orderFrontRegardless()
+            leftWingPanel?.orderFrontRegardless()
+            if let bg = leftWingGlassBackgroundPanel, let wing = leftWingPanel {
+                bg.order(.below, relativeTo: wing.windowNumber)
+            }
+        case .rightWing:
+            rightWingGlassBackgroundPanel?.orderFrontRegardless()
+            rightWingPanel?.orderFrontRegardless()
+            if let bg = rightWingGlassBackgroundPanel, let wing = rightWingPanel {
+                bg.order(.below, relativeTo: wing.windowNumber)
+            }
+        }
     }
 }

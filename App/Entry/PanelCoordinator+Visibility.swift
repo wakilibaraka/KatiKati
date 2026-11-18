@@ -305,7 +305,12 @@ extension PanelCoordinator {
             // 只给「因全屏藏过」的揭示做，边缘自动隐藏的唤出保持原来的即时手感。
             let fadeIn = lastHideWasForFullscreen
             lastHideWasForFullscreen = false
-            let fadingPanels = [dockGlassBackgroundPanel, dockPanel, capsulePanel].compactMap { $0 }
+            let fadingPanels = [
+                dockGlassBackgroundPanel, dockPanel, capsulePanel,
+                leftWingGlassBackgroundPanel, leftWingPanel,
+                rightWingGlassBackgroundPanel, rightWingPanel,
+                floatingWidgetStackPanel
+            ].compactMap { $0 }
             if fadeIn { for panel in fadingPanels { panel.alphaValue = 0 } }
             orderDockSurfaceFront()
             // Only the apps island owns the drawer capsule; a non-owner capsule is never framed
@@ -314,6 +319,15 @@ extension PanelCoordinator {
                 capsulePanel?.orderFrontRegardless()
             } else {
                 capsulePanel?.orderOut(nil)
+            }
+            if isWingOwner {
+                if settingsStore.dockWings.left.preset.isAssigned { orderWingFront(.leftWing) }
+                if settingsStore.dockWings.right.preset.isAssigned { orderWingFront(.rightWing) }
+                if !settingsStore.surfaceWidgets.attachments(for: .floatingStack).isEmpty {
+                    floatingWidgetStackPanel?.orderFrontRegardless()
+                }
+            } else {
+                orderDockWingsOut()
             }
             if drawerWantsOpen { drawerPanel?.orderFrontRegardless() }
             // 实测 orderOut/orderFront 不掉私有空间成员资格，这里只是一次读回；掉了才真的补。
@@ -337,8 +351,14 @@ extension PanelCoordinator {
             dismissWindowTitleTooltip(suppressCurrentUntilExit: true)
             orderDockSurfaceOut()
             capsulePanel?.orderOut(nil)
+            orderDockWingsOut()
             // 淡入若被中途打断，alpha 可能停在半路；藏着的时候归 1，下次显示不带残值。
-            for panel in [dockGlassBackgroundPanel, dockPanel, capsulePanel] { panel?.alphaValue = 1 }
+            for panel in [dockGlassBackgroundPanel, dockPanel, capsulePanel,
+                          leftWingGlassBackgroundPanel, leftWingPanel,
+                          rightWingGlassBackgroundPanel, rightWingPanel,
+                          floatingWidgetStackPanel] {
+                panel?.alphaValue = 1
+            }
         }
     }
 
@@ -390,6 +410,9 @@ extension PanelCoordinator {
         let mouse = NSEvent.mouseLocation
         if let dock = dockPanel, dock.frame.contains(mouse) { return false }
         if let capsule = capsulePanel, capsule.frame.contains(mouse) { return false }
+        if let left = leftWingPanel, left.isVisible, left.frame.contains(mouse) { return false }
+        if let right = rightWingPanel, right.isVisible, right.frame.contains(mouse) { return false }
+        if let stack = floatingWidgetStackPanel, stack.isVisible, stack.frame.contains(mouse) { return false }
         if drawerWantsOpen, let drawer = drawerPanel,
            PanelGeometry.folderPopupPlateFrame(panelFrame: drawer.frame).contains(mouse) { return false }
         if folderPopupWantsOpen, let popup = folderPopupPanel,

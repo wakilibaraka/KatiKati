@@ -215,6 +215,29 @@ extension SettingsLayoutPane {
                 set: { store.setHoverStyle($0 ? .standard : .quiet) }
             ))
             SettingsDivider()
+            SettingsRow(Text("Dock II Wings")) {
+                HStack(spacing: 8) {
+                    Picker("Left Wing", selection: Binding(
+                        get: { store.dockWings.left.preset },
+                        set: { store.setDockWing($0, placement: .leftWing) }
+                    )) {
+                        ForEach(DockWidgetPresetType.allCases) { preset in
+                            Text(verbatim: preset.localizedTitle).tag(preset)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                    Picker("Right Wing", selection: Binding(
+                        get: { store.dockWings.right.preset },
+                        set: { store.setDockWing($0, placement: .rightWing) }
+                    )) {
+                        ForEach(DockWidgetPresetType.allCases) { preset in
+                            Text(verbatim: preset.localizedTitle).tag(preset)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+            }
+            SettingsDivider()
             SettingsToggleRow(Text("Keep windows above the taskbar"), isOn: Binding(
                 get: { store.windowLiftEnabled },
                 set: { store.setWindowLiftEnabled($0) }
@@ -327,7 +350,9 @@ extension SettingsLayoutPane {
         let pickerRows = 3 * (Self.widgetRowHeight + 4)
         // Slice G's search row sits between the pickers and the list; it takes a row's height from the list.
         let searchRow = Self.widgetRowHeight + 4
-        return Self.widgetListMaxHeight - pickerRows - searchRow
+        // Dock II Wings quick row takes one row's height back so the page stays under 1074 pt.
+        let wingRow = Self.widgetRowHeight + 4
+        return Self.widgetListMaxHeight - pickerRows - searchRow - wingRow
             - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0)
     }
 

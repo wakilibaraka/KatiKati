@@ -49,6 +49,7 @@ extension PanelCoordinator {
         }
         let initialFrame = drawerTargetFrame(forCapsule: capsuleRef, size: lastDrawerSize, on: screen)
         lastDrawerTargetFrame = initialFrame
+        repositionFloatingWidgetStackIfNeeded(animated: true)
 
         panel.setFrame(initialFrame, display: false)
         syncDrawerArrow(after: .instant)
@@ -172,7 +173,9 @@ extension PanelCoordinator {
                        drawerOrderStore: drawerOrderStore, dragController: dragController,
                        keptAppStore: keptAppStore, runningApplicationStore: runningApplicationStore,
                        appMembershipController: appMembershipController,
-                       settingsStore: settingsStore)
+                       settingsStore: settingsStore,
+                       badgeStore: badgeStore,
+                       onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) })
     }
 
     /// 抽屉面板 + SwiftUI 宿主，**只建一次**；之后只在行列上限变了才换 rootView。
@@ -249,6 +252,7 @@ extension PanelCoordinator {
         drawerWantsOpen = false
         setAutoHideInhibitor(.drawerOpen, active: false)
         drawerSpringOpened = false
+        repositionFloatingWidgetStackIfNeeded(animated: true)
         if let m = drawerLocalMonitor  { NSEvent.removeMonitor(m); drawerLocalMonitor  = nil }
         if let m = drawerGlobalMonitor { NSEvent.removeMonitor(m); drawerGlobalMonitor = nil }
         stopDrawerArrowFollow()
@@ -276,6 +280,7 @@ extension PanelCoordinator {
         drawerWantsOpen = false
         setAutoHideInhibitor(.drawerOpen, active: false)
         drawerSpringOpened = false
+        repositionFloatingWidgetStackIfNeeded(animated: true)
         if let monitor = drawerLocalMonitor {
             NSEvent.removeMonitor(monitor)
             drawerLocalMonitor = nil

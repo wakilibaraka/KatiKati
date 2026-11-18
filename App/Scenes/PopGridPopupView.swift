@@ -24,6 +24,8 @@ struct PopGridPopupView: View {
     var onAddApp: ((String) -> Void)? = nil
     var onPinFolder: ((URL) -> Void)?
     var isFolderPinned: ((URL) -> Bool)?
+    var settingsStore: AppSettingsStore? = nil
+    var onOpenSettings: () -> Void = {}
 
     /// The folder being browsed inside the pop; nil = the pop's own grid.
     @State private var browsing: URL?
@@ -42,13 +44,19 @@ struct PopGridPopupView: View {
                                 isFolderPinned: isFolderPinned,
                                 onBackAtRoot: { self.browsing = nil })
                 .id(browsing)
+        } else if let settingsStore {
+            PopObservedSettingsHost(settingsStore: settingsStore) { store in
+                popGrid(settingsStore: store)
+            }
         } else {
-            popGrid
+            popGrid(settingsStore: nil)
         }
     }
 
-    private var popGrid: some View {
+    private func popGrid(settingsStore: AppSettingsStore?) -> some View {
         let items = popStore.items
+        let drawerWidgets = settingsStore?.surfaceWidgets.attachments(for: .drawer) ?? []
+        let extraWidgetHeight = DockWidgetConfigStore.popupSectionExtraHeight(for: drawerWidgets)
         let note: String? = items.isEmpty
             ? String(localized: "Drag apps, files or folders onto the Drawer icon")
             : (popStore.isFull ? String(format: String(localized: "The Drawer is full (%d items)"), PopPolicy.capacity) : nil)
@@ -63,7 +71,11 @@ struct PopGridPopupView: View {
                : .init(columns: StackPlateMetrics.tilesColumns,
                        visibleRows: min(items.count, StackPlateMetrics.tilesRows),
                        scrolls: items.count > min(items.count, StackPlateMetrics.tilesRows)))
-            : DrawerLayoutMath.resolveLayout(itemCount: items.count, style: style, limits: context.limits, hasNote: note != nil)
+            : (items.isEmpty && !drawerWidgets.isEmpty
+               ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
+               : DrawerLayoutMath.resolveLayout(itemCount: items.count, style: style, limits: context.limits, hasNote: note != nil))
+        let plateContentWidth = plate.plateSize(columns: layout.columns, rows: layout.visibleRows, hasNote: note != nil, scrolls: layout.scrolls).width - 2 * plate.sidePadding
+        let deckWidth = max(220, plateContentWidth)
 
         return StackPopupChrome(title: String(localized: "Drawer"),
                                 note: note,
@@ -73,12 +85,30 @@ struct PopGridPopupView: View {
                                 arrow: context.arrow,
                                 onPanelSizeChange: onContentResize,
                                 gridAnimation: reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82),
-                                gridAnimationKey: items.map(\.id) + [mode.rawValue],
-                                headerAccessory: AnyView(DrawerLayoutTogglePill(mode: mode, reduceMotion: reduceMotion) { next in
-                                    withAnimation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82)) {
-                                        popStore.setViewMode(next)
+                                gridAnimationKey: items.map(\.id) + [mode.rawValue] + drawerWidgets.map(\.id),
+                                headerAccessory: AnyView(
+                                    HStack(spacing: 6) {
+                                        if let settingsStore {
+                                            DockSurfacePinMenuButton(surface: .drawer, settingsStore: settingsStore)
+                                        }
+                                        DrawerLayoutTogglePill(mode: mode, reduceMotion: reduceMotion) { next in
+                                            withAnimation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82)) {
+                                                popStore.setViewMode(next)
+                                            }
+                                        }
                                     }
-                                }),
+                                ),
+                                bottomAccessory: (!drawerWidgets.isEmpty && settingsStore != nil)
+                                    ? AnyView(DockSurfacePinnedDeck(
+                                        surface: .drawer,
+                                        usesLiquidGlass: usesLiquidGlass,
+                                        width: deckWidth,
+                                        settingsStore: settingsStore!,
+                                        onOpenSettings: onOpenSettings
+                                    ))
+                                    : nil,
+                                bottomAccessoryHeight: extraWidgetHeight,
+                                bottomAccessoryMinWidth: drawerWidgets.isEmpty ? 0 : deckWidth + 2 * plate.sidePadding,
                                 isDropTargeted: isDropTargeted) {
             ForEach(items) { item in
                 let path = item.iconPath
@@ -315,4 +345,13 @@ private struct PopListRow: View {
     }
 
     private static let placeholder = NSWorkspace.shared.icon(for: .data)
+}
+
+private struct PopObservedSettingsHost<Content: View>: View {
+    @ObservedObject var settingsStore: AppSettingsStore
+    let content: (AppSettingsStore) -> Content
+
+    var body: some View {
+        content(settingsStore)
+    }
 }
