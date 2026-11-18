@@ -564,9 +564,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
             ProductivityServices.shared.clipboard.onRecorded = { [weak self] text in
-                guard UserDefaults.standard.bool(forKey: ClipboardMonitor.notchToastKey),
-                      ClipboardToastPolicy.shouldToast(text) else { return }
+                let toastOn = UserDefaults.standard.object(forKey: ClipboardMonitor.notchToastKey) as? Bool ?? true
+                guard toastOn, ClipboardToastPolicy.shouldToast(text) else { return }
                 self?.liveEventCenter.deliver(.clipboardCopied(preview: ClipboardHistory.previewLine(text)), now: Date())
+            }
+            ProductivityServices.shared.clipboard.onPasted = { [weak self] text in
+                let toastOn = UserDefaults.standard.object(forKey: ClipboardMonitor.notchToastKey) as? Bool ?? true
+                guard toastOn, ClipboardToastPolicy.shouldToast(text) else { return }
+                self?.liveEventCenter.deliver(.clipboardPasted(preview: ClipboardHistory.previewLine(text)), now: Date())
+            }
+            KeyGuardService.shared.onGlobalPasteHandler = {
+                ProductivityServices.shared.clipboard.handleExternalPaste()
             }
             DownloadsMonitor.shared.onFinished = { [weak self] name in
                 self?.liveEventCenter.deliver(.downloadFinished(name: name), now: Date())

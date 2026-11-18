@@ -173,6 +173,8 @@ enum ClipboardSettingsKeys {
     static let showFooterShortcuts = "com.katikati.clipboard.showFooterShortcuts"
     static let showPinShortcuts = "com.katikati.clipboard.showPinShortcuts"
     static let popupPosition = "com.katikati.clipboard.popupPosition"
+    static let soundsKey = "com.katikati.clipboard.sounds"
+    static let notchToastKey = "com.katikati.clipboard.notchToast"
 }
 
 /// Slice MC-1 — how the history list is ordered.

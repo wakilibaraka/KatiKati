@@ -358,7 +358,7 @@ struct NotchIslandView: View {
 
     @ViewBuilder
     private func inlineHUDContent(_ hud: NotchActivityItem) -> some View {
-        if hud.id.hasPrefix("clipboard|") || hud.icon == "doc.on.clipboard" {
+        if hud.id.hasPrefix("clipboard|") || hud.icon == "doc.on.clipboard" || hud.icon == "doc.on.clipboard.fill" {
             clipboardToastContent(hud)
         } else {
             let level = hud.level ?? 0
@@ -408,14 +408,22 @@ struct NotchIslandView: View {
                         .frame(width: 15, height: 15)
                         .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                 } else {
-                    Image(systemName: "doc.on.clipboard")
+                    Image(systemName: hud.icon)
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(.cyan)
                 }
-                Text(verbatim: hud.title)
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(verbatim: hud.title)
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.92))
+                        .lineLimit(1)
+                    if let glimpse = hud.subtitle, !glimpse.isEmpty {
+                        Text(verbatim: glimpse)
+                            .font(.system(size: 9, weight: .regular))
+                            .foregroundStyle(.white.opacity(0.68))
+                            .lineLimit(1)
+                    }
+                }
             }
             .frame(width: metrics.hasHardwareNotch ? NotchGeometry.sneakSide - 10 : nil, alignment: .leading)
 

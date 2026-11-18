@@ -479,7 +479,10 @@ final class AppSettingsStore: ObservableObject {
             Keys.dockWingGeoIPEnabled: false,
             Keys.dockWingSpotifyOAuthEnabled: false,
             Keys.dockWingTelemetryIOHIDEnabled: false,
-            Keys.dockWingFriendsContactsEnabled: false
+            Keys.dockWingFriendsContactsEnabled: false,
+            ClipboardSettingsKeys.soundsKey: true,
+            ClipboardSettingsKeys.notchToastKey: true,
+            DroppyShelfConfigStore.hiddenKey: DroppyShelfConfigStore.encodeHidden(DroppyShelfConfigStore.defaultHidden)
         ])
 
         launchAtLogin = defaults.bool(forKey: Keys.launchAtLogin)

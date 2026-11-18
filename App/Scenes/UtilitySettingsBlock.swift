@@ -9,8 +9,8 @@ struct UtilitySettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var keyGuard = KeyGuardService.shared
     @ObservedObject private var cheatSheet = ShortcutCheatSheetService.shared
-    @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = false
-    @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = false
+    @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = true
+    @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = true
     @AppStorage(ClipboardToastBadge.dockTileKey) private var dockClipboardTile = false
     @ObservedObject private var tendedero = TendederoClotheslineController.shared
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
@@ -872,8 +872,8 @@ struct NotchHelpersSettingsBlock: View {
 struct ClipboardSettingsPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
-    @AppStorage(ClipboardMonitor.soundsKey) private var sounds = false
-    @AppStorage(ClipboardMonitor.notchToastKey) private var toast = false
+    @AppStorage(ClipboardMonitor.soundsKey) private var sounds = true
+    @AppStorage(ClipboardMonitor.notchToastKey) private var toast = true
     @AppStorage(ClipboardToastBadge.dockTileKey) private var dockTile = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var patterns = ""
     @AppStorage(ClipboardMonitor.keepDaysKey) private var keepDays = 0
@@ -991,9 +991,9 @@ struct ClipboardSettingsPane: View {
                 isOn: Binding(get: { store.linkCleanerEnabled }, set: { store.setLinkCleanerEnabled($0) })
             )
             SettingsDivider()
-            SettingsToggleRow(Text("Copy Sounds"), isOn: $sounds)
+            SettingsToggleRow(Text("Copy & Paste Sounds"), isOn: $sounds)
             SettingsDivider()
-            SettingsToggleRow(Text("Copy Notifications"), isOn: $toast)
+            SettingsToggleRow(Text("Copy & Paste Glimpse Notifications"), isOn: $toast)
             SettingsDivider()
             SettingsToggleRow(Text("Show Clipboard Tile on Dock"), isOn: $dockTile)
         }

@@ -117,6 +117,15 @@ final class KeyGuardService: ObservableObject {
     static var hasPermission: Bool { CGPreflightListenEventAccess() }
     @discardableResult static func requestPermission() -> Bool { CGRequestListenEventAccess() }
 
+    var onGlobalPasteHandler: (() -> Void)? {
+        didSet {
+            let handler = onGlobalPasteHandler
+            shared.onGlobalPaste = handler.map { fn in
+                { DispatchQueue.main.async { fn() } }
+            }
+        }
+    }
+
     func setPaused(_ on: Bool) {
         guard on != isPaused else { return }
         isPaused = on
@@ -710,6 +719,7 @@ final class KeyGuardShared: @unchecked Sendable {
     static let syntheticTag: Int64 = 0x4B41544931 // "KATI1"
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
+    var onGlobalPaste: (() -> Void)?
 
     func setVisualizer(enabled: Bool, filter: KeyVisualizerFilter = .allKeys, linger: TimeInterval = 1.5) {
         lock.lock()
@@ -967,6 +977,10 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     if type == .keyDown {
         shared.registerInterveningKey()
         shared.handleKeyAudio(event: keyEvent)
+        let isAutoRepeat = event.getIntegerValueField(.keyboardEventAutorepeat) != 0
+        if code == 9, modifiers == .command, !isAutoRepeat {
+            shared.onGlobalPaste?()
+        }
         if code == 51 {
             shared.snippetBackspace()
         } else if let text = typedText(event) {

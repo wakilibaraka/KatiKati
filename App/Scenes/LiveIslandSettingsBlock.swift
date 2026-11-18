@@ -569,7 +569,7 @@ private struct DroppyCustomizationCard: View {
     @AppStorage(DroppyShelfConfigStore.glassKey) private var glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
     @AppStorage(DroppyShelfConfigStore.accentKey) private var accentRaw = DroppyAccentTheme.oceanBlue.rawValue
     @AppStorage(DroppyShelfConfigStore.orderKey) private var orderRaw = ""
-    @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = ""
+    @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = DroppyShelfConfigStore.encodeHidden(DroppyShelfConfigStore.defaultHidden)
     @AppStorage(NotchSurfaceAppearance.StorageKey.transparency) private var transparency = NotchSurfaceAppearance.defaultTransparency
     @AppStorage(DropClipPolicy.enabledKey) private var dropClipEnabled = true
 
@@ -624,7 +624,7 @@ private struct DroppyCustomizationCard: View {
                     Spacer()
                     Button {
                         orderRaw = DroppyShelfConfigStore.encodeOrder(DroppyShelfWidgetKind.allCases)
-                        hiddenRaw = ""
+                        hiddenRaw = DroppyShelfConfigStore.encodeHidden(DroppyShelfConfigStore.defaultHidden)
                         glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
                         accentRaw = DroppyAccentTheme.oceanBlue.rawValue
                     } label: {

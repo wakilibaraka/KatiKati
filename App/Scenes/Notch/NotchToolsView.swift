@@ -15,7 +15,7 @@ struct NotchToolsView: View {
 struct DroppyShelfView: View {
     let services: ProductivityServices
     @AppStorage(DroppyShelfConfigStore.orderKey) private var orderRaw = ""
-    @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = ""
+    @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = DroppyShelfConfigStore.encodeHidden(DroppyShelfConfigStore.defaultHidden)
     @AppStorage(DroppyShelfConfigStore.glassKey) private var glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
     @AppStorage(DroppyShelfConfigStore.accentKey) private var accentRaw = DroppyAccentTheme.oceanBlue.rawValue
 

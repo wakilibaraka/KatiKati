@@ -17,6 +17,9 @@ final class ClipboardMonitor: ObservableObject {
     /// Fired for every external copy that gets recorded (never for `copy(_:)` from the flyout). The app
     /// layer decides whether that earns a toast; the monitor stays free of presentation.
     var onRecorded: ((String) -> Void)?
+    /// Fired whenever content is pasted (via `pastePlain(_:)` or global ⌘V).
+    var onPasted: ((String) -> Void)?
+    private static let syntheticKeyTag: Int64 = 0x4B41544931
     private let defaults: UserDefaults
     private let pasteboard: NSPasteboard
     private var lastChange: Int
@@ -56,15 +59,33 @@ final class ClipboardMonitor: ObservableObject {
     /// text is written, so nothing rich pastes. Needs Accessibility for the keystroke; silent if denied.
     func pastePlain(_ entry: ClipEntry) {
         copy(entry)
+        playPasteSoundIfEnabled()
+        onPasted?(entry.text)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
             guard let source = CGEventSource(stateID: .combinedSessionState),
                   let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true),
                   let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false) else { return }
             down.flags = .maskCommand
             up.flags = .maskCommand
+            down.setIntegerValueField(.eventSourceUserData, value: Self.syntheticKeyTag)
+            up.setIntegerValueField(.eventSourceUserData, value: Self.syntheticKeyTag)
             down.post(tap: .cghidEventTap)
             up.post(tap: .cghidEventTap)
         }
+    }
+
+    /// Invoked on global ⌘V detection (Input Monitoring): plays subtle paste sound & notifies toast if enabled.
+    func handleExternalPaste() {
+        let raw = pasteboard.string(forType: .string) ?? history.entries.first?.text ?? ""
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        playPasteSoundIfEnabled()
+        onPasted?(trimmed)
+    }
+
+    private func playPasteSoundIfEnabled() {
+        let on = defaults.object(forKey: Self.soundsKey) as? Bool ?? true
+        if on { NSSound(named: "Pop")?.play() }
     }
 
     /// 55g: applies the retention setting to what is already in memory and to every later copy.
@@ -145,7 +166,7 @@ final class ClipboardMonitor: ObservableObject {
         history.limit = limit > 0 ? limit : ClipboardHistory.maxUnpinned
         history.remember(text)
         history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
-        if defaults.bool(forKey: Self.soundsKey) { NSSound(named: "Tink")?.play() }
+        if defaults.object(forKey: Self.soundsKey) as? Bool ?? true { NSSound(named: "Tink")?.play() }
         onRecorded?(text)
     }
 
