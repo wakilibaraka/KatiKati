@@ -45,6 +45,12 @@ extension PanelCoordinator {
             onPopPopupToggle: { [weak self] anchorRect in
                 self?.togglePopPopup(anchorVisibleRect: anchorRect)
             },
+            onScreenshotsPopupToggle: { [weak self] anchorRect in
+                self?.toggleScreenshotsPopup(anchorVisibleRect: anchorRect)
+            },
+            onClipboardPopupToggle: { [weak self] anchorRect in
+                self?.toggleClipboardPopup(anchorVisibleRect: anchorRect)
+            },
             popChipFrameSink: popChipFrame,
             onAddFolder: { [weak self] in self?.onAddFolder() },
             onMoveExternalFiles: { [weak self] urls, path in

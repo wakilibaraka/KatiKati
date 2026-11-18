@@ -88,6 +88,8 @@ struct DockStripView: View {
     var onTrashPopupToggle: (CGRect) -> Void = { _ in }
     /// The drawer pop chip was clicked: the screen rect to anchor its popup on.
     var onPopPopupToggle: (CGRect) -> Void = { _ in }
+    var onScreenshotsPopupToggle: (CGRect) -> Void = { _ in }
+    var onClipboardPopupToggle: (CGRect) -> Void = { _ in }
     /// Where the pop chip sits on screen, for the coordinator's stash drop zone. Written by this view.
     var popChipFrameSink: PopChipFrameSink?
     /// 「添加文件夹…」统一入口（NSOpenPanel 归 AppDelegate 管）。
@@ -558,6 +560,7 @@ struct DockStripView: View {
             let moved = registry.all != frames.chipRegistry.all
             frames.chipRegistry = registry
             popChipFrameSink?.stripFrame = frames.popFrame
+            popChipFrameSink?.utilityStripFrames = frames.sectionFrames
             if moved { updateLandingAnchor() }
             dumpChipFramesIfRequested()
         }
@@ -1936,11 +1939,11 @@ extension DockStripView {
             RailDrivesTile().nativeScaled(dockScale)
         case .dictionary:
             RailDictionaryTile(dockScale: dockScale) {
-                runtime.onToggleDictionary?()
+                runtime.onToggleDictionary?(utilityAnchorScreenRect(id: "utility-dictionary"))
             }
         case .terminal:
             RailTerminalTile(dockScale: dockScale) {
-                runtime.onToggleTerminal?()
+                runtime.onToggleTerminal?(utilityAnchorScreenRect(id: "utility-terminal"))
             }
         case .ai:
             RailAITile().nativeScaled(dockScale)
@@ -1957,20 +1960,30 @@ extension DockStripView {
                     externalDropTarget: externalDropTarget,
                     isOverStashZone: dragController.isOverStashZone,
                     onPopTap: { popChipTapped() },
+                    onScreenshotsTap: {
+                        if let anchor = utilityAnchorScreenRect(id: "utility-screenshots") {
+                            onScreenshotsPopupToggle(anchor)
+                        }
+                    },
+                    onClipboardTap: {
+                        if let anchor = utilityAnchorScreenRect(id: "utility-clipboard") {
+                            onClipboardPopupToggle(anchor)
+                        }
+                    },
                     onAddFolder: onAddFolder,
                     onFolderTap: { folderPrimaryTap($0) },
                     onFolderPreview: { folderShowPreview($0) },
                     onFolderOpenFinder: { openFolderInFinder($0) },
                     onRemoveFolder: { removePinnedFolder($0) },
                     onUnpinnedDownloadsTap: { path in
-                        if let frame = frames.sectionFrames["utility-downloads"], stripRootScreenRect != .zero {
-                            onFolderPopupToggle(path, stripFrameToScreen(frame))
+                        if let anchor = utilityAnchorScreenRect(id: "utility-downloads") {
+                            onFolderPopupToggle(path, anchor)
                         } else {
                             openFolderInFinder(path)
                         }
                     },
-                    onDictionary: { runtime.onToggleDictionary?() },
-                    onTerminal: { runtime.onToggleTerminal?() },
+                    onDictionary: { runtime.onToggleDictionary?(utilityAnchorScreenRect(id: "utility-dictionary")) },
+                    onTerminal: { runtime.onToggleTerminal?(utilityAnchorScreenRect(id: "utility-terminal")) },
                     trashTile: { AnyView(trashChip(hovered: false)) }
                 )
             } else {
@@ -2028,11 +2041,15 @@ extension DockStripView {
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .dictionary:
-            DictionaryDockChip(onOpen: { runtime.onToggleDictionary?() })
+            DictionaryDockChip(onOpen: {
+                runtime.onToggleDictionary?(utilityAnchorScreenRect(id: "sec-dictionary"))
+            })
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .terminal:
-            TerminalDockChip(onOpen: { runtime.onToggleTerminal?() })
+            TerminalDockChip(onOpen: {
+                runtime.onToggleTerminal?(utilityAnchorScreenRect(id: "sec-terminal"))
+            })
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .ai:
@@ -2069,25 +2086,42 @@ extension DockStripView {
                 externalDropTarget: externalDropTarget,
                 isOverStashZone: dragController.isOverStashZone,
                 onPopTap: { popChipTapped() },
+                onScreenshotsTap: {
+                    if let anchor = utilityAnchorScreenRect(id: "utility-screenshots") {
+                        onScreenshotsPopupToggle(anchor)
+                    }
+                },
+                onClipboardTap: {
+                    if let anchor = utilityAnchorScreenRect(id: "utility-clipboard") {
+                        onClipboardPopupToggle(anchor)
+                    }
+                },
                 onAddFolder: onAddFolder,
                 onFolderTap: { folderPrimaryTap($0) },
                 onFolderPreview: { folderShowPreview($0) },
                 onFolderOpenFinder: { openFolderInFinder($0) },
                 onRemoveFolder: { removePinnedFolder($0) },
                 onUnpinnedDownloadsTap: { path in
-                    if let frame = frames.sectionFrames["utility-downloads"], stripRootScreenRect != .zero {
-                        onFolderPopupToggle(path, stripFrameToScreen(frame))
+                    if let anchor = utilityAnchorScreenRect(id: "utility-downloads") {
+                        onFolderPopupToggle(path, anchor)
                     } else {
                         openFolderInFinder(path)
                     }
                 },
-                onDictionary: { runtime.onToggleDictionary?() },
-                onTerminal: { runtime.onToggleTerminal?() },
+                onDictionary: { runtime.onToggleDictionary?(utilityAnchorScreenRect(id: "utility-dictionary")) },
+                onTerminal: { runtime.onToggleTerminal?(utilityAnchorScreenRect(id: "utility-terminal")) },
                 trashTile: { AnyView(trashChip(hovered: false)) }
             )
         case .apps:
             EmptyView()
         }
+    }
+
+    private func utilityAnchorScreenRect(id: String) -> CGRect? {
+        let candidate = frames.sectionFrames[id]
+            ?? frames.sectionFrames[id.replacingOccurrences(of: "sec-", with: "")]
+        guard let frame = candidate, frame != .zero, stripRootScreenRect != .zero else { return nil }
+        return stripFrameToScreen(frame)
     }
 }
 
@@ -2332,6 +2366,8 @@ private struct DockUtilitiesClusterView: View {
     let externalDropTarget: StripDropRouting.Target?
     let isOverStashZone: Bool
     let onPopTap: () -> Void
+    let onScreenshotsTap: () -> Void
+    let onClipboardTap: () -> Void
     let onAddFolder: () -> Void
     let onFolderTap: (String) -> Void
     let onFolderPreview: (String) -> Void
@@ -2372,10 +2408,10 @@ private struct DockUtilitiesClusterView: View {
             )
             .reportStripChipFrame(id: "pop", zone: .pop)
         case .screenshots:
-            DockScreenshotsUtilityButton(dockScale: dockScale, isRail: isRail)
+            DockScreenshotsUtilityButton(dockScale: dockScale, isRail: isRail, onAnchoredTap: onScreenshotsTap)
                 .reportStripChipFrame(id: "utility-screenshots", zone: .section)
         case .clipboard:
-            DockClipboardUtilityButton(dockScale: dockScale, isRail: isRail)
+            DockClipboardUtilityButton(dockScale: dockScale, isRail: isRail, onAnchoredTap: onClipboardTap)
                 .reportStripChipFrame(id: "utility-clipboard", zone: .section)
         case .dictionary:
             if isRail {

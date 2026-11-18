@@ -68,6 +68,10 @@ extension PanelCoordinator {
             toggleTrashPopup(anchorVisibleRect: screenAnchor)
         case .pop:
             togglePopPopup(anchorVisibleRect: screenAnchor)
+        case .screenshots:
+            toggleScreenshotsPopup(anchorVisibleRect: screenAnchor)
+        case .clipboard:
+            toggleClipboardPopup(anchorVisibleRect: screenAnchor)
         }
     }
 
@@ -83,6 +87,10 @@ extension PanelCoordinator {
             toggleTrashPopup(anchorVisibleRect: anchor)
         case .pop:
             togglePopPopup(anchorVisibleRect: anchor)
+        case .screenshots:
+            toggleScreenshotsPopup(anchorVisibleRect: anchor)
+        case .clipboard:
+            toggleClipboardPopup(anchorVisibleRect: anchor)
         }
     }
 
@@ -182,6 +190,54 @@ extension PanelCoordinator {
         }
     }
 
+    func toggleScreenshotsPopup(anchorVisibleRect: CGRect) {
+        if folderPopupWantsOpen, openPopupContent == .screenshots {
+            closeFolderPopup()
+        } else {
+            openScreenshotsPopup(anchorVisibleRect: anchorVisibleRect)
+        }
+    }
+
+    func toggleClipboardPopup(anchorVisibleRect: CGRect) {
+        if folderPopupWantsOpen, openPopupContent == .clipboard {
+            closeFolderPopup()
+        } else {
+            openClipboardPopup(anchorVisibleRect: anchorVisibleRect)
+        }
+    }
+
+    private func openScreenshotsPopup(anchorVisibleRect: CGRect) {
+        presentPopup(content: .screenshots, anchorVisibleRect: anchorVisibleRect) { [weak self] context in
+            let view = DockScreenshotsUtilityHostedView(
+                context: context,
+                usesLiquidGlass: usesLiquidGlass,
+                isPinned: Binding(get: { self?.isPopupPinned ?? false },
+                                  set: { self?.isPopupPinned = $0 }),
+                onClose: { self?.closeFolderPopup() },
+                onContentResize: { size in self?.repositionFolderPopup(animated: true, contentSize: size) }
+            )
+            .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+            .environment(\.themeTuning, settingsStore.themeTuning)
+            return NSHostingView(rootView: view)
+        }
+    }
+
+    private func openClipboardPopup(anchorVisibleRect: CGRect) {
+        presentPopup(content: .clipboard, anchorVisibleRect: anchorVisibleRect) { [weak self] context in
+            let view = DockClipboardUtilityHostedView(
+                context: context,
+                usesLiquidGlass: usesLiquidGlass,
+                isPinned: Binding(get: { self?.isPopupPinned ?? false },
+                                  set: { self?.isPopupPinned = $0 }),
+                onClose: { self?.closeFolderPopup() },
+                onContentResize: { size in self?.repositionFolderPopup(animated: true, contentSize: size) }
+            )
+            .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+            .environment(\.themeTuning, settingsStore.themeTuning)
+            return NSHostingView(rootView: view)
+        }
+    }
+
     private func openPopPopup(anchorVisibleRect: CGRect) {
         let store = PopStore.shared
         // 同 openFolderPopup：首帧图标全亮,不逐个浮现。
@@ -275,7 +331,12 @@ extension PanelCoordinator {
         let screen = panelCurrentScreen(panel: mainPanel)
         let screenGeometry = Self.screenGeometry(screen)
         let arrow = StackPopupArrowModel()
-        arrow.isHidden = stripPlacement.isVertical
+        let utilityCfg = settingsStore.dockUtilities
+        let effectivePlacement = utilityCfg.effectivePlacementForPreset
+        arrow.isHidden = !utilityCfg.flyoutPreset.resolvesArrowVisible(
+            for: effectivePlacement,
+            isVerticalRail: stripPlacement.isVertical
+        )
         let context = StackPopupContext(
             limits: StackGridLayout.limits(
                 screenSize: screenGeometry.frame.size,
@@ -290,6 +351,7 @@ extension PanelCoordinator {
         popupAnchorVisibleRect = anchorVisibleRect
         folderPopupArrow = arrow
         if content != .trash { clearTrashListingIfShowing() }
+        if !isSwitching || openPopupContent != content { isPopupPinned = false }
         openPopupContent = content
         folderPopupWantsOpen = true
         setAutoHideInhibitor(.folderPopupOpen, active: true)
@@ -310,9 +372,12 @@ extension PanelCoordinator {
         if sync.width >= 160, sync.height >= 100 {
             lastPopupSize = sync
         }
-        let initialFrame = PanelGeometry.folderPopupTargetFrame(
-            anchorVisibleRect: anchorVisibleRect, size: lastPopupSize, on: screenGeometry, metrics: layoutMetrics,
-            stripPlacement: stripPlacement)
+        let initialFrame = resolvedUtilityPopupFrame(
+            size: lastPopupSize,
+            anchorVisibleRect: anchorVisibleRect,
+            on: screenGeometry,
+            arrowHidden: arrow.isHidden
+        )
         lastPopupTargetFrame = initialFrame
         repositionFloatingWidgetStackIfNeeded(animated: true)
 
@@ -356,6 +421,39 @@ extension PanelCoordinator {
         }
     }
 
+    private func resolvedUtilityPopupFrame(
+        size: CGSize,
+        anchorVisibleRect: CGRect,
+        on screen: PanelScreenGeometry,
+        arrowHidden: Bool
+    ) -> CGRect {
+        let cfg = settingsStore.dockUtilities
+        let effectivePlacement = cfg.effectivePlacementForPreset
+        if effectivePlacement != .anchored {
+            let arrowH: CGFloat = arrowHidden ? 0 : StackPopupMetrics.arrowHeight
+            let plateSize = CGSize(
+                width: max(120, size.width - StackPopupMetrics.panelMargin * 2),
+                height: max(80, size.height - arrowH - StackPopupMetrics.panelMargin * 2)
+            )
+            return PanelGeometry.utilityPanelFrame(
+                plateSize: plateSize,
+                anchorVisibleRect: anchorVisibleRect,
+                placement: effectivePlacement,
+                flyoutPreset: cfg.flyoutPreset,
+                stripPlacement: stripPlacement,
+                on: screen,
+                metrics: layoutMetrics
+            ).frame
+        }
+        return PanelGeometry.folderPopupTargetFrame(
+            anchorVisibleRect: anchorVisibleRect,
+            size: size,
+            on: screen,
+            metrics: layoutMetrics,
+            stripPlacement: stripPlacement
+        )
+    }
+
     /// 内容尺寸变化（首测/下钻/实时刷新）→ 按锚点重算目标帧。宽高都由内容推导（列数确定宽）。
     /// `contentSize` is the window size the content derived from its layout; nil measures it,
     /// which is only valid outside a SwiftUI update (`fittingSize` reads zero inside one).
@@ -376,9 +474,12 @@ extension PanelCoordinator {
         }
         lastPopupSize = size
         let screen = panelCurrentScreen(panel: dock)
-        let target = PanelGeometry.folderPopupTargetFrame(
-            anchorVisibleRect: popupAnchorVisibleRect, size: size, on: Self.screenGeometry(screen), metrics: layoutMetrics,
-            stripPlacement: stripPlacement)
+        let target = resolvedUtilityPopupFrame(
+            size: size,
+            anchorVisibleRect: popupAnchorVisibleRect,
+            on: Self.screenGeometry(screen),
+            arrowHidden: folderPopupArrow?.isHidden ?? false
+        )
         lastPopupTargetFrame = target
         repositionFloatingWidgetStackIfNeeded(animated: animated)
 
@@ -461,8 +562,8 @@ extension PanelCoordinator {
                     let p = ease.progress(at: raw)
                     let width = w0 + (w1 - w0) * p
                     let height = h0 + (h1 - h0) * p
-                    if self.stripPlacement.isVertical {
-                        // Beside a rail both ends are already clamped `railPopupFrame`s: interpolate them.
+                    if self.stripPlacement.isVertical || self.settingsStore.dockUtilities.effectivePlacementForPreset != .anchored {
+                        // Beside a rail or floating at Bottom/Center, interpolate directly to the clamped target frame.
                         let x = start.minX + (target.minX - start.minX) * p
                         let y = start.minY + (target.minY - start.minY) * p
                         self.setFolderPopupFrame(NSRect(x: x, y: y, width: width, height: height), on: panel, display: true)
@@ -518,6 +619,12 @@ extension PanelCoordinator {
     /// onTapGesture 在 mouseUp 又开,不排除锚点则同 chip 点击永远开↔关抖动（评审确认的竞态,勿删）。
     private func dismissFolderPopupIfOutside() {
         guard folderPopupWantsOpen, let panel = folderPopupPanel else { return }
+        let cfg = settingsStore.dockUtilities
+        guard cfg.dismissalBehavior.dismissesOnOutsideClick(
+            isTerminal: false,
+            placement: cfg.effectivePlacementForPreset,
+            isPinned: isPopupPinned
+        ) else { return }
         let mouse = NSEvent.mouseLocation
         // The plate, not the window: its 40pt transparent border must dismiss like any outside click.
         guard !PanelGeometry.folderPopupPlateFrame(panelFrame: panel.frame).contains(mouse),

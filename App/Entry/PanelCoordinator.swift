@@ -151,12 +151,15 @@ final class PanelCoordinator: NSObject {
         case trash
         /// The drawer pop (`PopGridPopupView`).
         case pop
+        case screenshots
+        case clipboard
     }
     var folderPopupPanel: NSPanel?
     /// 弹窗真正承载 SwiftUI 的 hosting view（contentView 是普通 NSView 容器,fittingSize 读这个）。
     var folderPopupContentHost: NSView?
     var popupLocalMonitor: Any?
     var popupGlobalMonitor: Any?
+    var isPopupPinned = false
     var lastPopupTargetFrame: NSRect = .zero
     /// 弹窗锚点（chip 可视矩形,屏幕坐标）。click-away 判定要排除它——监视器在 mouseDown 关、
     /// chip 的 onTapGesture 在 mouseUp 又开,不排除锚点则同 chip 点击永远无法收合。

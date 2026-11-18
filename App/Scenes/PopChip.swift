@@ -157,6 +157,7 @@ extension PopItem {
 @MainActor
 final class PopChipFrameSink {
     var stripFrame: CGRect = .zero
+    var utilityStripFrames: [String: CGRect] = [:]
     var stripRootScreenRect: CGRect = .zero
 
     /// Same mapping as `DockStripView.popChipTapped`. nil until both halves are known.
@@ -165,5 +166,12 @@ final class PopChipFrameSink {
         return CGRect(x: stripRootScreenRect.minX + stripFrame.minX,
                       y: stripRootScreenRect.maxY - stripFrame.maxY,
                       width: stripFrame.width, height: stripFrame.height)
+    }
+
+    func utilityScreenRect(id: String) -> CGRect? {
+        guard let frame = utilityStripFrames[id], frame != .zero, stripRootScreenRect != .zero else { return nil }
+        return CGRect(x: stripRootScreenRect.minX + frame.minX,
+                      y: stripRootScreenRect.maxY - frame.maxY,
+                      width: frame.width, height: frame.height)
     }
 }

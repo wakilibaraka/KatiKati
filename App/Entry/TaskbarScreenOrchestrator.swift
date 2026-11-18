@@ -581,6 +581,13 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         return units.first { $0.coordinator.currentScreen?.frame.contains(mouse) == true }
     }
 
+    func utilityAnchorScreenRect(id: String) -> CGRect? {
+        if let active = unitContainingMouse()?.coordinator.popChipFrame.utilityScreenRect(id: id) {
+            return active
+        }
+        return units.compactMap { $0.coordinator.popChipFrame.utilityScreenRect(id: id) }.first
+    }
+
     private func unit(forDisplayUUID uuid: String) -> Unit? {
         if let unit = units.first(where: { $0.key == uuid }) { return unit }
         // ①② 的唯一单元 key 为 nil：按它此刻所在的屏匹配。

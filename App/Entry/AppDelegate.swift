@@ -235,6 +235,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var translatePanel = TranslatePanelController()
     private lazy var dictionaryPanel = DictionaryPanelController()
     private lazy var terminalPanel = TerminalPanelController()
+
+    private func liveUtilityAnchorRect(_ id: String) -> CGRect? {
+        panelCoordinator?.utilityAnchorScreenRect(id: id)
+    }
     private var terminationTask: Task<Void, Never>?
     private var terminationSignalSources: [DispatchSourceSignal] = []
     private var debugWindow: NSWindow?
@@ -399,8 +403,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                 case .peek: self.peek.pressed()
                 case .windowDrawer: self.windowDrawer.toggle()
-                case .openDictionary: self.dictionaryPanel.toggle()
-                case .toggleTerminal: self.terminalPanel.toggle()
+                case .openDictionary:
+                    self.dictionaryPanel.toggle(anchorRect: self.liveUtilityAnchorRect("utility-dictionary"))
+                case .toggleTerminal:
+                    self.terminalPanel.toggle(anchorRect: self.liveUtilityAnchorRect("utility-terminal"))
                 case .dictate: DictationController.shared.toggle()
                 case .dockFocus: NotificationCenter.default.post(name: .dockFocusToggle, object: nil)
                 case .weather: WidgetPanelController.weather.toggle()
@@ -1057,8 +1063,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         WindowSnapService.dockFrame = dockFrame
         runtime.onToggleDrawer = { [weak coordinator] in coordinator?.toggleDrawer() }
         runtime.onToggleLauncher = { [weak self] in self?.launcherPanel.toggle() }
-        runtime.onToggleDictionary = { [weak self] in self?.dictionaryPanel.toggle() }
-        runtime.onToggleTerminal = { [weak self] in self?.terminalPanel.toggle() }
+        dictionaryPanel.utilityConfigProvider = { [weak self] in self?.settingsStore.dockUtilities ?? .default }
+        dictionaryPanel.stripPlacementProvider = { [weak self] in self?.settingsStore.stripPlacement(forDisplay: nil) ?? .bottom }
+        dictionaryPanel.usesLiquidGlassProvider = { [weak coordinator] in coordinator?.units().first?.coordinator.usesLiquidGlass ?? false }
+        terminalPanel.utilityConfigProvider = { [weak self] in self?.settingsStore.dockUtilities ?? .default }
+        terminalPanel.stripPlacementProvider = { [weak self] in self?.settingsStore.stripPlacement(forDisplay: nil) ?? .bottom }
+        terminalPanel.usesLiquidGlassProvider = { [weak coordinator] in coordinator?.units().first?.coordinator.usesLiquidGlass ?? false }
+        runtime.onToggleDictionary = { [weak self] anchor in
+            self?.dictionaryPanel.toggle(anchorRect: anchor ?? self?.liveUtilityAnchorRect("utility-dictionary"))
+        }
+        runtime.onToggleTerminal = { [weak self] anchor in
+            self?.terminalPanel.toggle(anchorRect: anchor ?? self?.liveUtilityAnchorRect("utility-terminal"))
+        }
         runtime.onToggleControlCenter = { [weak self] in self?.controlCenterPanel.toggle() }
         runtime.onToggleKeepAwake = {
             let engine = QuickToggleEngine.shared

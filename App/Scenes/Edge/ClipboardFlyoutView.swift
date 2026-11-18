@@ -806,3 +806,75 @@ struct DockClipboardStackFlyoutView: View {
         .onTapGesture { monitor.copy(entry) }
     }
 }
+
+/// Hosted unified borderless-panel containers for `Screenshots` and `Clipboard` when presented by
+/// `PanelCoordinator`, reusing `StackUtilityBackdropHost` (`v` pointer or clean float).
+struct DockScreenshotsUtilityHostedView: View {
+    let context: StackPopupContext
+    let usesLiquidGlass: Bool
+    @Binding var isPinned: Bool
+    let onClose: () -> Void
+    let onContentResize: (CGSize) -> Void
+
+    private static let plateSize = CGSize(width: 316, height: 344)
+
+    var body: some View {
+        StackUtilityBackdropHost(plateSize: Self.plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
+            VStack(spacing: 0) {
+                HStack(spacing: 8) {
+                    Spacer()
+                    DockUtilityPinButton(isPinned: $isPinned)
+                    Button(action: onClose) {
+                        Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.75))
+                            .frame(width: 24, height: 24)
+                            .background(Circle().fill(.white.opacity(0.1)))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 10).padding(.horizontal, 14)
+                DockScreenshotsFlyoutView()
+            }
+            .frame(width: Self.plateSize.width, height: Self.plateSize.height, alignment: .top)
+        }
+        .onAppear {
+            let total = StackPopupMetrics.panelSize(forPlate: Self.plateSize)
+            onContentResize(total)
+        }
+    }
+}
+
+struct DockClipboardUtilityHostedView: View {
+    let context: StackPopupContext
+    let usesLiquidGlass: Bool
+    @Binding var isPinned: Bool
+    let onClose: () -> Void
+    let onContentResize: (CGSize) -> Void
+
+    private static let plateSize = CGSize(width: 316, height: 356)
+
+    var body: some View {
+        StackUtilityBackdropHost(plateSize: Self.plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
+            VStack(spacing: 0) {
+                HStack(spacing: 8) {
+                    Spacer()
+                    DockUtilityPinButton(isPinned: $isPinned)
+                    Button(action: onClose) {
+                        Image(systemName: "chevron.down").font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.75))
+                            .frame(width: 24, height: 24)
+                            .background(Circle().fill(.white.opacity(0.1)))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 10).padding(.horizontal, 14)
+                DockClipboardStackFlyoutView()
+            }
+            .frame(width: Self.plateSize.width, height: Self.plateSize.height, alignment: .top)
+        }
+        .onAppear {
+            let total = StackPopupMetrics.panelSize(forPlate: Self.plateSize)
+            onContentResize(total)
+        }
+    }
+}
