@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795015112.2328188,
-    "seen": 1795015314.3295,
-    "ast_hash": "245b683af80a10fb09cb31fb4d19f01f",
+    "mtime": 1795017241.7851622,
+    "seen": 1795017406.682261,
+    "ast_hash": "55204e1639fc8a2b790d941b2c1c5d1d",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -6912,9 +6912,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PopChip.swift": {
-    "mtime": 1793482161.7041497,
-    "seen": 1793764772.567199,
-    "ast_hash": "5ee885e05971585795b44c1e4c5ffd3e",
+    "mtime": 1795017235.7878785,
+    "seen": 1795017406.682334,
+    "ast_hash": "7b88c1383fed61439a3a804359459b47",
     "semantic_hash": ""
   },
   "App/Scenes/PopGridPopupView.swift": {
@@ -7200,9 +7200,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DictionaryTerminalDockWidgets.swift": {
-    "mtime": 1795015145.8225982,
-    "seen": 1795015314.329504,
-    "ast_hash": "b1de71a2d50b0d67ff78d4be17cecdf3",
+    "mtime": 1795017237.1429317,
+    "seen": 1795017406.682266,
+    "ast_hash": "c050d9a75e3e6eacb591ea1c47f724dc",
     "semantic_hash": ""
   },
   "App/Scenes/ToolChip.swift": {
