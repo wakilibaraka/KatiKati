@@ -615,3 +615,194 @@ extension MaccyKeyAction.Modifiers {
         self = set
     }
 }
+
+// MARK: - Dock Utilities Floating Card Stack Flyouts
+
+/// Floating Card Stack flyout for recent macOS screenshots (`TendederoClotheslineController`).
+struct DockScreenshotsFlyoutView: View {
+    @ObservedObject private var controller = TendederoClotheslineController.shared
+    @State private var hoveredID: UUID?
+
+    private var shots: [TendederoItem] {
+        controller.store.items.filter {
+            switch $0.kind {
+            case .screenshot, .imageData: return true
+            default: return false
+            }
+        }
+    }
+
+    var body: some View {
+        DockPreviewCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Label("Screenshots", systemImage: "camera.viewfinder")
+                        .font(.system(size: 12.5, weight: .semibold))
+                    Spacer()
+                    if !shots.isEmpty {
+                        Button("Clear") { controller.clearUnpinned() }
+                            .buttonStyle(.plain).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+
+                if shots.isEmpty {
+                    VStack(spacing: 6) {
+                        Image(systemName: "camera.viewfinder").font(.system(size: 22)).foregroundStyle(.secondary)
+                        Text("No recent screenshots").font(.system(size: 12, weight: .medium))
+                        Text("Captures and image drops appear here as draggable cards.")
+                            .font(.system(size: 10.5)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 16)
+                } else {
+                    ScrollView {
+                        VStack(spacing: -8) {
+                            ForEach(Array(shots.prefix(10).enumerated()), id: \.element.id) { idx, item in
+                                screenshotCardRow(item, idx: idx)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .frame(maxHeight: 270)
+                }
+            }
+        }
+        .onAppear {
+            controller.start()
+            controller.markAllRead()
+        }
+    }
+
+    @ViewBuilder
+    private func screenshotCardRow(_ item: TendederoItem, idx: Int) -> some View {
+        let isHovered = hoveredID == item.id
+        let scale: CGFloat = isHovered ? 1.02 : 1.0 - CGFloat(min(idx, 3)) * 0.01
+        let zVal: Double = isHovered ? 20 : Double(10 - min(idx, 9))
+        HStack(spacing: 10) {
+            screenshotThumb(item)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: item.title).font(.system(size: 11.5, weight: .medium)).lineLimit(1)
+                Text(controller.copiedID == item.id ? "Copied" : "Click copy · Space Quick Look")
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(controller.copiedID == item.id ? .green : .secondary)
+            }
+            Spacer(minLength: 4)
+            Button { controller.quickLook(item) } label: {
+                Image(systemName: "eye").font(.system(size: 11))
+            }.buttonStyle(.plain)
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.92))
+                .shadow(color: .black.opacity(0.18), radius: isHovered ? 6 : 2, y: 2)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Color.white.opacity(0.14)))
+        .scaleEffect(scale)
+        .zIndex(zVal)
+        .padding(.bottom, isHovered ? 10 : 6)
+        .onHover { hoveredID = $0 ? item.id : (hoveredID == item.id ? nil : hoveredID) }
+        .onTapGesture { controller.copy(item) }
+        .onDrag { controller.dragProvider(for: item) }
+    }
+
+    @ViewBuilder
+    private func screenshotThumb(_ item: TendederoItem) -> some View {
+        switch item.kind {
+        case .screenshot(let url):
+            if let img = NSImage(contentsOf: url) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 48, height: 34).clipShape(RoundedRectangle(cornerRadius: 6))
+            } else { Image(systemName: "photo").frame(width: 48, height: 34) }
+        case .imageData(let data):
+            if let img = NSImage(data: data) {
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 48, height: 34).clipShape(RoundedRectangle(cornerRadius: 6))
+            } else { Image(systemName: "photo").frame(width: 48, height: 34) }
+        default:
+            Image(systemName: "doc").frame(width: 48, height: 34)
+        }
+    }
+}
+
+/// Floating Card Stack flyout for Clipboard History anchored to the Dock Clipboard utility icon.
+struct DockClipboardStackFlyoutView: View {
+    @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+    @State private var query = ""
+    @State private var hoveredID: UUID?
+
+    private var entries: [ClipEntry] {
+        let base = monitor.history.entries
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return base }
+        return base.filter { $0.text.localizedStandardContains(trimmed) }
+    }
+
+    var body: some View {
+        DockPreviewCard {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Label("Clipboard", systemImage: "doc.on.clipboard")
+                        .font(.system(size: 12.5, weight: .semibold))
+                    Spacer()
+                    if !monitor.history.entries.isEmpty {
+                        Button("Clear") { monitor.clear() }
+                            .buttonStyle(.plain).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                TextField("Filter copies…", text: $query)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.small)
+
+                if entries.isEmpty {
+                    Text(monitor.isRecording ? "Nothing copied yet" : "Clipboard recording is off")
+                        .font(.system(size: 11.5)).foregroundStyle(.secondary).padding(.vertical, 14)
+                } else {
+                    ScrollView {
+                        VStack(spacing: -6) {
+                            ForEach(Array(entries.prefix(12).enumerated()), id: \.element.id) { idx, entry in
+                                clipboardCardRow(entry, idx: idx)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .frame(maxHeight: 270)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func clipboardCardRow(_ entry: ClipEntry, idx: Int) -> some View {
+        let isHovered = hoveredID == entry.id
+        let scale: CGFloat = isHovered ? 1.015 : 1.0 - CGFloat(min(idx, 3)) * 0.008
+        let zVal: Double = isHovered ? 20 : Double(12 - min(idx, 11))
+        HStack(spacing: 8) {
+            Image(systemName: entry.pinned ? "pin.fill" : "doc.text")
+                .font(.system(size: 10.5))
+                .foregroundStyle(entry.pinned ? Color.accentColor : .secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: ClipboardHistory.previewLine(entry.text))
+                    .font(.system(size: 11.5, weight: .medium)).lineLimit(2)
+                Text(verbatim: ClipboardToastBadge.badge(for: entry.text))
+                    .font(.system(size: 9.5)).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 4)
+            Button { monitor.pastePlain(entry) } label: {
+                Image(systemName: "doc.on.doc").font(.system(size: 10.5))
+            }.buttonStyle(.plain).help(Text("Paste"))
+            Button { monitor.togglePin(entry.id) } label: {
+                Image(systemName: entry.pinned ? "pin.slash" : "pin").font(.system(size: 10.5))
+            }.buttonStyle(.plain)
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.92))
+                .shadow(color: .black.opacity(0.16), radius: isHovered ? 5 : 2, y: 2)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Color.white.opacity(0.14)))
+        .scaleEffect(scale)
+        .zIndex(zVal)
+        .padding(.bottom, isHovered ? 8 : 5)
+        .onHover { hoveredID = $0 ? entry.id : (hoveredID == entry.id ? nil : hoveredID) }
+        .onTapGesture { monitor.copy(entry) }
+    }
+}

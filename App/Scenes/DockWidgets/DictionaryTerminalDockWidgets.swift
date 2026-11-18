@@ -1,21 +1,56 @@
 import SwiftUI
 
-/// Dictionary / Terminal as dock widgets: a compact glyph tile (no size presets). A click opens the panel.
-private struct ToolDockChip: View {
-    let symbol: String
-    let label: LocalizedStringKey
-    let onOpen: () -> Void
+/// Modern macOS Sequoia-style squircle utility badge shared across Mid-Dock Utilities tiles.
+struct ModernUtilitySquircleIcon: View {
+    let symbol: String?
+    var monogram: String? = nil
+    let gradient: [Color]
+    let tint: Color
+    var badgeCount: Int = 0
+    var size: CGFloat = 32.5
+    var label: LocalizedStringKey
+    let onTap: () -> Void
+
+    @State private var isHovered = false
 
     var body: some View {
-        HStack(spacing: 7) {
-            Image(systemName: symbol)
-                .font(.system(size: 15, weight: .medium))
-                .opacity(DockWidgetStyle.secondaryOpacity)
+        ZStack(alignment: .topTrailing) {
+            ZStack {
+                RoundedRectangle(cornerRadius: size * 0.24, style: .continuous)
+                    .fill(LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: size * 0.24, style: .continuous)
+                            .strokeBorder(Color.white.opacity(isHovered ? 0.34 : 0.18), lineWidth: 0.75)
+                    )
+                    .shadow(color: .black.opacity(0.24), radius: 2, y: 1)
+
+                if let monogram {
+                    Text(verbatim: monogram)
+                        .font(.system(size: size * 0.44, weight: .bold, design: .serif))
+                        .foregroundStyle(tint)
+                } else if let symbol {
+                    Image(systemName: symbol)
+                        .font(.system(size: size * 0.46, weight: .semibold))
+                        .foregroundStyle(tint)
+                }
+            }
+            .frame(width: size, height: size)
+
+            if badgeCount > 0 {
+                Text(verbatim: "\(min(badgeCount, 99))")
+                    .font(.system(size: 8.5, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 4).padding(.vertical, 1)
+                    .background(Capsule().fill(Color.accentColor))
+                    .offset(x: 3, y: -3)
+            }
         }
-        .frame(maxHeight: .infinity)
-        .dockWidgetChip()
+        .frame(width: max(size, 40), height: max(size, 40))
+        .scaleEffect(isHovered ? 1.07 : 1.0)
+        .animation(.spring(response: 0.22, dampingFraction: 0.72), value: isHovered)
         .contentShape(Rectangle())
-        .onTapGesture { onOpen() }
+        .onHover { isHovered = $0 }
+        .onTapGesture { onTap() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(label))
         .accessibilityAddTraits(.isButton)
@@ -24,31 +59,89 @@ private struct ToolDockChip: View {
 
 struct DictionaryDockChip: View {
     let onOpen: () -> Void
-    var body: some View { ToolDockChip(symbol: "character.book.closed", label: "Define…", onOpen: onOpen) }
+    var body: some View {
+        ModernUtilitySquircleIcon(
+            symbol: nil,
+            monogram: "Aa",
+            gradient: [Color(red: 0.34, green: 0.36, blue: 0.92), Color(red: 0.19, green: 0.21, blue: 0.64)],
+            tint: .white,
+            label: "Define…",
+            onTap: onOpen
+        )
+    }
 }
 
 struct TerminalDockChip: View {
     let onOpen: () -> Void
-    var body: some View { ToolDockChip(symbol: "terminal", label: "Terminal", onOpen: onOpen) }
+    var body: some View {
+        ModernUtilitySquircleIcon(
+            symbol: nil,
+            monogram: ">_",
+            gradient: [Color(red: 0.13, green: 0.16, blue: 0.19), Color(red: 0.06, green: 0.08, blue: 0.10)],
+            tint: Color(red: 0.28, green: 0.92, blue: 0.58),
+            label: "Terminal",
+            onTap: onOpen
+        )
+    }
+}
+
+struct ScreenshotsDockChip: View {
+    var count: Int = 0
+    let onTap: () -> Void
+    var body: some View {
+        ModernUtilitySquircleIcon(
+            symbol: "camera.viewfinder",
+            gradient: [Color(red: 0.16, green: 0.52, blue: 0.88), Color(red: 0.10, green: 0.28, blue: 0.62)],
+            tint: .white,
+            badgeCount: count,
+            label: "Screenshots",
+            onTap: onTap
+        )
+    }
+}
+
+struct ClipboardUtilityDockChip: View {
+    var count: Int = 0
+    let onTap: () -> Void
+    var body: some View {
+        ModernUtilitySquircleIcon(
+            symbol: "doc.on.clipboard.fill",
+            gradient: [Color(red: 0.24, green: 0.26, blue: 0.32), Color(red: 0.13, green: 0.14, blue: 0.18)],
+            tint: Color(red: 0.45, green: 0.78, blue: 1.0),
+            badgeCount: count,
+            label: "Clipboard",
+            onTap: onTap
+        )
+    }
 }
 
 struct RailDictionaryTile: View {
     var body: some View {
-        Image(systemName: "character.book.closed")
-            .font(.system(size: 13, weight: .semibold))
-            .frame(width: 28, height: 28)
-            .dockWidgetRailTile()
-            .accessibilityLabel(Text("Dictionary"))
+        ModernUtilitySquircleIcon(
+            symbol: nil,
+            monogram: "Aa",
+            gradient: [Color(red: 0.34, green: 0.36, blue: 0.92), Color(red: 0.19, green: 0.21, blue: 0.64)],
+            tint: .white,
+            size: 28,
+            label: "Dictionary",
+            onTap: {}
+        )
+        .frame(width: 28, height: 28)
     }
 }
 
 struct RailTerminalTile: View {
     var body: some View {
-        Image(systemName: "terminal")
-            .font(.system(size: 13, weight: .semibold))
-            .frame(width: 28, height: 28)
-            .dockWidgetRailTile()
-            .accessibilityLabel(Text("Terminal"))
+        ModernUtilitySquircleIcon(
+            symbol: nil,
+            monogram: ">_",
+            gradient: [Color(red: 0.13, green: 0.16, blue: 0.19), Color(red: 0.06, green: 0.08, blue: 0.10)],
+            tint: Color(red: 0.28, green: 0.92, blue: 0.58),
+            size: 28,
+            label: "Terminal",
+            onTap: {}
+        )
+        .frame(width: 28, height: 28)
     }
 }
 
