@@ -133,7 +133,7 @@ struct StackPopupChrome<Grid: View>: View {
                                    usesLiquidGlass: usesLiquidGlass)
             }
         }
-        .padding(.bottom, Metrics.arrowHeight)
+        .padding(.bottom, arrow.isHidden ? 0 : Metrics.arrowHeight)
         .padding(Metrics.panelMargin)
         // Only so the system scroller draws its light knob on this dark plate; nothing reads it.
         .environment(\.colorScheme, .dark)
@@ -289,4 +289,49 @@ struct StackSectionRuleLabel: View {
 /// Swift has no static stored properties in a generic type.
 private enum StackPopupScrollAnchor {
     static let tail = "stack-popup-grid-tail"
+}
+
+/// Shared dark/liquid-glass floating backdrop for utility panels (`Dictionary`, `Terminal`,
+/// `Screenshots`, `Clipboard`, `Downloads`) with optional downward `v` pointer aimed via `arrow`.
+struct StackUtilityBackdropHost<Content: View>: View {
+    let plateSize: CGSize
+    let usesLiquidGlass: Bool
+    @ObservedObject var arrow: StackPopupArrowModel
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        content()
+            .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
+            .clipShape(RoundedRectangle(cornerRadius: StackPopupMetrics.cornerRadius, style: .continuous))
+            .background {
+                StackPopupBackdrop(
+                    plateSize: plateSize,
+                    arrowCenterX: arrow.isHidden ? nil : plateSize.width / 2 + arrow.offsetFromCenter,
+                    usesLiquidGlass: usesLiquidGlass
+                )
+            }
+            .padding(.bottom, arrow.isHidden ? 0 : StackPopupMetrics.arrowHeight)
+            .padding(StackPopupMetrics.panelMargin)
+            .environment(\.colorScheme, .dark)
+    }
+}
+
+/// Consistent pin toggle button for keeping utility popups/cards open.
+struct DockUtilityPinButton: View {
+    @Binding var isPinned: Bool
+
+    var body: some View {
+        Button {
+            isPinned.toggle()
+        } label: {
+            Image(systemName: isPinned ? "pin.fill" : "pin")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(isPinned ? Color.orange : Color.white.opacity(0.75))
+                .frame(width: 24, height: 24)
+                .background(Circle().fill(Color.white.opacity(isPinned ? 0.22 : 0.1)))
+        }
+        .buttonStyle(.plain)
+        .help(Text(isPinned ? "Unpin Window" : "Pin Open"))
+        .accessibilityLabel(Text(isPinned ? "Unpin Window" : "Pin Open"))
+    }
 }

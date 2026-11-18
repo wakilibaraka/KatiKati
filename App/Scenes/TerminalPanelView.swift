@@ -61,20 +61,23 @@ private struct TerminalHost: NSViewRepresentable {
 }
 
 struct TerminalPanelView: View {
+    static let plateSize = CGSize(width: 680, height: 420)
+
     @ObservedObject var model: TerminalPanelModel
+    @ObservedObject var arrow: StackPopupArrowModel
+    let usesLiquidGlass: Bool
+    @Binding var isPinned: Bool
     let onClose: () -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            tabStrip
-            Divider().opacity(0.4)
-            TerminalHost(session: model.selectedSession).frame(minHeight: 300)
+        StackUtilityBackdropHost(plateSize: Self.plateSize, usesLiquidGlass: usesLiquidGlass, arrow: arrow) {
+            VStack(spacing: 0) {
+                tabStrip
+                Divider().opacity(0.28)
+                TerminalHost(session: model.selectedSession).frame(minHeight: 300)
+            }
+            .frame(width: Self.plateSize.width, height: Self.plateSize.height)
         }
-        .frame(width: 680, height: 420)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
-        .environment(\.colorScheme, .dark)
     }
 
     private var tabStrip: some View {
@@ -97,10 +100,11 @@ struct TerminalPanelView: View {
                     .accessibilityLabel(Text("New Tab"))
             }
             Spacer()
+            DockUtilityPinButton(isPinned: $isPinned)
             Button(action: onClose) { Image(systemName: "chevron.down") }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Hide Terminal"))
         }
-        .padding(.horizontal, 10).padding(.vertical, 6)
+        .padding(.horizontal, 14).padding(.vertical, 8)
     }
 }

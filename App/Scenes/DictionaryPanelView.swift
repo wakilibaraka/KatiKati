@@ -26,29 +26,33 @@ final class DictionaryPanelModel: ObservableObject {
 /// The dictionary card: search field, big serif headword + phonetic, numbered senses with examples, origin,
 /// and a bottom bar to look up / copy. Source is the system dictionary only (offline).
 struct DictionaryPanelView: View {
+    static let plateSize = CGSize(width: 460, height: 500)
+
     @ObservedObject var model: DictionaryPanelModel
+    @ObservedObject var arrow: StackPopupArrowModel
+    let usesLiquidGlass: Bool
+    @Binding var isPinned: Bool
     let onClose: () -> Void
     @FocusState private var focused: Bool
 
     var body: some View {
-        VStack(spacing: 0) {
-            searchRow
-            Divider().opacity(0.4)
-            ScrollView { content.padding(18).frame(maxWidth: .infinity, alignment: .leading) }
-            Divider().opacity(0.4)
-            bottomBar
+        StackUtilityBackdropHost(plateSize: Self.plateSize, usesLiquidGlass: usesLiquidGlass, arrow: arrow) {
+            VStack(spacing: 0) {
+                searchRow
+                Divider().opacity(0.28)
+                ScrollView { content.padding(18).frame(maxWidth: .infinity, alignment: .leading) }
+                Divider().opacity(0.28)
+                bottomBar
+            }
+            .frame(width: Self.plateSize.width, height: Self.plateSize.height)
         }
-        .frame(width: 460, height: 520)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Color.white.opacity(0.12)))
-        .environment(\.colorScheme, .dark)
         .onAppear { focused = true }
         .onExitCommand(perform: onClose)
     }
 
     private var searchRow: some View {
         HStack(spacing: 8) {
-            Button(action: onClose) { Image(systemName: "chevron.left") }
+            Button(action: onClose) { Image(systemName: "chevron.down") }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Close"))
             TextField("Look up a word", text: $model.query)
@@ -57,8 +61,9 @@ struct DictionaryPanelView: View {
                 .focused($focused)
                 .onSubmit { model.lookup(model.query) }
             Image(systemName: "magnifyingglass").opacity(0.5)
+            DockUtilityPinButton(isPinned: $isPinned)
         }
-        .padding(.horizontal, 14).padding(.vertical, 12)
+        .padding(.horizontal, 16).padding(.vertical, 12)
     }
 
     @ViewBuilder private var content: some View {

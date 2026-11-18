@@ -1,8 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// The Dictionary panel: a floating glass card above the dock. Key-capable (it has a text field), closes on
-/// Esc, on losing key, or from the chevron. Opened by the dock chip / widget, or with a word via `show(word:)`.
+/// The Dictionary panel: glass card anchored above the Dictionary Dock icon with a `v` pointer
+/// by default, or floating cleanly at Bottom / Center Float without `v`. Key-capable; closes on
+/// Esc, chevron, toggling the icon, or outside click according to `UtilityDismissalBehavior`.
 @MainActor
 final class DictionaryPanelController {
     private final class DictionaryPanel: NonConstrainingPanel {
@@ -12,20 +13,45 @@ final class DictionaryPanelController {
 
     private var panel: NSPanel?
     private let model = DictionaryPanelModel()
+    private let arrow = StackPopupArrowModel()
     private var resignObserver: NSObjectProtocol?
+    private var anchorRect: CGRect?
+    private var isPinned = false
+
+    var utilityConfigProvider: () -> DockUtilitiesConfig = { .default }
+    var stripPlacementProvider: () -> StripPlacement = { .bottom }
+    var usesLiquidGlassProvider: () -> Bool = { false }
 
     var isShown: Bool { panel?.isVisible ?? false }
 
-    func toggle() { isShown ? dismiss() : show(word: nil) }
+    func toggle(anchorRect: CGRect? = nil) {
+        if let anchorRect { self.anchorRect = anchorRect }
+        isShown ? dismiss() : show(word: nil, anchorRect: anchorRect)
+    }
 
-    func show(word: String?) {
-        guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else { return }
+    func show(word: String?, anchorRect: CGRect? = nil) {
+        if let anchorRect { self.anchorRect = anchorRect }
+        let targetScreen = anchorRect.flatMap { rect in NSScreen.screens.first { $0.frame.intersects(rect) } }
+            ?? NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) })
+            ?? NSScreen.main
+        guard let screen = targetScreen else { return }
+
         let panel = self.panel ?? makePanel()
         self.panel = panel
         if let word { model.lookup(word) }
-        let size = panel.contentView?.fittingSize ?? NSSize(width: 460, height: 520)
-        let f = screen.visibleFrame
-        panel.setFrame(NSRect(x: f.midX - size.width / 2, y: f.minY + 80, width: size.width, height: size.height), display: true)
+
+        let cfg = utilityConfigProvider()
+        let layout = PanelGeometry.utilityPanelFrame(
+            plateSize: DictionaryPanelView.plateSize,
+            anchorVisibleRect: self.anchorRect,
+            placement: cfg.popoverPlacement,
+            flyoutPreset: cfg.flyoutPreset,
+            stripPlacement: stripPlacementProvider(),
+            on: PanelCoordinator.screenGeometry(screen)
+        )
+        arrow.isHidden = !layout.showsArrow
+        arrow.offsetFromCenter = layout.arrowOffsetFromCenter
+        panel.setFrame(layout.frame, display: true)
         panel.makeKeyAndOrderFront(nil)
     }
 
@@ -36,12 +62,34 @@ final class DictionaryPanelController {
         panel.level = .floating
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = true
+        panel.hasShadow = false
         panel.isReleasedWhenClosed = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
-        panel.contentView = NSHostingView(rootView: DictionaryPanelView(model: model) { [weak self] in self?.dismiss() })
+        let view = DictionaryPanelView(
+            model: model,
+            arrow: arrow,
+            usesLiquidGlass: usesLiquidGlassProvider(),
+            isPinned: Binding(get: { [weak self] in self?.isPinned ?? false },
+                              set: { [weak self] in self?.isPinned = $0 }),
+            onClose: { [weak self] in self?.dismiss() }
+        )
+        panel.contentView = NSHostingView(rootView: view)
         resignObserver = NotificationCenter.default.addObserver(forName: NSWindow.didResignKeyNotification, object: panel, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.dismiss() }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Exclude clicks inside the Dock Dictionary icon so toggle() handles close cleanly.
+                if let anchor = self.anchorRect, anchor.insetBy(dx: -6, dy: -6).contains(NSEvent.mouseLocation) {
+                    return
+                }
+                let cfg = self.utilityConfigProvider()
+                if cfg.dismissalBehavior.dismissesOnOutsideClick(
+                    isTerminal: false,
+                    placement: cfg.effectivePlacementForPreset,
+                    isPinned: self.isPinned
+                ) {
+                    self.dismiss()
+                }
+            }
         }
         return panel
     }

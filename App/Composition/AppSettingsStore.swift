@@ -226,8 +226,14 @@ final class AppSettingsStore: ObservableObject {
 
     /// Slice DI-1: Dictionary and Terminal are `BarSection` modules, so these two switches are a view of
     /// the module list — one control (the module's eye) and one stored truth, never a second flag.
-    var showDictionaryChip: Bool { widgetLayout.instance(for: .dictionary).isVisible }
-    var showTerminalChip: Bool { widgetLayout.instance(for: .terminal).isVisible }
+    var showDictionaryChip: Bool {
+        widgetLayout.instance(for: .dictionary).isVisible
+            || (widgetLayout.instance(for: .utilities).isVisible && !dockUtilities.hidden.contains(.dictionary))
+    }
+    var showTerminalChip: Bool {
+        widgetLayout.instance(for: .terminal).isVisible
+            || (widgetLayout.instance(for: .utilities).isVisible && !dockUtilities.hidden.contains(.terminal))
+    }
     /// Where the Control Centre disc lives. On (default): it holds the bar's trailing end and the
     /// drawer capsule moves one slot in. Off: the capsule keeps the trailing end (pre-2026-10-21).
     @Published private(set) var controlCentreTrailing: Bool
@@ -603,13 +609,17 @@ final class AppSettingsStore: ObservableObject {
         // still hides the module — read once, and only while no layout has ever been saved, because a
         // rearranged dock is already the newer truth.
         if defaults.object(forKey: WidgetLayout.defaultsKey) == nil {
-            let showDict = defaults.bool(forKey: Keys.showDictionaryChip)
-            let showTerm = defaults.bool(forKey: Keys.showTerminalChip)
-            dockUtilities = DockUtilitiesConfig()
-                .setting(.drawer, visible: defaults.bool(forKey: Keys.showDrawer))
-                .setting(.trash, visible: defaults.bool(forKey: Keys.showTrash))
-                .setting(.dictionary, visible: showDict)
-                .setting(.terminal, visible: showTerm)
+            if let savedUtilities = DockUtilitiesConfig.decode(defaults.data(forKey: DockUtilitiesConfig.defaultsKey)) {
+                dockUtilities = savedUtilities
+            } else {
+                let showDict = defaults.bool(forKey: Keys.showDictionaryChip)
+                let showTerm = defaults.bool(forKey: Keys.showTerminalChip)
+                dockUtilities = DockUtilitiesConfig()
+                    .setting(.drawer, visible: defaults.bool(forKey: Keys.showDrawer))
+                    .setting(.trash, visible: defaults.bool(forKey: Keys.showTrash))
+                    .setting(.dictionary, visible: showDict)
+                    .setting(.terminal, visible: showTerm)
+            }
             storedWidgetLayout = storedWidgetLayout
                 .updating(.dictionary) { $0.isVisible = false }
                 .updating(.terminal) { $0.isVisible = false }
@@ -1473,8 +1483,26 @@ final class AppSettingsStore: ObservableObject {
 
     /// Slice DI-1: the modules' own eye toggles write the layout; these two names stay for callers and
     /// for the old keys' one-time migration, so there is still only one stored switch.
-    func setShowDictionaryChip(_ value: Bool) { setWidgetVisible(value, for: .dictionary) }
-    func setShowTerminalChip(_ value: Bool) { setWidgetVisible(value, for: .terminal) }
+    func setShowDictionaryChip(_ value: Bool) {
+        if widgetLayout.instance(for: .utilities).isVisible {
+            setDockUtilityVisible(.dictionary, value)
+            if widgetLayout.instance(for: .dictionary).isVisible {
+                setWidgetVisible(false, for: .dictionary)
+            }
+        } else {
+            setWidgetVisible(value, for: .dictionary)
+        }
+    }
+    func setShowTerminalChip(_ value: Bool) {
+        if widgetLayout.instance(for: .utilities).isVisible {
+            setDockUtilityVisible(.terminal, value)
+            if widgetLayout.instance(for: .terminal).isVisible {
+                setWidgetVisible(false, for: .terminal)
+            }
+        } else {
+            setWidgetVisible(value, for: .terminal)
+        }
+    }
 
     func setWidgetVisible(_ isVisible: Bool, for section: BarSection) {
         guard widgetLayout.instance(for: section).isVisible != isVisible else { return }
@@ -1757,6 +1785,29 @@ final class AppSettingsStore: ObservableObject {
         setDockUtilities(.default)
         setShowDrawer(true)
         setShowTrash(true)
+    }
+
+    func setUtilityPopoverPlacement(_ placement: UtilityPopoverPlacement) {
+        var next = dockUtilities
+        next.popoverPlacement = placement
+        setDockUtilities(next)
+    }
+
+    func setUtilityFlyoutPreset(_ preset: UtilityFlyoutPreset) {
+        var next = dockUtilities
+        next.flyoutPreset = preset
+        if preset == .cleanFloat && next.popoverPlacement == .anchored {
+            next.popoverPlacement = .bottomFloat
+        } else if preset != .cleanFloat && next.popoverPlacement == .bottomFloat && dockUtilities.flyoutPreset == .cleanFloat {
+            next.popoverPlacement = .anchored
+        }
+        setDockUtilities(next)
+    }
+
+    func setUtilityDismissalBehavior(_ behavior: UtilityDismissalBehavior) {
+        var next = dockUtilities
+        next.dismissalBehavior = behavior
+        setDockUtilities(next)
     }
 
     private func setDockUtilities(_ next: DockUtilitiesConfig) {
