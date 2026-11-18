@@ -136,4 +136,41 @@ final class AgentApprovalTests: XCTestCase {
         XCTAssertTrue(script.contains("trap"), "pending files are cleaned up when the script exits")
         XCTAssertTrue(script.contains(ClaudeHookConfig.approvalMarker))
     }
+
+    // MARK: - SLICE NL-2: Live Session, Swarm & Permission Policy Tests
+
+    func testLiveSessionReducerAndSubagentSwarm() {
+        let t1 = Date(timeIntervalSince1970: 2_000)
+        var session = AgentLiveSession(provider: .codexCLI, sessionId: "s1", workspaceName: "KatiKati", startedAt: t1, lastUpdated: t1)
+        session.apply(.turnStarted(now: t1))
+        XCTAssertEqual(session.state, .thinking)
+        session.apply(.callingTool(name: "Edit", target: "NotchAIPageView.swift", addedLines: 40, deletedLines: 10, now: t1.addingTimeInterval(5)))
+        session.apply(.subagentStarted(id: "sub1", title: "Run tests", now: t1.addingTimeInterval(6)))
+        XCTAssertEqual(session.subagents.count, 1)
+        session.apply(.subagentStopped(id: "sub1", failed: false, now: t1.addingTimeInterval(15)))
+        XCTAssertTrue(session.subagents[0].isCompleted)
+        session.apply(.turnCompleted(summary: "Updated UI", now: t1.addingTimeInterval(20)))
+        XCTAssertEqual(session.state, .completed(summary: "Updated UI", duration: 20, changedLines: 50))
+    }
+
+    func testPermissionPolicyReadOnlySafelistRejectsMutations() {
+        let readReq = AgentApprovalRequest(id: "1-1", toolName: "Read", summary: "/a/b.swift", detail: nil, cwd: nil, created: t0, provider: .claudeCode)
+        let diffReq = AgentApprovalRequest(id: "1-2", toolName: "Bash", summary: "git status", detail: nil, cwd: nil, created: t0, provider: .codexCLI)
+        let writeReq = AgentApprovalRequest(id: "1-3", toolName: "Write", summary: "/a/b.swift", detail: nil, cwd: nil, created: t0)
+        let chainReq = AgentApprovalRequest(id: "1-4", toolName: "Bash", summary: "git status && rm -rf /", detail: nil, cwd: nil, created: t0)
+        XCTAssertFalse(AgentPermissionPolicy.shouldAutoApprove(readReq, enabled: false))
+        XCTAssertTrue(AgentPermissionPolicy.shouldAutoApprove(readReq, enabled: true))
+        XCTAssertTrue(AgentPermissionPolicy.shouldAutoApprove(diffReq, enabled: true))
+        XCTAssertFalse(AgentPermissionPolicy.shouldAutoApprove(writeReq, enabled: true))
+        XCTAssertFalse(AgentPermissionPolicy.shouldAutoApprove(chainReq, enabled: true))
+    }
+
+    func testWatchdogMarksStuckSession() {
+        let t1 = Date(timeIntervalSince1970: 3_000)
+        var session = AgentLiveSession(provider: .claudeCode, sessionId: "s2", workspaceName: "App", startedAt: t1, state: .thinking, lastUpdated: t1)
+        session.checkWatchdog(now: t1.addingTimeInterval(120))
+        XCTAssertEqual(session.state, .thinking)
+        session.checkWatchdog(now: t1.addingTimeInterval(200))
+        XCTAssertEqual(session.state, .stuck(idleSeconds: 200))
+    }
 }

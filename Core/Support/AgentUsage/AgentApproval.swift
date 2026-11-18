@@ -20,6 +20,7 @@ struct AgentApprovalRequest: Equatable, Identifiable, Sendable {
     var detail: String?
     var cwd: String?
     var created: Date
+    var provider: AIProviderKind = .claudeCode
 }
 
 enum AgentApproval {
@@ -46,12 +47,26 @@ enum AgentApproval {
         let input = object["tool_input"] as? [String: Any] ?? [:]
         let full = primaryText(tool: tool, input: input)
         let oneLine = collapse(full)
+        let rawProvider = (object["provider"] as? String ?? object["agent"] as? String ?? "").lowercased()
+        let provider = resolveProvider(rawProvider)
         return AgentApprovalRequest(
             id: id, toolName: tool,
             summary: truncate(oneLine, to: summaryLimit),
             detail: full.count > summaryLimit || full.contains("\n") ? truncate(full.trimmingCharacters(in: .whitespacesAndNewlines), to: detailLimit) : nil,
             cwd: object["cwd"] as? String,
-            created: created)
+            created: created,
+            provider: provider)
+    }
+
+    private static func resolveProvider(_ raw: String) -> AIProviderKind {
+        if raw.contains("codex") { return .codexCLI }
+        if raw.contains("cursor") { return .cursor }
+        if raw.contains("gemini") { return .geminiCLI }
+        if raw.contains("windsurf") { return .windsurf }
+        if raw.contains("aider") { return .aider }
+        if raw.contains("ollama") { return .ollama }
+        if raw.contains("openrouter") { return .openRouter }
+        return .claudeCode
     }
 
     /// The most telling field of the tool's input. Unknown tools fall back to their first text value.
@@ -133,4 +148,22 @@ enum AgentApproval {
     done
     exit 0
     """#
+}
+
+enum AgentPermissionPolicy {
+    static let autoApproveReadOnlyKey = "com.katikati.agent.autoApproveReadOnly"
+    static let readOnlyTools: Set<String> = ["Read", "Grep", "Glob", "LS", "WebFetch", "WebSearch"]
+
+    static func isReadOnlyTool(toolName: String, summary: String) -> Bool {
+        if readOnlyTools.contains(toolName) { return true }
+        guard toolName == "Bash" else { return false }
+        let cmd = summary.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let unsafeTokens = [";", "&&", "||", "|", ">", "<", "`", "$(", "rm ", "mv ", "cp ", "chmod ", "chown ", "git push", "git reset", "git checkout", "git commit", "git merge", "git rebase"]
+        guard !unsafeTokens.contains(where: { cmd.contains($0) }) else { return false }
+        return cmd.hasPrefix("git status") || cmd.hasPrefix("git diff") || cmd.hasPrefix("git log") || cmd == "pwd" || cmd.hasPrefix("ls")
+    }
+
+    static func shouldAutoApprove(_ request: AgentApprovalRequest, enabled: Bool) -> Bool {
+        enabled && isReadOnlyTool(toolName: request.toolName, summary: request.summary)
+    }
 }

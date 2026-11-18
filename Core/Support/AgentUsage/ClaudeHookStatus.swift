@@ -27,3 +27,96 @@ enum ClaudeHookStatus {
         return nil
     }
 }
+
+// MARK: - SLICE NL-2: Multi-Agent Live Session, Sub-Agent Swarm & Quota Models
+
+struct SubAgentTask: Identifiable, Equatable, Codable, Sendable {
+    var id: String
+    var title: String
+    var isCompleted: Bool = false
+    var failed: Bool = false
+}
+
+enum AgentSessionState: Equatable, Sendable {
+    case idle
+    case thinking
+    case callingTool(name: String, target: String?)
+    case awaitingPermission(promptId: String, tool: String, command: String, isReadOnly: Bool)
+    case completed(summary: String, duration: TimeInterval, changedLines: Int)
+    case error(message: String)
+    case stuck(idleSeconds: Int)
+}
+
+enum AgentLifecycleEvent: Equatable, Sendable {
+    case turnStarted(now: Date)
+    case callingTool(name: String, target: String?, addedLines: Int, deletedLines: Int, now: Date)
+    case toolFinished(failed: Bool, now: Date)
+    case subagentStarted(id: String, title: String, now: Date)
+    case subagentStopped(id: String, failed: Bool, now: Date)
+    case awaitingPermission(promptId: String, tool: String, command: String, isReadOnly: Bool, now: Date)
+    case turnCompleted(summary: String, now: Date)
+    case failed(message: String, now: Date)
+}
+
+struct AgentLiveSession: Identifiable, Equatable, Sendable {
+    var id: String { sessionId }
+    var provider: AIProviderKind
+    var sessionId: String
+    var workspaceName: String
+    var startedAt: Date
+    var state: AgentSessionState = .idle
+    var subagents: [SubAgentTask] = []
+    var addedLines: Int = 0
+    var deletedLines: Int = 0
+    var lastUpdated: Date
+
+    mutating func apply(_ event: AgentLifecycleEvent) {
+        switch event {
+        case .turnStarted(let now):
+            startedAt = now; lastUpdated = now; state = .thinking
+        case .callingTool(let name, let target, let add, let del, let now):
+            lastUpdated = now; addedLines += max(0, add); deletedLines += max(0, del)
+            state = .callingTool(name: name, target: target)
+        case .toolFinished(let failed, let now):
+            lastUpdated = now
+            state = failed ? .error(message: "Tool execution failed") : .thinking
+        case .subagentStarted(let sid, let title, let now):
+            lastUpdated = now
+            if let i = subagents.firstIndex(where: { $0.id == sid }) {
+                subagents[i].title = title; subagents[i].isCompleted = false; subagents[i].failed = false
+            } else {
+                subagents.append(SubAgentTask(id: sid, title: title))
+            }
+        case .subagentStopped(let sid, let failed, let now):
+            lastUpdated = now
+            if let i = subagents.firstIndex(where: { $0.id == sid }) {
+                subagents[i].isCompleted = true; subagents[i].failed = failed
+            }
+        case .awaitingPermission(let pid, let tool, let cmd, let readOnly, let now):
+            lastUpdated = now
+            state = .awaitingPermission(promptId: pid, tool: tool, command: cmd, isReadOnly: readOnly)
+        case .turnCompleted(let summary, let now):
+            lastUpdated = now
+            state = .completed(summary: summary, duration: max(0, now.timeIntervalSince(startedAt)), changedLines: addedLines + deletedLines)
+        case .failed(let msg, let now):
+            lastUpdated = now; state = .error(message: msg)
+        }
+    }
+
+    mutating func checkWatchdog(now: Date, stuckThreshold: TimeInterval = 180) {
+        switch state {
+        case .thinking, .callingTool:
+            let elapsed = now.timeIntervalSince(lastUpdated)
+            if elapsed >= stuckThreshold { state = .stuck(idleSeconds: Int(elapsed)) }
+        default: break
+        }
+    }
+}
+
+struct AgentQuotaSnapshot: Equatable, Sendable {
+    var provider: AIProviderKind
+    var fiveHourUsedPercent: Double?
+    var dailyCostUSD: Double
+    var tokensPerSecond: Double?
+    var localVRAMMB: Int?
+}
