@@ -198,6 +198,9 @@ struct DockWingHostView: View {
             sizeMenuItem(Text("Large"), size: .large, current: currentSize)
         }
         Divider()
+        pinSurfaceButton(String(localized: "Pin to Drawer"), preset: currentPreset, size: currentSize, surface: .drawer)
+        pinSurfaceButton(String(localized: "Pin to Floating Stack"), preset: currentPreset, size: currentSize, surface: .floatingStack)
+        Divider()
         if stripPlacement.isVertical {
             Button("Swap Top & Bottom Wings") { settingsStore.swapDockWings() }
         } else {
@@ -208,6 +211,29 @@ struct DockWingHostView: View {
         }
         Button("Hide Wing") {
             settingsStore.setDockWing(.none, placement: placement)
+        }
+    }
+
+    @ViewBuilder
+    private func pinSurfaceButton(
+        _ title: String,
+        preset: DockWidgetPresetType,
+        size: WidgetSize,
+        surface: WidgetSurfaceKind
+    ) -> some View {
+        let isPinned = settingsStore.surfaceWidgets.attachments(for: surface).contains { $0.preset == preset }
+        Button {
+            if isPinned {
+                settingsStore.unpinSurfaceWidget(preset, from: surface)
+            } else {
+                settingsStore.pinSurfaceWidget(preset, size: size, to: surface)
+            }
+        } label: {
+            if isPinned {
+                Label(title, systemImage: "checkmark")
+            } else {
+                Text(title)
+            }
         }
     }
 
