@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1793767996.096201,
-    "seen": 1793768667.147416,
-    "ast_hash": "94472c0a6b732e2e6e121665f6cf74c1",
+    "mtime": 1795028293.634803,
+    "seen": 1795028379.183181,
+    "ast_hash": "f36178ed58486c77c3b9aa8f6f3e91cb",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795019144.600694,
-    "seen": 1795019625.0814269,
-    "ast_hash": "f9017111b55b103e7a81f4d9660d70bb",
+    "mtime": 1795028332.2354815,
+    "seen": 1795028379.183199,
+    "ast_hash": "8c39be20422670900486a720b80533ea",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1326,10 +1326,10 @@
     "semantic_hash": "594ec7c645ed88895339faf92a8b7982"
   },
   "App/Scenes/WidgetEditMode.swift": {
-    "mtime": 1791999130.7904952,
-    "seen": 1792295707.0605068,
-    "ast_hash": "4d46296c5fca8ef5d5a3a246b367c557",
-    "semantic_hash": "4d46296c5fca8ef5d5a3a246b367c557"
+    "mtime": 1795028290.4464183,
+    "seen": 1795028379.183328,
+    "ast_hash": "625bee841bcbd9a3984b3baa539a7e4c",
+    "semantic_hash": ""
   },
   "App/Scenes/WidgetExtraTiles.swift": {
     "mtime": 1792545375.5090878,
