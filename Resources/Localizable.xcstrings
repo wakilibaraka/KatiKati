@@ -5071,83 +5071,6 @@
         }
       }
     },
-    "A quick tap on Caps Lock does nothing; hold it briefly to switch Caps Lock. It needs the Accessibility permission to send the toggle, and does nothing while Hyper Key is on because Caps Lock then becomes F18.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A quick tap on Caps Lock does nothing; hold it briefly to switch Caps Lock. It needs the Accessibility permission to send the toggle, and does nothing while Hyper Key is on because Caps Lock then becomes F18."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "快速轻按 Caps Lock 不会生效；短暂按住即可切换 Caps Lock。发送切换事件需要辅助功能权限；开启 Hyper 键后 Caps Lock 会变为 F18，此功能不生效。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "快速輕按 Caps Lock 不會生效；短暫按住即可切換 Caps Lock。傳送切換事件需要輔助使用權限；開啟 Hyper 鍵後 Caps Lock 會變為 F18，此功能不生效。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caps Lock をすばやく叩いても何も起こらず、少し長押しすると切り替わります。切り替えの送信にはアクセシビリティ権限が必要です。Hyper キーがオンの間は Caps Lock が F18 になるため、この機能は動作しません。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein kurzes Tippen auf die Feststelltaste bewirkt nichts; kurz halten schaltet sie um. Das Senden benötigt die Bedienungshilfen-Berechtigung. Bei aktiver Hyper-Taste wird Caps Lock zu F18 und die Funktion ist inaktiv."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une pression rapide sur Verr. maj. ne fait rien ; maintenez-la brièvement pour basculer. L'envoi nécessite l'autorisation Accessibilité. Quand la touche Hyper est active, Verr. maj. devient F18 et cette fonction est inactive."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un toque rápido en Bloq Mayús no hace nada; manténlo brevemente para cambiarlo. Enviar el cambio requiere el permiso de Accesibilidad. Con la tecla Hyper activa, Bloq Mayús pasa a ser F18 y esta función no se aplica."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un toque rápido en Bloq Mayús no hace nada; mantenlo brevemente para cambiarlo. Enviar el cambio requiere el permiso de Accesibilidad. Con la tecla Hyper activa, Bloq Mayús pasa a ser F18 y esta función no se aplica."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um toque rápido em Caps Lock não faz nada; segure brevemente para alterná-lo. O envio exige a permissão de Acessibilidade. Com a tecla Hyper ativa, o Caps Lock vira F18 e este recurso não se aplica."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um toque rápido em Caps Lock não faz nada; mantenha brevemente para o alternar. O envio requer a permissão de Acessibilidade. Com a tecla Hyper ativa, o Caps Lock passa a F18 e esta funcionalidade não se aplica."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un tocco rapido su Bloc Maiusc non fa nulla; tienilo premuto brevemente per attivarlo. L'invio richiede il permesso Accessibilità. Con il tasto Hyper attivo, Bloc Maiusc diventa F18 e questa funzione non si applica."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caps Lock을 빠르게 누르면 아무 일도 일어나지 않으며, 잠시 길게 누르면 전환됩니다. 전환 이벤트를 보내려면 손쉬운 사용 권한이 필요합니다. Hyper 키가 켜져 있으면 Caps Lock이 F18이 되므로 이 기능은 동작하지 않습니다."
-          }
-        }
-      }
-    },
     "A small glass orb over your windows; click it to open the launcher, drag it anywhere.": {
       "extractionState": "manual",
       "localizations": {
@@ -19424,82 +19347,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "클립보드 기록이 꺼져 있습니다"
-          }
-        }
-      }
-    },
-    "Clipboard, commands, snippets, and shelf.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "剪贴板、命令、片段和文件架。"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clipboard, commands, snippets, and shelf."
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "剪貼簿、命令、片段和文件架。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "クリップボード、コマンド、スニペット、シェルフ。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Zwischenablage, Befehle, Snippets und Ablage."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Presse-papiers, commandes, extraits et étagère."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Portapapeles, comandos, fragmentos y estante."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Portapapeles, comandos, fragmentos y estante."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Área de transferência, comandos, trechos e prateleira."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Área de transferência, comandos, fragmentos e prateleira."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "Appunti, comandi, frammenti e mensola."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "클립보드, 명령, 스니펫 및 선반."
           }
         }
       }
@@ -40150,83 +39997,6 @@
         }
       }
     },
-    "Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper turns Caps Lock into ⌃⌥⇧⌘. It listens to keyboard events only, needs the Input Monitoring permission, and Caps Lock is restored when you turn it off or quit."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper 会把大写锁定键变成 ⌃⌥⇧⌘。它只监听键盘事件，需要“输入监控”权限；关闭或退出时会还原大写锁定键。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper 會把大寫鎖定鍵變成 ⌃⌥⇧⌘。它只監聽鍵盤事件，需要「輸入監控」權限；關閉或結束時會還原大寫鎖定鍵。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HyperはCaps Lockを⌃⌥⇧⌘に変えます。キーボードイベントのみを監視し、入力監視の許可が必要です。オフにするか終了するとCaps Lockは元に戻ります。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper macht die Feststelltaste zu ⌃⌥⇧⌘. Es werden nur Tastaturereignisse überwacht; die Berechtigung „Eingabeüberwachung“ ist nötig. Beim Ausschalten oder Beenden wird die Feststelltaste wiederhergestellt."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper transforme Verr. Maj en ⌃⌥⇧⌘. Seuls les événements clavier sont écoutés, l’autorisation Surveillance de l’entrée est requise, et Verr. Maj est restaurée à la désactivation ou à la fermeture."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper convierte Bloq Mayús en ⌃⌥⇧⌘. Solo escucha eventos de teclado, requiere el permiso de Supervisión de entrada y Bloq Mayús se restaura al desactivarlo o salir."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper convierte Bloq Mayús en ⌃⌥⇧⌘. Solo escucha eventos de teclado, requiere el permiso de Monitoreo de entrada y Bloq Mayús se restaura al desactivarlo o salir."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O Hyper transforma o Caps Lock em ⌃⌥⇧⌘. Só escuta eventos de teclado, precisa da permissão de Monitorização de Entrada e o Caps Lock é restaurado ao desativar ou sair."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O Hyper transforma o Caps Lock em ⌃⌥⇧⌘. Só escuta eventos de teclado, precisa da permissão de Monitorização de Entrada e o Caps Lock é restaurado ao desativar ou sair."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper trasforma Blocco Maiusc in ⌃⌥⇧⌘. Ascolta solo gli eventi della tastiera, richiede l’autorizzazione Monitoraggio input e Blocco Maiusc viene ripristinato quando lo disattivi o esci."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hyper는 Caps Lock을 ⌃⌥⇧⌘로 바꿉니다. 키보드 이벤트만 감시하며 입력 모니터링 권한이 필요하고, 끄거나 종료하면 Caps Lock이 복원됩니다."
-          }
-        }
-      }
-    },
     "Icon Only": {
       "extractionState": "manual",
       "localizations": {
@@ -57756,83 +57526,6 @@
         }
       }
     },
-    "One command per line: ;name = /path/to/script": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "needs_review",
-            "value": "One command per line: ;name = /path/to/script"
-          }
-        }
-      }
-    },
     "One compact bar floating in the middle.": {
       "extractionState": "manual",
       "localizations": {
@@ -57983,83 +57676,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "화면 아래쪽을 가로지르는 전체 너비 막대 하나."
-          }
-        }
-      }
-    },
-    "One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "One per line: ;sig = Best regards, Sam. Type the trigger in ⌘Space and press Return to paste it."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "每行一条:;sig = 此致,Sam。在 ⌘Space 中输入触发词并按回车即可粘贴。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "每行一條:;sig = 此致,Sam。在 ⌘Space 中輸入觸發詞並按 Return 即可貼上。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1行に1つ:;sig = よろしくお願いします、Sam。⌘Space でトリガーを入力し Return で貼り付けます。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eine pro Zeile: ;sig = Viele Grüße, Sam. Kürzel in ⌘Space eingeben und Return drücken, um einzufügen."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un par ligne : ;sig = Cordialement, Sam. Saisissez le déclencheur dans ⌘Espace puis Retour pour le coller."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uno por línea: ;sig = Saludos, Sam. Escribe el activador en ⌘Space y pulsa Intro para pegarlo."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uno por línea: ;sig = Saludos, Sam. Escribe el activador en ⌘Space y presiona Intro para pegarlo."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um por linha: ;sig = Atenciosamente, Sam. Digite o gatilho no ⌘Space e pressione Return para colar."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um por linha: ;sig = Cumprimentos, Sam. Escreva o atalho em ⌘Space e prima Return para colar."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uno per riga: ;sig = Cordiali saluti, Sam. Scrivi il trigger in ⌘Space e premi Invio per incollarlo."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "한 줄에 하나: ;sig = 감사합니다, Sam. ⌘Space에 트리거를 입력하고 Return을 누르면 붙여넣어요."
           }
         }
       }
@@ -65046,83 +64662,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "프리셋"
-          }
-        }
-      }
-    },
-    "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Press and hold ⌘Q for a moment to quit an app; releasing early cancels it. Apps listed below quit instantly instead."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按住 ⌘Q 一小会儿即可退出 App，提前松开会取消。下面列出的 App 会立即退出。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按住 ⌘Q 一小會兒即可結束 App，提前放開會取消。下面列出的 App 會立即結束。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌘Q を少し長押しするとアプリを終了します。早く離すと取り消しになります。下の一覧にあるアプリはすぐに終了します。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌘Q einen Moment gedrückt halten, um eine App zu beenden; frühes Loslassen bricht ab. Die unten aufgeführten Apps werden sofort beendet."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appuyez et maintenez ⌘Q un instant pour quitter une app ; relâcher tôt annule. Les apps listées ci-dessous quittent immédiatement."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantén pulsado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mantén presionado ⌘Q un momento para salir de una app; soltar antes cancela. Las apps de abajo salen al instante."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pressione e segure ⌘Q por um momento para sair de um app; soltar antes cancela. Os apps abaixo saem imediatamente."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prima e mantenha ⌘Q por um momento para sair de uma app; largar antes cancela. As apps abaixo saem de imediato."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Premi e tieni premuto ⌘Q per un istante per uscire da un'app; rilasciare prima annulla. Le app elencate sotto escono subito."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "⌘Q를 잠시 길게 눌러 앱을 종료합니다. 일찍 떼면 취소됩니다. 아래에 나열된 앱은 즉시 종료됩니다."
           }
         }
       }
@@ -95022,83 +94561,6 @@
         }
       }
     },
-    "Type a snippet's trigger and a space in any app to paste its text. It never runs in password fields, in password managers, or while the input is secure, and it needs the Input Monitoring and Accessibility permissions.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Type a snippet's trigger and a space in any app to paste its text. It never runs in password fields, in password managers, or while the input is secure, and it needs the Input Monitoring and Accessibility permissions."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在任意应用中输入片段触发词并加一个空格，即可粘贴其文本。密码输入框、密码管理器和安全输入状态下不会生效；需要输入监控和辅助功能权限。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在任何 App 中輸入片段觸發詞並加一個空格，即可貼上其文字。密碼欄位、密碼管理器及安全輸入狀態下不會生效；需要輸入監控與輔助使用權限。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "任意のアプリでスニペットのトリガーを入力してスペースを押すと、そのテキストを貼り付けます。パスワード欄、パスワードマネージャー、セキュア入力中には動作しません。入力監視とアクセシビリティの権限が必要です。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Snippet-Trigger plus Leertaste in einer beliebigen App tippen, um den Text einzufügen. In Passwortfeldern, Passwort-Managern und bei sicherer Eingabe nie aktiv; benötigt Bedienungshilfen- und Eingabeüberwachungs-Berechtigung."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tapez le déclencheur d'un extrait suivi d'un espace dans n'importe quelle app pour coller son texte. Ne s'exécute jamais dans les champs de mot de passe, les gestionnaires de mots de passe ni en saisie sécurisée ; nécessite les autorisations Surveillance des entrées et Accessibilité."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escribe el disparador de un fragmento y un espacio en cualquier app para pegar su texto. Nunca se ejecuta en campos de contraseña, gestores de contraseñas ni con entrada segura; requiere los permisos de Monitorización de entrada y Accesibilidad."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escribe el disparador de un fragmento y un espacio en cualquier app para pegar su texto. Nunca se ejecuta en campos de contraseña, gestores de contraseñas ni con entrada segura; requiere los permisos de Monitorización de entrada y Accesibilidad."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Digite o gatilho de um trecho e um espaço em qualquer app para colar o texto. Nunca funciona em campos de senha, gerenciadores de senhas ou com entrada segura; exige as permissões de Monitoramento de Entrada e Acessibilidade."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escreva o gatilho de um fragmento e um espaço em qualquer app para colar o texto. Nunca funciona em campos de palavra-passe, gestores de palavras-passe ou com entrada segura; requer as permissões de Monitorização de Entrada e Acessibilidade."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Digita il trigger di uno snippet e uno spazio in qualsiasi app per incollare il testo. Non funziona nei campi password, nei gestori di password o con input sicuro; richiede i permessi Monitoraggio input e Accessibilità."
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "아무 앱에서 스니펫 트리거를 입력하고 스페이스를 누르면 텍스트가 붙여넣어집니다. 암호 필드, 암호 관리자, 보안 입력 상태에서는 동작하지 않으며 입력 모니터링 및 손쉬운 사용 권한이 필요합니다."
-          }
-        }
-      }
-    },
     "UV Index": {
       "extractionState": "manual",
       "localizations": {
@@ -96096,83 +95558,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "업데이트 중"
-          }
-        }
-      }
-    },
-    "Use Caps Lock as Hyper Key": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use Caps Lock as Hyper Key"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "将大写锁定键用作 Hyper 键"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "將大寫鎖定鍵用作 Hyper 鍵"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caps LockをHyperキーとして使う"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Feststelltaste als Hyper-Taste verwenden"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Utiliser Verr. Maj comme touche Hyper"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usar Bloq Mayús como tecla Hyper"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usar Bloq Mayús como tecla Hyper"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usar Caps Lock como tecla Hyper"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usar Caps Lock como tecla Hyper"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usa Blocco Maiusc come tasto Hyper"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Caps Lock을 Hyper 키로 사용"
           }
         }
       }
@@ -125428,6 +124813,516 @@
         "pt-PT": {"stringUnit": {"state": "translated", "value": "Espaçamento das alas"}},
         "it": {"stringUnit": {"state": "translated", "value": "Spaziatura ali"}},
         "ko": {"stringUnit": {"state": "translated", "value": "날개 간격"}}
+      }
+    },
+    "%@ has been idle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "%@ has been idle"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "%@ 处于空闲状态"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "%@ 處於閒置狀態"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%@ がアイドル状態です"}},
+        "de": {"stringUnit": {"state": "translated", "value": "%@ war inaktiv"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "%@ est inactif"}},
+        "es": {"stringUnit": {"state": "translated", "value": "%@ ha estado inactiva"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "%@ ha estado inactiva"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "%@ está ocioso"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "%@ esteve inativo"}},
+        "it": {"stringUnit": {"state": "translated", "value": "%@ è inattiva"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%@ 유휴 상태"}}
+      }
+    },
+    "Accent Theme": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Accent Theme"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "强调色主题"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "強調色主題"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "アクセントテーマ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Akzentfarbe"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Thème d’accent"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Tema de acento"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Tema de acento"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Tema de destaque"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Tema de destaque"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tema colore"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "강조 테마"}}
+      }
+    },
+    "Caps Lock Protection Options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Caps Lock Protection Options"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "大写锁定保护选项"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "大寫鎖定保護選項"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Caps Lock保護オプション"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Feststelltasten-Schutzoptionen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Options de protection Verr. maj"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Opciones de protección de Bloq Mayús"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Opciones de protección de Bloq Mayús"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Opções de proteção de Caps Lock"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Opções de proteção de Caps Lock"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Opzioni protezione Bloc Maiusc"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Caps Lock 보호 옵션"}}
+      }
+    },
+    "Configure notch glass material, shelf accent, DropClip pill, and visible shelf widgets.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Configure notch glass material, shelf accent, DropClip pill, and visible shelf widgets."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "配置刘海玻璃材质、暂存架强调色、DropClip 胶囊及显示的暂存架组件。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "設定瀏海玻璃材質、暫存架強調色、DropClip 膠囊與顯示的暫存架小工具。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ノッチのガラス質感、シェルフのアクセント、DropClipピル、表示ウィジェットを設定します。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Notch-Glasmaterial, Regal-Akzent, DropClip-Pille und sichtbare Widgets festlegen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Configurez le verre de l’encoche, l’accentuation, la pilule DropClip et les widgets."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Configura el material de vidrio, el color de acento, la cápsula DropClip y los widgets visibles."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Configura el material de vidrio, el color de acento, la cápsula DropClip y los widgets visibles."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Configure o material de vidro, cor de destaque, pílula DropClip e widgets visíveis."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Configure o material de vidro, cor de destaque, cápsula DropClip e widgets visíveis."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Configura il materiale vetro, il colore di accento, DropClip e i widget visibili."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "노치 유리 재질, 선반 강조색, DropClip 알약 및 표시할 위젯을 설정합니다."}}
+      }
+    },
+    "Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Copied"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已复制"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "已複製"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "コピーしました"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Kopiert"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Copié"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Copiado"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Copiado"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Copiado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Copiado"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Copiato"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "복사됨"}}
+      }
+    },
+    "DropClip Selection Pill": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "DropClip Selection Pill"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "DropClip 划词胶囊"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "DropClip 選字膠囊"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "DropClip 選択ピル"}},
+        "de": {"stringUnit": {"state": "translated", "value": "DropClip-Auswahl-Pille"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Pilule de sélection DropClip"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Cápsula de selección DropClip"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Cápsula de selección DropClip"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pílula de seleção DropClip"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Cápsula de seleção DropClip"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Pillola selezione DropClip"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "DropClip 선택 알약"}}
+      }
+    },
+    "Droppy & Shelf": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Droppy & Shelf"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Droppy 与暂存架"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Droppy 與暫存架"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Droppy とシェルフ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Droppy & Regal"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Droppy et étagère"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Droppy y estante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Droppy y estante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Droppy e Prateleira"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Droppy e Prateleira"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Droppy e Mensola"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Droppy 및 선반"}}
+      }
+    },
+    "File Tray": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "File Tray"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "文件托盘"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "檔案托盤"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ファイルトレイ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Dateiablage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Bac de fichiers"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Bandeja de archivos"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Bandeja de archivos"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Bandeja de arquivos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Tabuleiro de ficheiros"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vassoio file"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "파일 트레이"}}
+      }
+    },
+    "Glass Material": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Glass Material"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "玻璃材质"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "玻璃材質"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ガラス質感"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Glasmaterial"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Matériau verre"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Material de vidrio"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Material de vidrio"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Material de vidro"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Material de vidro"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Materiale vetro"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "유리 재질"}}
+      }
+    },
+    "Grid view": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Grid view"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "网格视图"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "格狀檢視"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "グリッド表示"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Rasteransicht"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vue grille"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vista en cuadrícula"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Vista en cuadrícula"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Visualização em grade"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Vista em grelha"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vista griglia"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "격자 보기"}}
+      }
+    },
+    "Hang Clipboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Hang Clipboard"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "悬挂剪贴板"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "懸掛剪貼簿"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クリップボードを固定"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Zwischenablage anheften"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Épingler le presse-papiers"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Fijar portapapeles"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Fijar portapapeles"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Fixar área de transferência"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Fixar área de transferência"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Appendi appunti"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "클립보드 고정"}}
+      }
+    },
+    "Hold ⌘Q to quit · Esc to cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Hold ⌘Q to quit · Esc to cancel"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "按住 ⌘Q 退出 · Esc 取消"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "按住 ⌘Q 結束 · Esc 取消"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "⌘Q 長押しで終了・Esc でキャンセル"}},
+        "de": {"stringUnit": {"state": "translated", "value": "⌘Q halten zum Beenden · Esc Abbruch"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Maintenir ⌘Q pour quitter · Échap annuler"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Mantén ⌘Q para salir · Esc cancelar"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Mantén ⌘Q para salir · Esc cancelar"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Segure ⌘Q para sair · Esc cancelar"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Prima ⌘Q para sair · Esc cancelar"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Tieni premuto ⌘Q per uscire · Esc annulla"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "⌘Q 길게 눌러 종료 · Esc 취소"}}
+      }
+    },
+    "Ignore App": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Ignore App"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "忽略应用"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "忽略 App"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "このアプリを無視"}},
+        "de": {"stringUnit": {"state": "translated", "value": "App ignorieren"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Ignorer l’app"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Ignorar app"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Ignorar app"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Ignorar aplicativo"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Ignorar aplicação"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ignora app"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "앱 무시"}}
+      }
+    },
+    "Layout Override: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Layout Override: %@"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "布局覆盖：%@"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "版面覆寫：%@"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "レイアウト上書き：%@"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Layout-Überschreibung: %@"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Remplacement de disposition : %@"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Anulación de diseño: %@"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Anulación de diseño: %@"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Substituição de layout: %@"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Substituição de esquema: %@"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Sostituzione layout: %@"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "레이아웃 재정의: %@"}}
+      }
+    },
+    "List view": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "List view"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "列表视图"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "列表檢視"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "リスト表示"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Listenansicht"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Vue liste"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vista de lista"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Vista de lista"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Visualização em lista"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Vista em lista"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Vista elenco"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "목록 보기"}}
+      }
+    },
+    "No hung items yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "No hung items yet"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "暂无悬挂内容"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "尚無懸掛項目"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "固定された項目はありません"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Noch keine angehefteten Objekte"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Aucun élément épinglé"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Aún no hay elementos fijados"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Aún no hay elementos fijados"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Nenhum item fixado"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sem itens fixados"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Nessun elemento appeso"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "고정된 항목 없음"}}
+      }
+    },
+    "Press ⌘Q again to quit": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Press ⌘Q again to quit"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "再按一次 ⌘Q 退出"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "再按一次 ⌘Q 結束"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "もう一度 ⌘Q を押して終了"}},
+        "de": {"stringUnit": {"state": "translated", "value": "⌘Q erneut drücken zum Beenden"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Appuyez encore sur ⌘Q pour quitter"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Pulsa ⌘Q otra vez para salir"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Pulsa ⌘Q otra vez para salir"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Pressione ⌘Q novamente para sair"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Prima ⌘Q novamente para sair"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Premi di nuovo ⌘Q per uscire"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "종료하려면 ⌘Q 다시 누르기"}}
+      }
+    },
+    "Quick Look (Space)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Quick Look (Space)"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "快速查看（空格）"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "快速查看（空白鍵）"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "クイックルック (Space)"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Übersicht (Leertaste)"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Coup d’œil (Espace)"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Vista rápida (Espacio)"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Vista rápida (Espacio)"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Visualização Rápida (Espaço)"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Vista Rápida (Espaço)"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Visualizzazione rapida (Spazio)"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "훑어보기 (Space)"}}
+      }
+    },
+    "Quit on Close & Idle Apps": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Quit on Close & Idle Apps"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "关闭时退出与空闲应用"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "關閉時結束與閒置 App"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "閉じる時に終了・アイドルアプリ"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Beim Schließen beenden & Inaktive Apps"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Quitter à la fermeture & Apps inactives"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Salir al cerrar y apps inactivas"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Salir al cerrar y apps inactivas"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Encerrar ao fechar e apps ociosos"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sair ao fechar e apps inativas"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Esci alla chiusura e app inattive"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "창 닫을 때 종료 및 유휴 앱"}}
+      }
+    },
+    "Reset Shelf": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Reset Shelf"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "重置暂存架"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "重設暫存架"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "シェルフをリセット"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Regal zurücksetzen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Réinitialiser l’étagère"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Restablecer estante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Restablecer estante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Redefinir prateleira"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Repor prateleira"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Ripristina mensola"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "선반 초기화"}}
+      }
+    },
+    "Screenshots + Auto Clipboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Screenshots + Auto Clipboard"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "截图 + 自动剪贴板"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "截圖 + 自動剪貼簿"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "スクリーンショット＋自動クリップボード"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Screenshots + Auto-Zwischenablage"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Captures + Presse-papiers auto"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Capturas + Portapapeles automático"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Capturas + Portapapeles automático"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Capturas + Área de transferência auto"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Capturas + Área de transferência auto"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Istantanee + Appunti automatici"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "스크린샷 + 자동 클립보드"}}
+      }
+    },
+    "Screenshots + Manual": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Screenshots + Manual"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "截图 + 手动"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "截圖 + 手動"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "スクリーンショット＋手動"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Screenshots + Manuell"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Captures + Manuel"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Capturas + Manual"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Capturas + Manual"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Capturas + Manual"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Capturas + Manual"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Istantanee + Manuale"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "스크린샷 + 수동"}}
+      }
+    },
+    "Set from the Windows flyout. Resetting returns this display to its preset.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Set from the Windows flyout. Resetting returns this display to its preset."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "从窗口浮层设置。重置将使此显示器恢复为其预设。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "從視窗浮層設定。重設會將此顯示器還原為預設值。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "ウィンドウフライアウトから設定済み。リセットするとこのディスプレイのプリセットに戻ります。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Über das Fenster-Flyout festgelegt. Zurücksetzen stellt die Voreinstellung dieses Displays wieder her."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Défini depuis le panneau Fenêtres. La réinitialisation rétablit le préréglage de cet écran."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Configurado desde el panel Ventanas. Al restablecer volverá al ajuste preestablecido de esta pantalla."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Configurado desde el panel Ventanas. Al restablecer volverá al ajuste preestablecido de esta pantalla."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Definido pelo painel Janelas. Redefinir retorna este monitor à predefinição."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Definido no painel Janelas. Repor devolve este monitor à predefinição."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Impostato dal riquadro Finestre. Il ripristino riporta questo schermo al preset."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "창 플라이아웃에서 설정됨. 재설정하면 이 디스플레이가 프리셋으로 돌아갑니다."}}
+      }
+    },
+    "Shelf Widgets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Shelf Widgets"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "暂存架小组件"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "暫存架小工具"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "シェルフウィジェット"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Regal-Widgets"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Widgets d’étagère"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Widgets de estante"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Widgets de estante"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Widgets da prateleira"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Widgets da prateleira"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Widget mensola"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "선반 위젯"}}
+      }
+    },
+    "SlowQuit Options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "SlowQuit Options"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "长按退出选项"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "長按結束選項"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "SlowQuit オプション"}},
+        "de": {"stringUnit": {"state": "translated", "value": "SlowQuit-Optionen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Options SlowQuit"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Opciones de SlowQuit"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Opciones de SlowQuit"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Opções do SlowQuit"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Opções de SlowQuit"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Opzioni SlowQuit"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "SlowQuit 옵션"}}
+      }
+    },
+    "Super / Hyper Options": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Super / Hyper Options"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "Super / Hyper 选项"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "Super / Hyper 選項"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "Super / Hyper オプション"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Super- / Hyper-Optionen"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Options Super / Hyper"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Opciones Super / Hyper"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Opciones Super / Hyper"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Opções Super / Hyper"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Opções Super / Hyper"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Opzioni Super / Hyper"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "Super / Hyper 옵션"}}
+      }
+    },
+    "Take a screenshot, copy content, or drop a file here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Take a screenshot, copy content, or drop a file here."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "截取屏幕、复制内容或将文件拖放到此处。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "擷取螢幕、複製內容或將檔案拖放至此。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "スクリーンショットを撮るか、コピー、またはファイルをドロップしてください。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Screenshot aufnehmen, Inhalt kopieren oder Datei hier ablegen."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Prenez une capture, copiez un élément ou déposez un fichier ici."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Haz una captura, copia contenido o suelta un archivo aquí."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Haz una captura, copia contenido o suelta un archivo aquí."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Tire uma captura, copie conteúdo ou solte um arquivo aqui."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Faça uma captura, copie conteúdo ou largue um ficheiro aqui."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Acquisisci uno screenshot, copia o rilascia un file qui."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "스크린샷을 찍거나 콘텐츠를 복사하거나 파일을 여기에 드롭하세요."}}
+      }
+    },
+    "Unlimited Items": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unlimited Items"}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "不限数量"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "不限項目數"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "無制限"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Unbegrenzte Objekte"}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Éléments illimités"}},
+        "es": {"stringUnit": {"state": "translated", "value": "Elementos ilimitados"}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Elementos ilimitados"}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Itens ilimitados"}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Itens ilimitados"}},
+        "it": {"stringUnit": {"state": "translated", "value": "Elementi illimitati"}},
+        "ko": {"stringUnit": {"state": "translated", "value": "무제한 항목"}}
+      }
+    },
+    "Unused for %d min (%@ RAM).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unused for %d min (%@ RAM)."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已闲置 %d 分钟（占用 %@ 内存）。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "已閒置 %d 分鐘（使用 %@ 記憶體）。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%d分間未使用（RAM %@）。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Seit %d Min. ungenutzt (%@ RAM)."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Inactif pendant %d min (%@ RAM)."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sin uso durante %d min (%@ de RAM)."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sin uso durante %d min (%@ de RAM)."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sem uso por %d min (%@ RAM)."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sem uso há %d min (%@ RAM)."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Inutilizzata per %d min (%@ RAM)."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%d분 동안 미사용 (RAM %@)."}}
+      }
+    },
+    "Unused for %d min.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {"stringUnit": {"state": "translated", "value": "Unused for %d min."}},
+        "zh-Hans": {"stringUnit": {"state": "translated", "value": "已闲置 %d 分钟。"}},
+        "zh-Hant": {"stringUnit": {"state": "translated", "value": "已閒置 %d 分鐘。"}},
+        "ja": {"stringUnit": {"state": "translated", "value": "%d分間未使用。"}},
+        "de": {"stringUnit": {"state": "translated", "value": "Seit %d Min. ungenutzt."}},
+        "fr": {"stringUnit": {"state": "translated", "value": "Inactif pendant %d min."}},
+        "es": {"stringUnit": {"state": "translated", "value": "Sin uso durante %d min."}},
+        "es-419": {"stringUnit": {"state": "translated", "value": "Sin uso durante %d min."}},
+        "pt-BR": {"stringUnit": {"state": "translated", "value": "Sem uso por %d min."}},
+        "pt-PT": {"stringUnit": {"state": "translated", "value": "Sem uso há %d min."}},
+        "it": {"stringUnit": {"state": "translated", "value": "Inutilizzata per %d min."}},
+        "ko": {"stringUnit": {"state": "translated", "value": "%d분 동안 미사용."}}
       }
     }
   },
