@@ -1414,6 +1414,8 @@ struct DockStripView: View {
             let front = items.first { $0.status == WindowStatus.active.rawValue }?.actionWindowID
             guard let target = WheelWindowCycle.next(ids: ids, front: front, direction: direction) else { return }
             runtime.activate(windowID: target)
+        case .timeTravel:
+            break
         case .volume(let delta):
             guard let step = WheelVolumeThrottle.consume(delta: delta, state: &wheelVolumeState) else { return }
             let level = Double(wheelVolume.currentVolumeLevel) + Double(step)
@@ -1815,6 +1817,7 @@ extension DockStripView {
         case .drives: return String(localized: "Drives")
         case .dictionary: return String(localized: "Dictionary")
         case .terminal: return String(localized: "Terminal")
+        case .ai: return String(localized: "AI")
         case .apps: return ""
         }
     }
@@ -1926,6 +1929,8 @@ extension DockStripView {
             RailDictionaryTile().nativeScaled(dockScale)
         case .terminal:
             RailTerminalTile().nativeScaled(dockScale)
+        case .ai:
+            EmptyView()
         case .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
@@ -1987,6 +1992,8 @@ extension DockStripView {
             TerminalDockChip(onOpen: { runtime.onToggleTerminal?() })
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
+        case .ai:
+            EmptyView()
         case .launcher:
             LauncherFABView(settingsStore: settingsStore) {
                 runtime.onToggleLauncher?()

@@ -74,7 +74,7 @@ final class WheelScrollInterceptorView: NSView {
         case .ignore:
             super.scrollWheel(with: event)
             return
-        case .cycleWindows, .volume:
+        case .cycleWindows, .volume, .timeTravel:
             perform?(action(for: event))
             return
         case .scrollStrip(let delta):

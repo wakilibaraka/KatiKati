@@ -9,6 +9,7 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
     case vpn
     case friends
     case telemetry
+    case ai
 
     var id: String { rawValue }
 
@@ -23,6 +24,7 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .vpn: return "lock.shield"
         case .friends: return "person.2.fill"
         case .telemetry: return "waveform.path.ecg"
+        case .ai: return "sparkles"
         }
     }
 
@@ -34,8 +36,15 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .vpn: return String(localized: "VPN Status")
         case .friends: return String(localized: "Friends HUD")
         case .telemetry: return String(localized: "System Telemetry")
+        case .ai: return String(localized: "AI")
         }
     }
+}
+
+/// Per-display wing preset pair keyed by persistent display UUID.
+struct DockWingPair: Codable, Equatable, Sendable {
+    var left: DockWingSlotConfig = DockWingSlotConfig()
+    var right: DockWingSlotConfig = DockWingSlotConfig()
 }
 
 /// Which flank of the main dock strip hosts a Dock II wing widget.
@@ -50,7 +59,7 @@ struct DockWingSlotConfig: Codable, Equatable, Sendable {
     var size: WidgetSize = .medium
 }
 
-/// Persisted left & right Dock II wing configuration.
+/// Persisted left & right Dock II wing configuration (with optional per-display UUID overrides).
 struct DockWingsConfiguration: Codable, Equatable, Sendable {
     static let defaultsKey = "com.katikati.dockII.wings.v1"
     static let defaultGap: CGFloat = 10
@@ -60,21 +69,47 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
     var left: DockWingSlotConfig
     var right: DockWingSlotConfig
     var gap: CGFloat
+    var perDisplay: [String: DockWingPair]
+
+    enum CodingKeys: String, CodingKey {
+        case left, right, gap, perDisplay
+    }
 
     init(
         left: DockWingSlotConfig = DockWingSlotConfig(),
         right: DockWingSlotConfig = DockWingSlotConfig(),
-        gap: CGFloat = defaultGap
+        gap: CGFloat = defaultGap,
+        perDisplay: [String: DockWingPair] = [:]
     ) {
         self.left = left
         self.right = right
         self.gap = Self.clampedGap(gap)
+        self.perDisplay = perDisplay
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        left = try c.decodeIfPresent(DockWingSlotConfig.self, forKey: .left) ?? DockWingSlotConfig()
+        right = try c.decodeIfPresent(DockWingSlotConfig.self, forKey: .right) ?? DockWingSlotConfig()
+        gap = Self.clampedGap(try c.decodeIfPresent(CGFloat.self, forKey: .gap) ?? Self.defaultGap)
+        perDisplay = try c.decodeIfPresent([String: DockWingPair].self, forKey: .perDisplay) ?? [:]
     }
 
     static let `default` = DockWingsConfiguration()
 
     var hasAnyActiveWing: Bool {
         left.preset.isAssigned || right.preset.isAssigned
+    }
+
+    /// Resolves effective wing configuration for a display UUID, falling back to legacy displayID then global.
+    func resolved(displayUUID: String?, displayID: String? = nil) -> DockWingsConfiguration {
+        if let displayUUID, !displayUUID.isEmpty, let pair = perDisplay[displayUUID] {
+            return DockWingsConfiguration(left: pair.left, right: pair.right, gap: gap, perDisplay: perDisplay)
+        }
+        if let displayID, !displayID.isEmpty, let pair = perDisplay[displayID] {
+            return DockWingsConfiguration(left: pair.left, right: pair.right, gap: gap, perDisplay: perDisplay)
+        }
+        return self
     }
 
     func slot(for placement: DockWingPlacement) -> DockWingSlotConfig {
@@ -87,9 +122,24 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
     func assigning(
         _ preset: DockWidgetPresetType,
         size: WidgetSize? = nil,
-        to placement: DockWingPlacement
+        to placement: DockWingPlacement,
+        forDisplay displayUUID: String? = nil
     ) -> DockWingsConfiguration {
         var copy = self
+        if let displayUUID, !displayUUID.isEmpty {
+            let base = resolved(displayUUID: displayUUID)
+            var pair = DockWingPair(left: base.left, right: base.right)
+            switch placement {
+            case .leftWing:
+                pair.left.preset = preset
+                if let size { pair.left.size = size }
+            case .rightWing:
+                pair.right.preset = preset
+                if let size { pair.right.size = size }
+            }
+            copy.perDisplay[displayUUID] = pair
+            return copy
+        }
         switch placement {
         case .leftWing:
             copy.left.preset = preset
@@ -101,8 +151,22 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
         return copy
     }
 
-    func updatingSize(_ size: WidgetSize, for placement: DockWingPlacement) -> DockWingsConfiguration {
+    func updatingSize(
+        _ size: WidgetSize,
+        for placement: DockWingPlacement,
+        forDisplay displayUUID: String? = nil
+    ) -> DockWingsConfiguration {
         var copy = self
+        if let displayUUID, !displayUUID.isEmpty {
+            let base = resolved(displayUUID: displayUUID)
+            var pair = DockWingPair(left: base.left, right: base.right)
+            switch placement {
+            case .leftWing: pair.left.size = size
+            case .rightWing: pair.right.size = size
+            }
+            copy.perDisplay[displayUUID] = pair
+            return copy
+        }
         switch placement {
         case .leftWing: copy.left.size = size
         case .rightWing: copy.right.size = size
@@ -157,6 +221,9 @@ enum DockWingDimensions {
         case (.telemetry, .small): return 112
         case (.telemetry, .medium): return 180
         case (.telemetry, .large): return 240
+        case (.ai, .small): return 112
+        case (.ai, .medium): return 184
+        case (.ai, .large): return 244
         }
     }
 

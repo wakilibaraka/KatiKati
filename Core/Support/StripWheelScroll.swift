@@ -25,12 +25,16 @@ enum StripWheelScroll {
         /// **取自事件本身而不是读 `com.apple.swipescrolldirection`**：逐设备正确，
         /// 而且事件热路径上不再有 UserDefaults 读取。
         var isDirectionInverted: Bool
+        /// True when only the Option modifier is held (`⌥+Scroll` time travel scrub).
+        var isOptionPressed: Bool
 
-        init(deltaX: CGFloat, deltaY: CGFloat, hasPreciseDeltas: Bool, isDirectionInverted: Bool) {
+        init(deltaX: CGFloat, deltaY: CGFloat, hasPreciseDeltas: Bool, isDirectionInverted: Bool,
+             isOptionPressed: Bool = false) {
             self.deltaX = deltaX
             self.deltaY = deltaY
             self.hasPreciseDeltas = hasPreciseDeltas
             self.isDirectionInverted = isDirectionInverted
+            self.isOptionPressed = isOptionPressed
         }
     }
 
@@ -76,6 +80,8 @@ enum WheelAction: Equatable, Sendable {
     case scrollStrip(by: CGFloat)
     case cycleWindows(bundleID: String, direction: WheelDirection)
     case volume(delta: Float)
+    /// Option+Scroll scrubs the shared 25-event Time Travel ring buffer.
+    case timeTravel(delta: Int)
 }
 
 enum WheelActionMap {
@@ -84,11 +90,14 @@ enum WheelActionMap {
     /// Trackpads and smooth-scrolling mice send many events per gesture; each one moves less.
     static let preciseVolumeStep: Float = 0.02
 
-    /// The decision table. Horizontal overflow panning is checked first and unchanged, so a bar that can
-    /// scroll still scrolls; only an event the strip cannot pan is handed to the card/volume rules.
+    /// The decision table. Option+Scroll triggers Time Travel; otherwise horizontal overflow panning keeps
+    /// priority and only events the strip cannot pan reach card/volume rules.
     static func action(for input: StripWheelScroll.Input,
                        target: WheelTarget,
                        stripOverflows: Bool) -> WheelAction {
+        if input.isOptionPressed, input.deltaY != 0, abs(input.deltaY) >= abs(input.deltaX) {
+            return .timeTravel(delta: input.deltaY > 0 ? -1 : 1)
+        }
         if stripOverflows, let step = StripWheelScroll.horizontalStep(for: input) {
             return .scrollStrip(by: step)
         }

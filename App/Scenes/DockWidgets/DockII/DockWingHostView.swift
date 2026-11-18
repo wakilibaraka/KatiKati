@@ -152,6 +152,8 @@ struct DockWingHostView: View {
             DockFriendsWidgetView(onOpenSettings: onOpenSettings)
         case .telemetry:
             DockTelemetryWidgetView()
+        case .ai:
+            EmptyView()
         }
     }
 
@@ -300,6 +302,8 @@ struct DockUniversalWidgetCard: View {
             DockFriendsWidgetView(onOpenSettings: onOpenSettings)
         case .telemetry:
             DockTelemetryWidgetView()
+        case .ai:
+            EmptyView()
         }
     }
 

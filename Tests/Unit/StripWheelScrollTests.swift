@@ -145,4 +145,14 @@ final class WheelActionMapTests: XCTestCase {
         // After 60 ms, a discrete notch passes immediately
         XCTAssertEqual(WheelVolumeThrottle.consume(delta: 0.05, state: &state, now: t0.addingTimeInterval(0.09)), 0.05)
     }
+
+    func testOptionPressedTriggersTimeTravelBeforeOverflowOrVolume() {
+        let optUp = StripWheelScroll.Input(deltaX: 0, deltaY: 4, hasPreciseDeltas: true, isDirectionInverted: false, isOptionPressed: true)
+        let optDown = StripWheelScroll.Input(deltaX: 0, deltaY: -4, hasPreciseDeltas: true, isDirectionInverted: false, isOptionPressed: true)
+        XCTAssertEqual(WheelActionMap.action(for: optUp, target: .appCard(bundleID: "com.apple.Safari"), stripOverflows: true), .timeTravel(delta: -1))
+        XCTAssertEqual(WheelActionMap.action(for: optDown, target: .emptyBar, stripOverflows: false), .timeTravel(delta: 1))
+
+        let optHoriz = StripWheelScroll.Input(deltaX: 25, deltaY: 2, hasPreciseDeltas: true, isDirectionInverted: false, isOptionPressed: true)
+        XCTAssertEqual(WheelActionMap.action(for: optHoriz, target: .emptyBar, stripOverflows: false), .ignore)
+    }
 }

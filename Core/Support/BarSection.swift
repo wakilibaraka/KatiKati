@@ -34,10 +34,12 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case dictionary
     /// Shell in a floating panel (SwiftTerm). On by default.
     case terminal
+    /// AI usage spend, live agent heartbeat, inline approvals, and Loadout presets. On by default.
+    case ai
     case widgets
 
     /// Canonical left-to-right order (Phase 4U-A).
-    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .widgets]
+    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets]
 
     /// The six sections a fresh dock shows: what every layout API assumes unless it is handed a real order.
     static let defaultOrder: [BarSection] = canonicalOrder.filter { !$0.startsHidden }
@@ -46,7 +48,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     var startsHidden: Bool {
         switch self {
         case .calendar, .system, .devices, .drives: return true
-        case .launcher, .weather, .apps, .media, .clock, .widgets, .dictionary, .terminal: return false
+        case .launcher, .weather, .apps, .media, .clock, .widgets, .dictionary, .terminal, .ai: return false
         }
     }
 
@@ -65,6 +67,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .drives: return "Drives"
         case .dictionary: return "Dictionary"
         case .terminal: return "Terminal"
+        case .ai: return "AI"
         case .widgets: return "Widgets"
         }
     }
@@ -93,6 +96,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .devices: return 150
         case .drives: return 130
         case .dictionary, .terminal: return 56
+        case .ai: return 112
         case .widgets: return 40
         }
     }
@@ -108,7 +112,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 72
         case .clock: return 76
-        case .calendar, .system, .devices, .drives, .dictionary, .terminal: return 56
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return 56
         case .widgets: return 40
         }
     }
@@ -128,7 +132,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     /// before them, so a mode keeps its slot count whichever of them are shown.
     private var joinsPreviousIsland: Bool {
         switch self {
-        case .calendar, .system, .devices, .drives, .dictionary, .terminal: return true
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return true
         default: return false
         }
     }

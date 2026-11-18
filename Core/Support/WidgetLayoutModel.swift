@@ -24,7 +24,7 @@ extension BarSection {
     /// Sections that offer S/M/L presets. The others keep a single fixed width.
     var supportsWidgetSizes: Bool {
         switch self {
-        case .weather, .media, .clock, .calendar, .system, .devices, .drives: return true
+        case .weather, .media, .clock, .calendar, .system, .devices, .drives, .ai: return true
         case .launcher, .apps, .widgets, .dictionary, .terminal: return false
         }
     }
@@ -49,6 +49,9 @@ extension BarSection {
         case (.calendar, .large): return 230
         case (.system, .medium), (.devices, .medium): return 150
         case (.system, .large), (.devices, .large): return 230
+        case (.ai, .small): return 56
+        case (.ai, .medium): return 112
+        case (.ai, .large): return 180
         default: return defaultWidgetWidth
         }
     }

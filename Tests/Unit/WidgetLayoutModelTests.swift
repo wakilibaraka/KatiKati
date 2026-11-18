@@ -41,7 +41,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [
             WidgetInstance(section: .clock), WidgetInstance(section: .clock), WidgetInstance(section: .weather)
         ])
-        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .widgets])
+        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
     }
 
     func testCodableRoundTrip() throws {
@@ -77,14 +77,14 @@ extension WidgetLayoutModelTests {
 extension WidgetLayoutModelTests {
     func testMovingFollowsOnMoveSemantics() {
         let moved = WidgetLayout.default.moving(from: IndexSet(integer: 4), to: 1) // clock before weather
-        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .widgets])
+        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
         let down = WidgetLayout.default.moving(from: IndexSet(integer: 0), to: 3) // launcher after weather+apps
-        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .widgets])
+        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
     }
 
     func testVisibleOrderDropsHiddenButNeverApps() {
         let layout = WidgetLayout.default.updating(.weather) { $0.isVisible = false }.updating(.apps) { $0.isVisible = false }
-        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .clock, .dictionary, .terminal, .widgets])
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .clock, .dictionary, .terminal, .ai, .widgets])
     }
 }
 
@@ -92,6 +92,7 @@ extension WidgetLayoutModelTests {
     func testFittedDegradesWidestFirstAndSparesExactAndFixedWidgets() {
         var layout = WidgetLayout.default.updating(.weather) { $0.size = .large }.updating(.media) { $0.size = .large }
             .updating(.dictionary) { $0.isVisible = false }.updating(.terminal) { $0.isVisible = false }
+            .updating(.ai) { $0.isVisible = false }
         XCTAssertEqual(layout.fitted(toBudget: 10_000), layout)
         // weather 230 + media 240 + clock 160 + launcher 40 + widgets 40 = 710
         // Stepping down widest (media 240 -> 215) leaves 685; stepping down weather (230 -> 150) leaves 605.

@@ -216,4 +216,29 @@ final class DockWingModelsTests: XCTestCase {
         XCTAssertEqual(reloaded.dockWings.right, DockWingSlotConfig(preset: .friends, size: .small))
         XCTAssertTrue(reloaded.dockWingGeoIPEnabled)
     }
+
+    func testAIPresetDimensionsAndPerDisplayUUIDResolution() throws {
+        XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .small), 112)
+        XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .medium), 184)
+        XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .large), 244)
+        XCTAssertEqual(DockWidgetPresetType.ai.symbolName, "sparkles")
+
+        let base = DockWingsConfiguration.default
+            .assigning(.spotify, size: .medium, to: .leftWing)
+            .assigning(.ai, size: .large, to: .rightWing, forDisplay: "UUID-STUDIO-DISPLAY")
+            .assigning(.vpn, size: .small, to: .leftWing, forDisplay: "42")
+
+        let byUUID = base.resolved(displayUUID: "UUID-STUDIO-DISPLAY", displayID: "42")
+        XCTAssertEqual(byUUID.right, DockWingSlotConfig(preset: .ai, size: .large))
+        XCTAssertEqual(byUUID.left, DockWingSlotConfig(preset: .spotify, size: .medium))
+
+        let byLegacyID = base.resolved(displayUUID: "UUID-UNKNOWN", displayID: "42")
+        XCTAssertEqual(byLegacyID.left, DockWingSlotConfig(preset: .vpn, size: .small))
+
+        let fallbackGlobal = base.resolved(displayUUID: "UUID-OTHER", displayID: "99")
+        XCTAssertEqual(fallbackGlobal.left, DockWingSlotConfig(preset: .spotify, size: .medium))
+
+        let roundTrip = try XCTUnwrap(DockWingsConfiguration.decode(base.encoded()))
+        XCTAssertEqual(roundTrip, base)
+    }
 }

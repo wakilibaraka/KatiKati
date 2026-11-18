@@ -267,6 +267,7 @@ extension SettingsLayoutPane {
         case .drives: return Text("Drives")
         case .dictionary: return Text("Dictionary")
         case .terminal: return Text("Terminal")
+        case .ai: return Text("AI")
         }
     }
 
@@ -399,6 +400,7 @@ extension SettingsLayoutPane {
         case .drives: return "internaldrive"
         case .dictionary: return "character.book.closed"
         case .terminal: return "terminal"
+        case .ai: return "sparkles"
         case .widgets: return "slider.horizontal.3"
         }
     }

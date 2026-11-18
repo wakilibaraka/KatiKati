@@ -38,19 +38,19 @@ enum WidgetPresets {
     /// `name` is the English key; the UI maps ids to localized titles.
     static let builtIns: [WidgetPreset] = [
         WidgetPreset(id: "builtin.minimal", name: "Minimal",
-                     layout: layout(hidden: [.weather, .media, .widgets, .dictionary, .terminal])),
+                     layout: layout(hidden: [.weather, .media, .widgets, .dictionary, .terminal, .ai])),
         WidgetPreset(id: "builtin.commuter", name: "Commuter",
-                     layout: layout(hidden: [.media, .widgets, .dictionary, .terminal], sizes: [.weather: .small])),
+                     layout: layout(hidden: [.media, .widgets, .dictionary, .terminal, .ai], sizes: [.weather: .small])),
         WidgetPreset(id: "builtin.music", name: "Music",
-                     layout: layout(hidden: [.weather, .widgets, .dictionary, .terminal], sizes: [.media: .large, .clock: .small])),
+                     layout: layout(hidden: [.weather, .widgets, .dictionary, .terminal, .ai], sizes: [.media: .large, .clock: .small])),
         WidgetPreset(id: "builtin.focus", name: "Focus",
-                     layout: layout(hidden: [.weather, .widgets, .dictionary, .terminal], sizes: [.media: .medium, .clock: .small])),
+                     layout: layout(hidden: [.weather, .widgets, .dictionary, .terminal, .ai], sizes: [.media: .medium, .clock: .small])),
         WidgetPreset(id: "builtin.full", name: "Full", layout: .default),
         WidgetPreset(id: "builtin.agenda", name: "Agenda",
-                     layout: layout(hidden: [.media, .widgets, .dictionary, .terminal], stacks: [.clock: [.clock, .calendar, .devices]],
+                     layout: layout(hidden: [.media, .widgets, .dictionary, .terminal, .ai], stacks: [.clock: [.clock, .calendar, .devices]],
                                     sizes: [.weather: .small])),
         WidgetPreset(id: "builtin.monitor", name: "Monitor",
-                     layout: layout(hidden: [.media, .widgets, .dictionary, .terminal], stacks: [.clock: [.clock, .system, .devices]],
+                     layout: layout(hidden: [.media, .widgets, .dictionary, .terminal, .ai], stacks: [.clock: [.clock, .system, .devices]],
                                     sizes: [.weather: .small])),
     ]
 
@@ -250,6 +250,7 @@ enum WidgetCatalog {
         case .drives: return String(localized: "Drives")
         case .dictionary: return String(localized: "Dictionary")
         case .terminal: return String(localized: "Terminal")
+        case .ai: return String(localized: "AI")
         case .widgets: return String(localized: "Widgets")
         }
     }
@@ -268,6 +269,7 @@ enum WidgetCatalog {
         case .drives: return ["drives", "disk", "storage", "space"]
         case .dictionary: return ["dictionary", "word", "define", "lookup"]
         case .terminal: return ["terminal", "shell", "console"]
+        case .ai: return ["ai", "agent", "claude", "codex", "loadout", "mcp", "tokens"]
         case .widgets: return ["widgets", "stack", "smart stack"]
         }
     }
