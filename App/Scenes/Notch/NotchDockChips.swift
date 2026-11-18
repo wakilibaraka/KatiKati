@@ -267,10 +267,13 @@ struct NotchLiveBattery: View {
     @StateObject private var power = SystemStatusService()
 
     var body: some View {
-        Group {
-            if let level = power.status.battery.level { NotchBatteryChip(level: level, battery: power.status.battery) }
+        ZStack(alignment: .trailing) {
+            Color.clear
+                .onAppear { power.acquire() }
+                .onDisappear { power.release() }
+            if let level = power.status.battery.level {
+                NotchBatteryChip(level: level, battery: power.status.battery)
+            }
         }
-        .onAppear { power.acquire() }
-        .onDisappear { power.release() }
     }
 }

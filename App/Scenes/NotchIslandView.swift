@@ -407,6 +407,8 @@ struct NotchIslandView: View {
             if case .music = activity.content {
                 if musicBattery {
                     NotchLiveBattery().frame(width: NotchGeometry.sneakSide - 14, alignment: .trailing)   // battery stays put while music plays unless user opts out
+                } else {
+                    Color.clear.frame(width: NotchGeometry.sneakSide - 14)
                 }
             } else if let value = LiveIslandStyle.valueText(for: activity) {
                 value
