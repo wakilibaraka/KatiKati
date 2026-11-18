@@ -890,3 +890,97 @@ struct SettingsDivider: View {
             .accessibilityHidden(true)
     }
 }
+
+/// Shared miniature Live Dock Preview (strip islands, active widget badges including AI, app tiles,
+/// and flanking Dock II wings) dual-compiled for Onboarding, Settings Stage, and Settings › Dock Items.
+struct DockLivePreviewStrip: View {
+    let mode: BarLayoutMode
+    let visibleOrder: [BarSection]
+    let wings: DockWingsConfiguration
+
+    var body: some View {
+        let islands = BarSection.islands(for: mode, order: visibleOrder)
+        ZStack {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(LinearGradient(colors: [Color(red: 0.22, green: 0.28, blue: 0.52).opacity(0.65), Color(red: 0.42, green: 0.28, blue: 0.55).opacity(0.65)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+            HStack(spacing: 6) {
+                if wings.left.preset.isAssigned { wingPill(wings.left.preset) }
+                ForEach(Array(islands.enumerated()), id: \.offset) { _, group in
+                    HStack(spacing: 4) {
+                        ForEach(group, id: \.self) { section in
+                            sectionGlyph(section)
+                        }
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 5)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.ultraThinMaterial))
+                    .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(.white.opacity(0.22), lineWidth: 0.75))
+                }
+                if wings.right.preset.isAssigned { wingPill(wings.right.preset) }
+            }
+            .padding(.horizontal, 8)
+            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: visibleOrder)
+            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: wings)
+            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: mode)
+        }
+        .frame(height: 52)
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.18), lineWidth: 0.75))
+    }
+
+    private func wingPill(_ preset: DockWidgetPresetType) -> some View {
+        Image(systemName: preset.symbolName)
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundStyle(preset == .ai ? .cyan : .white.opacity(0.9))
+            .frame(width: 24, height: 22)
+            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.black.opacity(0.45)))
+            .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).stroke(.white.opacity(0.22), lineWidth: 0.75))
+    }
+
+    @ViewBuilder
+    private func sectionGlyph(_ section: BarSection) -> some View {
+        if section == .apps {
+            HStack(spacing: 2.5) {
+                ForEach(0..<4, id: \.self) { idx in
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill([Color.blue, Color.teal, Color.orange, Color.purple][idx].opacity(0.85))
+                        .frame(width: 11, height: 11)
+                }
+            }
+        } else {
+            HStack(spacing: 2) {
+                Image(systemName: Self.symbol(for: section))
+                    .font(.system(size: 9.5, weight: .semibold))
+                    .foregroundStyle(section == .ai ? .cyan : (section == .media ? .pink : .white.opacity(0.92)))
+                if section == .ai || section == .clock {
+                    Text(verbatim: section == .ai ? "AI" : "12:00")
+                        .font(.system(size: 8.5, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.85))
+                }
+            }
+            .padding(.horizontal, 4)
+            .frame(height: 16)
+            .background(RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Color.white.opacity(0.12)))
+        }
+    }
+
+    static func symbol(for section: BarSection) -> String {
+        switch section {
+        case .launcher: return "square.grid.2x2"
+        case .weather: return "cloud.sun.fill"
+        case .apps: return "rectangle.on.rectangle"
+        case .media: return "music.note"
+        case .clock: return "clock.fill"
+        case .calendar: return "calendar"
+        case .system: return "cpu"
+        case .devices: return "headphones"
+        case .drives: return "internaldrive"
+        case .dictionary: return "character.book.closed"
+        case .terminal: return "terminal"
+        case .ai: return "sparkles"
+        case .widgets: return "slider.horizontal.3"
+        }
+    }
+}

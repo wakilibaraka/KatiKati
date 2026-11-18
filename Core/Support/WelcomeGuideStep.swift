@@ -4,6 +4,7 @@ import Foundation
 /// Island, grant permissions, then the recommended Dock settings. Pure so the flow is unit-tested without a window.
 enum WelcomeGuideStep: Int, CaseIterable, Sendable {
     case pickLayout
+    case dockWidgets
     case liveIsland
     /// Accessibility / Screen Recording / Input Monitoring, each with why it helps.
     case permissions

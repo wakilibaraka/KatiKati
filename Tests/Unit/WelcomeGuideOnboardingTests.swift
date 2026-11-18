@@ -14,13 +14,15 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
 
     func testStepsRunPickLayoutThenDockSettings() {
         XCTAssertEqual(WelcomeGuideStep.first, .pickLayout)
-        XCTAssertEqual(WelcomeGuideStep.pickLayout.next, .liveIsland)
+        XCTAssertEqual(WelcomeGuideStep.pickLayout.next, .dockWidgets)
+        XCTAssertEqual(WelcomeGuideStep.dockWidgets.next, .liveIsland)
         XCTAssertEqual(WelcomeGuideStep.liveIsland.next, .permissions)
         XCTAssertEqual(WelcomeGuideStep.permissions.next, .dockSettings)
         XCTAssertNil(WelcomeGuideStep.dockSettings.next)
         XCTAssertEqual(WelcomeGuideStep.dockSettings.previous, .permissions)
         XCTAssertEqual(WelcomeGuideStep.permissions.previous, .liveIsland)
-        XCTAssertEqual(WelcomeGuideStep.liveIsland.previous, .pickLayout)
+        XCTAssertEqual(WelcomeGuideStep.liveIsland.previous, .dockWidgets)
+        XCTAssertEqual(WelcomeGuideStep.dockWidgets.previous, .pickLayout)
         XCTAssertNil(WelcomeGuideStep.pickLayout.previous)
     }
 
@@ -65,5 +67,23 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
             XCTAssertFalse(LayoutThumbnailModel.islands(for: mode).isEmpty, "\(mode) thumbnail has islands")
         }
         XCTAssertEqual(BarLayoutMode.allCases.count, 5)
+    }
+
+    func testDockLivePreviewStripFitsAndMapsAllSections() {
+        for section in BarSection.allCases {
+            XCTAssertFalse(DockLivePreviewStrip.symbol(for: section).isEmpty)
+        }
+        let preview = DockLivePreviewStrip(
+            mode: .split3,
+            visibleOrder: BarSection.defaultOrder,
+            wings: DockWingsConfiguration(
+                left: DockWingSlotConfig(preset: .spotify, size: .medium),
+                right: DockWingSlotConfig(preset: .ai, size: .medium)
+            )
+        )
+        let host = NSHostingView(rootView: preview.frame(width: 460))
+        host.setFrameSize(NSSize(width: 460, height: 0))
+        host.layoutSubtreeIfNeeded()
+        XCTAssertEqual(host.fittingSize.height, 52, accuracy: 0.5)
     }
 }

@@ -78,6 +78,14 @@ extension SettingsLayoutPane {
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
         SettingsCard(Text("Dock Items")) {
+            if !stageVisible {
+                DockLivePreviewStrip(
+                    mode: store.barLayoutMode,
+                    visibleOrder: store.widgetLayout.visibleOrder,
+                    wings: store.dockWings
+                )
+                SettingsDivider()
+            }
             // Slice DA-2: how the icons answer the pointer and the click, and how a running app is marked. The
             // list below gives these three rows their height back in `widgetListCap`, so the page keeps its clamp.
             SettingsRow(Text("Hover Animation")) {
@@ -353,8 +361,9 @@ extension SettingsLayoutPane {
         let searchRow = Self.widgetRowHeight + 4
         // Dock II Wings quick row takes one row's height back so the page stays under 1074 pt.
         let wingRow = Self.widgetRowHeight + 4
-        return Self.widgetListMaxHeight - pickerRows - searchRow - wingRow
-            - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0)
+        let previewHeight: CGFloat = stageVisible ? 0 : 62
+        return max(Self.widgetRowHeight, Self.widgetListMaxHeight - pickerRows - searchRow - wingRow - previewHeight
+            - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0))
     }
 
     func hoverAnimationTitle(_ style: DockHoverAnimationStyle) -> Text {

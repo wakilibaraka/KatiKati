@@ -794,7 +794,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             onPickTheme: { [weak self] theme in self?.settingsStore.setThemeMaterial(theme) },
             notchEnabled: settingsStore.notchIslandEnabled,
             notchSkin: settingsStore.notchSkin,
-            onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) }
+            onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) },
+            initialVisibleSections: Set(settingsStore.widgetLayout.visibleOrder),
+            onToggleSection: { [weak self] section, on in self?.settingsStore.setWidgetVisible(on, for: section) },
+            initialWings: settingsStore.dockWings,
+            onPickWing: { [weak self] placement, preset in self?.settingsStore.setDockWing(preset, placement: placement) }
         )
         let content = WelcomeGuideWindowContent(
             layout: layoutContext,

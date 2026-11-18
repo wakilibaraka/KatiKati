@@ -103,6 +103,10 @@ struct WelcomeGuideLayoutContext {
     /// Read-only: which look the step's demo draws. The guide never changes the skin itself.
     var notchSkin: LiveIslandSkin = .boring
     var onNotchToggle: (Bool) -> Void = { _ in }
+    var initialVisibleSections: Set<BarSection> = Set(BarSection.defaultOrder)
+    var onToggleSection: (BarSection, Bool) -> Void = { _, _ in }
+    var initialWings: DockWingsConfiguration = .default
+    var onPickWing: (DockWingPlacement, DockWidgetPresetType) -> Void = { _, _ in }
 }
 
 struct WelcomeGuideView: View {
@@ -121,6 +125,8 @@ struct WelcomeGuideView: View {
         .auto, .translucent, .titaniumFrost, .deepOcean, .forestMoss, .emberSunset, .cyberpunkGlass,
     ]
     @State private var notchOn: Bool?
+    @State private var visibleSections: Set<BarSection>?
+    @State private var wingsConfig: DockWingsConfiguration?
     @State private var accessibilityGranted = AXIsProcessTrusted()
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
@@ -162,11 +168,16 @@ struct WelcomeGuideView: View {
     private func stepView(_ step: WelcomeGuideStep) -> some View {
         switch step {
         case .pickLayout: pickLayoutStep
+        case .dockWidgets: dockWidgetsStep
         case .liveIsland: liveIslandStep
         case .permissions: permissionsStep
         case .dockSettings: dockSettingsStep
         }
     }
+
+    private var currentSections: Set<BarSection> { visibleSections ?? layout.initialVisibleSections }
+    private var currentWings: DockWingsConfiguration { wingsConfig ?? layout.initialWings }
+    private var configurableSections: [BarSection] { BarSection.canonicalOrder.filter { $0 != .apps } }
 
     private var currentMode: BarLayoutMode { pickedMode ?? layout.initialMode }
 
@@ -214,6 +225,70 @@ struct WelcomeGuideView: View {
                     .fixedSize()
             }
         }
+    }
+
+    private var dockWidgetsStep: some View {
+        let activeOrder = BarSection.canonicalOrder.filter { $0 == .apps || currentSections.contains($0) }
+        return VStack(alignment: .leading, spacing: 14) {
+            Text("Dock Items").font(.title2.weight(.semibold))
+            Text(verbatim: "Configure visible widgets (including AI) and Dock II flanking wings with a live preview.")
+                .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            DockLivePreviewStrip(mode: currentMode, visibleOrder: activeOrder, wings: currentWings)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                ForEach(configurableSections, id: \.self) { section in
+                    let isOn = currentSections.contains(section)
+                    Button {
+                        var next = currentSections
+                        if isOn { next.remove(section) } else { next.insert(section) }
+                        visibleSections = next
+                        layout.onToggleSection(section, !isOn)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: DockLivePreviewStrip.symbol(for: section))
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(isOn ? (section == .ai ? .cyan : .accentColor) : .secondary)
+                            Text(verbatim: WidgetCatalog.localizedTitle(for: section))
+                                .font(.system(size: 11.5, weight: .medium)).lineLimit(1)
+                            Spacer(minLength: 0)
+                            Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 11))
+                                .foregroundStyle(isOn ? Color.accentColor : Color.secondary.opacity(0.5))
+                        }
+                        .padding(.horizontal, 8).padding(.vertical, 6)
+                        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(isOn ? 0.08 : 0.03)))
+                        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(isOn ? Color.accentColor.opacity(0.45) : Color.primary.opacity(0.08), lineWidth: 1))
+                    }.buttonStyle(.plain)
+                }
+            }
+            HStack(spacing: 12) {
+                wingPicker(label: Text("Left Wing"), placement: .leftWing, current: currentWings.left.preset)
+                wingPicker(label: Text("Right Wing"), placement: .rightWing, current: currentWings.right.preset)
+            }
+            Spacer(minLength: 0)
+            Divider()
+            HStack(spacing: 8) {
+                Spacer()
+                Button("Back") { if let previous = step.previous { step = previous } }.fixedSize()
+                Button("Continue") { if let next = self.step.next { self.step = next } }.keyboardShortcut(.defaultAction).fixedSize()
+            }
+        }
+    }
+
+    private func wingPicker(label: Text, placement: DockWingPlacement, current: DockWidgetPresetType) -> some View {
+        HStack(spacing: 6) {
+            label.font(.callout.weight(.medium))
+            Picker(selection: Binding(
+                get: { current },
+                set: { picked in
+                    wingsConfig = currentWings.assigning(picked, to: placement)
+                    layout.onPickWing(placement, picked)
+                }
+            )) {
+                ForEach(DockWidgetPresetType.allCases) { preset in
+                    Text(verbatim: preset.localizedTitle).tag(preset)
+                }
+            } label: { EmptyView() }.labelsHidden().pickerStyle(.menu).fixedSize()
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var liveIslandStep: some View {

@@ -167,20 +167,53 @@ struct SettingsStage: View {
         let inputs = store.layoutThumbnailInputs
         let islands = LayoutThumbnailModel.islands(for: store.barLayoutMode, inputs: inputs)
         let capsule = LayoutThumbnailModel.capsule(for: store.barLayoutMode, inputs: inputs)
-        let rects = islands.map(\.rect) + (capsule.map { [$0] } ?? [])
+        let wings = store.dockWings
         return ZStack(alignment: .topLeading) {
-            ForEach(Array(rects.enumerated()), id: \.offset) { _, r in
+            ForEach(Array(islands.enumerated()), id: \.offset) { _, island in
+                let r = island.rect
                 let frame = CGRect(x: r.minX * size.width, y: r.minY * size.height,
                                    width: max(3, r.width * size.width), height: max(3, r.height * size.height))
-                RoundedRectangle(cornerRadius: min(frame.width, frame.height) * 0.32, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .overlay(RoundedRectangle(cornerRadius: min(frame.width, frame.height) * 0.32, style: .continuous)
-                        .fill(Color.black.opacity(0.35)))
-                    .frame(width: frame.width, height: frame.height)
-                    .offset(x: frame.minX, y: frame.minY)
+                stagePlate(frame: frame) {
+                    HStack(spacing: 2) {
+                        ForEach(island.sections.prefix(5), id: \.self) { sec in
+                            Image(systemName: DockLivePreviewStrip.symbol(for: sec))
+                                .font(.system(size: max(5, frame.height * 0.42)))
+                                .foregroundStyle(sec == .ai ? .cyan : .white.opacity(0.85))
+                        }
+                    }
+                }
+            }
+            if let capsule {
+                let cf = CGRect(x: capsule.minX * size.width, y: capsule.minY * size.height,
+                                width: max(3, capsule.width * size.width), height: max(3, capsule.height * size.height))
+                stagePlate(frame: cf) { EmptyView() }
+            }
+            if wings.left.preset.isAssigned, let first = islands.first {
+                let w: CGFloat = max(14, size.width * 0.08)
+                let h = max(3, first.rect.height * size.height)
+                stagePlate(frame: CGRect(x: max(2, first.rect.minX * size.width - w - 3), y: first.rect.minY * size.height, width: w, height: h)) {
+                    Image(systemName: wings.left.preset.symbolName).font(.system(size: max(5, h * 0.42))).foregroundStyle(.white.opacity(0.85))
+                }
+            }
+            if wings.right.preset.isAssigned, let lastRect = capsule ?? islands.last?.rect {
+                let w: CGFloat = max(14, size.width * 0.08)
+                let h = max(3, lastRect.height * size.height)
+                stagePlate(frame: CGRect(x: min(size.width - w - 2, lastRect.maxX * size.width + 3), y: lastRect.minY * size.height, width: w, height: h)) {
+                    Image(systemName: wings.right.preset.symbolName).font(.system(size: max(5, h * 0.42))).foregroundStyle(.white.opacity(0.85))
+                }
             }
         }
         .frame(width: size.width, height: size.height, alignment: .topLeading)
+    }
+
+    private func stagePlate<Content: View>(frame: CGRect, @ViewBuilder content: () -> Content) -> some View {
+        let radius = min(frame.width, frame.height) * 0.32
+        return RoundedRectangle(cornerRadius: radius, style: .continuous)
+            .fill(.ultraThinMaterial)
+            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Color.black.opacity(0.35)))
+            .overlay(content())
+            .frame(width: frame.width, height: frame.height)
+            .offset(x: frame.minX, y: frame.minY)
     }
 
     private func notch(scale: CGFloat) -> some View {
