@@ -145,6 +145,45 @@ struct RailTerminalTile: View {
     }
 }
 
+/// Self-contained utility buttons with isolated flyout popovers for Screenshots & Clipboard.
+struct DockScreenshotsUtilityButton: View {
+    @ObservedObject private var controller = TendederoClotheslineController.shared
+    @Environment(\.dockPopoverEdge) private var popoverEdge
+    @State private var showFlyout = false
+
+    private var unreadCount: Int {
+        controller.store.items.filter {
+            if case .screenshot = $0.kind { return $0.isUnread }
+            return false
+        }.count
+    }
+
+    var body: some View {
+        ScreenshotsDockChip(count: unreadCount) {
+            showFlyout.toggle()
+        }
+        .popover(isPresented: $showFlyout, arrowEdge: popoverEdge) {
+            DockScreenshotsFlyoutView()
+        }
+        .onAppear { controller.start() }
+    }
+}
+
+struct DockClipboardUtilityButton: View {
+    @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+    @Environment(\.dockPopoverEdge) private var popoverEdge
+    @State private var showFlyout = false
+
+    var body: some View {
+        ClipboardUtilityDockChip(count: min(monitor.history.entries.count, 99)) {
+            showFlyout.toggle()
+        }
+        .popover(isPresented: $showFlyout, arrowEdge: popoverEdge) {
+            DockClipboardStackFlyoutView()
+        }
+    }
+}
+
 // MARK: - AI Dock Widget & Popover
 
 enum AIDockPresentation {

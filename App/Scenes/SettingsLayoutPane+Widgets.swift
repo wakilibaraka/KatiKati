@@ -246,6 +246,33 @@ extension SettingsLayoutPane {
                 }
             }
             SettingsDivider()
+            SettingsRow(Text("Mid-Dock Utilities")) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(store.dockUtilities.order) { kind in
+                            let on = !store.dockUtilities.hidden.contains(kind)
+                            HStack(spacing: 3) {
+                                Button {
+                                    store.setDockUtilityVisible(kind, !on)
+                                } label: {
+                                    Label(kind.title, systemImage: kind.symbolName)
+                                        .font(.caption)
+                                }
+                                .buttonStyle(.plain)
+                                Button { store.moveDockUtility(kind, by: -1) } label: {
+                                    Image(systemName: "chevron.left").font(.system(size: 8.5, weight: .bold))
+                                }.buttonStyle(.plain)
+                                Button { store.moveDockUtility(kind, by: 1) } label: {
+                                    Image(systemName: "chevron.right").font(.system(size: 8.5, weight: .bold))
+                                }.buttonStyle(.plain)
+                            }
+                            .padding(.horizontal, 7).padding(.vertical, 3)
+                            .background(Capsule().fill(on ? Color.accentColor.opacity(0.22) : Color.primary.opacity(0.06)))
+                        }
+                    }
+                }
+            }
+            SettingsDivider()
             SettingsToggleRow(Text("Keep windows above the taskbar"), isOn: Binding(
                 get: { store.windowLiftEnabled },
                 set: { store.setWindowLiftEnabled($0) }

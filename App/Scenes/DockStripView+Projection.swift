@@ -76,7 +76,8 @@ extension DockStripView {
         // (it may be running with no window, or kept) would be a second one, so it steps aside. Real
         // window chips stay — those are the app's windows, not another module tile.
         let moduleOwnedBundleIDs = DockToolDeduplication.suppressedAppBundleIDs(
-            enabledSections: settingsStore.widgetLayout.visibleOrder
+            enabledSections: settingsStore.widgetLayout.visibleOrder,
+            dockUtilities: settingsStore.dockUtilities
         )
         let items = snapshotItems.filter { item in
             let bid = item.bundleIdentifier ?? ""
@@ -258,9 +259,16 @@ extension DockStripView {
         // Slice DI-1: the Dictionary / Terminal tail chips retired. They drew the same two tools the
         // `BarSection` modules already draw (and the modules are the ones Settings can order), so the
         // bar carried each tool twice before an app icon was even considered.
-        let tailEntries = (settingsStore.showDrawer ? [StripEntry.pop] : [])
-            + pinnedEntries
-            + (settingsStore.showTrash ? [StripEntry.trash] : [])
+        let hasUtilitiesSection = settingsStore.widgetOrder.contains(.utilities)
+        let customFoldersOnly = pinnedEntries.filter { entry in
+            guard case let .pinnedFolder(path) = entry else { return true }
+            return !hasUtilitiesSection || !DockStripView.isDownloadsFolder(path)
+        }
+        let tailEntries: [StripEntry] = hasUtilitiesSection
+            ? customFoldersOnly
+            : (settingsStore.showDrawer ? [StripEntry.pop] : [])
+                + customFoldersOnly
+                + (settingsStore.showTrash ? [StripEntry.trash] : [])
         var zones = [headEntries, liveWithGhost, tailEntries]
             .map { zone in zone.filter { $0.id != collapsedEntryID } }
             .filter { !$0.isEmpty }

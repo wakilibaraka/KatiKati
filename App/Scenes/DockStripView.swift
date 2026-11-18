@@ -1542,7 +1542,7 @@ struct DockStripView: View {
                         }
                     }
                         .frame(width: BarSection.railTileSize * dockScale,
-                               height: section.railTileLength(barHeight: IslandChrome.nativeBarHeight) * dockScale)
+                               height: section == .utilities ? nil : section.railTileLength(barHeight: IslandChrome.nativeBarHeight) * dockScale)
                 } else {
                     HStack(spacing: 6 * dockScale) {
                         if controlCentreHole > 0 { Color.clear.frame(width: controlCentreHole) }
@@ -1555,7 +1555,7 @@ struct DockStripView: View {
                     // Refined slot insets: every widget card matches the 40pt height of the FABs
                     // and app icons beside it (Phase 49).
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .frame(width: section == .apps ? nil : targetWidth * dockScale + controlCentreHole,
+                    .frame(width: (section == .apps || section == .utilities) ? nil : targetWidth * dockScale + controlCentreHole,
                            height: BarSection.railTileSize * dockScale)
                 }
             }
@@ -1637,7 +1637,7 @@ struct DockStripView: View {
                            animatedEntryIDs: $animatedEntryIDs)
         case .trash:
             HStack(spacing: 6) {
-                if showDockClipboardTile {
+                if showDockClipboardTile && !settingsStore.widgetOrder.contains(.utilities) {
                     DockClipboardMicroTile()
                 }
                 trashChip(hovered: hovered)
@@ -1941,7 +1941,28 @@ extension DockStripView {
         case .ai:
             RailAITile().nativeScaled(dockScale)
         case .utilities, .launcher, .widgets, .apps:
-            widgetChip(section, size: .small)
+            if section == .utilities {
+                DockUtilitiesClusterView(
+                    isRail: true,
+                    dockScale: dockScale,
+                    popStore: popStore,
+                    pinnedFolderStore: pinnedFolderStore,
+                    folderCoverStore: folderCoverStore,
+                    hoverStyle: hoverStyle,
+                    settingsStore: settingsStore,
+                    onPopTap: { popChipTapped() },
+                    onAddFolder: onAddFolder,
+                    onFolderTap: { folderPrimaryTap($0) },
+                    onFolderPreview: { folderShowPreview($0) },
+                    onFolderOpenFinder: { openFolderInFinder($0) },
+                    onRemoveFolder: { removePinnedFolder($0) },
+                    onDictionary: { runtime.onToggleDictionary?() },
+                    onTerminal: { runtime.onToggleTerminal?() },
+                    trashTile: { AnyView(trashChip(hovered: false)) }
+                )
+            } else {
+                widgetChip(section, size: .small)
+            }
         }
     }
 
@@ -2024,7 +2045,24 @@ extension DockStripView {
                 .nativeScaled(dockScale)
             }
         case .utilities:
-            EmptyView()
+            DockUtilitiesClusterView(
+                isRail: false,
+                dockScale: dockScale,
+                popStore: popStore,
+                pinnedFolderStore: pinnedFolderStore,
+                folderCoverStore: folderCoverStore,
+                hoverStyle: hoverStyle,
+                settingsStore: settingsStore,
+                onPopTap: { popChipTapped() },
+                onAddFolder: onAddFolder,
+                onFolderTap: { folderPrimaryTap($0) },
+                onFolderPreview: { folderShowPreview($0) },
+                onFolderOpenFinder: { openFolderInFinder($0) },
+                onRemoveFolder: { removePinnedFolder($0) },
+                onDictionary: { runtime.onToggleDictionary?() },
+                onTerminal: { runtime.onToggleTerminal?() },
+                trashTile: { AnyView(trashChip(hovered: false)) }
+            )
         case .apps:
             EmptyView()
         }
@@ -2255,5 +2293,119 @@ final class DockFocusKeyView: NSView {
     override func keyDown(with event: NSEvent) {
         guard isActive, let key = Self.key(for: event) else { return super.keyDown(with: event) }
         onKey?(key)
+    }
+}
+
+/// Modular Mid-Dock Utilities cluster (`Drawer · Screenshots · Clipboard · Dictionary · Terminal · Downloads · Trash`).
+private struct DockUtilitiesClusterView: View {
+    let isRail: Bool
+    let dockScale: CGFloat
+    @ObservedObject var popStore: PopStore
+    @ObservedObject var pinnedFolderStore: PinnedFolderStore
+    @ObservedObject var folderCoverStore: PinnedFolderCoverStore
+    let hoverStyle: HoverStyle
+    @ObservedObject var settingsStore: AppSettingsStore
+    let onPopTap: () -> Void
+    let onAddFolder: () -> Void
+    let onFolderTap: (String) -> Void
+    let onFolderPreview: (String) -> Void
+    let onFolderOpenFinder: (String) -> Void
+    let onRemoveFolder: (String) -> Void
+    let onDictionary: () -> Void
+    let onTerminal: () -> Void
+    let trashTile: () -> AnyView
+
+    var body: some View {
+        let items = settingsStore.dockUtilities.visibleUtilities
+        if isRail {
+            VStack(spacing: ChipPillMetrics.chipSpacing * dockScale) {
+                ForEach(items) { utilityView(for: $0) }
+            }
+        } else {
+            HStack(spacing: ChipPillMetrics.chipSpacing * dockScale) {
+                ForEach(items) { utilityView(for: $0) }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func utilityView(for kind: DockUtilityKind) -> some View {
+        switch kind {
+        case .drawer:
+            PopChip(
+                popStore: popStore,
+                isDropTargeted: false,
+                scale: dockScale,
+                railTile: isRail,
+                hoverStyle: hoverStyle,
+                isHovered: false,
+                onTap: onPopTap,
+                onAddFolder: onAddFolder
+            )
+        case .screenshots:
+            DockScreenshotsUtilityButton()
+                .scaleEffect(dockScale)
+        case .clipboard:
+            DockClipboardUtilityButton()
+                .scaleEffect(dockScale)
+        case .dictionary:
+            if isRail {
+                RailDictionaryTile()
+                    .scaleEffect(dockScale)
+                    .onTapGesture { onDictionary() }
+            } else {
+                DictionaryDockChip(onOpen: onDictionary)
+                    .scaleEffect(dockScale)
+            }
+        case .terminal:
+            if isRail {
+                RailTerminalTile()
+                    .scaleEffect(dockScale)
+                    .onTapGesture { onTerminal() }
+            } else {
+                TerminalDockChip(onOpen: onTerminal)
+                    .scaleEffect(dockScale)
+            }
+        case .downloads:
+            downloadsUtilityTile
+        case .trash:
+            trashTile()
+        }
+    }
+
+    @ViewBuilder
+    private var downloadsUtilityTile: some View {
+        if let path = pinnedFolderStore.folderPaths.first(where: DockStripView.isDownloadsFolder) {
+            PinnedFolderChip(
+                path: path,
+                cover: folderCoverStore.covers[path],
+                sortOrder: pinnedFolderStore.sortOrder(for: path),
+                onTap: { onFolderTap(path) },
+                onPreview: { onFolderPreview(path) },
+                onOpenInFinder: { onFolderOpenFinder(path) },
+                onAddFolder: onAddFolder,
+                onRemove: { onRemoveFolder(path) },
+                onSetSortOrder: { pinnedFolderStore.setSortOrder($0, for: path) },
+                isDropTarget: false,
+                showsDownloadActivity: !pinnedFolderStore.isUnreadUntilOpened(path),
+                newFileCount: folderCoverStore.newFileCounts[path] ?? 0,
+                scale: dockScale,
+                railTile: isRail,
+                hoverStyle: hoverStyle,
+                isHovered: false
+            )
+        } else {
+            ModernUtilitySquircleIcon(
+                symbol: "arrow.down.circle.fill",
+                gradient: [Color(red: 0.22, green: 0.62, blue: 0.96), Color(red: 0.14, green: 0.36, blue: 0.78)],
+                tint: .white,
+                label: "Downloads"
+            ) {
+                if let url = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+            .scaleEffect(dockScale)
+        }
     }
 }
