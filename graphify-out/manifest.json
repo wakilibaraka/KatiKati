@@ -60,9 +60,9 @@
     "semantic_hash": "bc7ae5307bb41bad473159dec31beacb"
   },
   "App/Composition/CalendarService.swift": {
-    "mtime": 1793804866.9726179,
-    "seen": 1793805182.752299,
-    "ast_hash": "487d7229985ae53f4fd949eeef801827",
+    "mtime": 1795015354.6137335,
+    "seen": 1795015661.9641972,
+    "ast_hash": "b72baa6781b1d2df90e3bb45a73bb2a5",
     "semantic_hash": ""
   },
   "App/Composition/CameraMirrorService.swift": {
@@ -726,9 +726,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
-    "mtime": 1794994593.5405881,
-    "seen": 1794996059.228172,
-    "ast_hash": "89a56faa4a23c65ee63cf14f16133bbc",
+    "mtime": 1795015363.1145415,
+    "seen": 1795015661.96431,
+    "ast_hash": "ffc52c86c8346b1ba65dad7636900e6f",
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
@@ -1338,9 +1338,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WidgetLookSettingsBlock.swift": {
-    "mtime": 1795006878.392561,
-    "seen": 1795007055.523556,
-    "ast_hash": "53d503a326d9c31b3789eb2eca8c3855",
+    "mtime": 1795015365.7855148,
+    "seen": 1795015661.964441,
+    "ast_hash": "a0e63710bf40e43b8bdccd8e70f931a3",
     "semantic_hash": ""
   },
   "App/Scenes/WidgetMotionAnimation.swift": {
@@ -4314,9 +4314,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetPresetTests.swift": {
-    "mtime": 1794906712.4336631,
-    "seen": 1794906908.433602,
-    "ast_hash": "e1923c9871a75e96948e0c100d13920d",
+    "mtime": 1795015549.1788352,
+    "seen": 1795015661.9649348,
+    "ast_hash": "c1c174eeb58a94d73e43736bfac011d5",
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetTallTests.swift": {
