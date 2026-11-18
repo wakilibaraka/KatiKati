@@ -32,8 +32,10 @@ enum LiveEvent: Equatable, Sendable {
     case stopwatchStopped(elapsed: TimeInterval)
     /// The soonest upcoming event arrived at "today".
     case countdownReachedToday(label: String)
-    /// A text copy was recorded (Phase 22c, opt-in; delivered directly, not by the detector diff).
+    /// A text copy was recorded (Phase 22c; delivered directly, not by the detector diff).
     case clipboardCopied(preview: String)
+    /// A clipboard paste occurred (in-app or Cmd+V; delivered directly).
+    case clipboardPasted(preview: String)
     /// A browser download finished (Phase 34e; delivered directly by `DownloadsMonitor`, not by the diff).
     case downloadFinished(name: String?)
     /// A Phase 36 daily-helper notice (Caps Lock, battery…); delivered directly by `DailyHelpersService`.

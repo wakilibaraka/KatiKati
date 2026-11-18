@@ -495,3 +495,89 @@ struct DayTimelineBarMath: Equatable, Sendable {
         }
     }
 }
+
+/// Configurable upcoming-event horizon presets (1–3) for the Dock Clock & Calendar card.
+enum CalendarLookaheadHorizon: Int, CaseIterable, Codable, Identifiable, Sendable {
+    case sevenDays = 1
+    case thirtyDays = 2
+    case year = 3
+
+    static let defaultsKey = "com.katikati.calendar.lookaheadHorizon.v1"
+    static let defaultPreset: CalendarLookaheadHorizon = .thirtyDays
+
+    var id: Int { rawValue }
+
+    var days: Int {
+        switch self {
+        case .sevenDays: return 7
+        case .thirtyDays: return 30
+        case .year: return 365
+        }
+    }
+
+    var localizedTitle: String {
+        switch self {
+        case .sevenDays: return String(localized: "1 · 7 Days")
+        case .thirtyDays: return String(localized: "2 · 30 Days (Default)")
+        case .year: return String(localized: "3 · Next Year")
+        }
+    }
+}
+
+/// Configurable single-click / double-click actions on the Dock Clock & Calendar widget.
+enum CalendarDockAction: String, CaseIterable, Codable, Identifiable, Sendable {
+    case togglePanel
+    case openCalendarApp
+    case createEvent
+    case none
+
+    static let singleClickKey = "com.katikati.calendar.singleClickAction"
+    static let doubleClickKey = "com.katikati.calendar.doubleClickAction"
+
+    var id: String { rawValue }
+
+    var localizedTitle: String {
+        switch self {
+        case .togglePanel: return String(localized: "Toggle Calendar Popover")
+        case .openCalendarApp: return String(localized: "Open Calendar.app")
+        case .createEvent: return String(localized: "New Event")
+        case .none: return String(localized: "Do Nothing")
+        }
+    }
+}
+
+/// Compact 2-line formatter for near & far-future events inside narrow Dock Clock cards.
+enum CalendarEventCompactFormatter {
+    static func relativeLine(
+        for startDate: Date,
+        isAllDay: Bool = false,
+        now: Date = Date(),
+        calendar: Calendar = .current,
+        locale: Locale = .current
+    ) -> String {
+        if startDate <= now { return String(localized: "Now") }
+        let seconds = Int(startDate.timeIntervalSince(now))
+        if seconds < 24 * 3600 {
+            let totalMinutes = max(1, seconds / 60)
+            let hours = totalMinutes / 60
+            let mins = totalMinutes % 60
+            if calendar.isDate(startDate, inSameDayAs: now) {
+                return hours > 0 ? "in \(hours)h \(mins)m" : "in \(mins)m"
+            }
+            let df = DateFormatter()
+            df.locale = locale
+            df.calendar = calendar
+            df.dateFormat = "HH:mm"
+            return isAllDay ? String(localized: "Tomorrow") : "\(String(localized: "Tomorrow")) · \(df.string(from: startDate))"
+        }
+        let startDay = calendar.startOfDay(for: now)
+        let targetDay = calendar.startOfDay(for: startDate)
+        let dayDiff = max(1, calendar.dateComponents([.day], from: startDay, to: targetDay).day ?? 1)
+        let df = DateFormatter()
+        df.locale = locale
+        df.calendar = calendar
+        df.setLocalizedDateFormatFromTemplate("MMM d")
+        let dateStr = df.string(from: startDate)
+        return "\(dateStr) · \(dayDiff)d"
+    }
+}

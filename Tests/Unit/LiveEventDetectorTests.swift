@@ -164,4 +164,14 @@ final class LiveEventDetectorTests: XCTestCase {
         XCTAssertEqual(LiveEventPresentation(.trackChanged(title: nil, artist: "Band")).detail, "Band")
         XCTAssertNil(LiveEventPresentation(.trackChanged(title: nil, artist: nil)).detail)
     }
+
+    func testClipboardCopyAndPastePresentationAndDedupeKey() {
+        let copied = LiveEvent.clipboardCopied(preview: "Hello")
+        let pasted = LiveEvent.clipboardPasted(preview: "Hello")
+        XCTAssertNotEqual(copied.dedupeKey, pasted.dedupeKey)
+        XCTAssertEqual(LiveEventPresentation(copied).symbol, "doc.on.clipboard")
+        XCTAssertEqual(LiveEventPresentation(copied).detail, "Hello")
+        XCTAssertEqual(LiveEventPresentation(pasted).symbol, "doc.on.clipboard.fill")
+        XCTAssertEqual(LiveEventPresentation(pasted).detail, "Hello")
+    }
 }

@@ -192,3 +192,82 @@ public struct WeatherState: Codable, Equatable, Sendable {
         lastUpdated: Date()
     )
 }
+
+/// Selectable modules for Pages 2 and 3 of the hybrid 3-page Dock Weather Carousel.
+public enum WeatherCarouselSlotMode: String, CaseIterable, Codable, Identifiable, Sendable {
+    case hourlyCurve
+    case savedCities
+    case conditionsDetail
+    case focusCompanion
+    case systemVitals
+    case nextCalendar
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .hourlyCurve: return String(localized: "6h Temp Curve")
+        case .savedCities: return String(localized: "Saved Cities (3)")
+        case .conditionsDetail: return String(localized: "UV, Wind & Sun")
+        case .focusCompanion: return String(localized: "Focus Timer")
+        case .systemVitals: return String(localized: "System Vitals")
+        case .nextCalendar: return String(localized: "Next Event")
+        }
+    }
+
+    public var symbolName: String {
+        switch self {
+        case .hourlyCurve: return "chart.xyaxis.line"
+        case .savedCities: return "globe"
+        case .conditionsDetail: return "wind"
+        case .focusCompanion: return "timer"
+        case .systemVitals: return "gauge.with.dots.needle.33percent"
+        case .nextCalendar: return "calendar"
+        }
+    }
+}
+
+/// Persisted configuration for Pages 2–3 and up to 3 user-pinned Dock Weather locations.
+public struct WeatherCarouselConfig: Codable, Equatable, Sendable {
+    public static let defaultsKey = "com.katikati.weather.carouselConfig.v1"
+    public static let maxPinnedLocations = 3
+
+    public var page2: WeatherCarouselSlotMode
+    public var page3: WeatherCarouselSlotMode
+    public var pinnedLocationTokens: [String]
+
+    public init(
+        page2: WeatherCarouselSlotMode = .hourlyCurve,
+        page3: WeatherCarouselSlotMode = .savedCities,
+        pinnedLocationTokens: [String] = []
+    ) {
+        self.page2 = page2
+        self.page3 = page3
+        self.pinnedLocationTokens = Self.normalizedTokens(pinnedLocationTokens)
+    }
+
+    public static let `default` = WeatherCarouselConfig()
+
+    public static func normalizedTokens(_ raw: [String]) -> [String] {
+        var seen = Set<String>()
+        var result: [String] = []
+        for token in raw where !token.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if seen.insert(token).inserted {
+                result.append(token)
+                if result.count == maxPinnedLocations { break }
+            }
+        }
+        return result
+    }
+
+    public static func decode(_ data: Data?) -> WeatherCarouselConfig? {
+        guard let data else { return nil }
+        guard var decoded = try? JSONDecoder().decode(WeatherCarouselConfig.self, from: data) else { return nil }
+        decoded.pinnedLocationTokens = normalizedTokens(decoded.pinnedLocationTokens)
+        return decoded
+    }
+
+    public func encoded() -> Data? {
+        try? JSONEncoder().encode(self)
+    }
+}

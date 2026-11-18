@@ -39,7 +39,7 @@ extension LiveEvent {
         switch self {
         case .timerFinished, .focusPhaseChanged, .focusCycleCompleted:
             return true
-        case .trackChanged, .stopwatchStopped, .countdownReachedToday, .clipboardCopied, .downloadFinished, .notice:
+        case .trackChanged, .stopwatchStopped, .countdownReachedToday, .clipboardCopied, .clipboardPasted, .downloadFinished, .notice:
             return false
         }
     }

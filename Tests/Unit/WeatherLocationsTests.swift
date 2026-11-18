@@ -52,4 +52,15 @@ final class WeatherLocationsTests: XCTestCase {
         XCTAssertEqual(cities[1].subtitle, "")
         XCTAssertEqual(try WeatherGeocoding.parse("{}".data(using: .utf8)!), [], "no results key = empty")
     }
+
+    func testWeatherCarouselConfigRoundTripAndTokenCap() throws {
+        let cfg = WeatherCarouselConfig(
+            page2: .conditionsDetail,
+            page3: .focusCompanion,
+            pinnedLocationTokens: ["current", "city:1", "current", "city:2", "city:3", "city:4"]
+        )
+        XCTAssertEqual(cfg.pinnedLocationTokens, ["current", "city:1", "city:2"])
+        let decoded = try XCTUnwrap(WeatherCarouselConfig.decode(cfg.encoded()))
+        XCTAssertEqual(decoded, cfg)
+    }
 }

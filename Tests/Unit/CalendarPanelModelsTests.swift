@@ -161,4 +161,22 @@ final class CalendarPanelModelsTests: XCTestCase {
         XCTAssertEqual(url?.scheme, "calshow")
         XCTAssertEqual(url?.absoluteString, "calshow:\(Int(start.timeIntervalSinceReferenceDate))")
     }
+
+    func testLookaheadHorizonsAndCompactFormatter() {
+        XCTAssertEqual(CalendarLookaheadHorizon.sevenDays.days, 7)
+        XCTAssertEqual(CalendarLookaheadHorizon.thirtyDays.days, 30)
+        XCTAssertEqual(CalendarLookaheadHorizon.year.days, 365)
+        XCTAssertEqual(CalendarLookaheadHorizon.defaultPreset, .thirtyDays)
+
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        let now = date(2026, 11, 18, 10, 0, in: cal.timeZone)
+        let sameDay = date(2026, 11, 18, 12, 30, in: cal.timeZone)
+        XCTAssertEqual(CalendarEventCompactFormatter.relativeLine(for: sameDay, now: now, calendar: cal, locale: Locale(identifier: "en_US_POSIX")), "in 2h 30m")
+
+        let sixDaysOut = date(2026, 11, 24, 9, 0, in: cal.timeZone)
+        let far = CalendarEventCompactFormatter.relativeLine(for: sixDaysOut, now: now, calendar: cal, locale: Locale(identifier: "en_US_POSIX"))
+        XCTAssertTrue(far.contains("6d"), far)
+        XCTAssertTrue(far.contains("24"), far)
+    }
 }
