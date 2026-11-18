@@ -141527,6 +141527,118 @@
         "it": { "stringUnit": { "state": "translated", "value": "Consenti accesso" } },
         "ko": { "stringUnit": { "state": "translated", "value": "접근 권한 허용" } }
       }
+    },
+    "Manual": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Manual" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "手动" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "手動" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "手動" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Manuell" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Manuel" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Manual" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Manual" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Manual" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Manual" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Manuale" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "수동" } }
+      }
+    },
+    "Filenames": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Filenames" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文件名" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "檔案名稱" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ファイル名" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dateinamen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Noms de fichiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Nombres de archivo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Nombres de archivo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nomes de arquivo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Nomes de ficheiro" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nomi file" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파일 이름" } }
+      }
+    },
+    "1 Line": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "1 Line" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "1 行" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "1 行" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "1 行" } },
+        "de": { "stringUnit": { "state": "translated", "value": "1 Zeile" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "1 ligne" } },
+        "es": { "stringUnit": { "state": "translated", "value": "1 línea" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "1 línea" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "1 linha" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "1 linha" } },
+        "it": { "stringUnit": { "state": "translated", "value": "1 riga" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "1줄" } }
+      }
+    },
+    "2 Lines": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "2 Lines" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "2 行" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "2 行" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "2 行" } },
+        "de": { "stringUnit": { "state": "translated", "value": "2 Zeilen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "2 lignes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "2 líneas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "2 líneas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "2 linhas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "2 linhas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "2 righe" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "2줄" } }
+      }
+    },
+    "Compact Density": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Compact Density" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "紧凑密度" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "緊湊密度" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コンパクト表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Kompakte Dichte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Densité compacte" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Densidad compacta" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Densidad compacta" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Densidade compacta" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Densidade compacta" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Densità compatta" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "좁은 간격" } }
+      }
+    },
+    "Remove Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Remove Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "移除格子" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "移除格子" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ボックスを削除" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Box entfernen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Supprimer la boîte" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Eliminar caja" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Quitar caja" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Remover caixa" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Remover caixa" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Rimuovi riquadro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "상자 제거" } }
+      }
+    },
+    "More Options": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "More Options" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "更多选项" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "更多選項" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "その他のオプション" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Weitere Optionen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Plus d’options" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Más opciones" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Más opciones" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mais opções" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mais opções" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Altre opzioni" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "더 보기" } }
+      }
     }
   },
   "version": "1.0"
