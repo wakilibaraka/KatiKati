@@ -6188,3 +6188,28 @@ display sleep or a lock, and pre-revoke frames staying on screen after Screen Re
   - **Slice 3 (`App/Scenes/Notch/Island/`):** ProMotion `CADisplayLink` surface driver with zero-idle gate (`IslandSurfaceDriver.swift`), OLED-calibrated primitives (`IslandPrimitives.swift`), touch-adapted kit (`IslandKit.swift`), and `IslandSurfaceView.swift` with 2-layer shadow, 1:1 pull-down drag, and 1-tap Bento switcher.
   - **Slice 4 (`IslandPresets.swift` & `App/Composition/IslandLiveBridge.swift`):** 9 live activity presets (`Now Playing`, `Timer`, `Download`, `Call`, `Recording`, `Shelf Transfer`, `Battery`, `AI Agent`, `System HUD`) + reusable `ETA` template bound to KatiKati live services + Settings Playground scenarios.
   - **Slice 5 (`NotchPanelController.swift`, `AppSettingsStore.swift`, `NotchPreview.swift`, `LiveIslandSettingsBlock.swift`, `Localizable.xcstrings`, `NOTICE`):** Added `.dynamicIsland` skin (`LiveIslandSkin`), click-through pass-through outside active pills, Settings controls + `IslandPlaygroundSheet`, MIT attribution in `NOTICE`, and 11 new keys × 12 locales.
+
+---
+
+## Phase 60–67 — DeskBox Clean-Room Feature Port (Roadmap & Slice Log)
+
+Clean-room native macOS Swift/AppKit/SwiftUI port of [Tianyu199509/DeskBox](https://github.com/Tianyu199509/DeskBox) capabilities (`macOS 15.0+` floor, Liquid Glass `#available(macOS 26.0, *)`, zero new dependencies, DeskBox credited as behavior reference only in `NOTICE` — zero GPL-3.0-only code copied).
+
+- **Locked Decisions (2026-11-18):**
+  - **Additive desktop-layer canvas:** lives behind regular windows, lazy-gated off by default (`com.katikati.desktop.enabled == false`), shares `TasksController`, `NotesStore`, `WeatherService`, `NowPlayingService`, `ShelfStore`, `DisplayTopologyStore`, `FileSearchService`, and `SettingsBackupService`.
+  - **Settings placement (Phase 60):** `DesktopSettingsBlock` mounts inside the existing **Widgets** tab (`LANES.md §49e`), before a dedicated Displays/Desktop stage in Phase 65.
+  - **First-enable empty state:** desktop stays clean when turned ON with zero boxes; Settings & Status Menu provide **"Add Folder Box…"** (`NSOpenPanel`) plus optional 1-click **"Create Starter Box"** (`~/KatiKati/Inbox`).
+  - **Shortcuts:** `.desktopQuickReveal` and `.desktopToggleHidden` default to `.off`.
+- **Phased Roadmap:**
+  - **Phase 60 (Active):** Desktop Widget Canvas Foundation + Real-Folder File Boxes MVP (`60A–60H`).
+  - **Phase 61:** File Stacks (manual/auto, Adaptive/3×3/5×5 popovers), Tabbed Widget Groups (`⌃Tab`/wheel), Optional Managed Storage (copy-first verified migration), and Preview-First Desktop Auto-Organize.
+  - **Phase 62:** DeskBox Theming & Panorama Background System (materials, per-widget emoji/image icons, backgrounds, borders, text treatments, cross-widget Panorama UV slicing).
+  - **Phase 63:** Desktop Feature Widgets (upgraded Todo, Quick Capture, Glance w/ lunar/solar terms/festivals, Desktop Weather, Vinyl Music).
+  - **Phase 64:** Smart Capsule Mode, Interaction-Locked Hover Expansion & Dockable Edge Capsule Bar.
+  - **Phase 65:** Multi-Display Topology Memory, Scale-Aware Reflow & Settings Displays Preview/Identify Stage.
+  - **Phase 66:** Unified Desktop Search (`66A–B` Search Pill + Command Bar upgrades; `66C–D` Launcher grid revamp **strictly gated after Launcher livecheck**).
+  - **Phase 67:** Keychain-Backed WebDAV Scheduled Backup & Performance Modes (`Balanced` / `Resource Saver` / `Custom`).
+
+### Phase 60 Slice Log
+
+- **2026-11-18 — Slice 60A (Core models, snapping geometry & manual ordering, done):** Added clean-room `Core/Support/Desktop/` pure types (`DesktopBoxModel.swift`, `DesktopLayoutEngine.swift`, `DesktopFolderOrdering.swift`) with lenient Codable frame decoding, 50×50 minimum clamping, 8-handle snap resize, sibling/edge snap move guides, `⌃`-drag bounded group move, 1080p↔4K normalized rect reflow, EDID display resolution, and manual-order reconciliation + multi-item block reorder; added `NOTICE` clean-room DeskBox attribution and `Tests/Unit/DesktopBoxCoreTests.swift` (9/9 passed); all gates green (`check_localization.py`, `check_debug_switches.py`, `check_availability_warnings.py`, `git diff --check`).
