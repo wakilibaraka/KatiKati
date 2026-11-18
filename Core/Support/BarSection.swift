@@ -279,26 +279,137 @@ enum DockUtilityKind: String, CaseIterable, Identifiable, Codable, Sendable {
     }
 }
 
+/// Where Dock utility cards & flyouts (Terminal, Dictionary, Screenshots, Clipboard, Downloads, Drawer) open.
+enum UtilityPopoverPlacement: String, Codable, CaseIterable, Identifiable, Sendable {
+    /// Anchored directly above (or beside, on a vertical rail) its Dock icon with a `v` pointer when enabled.
+    case anchored
+    /// Floating cleanly above the Dock centered horizontally on screen (no `v` pointer).
+    case bottomFloat
+    /// Floating centered in the active display (no `v` pointer).
+    case centerFloat
+
+    var id: String { rawValue }
+
+    var localizedTitle: String {
+        switch self {
+        case .anchored: return String(localized: "Anchored (v)")
+        case .bottomFloat: return String(localized: "Bottom Float")
+        case .centerFloat: return String(localized: "Center Float")
+        }
+    }
+}
+
+/// Visual preset for Downloads, Screenshots, Clipboard, and utility flyouts.
+enum UtilityFlyoutPreset: String, Codable, CaseIterable, Identifiable, Sendable {
+    /// Rich Shelf-inspired card deck anchored with the downward `v` pointer.
+    case shelfDeck
+    /// Classic compact multi-column icon grid anchored with the downward `v` pointer.
+    case compactGrid
+    /// Borderless floating Shelf-style glass deck without any `v` arrow stem.
+    case cleanFloat
+
+    var id: String { rawValue }
+
+    var localizedTitle: String {
+        switch self {
+        case .shelfDeck: return String(localized: "Shelf Deck (v)")
+        case .compactGrid: return String(localized: "Compact Grid (v)")
+        case .cleanFloat: return String(localized: "Clean Float (No v)")
+        }
+    }
+
+    /// True only when both the preset and placement allow an anchored `v` pointer.
+    func resolvesArrowVisible(for placement: UtilityPopoverPlacement, isVerticalRail: Bool = false) -> Bool {
+        guard !isVerticalRail, placement == .anchored else { return false }
+        return self != .cleanFloat
+    }
+}
+
+/// Dismissal rule when clicking outside or pressing Esc on Terminal, Dictionary, and utility cards.
+enum UtilityDismissalBehavior: String, Codable, CaseIterable, Identifiable, Sendable {
+    /// Default: Terminal stays open across focus switches until explicitly closed; Dictionary & flyouts dismiss on outside click.
+    case persistentTerminal
+    /// Dismisses on outside click when anchored with `v`, and stays open when floating at Bottom or Center.
+    case transientWhenAnchored
+    /// All panels dismiss on outside click/Esc unless locked open via their header Pin toggle.
+    case unifiedWithPin
+
+    var id: String { rawValue }
+
+    var localizedTitle: String {
+        switch self {
+        case .persistentTerminal: return String(localized: "Persistent Terminal")
+        case .transientWhenAnchored: return String(localized: "Transient Anchored")
+        case .unifiedWithPin: return String(localized: "Click-Outside + Pin")
+        }
+    }
+
+    func dismissesOnOutsideClick(isTerminal: Bool, placement: UtilityPopoverPlacement, isPinned: Bool) -> Bool {
+        if isPinned { return false }
+        switch self {
+        case .persistentTerminal:
+            return !isTerminal
+        case .transientWhenAnchored:
+            return placement == .anchored
+        case .unifiedWithPin:
+            return true
+        }
+    }
+}
+
 /// Pure ordered + visibility state for Mid-Dock Utilities modularity.
 struct DockUtilitiesConfig: Codable, Equatable, Sendable {
     static let defaultsKey = "com.katikati.dock.utilitiesConfig.v1"
 
     var order: [DockUtilityKind]
     var hidden: Set<DockUtilityKind>
+    var popoverPlacement: UtilityPopoverPlacement
+    var flyoutPreset: UtilityFlyoutPreset
+    var dismissalBehavior: UtilityDismissalBehavior
 
     static let defaultOrder: [DockUtilityKind] = [
         .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash
     ]
 
-    init(order: [DockUtilityKind] = defaultOrder, hidden: Set<DockUtilityKind> = []) {
+    init(
+        order: [DockUtilityKind] = defaultOrder,
+        hidden: Set<DockUtilityKind> = [],
+        popoverPlacement: UtilityPopoverPlacement = .anchored,
+        flyoutPreset: UtilityFlyoutPreset = .shelfDeck,
+        dismissalBehavior: UtilityDismissalBehavior = .persistentTerminal
+    ) {
         self.order = Self.normalizedOrder(order)
         self.hidden = hidden
+        self.popoverPlacement = popoverPlacement
+        self.flyoutPreset = flyoutPreset
+        self.dismissalBehavior = dismissalBehavior
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case order, hidden, popoverPlacement, flyoutPreset, dismissalBehavior
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let order = try c.decodeIfPresent([DockUtilityKind].self, forKey: .order) ?? Self.defaultOrder
+        let hidden = try c.decodeIfPresent(Set<DockUtilityKind>.self, forKey: .hidden) ?? []
+        let placement = try c.decodeIfPresent(UtilityPopoverPlacement.self, forKey: .popoverPlacement) ?? .anchored
+        let preset = try c.decodeIfPresent(UtilityFlyoutPreset.self, forKey: .flyoutPreset) ?? .shelfDeck
+        let dismissal = try c.decodeIfPresent(UtilityDismissalBehavior.self, forKey: .dismissalBehavior) ?? .persistentTerminal
+        self.init(order: order, hidden: hidden, popoverPlacement: placement, flyoutPreset: preset, dismissalBehavior: dismissal)
     }
 
     static let `default` = DockUtilitiesConfig()
 
     var visibleUtilities: [DockUtilityKind] {
         order.filter { !hidden.contains($0) }
+    }
+
+    var effectivePlacementForPreset: UtilityPopoverPlacement {
+        if flyoutPreset == .cleanFloat && popoverPlacement == .anchored {
+            return .bottomFloat
+        }
+        return popoverPlacement
     }
 
     func moving(_ item: DockUtilityKind, by delta: Int) -> DockUtilitiesConfig {
@@ -308,13 +419,25 @@ struct DockUtilitiesConfig: Codable, Equatable, Sendable {
         var next = order
         next.remove(at: idx)
         next.insert(item, at: target)
-        return DockUtilitiesConfig(order: next, hidden: hidden)
+        return DockUtilitiesConfig(
+            order: next,
+            hidden: hidden,
+            popoverPlacement: popoverPlacement,
+            flyoutPreset: flyoutPreset,
+            dismissalBehavior: dismissalBehavior
+        )
     }
 
     func setting(_ item: DockUtilityKind, visible: Bool) -> DockUtilitiesConfig {
         var nextHidden = hidden
         if visible { nextHidden.remove(item) } else { nextHidden.insert(item) }
-        return DockUtilitiesConfig(order: order, hidden: nextHidden)
+        return DockUtilitiesConfig(
+            order: order,
+            hidden: nextHidden,
+            popoverPlacement: popoverPlacement,
+            flyoutPreset: flyoutPreset,
+            dismissalBehavior: dismissalBehavior
+        )
     }
 
     func suppressedAppBundleIDs() -> Set<String> {

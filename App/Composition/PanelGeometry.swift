@@ -857,6 +857,62 @@ enum PanelGeometry {
 
     static let stackPopupTopGap: CGFloat = 8
 
+    /// Placement geometry for Mid-Dock Utilities (`Dictionary`, `Terminal`, `Screenshots`, `Clipboard`,
+    /// `Downloads`, `Drawer`, `Trash`): supports icon-anchored (`v` arrow), centered bottom float, and screen center float.
+    struct UtilityPanelLayout: Equatable {
+        let frame: CGRect
+        let arrowOffsetFromCenter: CGFloat
+        let showsArrow: Bool
+    }
+
+    static func utilityPanelFrame(
+        plateSize: CGSize,
+        anchorVisibleRect: CGRect?,
+        placement: UtilityPopoverPlacement,
+        flyoutPreset: UtilityFlyoutPreset,
+        stripPlacement: StripPlacement = .bottom,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics = .tungstenEdge
+    ) -> UtilityPanelLayout {
+        let m = StackPopupMetrics.self
+        let effectivePlacement = (flyoutPreset == .cleanFloat && placement == .anchored) ? .bottomFloat : placement
+        let showsArrow = flyoutPreset.resolvesArrowVisible(for: effectivePlacement, isVerticalRail: stripPlacement.isVertical)
+        let arrowH: CGFloat = showsArrow ? m.arrowHeight : 0
+        let totalSize = CGSize(
+            width: plateSize.width + m.panelMargin * 2,
+            height: plateSize.height + arrowH + m.panelMargin * 2
+        )
+
+        if effectivePlacement == .anchored, let anchor = anchorVisibleRect, anchor != .zero {
+            let target = folderPopupTargetFrame(
+                anchorVisibleRect: anchor,
+                size: totalSize,
+                on: screen,
+                metrics: metrics,
+                stripPlacement: stripPlacement
+            )
+            let arrowOffset = showsArrow ? (anchor.midX - target.midX) : 0
+            return UtilityPanelLayout(frame: target, arrowOffsetFromCenter: arrowOffset, showsArrow: showsArrow)
+        }
+
+        let vf = screen.visibleFrame
+        let minPlateX = vf.minX + m.screenMargin
+        let maxPlateX = max(minPlateX, vf.maxX - m.screenMargin - plateSize.width)
+        let plateX = min(max(vf.midX - plateSize.width / 2, minPlateX), maxPlateX)
+        let maxPlateY = max(vf.minY + m.screenMargin, vf.maxY - m.screenMargin - plateSize.height)
+        let rawY: CGFloat = (effectivePlacement == .centerFloat)
+            ? (vf.midY - plateSize.height / 2)
+            : (vf.minY + 80)
+        let plateY = min(max(rawY, vf.minY + m.screenMargin), maxPlateY)
+        let windowFrame = CGRect(
+            x: plateX - m.panelMargin,
+            y: plateY - m.panelMargin,
+            width: plateSize.width + m.panelMargin * 2,
+            height: plateSize.height + m.panelMargin * 2
+        )
+        return UtilityPanelLayout(frame: windowFrame, arrowOffsetFromCenter: 0, showsArrow: false)
+    }
+
     /// The visible part of the popup window — plate plus arrow strip. Hit tests use this, never
     /// the window frame: the border is 40pt of nothing.
     static func folderPopupPlateFrame(panelFrame: CGRect) -> CGRect {

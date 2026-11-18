@@ -141,5 +141,60 @@ final class BarLayoutModeTests: XCTestCase {
 
         let decoded = try XCTUnwrap(DockUtilitiesConfig.decode(cfg.encoded()))
         XCTAssertEqual(decoded, cfg)
+
+        // Legacy payload missing placement/preset/dismissal decodes safely with recommended defaults
+        let legacyJSON = #"{"order":["terminal","downloads"],"hidden":[]}"#.data(using: .utf8)
+        let legacyDecoded = try XCTUnwrap(DockUtilitiesConfig.decode(legacyJSON))
+        XCTAssertEqual(legacyDecoded.popoverPlacement, .anchored)
+        XCTAssertEqual(legacyDecoded.flyoutPreset, .shelfDeck)
+        XCTAssertEqual(legacyDecoded.dismissalBehavior, .persistentTerminal)
+    }
+
+    func testUtilityFlyoutPresetsAndPlacementGeometry() {
+        XCTAssertTrue(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .anchored))
+        XCTAssertTrue(UtilityFlyoutPreset.compactGrid.resolvesArrowVisible(for: .anchored))
+        XCTAssertFalse(UtilityFlyoutPreset.cleanFloat.resolvesArrowVisible(for: .anchored))
+        XCTAssertFalse(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .bottomFloat))
+        XCTAssertFalse(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .centerFloat))
+        XCTAssertFalse(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .anchored, isVerticalRail: true))
+
+        XCTAssertFalse(UtilityDismissalBehavior.persistentTerminal.dismissesOnOutsideClick(
+            isTerminal: true, placement: .anchored, isPinned: false))
+        XCTAssertTrue(UtilityDismissalBehavior.persistentTerminal.dismissesOnOutsideClick(
+            isTerminal: false, placement: .anchored, isPinned: false))
+        XCTAssertFalse(UtilityDismissalBehavior.transientWhenAnchored.dismissesOnOutsideClick(
+            isTerminal: true, placement: .bottomFloat, isPinned: false))
+        XCTAssertFalse(UtilityDismissalBehavior.unifiedWithPin.dismissesOnOutsideClick(
+            isTerminal: false, placement: .anchored, isPinned: true))
+
+        let screen = PanelScreenGeometry(
+            frame: CGRect(x: 0, y: 0, width: 1710, height: 1112),
+            visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1075),
+            safeAreaTop: 37
+        )
+        let anchor = CGRect(x: 920, y: 8, width: 40, height: 40)
+        let size = CGSize(width: 680, height: 420)
+
+        let anchored = PanelGeometry.utilityPanelFrame(
+            plateSize: size, anchorVisibleRect: anchor,
+            placement: .anchored, flyoutPreset: .shelfDeck, on: screen
+        )
+        XCTAssertTrue(anchored.showsArrow)
+        XCTAssertEqual(anchored.arrowOffsetFromCenter, anchor.midX - anchored.frame.midX, accuracy: 0.5)
+
+        let bottom = PanelGeometry.utilityPanelFrame(
+            plateSize: size, anchorVisibleRect: anchor,
+            placement: .bottomFloat, flyoutPreset: .shelfDeck, on: screen
+        )
+        XCTAssertFalse(bottom.showsArrow)
+        XCTAssertEqual(bottom.frame.midX, screen.visibleFrame.midX, accuracy: 0.5)
+        XCTAssertEqual(bottom.frame.minY + StackPopupMetrics.panelMargin, 80, accuracy: 0.5)
+
+        let centered = PanelGeometry.utilityPanelFrame(
+            plateSize: size, anchorVisibleRect: anchor,
+            placement: .centerFloat, flyoutPreset: .shelfDeck, on: screen
+        )
+        XCTAssertFalse(centered.showsArrow)
+        XCTAssertEqual(centered.frame.midY, screen.visibleFrame.midY, accuracy: 0.5)
     }
 }
