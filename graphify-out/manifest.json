@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795040417.6022816,
-    "seen": 1795040457.845427,
-    "ast_hash": "1e274904506dd59a549b574dc20394f8",
+    "mtime": 1795040749.2777057,
+    "seen": 1795040781.370264,
+    "ast_hash": "5a3ea55323f899cd1ee5112c868c6db3",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7617,6 +7617,12 @@
     "mtime": 1795040372.8597531,
     "seen": 1795040457.844522,
     "ast_hash": "00fce09ebadcc8a1baf59183a60f63f8",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopFolderBoxView.swift": {
+    "mtime": 1795040710.733617,
+    "seen": 1795040781.369486,
+    "ast_hash": "7e4bdf05ecefda51e3ea9d52919d1ea0",
     "semantic_hash": ""
   }
 }
