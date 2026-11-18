@@ -49,12 +49,12 @@ final class IdleAppNotifier: NSObject, UNUserNotificationCenterDelegate {
         registerCategoryIfNeeded()
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "\(appName) has been idle")
+        content.title = String(format: String(localized: "%@ has been idle"), appName)
         if memoryBytes > 0 {
             let mem = AppMemorySampler.formatBytes(memoryBytes)
-            content.body = String(localized: "Unused for \(idleMinutes) min (\(mem) RAM).")
+            content.body = String(format: String(localized: "Unused for %d min (%@ RAM)."), idleMinutes, mem)
         } else {
-            content.body = String(localized: "Unused for \(idleMinutes) min.")
+            content.body = String(format: String(localized: "Unused for %d min."), idleMinutes)
         }
         content.categoryIdentifier = Self.categoryIdentifier
         content.userInfo = ["bundleID": bundleID, "pid": Int(pid)]

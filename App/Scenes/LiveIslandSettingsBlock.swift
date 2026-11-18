@@ -102,6 +102,7 @@ struct LiveIslandSettingsBlock: View {
         NotchLayoutCard()
         NotchBehaviorCard()
         NotchPagesCard(store: store)
+        DroppyCustomizationCard()
         NotchActivityCard()
     }
 
@@ -487,12 +488,12 @@ private struct NotchPagesCard: View {
                 Text(verbatim: "Default Opening Page")
                     .font(.subheadline)
                 Spacer()
-                Picker("", selection: $pinnedDefaultRaw) {
+                Picker(selection: $pinnedDefaultRaw) {
                     Text(verbatim: "Auto (Music / Downloads)").tag(-1)
                     ForEach(pages.filter { !layout.hidden.contains($0) }) { page in
                         Text(verbatim: page.title).tag(page.rawValue)
                     }
-                }
+                } label: { EmptyView() }
                 .labelsHidden()
                 .frame(width: 190)
             }
@@ -560,6 +561,93 @@ private struct NotchPagesCard: View {
         var next = layout
         if hide { next.hidden.insert(page) } else { next.hidden.remove(page) }
         raw = next.raw
+    }
+}
+
+/// SLICE DP-2: Droppy glass material, accent theme, DropClip toggle, and shelf widget configuration.
+private struct DroppyCustomizationCard: View {
+    @AppStorage(DroppyShelfConfigStore.glassKey) private var glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
+    @AppStorage(DroppyShelfConfigStore.accentKey) private var accentRaw = DroppyAccentTheme.oceanBlue.rawValue
+    @AppStorage(DroppyShelfConfigStore.orderKey) private var orderRaw = ""
+    @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = ""
+    @AppStorage(NotchSurfaceAppearance.StorageKey.transparency) private var transparency = NotchSurfaceAppearance.defaultTransparency
+    @AppStorage(DropClipPolicy.enabledKey) private var dropClipEnabled = true
+
+    private var glassMaterial: DroppyGlassMaterial { DroppyGlassMaterial(rawValue: glassRaw) ?? .dynamicGlass }
+    private var hiddenSet: Set<DroppyShelfWidgetKind> { DroppyShelfConfigStore.decodeHidden(hiddenRaw) }
+
+    var body: some View {
+        SettingsCard(
+            Text("Droppy & Shelf"),
+            note: Text("Configure notch glass material, shelf accent, DropClip pill, and visible shelf widgets.")
+        ) {
+            SettingsRow(Text("Glass Material")) {
+                Picker(selection: Binding(
+                    get: { glassMaterial },
+                    set: { material in
+                        glassRaw = material.rawValue
+                        transparency = material.baseTransparency
+                    }
+                )) {
+                    ForEach(DroppyGlassMaterial.allCases) { material in
+                        Text(verbatim: material.title).tag(material)
+                    }
+                } label: { EmptyView() }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Accent Theme").font(.system(size: 13))
+                HStack(spacing: 10) {
+                    ForEach(DroppyAccentTheme.allCases) { theme in
+                        Button { accentRaw = theme.rawValue } label: {
+                            Circle()
+                                .fill(NotchHexColor.rgba(theme.hex).color)
+                                .frame(width: 22, height: 22)
+                                .overlay(Circle().strokeBorder(Color.white.opacity(0.22), lineWidth: 1))
+                                .overlay(Circle().strokeBorder(Color.accentColor, lineWidth: 2).padding(-3)
+                                    .opacity(accentRaw == theme.rawValue ? 1 : 0))
+                        }
+                        .buttonStyle(.plain)
+                        .help(Text(verbatim: theme.title))
+                    }
+                    Spacer(minLength: 0)
+                }
+            }
+            .padding(.vertical, 4)
+            SettingsDivider()
+            SettingsToggleRow(Text("DropClip Selection Pill"), isOn: $dropClipEnabled)
+            SettingsDivider()
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Shelf Widgets").font(.system(size: 13))
+                    Spacer()
+                    Button {
+                        orderRaw = DroppyShelfConfigStore.encodeOrder(DroppyShelfWidgetKind.allCases)
+                        hiddenRaw = ""
+                        glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
+                        accentRaw = DroppyAccentTheme.oceanBlue.rawValue
+                    } label: {
+                        Text("Reset Shelf")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+                ForEach(DroppyShelfWidgetKind.allCases) { kind in
+                    SettingsToggleRow(
+                        Text(verbatim: kind.title),
+                        isOn: Binding(
+                            get: { !hiddenSet.contains(kind) },
+                            set: { visible in
+                                var next = hiddenSet
+                                if visible { next.remove(kind) } else { next.insert(kind) }
+                                hiddenRaw = DroppyShelfConfigStore.encodeHidden(next)
+                            }
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 

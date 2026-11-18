@@ -23,7 +23,7 @@ LANGUAGES = ['en', 'zh-Hans', 'zh-Hant', 'ja', 'de', 'fr', 'es', 'es-419', 'pt-B
 STR = r'"((?:[^"\\]|\\.)*)"'
 # 全文匹配（允许构造器后换行），用 match.start() 反查行号
 RE_LOCALIZED = re.compile(r'String\(\s*localized:\s*(?!""")' + STR)
-RE_SWIFTUI = re.compile(r'\b(?:Text|Button|Toggle|Label|Picker|TextField)\(\s*' + STR)
+RE_SWIFTUI = re.compile(r'\b(?:Text|Button|Toggle|Label|Picker|TextField|DisclosureGroup)\(\s*' + STR)
 # 用户可见的中文字面量（用来统计剩余工作量）
 RE_CHINESE = re.compile(STR)
 

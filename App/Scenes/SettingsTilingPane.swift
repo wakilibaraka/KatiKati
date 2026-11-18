@@ -60,7 +60,7 @@ struct SettingsTilingPane: View {
                         }
                         if let activeLayout = engine.layout(for: screen) {
                             SettingsButtonRow(
-                                Text("Layout Override: \(activeLayout.title)"),
+                                Text(verbatim: String(format: String(localized: "Layout Override: %@"), activeLayout.title)),
                                 note: Text("Set from the Windows flyout. Resetting returns this display to its preset."),
                                 action: { engine.setLayout(nil, for: screen) }
                             )
@@ -69,7 +69,7 @@ struct SettingsTilingPane: View {
                 } else if let primary = NSScreen.screens.first, let activeLayout = engine.layout(for: primary) {
                     SettingsDivider()
                     SettingsButtonRow(
-                        Text("Layout Override: \(activeLayout.title)"),
+                        Text(verbatim: String(format: String(localized: "Layout Override: %@"), activeLayout.title)),
                         note: Text("Set from the Windows flyout. Resetting returns this display to its preset."),
                         action: { engine.setLayout(nil, for: primary) }
                     )
