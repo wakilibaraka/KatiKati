@@ -5,7 +5,7 @@ final class WidgetLayoutModelTests: XCTestCase {
     func testDefaultLayoutReproducesTodaysBehaviour() {
         let layout = WidgetLayout.default
         XCTAssertEqual(layout.order, BarSection.canonicalOrder)
-        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices, .drives], "new widgets are opt-in")
+        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices, .drives, .dictionary, .terminal], "opt-in & utility-hosted widgets start hidden")
         XCTAssertEqual(layout.solverWidths(), [:])
     }
 
@@ -41,7 +41,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [
             WidgetInstance(section: .clock), WidgetInstance(section: .clock), WidgetInstance(section: .weather)
         ])
-        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .utilities, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
     }
 
     func testCodableRoundTrip() throws {
@@ -50,7 +50,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [inst])
         let decoded = WidgetLayout.decode(layout.encoded())
         XCTAssertEqual(decoded, layout)
-        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices, .drives])
+        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices, .drives, .dictionary, .terminal])
         XCTAssertNil(WidgetLayout.decode(Data("junk".utf8)))
     }
 
@@ -76,21 +76,22 @@ extension WidgetLayoutModelTests {
 
 extension WidgetLayoutModelTests {
     func testMovingFollowsOnMoveSemantics() {
-        let moved = WidgetLayout.default.moving(from: IndexSet(integer: 4), to: 1) // clock before weather
-        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
+        let moved = WidgetLayout.default.moving(from: IndexSet(integer: 5), to: 1) // clock before weather
+        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .utilities, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
         let down = WidgetLayout.default.moving(from: IndexSet(integer: 0), to: 3) // launcher after weather+apps
-        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .utilities, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
     }
 
     func testVisibleOrderDropsHiddenButNeverApps() {
         let layout = WidgetLayout.default.updating(.weather) { $0.isVisible = false }.updating(.apps) { $0.isVisible = false }
-        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .clock, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .utilities, .clock, .ai, .widgets])
     }
 }
 
 extension WidgetLayoutModelTests {
     func testFittedDegradesWidestFirstAndSparesExactAndFixedWidgets() {
         var layout = WidgetLayout.default.updating(.weather) { $0.size = .large }.updating(.media) { $0.size = .large }
+            .updating(.utilities) { $0.isVisible = false }
             .updating(.dictionary) { $0.isVisible = false }.updating(.terminal) { $0.isVisible = false }
             .updating(.ai) { $0.isVisible = false }
         XCTAssertEqual(layout.fitted(toBudget: 10_000), layout)

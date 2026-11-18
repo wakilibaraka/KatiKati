@@ -243,6 +243,7 @@ enum WidgetCatalog {
         case .weather: return String(localized: "Weather")
         case .apps: return String(localized: "Apps")
         case .media: return String(localized: "Now Playing")
+        case .utilities: return String(localized: "Utilities")
         case .clock: return String(localized: "Clock")
         case .calendar: return String(localized: "Calendar")
         case .system: return String(localized: "System")
@@ -262,6 +263,7 @@ enum WidgetCatalog {
         case .weather: return ["weather", "temperature", "forecast", "degrees"]
         case .apps: return ["apps", "windows", "chips"]
         case .media: return ["media", "music", "player", "now playing"]
+        case .utilities: return ["utilities", "drawer", "screenshots", "clipboard", "downloads", "trash"]
         case .clock: return ["clock", "time", "date"]
         case .calendar: return ["calendar", "events", "meetings", "agenda"]
         case .system: return ["system", "cpu", "memory", "ram", "ssd", "sparkline"]

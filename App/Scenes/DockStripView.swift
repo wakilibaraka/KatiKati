@@ -1817,6 +1817,7 @@ extension DockStripView {
         case .launcher: return String(localized: "Launcher")
         case .weather: return String(localized: "Weather")
         case .media: return String(localized: "Now Playing")
+        case .utilities: return String(localized: "Utilities")
         case .clock: return String(localized: "Clock")
         case .widgets: return String(localized: "Widgets")
         case .calendar: return String(localized: "Calendar")
@@ -1939,7 +1940,7 @@ extension DockStripView {
             RailTerminalTile().nativeScaled(dockScale)
         case .ai:
             RailAITile().nativeScaled(dockScale)
-        case .launcher, .widgets, .apps:
+        case .utilities, .launcher, .widgets, .apps:
             widgetChip(section, size: .small)
         }
     }
@@ -2022,6 +2023,8 @@ extension DockStripView {
                 }
                 .nativeScaled(dockScale)
             }
+        case .utilities:
+            EmptyView()
         case .apps:
             EmptyView()
         }

@@ -213,6 +213,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// Modular Mid-Dock Utilities cluster configuration (`Drawer · Screenshots · Clipboard · Dictionary · Terminal · Downloads · Trash`).
+    @Published private(set) var dockUtilities: DockUtilitiesConfig
     /// Dock II flanking wing presets + opt-in integration toggles (off by default).
     @Published private(set) var dockWings: DockWingsConfiguration
     @Published private(set) var dockWingGeoIPEnabled: Bool
@@ -598,9 +600,34 @@ final class AppSettingsStore: ObservableObject {
         // still hides the module — read once, and only while no layout has ever been saved, because a
         // rearranged dock is already the newer truth.
         if defaults.object(forKey: WidgetLayout.defaultsKey) == nil {
+            let showDict = defaults.bool(forKey: Keys.showDictionaryChip)
+            let showTerm = defaults.bool(forKey: Keys.showTerminalChip)
+            dockUtilities = DockUtilitiesConfig()
+                .setting(.drawer, visible: defaults.bool(forKey: Keys.showDrawer))
+                .setting(.trash, visible: defaults.bool(forKey: Keys.showTrash))
+                .setting(.dictionary, visible: showDict)
+                .setting(.terminal, visible: showTerm)
             storedWidgetLayout = storedWidgetLayout
-                .updating(.dictionary) { $0.isVisible = defaults.bool(forKey: Keys.showDictionaryChip) }
-                .updating(.terminal) { $0.isVisible = defaults.bool(forKey: Keys.showTerminalChip) }
+                .updating(.dictionary) { $0.isVisible = false }
+                .updating(.terminal) { $0.isVisible = false }
+                .updating(.utilities) { $0.isVisible = true }
+            defaults.set(true, forKey: "com.katikati.dock.utilitiesMigrated.v1")
+        } else if !defaults.bool(forKey: "com.katikati.dock.utilitiesMigrated.v1") {
+            defaults.set(true, forKey: "com.katikati.dock.utilitiesMigrated.v1")
+            let hadDict = storedWidgetLayout.instance(for: .dictionary).isVisible
+            let hadTerm = storedWidgetLayout.instance(for: .terminal).isVisible
+            dockUtilities = (DockUtilitiesConfig.decode(defaults.data(forKey: DockUtilitiesConfig.defaultsKey)) ?? .default)
+                .setting(.drawer, visible: defaults.bool(forKey: Keys.showDrawer))
+                .setting(.trash, visible: defaults.bool(forKey: Keys.showTrash))
+                .setting(.dictionary, visible: hadDict)
+                .setting(.terminal, visible: hadTerm)
+            storedWidgetLayout = storedWidgetLayout
+                .updating(.utilities) { $0.isVisible = true }
+                .updating(.dictionary) { $0.isVisible = false }
+                .updating(.terminal) { $0.isVisible = false }
+            defaults.set(storedWidgetLayout.encoded(), forKey: WidgetLayout.defaultsKey)
+        } else {
+            dockUtilities = DockUtilitiesConfig.decode(defaults.data(forKey: DockUtilitiesConfig.defaultsKey)) ?? .default
         }
         widgetLayout = storedWidgetLayout
         widgetOrder = storedWidgetLayout.visibleOrder
@@ -1709,6 +1736,30 @@ final class AppSettingsStore: ObservableObject {
     /// the rail's own geometry sets it (`PanelGeometry.railWidgetLayout`).
     func setWidgetSize(_ size: WidgetSize, for section: BarSection) {
         setWidgetLayout(widgetLayout.updating(section) { $0.size = size; $0.exactWidth = nil })
+    }
+
+    // MARK: Mid-Dock Utilities
+
+    func setDockUtilityVisible(_ kind: DockUtilityKind, _ visible: Bool) {
+        setDockUtilities(dockUtilities.setting(kind, visible: visible))
+        if kind == .drawer { setShowDrawer(visible) }
+        if kind == .trash { setShowTrash(visible) }
+    }
+
+    func moveDockUtility(_ kind: DockUtilityKind, by delta: Int) {
+        setDockUtilities(dockUtilities.moving(kind, by: delta))
+    }
+
+    func resetDockUtilities() {
+        setDockUtilities(.default)
+        setShowDrawer(true)
+        setShowTrash(true)
+    }
+
+    private func setDockUtilities(_ next: DockUtilitiesConfig) {
+        guard dockUtilities != next else { return }
+        dockUtilities = next
+        defaults.set(next.encoded(), forKey: DockUtilitiesConfig.defaultsKey)
     }
 
     // MARK: Dock II Wings

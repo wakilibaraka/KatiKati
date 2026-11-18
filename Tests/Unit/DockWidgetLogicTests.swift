@@ -111,12 +111,12 @@ final class DockWidgetLogicTests: XCTestCase {
             XCTAssertFalse(layout.instance(for: section).isVisible)
             XCTAssertTrue(section.supportsWidgetSizes)
         }
-        XCTAssertEqual(layout.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .weather, .apps, .media, .utilities, .clock, .ai, .widgets])
     }
 
     func testOldStoredLayoutGainsHiddenNewWidgets() {
         let old = WidgetLayout(instances: [.launcher, .weather, .apps, .media, .clock, .widgets].map { WidgetInstance(section: $0) })
-        XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets, .dictionary, .terminal, .ai], "Dictionary, Terminal, and AI are on by default, appended after an old layout")
+        XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets, .utilities, .ai], "Utilities and AI are on by default, appended after an old layout")
         XCTAssertEqual(Set(old.order), Set(BarSection.allCases))
     }
 
@@ -558,11 +558,11 @@ final class SideDeckLogicTests: XCTestCase {
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertTrue(store.showTerminalChip)
-        store.setShowTerminalChip(false)
-        XCTAssertFalse(store.widgetLayout.instance(for: .terminal).isVisible,
-                       "the old setter writes the module, not a second flag")
-        XCTAssertTrue(store.showDictionaryChip, "the other tool is untouched")
+        XCTAssertFalse(store.showTerminalChip)
+        store.setShowTerminalChip(true)
+        XCTAssertTrue(store.widgetLayout.instance(for: .terminal).isVisible,
+                      "the old setter writes the module, not a second flag")
+        XCTAssertFalse(store.showDictionaryChip, "the other tool is untouched")
         // A pre-module hide still hides the module when no layout was ever saved.
         let legacySuite = "DockToolDeduplication.legacy.\(UUID().uuidString)"
         let legacy = UserDefaults(suiteName: legacySuite)!

@@ -972,6 +972,7 @@ struct DockLivePreviewStrip: View {
         case .weather: return "cloud.sun.fill"
         case .apps: return "rectangle.on.rectangle"
         case .media: return "music.note"
+        case .utilities: return "square.grid.2x2.fill"
         case .clock: return "clock.fill"
         case .calendar: return "calendar"
         case .system: return "cpu"

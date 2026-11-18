@@ -21,6 +21,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case weather
     case apps
     case media
+    case utilities
     case clock
     /// Date badge + next meeting with its countdown; hover lists upcoming meetings with a Join button.
     case calendar
@@ -30,25 +31,25 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case devices
     /// Free space of every mounted drive, and the DiskView panel on hover.
     case drives
-    /// Look-up card for any word: opens the dictionary panel. On by default (owner 2026-11-05).
+    /// Look-up card for any word: opens the dictionary panel. Lives in Utilities by default.
     case dictionary
-    /// Shell in a floating panel (SwiftTerm). On by default.
+    /// Shell in a floating panel (SwiftTerm). Lives in Utilities by default.
     case terminal
     /// AI usage spend, live agent heartbeat, inline approvals, and Loadout presets. On by default.
     case ai
     case widgets
 
     /// Canonical left-to-right order (Phase 4U-A).
-    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets]
+    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .utilities, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets]
 
-    /// The six sections a fresh dock shows: what every layout API assumes unless it is handed a real order.
+    /// The core sections a fresh dock shows.
     static let defaultOrder: [BarSection] = canonicalOrder.filter { !$0.startsHidden }
 
-    /// Widgets added after the original six start hidden, so a dock upgraded in place looks exactly as it did.
+    /// Widgets added after the core strip start hidden unless enabled in Settings.
     var startsHidden: Bool {
         switch self {
-        case .calendar, .system, .devices, .drives: return true
-        case .launcher, .weather, .apps, .media, .clock, .widgets, .dictionary, .terminal, .ai: return false
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal: return true
+        case .launcher, .weather, .apps, .media, .utilities, .clock, .widgets, .ai: return false
         }
     }
 
@@ -60,6 +61,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .weather: return "Weather"
         case .apps: return "Apps"
         case .media: return "Now Playing"
+        case .utilities: return "Utilities"
         case .clock: return "Clock"
         case .calendar: return "Calendar"
         case .system: return "System"
@@ -90,6 +92,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .weather: return 150
         case .apps: return 0
         case .media: return 215
+        case .utilities: return 112
         case .clock: return 160
         case .calendar: return 170
         case .system: return 150
@@ -112,7 +115,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 72
         case .clock: return 76
-        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return 56
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .utilities: return 56
         case .widgets: return 40
         }
     }
@@ -132,7 +135,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     /// before them, so a mode keeps its slot count whichever of them are shown.
     private var joinsPreviousIsland: Bool {
         switch self {
-        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return true
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .utilities: return true
         default: return false
         }
     }
@@ -209,8 +212,12 @@ enum DockToolDeduplication {
 
     /// Bundle IDs whose app-level dock icon a visible module already stands for. Takes the layout's
     /// `visibleOrder`, so hidden modules (and modules in any island) resolve here, not in the view.
-    static func suppressedAppBundleIDs(enabledSections: [BarSection]) -> Set<String> {
-        Set(enabledSections.compactMap { bundleIDBySection[$0] })
+    static func suppressedAppBundleIDs(enabledSections: [BarSection], dockUtilities: DockUtilitiesConfig? = nil) -> Set<String> {
+        var ids = Set(enabledSections.compactMap { bundleIDBySection[$0] })
+        if enabledSections.contains(.utilities), let dockUtilities {
+            ids.formUnion(dockUtilities.suppressedAppBundleIDs())
+        }
+        return ids
     }
 
     /// True when an app-level icon must not be drawn because its module is on the bar.

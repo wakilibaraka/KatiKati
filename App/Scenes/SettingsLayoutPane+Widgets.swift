@@ -265,6 +265,7 @@ extension SettingsLayoutPane {
         switch widget {
         case .weather: return Text("Weather")
         case .media: return Text("Now Playing")
+        case .utilities: return Text("Utilities")
         case .launcher: return Text("Launcher")
         case .apps: return Text("Apps")
         case .widgets: return Text("Widgets")
@@ -402,6 +403,7 @@ extension SettingsLayoutPane {
         case .weather: return "cloud.sun"
         case .apps: return "rectangle.on.rectangle"
         case .media: return "music.note"
+        case .utilities: return "square.grid.2x2.fill"
         case .clock: return "clock"
         case .calendar: return "calendar"
         case .system: return "cpu"
