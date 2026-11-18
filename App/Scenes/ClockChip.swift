@@ -52,6 +52,8 @@ public enum ClockArt {
 
 public struct ClockChip: View {
     @AppStorage("com.katikati.clock.preset") private var preset: ClockPreset = .stackedCard
+    @AppStorage(CalendarDockAction.singleClickKey) private var singleClickAction: CalendarDockAction = .togglePanel
+    @AppStorage(CalendarDockAction.doubleClickKey) private var doubleClickAction: CalendarDockAction = .openCalendarApp
     @Environment(\.widgetSize) private var widgetSize
     @EnvironmentObject private var weatherService: WeatherService
     private let provider: ClockDataProvider
@@ -61,33 +63,54 @@ public struct ClockChip: View {
     }
 
     public var body: some View {
+        baseBody
+            .dockHoverPreview { ClockCalendarPreviewCard() }
+    }
+
+    @ViewBuilder
+    private var baseBody: some View {
         // Flip tiles are their own form (owner's hand-built variant kept as a
         // third preset): they bypass the 8d gradient card entirely.
         if preset == .flipTiles && widgetSize != .small {
             FlipClockChip()
+                .simultaneousGesture(TapGesture(count: 2).onEnded { performAction(doubleClickAction) })
+                .onTapGesture { performAction(singleClickAction) }
         } else if preset == .minimal {
             TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
                 MinimalClockCard(content: provider.currentContent(for: context.date), widgetSize: widgetSize)
             }
-            .onTapGesture { WidgetPanelController.calendar.toggle() }
+            .simultaneousGesture(TapGesture(count: 2).onEnded { performAction(doubleClickAction) })
+            .onTapGesture { performAction(singleClickAction) }
         } else if preset == .stackedCard {
-            TimelineView(.periodic(from: Date(), by: widgetSize == .small ? 60 : 1)) { context in
+            TimelineView(.periodic(from: widgetSize == .large ? Date() : ClockTick.nextMinute(after: Date()), by: widgetSize == .large ? 1 : 60)) { context in
                 StackedClockCardView(content: provider.currentContent(for: context.date), widgetSize: widgetSize, date: context.date)
             }
-            .onTapGesture {
-                WidgetPanelController.calendar.toggle()
-            }
+            .simultaneousGesture(TapGesture(count: 2).onEnded { performAction(doubleClickAction) })
+            .onTapGesture { performAction(singleClickAction) }
         } else {
-            // 4e: minute-aligned. The timeline starts on the next whole-minute boundary and ticks
-            // every 60s from there, so the main thread wakes once a minute and the chip can never
-            // show a reading that is up to 59s stale. A per-second `Timer.publish` used to run here
-            // even though the provider's content is minute-resolution.
+            // 4e: minute-aligned.
             TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
                 card(for: context.date)
             }
-            .onTapGesture {
-                WidgetPanelController.calendar.toggle()
+            .simultaneousGesture(TapGesture(count: 2).onEnded { performAction(doubleClickAction) })
+            .onTapGesture { performAction(singleClickAction) }
+        }
+    }
+
+    private func performAction(_ action: CalendarDockAction) {
+        switch action {
+        case .togglePanel:
+            WidgetPanelController.calendar.toggle()
+        case .openCalendarApp:
+            if let url = AgendaEventAction.calendarURL(for: Date()) {
+                NSWorkspace.shared.open(url)
+            } else if let calURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
+                NSWorkspace.shared.openApplication(at: calURL, configuration: .init())
             }
+        case .createEvent:
+            WidgetPanelController.calendar.toggle()
+        case .none:
+            break
         }
     }
 
@@ -355,14 +378,32 @@ private struct StackedClockCardView: View {
         }
     }
 
+    private struct CardNextEvent {
+        let title: String
+        let start: Date
+        let isAllDay: Bool
+        let color: Color
+    }
+
+    private func resolvedNextEvent(cal: Calendar) -> CardNextEvent? {
+        if let upcoming = calendarService.upcoming.first {
+            let rgb = upcoming.colorRGB
+            let c = rgb.count >= 3 ? Color(red: rgb[0], green: rgb[1], blue: rgb[2]) : .accentColor
+            return CardNextEvent(title: upcoming.title, start: upcoming.start, isAllDay: upcoming.isAllDay, color: c)
+        }
+        if let today = calendarService.events
+            .filter({ ($0.start > date || ($0.start <= date && $0.end > date)) && !cal.isDateInYesterday($0.start) })
+            .sorted(by: { $0.start < $1.start })
+            .first {
+            return CardNextEvent(title: today.title, start: today.start, isAllDay: today.isAllDay, color: today.color)
+        }
+        return nil
+    }
+
     private var mediumView: some View {
         let cal = Calendar.current
-        let nextEvent = calendarService.events
-            .filter { ($0.start > date || ($0.start <= date && $0.end > date)) && !cal.isDateInYesterday($0.start) }
-            .sorted { $0.start < $1.start }
-            .first
+        let nextEvent = resolvedNextEvent(cal: cal)
         let nextAlarmTuple = AlarmList.next(in: alarmStore.alarms, after: date)
-        let sec = cal.component(.second, from: date)
 
         return HStack(spacing: 8) {
             // Left: Time & Date
@@ -400,7 +441,7 @@ private struct StackedClockCardView: View {
                             .lineLimit(1)
                     }
 
-                    Text(verbatim: formatEventRelative(event.start))
+                    Text(verbatim: formatEventRelative(event.start, isAllDay: event.isAllDay))
                         .font(.system(size: 9, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.70))
                         .lineLimit(1)
@@ -419,10 +460,14 @@ private struct StackedClockCardView: View {
                         .foregroundStyle(Color(red: 1.0, green: 0.82, blue: 0.25).opacity(0.85))
                         .lineLimit(1)
                 } else {
-                    HStack(spacing: 2) {
-                        Text(verbatim: "\(String(format: "%02d", sec))s")
-                            .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
-                            .foregroundStyle(Color(red: 0.38, green: 0.68, blue: 1.0))
+                    HStack(spacing: 3) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 8.5))
+                            .foregroundStyle(Color.white.opacity(0.60))
+                        Text("No Events")
+                            .font(.system(size: 9.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.82))
+                            .lineLimit(1)
                     }
 
                     Text(verbatim: "W\(cal.component(.weekOfYear, from: date)) • D\(cal.ordinality(of: .day, in: .year, for: date) ?? 1)")
@@ -437,10 +482,7 @@ private struct StackedClockCardView: View {
 
     private var largeView: some View {
         let cal = Calendar.current
-        let nextEvent = calendarService.events
-            .filter { ($0.start > date || ($0.start <= date && $0.end > date)) && !cal.isDateInYesterday($0.start) }
-            .sorted { $0.start < $1.start }
-            .first
+        let nextEvent = resolvedNextEvent(cal: cal)
         let nextAlarmTuple = AlarmList.next(in: alarmStore.alarms, after: date)
         let sec = cal.component(.second, from: date)
 
@@ -484,7 +526,7 @@ private struct StackedClockCardView: View {
                             .lineLimit(1)
                     }
 
-                    Text(verbatim: formatEventRelative(event.start))
+                    Text(verbatim: formatEventRelative(event.start, isAllDay: event.isAllDay))
                         .font(.system(size: 9, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.75))
                         .lineLimit(1)
@@ -523,10 +565,14 @@ private struct StackedClockCardView: View {
                         Image(systemName: "calendar")
                             .font(.system(size: 9))
                             .foregroundStyle(Color.white.opacity(0.60))
-                        Text(verbatim: "No Events")
+                        Text("No Events")
                             .font(.system(size: 9.5, weight: .semibold, design: .rounded))
                             .foregroundStyle(Color.white.opacity(0.80))
                     }
+                    Text(verbatim: "W\(cal.component(.weekOfYear, from: date)) • D\(cal.ordinality(of: .day, in: .year, for: date) ?? 1)")
+                        .font(.system(size: 8.5, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.60))
+                        .lineLimit(1)
                 }
 
                 if let (alarm, fireDate) = nextAlarmTuple {
@@ -545,17 +591,8 @@ private struct StackedClockCardView: View {
         }
     }
 
-    private func formatEventRelative(_ start: Date) -> String {
-        let diff = Int(start.timeIntervalSince(date))
-        if diff <= 0 {
-            return "Now"
-        }
-        let m = diff / 60
-        let h = m / 60
-        if h > 0 {
-            return "in \(h)h \(m % 60)m"
-        }
-        return "in \(max(1, m))m"
+    private func formatEventRelative(_ start: Date, isAllDay: Bool = false) -> String {
+        CalendarEventCompactFormatter.relativeLine(for: start, isAllDay: isAllDay, now: date)
     }
 
     private func formatAlarmRelative(_ fireDate: Date) -> String {
@@ -566,5 +603,50 @@ private struct StackedClockCardView: View {
             return "in \(h)h \(m % 60)m"
         }
         return "in \(m)m"
+    }
+}
+
+/// Hover preview card matching `WeatherPreviewCard`: today's date/week summary + next 4 upcoming events.
+private struct ClockCalendarPreviewCard: View {
+    @ObservedObject private var calendarService = ProductivityServices.shared.calendar
+
+    var body: some View {
+        let cal = Calendar.current
+        let now = Date()
+        DockPreviewCard {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(now, style: .date)
+                        .font(.system(size: 12.5, weight: .semibold))
+                    Spacer()
+                    Text(verbatim: "W\(cal.component(.weekOfYear, from: now)) · D\(cal.ordinality(of: .day, in: .year, for: now) ?? 1)")
+                        .font(.system(size: 11, weight: .medium, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider().opacity(0.25)
+
+                if calendarService.upcoming.isEmpty {
+                    Text("No upcoming events in lookahead window")
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(.secondary)
+                        .padding(.vertical, 4)
+                } else {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(calendarService.upcoming.prefix(4)) { ev in
+                            let c = ev.colorRGB.count >= 3 ? Color(red: ev.colorRGB[0], green: ev.colorRGB[1], blue: ev.colorRGB[2]) : .accentColor
+                            HStack(spacing: 6) {
+                                Circle().fill(c).frame(width: 6, height: 6)
+                                Text(verbatim: ev.title).font(.system(size: 11.5, weight: .medium)).lineLimit(1)
+                                Spacer(minLength: 4)
+                                Text(verbatim: CalendarEventCompactFormatter.relativeLine(for: ev.start, isAllDay: ev.isAllDay, now: now))
+                                    .font(.system(size: 10.5).monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

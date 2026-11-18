@@ -15,7 +15,7 @@ final class WidgetPresetTests: XCTestCase {
             XCTAssertTrue(preset.layout.visibleOrder.contains(.clock), preset.id)
         }
         let music = WidgetPresets.builtIns[2].layout
-        XCTAssertEqual(WidgetPresets.builtIns[3].layout.visibleOrder, [.launcher, .apps, .media, .clock])
+        XCTAssertEqual(WidgetPresets.builtIns[3].layout.visibleOrder, [.launcher, .apps, .media, .utilities, .clock])
         XCTAssertEqual(music.instance(for: .media).size, .large)
         XCTAssertFalse(music.visibleOrder.contains(.weather))
     }

@@ -24,6 +24,9 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(WidgetLook.storageKey) private var lookRaw = WidgetLook.default.rawValue
     @AppStorage("com.katikati.clock.preset") private var clockPresetRaw: String = ClockPreset.stackedCard.rawValue
     @AppStorage("com.katikati.media.preset") private var mediaPresetRaw: String = NowPlayingPreset.accentCard.rawValue
+    @AppStorage(CalendarLookaheadHorizon.defaultsKey) private var lookaheadRaw: Int = CalendarLookaheadHorizon.defaultPreset.rawValue
+    @AppStorage(CalendarDockAction.singleClickKey) private var calendarSingleClick: CalendarDockAction = .togglePanel
+    @AppStorage(CalendarDockAction.doubleClickKey) private var calendarDoubleClick: CalendarDockAction = .openCalendarApp
     @State private var showDockIISheet = false
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
@@ -113,6 +116,37 @@ struct WidgetLookSettingsBlock: View {
                                 ForEach(NowPlayingPreset.allCases, id: \.rawValue) { preset in
                                     Text(preset.title).tag(preset.rawValue)
                                 }
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                        }
+                    }
+                )
+                SettingsDivider()
+                SettingsRow(Text("Calendar Lookahead (1–3)")) {
+                    Picker("Calendar Lookahead", selection: $lookaheadRaw) {
+                        ForEach(CalendarLookaheadHorizon.allCases) { h in
+                            Text(verbatim: h.localizedTitle).tag(h.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                    .onChange(of: lookaheadRaw) { _ in
+                        ProductivityServices.shared.calendar.refreshUpcoming()
+                    }
+                }
+                SettingsDivider()
+                SettingsRowPair(
+                    left: {
+                        SettingsRow(Text("Calendar Click")) {
+                            Picker("Calendar Click", selection: $calendarSingleClick) {
+                                ForEach(CalendarDockAction.allCases) { a in Text(verbatim: a.localizedTitle).tag(a) }
+                            }
+                            .labelsHidden().pickerStyle(.menu).fixedSize()
+                        }
+                    },
+                    right: {
+                        SettingsRow(Text("Calendar Double-Click")) {
+                            Picker("Calendar Double-Click", selection: $calendarDoubleClick) {
+                                ForEach(CalendarDockAction.allCases) { a in Text(verbatim: a.localizedTitle).tag(a) }
                             }
                             .labelsHidden().pickerStyle(.menu).fixedSize()
                         }

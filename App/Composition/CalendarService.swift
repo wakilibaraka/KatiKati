@@ -138,7 +138,8 @@ final class CalendarService: ObservableObject {
     }
 
     func refreshUpcoming(now: Date = Date()) {
-        guard eventsAccess == .granted, let end = calendar.date(byAdding: .hour, value: 36, to: now) else { upcoming = []; return }
+        let horizon = CalendarLookaheadHorizon(rawValue: UserDefaults.standard.integer(forKey: CalendarLookaheadHorizon.defaultsKey)) ?? .defaultPreset
+        guard eventsAccess == .granted, let end = calendar.date(byAdding: .day, value: horizon.days, to: now) else { upcoming = []; return }
         let found = store.events(matching: store.predicateForEvents(withStart: now, end: end, calendars: nil)).map { e in
             let rgb = (e.calendar.color ?? .systemBlue).usingColorSpace(.sRGB)
             return DockEvent(
