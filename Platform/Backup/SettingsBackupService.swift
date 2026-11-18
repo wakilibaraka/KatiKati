@@ -69,6 +69,10 @@ struct SettingsBackupService {
         if categories.contains(.tasks), let data = try? Data(contentsOf: supportDirectory.appendingPathComponent("tasks.json")) {
             files["tasks.json"] = data
         }
+        if categories.contains(.settingsAndShortcuts),
+           let data = try? Data(contentsOf: supportDirectory.appendingPathComponent("desktop-boxes.json")) {
+            files["desktop-boxes.json"] = data
+        }
         return SettingsBackupFile(appVersion: appVersion, created: now(), categories: categories, defaults: values, files: files)
     }
 

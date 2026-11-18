@@ -103,6 +103,24 @@ final class SettingsBackupServiceTests: XCTestCase {
         try service().restore(from: url, categories: [.settingsAndShortcuts])
         XCTAssertEqual(defaults.object(forKey: "com.katikati.notch.enabled") as? Bool, true)
     }
+
+    func testDesktopBoxesFileTravelsWithSettingsBackupAndRestores() throws {
+        let boxesPayload = Data("[{\"id\":\"box-1\"}]".utf8)
+        let boxesURL = dir.appendingPathComponent("desktop-boxes.json")
+        try boxesPayload.write(to: boxesURL)
+        defaults.set(true, forKey: DesktopCanvasConfig.enabledKey)
+
+        let backup = service().makeBackup(categories: [.settingsAndShortcuts])
+        XCTAssertEqual(backup.files["desktop-boxes.json"], boxesPayload)
+
+        try? FileManager.default.removeItem(at: boxesURL)
+        defaults.set(false, forKey: DesktopCanvasConfig.enabledKey)
+
+        let summary = try service().restore(backup, categories: [.settingsAndShortcuts])
+        XCTAssertEqual(summary.filesWritten, 1)
+        XCTAssertEqual(try Data(contentsOf: boxesURL), boxesPayload)
+        XCTAssertEqual(defaults.object(forKey: DesktopCanvasConfig.enabledKey) as? Bool, true)
+    }
 }
 
 /// 笔记经密码信封进出备份：不写 note.key、不落明文文件、错误密码时什么都不改。

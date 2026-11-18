@@ -2,6 +2,11 @@
 
 All notable changes to KatiKati are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Desktop Folder Boxes MVP (Phase 60, off by default):** Pin real Finder folders on the desktop as native floating glass boxes (`desktopIconWindow + 1` resting layer) with snap-to-edge/sibling resizing (`50×50` min), `⌃`-drag group movement, manual/rule sorting, `QLThumbnailGenerator` previews, Finder context menu + ZIP compress/extract, spacebar QuickLook, Quick Reveal (`Esc` / click-outside dismiss), opt-in blank-desktop double-click toggle, optional 1-click starter box (`~/KatiKati/Inbox`), **Settings › Widgets › Desktop Boxes**, status menu submenu controls, and `.katikati` backup support (`desktop-boxes.json`).
+
 ## [0.18.0 beta 1] — 2026-11-17
 
 Dock motion styles, a dedicated Clipboard page with Maccy-style keys and privacy, the DockPops drawer, dock layering,
