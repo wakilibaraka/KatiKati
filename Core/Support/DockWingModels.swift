@@ -276,6 +276,20 @@ enum DockWingDimensions {
     static func scaledWidth(for preset: DockWidgetPresetType, size: WidgetSize, scale: CGFloat) -> CGFloat {
         nativeWidth(for: preset, size: size) * max(scale, 0.5)
     }
+
+    /// Native-scale (`panelHeight == 54 pt`) vertical pillar height for side-rail wings.
+    static func verticalNativeHeight(for preset: DockWidgetPresetType, size: WidgetSize) -> CGFloat {
+        guard preset.isAssigned else { return 0 }
+        switch size {
+        case .small: return 54
+        case .medium: return 104
+        case .large: return 128
+        }
+    }
+
+    static func scaledVerticalHeight(for preset: DockWidgetPresetType, size: WidgetSize, scale: CGFloat) -> CGFloat {
+        verticalNativeHeight(for: preset, size: size) * max(scale, 0.5)
+    }
 }
 
 /// Pure auto-degrade planner (`L -> M -> S`) when total screen span cannot host both wings at requested sizes.
@@ -285,35 +299,82 @@ enum DockWingLayoutPlanner {
         var right: WidgetSize
     }
 
+    struct VerticalWingPlan: Equatable, Sendable {
+        var topReserve: CGFloat
+        var bottomReserve: CGFloat
+        var sizes: ResolvedSizes
+    }
+
     static func resolveSizes(
         config: DockWingsConfiguration,
         availableWingBudget: CGFloat,
         scale: CGFloat = 1
     ) -> ResolvedSizes {
+        resolve(config: config, availableWingBudget: availableWingBudget) { slot, size in
+            DockWingDimensions.scaledWidth(for: slot.preset, size: size, scale: scale)
+        }
+    }
+
+    static func resolveVerticalSizes(
+        config: DockWingsConfiguration,
+        availableTop: CGFloat,
+        availableBottom: CGFloat,
+        scale: CGFloat = 1
+    ) -> ResolvedSizes {
+        func fit(_ slot: DockWingSlotConfig, budget: CGFloat) -> WidgetSize {
+            var size = slot.size
+            while slot.preset.isAssigned, size > .small,
+                  DockWingDimensions.scaledVerticalHeight(for: slot.preset, size: size, scale: scale) > budget {
+                size = steppedDown(size)
+            }
+            return size
+        }
+        return ResolvedSizes(
+            left: fit(config.left, budget: availableTop),
+            right: fit(config.right, budget: availableBottom)
+        )
+    }
+
+    static func verticalReservations(
+        config: DockWingsConfiguration,
+        availableSpan: CGFloat,
+        gap: CGFloat,
+        scale: CGFloat = 1
+    ) -> VerticalWingPlan {
+        guard config.hasAnyActiveWing else {
+            return VerticalWingPlan(topReserve: 0, bottomReserve: 0,
+                                    sizes: ResolvedSizes(left: config.left.size, right: config.right.size))
+        }
+        let maxWingBudget = max(0, availableSpan - max(220, availableSpan * 0.52)
+            - (config.left.preset.isAssigned ? gap : 0)
+            - (config.right.preset.isAssigned ? gap : 0))
+        let sizes = resolve(config: config, availableWingBudget: maxWingBudget) { slot, size in
+            DockWingDimensions.scaledVerticalHeight(for: slot.preset, size: size, scale: scale)
+        }
+        let topH = config.left.preset.isAssigned ? DockWingDimensions.scaledVerticalHeight(for: config.left.preset, size: sizes.left, scale: scale) : 0
+        let botH = config.right.preset.isAssigned ? DockWingDimensions.scaledVerticalHeight(for: config.right.preset, size: sizes.right, scale: scale) : 0
+        let topReserve = topH > 0 && topH + gap <= availableSpan * 0.4 ? topH + gap : 0
+        let botReserve = botH > 0 && botH + gap <= availableSpan * 0.4 ? botH + gap : 0
+        return VerticalWingPlan(topReserve: topReserve, bottomReserve: botReserve, sizes: sizes)
+    }
+
+    private static func resolve(
+        config: DockWingsConfiguration,
+        availableWingBudget: CGFloat,
+        extent: (DockWingSlotConfig, WidgetSize) -> CGFloat
+    ) -> ResolvedSizes {
         var leftSize = config.left.size
         var rightSize = config.right.size
-
-        func width(for placement: DockWingPlacement, size: WidgetSize) -> CGFloat {
+        func sizeValue(_ placement: DockWingPlacement, _ size: WidgetSize) -> CGFloat {
             let slot = config.slot(for: placement)
-            guard slot.preset.isAssigned else { return 0 }
-            return DockWingDimensions.scaledWidth(for: slot.preset, size: size, scale: scale)
+            return slot.preset.isAssigned ? extent(slot, size) : 0
         }
-
-        func totalWidth() -> CGFloat {
-            width(for: .leftWing, size: leftSize) + width(for: .rightWing, size: rightSize)
-        }
-
-        while totalWidth() > availableWingBudget {
-            let leftW = config.left.preset.isAssigned && leftSize > .small ? width(for: .leftWing, size: leftSize) : -1
-            let rightW = config.right.preset.isAssigned && rightSize > .small ? width(for: .rightWing, size: rightSize) : -1
+        while sizeValue(.leftWing, leftSize) + sizeValue(.rightWing, rightSize) > availableWingBudget {
+            let leftW = config.left.preset.isAssigned && leftSize > .small ? sizeValue(.leftWing, leftSize) : -1
+            let rightW = config.right.preset.isAssigned && rightSize > .small ? sizeValue(.rightWing, rightSize) : -1
             if leftW < 0 && rightW < 0 { break }
-            if leftW >= rightW {
-                leftSize = steppedDown(leftSize)
-            } else {
-                rightSize = steppedDown(rightSize)
-            }
+            if leftW >= rightW { leftSize = steppedDown(leftSize) } else { rightSize = steppedDown(rightSize) }
         }
-
         return ResolvedSizes(left: leftSize, right: rightSize)
     }
 

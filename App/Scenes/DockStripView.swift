@@ -1897,14 +1897,16 @@ extension DockStripView {
     }
 
     /// Length of the strip's main axis on its screen: the width for the bottom bar, the height below
-    /// the menu bar for a rail (`StripAxis.mainLength`).
+    /// the menu bar for a rail (`StripAxis.mainLength`), minus any vertical wing cap reservations.
     var stripMainLength: CGFloat {
         guard isRail else { return stripScreenWidth }
         let rect = frames.stripRootScreenRect
         guard let screen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? NSScreen.main else { return 900 }
         let geometry = PanelCoordinator.screenGeometry(screen)
-        return StripAxis.mainLength(placement: stripPlacement, screen: geometry.frame,
-                                    topInset: PanelGeometry.railTopInset(on: geometry))
+        let wingCfg = settingsStore.dockWings.resolved(displayUUID: displayUUID, displayID: screen.displayID.map(String.init))
+        let wingPlan = PanelGeometry.railWingPlan(config: wingCfg, on: geometry, metrics: metrics, margin: CGFloat(settingsStore.islandMargin))
+        return max(0, StripAxis.mainLength(placement: stripPlacement, screen: geometry.frame,
+                                           topInset: PanelGeometry.railTopInset(on: geometry) + wingPlan.topReserve) - wingPlan.bottomReserve)
     }
 
     /// Widgets open their hover preview away from the screen edge the dock hugs.

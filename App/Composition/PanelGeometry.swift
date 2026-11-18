@@ -509,9 +509,32 @@ enum PanelGeometry {
         max(0, screen.frame.maxY - screen.topUsableY)
     }
 
+    static func railWingPlan(
+        config: DockWingsConfiguration,
+        on screen: PanelScreenGeometry,
+        metrics: PanelLayoutMetrics,
+        margin: CGFloat
+    ) -> DockWingLayoutPlanner.VerticalWingPlan {
+        let scale = max(0.5, metrics.panelHeight / IslandChrome.nativeBarHeight)
+        let gap = DockWingsConfiguration.clampedGap(config.gap) * scale
+        let baseLength = StripAxis.mainLength(placement: .left, screen: screen.frame, topInset: railTopInset(on: screen))
+        let usableSpan = max(0, baseLength - 2 * max(0, margin))
+        return DockWingLayoutPlanner.verticalReservations(
+            config: config,
+            availableSpan: usableSpan,
+            gap: gap,
+            scale: scale
+        )
+    }
+
     /// A rail solves as a bottom strip on a virtual screen as wide as the rail is long.
-    static func railVirtualScreen(on screen: PanelScreenGeometry, placement: StripPlacement) -> PanelScreenGeometry {
-        let length = StripAxis.mainLength(placement: placement, screen: screen.frame, topInset: railTopInset(on: screen))
+    static func railVirtualScreen(
+        on screen: PanelScreenGeometry,
+        placement: StripPlacement,
+        topReserve: CGFloat = 0,
+        bottomReserve: CGFloat = 0
+    ) -> PanelScreenGeometry {
+        let length = max(0, StripAxis.mainLength(placement: placement, screen: screen.frame, topInset: railTopInset(on: screen) + topReserve) - bottomReserve)
         let frame = CGRect(x: 0, y: 0, width: length, height: screen.frame.width)
         return PanelScreenGeometry(frame: frame, visibleFrame: frame, safeAreaTop: 0)
     }
@@ -519,9 +542,10 @@ enum PanelGeometry {
     /// Maps a window frame solved on `railVirtualScreen` onto the rail's edge. The shadow padding is
     /// symmetric, so the plate is mapped and the padding re-applied around it.
     static func railWindowFrame(_ virtualWindow: CGRect, on screen: PanelScreenGeometry,
-                                placement: StripPlacement, metrics: PanelLayoutMetrics) -> CGRect {
+                                placement: StripPlacement, metrics: PanelLayoutMetrics,
+                                topReserve: CGFloat = 0) -> CGRect {
         let plate = virtualWindow.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
-        let mapped = StripAxis.map(plate, placement: placement, screen: screen.frame, topInset: railTopInset(on: screen))
+        let mapped = StripAxis.map(plate, placement: placement, screen: screen.frame, topInset: railTopInset(on: screen) + topReserve)
         return mapped.insetBy(dx: -metrics.shadowPadding, dy: -metrics.shadowPadding)
     }
 
@@ -550,7 +574,8 @@ enum PanelGeometry {
         gap: CGFloat = 8,
         margin: CGFloat = 12,
         widgetLayout: WidgetLayout? = nil,
-        controlCentreTrailing: Bool = false
+        controlCentreTrailing: Bool = false,
+        wingConfig: DockWingsConfiguration = .default
     ) -> CGRect {
         guard stripPlacement.isVertical else {
             return islandTargetFrame(slot: slot, contentWidth: contentLength, mode: mode, on: screen,
@@ -558,7 +583,9 @@ enum PanelGeometry {
                                      gap: gap, margin: margin, widgetLayout: widgetLayout,
                                      controlCentreTrailing: controlCentreTrailing)
         }
-        let virtual = railVirtualScreen(on: screen, placement: stripPlacement)
+        let wingPlan = railWingPlan(config: wingConfig, on: screen, metrics: metrics, margin: margin)
+        let virtual = railVirtualScreen(on: screen, placement: stripPlacement,
+                                        topReserve: wingPlan.topReserve, bottomReserve: wingPlan.bottomReserve)
         let layout = railWidgetLayout(widgetLayout ?? storedWidgetLayout())
         let solved = islandTargetFrame(slot: slot, contentWidth: contentLength,
                                        mode: mode, on: virtual,
@@ -567,7 +594,7 @@ enum PanelGeometry {
                                        gap: gap, margin: margin, widgetLayout: layout,
                                        tileStride: IslandChrome.railChipStride(barHeight: metrics.panelHeight),
                                        contentInset: IslandChrome.railContentInset)
-        return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics)
+        return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics, topReserve: wingPlan.topReserve)
     }
 
     /// Length a rail's **apps** island fills: `0` (Phase 49, owner: "Hug content with balanced insets").
@@ -1012,7 +1039,8 @@ enum PanelGeometry {
         controlCentreTrailing: Bool,
         on screen: PanelScreenGeometry,
         metrics: PanelLayoutMetrics = .tungstenEdge,
-        margin: CGFloat = 12
+        margin: CGFloat = 12,
+        isSplit: Bool = false
     ) -> DockWingPanelLayout {
         guard config.hasAnyActiveWing else {
             return DockWingPanelLayout(leftFrame: nil, rightFrame: nil,
@@ -1026,34 +1054,46 @@ enum PanelGeometry {
         let capsulePlate = capsuleFrame != .zero ? capsuleFrame.insetBy(dx: pad, dy: pad) : .zero
 
         if stripPlacement.isVertical {
-            let maxAbove = max(0, screen.frame.maxY - margin - (dockPlate.maxY + gap))
             let bottomAnchorY = (capsulePlate != .zero && capsulePlate.minY < dockPlate.minY)
                 ? capsulePlate.minY : dockPlate.minY
-            let maxBelow = max(0, (bottomAnchorY - gap) - (screen.frame.minY + margin))
-            let plateHeight = metrics.panelHeight
+            let plan = railWingPlan(config: config, on: screen, metrics: metrics, margin: margin)
+            let maxAbove = isSplit
+                ? max(0, plan.topReserve - gap)
+                : max(0, screen.topUsableY - margin - (dockPlate.maxY + gap))
+            let maxBelow = isSplit
+                ? max(0, plan.bottomReserve - gap)
+                : max(0, (bottomAnchorY - gap) - (screen.frame.minY + margin))
+            let resolved = DockWingLayoutPlanner.resolveVerticalSizes(
+                config: config,
+                availableTop: maxAbove,
+                availableBottom: maxBelow,
+                scale: scale
+            )
+            // Keep vertical caps aligned flush to the rail's thickness and X position.
+            let railX = dockPlate.minX
+            let plateWidth = metrics.panelHeight
+            let minWingH = 36 * scale
 
             var leftFrame: CGRect?
-            if config.left.preset.isAssigned, maxAbove >= plateHeight {
-                let w = min(DockWingDimensions.scaledWidth(for: config.left.preset, size: .small, scale: scale),
-                            max(plateHeight, screen.frame.width - 2 * margin))
-                let rawX = dockPlate.midX - w / 2
-                let clampedX = min(max(rawX, screen.frame.minX + margin), screen.frame.maxX - margin - w)
-                leftFrame = CGRect(x: clampedX - pad, y: dockPlate.maxY + gap - pad,
-                                   width: w + 2 * pad, height: plateHeight + 2 * pad)
+            if config.left.preset.isAssigned, maxAbove >= minWingH {
+                let desiredH = DockWingDimensions.scaledVerticalHeight(for: config.left.preset, size: resolved.left, scale: scale)
+                let h = min(desiredH, maxAbove)
+                let y = isSplit ? (screen.topUsableY - margin - h) : (dockPlate.maxY + gap)
+                leftFrame = CGRect(x: railX - pad, y: y - pad,
+                                   width: plateWidth + 2 * pad, height: h + 2 * pad)
             }
 
             var rightFrame: CGRect?
-            if config.right.preset.isAssigned, maxBelow >= plateHeight {
-                let w = min(DockWingDimensions.scaledWidth(for: config.right.preset, size: .small, scale: scale),
-                            max(plateHeight, screen.frame.width - 2 * margin))
-                let rawX = dockPlate.midX - w / 2
-                let clampedX = min(max(rawX, screen.frame.minX + margin), screen.frame.maxX - margin - w)
-                rightFrame = CGRect(x: clampedX - pad, y: bottomAnchorY - gap - plateHeight - pad,
-                                    width: w + 2 * pad, height: plateHeight + 2 * pad)
+            if config.right.preset.isAssigned, maxBelow >= minWingH {
+                let desiredH = DockWingDimensions.scaledVerticalHeight(for: config.right.preset, size: resolved.right, scale: scale)
+                let h = min(desiredH, maxBelow)
+                let y = isSplit ? (screen.frame.minY + margin) : (bottomAnchorY - gap - h)
+                rightFrame = CGRect(x: railX - pad, y: y - pad,
+                                    width: plateWidth + 2 * pad, height: h + 2 * pad)
             }
 
             return DockWingPanelLayout(leftFrame: leftFrame, rightFrame: rightFrame,
-                                       leftSize: .small, rightSize: .small)
+                                       leftSize: resolved.left, rightSize: resolved.right)
         }
 
         let leftAnchorMaxX = (capsulePlate != .zero && capsulePlate.minX < dockPlate.minX && !controlCentreTrailing)

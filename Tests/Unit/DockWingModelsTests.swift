@@ -287,7 +287,8 @@ final class DockWingModelsTests: XCTestCase {
                         metrics: metrics,
                         gap: 10,
                         margin: 12,
-                        widgetLayout: .default
+                        widgetLayout: .default,
+                        wingConfig: config
                     )
                 }
                 let appsFrame = frames[appsSlot]
@@ -309,7 +310,8 @@ final class DockWingModelsTests: XCTestCase {
                     controlCentreTrailing: false,
                     on: screen,
                     metrics: metrics,
-                    margin: 12
+                    margin: 12,
+                    isSplit: mode.isSplit
                 )
                 let lp = wingLayout.leftFrame?.insetBy(dx: pad, dy: pad)
                 let rp = wingLayout.rightFrame?.insetBy(dx: pad, dy: pad)
@@ -320,16 +322,21 @@ final class DockWingModelsTests: XCTestCase {
                 let rOverlapsAnchor = rp?.intersects(anchorPlate) ?? false
                 let rOverlapsCap = rp?.intersects(capPlate) ?? false
                 let lRailOverhang = lp.map { placement.isVertical ? abs($0.width - anchorPlate.width) : 0 } ?? 0
+                let rRailOverhang = rp.map { placement.isVertical ? abs($0.width - anchorPlate.width) : 0 } ?? 0
                 XCTAssertFalse(lOverlapsMenuBar)
                 XCTAssertFalse(lOverlapsAnchor)
                 XCTAssertFalse(rOverlapsAnchor)
                 XCTAssertFalse(rOverlapsCap)
-                if mode == .centered {
+                if placement.isVertical {
+                    XCTAssertNotNil(lp, "\(mode) should host top vertical wing cap on \(placement)")
+                    XCTAssertNotNil(rp, "\(mode) should host bottom vertical wing cap on \(placement)")
+                    XCTAssertEqual(lRailOverhang, 0, accuracy: 0.01, "Top wing width must match rail thickness")
+                    XCTAssertEqual(rRailOverhang, 0, accuracy: 0.01, "Bottom wing width must match rail thickness")
+                    if let lp { XCTAssertEqual(lp.minX, anchorPlate.minX, accuracy: 0.01) }
+                    if let rp { XCTAssertEqual(rp.minX, anchorPlate.minX, accuracy: 0.01) }
+                } else if mode == .centered {
                     XCTAssertNotNil(lp, "Centered mode should host left wing on \(placement)")
                     XCTAssertNotNil(rp, "Centered mode should host right wing on \(placement)")
-                    if !placement.isVertical {
-                        XCTAssertEqual(lRailOverhang, 0)
-                    }
                 }
             }
         }

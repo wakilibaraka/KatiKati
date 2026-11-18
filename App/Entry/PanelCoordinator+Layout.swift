@@ -328,6 +328,13 @@ extension PanelCoordinator {
     /// Phase 18: the edge this unit's strip sits on (same display key the strip view reads).
     var stripPlacement: StripPlacement { settingsStore.stripPlacement(forDisplay: fixedUnitDisplayUUID) }
 
+    func resolvedWingConfig(on screen: NSScreen) -> DockWingsConfiguration {
+        settingsStore.dockWings.resolved(
+            displayUUID: DisplayIdentity.uuidString(for: screen),
+            displayID: screen.displayID.map(String.init)
+        )
+    }
+
     /// Bar target frame: computes island frame using IslandLayoutSolver across all layout modes.
     /// `contentWidth` is the measured main-axis length (the height on a side rail).
     func dockTargetFrame(contentWidth: CGFloat, on screen: NSScreen) -> NSRect {
@@ -358,7 +365,8 @@ extension PanelCoordinator {
             gap: CGFloat(settingsStore.islandGap),
             margin: CGFloat(settingsStore.islandMargin),
             widgetLayout: settingsStore.widgetLayout,
-            controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd
+            controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
+            wingConfig: resolvedWingConfig(on: screen)
         )
     }
 
@@ -468,10 +476,7 @@ extension PanelCoordinator {
                 ? splitUnion.insetBy(dx: -Self.shadowPadding, dy: -Self.shadowPadding)
                 : dockT
             let wingDisplayUUID = DisplayIdentity.uuidString(for: screen)
-            let resolvedWingConfig = settingsStore.dockWings.resolved(
-                displayUUID: wingDisplayUUID,
-                displayID: screen.displayID.map(String.init)
-            )
+            let resolvedWingConfig = resolvedWingConfig(on: screen)
             let wingLayout = PanelGeometry.wingPanelFrames(
                 dockFrame: wingAnchor,
                 capsuleFrame: capsuleT,
@@ -481,7 +486,8 @@ extension PanelCoordinator {
                 controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
                 on: screenGeom,
                 metrics: layoutMetrics,
-                margin: CGFloat(settingsStore.islandMargin)
+                margin: CGFloat(settingsStore.islandMargin),
+                isSplit: settingsStore.barLayoutMode.isSplit
             )
             if leftWingSizeModel.displayUUID != wingDisplayUUID { leftWingSizeModel.displayUUID = wingDisplayUUID }
             if rightWingSizeModel.displayUUID != wingDisplayUUID { rightWingSizeModel.displayUUID = wingDisplayUUID }
