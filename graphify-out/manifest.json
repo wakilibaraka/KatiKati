@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1794994714.2629466,
-    "seen": 1794996059.228262,
-    "ast_hash": "7e4af50a618652e08fbcb789d20fb1d7",
+    "mtime": 1794999803.1106439,
+    "seen": 1795000468.9581351,
+    "ast_hash": "079ef1967f0d85621212615c96fe6178",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1044,9 +1044,9 @@
     "semantic_hash": "523b913f57e4a3fb4b6dd98eeca9c00d"
   },
   "App/Scenes/Notch/NotchToolsView.swift": {
-    "mtime": 1794994812.5807483,
-    "seen": 1794996059.228301,
-    "ast_hash": "76606b7b267f633c39ac90827b855e51",
+    "mtime": 1794999801.2164464,
+    "seen": 1795000468.958175,
+    "ast_hash": "f1be98eef5b54fc41294c5ef2d5c0dd5",
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1794870130.6982522,
-    "seen": 1794870218.277448,
-    "ast_hash": "77395a01a79bc44df2e258193cf15fa5",
+    "mtime": 1794999835.394227,
+    "seen": 1795000468.958231,
+    "ast_hash": "c40582e0cdfb01a7e35f2a7d10eaf8f8",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
@@ -3036,9 +3036,9 @@
     "semantic_hash": "a7492f68abe423d7f4be4ef14fdcac6b"
   },
   "Scripts/check_localization.py": {
-    "mtime": 1792926135.9922876,
-    "seen": 1792926143.606849,
-    "ast_hash": "639f64b1f3e642d58937bd574e5944da",
+    "mtime": 1794999807.71063,
+    "seen": 1795000468.958816,
+    "ast_hash": "e3d29abb79b92f44b3b955c80e51ebe3",
     "semantic_hash": ""
   },
   "Scripts/install_local_release.sh": {
@@ -7296,9 +7296,9 @@
     "semantic_hash": ""
   },
   "App/Composition/IdleAppNotifier.swift": {
-    "mtime": 1794867162.663663,
-    "seen": 1794867470.9939468,
-    "ast_hash": "d5bbb8c9514d1e457595d1f1b665d4d8",
+    "mtime": 1794999809.5465646,
+    "seen": 1795000468.957847,
+    "ast_hash": "b70e960b8d0d5f744cfec2eae10c1832",
     "semantic_hash": ""
   },
   "Platform/SystemMonitor/AppMemorySampler.swift": {
