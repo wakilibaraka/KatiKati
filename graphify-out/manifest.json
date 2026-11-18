@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
-    "mtime": 1794876956.7320266,
-    "seen": 1794877586.1051872,
-    "ast_hash": "9c75f1e0a81de8e6d69b8fd6415e1ce3",
+    "mtime": 1795015079.3097196,
+    "seen": 1795015314.329498,
+    "ast_hash": "50dddf44ffc070b095c4ca032f9ad87f",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Trash.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795014427.675851,
-    "seen": 1795014817.7300138,
-    "ast_hash": "dfe170941144f4e034a2511fdf25a9fe",
+    "mtime": 1795015112.2328188,
+    "seen": 1795015314.3295,
+    "ast_hash": "245b683af80a10fb09cb31fb4d19f01f",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795014403.1415174,
-    "seen": 1795014817.730104,
-    "ast_hash": "b62db3336b2ef5e20ce4a4b2d7bde6cc",
+    "mtime": 1795015110.4774106,
+    "seen": 1795015314.329587,
+    "ast_hash": "673394ea198e7a256e12236cce708363",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
@@ -7200,9 +7200,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DictionaryTerminalDockWidgets.swift": {
-    "mtime": 1795014837.3121095,
-    "seen": 1795015076.156199,
-    "ast_hash": "2c982ed4400bd3c343d93d58c13049b5",
+    "mtime": 1795015145.8225982,
+    "seen": 1795015314.329504,
+    "ast_hash": "b1de71a2d50b0d67ff78d4be17cecdf3",
     "semantic_hash": ""
   },
   "App/Scenes/ToolChip.swift": {
