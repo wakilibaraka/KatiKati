@@ -1,25 +1,281 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
-/// The notch's second tab: three matched cards — Focus & Timers, Clipboard + Quick note, System. (The file
-/// shelf lives on the dock now.) Everything reuses existing controllers; no new data sources.
+/// Studio Hub / Droppy Shelf tab: renders user-configured shelf widgets (File Tray, Pomodoro Focus,
+/// Clipboard + Quick Note, System Stats) with Dynamic Glass / Liquid Glass / Solid OLED card chrome.
 struct NotchToolsView: View {
     private let services = ProductivityServices.shared
 
     var body: some View {
-        HStack(alignment: .top, spacing: NotchLayoutSpec.homeSpacing) {
-            card { NotchFocusCard(focus: services.focus, timer: services.timer) }
-            card { NotchClipboardCard(clipboard: services.clipboard, tasks: services.tasks) }
-            card { NotchSystemCard(monitor: services.systemMonitor) }
+        DroppyShelfView(services: services)
+    }
+}
+
+struct DroppyShelfView: View {
+    let services: ProductivityServices
+    @AppStorage(DroppyShelfConfigStore.orderKey) private var orderRaw = ""
+    @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = ""
+    @AppStorage(DroppyShelfConfigStore.glassKey) private var glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
+    @AppStorage(DroppyShelfConfigStore.accentKey) private var accentRaw = DroppyAccentTheme.oceanBlue.rawValue
+
+    private var visibleWidgets: [DroppyShelfWidgetKind] {
+        let hidden = DroppyShelfConfigStore.decodeHidden(hiddenRaw)
+        return DroppyShelfConfigStore.decodeOrder(orderRaw).filter { !hidden.contains($0) }
+    }
+
+    private var glassMaterial: DroppyGlassMaterial {
+        DroppyGlassMaterial(rawValue: glassRaw) ?? .dynamicGlass
+    }
+
+    private var accentTheme: DroppyAccentTheme {
+        DroppyAccentTheme(rawValue: accentRaw) ?? .oceanBlue
+    }
+
+    private var accentColor: Color {
+        NotchHexColor.rgba(accentTheme.hex).color
+    }
+
+    var body: some View {
+        let widgets = visibleWidgets
+        let compact = widgets.count > 3
+        Group {
+            if widgets.isEmpty {
+                shelfCard(compact: false) {
+                    VStack(spacing: 4) {
+                        Spacer(minLength: 0)
+                        Text(verbatim: "All shelf widgets are hidden — enable widgets in Notch Settings.")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.6))
+                            .frame(maxWidth: .infinity)
+                        Spacer(minLength: 0)
+                    }
+                }
+            } else {
+                HStack(alignment: .top, spacing: compact ? 8 : NotchLayoutSpec.homeSpacing) {
+                    ForEach(widgets) { kind in
+                        shelfCard(compact: compact) {
+                            widgetBody(for: kind)
+                        }
+                    }
+                }
+            }
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }
 
-    private func card<C: View>(@ViewBuilder _ content: () -> C) -> some View {
-        content()
-            .padding(NotchLayoutSpec.cardPadding)
+    @ViewBuilder
+    private func widgetBody(for kind: DroppyShelfWidgetKind) -> some View {
+        switch kind {
+        case .fileTray:
+            DroppyFileTrayView(accentColor: accentColor)
+        case .pomodoro:
+            NotchFocusCard(focus: services.focus, timer: services.timer)
+        case .clipboardNotes:
+            NotchClipboardCard(clipboard: services.clipboard, tasks: services.tasks)
+        case .systemStats:
+            NotchSystemCard(monitor: services.systemMonitor)
+        }
+    }
+
+    private func shelfCard<C: View>(compact: Bool, @ViewBuilder _ content: () -> C) -> some View {
+        let shape = RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
+        return content()
+            .padding(compact ? 9 : NotchLayoutSpec.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchLayoutSpec.cardFillOpacity)))
+            .background {
+                if glassMaterial == .liquidGlass {
+                    shape.fill(.ultraThinMaterial)
+                        .overlay(shape.fill(accentColor.opacity(0.08)))
+                } else {
+                    let opacity = glassMaterial == .dynamicGlass ? 0.11 : 0.06
+                    shape.fill(Color.white.opacity(opacity))
+                        .overlay(shape.fill(accentColor.opacity(glassMaterial == .dynamicGlass ? 0.05 : 0.0)))
+                }
+            }
+            .overlay(shape.strokeBorder(accentColor.opacity(glassMaterial == .solidOLED ? 0.14 : 0.28), lineWidth: 1))
+    }
+}
+
+struct DroppyFileTrayView: View {
+    let accentColor: Color
+    @StateObject private var tray = DroppyFileTrayStore()
+    @State private var isDropTargeted = false
+    @State private var isBusy = false
+    @State private var statusText: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 4) {
+                Image(systemName: "tray.and.arrow.down.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(accentColor)
+                Text("File Tray")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                if !tray.items.isEmpty {
+                    Button { tray.clearUnpinned() } label: {
+                        Image(systemName: "trash")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                    .buttonStyle(.plain)
+                    .help(Text(verbatim: "Clear unpinned tray items"))
+                }
+                Button { pickFiles() } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 10, weight: .bold))
+                        .frame(width: 18, height: 18)
+                        .background(Circle().fill(accentColor.opacity(0.25)))
+                }
+                .buttonStyle(.plain)
+                .help(Text(verbatim: "Add files to tray"))
+            }
+
+            if tray.items.isEmpty {
+                VStack(spacing: 4) {
+                    Spacer(minLength: 0)
+                    Image(systemName: "arrow.down.doc")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(isDropTargeted ? accentColor : .white.opacity(0.45))
+                    Text(verbatim: isDropTargeted ? "Release to stage" : "Drop files or click +")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.55))
+                        .multilineTextAlignment(.center)
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                        .foregroundStyle(isDropTargeted ? accentColor : .white.opacity(0.18))
+                )
+            } else {
+                VStack(alignment: .leading, spacing: 3) {
+                    ForEach(Array(tray.items.prefix(3))) { item in
+                        HStack(spacing: 4) {
+                            Image(systemName: item.isPinned ? "pin.fill" : "doc.fill")
+                                .font(.system(size: 9))
+                                .foregroundStyle(item.isPinned ? accentColor : .white.opacity(0.6))
+                            Text(verbatim: item.fileName)
+                                .font(.system(size: 10, weight: .medium))
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer(minLength: 0)
+                            Button { tray.togglePin(id: item.id) } label: {
+                                Image(systemName: item.isPinned ? "pin.slash" : "pin")
+                                    .font(.system(size: 8))
+                                    .foregroundStyle(.white.opacity(0.55))
+                            }
+                            .buttonStyle(.plain)
+                            Button { tray.remove(id: item.id) } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(.white.opacity(0.45))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.08)))
+                        .onDrag { NSItemProvider(object: item.url as NSURL) }
+                    }
+                }
+                Spacer(minLength: 0)
+                HStack(spacing: 4) {
+                    transformChip("Zip") { runTransform(.zip) }
+                    if tray.items.contains(where: { FileTransformPlan.canRemoveBackground(for: $0.url) }) {
+                        transformChip("Resize") { runTransform(.resize) }
+                    }
+                    transformChip("PDF") { runTransform(.pdf) }
+                    if let statusText {
+                        Text(verbatim: statusText)
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundStyle(accentColor)
+                            .lineLimit(1)
+                    }
+                }
+            }
+        }
+        .foregroundStyle(.white)
+        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
+            handleDrop(providers)
+        }
+    }
+
+    private func transformChip(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(verbatim: title)
+                .font(.system(size: 9, weight: .semibold))
+                .padding(.horizontal, 7)
+                .padding(.vertical, 3)
+                .background(Capsule().fill(accentColor.opacity(isBusy ? 0.12 : 0.28)))
+        }
+        .buttonStyle(.plain)
+        .disabled(isBusy)
+    }
+
+    private func pickFiles() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        NSApp.activate(ignoringOtherApps: true)
+        if panel.runModal() == .OK, !panel.urls.isEmpty {
+            tray.add(urls: panel.urls)
+            AppDelegate.shared?.shelfStore.stash(paths: panel.urls.map(\.path))
+        }
+    }
+
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        var accepted = false
+        for provider in providers where provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+            accepted = true
+            provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                let url: URL? = (item as? URL) ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
+                guard let url else { return }
+                DispatchQueue.main.async {
+                    tray.add(urls: [url])
+                    AppDelegate.shared?.shelfStore.stash(paths: [url.path])
+                }
+            }
+        }
+        return accepted
+    }
+
+    private enum TransformKind { case zip, resize, pdf }
+
+    private func runTransform(_ kind: TransformKind) {
+        let urls = tray.items.map(\.url)
+        guard !urls.isEmpty, !isBusy else { return }
+        isBusy = true
+        statusText = "Working…"
+        Task {
+            do {
+                let output: URL = try await Task.detached(priority: .userInitiated) {
+                    switch kind {
+                    case .zip:
+                        return try FileTransformEngine.zipFiles(urls)
+                    case .resize:
+                        guard let img = urls.first(where: { FileTransformPlan.canRemoveBackground(for: $0) }) else {
+                            throw FileTransformEngine.TransformError.unreadableSource
+                        }
+                        return try FileTransformEngine.resizeImage(at: img)
+                    case .pdf:
+                        return try FileTransformEngine.mergePDFs(urls)
+                    }
+                }.value
+                tray.add(urls: [output])
+                AppDelegate.shared?.shelfStore.stash(paths: [output.path])
+                statusText = output.lastPathComponent
+            } catch {
+                statusText = "Failed"
+                NSSound.beep()
+            }
+            isBusy = false
+        }
     }
 }
 
