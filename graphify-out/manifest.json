@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795040749.2777057,
-    "seen": 1795040781.370264,
-    "ast_hash": "5a3ea55323f899cd1ee5112c868c6db3",
+    "mtime": 1795040972.0233085,
+    "seen": 1795041008.903312,
+    "ast_hash": "d3bd89a5c9d5ac9cee1f7c889fbd8236",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7623,6 +7623,12 @@
     "mtime": 1795040710.733617,
     "seen": 1795040781.369486,
     "ast_hash": "7e4bdf05ecefda51e3ea9d52919d1ea0",
+    "semantic_hash": ""
+  },
+  "App/Entry/DesktopWidgetPanelController.swift": {
+    "mtime": 1795040882.483469,
+    "seen": 1795041008.902496,
+    "ast_hash": "6968bb93098a4a4bc8e9d4b16d4f654f",
     "semantic_hash": ""
   }
 }
