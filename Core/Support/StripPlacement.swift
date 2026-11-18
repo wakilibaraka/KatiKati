@@ -117,11 +117,17 @@ extension BarSection {
     /// Main-axis length of a widget as a compact square tile on a side rail (Phase 40b / Phase 49:
     /// every rail widget tile — weather, clock, media, launcher, widgets — is a 40×40 square matching
     /// `ChipPillMetrics.cardWidth`). Scales with the bar thickness like every other strip metric.
-    func railTileLength(barHeight: CGFloat) -> CGFloat {
+    func railTileLength(barHeight: CGFloat, visibleUtilityCount: Int = DockUtilityKind.allCases.count) -> CGFloat {
         switch self {
-        case .weather, .clock, .media, .utilities, .launcher, .widgets, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return Self.railTileSize
+        case .utilities: return Self.utilitiesRailLength(visibleCount: visibleUtilityCount)
+        case .weather, .clock, .media, .launcher, .widgets, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return Self.railTileSize
         case .apps: return 0
         }
+    }
+
+    static func utilitiesRailLength(visibleCount: Int) -> CGFloat {
+        let count = max(1, visibleCount)
+        return CGFloat(count) * railTileSize + CGFloat(count - 1) * IslandChrome.railChipSpacing
     }
 
     /// Native side of a rail tile. Matches `ChipPillMetrics.cardWidth`, the app chips it sits among.

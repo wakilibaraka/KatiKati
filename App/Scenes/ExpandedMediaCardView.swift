@@ -16,6 +16,7 @@ extension EnvironmentValues {
 // MARK: - Expanded Media Player Card (Phase 32)
 
 struct ExpandedMediaCardView: View {
+    @Environment(\.dockPopoverEdge) private var popoverEdge
     @ObservedObject private var feed = LiveActivityFeed.shared
     @StateObject private var systemStatus = SystemStatusService()
     @ObservedObject private var focus = ProductivityServices.shared.focus
@@ -144,7 +145,7 @@ struct ExpandedMediaCardView: View {
         // every drag was a no-op (Phase 43).
         .onAppear { feed.retain(); systemStatus.acquire() }
         .onDisappear { feed.release(); systemStatus.release() }
-        .popover(isPresented: $showPopup, arrowEdge: .top) {
+        .popover(isPresented: $showPopup, arrowEdge: popoverEdge) {
             NowPlayingPopup(
                 state: state,
                 theme: .auto,

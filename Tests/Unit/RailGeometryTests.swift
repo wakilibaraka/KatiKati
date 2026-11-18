@@ -15,7 +15,7 @@ final class RailGeometryTests: XCTestCase {
         (0..<mode.slotCount).map { slot in
             // The apps island's solver width follows its measured content; a fixed island is sized
             // chrome-true from `widgetLayout`, so this 120 only stands in for a measurement.
-            PanelGeometry.stripTargetFrame(slot: slot, contentLength: BarSection.islands(for: mode)[slot].contains(.apps) ? 420 : 120,
+            PanelGeometry.stripTargetFrame(slot: slot, contentLength: BarSection.islands(for: mode)[slot].contains(.apps) ? 252 : 120,
                                            mode: mode, stripPlacement: placement, on: screen,
                                            metrics: metrics, gap: 10, margin: 12, widgetLayout: layout)
         }
@@ -95,11 +95,11 @@ final class RailGeometryTests: XCTestCase {
                 XCTAssertEqual(fill, 0, "\(label): rail apps island hugs content instead of filling")
 
                 let appsSlot = BarSection.islands(for: mode).firstIndex { $0.contains(.apps) }!
-                let appsPlate = PanelGeometry.stripTargetFrame(slot: appsSlot, contentLength: 420, mode: mode,
+                let appsPlate = PanelGeometry.stripTargetFrame(slot: appsSlot, contentLength: 168, mode: mode,
                                                                stripPlacement: placement, on: screen, metrics: metrics,
                                                                gap: 10, margin: 12, widgetLayout: layout)
                     .insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
-                XCTAssertEqual(appsPlate.height, 420, accuracy: 0.5, "\(label): hugs the 420 pt content")
+                XCTAssertEqual(appsPlate.height, 168, accuracy: 0.5, "\(label): hugs the 168 pt content")
 
                 // The drawer capsule rides below this island, so the gap it leaves to the next island
                 // down is at least the capsule's own slot (gap + width) — never less, or the two overlap.
@@ -249,6 +249,25 @@ final class RailGeometryTests: XCTestCase {
         let a = WindowLiftAvoidance.Geometry(screenFrame: screen.frame, visibleFrame: visible, taskbarTop: 62)
         let b = WindowLiftAvoidance.Geometry(screenFrame: screen.frame, visibleFrame: visible, taskbarTop: 62, placement: .bottom)
         XCTAssertEqual(a.liftTargetFrame(for: visible, includesTiles: true), b.liftTargetFrame(for: visible, includesTiles: true))
+    }
+
+    func testRailUtilitiesLengthPreventsTrailingSplitClipping() {
+        let sevenCount = BarSection.utilitiesRailLength(visibleCount: 7)
+        XCTAssertEqual(sevenCount, 7 * 40 + 6 * 2, accuracy: 0.001)
+        let utilSlot = BarSection.islands(for: .split3).firstIndex { $0.contains(.utilities) }!
+        let trailing = PanelGeometry.stripTargetFrame(
+            slot: utilSlot,
+            contentLength: 120,
+            mode: .split3,
+            stripPlacement: .left,
+            on: screen,
+            metrics: metrics,
+            gap: 10,
+            margin: 12,
+            widgetLayout: layout,
+            visibleUtilityCount: 7
+        ).insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        XCTAssertGreaterThanOrEqual(trailing.height, sevenCount, "Split 3 trailing island must fit all 7 stacked utilities")
     }
 }
 

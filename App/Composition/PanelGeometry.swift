@@ -550,11 +550,17 @@ enum PanelGeometry {
     }
 
     /// Widgets as compact rail tiles (decision 1); the apps zone keeps its own measured length.
-    static func railWidgetLayout(_ layout: WidgetLayout) -> WidgetLayout {
+    static func railWidgetLayout(
+        _ layout: WidgetLayout,
+        visibleUtilityCount: Int = storedUtilitiesConfig().visibleUtilities.count
+    ) -> WidgetLayout {
         WidgetLayout(instances: layout.instances.map { inst in
             var copy = inst
             if inst.section != .apps {
-                copy.exactWidth = inst.section.railTileLength(barHeight: IslandChrome.nativeBarHeight)
+                copy.exactWidth = inst.section.railTileLength(
+                    barHeight: IslandChrome.nativeBarHeight,
+                    visibleUtilityCount: visibleUtilityCount
+                )
             }
             return copy
         })
@@ -575,7 +581,8 @@ enum PanelGeometry {
         margin: CGFloat = 12,
         widgetLayout: WidgetLayout? = nil,
         controlCentreTrailing: Bool = false,
-        wingConfig: DockWingsConfiguration = .default
+        wingConfig: DockWingsConfiguration = .default,
+        visibleUtilityCount: Int? = nil
     ) -> CGRect {
         guard stripPlacement.isVertical else {
             return islandTargetFrame(slot: slot, contentWidth: contentLength, mode: mode, on: screen,
@@ -586,7 +593,10 @@ enum PanelGeometry {
         let wingPlan = railWingPlan(config: wingConfig, on: screen, metrics: metrics, margin: margin)
         let virtual = railVirtualScreen(on: screen, placement: stripPlacement,
                                         topReserve: wingPlan.topReserve, bottomReserve: wingPlan.bottomReserve)
-        let layout = railWidgetLayout(widgetLayout ?? storedWidgetLayout())
+        let layout = railWidgetLayout(
+            widgetLayout ?? storedWidgetLayout(),
+            visibleUtilityCount: visibleUtilityCount ?? storedUtilitiesConfig().visibleUtilities.count
+        )
         let solved = islandTargetFrame(slot: slot, contentWidth: contentLength,
                                        mode: mode, on: virtual,
                                        placement: .right, metrics: metrics,
@@ -640,6 +650,10 @@ enum PanelGeometry {
     static func storedWidgetLayout(_ defaults: UserDefaults = .standard) -> WidgetLayout {
         WidgetLayout.decode(defaults.data(forKey: WidgetLayout.defaultsKey))
             ?? WidgetLayout.migrating(legacyWidths: defaults.dictionary(forKey: "widgetWidths") as? [String: CGFloat] ?? [:])
+    }
+
+    static func storedUtilitiesConfig(_ defaults: UserDefaults = .standard) -> DockUtilitiesConfig {
+        DockUtilitiesConfig.decode(defaults.data(forKey: DockUtilitiesConfig.defaultsKey)) ?? .default
     }
 
     /// Width the strip leaves empty for the capsule when the Control Centre disc takes the trailing

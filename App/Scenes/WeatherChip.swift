@@ -356,6 +356,7 @@ struct RailWeatherTile: View {
     @EnvironmentObject var weatherService: WeatherService
     @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
     @State private var isHovered = false
+    @State private var pageIndex = 0
 
     var body: some View {
         let state = weatherService.currentState
@@ -368,29 +369,72 @@ struct RailWeatherTile: View {
                                       Color(red: tint.bottom.r, green: tint.bottom.g, blue: tint.bottom.b)],
                              startPoint: .top, endPoint: .bottom)
             : nil
-        VStack(spacing: 1.5) {
-            // Same rule as the bar chip: with no forecast there is no temperature to print, only the
-            // mark that a place is missing (the tap below opens the panel's city search).
-            // Phase 40g refinement: show the weather glyph instead of a 6pt dot in .modern so the
-            // 40×40 rail tile reads unmistakably as weather at a glance.
-            Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
-                .symbolRenderingMode(.multicolor)
-                .font(.system(size: 14, weight: .semibold))
+        let inkColor: Color = chipPreset == .modern ? Color(white: 0.96) : (sky != nil && tint.prefersDarkText ? Color(white: 0.10) : .white)
+        VStack(spacing: 1) {
+            if !state.hasData || pageIndex == 0 {
+                Image(systemName: state.hasData ? state.glyphName : "location.slash.fill")
+                    .symbolRenderingMode(.multicolor)
+                    .font(.system(size: 13.5, weight: .semibold))
+                if state.hasData {
+                    Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
+                        .font(.system(size: 11.5, weight: chipPreset == .modern ? .semibold : .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(inkColor)
+                        .lineLimit(1).minimumScaleFactor(0.7)
+                }
+            } else if pageIndex == 1 {
+                Text(verbatim: "↑\(Int(round(state.highCelsius)))°")
+                    .font(.system(size: 10, weight: .bold, design: .rounded)).monospacedDigit()
+                    .foregroundStyle(inkColor).lineLimit(1).minimumScaleFactor(0.7)
+                Text(verbatim: "↓\(Int(round(state.lowCelsius)))°")
+                    .font(.system(size: 10, weight: .medium, design: .rounded)).monospacedDigit()
+                    .foregroundStyle(inkColor.opacity(0.78)).lineLimit(1).minimumScaleFactor(0.7)
+            } else {
+                Image(systemName: "thermometer.medium")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(inkColor.opacity(0.85))
+                let feels = state.detail?.apparent ?? state.temperatureCelsius
+                Text(verbatim: "\(Int(round(feels)))°")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded)).monospacedDigit()
+                    .foregroundStyle(inkColor).lineLimit(1).minimumScaleFactor(0.7)
+            }
             if state.hasData {
-                Text(verbatim: "\(Int(round(state.temperatureCelsius)))°")
-                    .font(.system(size: 12, weight: chipPreset == .modern ? .semibold : .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(chipPreset == .modern ? Color(white: 0.96) : sky != nil && tint.prefersDarkText ? Color(white: 0.10) : .white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                HStack(spacing: 2.5) {
+                    ForEach(0..<3, id: \.self) { idx in
+                        Circle()
+                            .fill(inkColor.opacity(idx == pageIndex ? 0.92 : 0.28))
+                            .frame(width: 2.5, height: 2.5)
+                    }
+                }
+                .padding(.top, 1)
             }
         }
         .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
         .dockTileChrome(isHovered: isHovered, fill: sky)
+        .overlay(RailWeatherScrollHost { step in
+            guard state.hasData else { return }
+            withAnimation(.snappy(duration: 0.2)) { pageIndex = (pageIndex + step + 3) % 3 }
+        })
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.weather.toggle() }
         .dockHoverPreview { WeatherPreviewCard().environmentObject(weatherService) }
+    }
+}
+
+private struct RailWeatherScrollHost: NSViewRepresentable {
+    let onStep: (Int) -> Void
+    func makeNSView(context: Context) -> ScrollNSView { let v = ScrollNSView(); v.onStep = onStep; return v }
+    func updateNSView(_ v: ScrollNSView, context: Context) { v.onStep = onStep }
+    final class ScrollNSView: NSView {
+        var onStep: ((Int) -> Void)?
+        private var lastFire = Date.distantPast
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+        override func scrollWheel(with event: NSEvent) {
+            guard abs(event.scrollingDeltaY) > 1.5, Date().timeIntervalSince(lastFire) > 0.18 else { return }
+            lastFire = Date()
+            onStep?(event.scrollingDeltaY > 0 ? -1 : 1)
+        }
     }
 }
 

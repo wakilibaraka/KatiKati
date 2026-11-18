@@ -99,6 +99,7 @@ extension View {
 struct RailMediaTile: View {
     @ObservedObject private var feed = LiveActivityFeed.shared
     @EnvironmentObject var settingsStore: AppSettingsStore
+    @Environment(\.dockPopoverEdge) private var popoverEdge
     @State private var isHovered = false
     @State private var showPopup = false
 
@@ -111,6 +112,7 @@ struct RailMediaTile: View {
         let hasTrack = !(state.title?.isEmpty ?? true)
         let unreadable = hasTrack ? nil : feed.playerAccess.unreadableMessage
         let title = hasTrack ? (state.title ?? "") : (unreadable ?? String(localized: "Not Playing"))
+        let progress = state.progress(at: Date()) ?? 0
 
         ZStack {
             ZStack {
@@ -135,6 +137,14 @@ struct RailMediaTile: View {
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .stroke(Color.white.opacity(0.18), lineWidth: 0.75)
             )
+            .overlay {
+                if hasTrack && progress > 0 {
+                    RoundedRectangle(cornerRadius: 7.5, style: .continuous)
+                        .trim(from: 0, to: min(max(progress, 0), 1))
+                        .stroke(Color.white.opacity(0.85), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                        .padding(-1.5)
+                }
+            }
 
             if isHovered || state.isPlaying {
                 ZStack {
@@ -157,7 +167,7 @@ struct RailMediaTile: View {
         .onAppear { feed.retain() }
         .onDisappear { feed.release() }
         .help(Text(verbatim: title))
-        .popover(isPresented: $showPopup, arrowEdge: .leading) {
+        .popover(isPresented: $showPopup, arrowEdge: popoverEdge) {
             NowPlayingPopup(
                 state: state,
                 theme: settingsStore.nowPlayingTheme,
@@ -257,7 +267,7 @@ struct LiveIslandDockCapsule: View {
         .popover(isPresented: $showAIPopup, arrowEdge: edge) {
             AIDockPopoverView()
         }
-        .popover(isPresented: $showPopup, arrowEdge: .top) {
+        .popover(isPresented: $showPopup, arrowEdge: edge) {
             NowPlayingPopup(
                 state: feed.nowPlayingState,
                 theme: settingsStore.nowPlayingTheme,

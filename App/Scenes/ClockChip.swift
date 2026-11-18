@@ -292,11 +292,14 @@ public struct FlipClockChip: View {
 /// timeline as the pill — no per-second work.
 struct RailClockTile: View {
     @EnvironmentObject private var weatherService: WeatherService
+    @ObservedObject private var calendarService = ProductivityServices.shared.calendar
+    @ObservedObject private var alarmStore = ProductivityServices.shared.alarms
     @State private var isHovered = false
 
     var body: some View {
         TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
             let parts = Self.hourMinute(context.date)
+            let eventColor = upcomingDotColor(now: context.date)
             VStack(spacing: -1) {
                 Text(verbatim: parts.hour)
                 Text(verbatim: parts.minute)
@@ -306,11 +309,28 @@ struct RailClockTile: View {
             .monospacedDigit()
             .foregroundStyle(.white)
             .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
+            .overlay(alignment: .topTrailing) {
+                if let eventColor {
+                    Circle().fill(eventColor).frame(width: 5, height: 5).padding(4.5)
+                }
+            }
             .dockTileChrome(isHovered: isHovered)
         }
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.calendar.toggle() }
+        .dockHoverPreview { ClockCalendarPreviewCard() }
+    }
+
+    private func upcomingDotColor(now: Date) -> Color? {
+        if let upcoming = calendarService.upcoming.first {
+            let rgb = upcoming.colorRGB
+            return rgb.count >= 3 ? Color(red: rgb[0], green: rgb[1], blue: rgb[2]) : .accentColor
+        }
+        if AlarmList.next(in: alarmStore.alarms, after: now) != nil {
+            return Color(red: 1.0, green: 0.82, blue: 0.25)
+        }
+        return nil
     }
 
     /// Two-digit hour in the user's 12/24-hour preference and two-digit minute.

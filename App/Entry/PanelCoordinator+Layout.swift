@@ -366,7 +366,8 @@ extension PanelCoordinator {
             margin: CGFloat(settingsStore.islandMargin),
             widgetLayout: settingsStore.widgetLayout,
             controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
-            wingConfig: resolvedWingConfig(on: screen)
+            wingConfig: resolvedWingConfig(on: screen),
+            visibleUtilityCount: settingsStore.dockUtilities.visibleUtilities.count
         )
     }
 

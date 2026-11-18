@@ -2149,6 +2149,7 @@ extension View {
 
 private struct DockClipboardMicroTile: View {
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+    @Environment(\.dockPopoverEdge) private var popoverEdge
     @State private var showFlyout = false
 
     private var badgeText: String {
@@ -2174,7 +2175,7 @@ private struct DockClipboardMicroTile: View {
         }
         .buttonStyle(.plain)
         .help(Text("Clipboard (Right-click to Paste Latest)"))
-        .popover(isPresented: $showFlyout, arrowEdge: .top) {
+        .popover(isPresented: $showFlyout, arrowEdge: popoverEdge) {
             ClipboardFlyoutView()
         }
         .contextMenu {
