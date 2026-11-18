@@ -91,6 +91,7 @@ final class ClaudeApprovalService: ObservableObject {
     private func rescan() {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: pendingDirectory.path)) ?? []
         let now = Date()
+        let autoApprove = UserDefaults.standard.bool(forKey: AgentPermissionPolicy.autoApproveReadOnlyKey)
         var present: [AgentApprovalRequest] = []
         for name in names where name.hasSuffix(".json") {
             let id = String(name.dropLast(5))
@@ -99,6 +100,10 @@ final class ClaudeApprovalService: ObservableObject {
             if let known = requests.first(where: { $0.id == id }) { present.append(known); continue }
             guard let data = try? Data(contentsOf: pendingDirectory.appendingPathComponent(name)),
                   let request = AgentApproval.parse(id: id, data: data, created: created) else { continue }
+            if AgentPermissionPolicy.shouldAutoApprove(request, enabled: autoApprove) {
+                try? AgentApprovalDecision.allow.rawValue.write(to: decidedDirectory.appendingPathComponent(request.id), atomically: true, encoding: .utf8)
+                continue
+            }
             present.append(request)
         }
         present.sort { $0.created < $1.created }

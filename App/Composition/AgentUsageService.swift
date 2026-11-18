@@ -104,6 +104,8 @@ final class AgentUsageService: ObservableObject {
     static let shared = AgentUsageService()
 
     @Published public private(set) var snapshot = AgentUsageSnapshot()
+    @Published public private(set) var loadoutItems: [LoadoutItem] = []
+    @Published public private(set) var activeProfile: LoadoutProfile = .allOn
 
     private let backgroundQueue = DispatchQueue(label: "com.katikati.agent-usage", qos: .utility)
     private var fileWatchers: [DispatchSourceFileSystemObject] = []
@@ -113,6 +115,7 @@ final class AgentUsageService: ObservableObject {
 
     private init() {
         refreshAsync()
+        refreshLoadout()
     }
 
     func startMonitoring() {
@@ -375,9 +378,94 @@ final class AgentUsageService: ObservableObject {
         let work = DispatchWorkItem { [weak self] in
             Task { @MainActor in
                 self?.refreshAsync()
+                self?.refreshLoadout()
             }
         }
         activeTurnWork = work
         backgroundQueue.asyncAfter(deadline: .now() + 1.0, execute: work)
+    }
+
+    // MARK: - Universal Loadout Discovery & Toggling
+
+    func refreshLoadout() {
+        backgroundQueue.async { [weak self] in
+            let home = FileManager.default.homeDirectoryForCurrentUser
+            var found: [LoadoutItem] = []
+            let jsonConfigs: [(AIProviderKind, String)] = [
+                (.claudeCode, ".claude.json"),
+                (.claudeCode, ".claude/settings.json"),
+                (.cursor, ".cursor/mcp.json"),
+                (.geminiCLI, ".gemini/config/mcp_config.json"),
+                (.geminiCLI, ".gemini/settings.json")
+            ]
+            for (provider, rel) in jsonConfigs {
+                if let data = try? Data(contentsOf: home.appendingPathComponent(rel)) {
+                    found += LoadoutConfigCodec.parseJSONServers(data: data, provider: provider, scope: .global)
+                }
+            }
+            if let toml = try? String(contentsOf: home.appendingPathComponent(".codex/config.toml"), encoding: .utf8) {
+                found += LoadoutConfigCodec.parseTOMLServers(text: toml, scope: .global)
+            }
+            let skillsDir = home.appendingPathComponent(".claude/skills", isDirectory: true)
+            if let skillFolders = try? FileManager.default.contentsOfDirectory(at: skillsDir, includingPropertiesForKeys: nil) {
+                for dir in skillFolders {
+                    let skillMD = dir.appendingPathComponent("SKILL.md")
+                    if let md = try? String(contentsOf: skillMD, encoding: .utf8) {
+                        found.append(LoadoutItem(
+                            id: "claude-skill-\(dir.lastPathComponent)",
+                            name: dir.lastPathComponent,
+                            kind: .skill,
+                            provider: .claudeCode,
+                            scope: .global,
+                            isEnabled: true,
+                            estimatedTokens: LoadoutConfigCodec.estimateSkillTokens(markdown: md)
+                        ))
+                    }
+                }
+            }
+            let deduped = Dictionary(found.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a }).values
+                .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            DispatchQueue.main.async { [weak self] in
+                self?.loadoutItems = Array(deduped)
+            }
+        }
+    }
+
+    func toggleLoadoutItem(_ item: LoadoutItem) {
+        let targetEnabled = !item.isEnabled
+        if item.kind == .mcpServer {
+            let home = FileManager.default.homeDirectoryForCurrentUser
+            if item.provider == .codexCLI {
+                let url = home.appendingPathComponent(".codex/config.toml")
+                if let text = try? String(contentsOf: url, encoding: .utf8) {
+                    let updated = LoadoutConfigCodec.toggleTOMLServer(text: text, name: item.name, enabled: targetEnabled)
+                    try? updated.write(to: url, atomically: true, encoding: .utf8)
+                }
+            } else {
+                let candidates: [String] = item.provider == .geminiCLI
+                    ? [".gemini/config/mcp_config.json", ".gemini/settings.json"]
+                    : (item.provider == .claudeCode ? [".claude/settings.json", ".claude.json"] : [item.provider.configRelativePath])
+                for rel in candidates {
+                    let url = home.appendingPathComponent(rel)
+                    if let data = try? Data(contentsOf: url),
+                       let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                       ((root["mcpServers"] as? [String: Any])?[item.name] != nil || (root["_disabled_mcpServers"] as? [String: Any])?[item.name] != nil),
+                       let updated = try? LoadoutConfigCodec.toggleJSONServer(data: data, name: item.name, enabled: targetEnabled) {
+                        try? updated.write(to: url, options: .atomic)
+                        break
+                    }
+                }
+            }
+        }
+        if let idx = loadoutItems.firstIndex(where: { $0.id == item.id }) {
+            loadoutItems[idx].isEnabled = targetEnabled
+        }
+    }
+
+    func applyLoadoutProfile(_ profile: LoadoutProfile) {
+        activeProfile = profile
+        for item in loadoutItems where item.isEnabled != profile.applies(to: item) {
+            toggleLoadoutItem(item)
+        }
     }
 }

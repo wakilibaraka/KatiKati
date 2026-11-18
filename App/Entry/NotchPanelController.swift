@@ -262,7 +262,7 @@ final class NotchPanelController: LiveEventSink {
             let d = UserDefaults.standard
             let wanted = NotchPagingPolicy.defaultPage(
                 nowPlayingActive: nowPlaying,
-                aiTurnActive: false,
+                aiTurnActive: AgentUsageService.shared.snapshot.activeTurn != nil,
                 userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)
             )
             // 51c: a hidden default page falls back to the first shown one.

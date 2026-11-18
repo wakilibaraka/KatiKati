@@ -31,6 +31,11 @@ enum ClaudeHookConfig {
         "printf '%s %s\\n' \"$(date +%s)\" \(event.rawValue) >> \"$HOME/\(logRelativePath)\""
     }
 
+    static func codexNotifyTomlLine(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> String {
+        let logPath = home.appendingPathComponent(logRelativePath).path
+        return "notify = [\"sh\", \"-c\", \"printf '%s Stop\\\\n' \\\"$(date +%s)\\\" >> '\(logPath)'\"]"
+    }
+
     /// Adds our entries, replacing any earlier copy of ours. Every other key and hook is carried over
     /// untouched; running it twice produces the same bytes.
     static func install(into data: Data) throws -> Data {
