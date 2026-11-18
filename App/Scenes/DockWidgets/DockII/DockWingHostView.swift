@@ -242,8 +242,11 @@ struct DockUniversalWidgetCard: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(Color(white: 0.11).opacity(usesLiquidGlass ? 0.62 : 0.88))
+            ZStack {
+                DockVisualEffectView(material: .hudWindow)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Color(white: 0.085).opacity(usesLiquidGlass ? 0.78 : 0.88))
+            }
         )
         .overlay(
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
