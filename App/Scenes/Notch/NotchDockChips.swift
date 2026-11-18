@@ -277,3 +277,23 @@ struct NotchLiveBattery: View {
         }
     }
 }
+
+/// Compact Agent Heartbeat wing indicator showing provider icon + pulsing dot when an agent is working or waiting.
+struct NotchAgentHeartbeatChip: View {
+    @ObservedObject private var agentService = AgentUsageService.shared
+    @ObservedObject private var approvals = ClaudeApprovalService.shared
+
+    var body: some View {
+        if let pending = approvals.requests.first {
+            HStack(spacing: 4) {
+                Circle().fill(Color.orange).frame(width: 6, height: 6)
+                Image(systemName: pending.provider.symbol).font(.system(size: 10, weight: .semibold)).foregroundStyle(.orange)
+            }
+        } else if let active = agentService.snapshot.activeTurn, active.isActive {
+            HStack(spacing: 4) {
+                Circle().fill(Color.green).frame(width: 6, height: 6)
+                Image(systemName: active.provider.symbol).font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
+            }
+        }
+    }
+}

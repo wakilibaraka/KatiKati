@@ -6,6 +6,7 @@ struct NotchAIPageView: View {
     @ObservedObject private var agentService = AgentUsageService.shared
     @AppStorage(AgentBudgetPreset.key) private var budgetPresetRaw = AgentBudgetPreset.off.rawValue
     @State private var showingReceipt = false
+    @State private var showingLoadout = false
 
     private var budgetPreset: AgentBudgetPreset {
         AgentBudgetPreset(rawValue: budgetPresetRaw) ?? .off
@@ -95,6 +96,15 @@ struct NotchAIPageView: View {
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Spacer()
+                    Button { showingLoadout.toggle() } label: {
+                        Text(verbatim: showingLoadout ? "Spend" : "Loadout")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.85))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.cyan.opacity(showingLoadout ? 0.35 : 0.16)))
+                    }
+                    .buttonStyle(.plain)
                     Button {
                         budgetPresetRaw = budgetPreset.next.rawValue
                     } label: {
@@ -138,6 +148,9 @@ struct NotchAIPageView: View {
                     }
                 }
 
+                if showingLoadout {
+                    loadoutDrawer
+                } else {
                 // Cost readout — the store's own number where the tool keeps one, priced here otherwise.
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayCost)
@@ -150,12 +163,12 @@ struct NotchAIPageView: View {
 
                 Spacer(minLength: 0)
 
-                // 5-hour rolling session limit bar
-                if let limits = snapshot.limits[.claude],
-                   let session = limits.windows.first(where: { $0.kind == .session }) {
+                // Multi-provider session / daily quota bar
+                if let (_, limits) = snapshot.limits.sorted(by: { $0.key.rawValue < $1.key.rawValue }).first,
+                   let session = limits.windows.first(where: { $0.kind == .session }) ?? limits.windows.first {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text(verbatim: "5h Session Window")
+                            Text(verbatim: "\(limits.provider.displayName) Session")
                                 .font(.system(size: 10, weight: .semibold))
                                 .foregroundStyle(.white.opacity(0.7))
                             Spacer()
@@ -209,6 +222,7 @@ struct NotchAIPageView: View {
                             .foregroundStyle(.white.opacity(0.6))
                     }
                 }
+                }
             }
             .padding(NotchDesignSpec.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -220,6 +234,51 @@ struct NotchAIPageView: View {
                             .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
                     )
             )
+        }
+    }
+
+    private var loadoutDrawer: some View {
+        let overhead = LoadoutConfigCodec.contextOverhead(items: agentService.loadoutItems)
+        let currentIdx = LoadoutProfile.allCases.firstIndex(of: agentService.activeProfile) ?? 0
+        let nextIdx = (currentIdx + 1) % LoadoutProfile.allCases.count
+        return VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 6) {
+                Text(verbatim: String(format: "~%.1fk ctx (%.1f%%)", Double(overhead.totalTokens) / 1000.0, overhead.percent))
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .foregroundStyle(overhead.isBloated ? .orange : .cyan)
+                Spacer()
+                Button { agentService.applyLoadoutProfile(LoadoutProfile.allCases[nextIdx]) } label: {
+                    Text(verbatim: agentService.activeProfile.title)
+                        .font(.system(size: 9, weight: .bold))
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Capsule().fill(Color.white.opacity(0.12)))
+                }
+                .buttonStyle(.plain)
+            }
+            if agentService.loadoutItems.isEmpty {
+                Text(verbatim: "No MCP servers or skills discovered")
+                    .font(.system(size: 10)).foregroundStyle(.white.opacity(0.45))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 4) {
+                        ForEach(agentService.loadoutItems) { item in
+                            Button { agentService.toggleLoadoutItem(item) } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: item.provider.symbol).font(.system(size: 9)).foregroundStyle(.cyan)
+                                    Text(verbatim: item.name).font(.system(size: 10, weight: .semibold)).lineLimit(1)
+                                    Spacer()
+                                    Text(verbatim: "~\(item.estimatedTokens)t").font(.system(size: 9, design: .monospaced)).foregroundStyle(.white.opacity(0.5))
+                                    Circle().fill(item.isEnabled ? Color.green : Color.white.opacity(0.2)).frame(width: 7, height: 7)
+                                }
+                                .padding(.horizontal, 6).padding(.vertical, 3)
+                                .background(RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.08)))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
         }
     }
 

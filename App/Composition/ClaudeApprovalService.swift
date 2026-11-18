@@ -177,12 +177,14 @@ private final class ClaudeApprovalPanelController {
 
 private struct ClaudeApprovalCardView: View {
     @ObservedObject var service: ClaudeApprovalService
+    @AppStorage(AgentPermissionPolicy.autoApproveReadOnlyKey) private var autoApproveReads = false
 
     var body: some View {
         if let request = service.requests.first {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
-                    Text("Claude Code asks to use").font(.system(size: 12)).foregroundColor(.secondary)
+                    Image(systemName: request.provider.symbol).font(.system(size: 11)).foregroundColor(.accentColor)
+                    Text(verbatim: "\(request.provider.displayName) asks to use").font(.system(size: 12)).foregroundColor(.secondary)
                     Text(verbatim: request.toolName).font(.system(size: 12, weight: .semibold))
                     Spacer(minLength: 0)
                     if service.requests.count > 1 {
@@ -198,6 +200,11 @@ private struct ClaudeApprovalCardView: View {
                         .font(.system(size: 11)).foregroundColor(.secondary).lineLimit(1).truncationMode(.head)
                 }
                 HStack {
+                    Button { autoApproveReads.toggle() } label: {
+                        Text(verbatim: autoApproveReads ? "Auto-Read On" : "Allow Read-Only")
+                            .font(.system(size: 11))
+                    }
+                    .buttonStyle(.borderless)
                     Spacer(minLength: 0)
                     Button { service.decide(request, .deny) } label: { Text("Deny") }
                     Button { service.decide(request, .allow) } label: { Text("Allow") }
