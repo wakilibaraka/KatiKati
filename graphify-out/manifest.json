@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1794971793.9841714,
-    "seen": 1794972536.0965278,
-    "ast_hash": "812926b9a19c78fdd94fb01627dbf1ec",
+    "mtime": 1795013744.8436627,
+    "seen": 1795013952.420667,
+    "ast_hash": "2c3bb875e3d24c488091b349c93011ff",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -7458,9 +7458,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DockTelemetryFeed.swift": {
-    "mtime": 1794992353.790492,
-    "seen": 1794996059.22799,
-    "ast_hash": "bbe1e67525330a029117a4969bcaddba",
+    "mtime": 1795013739.148461,
+    "seen": 1795013952.4206898,
+    "ast_hash": "c9b920705c921dd5ba29c1eb6ff78353",
     "semantic_hash": ""
   },
   "App/Composition/DockVpnFeed.swift": {
@@ -7488,9 +7488,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift": {
-    "mtime": 1794992357.7999682,
-    "seen": 1794996059.228201,
-    "ast_hash": "d1d33dec19f5a639fe4cf32be290f4af",
+    "mtime": 1795013849.2020545,
+    "seen": 1795013952.4208052,
+    "ast_hash": "9cd4639a42bfb4c2d070c050fe46174f",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockVpnWidgetView.swift": {
@@ -7500,15 +7500,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1795012977.2261956,
-    "seen": 1795013547.1414242,
-    "ast_hash": "94162bb7672e57b6260488cce325947a",
+    "mtime": 1795013872.638757,
+    "seen": 1795013952.420807,
+    "ast_hash": "cf62f5b6dd229128d8fa7beb57a8e00f",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795012970.901261,
-    "seen": 1795013547.141609,
-    "ast_hash": "bec7fe15d5acda9009e7500350a0b7e8",
+    "mtime": 1795013734.1383698,
+    "seen": 1795013952.420983,
+    "ast_hash": "7f322dcfec50314cd08c1f6ab81c0b5a",
     "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
@@ -7530,9 +7530,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingModelsTests.swift": {
-    "mtime": 1795013057.822024,
-    "seen": 1795013547.1419039,
-    "ast_hash": "a9f11ec2e199a7bab83586fbba04925e",
+    "mtime": 1795013828.4002233,
+    "seen": 1795013952.421265,
+    "ast_hash": "5c0ce00f93f38016d3962a44a96ec61c",
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingServicesTests.swift": {
