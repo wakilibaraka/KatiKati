@@ -33,6 +33,7 @@ final class NotchPanelController: LiveEventSink {
     private var hoverTimer: Timer?
     private var tickWork: DispatchWorkItem?
     private var shrinkWork: DispatchWorkItem?
+    private weak var shelfStore: ShelfStore?
     var theme: () -> NowPlayingTheme = { .auto }
     var onOpenSettings: () -> Void = {}
     private let islandBridge = IslandLiveBridge()
@@ -52,6 +53,8 @@ final class NotchPanelController: LiveEventSink {
     }
 
     func bindShelfStore(_ store: ShelfStore) {
+        shelfStore = store
+        model.shelfStore = store
         islandBridge.bindShelfStore(store)
     }
 
@@ -73,6 +76,7 @@ final class NotchPanelController: LiveEventSink {
         metrics = Self.metrics(for: screen)
         model.skin = skin
         model.islandBridge = islandBridge
+        model.shelfStore = shelfStore ?? AppDelegate.shared?.shelfStore
         syncDynamicIslandConfiguration()
         model.collapse = { [weak self] in self?.collapse() }
         model.openSettings = { [weak self] in self?.onOpenSettings() }
@@ -239,7 +243,7 @@ final class NotchPanelController: LiveEventSink {
         // A drag that began inside the open panel (volume slider) keeps it open even if the cursor leaves.
         let dragging = hover.isOpen && NSEvent.pressedMouseButtons & 1 != 0
         let wasOpen = hover.isOpen
-        hover.update(inTrigger: inTrigger && opensOnHover, inKeepOpen: inKeepOpen, pinned: dragging || model.event != nil, now: now)
+        hover.update(inTrigger: inTrigger && opensOnHover, inKeepOpen: inKeepOpen, pinned: dragging || model.event != nil || model.isDropTargeted, now: now)
         if hover.isOpen != wasOpen { applyOpenState() }
         // Poll only while it matters: pointer near the notch, open, or a dwell/grace timer pending.
         if !hover.isOpen, !inTrigger, hover.nextDeadline == nil { stopHoverPolling() }

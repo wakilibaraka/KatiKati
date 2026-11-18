@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 // Phase 8b-7 — the notch skin of the Live Island.
 //
@@ -25,6 +26,8 @@ final class NotchModel: ObservableObject {
     @Published var pageDirection = 1
     /// Slice DN-1/DN-2: Priority-ordered queue for transient hardware HUDs and live activities.
     @Published var activityQueue = NotchActivityQueue(maxItems: 8)
+    @Published var isDropTargeted = false
+    weak var shelfStore: ShelfStore?
     var activeHUDItem: NotchActivityItem? {
         guard let top = activityQueue.current, top.level != nil else { return nil }
         return top
@@ -199,6 +202,15 @@ struct NotchIslandView: View {
         .clipShape(maskShape)
         .contentShape(Rectangle())
         .onTapGesture { if !expanded { model.requestOpen() } }
+        .onDrop(of: [.fileURL, .plainText, .url], isTargeted: $model.isDropTargeted) { providers in
+            handleNotchDrop(providers)
+        }
+        .onChange(of: model.isDropTargeted) { _, targeted in
+            let autoOpen = UserDefaults.standard.object(forKey: ShelfPolicy.notchAutoOpenOnDragKey) as? Bool ?? true
+            guard targeted, autoOpen else { return }
+            if !model.isExpanded { model.requestOpen() }
+            if model.activePage != .studioHub { model.goToPage(.studioHub) }
+        }
         .contextMenu {
             Section {
                 ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
@@ -240,6 +252,50 @@ struct NotchIslandView: View {
         .animation(reduceMotion ? nil : .interpolatingSpring(stiffness: 240, damping: 26), value: calculatedLayout.bottomCornerRadius)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(.dark)
+    }
+
+    private func handleNotchDrop(_ providers: [NSItemProvider]) -> Bool {
+        let store = model.shelfStore ?? AppDelegate.shared?.shelfStore
+        var accepted = false
+        for p in providers {
+            if p.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                accepted = true
+                _ = p.loadObject(ofClass: URL.self) { u, _ in
+                    guard let u else { return }
+                    DispatchQueue.main.async {
+                        store?.stash(paths: [u.path])
+                        DroppyFileTrayStore().add(urls: [u])
+                        if !model.isExpanded { model.requestOpen() }
+                        model.goToPage(.studioHub)
+                    }
+                }
+            } else if p.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                accepted = true
+                _ = p.loadObject(ofClass: URL.self) { u, _ in
+                    guard let u else { return }
+                    DispatchQueue.main.async {
+                        if let fileURL = store?.stashText(u.absoluteString, suggestedName: u.host) {
+                            DroppyFileTrayStore().add(urls: [fileURL])
+                        }
+                        if !model.isExpanded { model.requestOpen() }
+                        model.goToPage(.studioHub)
+                    }
+                }
+            } else if p.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                accepted = true
+                _ = p.loadObject(ofClass: String.self) { s, _ in
+                    guard let s else { return }
+                    DispatchQueue.main.async {
+                        if let fileURL = store?.stashText(s) {
+                            DroppyFileTrayStore().add(urls: [fileURL])
+                        }
+                        if !model.isExpanded { model.requestOpen() }
+                        model.goToPage(.studioHub)
+                    }
+                }
+            }
+        }
+        return accepted
     }
 
     /// The playing artwork's accent, white when nothing is playing; tints the page dots on every page.

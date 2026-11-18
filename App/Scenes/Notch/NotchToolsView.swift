@@ -97,14 +97,36 @@ struct DroppyShelfView: View {
     }
 }
 
+private enum NotchToolsFallbackShelf {
+    @MainActor static let shared = ShelfStore()
+}
+
 struct DroppyFileTrayView: View {
     let accentColor: Color
     @StateObject private var tray = DroppyFileTrayStore()
+    @ObservedObject private var shelfStore = AppDelegate.shared?.shelfStore ?? NotchToolsFallbackShelf.shared
+    @AppStorage(ShelfPolicy.syncNotchTrayKey) private var syncNotchTray = true
     @State private var isDropTargeted = false
     @State private var isBusy = false
     @State private var statusText: String?
 
+    private struct TrayEntry: Identifiable {
+        let id: String
+        let path: String
+        let isPinned: Bool
+        var url: URL { URL(fileURLWithPath: path) }
+        var fileName: String { url.lastPathComponent }
+    }
+
+    private var entries: [TrayEntry] {
+        if syncNotchTray {
+            return shelfStore.items.map { TrayEntry(id: $0.id.uuidString, path: $0.path, isPinned: $0.isPinned) }
+        }
+        return tray.items.map { TrayEntry(id: $0.id.uuidString, path: $0.path, isPinned: $0.isPinned) }
+    }
+
     var body: some View {
+        let items = entries
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 4) {
                 Image(systemName: "tray.and.arrow.down.fill")
@@ -114,9 +136,18 @@ struct DroppyFileTrayView: View {
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.75))
                     .lineLimit(1)
+                if !items.isEmpty {
+                    Text(verbatim: "\(items.count)")
+                        .font(.system(size: 9, weight: .bold, design: .rounded).monospacedDigit())
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(accentColor.opacity(0.28)))
+                }
                 Spacer(minLength: 0)
-                if !tray.items.isEmpty {
-                    Button { tray.clearUnpinned() } label: {
+                if !items.isEmpty {
+                    Button {
+                        if syncNotchTray { shelfStore.clear() } else { tray.clearUnpinned() }
+                    } label: {
                         Image(systemName: "trash")
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundStyle(.white.opacity(0.55))
@@ -134,7 +165,7 @@ struct DroppyFileTrayView: View {
                 .help(Text(verbatim: "Add files to tray"))
             }
 
-            if tray.items.isEmpty {
+            if items.isEmpty {
                 VStack(spacing: 4) {
                     Spacer(minLength: 0)
                     Image(systemName: "arrow.down.doc")
@@ -153,41 +184,32 @@ struct DroppyFileTrayView: View {
                         .foregroundStyle(isDropTargeted ? accentColor : .white.opacity(0.18))
                 )
             } else {
-                VStack(alignment: .leading, spacing: 3) {
-                    ForEach(Array(tray.items.prefix(3))) { item in
-                        HStack(spacing: 4) {
-                            Image(systemName: item.isPinned ? "pin.fill" : "doc.fill")
-                                .font(.system(size: 9))
-                                .foregroundStyle(item.isPinned ? accentColor : .white.opacity(0.6))
-                            Text(verbatim: item.fileName)
-                                .font(.system(size: 10, weight: .medium))
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Spacer(minLength: 0)
-                            Button { tray.togglePin(id: item.id) } label: {
-                                Image(systemName: item.isPinned ? "pin.slash" : "pin")
-                                    .font(.system(size: 8))
-                                    .foregroundStyle(.white.opacity(0.55))
-                            }
-                            .buttonStyle(.plain)
-                            Button { tray.remove(id: item.id) } label: {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 8, weight: .bold))
-                                    .foregroundStyle(.white.opacity(0.45))
-                            }
-                            .buttonStyle(.plain)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(items) { item in
+                            trayPill(item)
                         }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.08)))
-                        .onDrag { NSItemProvider(object: item.url as NSURL) }
                     }
                 }
+                .frame(maxHeight: 58)
                 Spacer(minLength: 0)
                 HStack(spacing: 4) {
                     transformChip("Zip") { runTransform(.zip) }
-                    if tray.items.contains(where: { FileTransformPlan.canRemoveBackground(for: $0.url) }) {
+                    if items.contains(where: { FileTransformPlan.canRemoveBackground(for: $0.url) }) {
                         transformChip("Resize") { runTransform(.resize) }
+                        Menu {
+                            ForEach(ImageTargetFormat.allCases, id: \.rawValue) { fmt in
+                                Button(fmt.rawValue.uppercased()) { ShelfActions.convertImage(items.map(\.url), format: fmt, into: shelfStore) }
+                            }
+                        } label: {
+                            Text("Convert")
+                                .font(.system(size: 9, weight: .semibold))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Capsule().fill(accentColor.opacity(isBusy ? 0.12 : 0.28)))
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
                     }
                     transformChip("PDF") { runTransform(.pdf) }
                     if let statusText {
@@ -200,9 +222,51 @@ struct DroppyFileTrayView: View {
             }
         }
         .foregroundStyle(.white)
-        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
+        .onDrop(of: [.fileURL, .plainText, .url], isTargeted: $isDropTargeted) { providers in
             handleDrop(providers)
         }
+    }
+
+    private func trayPill(_ item: TrayEntry) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Image(nsImage: FolderIconResolver.resolve(item.path, size: 20))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 18, height: 18)
+                Spacer(minLength: 0)
+                Button { togglePin(item) } label: {
+                    Image(systemName: item.isPinned ? "pin.fill" : "pin")
+                        .font(.system(size: 8))
+                        .foregroundStyle(item.isPinned ? accentColor : .white.opacity(0.55))
+                }.buttonStyle(.plain)
+                Button { removeEntry(item) } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.45))
+                }.buttonStyle(.plain)
+            }
+            Text(verbatim: item.fileName)
+                .font(.system(size: 9.5, weight: .medium))
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 5)
+        .frame(width: 96, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white.opacity(0.09)))
+        .onTapGesture { NSWorkspace.shared.open(item.url) }
+        .onDrag { FileDragItemProvider.make(for: item.url) }
+    }
+
+    private func togglePin(_ entry: TrayEntry) {
+        if syncNotchTray { shelfStore.togglePin(entry.path) }
+        else if let uuid = UUID(uuidString: entry.id) { tray.togglePin(id: uuid) }
+    }
+
+    private func removeEntry(_ entry: TrayEntry) {
+        if syncNotchTray { shelfStore.remove(entry.path) }
+        else if let uuid = UUID(uuidString: entry.id) { tray.remove(id: uuid) }
     }
 
     private func transformChip(_ title: String, action: @escaping () -> Void) -> some View {
@@ -224,21 +288,33 @@ struct DroppyFileTrayView: View {
         panel.canChooseDirectories = false
         NSApp.activate(ignoringOtherApps: true)
         if panel.runModal() == .OK, !panel.urls.isEmpty {
-            tray.add(urls: panel.urls)
-            AppDelegate.shared?.shelfStore.stash(paths: panel.urls.map(\.path))
+            if !syncNotchTray { tray.add(urls: panel.urls) }
+            shelfStore.stash(paths: panel.urls.map(\.path))
         }
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
         var accepted = false
-        for provider in providers where provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-            accepted = true
-            provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
-                let url: URL? = (item as? URL) ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
-                guard let url else { return }
-                DispatchQueue.main.async {
-                    tray.add(urls: [url])
-                    AppDelegate.shared?.shelfStore.stash(paths: [url.path])
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                accepted = true
+                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                    let url: URL? = (item as? URL) ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
+                    guard let url else { return }
+                    DispatchQueue.main.async {
+                        if !syncNotchTray { tray.add(urls: [url]) }
+                        shelfStore.stash(paths: [url.path])
+                    }
+                }
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                accepted = true
+                _ = provider.loadObject(ofClass: String.self) { text, _ in
+                    guard let text else { return }
+                    DispatchQueue.main.async {
+                        if let fileURL = shelfStore.stashText(text), !syncNotchTray {
+                            tray.add(urls: [fileURL])
+                        }
+                    }
                 }
             }
         }
@@ -248,7 +324,7 @@ struct DroppyFileTrayView: View {
     private enum TransformKind { case zip, resize, pdf }
 
     private func runTransform(_ kind: TransformKind) {
-        let urls = tray.items.map(\.url)
+        let urls = entries.map(\.url)
         guard !urls.isEmpty, !isBusy else { return }
         isBusy = true
         statusText = "Working…"
@@ -267,8 +343,8 @@ struct DroppyFileTrayView: View {
                         return try FileTransformEngine.mergePDFs(urls)
                     }
                 }.value
-                tray.add(urls: [output])
-                AppDelegate.shared?.shelfStore.stash(paths: [output.path])
+                if !syncNotchTray { tray.add(urls: [output]) }
+                shelfStore.stash(paths: [output.path])
                 statusText = output.lastPathComponent
             } catch {
                 statusText = "Failed"
