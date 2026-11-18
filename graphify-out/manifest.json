@@ -1140,9 +1140,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
-    "mtime": 1795014399.9107468,
-    "seen": 1795014817.730099,
-    "ast_hash": "bb0a8823785173f9f8318e8abde9b182",
+    "mtime": 1795028734.530911,
+    "seen": 1795028897.700642,
+    "ast_hash": "954a04342f1fc3a0d481891ee22ebd1b",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
@@ -4584,9 +4584,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsShell.swift": {
-    "mtime": 1794858587.16419,
-    "seen": 1794858758.7407,
-    "ast_hash": "98390f21cc6ede4bfe033b814b772e9b",
+    "mtime": 1795028733.6880765,
+    "seen": 1795028897.700638,
+    "ast_hash": "386c3389d22b2b567372cdcbaa49e11c",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
@@ -4596,9 +4596,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1795010967.3604138,
-    "seen": 1795013547.141498,
-    "ast_hash": "60b698e190e885b8ac0ae67cd2093895",
+    "mtime": 1795028768.3525743,
+    "seen": 1795028897.70064,
+    "ast_hash": "df9d0fc1613228343944d37f2aec6b66",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795018070.4455917,
-    "seen": 1795018623.830977,
-    "ast_hash": "75d436f596fe61752e29b5e4eb9118fb",
+    "mtime": 1795028735.9484315,
+    "seen": 1795028897.7006469,
+    "ast_hash": "bc9e2cb952191acdd4a450a85aba9c68",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
