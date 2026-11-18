@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795038748.5329306,
-    "seen": 1795039003.168396,
-    "ast_hash": "abbc8b5300f288dd4e5c99bd95b13d07",
+    "mtime": 1795043348.4296591,
+    "seen": 1795043502.956435,
+    "ast_hash": "9143484d67694d49e4f42d539b8cac66",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795028139.4171507,
-    "seen": 1795028206.026379,
-    "ast_hash": "2a447517f7f1fce574c0c6d7f8152c4d",
+    "mtime": 1795042238.196628,
+    "seen": 1795043502.95647,
+    "ast_hash": "a2c699685e5cd5e78b6c6347f4a979e6",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795014071.2408412,
-    "seen": 1795014308.644043,
-    "ast_hash": "7f812c9dfa7625b6b5e446883704ec2e",
+    "mtime": 1795042111.4664803,
+    "seen": 1795043502.956641,
+    "ast_hash": "39142115d927a697c0cf9e36442bbca9",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -4590,9 +4590,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1795010931.6913662,
-    "seen": 1795013547.1414971,
-    "ast_hash": "19e72e8a51132061e5d93c70f7c24590",
+    "mtime": 1795042130.0872223,
+    "seen": 1795043502.9566221,
+    "ast_hash": "3418f5714d92b350103a56ac7549df8c",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1794921515.5155056,
-    "seen": 1794921785.878817,
-    "ast_hash": "9173ad172a8f556954fe4ffd5d5dc679",
+    "mtime": 1795041748.632191,
+    "seen": 1795043502.956633,
+    "ast_hash": "32d1f5786f6ae05af3f504a5fb048a44",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795041521.1945844,
-    "seen": 1795041580.112664,
-    "ast_hash": "ea4db7267151b913d51b18b729690871",
+    "mtime": 1795043458.8313258,
+    "seen": 1795043502.95772,
+    "ast_hash": "4233f48dd348ea9e2afbcd562594338d",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7632,9 +7632,15 @@
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795041380.7909317,
-    "seen": 1795041580.111157,
-    "ast_hash": "aa8ad3283be578f02b800fa30a5bd632",
+    "mtime": 1795043350.4915142,
+    "seen": 1795043502.956328,
+    "ast_hash": "a7d0b4375883f19ef8f0d4e4c946b8a9",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
+    "mtime": 1795042109.4242182,
+    "seen": 1795043502.956495,
+    "ast_hash": "cabf31ae496545f1a0d31d3624597a60",
     "semantic_hash": ""
   }
 }
