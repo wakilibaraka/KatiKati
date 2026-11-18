@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Layout.swift": {
-    "mtime": 1794995069.4084606,
-    "seen": 1794996059.228129,
-    "ast_hash": "2a0b066714b4c79a636b02cb026d10c9",
+    "mtime": 1795005129.453096,
+    "seen": 1795007055.523031,
+    "ast_hash": "136a0d7e24f5dbd8958b94bf3c04695d",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
@@ -606,9 +606,9 @@
     "semantic_hash": "710b45e4f9bee606f50312f81bb44a3a"
   },
   "App/Entry/PanelCoordinator+Visibility.swift": {
-    "mtime": 1794992185.8927805,
-    "seen": 1794996059.228137,
-    "ast_hash": "de59579d1ec312d823c6285dd3e88dcd",
+    "mtime": 1795005131.346214,
+    "seen": 1795007055.523048,
+    "ast_hash": "4f1ef5fdafe24fd1277e46d56136eefd",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795004577.5259464,
-    "seen": 1795004947.627595,
-    "ast_hash": "64e7c32b4ca18fc20f0687af23cc6c3d",
+    "mtime": 1795005134.483954,
+    "seen": 1795007055.523146,
+    "ast_hash": "3456ac07c8357443e7983fdeb8bbabaa",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1062,9 +1062,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NowPlayingChip.swift": {
-    "mtime": 1792536772.365806,
-    "seen": 1792537422.675642,
-    "ast_hash": "0896143ca4df194cba5d214ef5353fb7",
+    "mtime": 1795005138.5640352,
+    "seen": 1795007055.523372,
+    "ast_hash": "abc26abd95b385afe82b438d9a68616e",
     "semantic_hash": ""
   },
   "App/Scenes/PermissionOnboardingView.swift": {
@@ -1176,9 +1176,9 @@
     "semantic_hash": "254f2ae14aee9850bc126cd823ba1cd7"
   },
   "App/Scenes/ShelfGridPopupView.swift": {
-    "mtime": 1794994307.8634083,
-    "seen": 1794996059.2283578,
-    "ast_hash": "9214564a0fc1c2efd01e400d789436f7",
+    "mtime": 1795006880.5675492,
+    "seen": 1795007055.523461,
+    "ast_hash": "c914834ade03b9e4611152ae05fc69ab",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfTrayArt.swift": {
@@ -1338,9 +1338,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WidgetLookSettingsBlock.swift": {
-    "mtime": 1794972172.336123,
-    "seen": 1794972536.096802,
-    "ast_hash": "c8b18eed610df5cdb071b11d476adae9",
+    "mtime": 1795006878.392561,
+    "seen": 1795007055.523556,
+    "ast_hash": "53d503a326d9c31b3789eb2eca8c3855",
     "semantic_hash": ""
   },
   "App/Scenes/WidgetMotionAnimation.swift": {
@@ -2250,10 +2250,10 @@
     "semantic_hash": "55e54d499688ff7d3dbc66d114bd70b3"
   },
   "Core/Support/ShelfItem.swift": {
-    "mtime": 1791999130.7508707,
-    "seen": 1792295707.060599,
-    "ast_hash": "d4d008e338b3db38a676a2ce6d7955c3",
-    "semantic_hash": "d4d008e338b3db38a676a2ce6d7955c3"
+    "mtime": 1795006876.0356536,
+    "seen": 1795007055.524147,
+    "ast_hash": "30131aef7c12fd32ba43d9548ebcba74",
+    "semantic_hash": ""
   },
   "Core/Support/Shortcuts.swift": {
     "mtime": 1794921512.9152539,
@@ -4044,10 +4044,10 @@
     "semantic_hash": "4bb243666fb4f944deed03b2f9aa23ca"
   },
   "Tests/Unit/ShelfLogicTests.swift": {
-    "mtime": 1791999130.92997,
-    "seen": 1792295707.0607848,
-    "ast_hash": "c031c52c611adfb8675dcaa48e606565",
-    "semantic_hash": "c031c52c611adfb8675dcaa48e606565"
+    "mtime": 1795006883.15891,
+    "seen": 1795007055.525337,
+    "ast_hash": "ed6770fd296d571c12b56375c4a9205e",
+    "semantic_hash": ""
   },
   "Tests/Unit/ShelfPolicyTests.swift": {
     "mtime": 1791999130.9461975,
@@ -6894,9 +6894,9 @@
     "semantic_hash": ""
   },
   "App/Composition/ClaudeApprovalService.swift": {
-    "mtime": 1795002650.8922527,
-    "seen": 1795002901.0278568,
-    "ast_hash": "322c9925c9312753d99acb76e7b1c677",
+    "mtime": 1795005652.821476,
+    "seen": 1795007055.522717,
+    "ast_hash": "82e639649ca7954b055f809edc7304dd",
     "semantic_hash": ""
   },
   "App/Composition/PopStore.swift": {
@@ -7200,9 +7200,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DictionaryTerminalDockWidgets.swift": {
-    "mtime": 1793842845.2952456,
-    "seen": 1793842917.227555,
-    "ast_hash": "d12f95f0e1f82a35aef917f1893124e7",
+    "mtime": 1795005653.962297,
+    "seen": 1795007055.52316,
+    "ast_hash": "374cbc58530dd04d726746d2e14a593e",
     "semantic_hash": ""
   },
   "App/Scenes/ToolChip.swift": {
@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1795004062.4650636,
-    "seen": 1795004485.8898969,
-    "ast_hash": "668f0d43d39ccbcdeec0aeb65b515d85",
+    "mtime": 1795005604.149403,
+    "seen": 1795007055.523178,
+    "ast_hash": "eb010af46148ed62afc4caefd63c8982",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
