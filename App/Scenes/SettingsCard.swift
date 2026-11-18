@@ -897,6 +897,7 @@ struct DockLivePreviewStrip: View {
     let mode: BarLayoutMode
     let visibleOrder: [BarSection]
     let wings: DockWingsConfiguration
+    var placement: StripPlacement = .bottom
 
     var body: some View {
         let islands = BarSection.islands(for: mode, order: visibleOrder)
@@ -904,30 +905,57 @@ struct DockLivePreviewStrip: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(LinearGradient(colors: [Color(red: 0.22, green: 0.28, blue: 0.52).opacity(0.65), Color(red: 0.42, green: 0.28, blue: 0.55).opacity(0.65)],
                                      startPoint: .topLeading, endPoint: .bottomTrailing))
-            HStack(spacing: 6) {
-                if wings.left.preset.isAssigned { wingPill(wings.left.preset) }
-                ForEach(Array(islands.enumerated()), id: \.offset) { _, group in
-                    HStack(spacing: 4) {
-                        ForEach(group, id: \.self) { section in
-                            sectionGlyph(section)
-                        }
-                    }
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 5)
-                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.ultraThinMaterial))
-                    .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(.white.opacity(0.22), lineWidth: 0.75))
+            if placement.isVertical {
+                HStack {
+                    if placement == .right { Spacer(minLength: 0) }
+                    verticalRailMiniature(islands: islands)
+                        .padding(.horizontal, 10)
+                    if placement == .left { Spacer(minLength: 0) }
                 }
-                if wings.right.preset.isAssigned { wingPill(wings.right.preset) }
+            } else {
+                HStack(spacing: 6) {
+                    if wings.left.preset.isAssigned { wingPill(wings.left.preset) }
+                    ForEach(Array(islands.enumerated()), id: \.offset) { _, group in
+                        HStack(spacing: 4) {
+                            ForEach(group, id: \.self) { section in
+                                sectionGlyph(section)
+                            }
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 5)
+                        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.ultraThinMaterial))
+                        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(.white.opacity(0.22), lineWidth: 0.75))
+                    }
+                    if wings.right.preset.isAssigned { wingPill(wings.right.preset) }
+                }
+                .padding(.horizontal, 8)
             }
-            .padding(.horizontal, 8)
-            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: visibleOrder)
-            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: wings)
-            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: mode)
         }
+        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: visibleOrder)
+        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: wings)
+        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: mode)
+        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: placement)
         .frame(height: 52)
         .frame(maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white.opacity(0.18), lineWidth: 0.75))
+    }
+
+    private func verticalRailMiniature(islands: [[BarSection]]) -> some View {
+        HStack(spacing: 3) {
+            if wings.left.preset.isAssigned { wingPill(wings.left.preset) }
+            VStack(spacing: 2) {
+                ForEach(Array(islands.prefix(5).enumerated()), id: \.offset) { _, group in
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .overlay(RoundedRectangle(cornerRadius: 3, style: .continuous).stroke(.white.opacity(0.25), lineWidth: 0.5))
+                        .frame(width: 14, height: max(4, group.contains(.apps) ? 14 : 6))
+                }
+            }
+            .padding(3)
+            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.black.opacity(0.28)))
+            if wings.right.preset.isAssigned { wingPill(wings.right.preset) }
+        }
     }
 
     private func wingPill(_ preset: DockWidgetPresetType) -> some View {

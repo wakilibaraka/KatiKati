@@ -82,7 +82,8 @@ extension SettingsLayoutPane {
                 DockLivePreviewStrip(
                     mode: store.barLayoutMode,
                     visibleOrder: store.widgetLayout.visibleOrder,
-                    wings: store.dockWings
+                    wings: store.dockWings,
+                    placement: store.stripPlacementMap.global
                 )
                 SettingsDivider()
             }

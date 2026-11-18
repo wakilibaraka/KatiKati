@@ -108,6 +108,7 @@ struct SettingsStage: View {
     /// The Notch page shows the skin's open panel, so its style picker has something to change.
     var expandsNotch = false
     var tab: SettingsTab = .appearance
+    var onSelectQuery: ((String) -> Void)? = nil
     @State private var wallpaper: NSImage?
 
     private static let screenAspect = LayoutThumbnailModel.referenceScreen.width / LayoutThumbnailModel.referenceScreen.height
@@ -122,7 +123,7 @@ struct SettingsStage: View {
         }
         .clipped()
         .onAppear(perform: loadWallpaper)
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: tab == .dockItems ? .contain : .ignore)
         .accessibilityLabel(Text("Live preview"))
     }
 
@@ -167,22 +168,24 @@ struct SettingsStage: View {
 
     private func bar(in size: CGSize) -> some View {
         let inputs = store.layoutThumbnailInputs
+        let vertical = inputs.placement.isVertical
         let islands = LayoutThumbnailModel.islands(for: store.barLayoutMode, inputs: inputs)
         let capsule = LayoutThumbnailModel.capsule(for: store.barLayoutMode, inputs: inputs)
         let wings = store.dockWings
+        let interactive = tab == .dockItems && onSelectQuery != nil
         return ZStack(alignment: .topLeading) {
             ForEach(Array(islands.enumerated()), id: \.offset) { _, island in
                 let r = island.rect
                 let frame = CGRect(x: r.minX * size.width, y: r.minY * size.height,
                                    width: max(3, r.width * size.width), height: max(3, r.height * size.height))
-                stagePlate(frame: frame) {
-                    HStack(spacing: 2) {
-                        ForEach(island.sections.prefix(5), id: \.self) { sec in
-                            Image(systemName: DockLivePreviewStrip.symbol(for: sec))
-                                .font(.system(size: max(5, frame.height * 0.42)))
-                                .foregroundStyle(sec == .ai ? .cyan : .white.opacity(0.85))
-                        }
+                let iconSize = max(5, (vertical ? frame.width : frame.height) * 0.42)
+                let glyphs = Group {
+                    ForEach(island.sections.prefix(5), id: \.self) { sec in
+                        stageSectionGlyph(sec, iconSize: iconSize, interactive: interactive)
                     }
+                }
+                stagePlate(frame: frame) {
+                    if vertical { VStack(spacing: 2) { glyphs } } else { HStack(spacing: 2) { glyphs } }
                 }
             }
             if let capsule {
@@ -191,21 +194,99 @@ struct SettingsStage: View {
                 stagePlate(frame: cf) { EmptyView() }
             }
             if wings.left.preset.isAssigned, let first = islands.first {
-                let w: CGFloat = max(14, size.width * 0.08)
-                let h = max(3, first.rect.height * size.height)
-                stagePlate(frame: CGRect(x: max(2, first.rect.minX * size.width - w - 3), y: first.rect.minY * size.height, width: w, height: h)) {
-                    Image(systemName: wings.left.preset.symbolName).font(.system(size: max(5, h * 0.42))).foregroundStyle(.white.opacity(0.85))
-                }
+                stageWingPlate(
+                    placement: .leftWing, preset: wings.left.preset, size: size,
+                    refRect: first.rect, vertical: vertical, isLeading: true, interactive: interactive
+                )
             }
             if wings.right.preset.isAssigned, let lastRect = capsule ?? islands.last?.rect {
-                let w: CGFloat = max(14, size.width * 0.08)
-                let h = max(3, lastRect.height * size.height)
-                stagePlate(frame: CGRect(x: min(size.width - w - 2, lastRect.maxX * size.width + 3), y: lastRect.minY * size.height, width: w, height: h)) {
-                    Image(systemName: wings.right.preset.symbolName).font(.system(size: max(5, h * 0.42))).foregroundStyle(.white.opacity(0.85))
-                }
+                stageWingPlate(
+                    placement: .rightWing, preset: wings.right.preset, size: size,
+                    refRect: lastRect, vertical: vertical, isLeading: false, interactive: interactive
+                )
             }
         }
         .frame(width: size.width, height: size.height, alignment: .topLeading)
+    }
+
+    @ViewBuilder
+    private func stageSectionGlyph(_ section: BarSection, iconSize: CGFloat, interactive: Bool) -> some View {
+        let icon = Image(systemName: DockLivePreviewStrip.symbol(for: section))
+            .font(.system(size: iconSize))
+            .foregroundStyle(section == .ai ? .cyan : .white.opacity(0.85))
+        if interactive {
+            Button {
+                onSelectQuery?(Self.queryTitle(for: section))
+            } label: {
+                icon
+            }
+            .buttonStyle(.plain)
+            .contextMenu {
+                if section != .apps {
+                    Button("Hide") { store.setWidgetVisible(false, for: section) }
+                }
+            }
+        } else {
+            icon
+        }
+    }
+
+    @ViewBuilder
+    private func stageWingPlate(
+        placement: DockWingPlacement,
+        preset: DockWidgetPresetType,
+        size: CGSize,
+        refRect: CGRect,
+        vertical: Bool,
+        isLeading: Bool,
+        interactive: Bool
+    ) -> some View {
+        let frame = Self.wingStageFrame(size: size, refRect: refRect, vertical: vertical, isLeading: isLeading)
+        let iconSize = max(5, min(frame.width, frame.height) * 0.48)
+        let plate = stagePlate(frame: frame) {
+            Image(systemName: preset.symbolName).font(.system(size: iconSize)).foregroundStyle(.white.opacity(0.85))
+        }
+        if interactive {
+            plate
+                .contentShape(Rectangle())
+                .onTapGesture { onSelectQuery?(String(localized: "Dock II Wings")) }
+                .contextMenu {
+                    if vertical {
+                        Button("Swap Top & Bottom Wings") { store.swapDockWings() }
+                    } else {
+                        Button("Swap Left & Right Wings") { store.swapDockWings() }
+                    }
+                    Button("Hide Wing") { store.setDockWing(.none, placement: placement) }
+                }
+        } else {
+            plate
+        }
+    }
+
+    private static func wingStageFrame(size: CGSize, refRect: CGRect, vertical: Bool, isLeading: Bool) -> CGRect {
+        if vertical {
+            let w = max(3, refRect.width * size.width)
+            let h = max(12, size.height * 0.085)
+            let y = isLeading
+                ? max(2, refRect.minY * size.height - h - 3)
+                : min(size.height - h - 2, refRect.maxY * size.height + 3)
+            return CGRect(x: refRect.minX * size.width, y: y, width: w, height: h)
+        }
+        let w = max(14, size.width * 0.08)
+        let h = max(3, refRect.height * size.height)
+        let x = isLeading
+            ? max(2, refRect.minX * size.width - w - 3)
+            : min(size.width - w - 2, refRect.maxX * size.width + 3)
+        return CGRect(x: x, y: refRect.minY * size.height, width: w, height: h)
+    }
+
+    private static func queryTitle(for section: BarSection) -> String {
+        switch section {
+        case .utilities: return String(localized: "Mid-Dock Utilities")
+        case .widgets: return String(localized: "Right FAB Style")
+        case .apps: return String(localized: "Running Indicator")
+        default: return String(localized: "Dock Items")
+        }
     }
 
     private func stagePlate<Content: View>(frame: CGRect, @ViewBuilder content: () -> Content) -> some View {
