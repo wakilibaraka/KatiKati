@@ -1,52 +1,69 @@
 import SwiftUI
 
 /// Modern macOS Sequoia-style squircle utility badge shared across Mid-Dock Utilities tiles.
+/// Sized at `36.5pt` inside the `40pt` Dock slot so Drawer, Screenshots, Clipboard, Dictionary,
+/// and Terminal match the height and tight ~2.5pt visual gap of Downloads and Trash.
 struct ModernUtilitySquircleIcon: View {
     let symbol: String?
     var monogram: String? = nil
     let gradient: [Color]
     let tint: Color
     var badgeCount: Int = 0
-    var size: CGFloat = 32.5
+    var size: CGFloat = 36.5
+    var dockScale: CGFloat = 1
+    var isRail: Bool = false
     var label: LocalizedStringKey
     let onTap: () -> Void
 
     @State private var isHovered = false
 
+    private var renderedArtSize: CGFloat { (isRail ? 28 : size) * dockScale }
+    private var slotSize: CGSize {
+        if isRail {
+            let side = ChipPillMetrics.cardWidth * dockScale
+            return CGSize(width: side, height: side)
+        }
+        return CGSize(
+            width: ChipPillMetrics.cardWidth * dockScale,
+            height: ChipPillMetrics.cardFrameHeight(dockScale, onRail: false)
+        )
+    }
+
     var body: some View {
+        let art = renderedArtSize
         ZStack(alignment: .topTrailing) {
             ZStack {
-                RoundedRectangle(cornerRadius: size * 0.24, style: .continuous)
+                RoundedRectangle(cornerRadius: art * 0.22, style: .continuous)
                     .fill(LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing))
                     .overlay(
-                        RoundedRectangle(cornerRadius: size * 0.24, style: .continuous)
+                        RoundedRectangle(cornerRadius: art * 0.22, style: .continuous)
                             .strokeBorder(Color.white.opacity(isHovered ? 0.34 : 0.18), lineWidth: 0.75)
                     )
                     .shadow(color: .black.opacity(0.24), radius: 2, y: 1)
 
                 if let monogram {
                     Text(verbatim: monogram)
-                        .font(.system(size: size * 0.44, weight: .bold, design: .serif))
+                        .font(.system(size: art * 0.43, weight: .bold, design: .serif))
                         .foregroundStyle(tint)
                 } else if let symbol {
                     Image(systemName: symbol)
-                        .font(.system(size: size * 0.46, weight: .semibold))
+                        .font(.system(size: art * 0.45, weight: .semibold))
                         .foregroundStyle(tint)
                 }
             }
-            .frame(width: size, height: size)
+            .frame(width: art, height: art)
 
             if badgeCount > 0 {
                 Text(verbatim: "\(min(badgeCount, 99))")
-                    .font(.system(size: 8.5, weight: .bold, design: .rounded).monospacedDigit())
+                    .font(.system(size: max(8, 8.5 * dockScale), weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 4).padding(.vertical, 1)
+                    .padding(.horizontal, 4 * dockScale).padding(.vertical, 1 * dockScale)
                     .background(Capsule().fill(Color.accentColor))
-                    .offset(x: 3, y: -3)
+                    .offset(x: 2 * dockScale, y: -2 * dockScale)
             }
         }
-        .frame(width: max(size, 40), height: max(size, 40))
-        .scaleEffect(isHovered ? 1.07 : 1.0)
+        .frame(width: slotSize.width, height: slotSize.height)
+        .scaleEffect(isHovered ? 1.06 : 1.0)
         .animation(.spring(response: 0.22, dampingFraction: 0.72), value: isHovered)
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
@@ -58,6 +75,7 @@ struct ModernUtilitySquircleIcon: View {
 }
 
 struct DictionaryDockChip: View {
+    var dockScale: CGFloat = 1
     let onOpen: () -> Void
     var body: some View {
         ModernUtilitySquircleIcon(
@@ -65,6 +83,7 @@ struct DictionaryDockChip: View {
             monogram: "Aa",
             gradient: [Color(red: 0.34, green: 0.36, blue: 0.92), Color(red: 0.19, green: 0.21, blue: 0.64)],
             tint: .white,
+            dockScale: dockScale,
             label: "Define…",
             onTap: onOpen
         )
@@ -72,6 +91,7 @@ struct DictionaryDockChip: View {
 }
 
 struct TerminalDockChip: View {
+    var dockScale: CGFloat = 1
     let onOpen: () -> Void
     var body: some View {
         ModernUtilitySquircleIcon(
@@ -79,6 +99,7 @@ struct TerminalDockChip: View {
             monogram: ">_",
             gradient: [Color(red: 0.13, green: 0.16, blue: 0.19), Color(red: 0.06, green: 0.08, blue: 0.10)],
             tint: Color(red: 0.28, green: 0.92, blue: 0.58),
+            dockScale: dockScale,
             label: "Terminal",
             onTap: onOpen
         )
@@ -87,6 +108,8 @@ struct TerminalDockChip: View {
 
 struct ScreenshotsDockChip: View {
     var count: Int = 0
+    var dockScale: CGFloat = 1
+    var isRail: Bool = false
     let onTap: () -> Void
     var body: some View {
         ModernUtilitySquircleIcon(
@@ -94,6 +117,8 @@ struct ScreenshotsDockChip: View {
             gradient: [Color(red: 0.16, green: 0.52, blue: 0.88), Color(red: 0.10, green: 0.28, blue: 0.62)],
             tint: .white,
             badgeCount: count,
+            dockScale: dockScale,
+            isRail: isRail,
             label: "Screenshots",
             onTap: onTap
         )
@@ -102,6 +127,8 @@ struct ScreenshotsDockChip: View {
 
 struct ClipboardUtilityDockChip: View {
     var count: Int = 0
+    var dockScale: CGFloat = 1
+    var isRail: Bool = false
     let onTap: () -> Void
     var body: some View {
         ModernUtilitySquircleIcon(
@@ -109,6 +136,8 @@ struct ClipboardUtilityDockChip: View {
             gradient: [Color(red: 0.24, green: 0.26, blue: 0.32), Color(red: 0.13, green: 0.14, blue: 0.18)],
             tint: Color(red: 0.45, green: 0.78, blue: 1.0),
             badgeCount: count,
+            dockScale: dockScale,
+            isRail: isRail,
             label: "Clipboard",
             onTap: onTap
         )
@@ -116,37 +145,44 @@ struct ClipboardUtilityDockChip: View {
 }
 
 struct RailDictionaryTile: View {
+    var dockScale: CGFloat = 1
+    var onOpen: () -> Void = {}
     var body: some View {
         ModernUtilitySquircleIcon(
             symbol: nil,
             monogram: "Aa",
             gradient: [Color(red: 0.34, green: 0.36, blue: 0.92), Color(red: 0.19, green: 0.21, blue: 0.64)],
             tint: .white,
-            size: 28,
+            dockScale: dockScale,
+            isRail: true,
             label: "Dictionary",
-            onTap: {}
+            onTap: onOpen
         )
-        .frame(width: 28, height: 28)
     }
 }
 
 struct RailTerminalTile: View {
+    var dockScale: CGFloat = 1
+    var onOpen: () -> Void = {}
     var body: some View {
         ModernUtilitySquircleIcon(
             symbol: nil,
             monogram: ">_",
             gradient: [Color(red: 0.13, green: 0.16, blue: 0.19), Color(red: 0.06, green: 0.08, blue: 0.10)],
             tint: Color(red: 0.28, green: 0.92, blue: 0.58),
-            size: 28,
+            dockScale: dockScale,
+            isRail: true,
             label: "Terminal",
-            onTap: {}
+            onTap: onOpen
         )
-        .frame(width: 28, height: 28)
     }
 }
 
 /// Self-contained utility buttons with isolated flyout popovers for Screenshots & Clipboard.
 struct DockScreenshotsUtilityButton: View {
+    var dockScale: CGFloat = 1
+    var isRail: Bool = false
+    var onAnchoredTap: (() -> Void)? = nil
     @ObservedObject private var controller = TendederoClotheslineController.shared
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @State private var showFlyout = false
@@ -159,8 +195,12 @@ struct DockScreenshotsUtilityButton: View {
     }
 
     var body: some View {
-        ScreenshotsDockChip(count: unreadCount) {
-            showFlyout.toggle()
+        ScreenshotsDockChip(count: unreadCount, dockScale: dockScale, isRail: isRail) {
+            if let onAnchoredTap {
+                onAnchoredTap()
+            } else {
+                showFlyout.toggle()
+            }
         }
         .popover(isPresented: $showFlyout, arrowEdge: popoverEdge) {
             DockScreenshotsFlyoutView()
@@ -170,13 +210,20 @@ struct DockScreenshotsUtilityButton: View {
 }
 
 struct DockClipboardUtilityButton: View {
+    var dockScale: CGFloat = 1
+    var isRail: Bool = false
+    var onAnchoredTap: (() -> Void)? = nil
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @State private var showFlyout = false
 
     var body: some View {
-        ClipboardUtilityDockChip(count: min(monitor.history.entries.count, 99)) {
-            showFlyout.toggle()
+        ClipboardUtilityDockChip(count: min(monitor.history.entries.count, 99), dockScale: dockScale, isRail: isRail) {
+            if let onAnchoredTap {
+                onAnchoredTap()
+            } else {
+                showFlyout.toggle()
+            }
         }
         .popover(isPresented: $showFlyout, arrowEdge: popoverEdge) {
             DockClipboardStackFlyoutView()

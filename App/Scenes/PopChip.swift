@@ -16,6 +16,7 @@ struct PopChip: View {
     /// 悬停效果档位。**故意不给默认值**。
     let hoverStyle: HoverStyle
     let isHovered: Bool
+    var visibleSize: CGFloat = ChipPillMetrics.bareIconVisibleSlot
     let onTap: () -> Void
     let onAddFolder: () -> Void
 
@@ -50,10 +51,10 @@ struct PopChip: View {
         .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
     }
 
-    /// An opaque tile drawn at `bareIconVisibleSlot`, like the shelf (a translucent tile vanishes on
+    /// An opaque tile drawn at `visibleSize`, like the shelf (a translucent tile vanishes on
     /// dark glass — see `ShelfChip.shelfIcon`), holding up to four mini icons.
     private var tile: some View {
-        let art = ChipPillMetrics.bareIconVisibleSlot * scale
+        let art = visibleSize * scale
         let inset = art * 0.12
         let cell = (art - inset * 3) / 2
         let preview = Array(popStore.items.prefix(4))
