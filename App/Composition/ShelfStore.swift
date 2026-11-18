@@ -69,6 +69,28 @@ final class ShelfStore: ObservableObject {
         persist()
     }
 
+    /// Writes dropped text or URL snippets into `shelfFolder` and stashes the resulting `.txt` file.
+    @discardableResult
+    func stashText(_ text: String, suggestedName: String? = nil) -> URL? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+        let cleaned = suggestedName?.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+        let base = (cleaned?.isEmpty == false ? cleaned! : "Snippet \(stamp)")
+        let fileName = base.lowercased().hasSuffix(".txt") ? base : "\(base).txt"
+        let url = Self.shelfFolder.appendingPathComponent(fileName)
+        do {
+            try FileManager.default.createDirectory(at: Self.shelfFolder, withIntermediateDirectories: true)
+            try trimmed.write(to: url, atomically: true, encoding: .utf8)
+            stash(paths: [url.path])
+            return url
+        } catch {
+            return nil
+        }
+    }
+
     func togglePin(_ path: String) {
         guard let item = item(for: path) else { return }
         items = ShelfPolicy.ordered(ShelfPolicy.togglingPin(items, id: item.id))
