@@ -24,10 +24,14 @@ struct ShelfGridPopupView: View {
     @State private var selected = Set<String>()
     @AppStorage(ShelfPolicy.presentationStyleKey) private var styleRaw = ShelfPresentationStyle.floatingCardStack.rawValue
     @AppStorage(ShelfPolicy.showTextExcerptKey) private var showTextExcerpt = true
+    @AppStorage(ShelfPolicy.hideExamplePreviewKey) private var hideExamplePreview = false
     @State private var showActionsBar = false
     @State private var isDropTargeted = false
     @State private var hoveredPath: String?
+    @State private var justPastedFeedback = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    private var dockTheme: DockThemeTokens { .resolved(for: .dark, style: dockThemeStyle) }
 
     private var presentationStyle: ShelfPresentationStyle {
         ShelfPresentationStyle(rawValue: styleRaw) ?? .floatingCardStack
@@ -79,7 +83,6 @@ struct ShelfGridPopupView: View {
                          gridAnimationKey: entries.map(\.url.path),
                          intro: showIntro ? AnyView(ShelfIntroView()) : nil,
                          noteAccessory: selecting ? AnyView(selectionBar(for: picked)) : nil,
-                         headerAccessory: AnyView(styleToggleButton),
                          isDropTargeted: isDropTargeted) {
             ForEach(entries, id: \.url) { entry in
                 let pinned = shelfStore.isPinned(entry.url.path)
@@ -259,96 +262,214 @@ private struct ShelfObservedSettingsHost<Content: View>: View {
     }
 }
 
-// MARK: - SLICE SF-2: Floating Card Stack & Inline Transform Bar
+// MARK: - SLICE SF-2 / SF-5: Floating Card Stack, App-Themed Header & Rich Interactions
 
 extension ShelfGridPopupView {
-    private var styleToggleButton: some View {
-        Button {
-            styleRaw = presentationStyle == .floatingCardStack
-                ? ShelfPresentationStyle.compactFileTray.rawValue
-                : ShelfPresentationStyle.floatingCardStack.rawValue
-        } label: {
-            Image(systemName: presentationStyle == .floatingCardStack ? "square.grid.2x2.fill" : "rectangle.stack.fill")
-                .font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.88))
-                .frame(width: 24, height: 22).background(Capsule(style: .continuous).fill(Color.white.opacity(0.14)))
-        }
-        .buttonStyle(.plain)
-        .help(presentationStyle == .floatingCardStack ? Text("Compact Tray Grid") : Text("Floating Card Stack"))
-    }
-
     private var floatingCardStackView: some View {
         let entries = FolderContentsLoader.entries(forPaths: shelfStore.itemPaths)
-        let showIntro = ShelfIntro.shouldShow(introSeen: shelfStore.introSeen, itemCount: entries.count)
         let picked = selected.intersection(Set(entries.map(\.url.path)))
         let activeURLs = picked.isEmpty ? entries.map(\.url) : entries.filter { picked.contains($0.url.path) }.map(\.url)
+        let showBar = (showActionsBar || !picked.isEmpty) && !entries.isEmpty
         let visibleCount = min(entries.count, 3)
-        let cardsHeight: CGFloat = showIntro ? 184 : (entries.isEmpty ? 104 : CGFloat(visibleCount) * 124 + CGFloat(max(0, visibleCount - 1)) * 10 + 14)
-        let totalSize = CGSize(width: 308, height: 52 + (showActionsBar && !entries.isEmpty ? 36 : 0) + cardsHeight + 16)
+        let hasSelected = !picked.isEmpty
+        let cardsHeight: CGFloat = entries.isEmpty
+            ? (hideExamplePreview ? 236 : 336)
+            : CGFloat(visibleCount) * 116 + CGFloat(max(0, visibleCount - 1)) * 8 + (hasSelected ? 22 : 0) + 16
+        let plateWidth: CGFloat = 316
+        let plateHeight: CGFloat = 12 + 36 + 8 + (showBar ? 38 : 0) + cardsHeight + 12
+        let plateSize = CGSize(width: plateWidth, height: plateHeight)
+        let totalSize = StackPopupMetrics.panelSize(forPlate: plateSize)
 
-        return VStack(spacing: 8) {
-            browseHeaderPill(entries: entries, activeURLs: activeURLs)
-            if showActionsBar && !entries.isEmpty {
-                floatingTransformBar(urls: activeURLs).transition(.opacity.combined(with: .move(edge: .top)))
-            }
-            if showIntro {
-                ShelfIntroView().padding(14).frame(width: 282, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(white: 0.10).opacity(0.9)))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(.white.opacity(0.18), lineWidth: 1))
-                    .shadow(color: .black.opacity(0.28), radius: 12, y: 6)
-            } else if entries.isEmpty {
-                VStack(spacing: 6) {
-                    Image(systemName: "tray.and.arrow.down.fill").font(.system(size: 18, weight: .semibold)).foregroundStyle(.white.opacity(isDropTargeted ? 1 : 0.78))
-                    Text("Drop files, links, or text here").font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.84))
+        return ShelfFloatingBackdropHost(plateSize: plateSize, usesLiquidGlass: usesLiquidGlass, arrow: context.arrow) {
+            VStack(spacing: 8) {
+                shelfHeaderPill(entries: entries, activeURLs: activeURLs, hasSelection: hasSelected)
+                if showBar {
+                    floatingTransformBar(urls: activeURLs)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
-                .frame(width: 282, height: 96)
-                .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.ultraThinMaterial)
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(white: 0.11).opacity(0.68))))
-                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(isDropTargeted ? Color.accentColor : .white.opacity(0.22), lineWidth: isDropTargeted ? 2 : 1))
-                .shadow(color: .black.opacity(0.24), radius: 10, y: 5)
-            } else {
-                ScrollView(.vertical, showsIndicators: entries.count > 3) {
-                    LazyVStack(spacing: 10) {
-                        ForEach(Array(entries.enumerated()), id: \.element.url) { idx, entry in cardRow(entry: entry, index: idx, picked: picked) }
-                    }.padding(.vertical, 6).padding(.horizontal, 12)
-                }.frame(width: 306, height: cardsHeight)
+                if entries.isEmpty {
+                    emptyCardStackBody
+                } else {
+                    ScrollView(.vertical, showsIndicators: entries.count > 3) {
+                        LazyVStack(spacing: 8) {
+                            ForEach(Array(entries.enumerated()), id: \.element.url) { idx, entry in
+                                cardRow(entry: entry, index: idx, picked: picked)
+                                    .zIndex(hoveredPath == entry.url.path ? 10 : Double(entries.count - idx))
+                            }
+                        }
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 14)
+                    }
+                    .frame(width: plateWidth, height: cardsHeight)
+                }
             }
+            .padding(.top, 12)
+            .padding(.bottom, 12)
+            .frame(width: plateWidth, height: plateHeight, alignment: .top)
         }
-        .padding(.vertical, 8).frame(width: totalSize.width, height: totalSize.height, alignment: .top)
-        .animation(.spring(response: 0.28, dampingFraction: 0.84), value: showActionsBar)
+        .animation(.spring(response: 0.28, dampingFraction: 0.84), value: showBar)
+        .animation(.spring(response: 0.28, dampingFraction: 0.84), value: hideExamplePreview)
         .onAppear { onContentResize(totalSize) }
         .onChange(of: totalSize) { _, newSize in onContentResize(newSize) }
     }
 
-    private func browseHeaderPill(entries: [FolderContentsLoader.Entry], activeURLs: [URL]) -> some View {
+    private func shelfHeaderPill(entries: [FolderContentsLoader.Entry], activeURLs: [URL], hasSelection: Bool) -> some View {
         let actions = ShelfBatchTransformAction.eligibleActions(for: activeURLs)
         let pill = HStack(spacing: 8) {
-            Button { showActionsBar.toggle() } label: {
-                HStack(spacing: 6) {
-                    Text("Browse").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
-                    if !entries.isEmpty {
-                        Text(verbatim: "\(entries.count)").font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
-                            .foregroundStyle(.white.opacity(0.92)).padding(.horizontal, 6).padding(.vertical, 2).background(Capsule().fill(.white.opacity(0.22)))
-                    }
+            HStack(spacing: 6) {
+                Image(systemName: "tray.full.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(dockTheme.labelActive.color)
+                Text("Shelf")
+                    .font(.system(size: 13.5, weight: .semibold))
+                    .foregroundStyle(dockTheme.labelActive.color)
+                if !entries.isEmpty {
+                    Text(verbatim: "\(entries.count)")
+                        .font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(dockTheme.labelActive.color)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(.white.opacity(0.18)))
                 }
-            }.buttonStyle(.plain)
-            Spacer(minLength: 4)
-            Button { pickFilesForShelf() } label: {
-                Image(systemName: "plus").font(.system(size: 11, weight: .bold)).foregroundStyle(.white).frame(width: 22, height: 22).background(Circle().fill(.white.opacity(0.18)))
-            }.buttonStyle(.plain).help(Text("Add Files…"))
-            if !actions.isEmpty {
-                Button { showActionsBar.toggle() } label: {
-                    Image(systemName: "wand.and.stars").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
-                        .frame(width: 22, height: 22).background(Circle().fill(.white.opacity(showActionsBar ? 0.34 : 0.16)))
-                }.buttonStyle(.plain)
             }
-            styleToggleButton
+            Spacer(minLength: 4)
+            if !entries.isEmpty && !actions.isEmpty {
+                Button { showActionsBar.toggle() } label: {
+                    Image(systemName: "wand.and.stars")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(dockTheme.labelActive.color)
+                        .frame(width: 22, height: 22)
+                        .background(Circle().fill(.white.opacity((showActionsBar || hasSelection) ? 0.28 : 0.14)))
+                }
+                .buttonStyle(.plain)
+                .help(Text("Transform Actions"))
+            }
+            Button(action: triggerClipboardPaste) {
+                Image(systemName: justPastedFeedback ? "checkmark" : "doc.on.clipboard")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(justPastedFeedback ? Color.green : dockTheme.labelActive.color)
+                    .frame(width: 22, height: 22)
+                    .background(Circle().fill(.white.opacity(0.14)))
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut("v", modifiers: .command)
+            .help(Text("Paste from Clipboard (⌘V)"))
+
+            Button(action: pickFilesForShelf) {
+                Image(systemName: "plus")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(dockTheme.labelActive.color)
+                    .frame(width: 22, height: 22)
+                    .background(Circle().fill(.white.opacity(0.18)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Add Files…"))
         }
-        .padding(.horizontal, 14).frame(width: 256, height: 36)
-        .background(Capsule(style: .continuous).fill(.ultraThinMaterial)
-            .overlay(Capsule(style: .continuous).fill(LinearGradient(colors: [Color(red: 0.46, green: 0.41, blue: 0.72).opacity(0.86), Color(red: 0.35, green: 0.31, blue: 0.58).opacity(0.84)], startPoint: .topLeading, endPoint: .bottomTrailing))))
-        .overlay(Capsule(style: .continuous).strokeBorder(isDropTargeted ? Color.accentColor : .white.opacity(0.28), lineWidth: 1))
-        .shadow(color: .black.opacity(0.28), radius: 10, y: 4)
+        .padding(.horizontal, 12)
+        .frame(width: 288, height: 36)
+        .background(Capsule(style: .continuous).fill(dockTheme.chipPillFill.color(emphasized: isDropTargeted)))
+        .clipShape(Capsule(style: .continuous))
+        .overlay(
+            Capsule(style: .continuous)
+                .strokeBorder(isDropTargeted ? Color.accentColor : dockTheme.chipPillRimTop.color(emphasized: isDropTargeted), lineWidth: isDropTargeted ? 1.5 : 1)
+        )
+        .shadow(color: .black.opacity(0.18), radius: 6, y: 2)
         return Group { if let first = activeURLs.first { pill.onDrag { FileDragItemProvider.make(for: first) } } else { pill } }
+    }
+
+    private var emptyCardStackBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "tray.and.arrow.down.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(isDropTargeted ? Color.accentColor : dockTheme.labelActive.color)
+                Text("Drop files, links, or text here")
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .foregroundStyle(dockTheme.labelActive.color)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.white.opacity(isDropTargeted ? 0.16 : 0.08))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(isDropTargeted ? Color.accentColor : Color.white.opacity(0.14), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+            )
+
+            ShelfIntroView()
+
+            Rectangle()
+                .fill(Color.white.opacity(0.12))
+                .frame(height: 1)
+
+            exampleShowcaseSection
+        }
+        .padding(.horizontal, 16)
+        .frame(width: 316, alignment: .topLeading)
+    }
+
+    private var exampleShowcaseSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text("EXAMPLE")
+                    .font(.system(size: 9, weight: .heavy))
+                    .foregroundStyle(.black.opacity(0.88))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule(style: .continuous).fill(Color.orange.opacity(0.92)))
+                Text("See what Shelf can hold")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.84))
+                Spacer()
+                Button(hideExamplePreview ? String(localized: "Show") : String(localized: "Hide")) {
+                    hideExamplePreview.toggle()
+                }
+                .font(.system(size: 10.5, weight: .medium))
+                .foregroundStyle(.white.opacity(0.62))
+                .buttonStyle(.plain)
+            }
+            if !hideExamplePreview {
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo.fill").font(.system(size: 10))
+                            Text("Moodboard.png").font(.system(size: 10, weight: .semibold)).lineLimit(1)
+                        }.foregroundStyle(.white.opacity(0.9))
+                        Text("Drag, Quick Look, Convert")
+                            .font(.system(size: 9.5)).foregroundStyle(.white.opacity(0.58)).lineLimit(1)
+                    }
+                    .padding(7)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(white: 0.14)))
+                    .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(.white.opacity(0.14), lineWidth: 0.8))
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Quick Note")
+                            .font(.system(size: 10, weight: .bold)).foregroundStyle(.black.opacity(0.88)).lineLimit(1)
+                        Text("Click to expand · 2× open")
+                            .font(.system(size: 9.5)).foregroundStyle(.black.opacity(0.65)).lineLimit(1)
+                    }
+                    .padding(7)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(white: 0.94)))
+                }
+                Button {
+                    shelfStore.stashSampleShowcase()
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "sparkles").font(.system(size: 10.5, weight: .semibold))
+                        Text("Insert Example Cards").font(.system(size: 11, weight: .semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 5)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.accentColor.opacity(0.75)))
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     private func floatingTransformBar(urls: [URL]) -> some View {
@@ -389,20 +510,68 @@ extension ShelfGridPopupView {
 
     private func cardRow(entry: FolderContentsLoader.Entry, index: Int, picked: Set<String>) -> some View {
         let path = entry.url.path, isHovered = hoveredPath == path
+        let isSelected = picked.contains(path)
         let pres = ShelfCardPresentation.classify(url: entry.url, index: index, showTextExcerpt: showTextExcerpt)
-        let card = ShelfFloatingCardView(entry: entry, presentation: pres, isPinned: shelfStore.isPinned(path), isSelected: picked.contains(path), isHovered: isHovered,
-                                         onPin: { shelfStore.togglePin(path) },
-                                         onQuickLook: { let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/qlmanage"); p.arguments = ["-p", path]; p.standardOutput = FileHandle.nullDevice; p.standardError = FileHandle.nullDevice; try? p.run() },
-                                         onRemove: { shelfStore.remove(path) }) {
-            let flags = NSEvent.modifierFlags
-            if !picked.isEmpty || flags.contains(.command) || flags.contains(.shift) {
-                if selected.contains(path) { selected.remove(path) } else { selected.insert(path) }
-            } else { NSWorkspace.shared.open(entry.url); onClosePopup() }
-        }
-        .rotationEffect(.degrees((isHovered || reduceMotion) ? 0 : pres.tiltDegrees))
+        let card = ShelfFloatingCardView(
+            entry: entry,
+            presentation: pres,
+            isExample: ShelfPolicy.isExampleURL(entry.url),
+            isPinned: shelfStore.isPinned(path),
+            isSelected: isSelected,
+            isHovered: isHovered,
+            onPin: { shelfStore.togglePin(path) },
+            onCopy: { copyEntryToPasteboard(entry) },
+            onQuickLook: { triggerQuickLook(path: path) },
+            onRemove: { selected.remove(path); shelfStore.remove(path) },
+            onSingleClick: {
+                let flags = NSEvent.modifierFlags
+                if flags.contains(.command) || flags.contains(.shift) {
+                    if selected.contains(path) { selected.remove(path) } else { selected.insert(path) }
+                } else {
+                    selected = (selected == [path]) ? [] : [path]
+                }
+            },
+            onDoubleClick: {
+                NSWorkspace.shared.open(entry.url)
+                onClosePopup()
+            }
+        )
+        .scaleEffect((isHovered && !reduceMotion) ? 1.018 : 1.0)
+        .rotationEffect(.degrees((isHovered || isSelected || reduceMotion) ? 0 : pres.tiltDegrees))
+        .animation(.spring(response: 0.24, dampingFraction: 0.8), value: isHovered)
+        .animation(.spring(response: 0.24, dampingFraction: 0.8), value: isSelected)
         .onHover { inside in hoveredPath = inside ? path : (hoveredPath == path ? nil : hoveredPath) }
         .floatingContextMenu { cellMenu(for: entry) }
         return Group { if entry.isAccessible { card.onDrag { FileDragItemProvider.make(for: entry.url) } } else { card } }
+    }
+
+    private func triggerQuickLook(path: String) {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/bin/qlmanage")
+        p.arguments = ["-p", path]
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        try? p.run()
+    }
+
+    private func copyEntryToPasteboard(_ entry: FolderContentsLoader.Entry) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        let ext = entry.url.pathExtension.lowercased()
+        if (ext == "txt" || ext == "md"), let text = try? String(contentsOf: entry.url, encoding: .utf8) {
+            pb.writeObjects([entry.url as NSURL, text as NSString])
+        } else {
+            pb.writeObjects([entry.url as NSURL])
+        }
+    }
+
+    private func triggerClipboardPaste() {
+        if shelfStore.stashFromClipboard() {
+            justPastedFeedback = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { justPastedFeedback = false }
+        } else {
+            NSSound.beep()
+        }
     }
 
     private func pickFilesForShelf() {
@@ -431,21 +600,88 @@ extension ShelfGridPopupView {
         return accepted
     }
 }
-private struct ShelfFloatingCardView: View {
-    let entry: FolderContentsLoader.Entry; let presentation: ShelfCardPresentation
-    let isPinned: Bool; let isSelected: Bool; let isHovered: Bool
-    let onPin: () -> Void; let onQuickLook: () -> Void; let onRemove: () -> Void; let onTap: () -> Void
-    @State private var previewImage: NSImage?; @Environment(\.displayScale) private var displayScale
+
+/// Observes `context.arrow` so the downward `v` pointer aligns directly with the Dock Shelf icon.
+private struct ShelfFloatingBackdropHost<Content: View>: View {
+    let plateSize: CGSize
+    let usesLiquidGlass: Bool
+    @ObservedObject var arrow: StackPopupArrowModel
+    @ViewBuilder let content: () -> Content
+
     var body: some View {
-        Group { if presentation.usesLightCardSurface { lightCard } else if presentation.archetype == .mediaCanvasCard { mediaCard } else { documentCard } }
-        .frame(width: 280, alignment: .leading).clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .strokeBorder(isSelected ? Color.accentColor : Color.white.opacity(presentation.usesLightCardSurface ? 0.55 : 0.2), lineWidth: isSelected ? 2 : 1))
+        content()
+            .frame(width: plateSize.width, height: plateSize.height, alignment: .top)
+            .clipShape(RoundedRectangle(cornerRadius: StackPopupMetrics.cornerRadius, style: .continuous))
+            .background {
+                StackPopupBackdrop(
+                    plateSize: plateSize,
+                    arrowCenterX: arrow.isHidden ? nil : plateSize.width / 2 + arrow.offsetFromCenter,
+                    usesLiquidGlass: usesLiquidGlass
+                )
+            }
+            .padding(.bottom, StackPopupMetrics.arrowHeight)
+            .padding(StackPopupMetrics.panelMargin)
+            .environment(\.colorScheme, .dark)
+    }
+}
+
+private struct ShelfFloatingCardView: View {
+    let entry: FolderContentsLoader.Entry
+    let presentation: ShelfCardPresentation
+    let isExample: Bool
+    let isPinned: Bool
+    let isSelected: Bool
+    let isHovered: Bool
+    let onPin: () -> Void
+    let onCopy: () -> Void
+    let onQuickLook: () -> Void
+    let onRemove: () -> Void
+    let onSingleClick: () -> Void
+    let onDoubleClick: () -> Void
+    @State private var previewImage: NSImage?
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        Group {
+            if presentation.usesLightCardSurface { lightCard }
+            else if presentation.archetype == .mediaCanvasCard { mediaCard }
+            else { documentCard }
+        }
+        .frame(width: 280, alignment: .leading)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(isSelected ? Color.accentColor : Color.white.opacity(presentation.usesLightCardSurface ? 0.55 : 0.2), lineWidth: isSelected ? 2 : 1)
+        )
+        .overlay(alignment: .topLeading) { if isExample { exampleBadge.padding(7) } }
+        .overlay(alignment: .bottomLeading) { if isHovered { hoverMetaPill.padding(7) } }
         .overlay(alignment: .bottomTrailing) { cornerBadge }
         .overlay(alignment: .topTrailing) { if isHovered || isPinned { hoverToolbar.padding(8) } }
-        .shadow(color: .black.opacity(0.26), radius: 10, y: 5).contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .onTapGesture(perform: onTap).task(id: entry.url) { await loadPreviewIfNeeded() }
+        .shadow(color: .black.opacity(isHovered ? 0.34 : 0.24), radius: isHovered ? 12 : 8, y: isHovered ? 6 : 4)
+        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .onTapGesture(count: 2, perform: onDoubleClick)
+        .onTapGesture(count: 1, perform: onSingleClick)
+        .task(id: entry.url) { await loadPreviewIfNeeded() }
     }
+
+    private var exampleBadge: some View {
+        Text("EXAMPLE")
+            .font(.system(size: 8.5, weight: .heavy))
+            .foregroundStyle(.black.opacity(0.9))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule(style: .continuous).fill(Color.orange.opacity(0.92)))
+    }
+
+    private var hoverMetaPill: some View {
+        Text(verbatim: presentation.subtitle)
+            .font(.system(size: 9.5, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.92))
+            .padding(.horizontal, 7)
+            .padding(.vertical, 2.5)
+            .background(Capsule(style: .continuous).fill(Color.black.opacity(0.62)))
+    }
+
     private var cornerBadge: some View {
         Image(systemName: presentation.badgeSymbol).font(.system(size: 11, weight: .bold))
             .foregroundStyle(presentation.usesLightCardSurface ? Color.black.opacity(0.85) : Color.white)
@@ -453,21 +689,36 @@ private struct ShelfFloatingCardView: View {
             .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(Color.black.opacity(presentation.usesLightCardSurface ? 0.12 : 0.35), lineWidth: 0.5))
             .shadow(color: .black.opacity(0.18), radius: 3, y: 1).offset(x: -6, y: -6)
     }
+
     private var lightCard: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(verbatim: presentation.title).font(.system(size: 12.5, weight: .bold)).foregroundStyle(Color.black.opacity(0.9)).lineLimit(1)
-            Text(verbatim: presentation.excerpt ?? presentation.subtitle).font(.system(size: 11)).foregroundStyle(Color.black.opacity(0.75)).lineLimit(5)
-        }.padding(.horizontal, 12).padding(.vertical, 10).padding(.trailing, 18).frame(maxWidth: .infinity, minHeight: 88, alignment: .topLeading).background(Color(white: 0.96))
+            Text(verbatim: presentation.title)
+                .font(.system(size: 12.5, weight: .bold))
+                .foregroundStyle(Color.black.opacity(0.9))
+                .lineLimit(1)
+                .padding(.top, isExample ? 14 : 0)
+            Text(verbatim: presentation.excerpt ?? presentation.subtitle)
+                .font(.system(size: 11))
+                .foregroundStyle(Color.black.opacity(0.75))
+                .lineLimit(isSelected ? 10 : 4)
+        }
+        .padding(.horizontal, 12).padding(.vertical, 10).padding(.trailing, 18)
+        .frame(maxWidth: .infinity, minHeight: 88, alignment: .topLeading)
+        .background(Color(white: 0.96))
     }
+
     private var mediaCard: some View {
         ZStack(alignment: .bottomLeading) {
             Color(white: 0.09)
-            if let previewImage { Image(nsImage: previewImage).resizable().aspectRatio(contentMode: .fill).frame(width: 280, height: 118).clipped() }
+            if let previewImage { Image(nsImage: previewImage).resizable().aspectRatio(contentMode: .fill).frame(width: 280, height: 116).clipped() }
             else { Image(nsImage: FolderIconResolver.resolve(entry.url.path, size: 48)).resizable().aspectRatio(contentMode: .fit).frame(width: 48, height: 48).frame(maxWidth: .infinity, maxHeight: .infinity) }
             LinearGradient(colors: [.clear, .black.opacity(0.72)], startPoint: .center, endPoint: .bottom)
-            Text(verbatim: entry.name).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white).lineLimit(1).truncationMode(.middle).padding(.horizontal, 10).padding(.bottom, 7).padding(.trailing, 32)
-        }.frame(height: 118)
+            if !isHovered {
+                Text(verbatim: entry.name).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white).lineLimit(1).truncationMode(.middle).padding(.horizontal, 10).padding(.bottom, 7).padding(.trailing, 32)
+            }
+        }.frame(height: 116)
     }
+
     private var documentCard: some View {
         HStack(spacing: 10) {
             Image(nsImage: previewImage ?? FolderIconResolver.resolve(entry.url.path, size: 42)).resizable().aspectRatio(contentMode: .fit).frame(width: 42, height: 42)
@@ -476,7 +727,12 @@ private struct ShelfFloatingCardView: View {
                 Text(verbatim: "\(presentation.subtitle) · \(presentation.badgeText)").font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.65))
             }
             Spacer(minLength: 24)
-        }.padding(12).frame(minHeight: 74, alignment: .leading).background(.ultraThinMaterial).background(Color(white: 0.11).opacity(0.78))
+        }
+        .padding(12)
+        .padding(.top, isExample ? 12 : 0)
+        .frame(minHeight: 78, alignment: .leading)
+        .background(.ultraThinMaterial)
+        .background(Color(white: 0.11).opacity(0.78))
     }
 
     private func hoverIconButton(_ symbol: String, tint: Color = .white, help: LocalizedStringKey? = nil, action: @escaping () -> Void) -> some View {
@@ -489,8 +745,9 @@ private struct ShelfFloatingCardView: View {
 
     private var hoverToolbar: some View {
         HStack(spacing: 4) {
-            hoverIconButton(isPinned ? "pin.fill" : "pin", tint: isPinned ? .orange : .white, action: onPin)
+            hoverIconButton(isPinned ? "pin.fill" : "pin", tint: isPinned ? .orange : .white, help: "Pin", action: onPin)
             if isHovered {
+                hoverIconButton("doc.on.doc", help: "Copy", action: onCopy)
                 hoverIconButton("eye.fill", help: "Quick Look", action: onQuickLook)
                 hoverIconButton("xmark", help: "Remove from Shelf", action: onRemove)
             }
