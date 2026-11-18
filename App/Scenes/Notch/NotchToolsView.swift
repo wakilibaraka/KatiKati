@@ -56,15 +56,49 @@ struct NotchFocusCard: View {
     @ObservedObject var focus: FocusTimerController
     @ObservedObject var timer: CountdownTimerController
 
+    private var phaseLabel: String {
+        switch focus.model.phase {
+        case .focus: return "FOCUS"
+        case .shortBreak: return "BREAK"
+        case .longBreak: return "REST"
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            cardTitle("brain.head.profile", Text("Focus"))
-            Text(verbatim: NotchLayoutSpec.clockText(Double(focus.model.remaining)))
-                .font(.system(size: 24, weight: .semibold, design: .rounded)).monospacedDigit()
+            HStack(spacing: 6) {
+                Image(systemName: "brain.head.profile").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Text("Focus").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Spacer(minLength: 0)
+                Text(verbatim: phaseLabel)
+                    .font(.system(size: 8, weight: .heavy, design: .rounded))
+                    .foregroundStyle(focus.model.isRunning ? .orange : .white.opacity(0.65))
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Capsule().fill((focus.model.isRunning ? Color.orange : Color.white).opacity(0.16)))
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(verbatim: NotchLayoutSpec.clockText(Double(focus.model.remaining)))
+                    .font(.system(size: 24, weight: .semibold, design: .rounded)).monospacedDigit()
+                if timer.model.isRunning {
+                    Text(verbatim: NotchLayoutSpec.clockText(Double(timer.model.remaining)))
+                        .font(.system(size: 11, weight: .bold, design: .rounded)).monospacedDigit()
+                        .foregroundStyle(.cyan)
+                }
+            }
             HStack(spacing: 8) {
                 smallButton(focus.model.isRunning ? "pause.fill" : "play.fill") { focus.toggle() }
                 smallButton("forward.end.fill") { focus.skip() }
                 smallButton("arrow.counterclockwise") { focus.reset() }
+                Spacer(minLength: 0)
+                HStack(spacing: 3) {
+                    ForEach(0..<FocusTimerModel.cycleLength, id: \.self) { index in
+                        Circle()
+                            .fill(index < focus.model.completedInCycle ? Color.orange : Color.white.opacity(0.2))
+                            .frame(width: 5, height: 5)
+                    }
+                }
             }
             Spacer(minLength: 0)
             HStack(spacing: 6) {
@@ -86,7 +120,18 @@ struct NotchClipboardCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            cardTitle("doc.on.clipboard", Text("Clipboard"))
+            HStack(spacing: 5) {
+                Image(systemName: "doc.on.clipboard").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Text("Clipboard").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Spacer(minLength: 0)
+                if clipboard.isRecording {
+                    Text(verbatim: "\(clipboard.history.entries.count) clips")
+                        .font(.system(size: 9, weight: .semibold).monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.45))
+                }
+            }
             if !clipboard.isRecording {
                 chip(String(localized: "Turn On Clipboard History")) { clipboard.setRecording(true) }
             } else if clipboard.history.entries.isEmpty {
@@ -124,11 +169,32 @@ struct NotchClipboardCard: View {
 struct NotchSystemCard: View {
     @ObservedObject var monitor: SystemMonitorController
     @ObservedObject private var keyGuard = KeyGuardService.shared
+    @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
 
     var body: some View {
         let snap = monitor.snapshot
-        VStack(alignment: .leading, spacing: 8) {
-            cardTitle("gauge.medium", Text("System"))
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 5) {
+                Image(systemName: "gauge.medium").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Text("System").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Spacer(minLength: 0)
+                if let wx = WeatherPanelHost.service?.currentState,
+                   wx.cityName != WeatherState.empty.cityName,
+                   wx.conditionText != WeatherState.empty.conditionText {
+                    HStack(spacing: 3) {
+                        Image(systemName: wx.symbolName)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.yellow)
+                        Text(verbatim: WeatherUnits.degrees(wx.temperatureCelsius, tempUnit))
+                            .font(.system(size: 10, weight: .bold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Capsule().fill(Color.white.opacity(0.10)))
+                }
+            }
             meter("cpu", Text("CPU"), snap.cpu)
             meter("memorychip", Text("Memory"), snap.memory.fraction)
             Spacer(minLength: 0)

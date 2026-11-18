@@ -1,9 +1,9 @@
 import AppKit
 import SwiftUI
 
-/// Open state of the full notch skin: header row on top, flanked by the 5-page Bento Suite,
-/// then the active Bento Page (AI Mission Control, Vinyl Audio Deck, Storage,
-/// Productivity & Calendar). The page slide follows the paging direction;
+/// Open state of the full notch skin: header row on top, flanked by the configurable Notch Page Roster,
+/// then the active Bento Page (AI, Music, Calendar, Storage, Downloads, Teleprompter, Camera Check-in,
+/// Studio Hub, Keep Awake). The page slide follows the paging direction;
 /// reduced-motion falls back to a plain fade.
 struct NotchHomeView: View {
     @ObservedObject var model: NotchModel
@@ -29,6 +29,8 @@ struct NotchHomeView: View {
                 case .aiTracker:
                     NotchAIPageView()
                 case .audioDeck:
+                    NotchMusicPageView(feed: feed)
+                case .calendar:
                     NotchProductivityPageView(feed: feed)
                 case .storage:
                     NotchStoragePageView()
@@ -38,6 +40,8 @@ struct NotchHomeView: View {
                     NotchTeleprompterPageView()
                 case .cameraMirror:
                     NotchMirrorPageView()
+                case .studioHub:
+                    NotchToolsView()
                 case .keepAwake:
                     NotchKeepAwakePageView()
                 }

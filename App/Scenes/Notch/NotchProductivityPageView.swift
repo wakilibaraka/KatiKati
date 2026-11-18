@@ -9,6 +9,9 @@ import SwiftUI
 // ticks off the next reminder. The random "decision" spinner that used to sit here is gone: it was the one
 // thing on the page with nothing behind it.
 
+/// Dedicated full-width Calendar & Agenda page (split from Music).
+/// Left card: Big weekday + numeral hero alongside interactive week strip & focus badge.
+/// Right card: Full-height day agenda with event times and one-tap video Join pills.
 struct NotchProductivityPageView: View {
     @ObservedObject private var agenda = ProductivityServices.shared.calendar
     @ObservedObject var feed: LiveActivityFeed
@@ -18,8 +21,9 @@ struct NotchProductivityPageView: View {
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
-            musicCard
-            calendarCard
+            dateHeroCard
+                .frame(width: 248)
+            agendaCard
         }
         .onAppear {
             // Events only: the notch's pages are built before the user opens one, so this `onAppear`
@@ -29,28 +33,67 @@ struct NotchProductivityPageView: View {
         }
     }
 
-    // MARK: - Card A: music (merged in from the old Vinyl Audio Deck page)
+    // MARK: - Left Card: Day Hero + Navigable Strip (Screenshot 3 inspo)
 
-    private var musicCard: some View {
-        NotchMusicPanel(feed: feed, isIdle: feed.nowPlayingState.title == nil)
-            .padding(NotchDesignSpec.cardPadding)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                    .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                            .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                    )
-            )
+    private var dateHeroCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            calendarHeader
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 4) {
+                        Circle().fill(.blue).frame(width: 5, height: 5)
+                        Text(verbatim: agenda.selectedDate.formatted(.dateTime.weekday(.wide)).uppercased())
+                            .font(.system(size: 8.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(.blue)
+                            .lineLimit(1)
+                    }
+                    Text(verbatim: agenda.selectedDate.formatted(.dateTime.day()))
+                        .font(.system(size: 36, weight: .heavy, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white)
+                }
+                .frame(width: 72, alignment: .leading)
+
+                Rectangle().fill(Color.white.opacity(0.12)).frame(width: 1, height: 48)
+
+                weekStrip
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(NotchDesignSpec.cardPadding)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                .fill(Color(red: 0.08, green: 0.06, blue: 0.07))
+                .overlay(
+                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                        .stroke(accent.opacity(0.25), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                )
+        )
     }
 
-    // MARK: - Card B: agenda on a walkable week strip
+    // MARK: - Right Card: Full Agenda List
 
-    private var calendarCard: some View {
+    private var agendaCard: some View {
         VStack(alignment: .leading, spacing: NotchProductivityLayout.rowSpacing) {
-            calendarHeader
-            weekStrip
+            HStack(spacing: 6) {
+                Text(verbatim: agenda.selectedDate.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()))
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.9))
+                Spacer(minLength: 0)
+                if !Calendar.current.isDateInToday(agenda.selectedDate) {
+                    Button {
+                        withAnimation(.easeOut(duration: 0.15)) { agenda.selectedDate = Date() }
+                    } label: {
+                        Text(verbatim: "TODAY")
+                            .font(.system(size: 8, weight: .heavy))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .background(Capsule().fill(todayAccent))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            Divider().overlay(Color.white.opacity(0.10))
             agendaList
             Spacer(minLength: 0)
         }
@@ -58,10 +101,10 @@ struct NotchProductivityPageView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color(red: 0.08, green: 0.06, blue: 0.07))
+                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
                 .overlay(
                     RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(accent.opacity(0.25), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
                 )
         )
     }

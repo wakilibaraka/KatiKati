@@ -9,20 +9,24 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case downloadDeck = 0   // Page 1: Download Manager & Torrent Hub
     case storage = 1        // Page 2: Storage Analyzer (largest items on the Mac)
     case aiTracker = 2      // Page 3: AI Mission Control (Claude, Codex, OpenCode, Copilot)
-    case audioDeck = 3      // Page 4: Music & Calendar
-    case teleprompter = 4   // Only present while the owner turns it on
-    case cameraMirror = 5   // The live camera mirror, only while it is switched on
+    case audioDeck = 3      // Page 4: Dedicated Music Player
+    case calendar = 8       // Page 5: Dedicated Calendar & Agenda
+    case studioHub = 9      // Page 6: Multipurpose Studio & System Hub (Focus, Clipboard, System/Weather)
+    case teleprompter = 4   // Teleprompter (on by default; hideable in Settings)
+    case cameraMirror = 5   // Camera & Mic Check-in (on by default; hideable in Settings)
     // 6 belonged to the notifications page. The inbox lives in the Side Deck now (slice SD-1): the notch
     // keeps only its compact core pages, and never draws a full notification list inside itself. The raw
     // value stays retired so a stored `com.katikati.notch.pageOrder` keeps meaning what it meant.
-    case keepAwake = 7      // Keep Awake: Brewing card, duration chips, lid + AI-agent rows (always on)
+    case keepAwake = 7      // Keep Awake: Brewing card, duration chips, lid + AI-agent rows (always last)
 
     var id: Int { rawValue }
 
     var title: String {
         switch self {
         case .aiTracker: return "AI Mission Control"
-        case .audioDeck: return "Music & Calendar"
+        case .audioDeck: return "Music"
+        case .calendar: return "Calendar"
+        case .studioHub: return "Studio Hub"
         case .storage: return String(localized: "Storage")
         case .downloadDeck: return "Downloads & Torrents"
         case .teleprompter: return "Teleprompter"
@@ -37,6 +41,8 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         switch self {
         case .aiTracker: return "sparkles"
         case .audioDeck: return "music.note"
+        case .calendar: return "calendar"
+        case .studioHub: return "slider.horizontal.2.square"
         case .storage: return "internaldrive.fill"
         case .downloadDeck: return "arrow.down.circle.fill"
         case .teleprompter: return "text.alignleft"
@@ -45,9 +51,13 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// The pages in paging order. The teleprompter and the camera mirror exist only while their own switch
-    /// is on, so with both off the gallery is exactly the five always-on pages.
-    static func visible(teleprompter: Bool, mirror: Bool = false,
+    /// Reads an optional page's enabled flag, defaulting to `true` when unset so all pages show by default.
+    static func isEnabled(_ key: String, in defaults: UserDefaults = .standard) -> Bool {
+        defaults.object(forKey: key) as? Bool ?? true
+    }
+
+    /// The pages in paging order. All pages show by default unless switched off or hidden.
+    static func visible(teleprompter: Bool = true, mirror: Bool = true,
                         layout: NotchPageLayout = .stored) -> [NotchPage] {
         layout.apply(allCases.filter { page in
             switch page {
@@ -58,14 +68,14 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         })
     }
 
-    func next(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false) -> NotchPage {
+    func next(wrap: Bool = true, teleprompter: Bool = true, mirror: Bool = true) -> NotchPage {
         let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index + 1 < all.count { return all[index + 1] }
         return wrap ? all[0] : self
     }
 
-    func previous(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = false) -> NotchPage {
+    func previous(wrap: Bool = true, teleprompter: Bool = true, mirror: Bool = true) -> NotchPage {
         let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index > 0 { return all[index - 1] }
@@ -119,6 +129,13 @@ enum NotchPageDirection {
 
 /// Dynamic context-aware default page resolver.
 enum NotchPagingPolicy {
+    static let pinnedDefaultPageKey = "com.katikati.notch.defaultPage"
+
+    static func storedPinnedPage(_ defaults: UserDefaults = .standard) -> NotchPage? {
+        guard let raw = defaults.object(forKey: pinnedDefaultPageKey) as? Int, raw >= 0 else { return nil }
+        return NotchPage(rawValue: raw)
+    }
+
     static func defaultPage(
         nowPlayingActive: Bool,
         aiTurnActive: Bool,

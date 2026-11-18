@@ -86,11 +86,20 @@ final class NotchHoverMachineTests: XCTestCase {
     }
 
     func testNotchPagesNeverIncludeTheNotificationInbox() {
-        let pages = NotchPage.visible(teleprompter: true, mirror: true)
+        let pages = NotchPage.visible()
+        XCTAssertEqual(pages.count, 9, "all nine pages show by default")
         XCTAssertEqual(pages.first, .downloadDeck)
         XCTAssertEqual(pages.last, .keepAwake)
         XCTAssertFalse(pages.map(\.symbol).contains("bell.fill"), "the inbox moved to the Side Deck (SD-1)")
-        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5, "the five always-on pages are untouched")
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 7)
+
+        let d = UserDefaults(suiteName: "NotchPinnedPageTests")!
+        d.removePersistentDomain(forName: "NotchPinnedPageTests")
+        XCTAssertNil(NotchPagingPolicy.storedPinnedPage(d))
+        XCTAssertTrue(NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d))
+        d.set(NotchPage.calendar.rawValue, forKey: NotchPagingPolicy.pinnedDefaultPageKey)
+        XCTAssertEqual(NotchPagingPolicy.storedPinnedPage(d), .calendar)
+        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: false, userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)), .calendar)
     }
 
     func testRestContentSingleItemsSplitSymmetrically() {

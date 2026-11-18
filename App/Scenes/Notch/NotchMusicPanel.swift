@@ -45,14 +45,24 @@ struct NotchMusicPanel: View {
                     NotchQuickActions()
                 } else {
                     HStack(alignment: .top, spacing: 8) {
-                        VStack(alignment: .leading, spacing: 1) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(state.isPlaying ? accent(state) : Color.orange)
+                                    .frame(width: 5, height: 5)
+                                Text(verbatim: state.isPlaying ? "PLAYING" : "PAUSED")
+                                    .font(.system(size: 8.5, weight: .bold, design: .rounded))
+                                    .foregroundStyle(state.isPlaying ? accent(state) : Color.orange)
+                            }
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .background(Capsule().fill((state.isPlaying ? accent(state) : Color.orange).opacity(0.16)))
                             MarqueeText(text: state.title ?? "", font: .system(size: 15, weight: .bold, design: .rounded), nearEnd: (state.progress(at: Date()) ?? 0) > 0.88)
                             MarqueeText(text: state.artist ?? "", font: .system(size: 12)).foregroundStyle(.white.opacity(0.6))
                         }
                         .opensSourceApp(state.bundleIdentifier)
                         Spacer(minLength: 0)
                         MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accent(state))
-                            .frame(width: 18, height: 14)
+                            .frame(width: 22, height: 18)
                     }
                     Spacer(minLength: 0)
                     progress(state)
@@ -154,9 +164,118 @@ struct NotchMusicPanel: View {
             .popover(isPresented: $showQueuePopover) {
                 NotchQueuePopoverView(queue: $upcomingQueue)
             }
+            Button { showLyrics.toggle() } label: {
+                Image(systemName: "quote.bubble.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(showLyrics ? accent(state) : .white.opacity(0.55))
+            }
+            AudioOutputMenu {
+                Image(systemName: "airplayaudio")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// Dedicated full-width Music page (split from Calendar): full-width player card with optional
+/// synchronized LRC lyrics & audio output companion panel.
+struct NotchMusicPageView: View {
+    @ObservedObject var feed: LiveActivityFeed
+    @ObservedObject private var lyricsStore = LyricsStore.shared
+    @AppStorage(LyricsTrack.enabledKey) private var showLyrics = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let state = feed.nowPlayingState
+        let isIdle = (state.title ?? "").isEmpty
+        HStack(spacing: NotchDesignSpec.cardSpacing) {
+            NotchMusicPanel(feed: feed, isIdle: isIdle)
+                .padding(NotchDesignSpec.cardPadding)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(
+                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                        .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                                .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                        )
+                )
+
+            if !isIdle {
+                companionCard(state)
+                    .frame(width: 175)
+                    .padding(NotchDesignSpec.cardPadding)
+                    .frame(maxHeight: .infinity, alignment: .topLeading)
+                    .background(
+                        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                            .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                                    .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                            )
+                    )
+            }
+        }
+    }
+
+    private func companionCard(_ state: NowPlayingState) -> some View {
+        let accentColor = ArtworkAccentCache.accent(for: state.artworkData).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .cyan
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 5) {
+                Image(systemName: showLyrics ? "quote.bubble.fill" : "hifispeaker.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(accentColor)
+                Text(verbatim: showLyrics ? "Lyrics" : "Now Playing")
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.8))
+                Spacer(minLength: 0)
+            }
+
+            if showLyrics {
+                TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                    let fraction = state.progress(at: ctx.date) ?? 0
+                    let elapsed = fraction * (state.duration ?? 0)
+                    let lines = lyricsStore.lines(title: state.title, artist: state.artist)
+                    let window = LyricTimelineMatcher.window(in: lines, at: elapsed, windowSize: 4)
+                    if window.isEmpty {
+                        Text(verbatim: "No synced lyrics found")
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(.white.opacity(0.45))
+                            .frame(maxHeight: .infinity)
+                    } else {
+                        VStack(alignment: .leading, spacing: 4) {
+                            ForEach(Array(window.enumerated()), id: \.offset) { _, line in
+                                let active = (line.text == LyricsTrack.activeLine(in: lines, at: elapsed))
+                                Text(verbatim: line.text)
+                                    .font(.system(size: active ? 11.5 : 10, weight: active ? .bold : .regular, design: .rounded))
+                                    .foregroundStyle(active ? .white : .white.opacity(0.45))
+                                    .lineLimit(2)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Spacer(minLength: 0)
+                MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accentColor)
+                    .frame(height: 36)
+                    .frame(maxWidth: .infinity)
+                Spacer(minLength: 0)
+                AudioOutputMenu {
+                    HStack(spacing: 4) {
+                        Image(systemName: "airplayaudio").font(.system(size: 10, weight: .semibold))
+                        Text(verbatim: "Output").font(.system(size: 10, weight: .semibold))
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.up.chevron.down").font(.system(size: 8))
+                    }
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .background(Capsule().fill(Color.white.opacity(0.12)))
+                    .foregroundStyle(.white.opacity(0.85))
+                }
+            }
+        }
     }
 }
 

@@ -259,15 +259,16 @@ final class NotchPanelController: LiveEventSink {
         if hover.isOpen && !model.isOpen {
             if NotchBehavior.haptic() { NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now) }
             let nowPlaying = LiveActivityFeed.shared.activity.kind == .music
+            let d = UserDefaults.standard
             let wanted = NotchPagingPolicy.defaultPage(
                 nowPlayingActive: nowPlaying,
-                aiTurnActive: false
+                aiTurnActive: false,
+                userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)
             )
             // 51c: a hidden default page falls back to the first shown one.
-            let d = UserDefaults.standard
-            let shown = NotchPage.visible(teleprompter: d.bool(forKey: TeleprompterModel.enabledKey),
-                                          mirror: d.bool(forKey: CameraMirrorService.enabledKey))
-            model.activePage = shown.contains(wanted) ? wanted : shown[0]
+            let shown = NotchPage.visible(teleprompter: NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d),
+                                          mirror: NotchPage.isEnabled(CameraMirrorService.enabledKey, in: d))
+            model.activePage = shown.contains(wanted) ? wanted : (shown.first ?? .audioDeck)
         }
         // Grow the NSPanel synchronously *before* flipping `model.isOpen = true`, so SwiftUI's open
         // spring never runs inside the 32 pt closed window (which caused top-half vertical clipping).

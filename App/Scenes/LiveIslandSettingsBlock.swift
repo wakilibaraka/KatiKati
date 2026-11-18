@@ -466,12 +466,13 @@ private struct NotchLayoutCard: View {
     }
 }
 
-/// 51c: reorder and hide the notch pages. Hiding the last shown page switches the notch off, after a warning.
+/// 51c: reorder, hide, and choose the default opening page of the notch. Hiding the last shown page switches the notch off, after a warning.
 private struct NotchPagesCard: View {
     @ObservedObject var store: AppSettingsStore
     @AppStorage(NotchPageLayout.defaultsKey) private var raw = ""
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompter = false
-    @AppStorage(CameraMirrorService.enabledKey) private var mirror = false
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompter = true
+    @AppStorage(CameraMirrorService.enabledKey) private var mirror = true
+    @AppStorage(NotchPagingPolicy.pinnedDefaultPageKey) private var pinnedDefaultRaw: Int = -1
     @State private var pendingHide: NotchPage?
 
     private var layout: NotchPageLayout { NotchPageLayout(raw: raw) }
@@ -482,6 +483,20 @@ private struct NotchPagesCard: View {
 
     var body: some View {
         SettingsCard(Text(verbatim: "Notch Pages")) {
+            HStack {
+                Text(verbatim: "Default Opening Page")
+                    .font(.subheadline)
+                Spacer()
+                Picker("", selection: $pinnedDefaultRaw) {
+                    Text(verbatim: "Auto (Music / Downloads)").tag(-1)
+                    ForEach(pages.filter { !layout.hidden.contains($0) }) { page in
+                        Text(verbatim: page.title).tag(page.rawValue)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 190)
+            }
+            SettingsDivider()
             List {
                 ForEach(pages) { page in
                     HStack {
@@ -505,6 +520,20 @@ private struct NotchPagesCard: View {
             .listStyle(.plain)
             .scrollDisabled(true)
             .frame(height: CGFloat(pages.count) * 32 + 8)
+            HStack {
+                Button {
+                    raw = ""
+                    teleprompter = true
+                    mirror = true
+                    pinnedDefaultRaw = -1
+                    if !store.notchIslandEnabled { store.setNotchIslandEnabled(true) }
+                } label: {
+                    Text(verbatim: "Show All & Reset Order")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                Spacer()
+            }
             if !store.notchIslandEnabled {
                 Text(verbatim: "The notch is off. Show a page to bring it back.").font(.caption).foregroundStyle(.secondary)
             }

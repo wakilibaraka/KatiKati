@@ -42,8 +42,8 @@ final class NotchModel: ObservableObject {
 
     func stepPage(forward: Bool) {
         pageDirection = forward ? 1 : -1
-        let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
-        let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
+        let tp = NotchPage.isEnabled(TeleprompterModel.enabledKey)
+        let mirror = NotchPage.isEnabled(CameraMirrorService.enabledKey)
         activePage = forward
             ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror)
             : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror)
@@ -51,8 +51,8 @@ final class NotchModel: ObservableObject {
 
     /// Direct jumps (header icons, dots, context menu) animate toward the target page.
     func goToPage(_ page: NotchPage) {
-        let tp = UserDefaults.standard.bool(forKey: TeleprompterModel.enabledKey)
-        let mirror = UserDefaults.standard.bool(forKey: CameraMirrorService.enabledKey)
+        let tp = NotchPage.isEnabled(TeleprompterModel.enabledKey)
+        let mirror = NotchPage.isEnabled(CameraMirrorService.enabledKey)
         pageDirection = NotchPageDirection.between(
             from: activePage, to: page,
             visible: NotchPage.visible(teleprompter: tp, mirror: mirror))
@@ -63,8 +63,8 @@ final class NotchModel: ObservableObject {
 struct NotchIslandView: View {
     @ObservedObject var model: NotchModel
     @ObservedObject private var feed = LiveActivityFeed.shared
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
-    @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
+    @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page strip
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.dockChips.rawValue

@@ -2,80 +2,131 @@ import AVFoundation
 import AppKit
 import SwiftUI
 
-// Phase 47b — the optional 8th notch page: a live camera mirror, with the camera chosen from a dropdown
-// on the page itself. Off by default (`com.katikati.notch.mirror`), and the camera runs only while this
-// page is on screen — see `CameraMirrorService`.
+// Camera Check-In & Meeting Preflight page: live mirror preview on the left, camera/mic/speaker/brightness
+// controls in the center, and next meeting / call status check-in on the right. Shown by default; the
+// camera session activates only while this page is visible — see `CameraMirrorService`.
 
 struct NotchMirrorPageView: View {
     @ObservedObject private var mirror = CameraMirrorService.shared
+    @ObservedObject private var toggles = QuickToggleEngine.shared
+    @ObservedObject private var agenda = ProductivityServices.shared.calendar
+
+    private var muted: Bool { toggles.states[.muteMic] ?? false }
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
-            clockCard
-            MeetingControlsCard()
             content
                 .aspectRatio(1, contentMode: .fit)
+                .overlay(alignment: .bottomTrailing) {
+                    Button { toggles.perform(.muteMic) } label: {
+                        Image(systemName: muted ? "mic.slash.fill" : "mic.fill")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 24, height: 24)
+                            .background(Circle().fill(muted ? Color.red.opacity(0.9) : Color.black.opacity(0.65)))
+                            .overlay(Circle().stroke(Color.white.opacity(0.22), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(6)
+                    .help(Text(verbatim: muted ? "Unmute Microphone" : "Mute Microphone"))
+                }
+            MeetingControlsCard(mirror: mirror, cameraName: currentName)
+            meetingCheckInCard
         }
-        .onAppear { mirror.start() }
+        .onAppear {
+            mirror.start()
+            toggles.refresh()
+            agenda.startEvents()
+        }
         .onDisappear { mirror.stop() }
     }
 
-    /// Time and date on the left (the rail tile's 12/24-hour rule), with the camera name and picker below.
-    private var clockCard: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            TimelineView(.periodic(from: ClockTick.nextMinute(after: Date()), by: 60)) { context in
-                let parts = RailClockTile.hourMinute(context.date)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(verbatim: "\(parts.hour):\(parts.minute)")
-                        .font(.system(size: 44, weight: .semibold, design: .rounded).monospacedDigit())
+    /// Right pane: next calendar event / detected call platform + one-click Join Session or Open Calendar.
+    private var meetingCheckInCard: some View {
+        let now = Date()
+        let activePlatform = MeetingDetectionPolicy.detectPlatform(
+            fromRunningBundleIDs: NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
+        )
+        let upcomingEvent = agenda.events
+            .sorted { $0.start < $1.start }
+            .first { $0.end >= now } ?? agenda.events.first
+
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(mirror.availability == .ready ? Color.green : Color.orange)
+                    .frame(width: 6, height: 6)
+                Text(verbatim: (activePlatform?.displayName ?? "CHECK-IN").uppercased())
+                    .font(.system(size: 9, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.75))
+                Spacer(minLength: 0)
+                if let platform = activePlatform {
+                    Image(systemName: platform.sfSymbol)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.green)
+                } else {
+                    Text(verbatim: now.formatted(date: .omitted, time: .shortened))
+                        .font(.system(size: 9, weight: .semibold).monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+            }
+
+            if let event = upcomingEvent {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: event.title)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
-                        .lineLimit(1).minimumScaleFactor(0.6)
-                    Text(verbatim: context.date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .lineLimit(2)
+                    Text(verbatim: event.isAllDay ? "All day" : event.start.formatted(date: .omitted, time: .shortened))
+                        .font(.system(size: 10, weight: .medium).monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.6))
+                        .lineLimit(1)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: "Ready for Calls")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Text(verbatim: now.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
                         .foregroundStyle(.white.opacity(0.6))
                         .lineLimit(1)
                 }
             }
+
             Spacer(minLength: 0)
-            header
+
+            Button {
+                if let event = upcomingEvent {
+                    AgendaEventOpener.open(event)
+                } else if let url = AgendaEventAction.calendarURL(for: now) {
+                    NSWorkspace.shared.open(url)
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: upcomingEvent?.isJoinable == true ? "video.fill" : "calendar")
+                        .font(.system(size: 10, weight: .bold))
+                    Text(verbatim: upcomingEvent?.isJoinable == true ? "Join Session" : (upcomingEvent != nil ? "Open Event" : "Open Calendar"))
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(Color.white))
+            }
+            .buttonStyle(.plain)
         }
-        .padding(NotchDesignSpec.cardPadding)
+        .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
                 .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+                .overlay(
+                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                )
         )
-    }
-
-    /// The camera in use, with the picker beside it.
-    private var header: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "camera.viewfinder")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.85))
-            Text(verbatim: currentName)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-            Spacer(minLength: 0)
-            if mirror.devices.count > 1 {
-                Menu {
-                    Button(String(localized: "System Default")) { mirror.select("") }
-                    Divider()
-                    ForEach(mirror.devices, id: \.id) { device in
-                        Button(device.name) { mirror.select(device.id) }
-                    }
-                } label: {
-                    Image(systemName: "chevron.up.chevron.down").font(.system(size: 9, weight: .semibold))
-                        .padding(.horizontal, 7).padding(.vertical, 4)
-                        .background(Capsule().fill(Color.white.opacity(0.14)))
-                        .foregroundStyle(.white)
-                }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .accessibilityLabel(Text("Choose Camera"))
-            }
-        }
     }
 
     @ViewBuilder
@@ -121,8 +172,10 @@ struct NotchMirrorPageView: View {
     }
 }
 
-/// The middle pane: what you reach for in a Zoom or Meet call — mute, which mic and speaker, screen brightness.
+/// The middle pane: Mute toggle, Camera switcher, Mic & Audio Output pickers, and screen brightness.
 private struct MeetingControlsCard: View {
+    @ObservedObject var mirror: CameraMirrorService
+    let cameraName: String
     @ObservedObject private var toggles = QuickToggleEngine.shared
     @State private var inputs: [AudioOutputDevice] = []
     @State private var brightness: Double?
@@ -130,18 +183,19 @@ private struct MeetingControlsCard: View {
     private var muted: Bool { toggles.states[.muteMic] ?? false }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             Button { toggles.perform(.muteMic) } label: {
                 HStack(spacing: 6) {
                     Image(systemName: muted ? "mic.slash.fill" : "mic.fill")
-                    Text(muted ? "Unmute" : "Mute")
+                    Text(verbatim: muted ? "Unmute" : "Mute")
                 }
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
-                .frame(maxWidth: .infinity).padding(.vertical, 6)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .frame(maxWidth: .infinity).padding(.vertical, 5)
                 .background(Capsule().fill(muted ? Color.red.opacity(0.85) : Color.white.opacity(0.14)))
                 .foregroundStyle(.white)
             }
             .buttonStyle(.plain)
+            cameraPicker
             micPicker
             AudioOutputMenu {
                 row("speaker.wave.2.fill", Text("Audio Output"))
@@ -156,16 +210,47 @@ private struct MeetingControlsCard: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(NotchDesignSpec.cardPadding)
+        .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
                 .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
+                .overlay(
+                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
+                )
         )
         .onAppear {
             toggles.refresh()
             inputs = AudioOutputSwitcher.devices(input: true)
             brightness = DisplayServicesBrightness.current()
+        }
+    }
+
+    @ViewBuilder
+    private var cameraPicker: some View {
+        if mirror.devices.count > 1 {
+            Menu {
+                Button(String(localized: "System Default")) { mirror.select("") }
+                Divider()
+                ForEach(mirror.devices, id: \.id) { device in
+                    Button(device.name) { mirror.select(device.id) }
+                }
+            } label: {
+                row("camera.viewfinder", Text(verbatim: cameraName))
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityLabel(Text("Choose Camera"))
+        } else {
+            HStack(spacing: 6) {
+                Image(systemName: "camera.viewfinder").font(.system(size: 10)).foregroundStyle(.white.opacity(0.7)).frame(width: 14)
+                Text(verbatim: cameraName).font(.system(size: 11, weight: .medium, design: .rounded)).foregroundStyle(.white.opacity(0.9)).lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(Capsule().fill(Color.white.opacity(0.06)))
         }
     }
 

@@ -750,8 +750,8 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
     @AppStorage(DailyHelpersService.hydrateKey) private var hydrate = false
     @AppStorage(DailyHelpersService.pauseKey) private var pauseReminder = false
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
-    @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = false
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
+    @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(LyricsTrack.enabledKey) private var syncedLyrics = false
 

@@ -33,15 +33,15 @@ final class CameraMirrorTests: XCTestCase {
 
     /// The mirror page exists only while its switch is on, and it takes its place after the teleprompter.
     func testTheMirrorPageJoinsTheGalleryOnlyWhenItIsSwitchedOn() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false).count, 5)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 7)
         XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: true).dropLast().last, .cameraMirror)
-        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 7)
-        XCTAssertFalse(NotchPage.visible(teleprompter: true).contains(.cameraMirror))
+        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 9)
+        XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: false).contains(.cameraMirror))
 
         // Paging follows the same gallery: from the last always-on page, forward lands on the mirror.
-        XCTAssertEqual(NotchPage.audioDeck.next(teleprompter: false, mirror: true), .cameraMirror)
+        XCTAssertEqual(NotchPage.studioHub.next(teleprompter: false, mirror: true), .cameraMirror)
         XCTAssertEqual(NotchPage.cameraMirror.next(teleprompter: false, mirror: true), .keepAwake)
-        XCTAssertEqual(NotchPage.cameraMirror.previous(teleprompter: false, mirror: true), .audioDeck)
-        XCTAssertEqual(NotchPage.cameraMirror.next(teleprompter: false), .downloadDeck)
+        XCTAssertEqual(NotchPage.cameraMirror.previous(teleprompter: false, mirror: true), .studioHub)
+        XCTAssertEqual(NotchPage.cameraMirror.next(teleprompter: false, mirror: false), .downloadDeck)
     }
 }
