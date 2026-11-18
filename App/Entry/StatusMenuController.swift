@@ -18,6 +18,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// Phase 8a: restore-last-closed apps. Rebuilt each time the menu opens (never while it is open).
     private let recentlyClosedItem = NSMenuItem(title: String(localized: "Recently Closed"), action: nil, keyEquivalent: "")
     private let onShowLayoutSettings: () -> Void
+    private let onToggleEditMode: () -> Void
+    private let isEditModeActive: () -> Bool
     /// 菜单开 / 关。任务条的边缘自动隐藏要在菜单开着时停摆，否则空闲计时照跑，
     /// 任务条会从弹出的菜单底下缩掉（同 `folderPopupOpen`）。走闭包是因为
     /// `PanelCoordinator` 在权限引导完成前根本不存在。
@@ -71,6 +73,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private var layoutModeItems: [BarLayoutMode: NSMenuItem] = [:]
     private var bottomEdgeItems: [(gap: CGFloat, item: NSMenuItem)] = []
     private var edgeHeaderItem: NSMenuItem?
+    private let positionItem = NSMenuItem(title: String(localized: "Position"), action: nil, keyEquivalent: "")
+    private let positionMenu = NSMenu()
+    private var positionItems: [StripPlacement: NSMenuItem] = [:]
+    private let addItemsItem = NSMenuItem(title: String(localized: "Add Widget or Utility"), action: nil, keyEquivalent: "")
+    private let addItemsMenu = NSMenu()
+    private lazy var customizeLayoutItem = NSMenuItem(title: String(localized: "Customize Dock Layout…"), action: #selector(toggleDockEditMode), keyEquivalent: "")
     /// Hat and row of the taskbar height slider; the same value as the grip on the bar.
     private let taskbarSizeSectionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private let taskbarSizeSliderView = TaskbarSizeMenuItemView(accessibilityTitle: String(localized: "Taskbar Size"))
@@ -84,6 +92,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onPickColor: @escaping () -> Void = {},
          recentlyClosed: @escaping () -> [RecentlyClosedEntry] = { [] },
          onShowLayoutSettings: @escaping () -> Void,
+         onToggleEditMode: @escaping () -> Void = {},
+         isEditModeActive: @escaping () -> Bool = { false },
          onMenuVisibilityChanged: @escaping (Bool) -> Void = { _ in },
          onRequestAccessibility: @escaping () -> Void = {},
          onQuit: @escaping () -> Void,
@@ -98,6 +108,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.onPickColor = onPickColor
         self.recentlyClosed = recentlyClosed
         self.onShowLayoutSettings = onShowLayoutSettings
+        self.onToggleEditMode = onToggleEditMode
+        self.isEditModeActive = isEditModeActive
         self.onMenuVisibilityChanged = onMenuVisibilityChanged
         self.onQuit = onQuit
         self.connectedScreens = connectedScreens
@@ -187,6 +199,13 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         menu.addItem(taskbarSizeItem)
         configureLayoutMenu()
         menu.addItem(layoutItem)
+        configurePositionMenu()
+        menu.addItem(positionItem)
+        addItemsItem.submenu = addItemsMenu
+        rebuildAddItemsMenu()
+        menu.addItem(addItemsItem)
+        customizeLayoutItem.target = self
+        menu.addItem(customizeLayoutItem)
         menu.addItem(.separator())
 
         // 单/多屏模式一行（owner 2026-10-21 起，唤醒滑块与四个开关已离开菜单）。
@@ -239,20 +258,32 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 克隆一份会立刻出现"两个滑块各记各的草稿"。`menuWillOpen` 的既有逻辑（回灌系统 Dock 真值、
     /// 刷新勾选、丢弃未确认草稿）走的是同一个 delegate，所以两个入口行为完全一致。
     func popUpFromTaskbar(with event: NSEvent, in view: NSView) {
-        // 自己算锚点，让菜单**底边贴任务条上沿**、左边对齐鼠标——像右键系统程序坞那样浮在条的
-        // 上方，不遮挡它。交给 `NSMenu.popUpContextMenu` 自动翻转的话，实测菜单底边会落在鼠标
-        // 下方 28pt，把整条任务条盖住（owner 2026-08-03 反馈"不跟手"的一半原因）。
-        //
-        // `MenuHostNSView` 是普通 NSView（`isFlipped == false`，原点在左下），它铺满任务条
-        // 可视区，所以 `bounds.maxY` 就是任务条上沿；`popUp(positioning:at:in:)` 把菜单
-        // **左上角**放在给定点，于是再往上抬一个菜单高度。
         isPresentedFromTaskbar = true
         prepareMenuForPresentation()
         isPreparedForTaskbarPresentation = true
         let local = view.convert(event.locationInWindow, from: nil)
-        let anchor = NSPoint(x: local.x, y: view.bounds.maxY + menu.size.height)
+        let visibleInView = view.window.flatMap { w -> CGRect? in
+            guard let v = w.screen?.visibleFrame else { return nil }
+            return view.convert(w.convertFromScreen(v), from: nil)
+        }
+        let anchor = Self.taskbarMenuAnchor(localPoint: local, viewBounds: view.bounds, menuSize: menu.size,
+                                            placement: store.stripPlacementMap.global, visibleBoundsInView: visibleInView)
         menu.popUp(positioning: nil, at: anchor, in: view)
         isPreparedForTaskbarPresentation = false
+    }
+
+    static func taskbarMenuAnchor(
+        localPoint: CGPoint, viewBounds: CGRect, menuSize: CGSize, placement: StripPlacement, visibleBoundsInView: CGRect? = nil
+    ) -> NSPoint {
+        guard placement.isVertical else { return NSPoint(x: localPoint.x, y: viewBounds.maxY + menuSize.height) }
+        let gap: CGFloat = 6
+        let x = placement == .left ? (viewBounds.maxX + gap) : (viewBounds.minX - gap - menuSize.width)
+        var topY = localPoint.y + menuSize.height / 2
+        if let bounds = visibleBoundsInView {
+            let minTop = bounds.minY + menuSize.height + gap, maxTop = bounds.maxY - gap
+            topY = maxTop >= minTop ? min(max(topY, minTop), maxTop) : maxTop
+        }
+        return NSPoint(x: x, y: topY)
     }
 
     func menuDidClose(_ menu: NSMenu) {
@@ -296,6 +327,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         permissionWarningItem.isHidden = granted
         permissionWarningSeparator.isHidden = granted
         refreshRecentlyClosed()
+        rebuildAddItemsMenu()
         refreshCheckmarks()
         refreshInstallUpdateItem(allowsLayoutChange: true)
         // 没点确认就关菜单 = 作废：什么都不写，下次打开一切从系统真值重新起步。
@@ -634,10 +666,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     private func configureLayoutMenu() {
         layoutMenu.removeAllItems()
-        let modeHeader = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        modeHeader.attributedTitle = Self.sectionTitle(String(localized: "Layout Mode"))
-        modeHeader.isEnabled = false
-        layoutMenu.addItem(modeHeader)
+        layoutMenu.addItem(Self.headerItem(String(localized: "Layout Mode")))
         for mode in BarLayoutMode.allCases {
             let item = NSMenuItem(title: Self.layoutModeTitle(mode), action: #selector(selectLayoutMode(_:)), keyEquivalent: "")
             item.target = self
@@ -647,9 +676,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             layoutMenu.addItem(item)
         }
         layoutMenu.addItem(.separator())
-        let edgeHeader = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-        edgeHeader.attributedTitle = Self.sectionTitle(Self.edgeSectionTitle(for: store.stripPlacementMap.global))
-        edgeHeader.isEnabled = false
+        let edgeHeader = Self.headerItem(Self.edgeSectionTitle(for: store.stripPlacementMap.global))
         edgeHeaderItem = edgeHeader
         layoutMenu.addItem(edgeHeader)
         bottomEdgeItems = [
@@ -682,6 +709,53 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         }
         for entry in bottomEdgeItems {
             entry.item.state = entry.gap == store.bottomGap ? .on : .off
+        }
+        for (option, item) in positionItems {
+            item.state = option == placement ? .on : .off
+        }
+        customizeLayoutItem.state = isEditModeActive() ? .on : .off
+    }
+
+    private static func headerItem(_ title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+        item.attributedTitle = sectionTitle(title)
+        item.isEnabled = false
+        return item
+    }
+
+    private func configurePositionMenu() {
+        positionMenu.removeAllItems()
+        let titles: [StripPlacement: String] = [
+            .bottom: String(localized: "Bottom"),
+            .left: String(localized: "Left"),
+            .right: String(localized: "Right"),
+        ]
+        positionItems = Dictionary(uniqueKeysWithValues: StripPlacement.allCases.map { option in
+            let item = NSMenuItem(title: titles[option] ?? option.rawValue, action: #selector(selectStripPlacement(_:)), keyEquivalent: "")
+            item.target = self; item.representedObject = option.rawValue
+            positionMenu.addItem(item)
+            return (option, item)
+        })
+        positionItem.submenu = positionMenu
+    }
+
+    private func rebuildAddItemsMenu() {
+        addItemsMenu.removeAllItems()
+        func addRow(_ title: String, raw: String, visible: Bool, action: Selector) {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: ""); item.target = self
+            item.representedObject = raw; item.state = visible ? .on : .off; item.indentationLevel = 1
+            addItemsMenu.addItem(item)
+        }
+        addItemsMenu.addItem(Self.headerItem(String(localized: "Widgets")))
+        let layout = store.widgetLayout
+        for s in BarSection.canonicalOrder where s != .launcher && s != .apps {
+            addRow(WidgetCatalog.localizedTitle(for: s), raw: s.rawValue, visible: layout.instance(for: s).isVisible, action: #selector(toggleWidgetSectionFromMenu(_:)))
+        }
+        addItemsMenu.addItem(.separator())
+        addItemsMenu.addItem(Self.headerItem(String(localized: "Utilities")))
+        let hidden = store.dockUtilities.hidden
+        for k in DockUtilityKind.allCases {
+            addRow(k.title, raw: k.rawValue, visible: !hidden.contains(k), action: #selector(toggleUtilityFromMenu(_:)))
         }
     }
 
@@ -718,5 +792,22 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     @objc private func showLayoutSettings() {
         menu.cancelTrackingWithoutAnimation()
         DispatchQueue.main.async { [onShowLayoutSettings] in onShowLayoutSettings() }
+    }
+
+    @objc private func selectStripPlacement(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let p = StripPlacement(rawValue: raw) else { return }
+        store.setStripPlacement(p); refreshLayoutStates()
+    }
+    @objc private func toggleWidgetSectionFromMenu(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let s = BarSection(rawValue: raw) else { return }
+        store.setWidgetVisible(!store.widgetLayout.instance(for: s).isVisible, for: s)
+    }
+    @objc private func toggleUtilityFromMenu(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let k = DockUtilityKind(rawValue: raw) else { return }
+        store.setDockUtilityVisible(k, store.dockUtilities.hidden.contains(k))
+    }
+    @objc private func toggleDockEditMode() {
+        menu.cancelTrackingWithoutAnimation()
+        DispatchQueue.main.async { [onToggleEditMode] in onToggleEditMode() }
     }
 }

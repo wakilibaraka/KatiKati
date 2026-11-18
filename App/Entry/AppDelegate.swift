@@ -294,6 +294,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         },
         onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .appearance) },
+        onToggleEditMode: { WidgetEditMode.shared.toggle() },
+        isEditModeActive: { WidgetEditMode.shared.isEditing },
         onMenuVisibilityChanged: { [weak self] isOpen in
             self?.panelCoordinator?.setTaskbarMenuOpen(isOpen)
         },

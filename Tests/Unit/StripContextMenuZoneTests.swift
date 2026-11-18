@@ -240,4 +240,23 @@ final class StripContextMenuZoneTests: XCTestCase {
         XCTAssertEqual(registry.first(in: .pop), pop)
         XCTAssertEqual(registry.frames(in: .window), [:], "the pop is not a window chip")
     }
+
+    @MainActor
+    func testTaskbarMenuAnchorOpensInwardAndClampsVertically() {
+        let bounds = CGRect(x: 0, y: 0, width: 54, height: 800)
+        let size = CGSize(width: 240, height: 320)
+        let visible = CGRect(x: 0, y: 0, width: 1710, height: 1000)
+
+        let left = StatusMenuController.taskbarMenuAnchor(
+            localPoint: CGPoint(x: 27, y: 400), viewBounds: bounds, menuSize: size, placement: .left, visibleBoundsInView: visible)
+        XCTAssertEqual(left, NSPoint(x: 60, y: 560))
+
+        let rightClamp = StatusMenuController.taskbarMenuAnchor(
+            localPoint: CGPoint(x: 27, y: 20), viewBounds: bounds, menuSize: size, placement: .right, visibleBoundsInView: visible)
+        XCTAssertEqual(rightClamp, NSPoint(x: -246, y: 326))
+
+        let bottom = StatusMenuController.taskbarMenuAnchor(
+            localPoint: CGPoint(x: 120, y: 27), viewBounds: CGRect(x: 0, y: 0, width: 600, height: 54), menuSize: size, placement: .bottom, visibleBoundsInView: visible)
+        XCTAssertEqual(bottom, NSPoint(x: 120, y: 374))
+    }
 }
