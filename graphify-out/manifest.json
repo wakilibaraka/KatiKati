@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795018455.7973306,
-    "seen": 1795018623.830802,
-    "ast_hash": "f581e7506b149d9b3bac1b732eb725e3",
+    "mtime": 1795019039.9399407,
+    "seen": 1795019625.0813482,
+    "ast_hash": "3758562544b6b482b310124b70391d31",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Layout.swift": {
-    "mtime": 1795018505.4532933,
-    "seen": 1795018623.830849,
-    "ast_hash": "b74bebd7629734e77a092e0e5a03f560",
+    "mtime": 1795019043.4458005,
+    "seen": 1795019625.081393,
+    "ast_hash": "3a8af35cd8ac91db9561e044532dbd45",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
@@ -726,9 +726,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
-    "mtime": 1795015363.1145415,
-    "seen": 1795015661.96431,
-    "ast_hash": "ffc52c86c8346b1ba65dad7636900e6f",
+    "mtime": 1795019138.436564,
+    "seen": 1795019625.0814168,
+    "ast_hash": "9320e2c244858c3f594c8c818eefb9fa",
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795018506.883879,
-    "seen": 1795018623.830882,
-    "ast_hash": "f33cd1ba39305c0f94c5e5b0f7a34416",
+    "mtime": 1795019144.600694,
+    "seen": 1795019625.0814269,
+    "ast_hash": "f9017111b55b103e7a81f4d9660d70bb",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1062,9 +1062,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NowPlayingChip.swift": {
-    "mtime": 1795005138.5640352,
-    "seen": 1795007055.523372,
-    "ast_hash": "abc26abd95b385afe82b438d9a68616e",
+    "mtime": 1795019140.6640236,
+    "seen": 1795019625.081492,
+    "ast_hash": "3b33c7a9a92a4cdff0e187ebbe5df138",
     "semantic_hash": ""
   },
   "App/Scenes/PermissionOnboardingView.swift": {
@@ -1296,9 +1296,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
-    "mtime": 1794869758.3152213,
-    "seen": 1794869839.070239,
-    "ast_hash": "33f8246f17bbe535f7588cd054434d5b",
+    "mtime": 1795019247.3780568,
+    "seen": 1795019625.081544,
+    "ast_hash": "337a85dd9dfa86468d473f515fd93f39",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherGlanceView.swift": {
@@ -2328,9 +2328,9 @@
     "semantic_hash": "fc8e8614eb1f458dca9dc2c1119a9c1b"
   },
   "Core/Support/StripPlacement.swift": {
-    "mtime": 1795014395.4629266,
-    "seen": 1795014817.730318,
-    "ast_hash": "220a6816da57fccb19ef4fa39927c14d",
+    "mtime": 1795019035.837985,
+    "seen": 1795019625.081741,
+    "ast_hash": "40dfea2c278c898424ed0ad50d57839d",
     "semantic_hash": ""
   },
   "Core/Support/StripPointerBox.swift": {
@@ -3966,10 +3966,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/RailGeometryTests.swift": {
-    "mtime": 1792272871.0066533,
-    "seen": 1792295707.060777,
-    "ast_hash": "68e56c9dd668269ff303d99adba28f94",
-    "semantic_hash": "68e56c9dd668269ff303d99adba28f94"
+    "mtime": 1795019547.7286239,
+    "seen": 1795019625.082043,
+    "ast_hash": "3a8de838b1839e9e71bcbdfcdcdb5387",
+    "semantic_hash": ""
   },
   "Tests/Unit/RecentlyClosedListTests.swift": {
     "mtime": 1791999130.937851,
@@ -6414,9 +6414,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ExpandedMediaCardView.swift": {
-    "mtime": 1795014106.2915504,
-    "seen": 1795014308.6439831,
-    "ast_hash": "314e95d482b90821b25ffca2533875dd",
+    "mtime": 1795019174.974119,
+    "seen": 1795019625.0814579,
+    "ast_hash": "e184a3d4966b83875297e6ead6f2f2cf",
     "semantic_hash": ""
   },
   "App/Scenes/NowPlayingPopup.swift": {
