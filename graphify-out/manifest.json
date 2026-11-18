@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795017698.9749866,
-    "seen": 1795018026.889143,
-    "ast_hash": "9eebb461555bf9fd58c80980bbb8bbc2",
+    "mtime": 1795028020.8593085,
+    "seen": 1795028206.026356,
+    "ast_hash": "83da25dbc1e4942dde419f424fb4d87a",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795027476.7555428,
-    "seen": 1795027789.386224,
-    "ast_hash": "f2d3fd24f5f9263731619cb2bb4d03b9",
+    "mtime": 1795028139.4171507,
+    "seen": 1795028206.026379,
+    "ast_hash": "2a447517f7f1fce574c0c6d7f8152c4d",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -4104,9 +4104,9 @@
     "semantic_hash": "3675ae1ea1188e5dfe2986cb81e6b04c"
   },
   "Tests/Unit/StripContextMenuZoneTests.swift": {
-    "mtime": 1793806365.3796313,
-    "seen": 1793814325.991063,
-    "ast_hash": "6212ced89a17e6b68d9718cf0499d677",
+    "mtime": 1795027986.642275,
+    "seen": 1795028206.026989,
+    "ast_hash": "de1aadcfd5aa1dfb148d932e5d6a9b34",
     "semantic_hash": ""
   },
   "Tests/Unit/StripDisplayFilterTests.swift": {
