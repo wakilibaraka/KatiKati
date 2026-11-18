@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795028020.8593085,
-    "seen": 1795028206.026356,
-    "ast_hash": "83da25dbc1e4942dde419f424fb4d87a",
+    "mtime": 1795038748.5329306,
+    "seen": 1795039003.168396,
+    "ast_hash": "abbc8b5300f288dd4e5c99bd95b13d07",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1795007181.8431673,
-    "seen": 1795009097.722471,
-    "ast_hash": "df6551b60625d0633f26c63135a7887e",
+    "mtime": 1795038747.1888793,
+    "seen": 1795039003.1685288,
+    "ast_hash": "f1a3e6686a0aae329af1ccbba37d5722",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -1674,9 +1674,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1794914267.2061539,
-    "seen": 1794916724.976587,
-    "ast_hash": "4bf990e0f7131a155bf5108e0cf3e69f",
+    "mtime": 1795038744.3707318,
+    "seen": 1795039003.168617,
+    "ast_hash": "62da623521e6f0167dde4025cdfa6930",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1794921512.9152539,
-    "seen": 1794921785.879221,
-    "ast_hash": "4e28c3fa8cd7c286bd38eea415a69f3d",
+    "mtime": 1795038745.5202775,
+    "seen": 1795039003.168732,
+    "ast_hash": "913e15a6ed906182a76f78391f39eed8",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795038539.0660956,
-    "seen": 1795038651.7454872,
-    "ast_hash": "f712ed471008d42efe7860f39f5a6b16",
+    "mtime": 1795038970.8854241,
+    "seen": 1795039003.169209,
+    "ast_hash": "945f43f7382a338b56934c3aee918009",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7542,9 +7542,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopBoxModel.swift": {
-    "mtime": 1795038295.1544986,
-    "seen": 1795038651.74491,
-    "ast_hash": "3412a230ea48f1bd2bbb3ca70177096d",
+    "mtime": 1795038743.077557,
+    "seen": 1795039003.16862,
+    "ast_hash": "b625134aa8ea4b8ae8db81910691deb8",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFolderOrdering.swift": {
@@ -7563,6 +7563,18 @@
     "mtime": 1795038303.7892528,
     "seen": 1795038651.7451892,
     "ast_hash": "a738f74ffa7b33ca8d8fd3d876ac7474",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/DesktopRevealPolicy.swift": {
+    "mtime": 1795038741.805103,
+    "seen": 1795039003.1686232,
+    "ast_hash": "73fdc1fbbfe83ede4f8ea81db3464756",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/DesktopRevealPolicyTests.swift": {
+    "mtime": 1795038770.486593,
+    "seen": 1795039003.168905,
+    "ast_hash": "949f40538d57e6f957d7d3eda7b66747",
     "semantic_hash": ""
   }
 }
