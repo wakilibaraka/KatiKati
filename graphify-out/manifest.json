@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795040972.0233085,
-    "seen": 1795041008.903312,
-    "ast_hash": "d3bd89a5c9d5ac9cee1f7c889fbd8236",
+    "mtime": 1795041521.1945844,
+    "seen": 1795041580.112664,
+    "ast_hash": "ea4db7267151b913d51b18b729690871",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7629,6 +7629,12 @@
     "mtime": 1795040882.483469,
     "seen": 1795041008.902496,
     "ast_hash": "6968bb93098a4a4bc8e9d4b16d4f654f",
+    "semantic_hash": ""
+  },
+  "App/Composition/DesktopCanvasCoordinator.swift": {
+    "mtime": 1795041380.7909317,
+    "seen": 1795041580.111157,
+    "ast_hash": "aa8ad3283be578f02b800fa30a5bd632",
     "semantic_hash": ""
   }
 }
