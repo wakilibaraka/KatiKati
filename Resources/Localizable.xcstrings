@@ -141639,6 +141639,102 @@
         "it": { "stringUnit": { "state": "translated", "value": "Altre opzioni" } },
         "ko": { "stringUnit": { "state": "translated", "value": "더 보기" } }
       }
+    },
+    "Drop files here": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Drop files here" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "将文件拖放到此处" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "將檔案拖放到此處" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ここにファイルをドロップ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dateien hier ablegen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Déposez les fichiers ici" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Suelta los archivos aquí" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Suelta los archivos aquí" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Solte os arquivos aqui" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Largue os ficheiros aqui" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Trascina i file qui" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "여기에 파일 놓기" } }
+      }
+    },
+    "Volume Unavailable": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Volume Unavailable" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "卷宗不可用" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "卷宗無法使用" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ボリュームを利用できません" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Volume nicht verfügbar" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Volume indisponible" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Volumen no disponible" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Volumen no disponible" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Volume indisponível" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Volume indisponível" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Volume non disponibile" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "볼륨을 사용할 수 없음" } }
+      }
+    },
+    "Folder access is required to display files.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Folder access is required to display files." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "需要文件夹访问权限才能显示文件。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "需要檔案夾存取權限才能顯示檔案。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ファイルを表示するにはフォルダへのアクセス権が必要です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Für die Anzeige von Dateien ist ein Ordnerzugriff erforderlich." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "L’accès au dossier est requis pour afficher les fichiers." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se requiere acceso a la carpeta para mostrar los archivos." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Se requiere acceso a la carpeta para mostrar los archivos." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O acesso à pasta é necessário para exibir os arquivos." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "É necessário acesso à pasta para mostrar os ficheiros." } },
+        "it": { "stringUnit": { "state": "translated", "value": "È necessario l’accesso alla cartella per mostrare i file." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파일을 표시하려면 폴더 접근 권한이 필요합니다." } }
+      }
+    },
+    "Reconnect the drive to resume.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reconnect the drive to resume." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "重新连接驱动器以恢复显示。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "重新連接磁碟機以恢復顯示。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "再開するにはドライブを再接続してください。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schließen Sie das Laufwerk wieder an, um fortzufahren." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Reconnectez le disque pour reprendre." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vuelve a conectar la unidad para continuar." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vuelve a conectar la unidad para continuar." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Reconecte a unidade para continuar." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Volte a ligar a unidade para retomar." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ricollega l’unità per riprendere." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "다시 시작하려면 드라이브를 다시 연결하세요." } }
+      }
+    },
+    "Delete Permanently": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Delete Permanently" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "永久删除" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "永久刪除" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "完全に削除" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Endgültig löschen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Supprimer définitivement" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Eliminar permanentemente" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Eliminar permanentemente" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Excluir permanentemente" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Eliminar permanentemente" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Elimina definitivamente" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "영구 삭제" } }
+      }
+    },
+    "Move to Trash is unavailable on this volume.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Move to Trash is unavailable on this volume." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "此卷宗不支持移到废纸篓。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "此卷宗不支援移至垃圾桶。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "このボリュームではゴミ箱への移動を利用できません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "In den Papierkorb legen ist auf diesem Volume nicht verfügbar." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Le déplacement vers la corbeille n’est pas disponible sur ce volume." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mover a la Papelera no está disponible en este volumen." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Mover al basurero no está disponible en este volumen." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Mover para o Lixo não está disponível neste volume." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Mover para o Lixo não está disponível neste volume." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sposta nel Cestino non è disponibile su questo volume." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이 볼륨에서는 휴지통으로 이동할 수 없습니다." } }
+      }
     }
   },
   "version": "1.0"
