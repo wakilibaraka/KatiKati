@@ -241,4 +241,24 @@ final class DockWingModelsTests: XCTestCase {
         let roundTrip = try XCTUnwrap(DockWingsConfiguration.decode(base.encoded()))
         XCTAssertEqual(roundTrip, base)
     }
+
+    func testRecommendedDefaultAndTelemetryWingMetrics() {
+        let rec = DockWingsConfiguration.recommendedDefault
+        XCTAssertEqual(rec.left.preset, .telemetry)
+        XCTAssertEqual(rec.right.preset, .ram)
+
+        XCTAssertEqual(DockWidgetPresetType.ram.symbolName, "memorychip")
+        XCTAssertEqual(DockWidgetPresetType.network.symbolName, "network")
+        XCTAssertEqual(DockWidgetPresetType.disk.symbolName, "internaldrive")
+        XCTAssertEqual(DockWidgetPresetType.battery.symbolName, "battery.75percent")
+
+        let low = MemoryUsage(used: 8 * 1_073_741_824, total: 16 * 1_073_741_824)
+        XCTAssertEqual(low.pressureLevel, .normal)
+        XCTAssertEqual(low.pressureLabel, "Normal")
+        XCTAssertEqual(low.formattedGigabytesPair, "8.0 / 16 GB")
+
+        let high = MemoryUsage(used: 15 * 1_073_741_824, total: 16 * 1_073_741_824)
+        XCTAssertEqual(high.pressureLevel, .critical)
+        XCTAssertEqual(high.pressureLabel, "Crit")
+    }
 }

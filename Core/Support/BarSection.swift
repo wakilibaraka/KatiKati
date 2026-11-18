@@ -226,3 +226,108 @@ enum DockToolDeduplication {
         return bundleIDs.filter { !suppressed.contains($0) }
     }
 }
+
+/// Modular utility tiles hosted in the Mid-Dock Utilities cluster.
+enum DockUtilityKind: String, CaseIterable, Identifiable, Codable, Sendable {
+    case drawer
+    case screenshots
+    case clipboard
+    case dictionary
+    case terminal
+    case downloads
+    case trash
+
+    var id: String { rawValue }
+
+    var bundleID: String? {
+        switch self {
+        case .dictionary: return "com.apple.Dictionary"
+        case .terminal: return "com.apple.Terminal"
+        default: return nil
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .drawer: return String(localized: "Drawer")
+        case .screenshots: return String(localized: "Screenshots")
+        case .clipboard: return String(localized: "Clipboard")
+        case .dictionary: return String(localized: "Dictionary")
+        case .terminal: return String(localized: "Terminal")
+        case .downloads: return String(localized: "Downloads")
+        case .trash: return String(localized: "Trash")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .drawer: return "square.grid.2x2"
+        case .screenshots: return "viewfinder"
+        case .clipboard: return "doc.on.clipboard"
+        case .dictionary: return "text.book.closed"
+        case .terminal: return "terminal"
+        case .downloads: return "arrow.down.circle"
+        case .trash: return "trash"
+        }
+    }
+}
+
+/// Pure ordered + visibility state for Mid-Dock Utilities modularity.
+struct DockUtilitiesConfig: Codable, Equatable, Sendable {
+    static let defaultsKey = "com.katikati.dock.utilitiesConfig.v1"
+
+    var order: [DockUtilityKind]
+    var hidden: Set<DockUtilityKind>
+
+    static let defaultOrder: [DockUtilityKind] = [
+        .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash
+    ]
+
+    init(order: [DockUtilityKind] = defaultOrder, hidden: Set<DockUtilityKind> = []) {
+        self.order = Self.normalizedOrder(order)
+        self.hidden = hidden
+    }
+
+    static let `default` = DockUtilitiesConfig()
+
+    var visibleUtilities: [DockUtilityKind] {
+        order.filter { !hidden.contains($0) }
+    }
+
+    func moving(_ item: DockUtilityKind, by delta: Int) -> DockUtilitiesConfig {
+        guard let idx = order.firstIndex(of: item) else { return self }
+        let target = min(max(0, idx + delta), order.count - 1)
+        guard target != idx else { return self }
+        var next = order
+        next.remove(at: idx)
+        next.insert(item, at: target)
+        return DockUtilitiesConfig(order: next, hidden: hidden)
+    }
+
+    func setting(_ item: DockUtilityKind, visible: Bool) -> DockUtilitiesConfig {
+        var nextHidden = hidden
+        if visible { nextHidden.remove(item) } else { nextHidden.insert(item) }
+        return DockUtilitiesConfig(order: order, hidden: nextHidden)
+    }
+
+    func suppressedAppBundleIDs() -> Set<String> {
+        Set(visibleUtilities.compactMap(\.bundleID))
+    }
+
+    static func normalizedOrder(_ raw: [DockUtilityKind]) -> [DockUtilityKind] {
+        var seen = Set<DockUtilityKind>()
+        var result: [DockUtilityKind] = []
+        for item in raw where seen.insert(item).inserted { result.append(item) }
+        for item in defaultOrder where seen.insert(item).inserted { result.append(item) }
+        return result
+    }
+
+    static func decode(_ data: Data?) -> DockUtilitiesConfig? {
+        guard let data else { return nil }
+        return try? JSONDecoder().decode(DockUtilitiesConfig.self, from: data)
+    }
+
+    func encoded() -> Data? {
+        try? JSONEncoder().encode(self)
+    }
+}

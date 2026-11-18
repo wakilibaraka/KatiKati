@@ -9,6 +9,10 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
     case vpn
     case friends
     case telemetry
+    case ram
+    case network
+    case disk
+    case battery
     case ai
 
     var id: String { rawValue }
@@ -24,6 +28,10 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .vpn: return "lock.shield"
         case .friends: return "person.2.fill"
         case .telemetry: return "waveform.path.ecg"
+        case .ram: return "memorychip"
+        case .network: return "network"
+        case .disk: return "internaldrive"
+        case .battery: return "battery.75percent"
         case .ai: return "sparkles"
         }
     }
@@ -36,6 +44,10 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .vpn: return String(localized: "VPN Status")
         case .friends: return String(localized: "Friends HUD")
         case .telemetry: return String(localized: "System Telemetry")
+        case .ram: return String(localized: "RAM Usage")
+        case .network: return String(localized: "Network Traffic")
+        case .disk: return String(localized: "Disk & I/O")
+        case .battery: return String(localized: "Battery & Thermal")
         case .ai: return String(localized: "AI")
         }
     }
@@ -96,6 +108,11 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
     }
 
     static let `default` = DockWingsConfiguration()
+    static let recommendedDefault = DockWingsConfiguration(
+        left: DockWingSlotConfig(preset: .telemetry, size: .medium),
+        right: DockWingSlotConfig(preset: .ram, size: .medium)
+    )
+    static let cpuRamMigrationKey = "com.katikati.dockII.wings.defaultCpuRamMigrated.v1"
 
     var hasAnyActiveWing: Bool {
         left.preset.isAssigned || right.preset.isAssigned
@@ -221,6 +238,18 @@ enum DockWingDimensions {
         case (.telemetry, .small): return 112
         case (.telemetry, .medium): return 180
         case (.telemetry, .large): return 240
+        case (.ram, .small): return 112
+        case (.ram, .medium): return 180
+        case (.ram, .large): return 240
+        case (.network, .small): return 116
+        case (.network, .medium): return 184
+        case (.network, .large): return 240
+        case (.disk, .small): return 108
+        case (.disk, .medium): return 172
+        case (.disk, .large): return 228
+        case (.battery, .small): return 108
+        case (.battery, .medium): return 168
+        case (.battery, .large): return 220
         case (.ai, .small): return 112
         case (.ai, .medium): return 184
         case (.ai, .large): return 244

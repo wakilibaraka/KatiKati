@@ -125,4 +125,21 @@ final class BarLayoutModeTests: XCTestCase {
         XCTAssertEqual(BarSection.launcher.placeholderEntryID, "sec-launcher")
         XCTAssertEqual(BarSection.widgets.placeholderEntryID, "sec-widgets")
     }
+
+    func testDockUtilitiesConfigModularityAndDeduplication() throws {
+        var cfg = DockUtilitiesConfig.default
+        XCTAssertEqual(cfg.visibleUtilities.map(\.rawValue),
+                       ["drawer", "screenshots", "clipboard", "dictionary", "terminal", "downloads", "trash"])
+        XCTAssertEqual(cfg.suppressedAppBundleIDs(), ["com.apple.Dictionary", "com.apple.Terminal"])
+
+        cfg = cfg.moving(.screenshots, by: -1)
+        XCTAssertEqual(cfg.order.first, .screenshots)
+
+        cfg = cfg.setting(.terminal, visible: false)
+        XCTAssertFalse(cfg.visibleUtilities.contains(.terminal))
+        XCTAssertEqual(cfg.suppressedAppBundleIDs(), ["com.apple.Dictionary"])
+
+        let decoded = try XCTUnwrap(DockUtilitiesConfig.decode(cfg.encoded()))
+        XCTAssertEqual(decoded, cfg)
+    }
 }

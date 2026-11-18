@@ -179,6 +179,8 @@ final class DroppyShelfConfigStore: ObservableObject {
     static let hiddenKey = "com.katikati.droppy.shelfHidden"
     static let glassKey = "com.katikati.droppy.glassMaterial"
     static let accentKey = "com.katikati.droppy.accentTheme"
+    static let includeClipboardInNotchKey = "com.katikati.droppy.includeClipboardInNotch"
+    static let defaultHidden: Set<DroppyShelfWidgetKind> = [.clipboardNotes]
 
     @Published private(set) var order: [DroppyShelfWidgetKind]
     @Published private(set) var hidden: Set<DroppyShelfWidgetKind>
@@ -189,7 +191,11 @@ final class DroppyShelfConfigStore: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.order = Self.decodeOrder(defaults.string(forKey: Self.orderKey) ?? "")
-        self.hidden = Self.decodeHidden(defaults.string(forKey: Self.hiddenKey) ?? "")
+        if let rawHidden = defaults.string(forKey: Self.hiddenKey) {
+            self.hidden = Self.decodeHidden(rawHidden)
+        } else {
+            self.hidden = defaults.bool(forKey: Self.includeClipboardInNotchKey) ? [] : Self.defaultHidden
+        }
         self.glassMaterial = DroppyGlassMaterial(rawValue: defaults.string(forKey: Self.glassKey) ?? "") ?? .dynamicGlass
         self.accentTheme = DroppyAccentTheme(rawValue: defaults.string(forKey: Self.accentKey) ?? "") ?? .oceanBlue
     }
@@ -204,6 +210,9 @@ final class DroppyShelfConfigStore: ObservableObject {
     func setHidden(_ kind: DroppyShelfWidgetKind, _ isHidden: Bool) {
         if isHidden { hidden.insert(kind) } else { hidden.remove(kind) }
         defaults.set(Self.encodeHidden(hidden), forKey: Self.hiddenKey)
+        if kind == .clipboardNotes {
+            defaults.set(!isHidden, forKey: Self.includeClipboardInNotchKey)
+        }
     }
 
     func setGlassMaterial(_ material: DroppyGlassMaterial) {
@@ -218,11 +227,12 @@ final class DroppyShelfConfigStore: ObservableObject {
 
     func reset() {
         order = DroppyShelfWidgetKind.allCases
-        hidden = []
+        hidden = Self.defaultHidden
         glassMaterial = .dynamicGlass
         accentTheme = .oceanBlue
         defaults.set(Self.encodeOrder(order), forKey: Self.orderKey)
-        defaults.set("", forKey: Self.hiddenKey)
+        defaults.set(Self.encodeHidden(hidden), forKey: Self.hiddenKey)
+        defaults.set(false, forKey: Self.includeClipboardInNotchKey)
         defaults.set(glassMaterial.rawValue, forKey: Self.glassKey)
         defaults.set(accentTheme.rawValue, forKey: Self.accentKey)
     }

@@ -109,8 +109,10 @@ final class DroppyTests: XCTestCase {
         let (defaults, suite) = freshDefaults()
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = DroppyShelfConfigStore(defaults: defaults)
-        XCTAssertEqual(store.visibleWidgets(), DroppyShelfWidgetKind.allCases)
+        XCTAssertEqual(store.visibleWidgets(), [.fileTray, .pomodoro, .systemStats])
         store.move(fromOffsets: IndexSet(integer: 0), toOffset: 4)
+        store.setHidden(.clipboardNotes, false)
+        XCTAssertTrue(store.visibleWidgets().contains(.clipboardNotes))
         store.setHidden(.clipboardNotes, true)
         store.setAccentTheme(.violetPulse)
         store.setGlassMaterial(.liquidGlass)
@@ -120,7 +122,7 @@ final class DroppyTests: XCTestCase {
         XCTAssertEqual(reloaded.accentTheme, .violetPulse)
         XCTAssertEqual(reloaded.glassMaterial, .liquidGlass)
         reloaded.reset()
-        XCTAssertEqual(reloaded.visibleWidgets(), DroppyShelfWidgetKind.allCases)
+        XCTAssertEqual(reloaded.visibleWidgets(), [.fileTray, .pomodoro, .systemStats])
         XCTAssertEqual(reloaded.glassMaterial, .dynamicGlass)
         XCTAssertEqual(reloaded.accentTheme, .oceanBlue)
     }

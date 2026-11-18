@@ -46,6 +46,28 @@ struct MemoryUsage: Equatable, Sendable {
     var used: UInt64
     var total: UInt64
     var fraction: Double { total == 0 ? 0 : min(1, Double(used) / Double(total)) }
+
+    var pressureLevel: SystemGaugeMetrics.PressureLevel {
+        let pct = Int((fraction * 100.0).rounded())
+        if pct > 88 { return .critical }
+        if pct > 72 { return .warning }
+        return .normal
+    }
+
+    var pressureLabel: String {
+        switch pressureLevel {
+        case .normal: return "Normal"
+        case .warning: return "Warn"
+        case .critical: return "Crit"
+        }
+    }
+
+    var formattedGigabytesPair: String {
+        let usedGB = Double(used) / 1_073_741_824
+        let totalGB = Double(total) / 1_073_741_824
+        guard totalGB > 0 else { return "—" }
+        return String(format: "%.1f / %.0f GB", usedGB, totalGB)
+    }
 }
 
 struct DiskUsage: Equatable, Sendable {

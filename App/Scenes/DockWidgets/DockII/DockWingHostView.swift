@@ -154,7 +154,7 @@ struct DockWingHostView: View {
             DockVpnWidgetView()
         case .friends:
             DockFriendsWidgetView(onOpenSettings: onOpenSettings)
-        case .telemetry:
+        case .telemetry, .ram, .network, .disk, .battery:
             DockTelemetryWidgetView()
         case .ai:
             DockAIWingWidgetView()
@@ -304,7 +304,7 @@ struct DockUniversalWidgetCard: View {
             DockVpnWidgetView()
         case .friends:
             DockFriendsWidgetView(onOpenSettings: onOpenSettings)
-        case .telemetry:
+        case .telemetry, .ram, .network, .disk, .battery:
             DockTelemetryWidgetView()
         case .ai:
             DockAIWingWidgetView()
