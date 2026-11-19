@@ -102,6 +102,7 @@ final class DesktopCanvasCoordinator {
         ) { [weak self] _ in MainActor.assumeIsolated { self?.reflowForDisplayChange() } }
 
         DesktopManagedStorage.cleanupOrphanedStagingDirectories()
+        seedDefaultWidgetsIfNeeded()
         reflowForDisplayChange()
         syncBlankDesktopMonitor()
         syncPanels()
@@ -198,6 +199,14 @@ final class DesktopCanvasCoordinator {
     }
 
     func addTodoBox() { addFeatureBox(kind: .todo) }
+
+    /// One-time starter widgets so a fresh Desktop page is useful immediately.
+    private func seedDefaultWidgetsIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard DesktopCanvasConfig.shouldSeedDefaults(defaults: defaults, hasExistingItems: !store.items.isEmpty) else { return }
+        defaults.set(true, forKey: DesktopCanvasConfig.seededDefaultsKey)
+        for kind in DesktopCanvasConfig.defaultSeedKinds { addFeatureBox(kind: kind) }
+    }
 
     /// One instance per feature kind; re-adding unhides the existing box instead of stacking duplicates.
     func addFeatureBox(kind: DesktopWidgetKind) {

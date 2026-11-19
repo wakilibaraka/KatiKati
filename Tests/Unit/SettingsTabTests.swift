@@ -9,9 +9,9 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsTwentyThreeTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 23, "twenty-three sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 23,
+    func testTheSidebarIsTwentyFourTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 24, "twenty-four sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 24,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,

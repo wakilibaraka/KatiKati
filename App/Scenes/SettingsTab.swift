@@ -11,6 +11,7 @@ enum SettingsTab: String, CaseIterable {
     case drawer
     case shelf
     case widgets
+    case desktop
     case weather
     case notch
     case notifications
@@ -37,6 +38,7 @@ enum SettingsTab: String, CaseIterable {
         case "drawer": self = .drawer
         case "shelf", "drawerShelf": self = .shelf
         case "widgets": self = .widgets
+        case "desktop": self = .desktop
         case "weather": self = .weather
         case "notch": self = .notch
         case "notifications": self = .notifications
@@ -67,6 +69,7 @@ enum SettingsTab: String, CaseIterable {
         case .drawer: return String(localized: "Drawer")
         case .shelf: return String(localized: "Shelf")
         case .widgets: return String(localized: "Widgets")
+        case .desktop: return String(localized: "Desktop")
         case .weather: return String(localized: "Weather")
         case .notch: return String(localized: "Notch")
         case .notifications: return String(localized: "Notifications")
@@ -97,6 +100,7 @@ enum SettingsTab: String, CaseIterable {
         case .drawer: return String(localized: "Background-app capsule and edge placement.")
         case .shelf: return String(localized: "Floating card stack, shake-to-shelf, Notch File Tray, and space pinning.")
         case .widgets: return String(localized: "Widget panes: layout, colors, and style.")
+        case .desktop: return String(localized: "Folder boxes, to-dos, notes, and glanceable widgets on your desktop.")
         case .weather: return String(localized: "Weather units, layout, and warnings.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
         case .notifications: return String(localized: "Battery, charging, peripherals, and banner placement.")
@@ -125,6 +129,7 @@ enum SettingsTab: String, CaseIterable {
         case .drawer: return "sidebar.squares.trailing"
         case .shelf: return "tray.and.arrow.down"
         case .widgets: return "square.grid.2x2"
+        case .desktop: return "macwindow.on.rectangle"
         case .weather: return "cloud.sun"
         case .notch: return "capsule.tophalf.filled"
         case .notifications: return "bell"
@@ -154,6 +159,7 @@ enum SettingsTab: String, CaseIterable {
         case .drawer: return (0.92, 0.48, 0.15)
         case .shelf: return (0.48, 0.36, 0.88)
         case .widgets: return (0.58, 0.40, 0.93)
+        case .desktop: return (0.20, 0.60, 0.86)
         case .weather: return (0.30, 0.72, 0.78)
         case .notch: return (0.30, 0.30, 0.34)
         case .notifications: return (0.96, 0.46, 0.24)

@@ -149884,82 +149884,6 @@
         }
       }
     },
-    "Add Widget": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add Widget"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "添加小组件"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "新增小工具"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ウィジェットを追加"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Widget hinzufügen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajouter un widget"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Añadir widget"
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agregar widget"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adicionar Widget"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adicionar Widget"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aggiungi widget"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "위젯 추가"
-          }
-        }
-      }
-    },
     "Capture Text from Screen": {
       "localizations": {
         "en": {
@@ -150955,6 +150879,1007 @@
           "stringUnit": {
             "state": "translated",
             "value": "모두 창으로 펼치기"
+          }
+        }
+      }
+    },
+    "Desktop": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desktop"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デスクトップ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibtisch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bureau"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escritorio"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escritorio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Área de trabalho"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Área de trabalho"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivania"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크탑"
+          }
+        }
+      }
+    },
+    "Desktop Widgets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desktop Widgets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面小组件"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面小工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デスクトップウィジェット"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreibtisch-Widgets"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets du bureau"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets del escritorio"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets del escritorio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets da área de trabalho"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets da área de trabalho"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widget della scrivania"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크탑 위젯"
+          }
+        }
+      }
+    },
+    "How to Use": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to Use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用说明"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用說明"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使い方"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "So funktioniert es"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode d’emploi"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cómo usar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cómo usar"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como usar"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como usar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come si usa"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용 방법"
+          }
+        }
+      }
+    },
+    "Folder boxes, to-dos, notes, and glanceable widgets on your desktop.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder boxes, to-dos, notes, and glanceable widgets on your desktop."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面上的文件夹盒子、待办、笔记和一目了然的小组件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桌面上的檔案夾盒子、待辦、筆記和一目瞭然的小工具。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デスクトップ上のフォルダボックス、ToDo、メモ、ひと目で分かるウィジェット。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordnerboxen, Aufgaben, Notizen und Widgets auf einen Blick auf deinem Schreibtisch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boîtes de dossiers, tâches, notes et widgets lisibles d’un coup d’œil sur votre bureau."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajas de carpetas, tareas, notas y widgets de un vistazo en tu escritorio."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajas de carpetas, tareas, notas y widgets de un vistazo en tu escritorio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caixas de pastas, tarefas, notas e widgets rápidos na sua área de trabalho."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caixas de pastas, tarefas, notas e widgets rápidos na sua área de trabalho."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caselle cartella, attività, note e widget immediati sulla tua scrivania."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크탑의 폴더 박스, 할 일, 메모, 한눈에 보는 위젯."
+          }
+        }
+      }
+    },
+    "To-Do: type a task and press Return, click the circle to finish it and the star to mark it important.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To-Do: type a task and press Return, click the circle to finish it and the star to mark it important."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待办：输入任务并按回车；点圆圈完成，点星标标记重要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待辦：輸入任務並按 Return；點圓圈完成，點星號標記重要。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ToDo：タスクを入力して Return。丸をクリックで完了、星で重要マーク。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufgaben: Aufgabe eintippen und Return drücken, Kreis anklicken zum Erledigen, Stern für wichtig."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tâches : saisissez une tâche et appuyez sur Retour ; cliquez sur le cercle pour la terminer, sur l’étoile pour la marquer importante."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tareas: escribe una tarea y pulsa Retorno; haz clic en el círculo para completarla y en la estrella para marcarla importante."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tareas: escribe una tarea y pulsa Retorno; haz clic en el círculo para completarla y en la estrella para marcarla importante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarefas: digite uma tarefa e pressione Return; clique no círculo para concluir e na estrela para marcar como importante."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarefas: digite uma tarefa e pressione Return; clique no círculo para concluir e na estrela para marcar como importante."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attività: scrivi un’attività e premi Invio; clicca il cerchio per completarla e la stella per segnarla importante."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일: 작업을 입력하고 Return을 누르세요. 원을 클릭하면 완료, 별을 클릭하면 중요 표시됩니다."
+          }
+        }
+      }
+    },
+    "Quick Capture: jot quick notes, or grab text from anywhere on screen with the capture button (OCR).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Capture: jot quick notes, or grab text from anywhere on screen with the capture button (OCR)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速记录：随手记笔记，或用捕获按钮识别屏幕上任意文字（OCR）。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速記錄：隨手記筆記，或用擷取按鈕辨識螢幕上任意文字（OCR）。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイックキャプチャ：メモを素早く書き留めるか、キャプチャボタンで画面上の文字を取り込めます（OCR）。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnellnotiz: Notizen festhalten oder mit der Aufnahmetaste Text von überall auf dem Bildschirm erfassen (OCR)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capture rapide : notez vite des idées ou saisissez du texte n’importe où à l’écran avec le bouton de capture (OCR)."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captura rápida: anota notas al vuelo o captura texto de cualquier parte de la pantalla con el botón de captura (OCR)."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captura rápida: anota notas al vuelo o captura texto de cualquier parte de la pantalla con el botón de captura (OCR)."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captura rápida: anote rapidamente ou capture texto de qualquer lugar da tela com o botão de captura (OCR)."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Captura rápida: anote rapidamente ou capture texto de qualquer lugar da tela com o botão de captura (OCR)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cattura rapida: annota al volo o cattura il testo da qualsiasi punto dello schermo con il pulsante di cattura (OCR)."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빠른 캡처: 메모를 간단히 적거나 캡처 버튼으로 화면 어디서든 텍스트를 가져옵니다(OCR)."
+          }
+        }
+      }
+    },
+    "Glance: today's date with the lunar date, solar term and festivals.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glance: today's date with the lunar date, solar term and festivals."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一览：今天的日期，含农历、节气和节日。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一覽：今天的日期，含農曆、節氣和節日。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ひと目：今日の日付と旧暦、二十四節気、祝祭日。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überblick: heutiges Datum mit Mondkalender, Sonnenterm und Festen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu : la date du jour avec le calendrier lunaire, les termes solaires et les fêtes."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vistazo: la fecha de hoy con fecha lunar, término solar y festividades."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vistazo: la fecha de hoy con fecha lunar, término solar y festividades."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resumo: a data de hoje com data lunar, termo solar e festividades."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resumo: a data de hoje com data lunar, termo solar e festividades."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colpo d’occhio: la data di oggi con data lunare, termine solare e festività."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한눈에: 오늘 날짜와 음력, 절기, 명절을 보여줍니다."
+          }
+        }
+      }
+    },
+    "Weather: live conditions, temperature and today's high and low.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weather: live conditions, temperature and today's high and low."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天气：实时天气、气温以及今天的最高和最低温。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天氣：即時天氣、氣溫以及今天的最高和最低溫。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天気：現在の天気、気温、今日の最高・最低気温。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wetter: aktuelle Lage, Temperatur sowie Tageshöchst- und -tiefstwert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Météo : conditions en direct, température, maximale et minimale du jour."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiempo: condiciones en vivo, temperatura y máxima y mínima de hoy."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiempo: condiciones en vivo, temperatura y máxima y mínima de hoy."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clima: condições ao vivo, temperatura e máxima e mínima de hoje."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clima: condições ao vivo, temperatura e máxima e mínima de hoje."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meteo: condizioni in tempo reale, temperatura e massima e minima di oggi."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날씨: 실시간 날씨, 기온, 오늘의 최고·최저 기온."
+          }
+        }
+      }
+    },
+    "Vinyl Music: a spinning record for what is playing, with play, pause and skip.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: a spinning record for what is playing, with play, pause and skip."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑胶音乐：用旋转的唱片显示正在播放的内容，可播放、暂停和切歌。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑膠音樂：以旋轉的唱片顯示正在播放的內容，可播放、暫停和切歌。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バイナルミュージック：再生中の曲を回るレコードで表示。再生、一時停止、スキップに対応。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: eine drehende Schallplatte für den laufenden Titel, mit Wiedergabe, Pause und Überspringen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music : un disque qui tourne pour le titre en cours, avec lecture, pause et saut."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: un disco que gira con lo que suena, con reproducir, pausar y saltar."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: un disco que gira con lo que suena, con reproducir, pausar y saltar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: um disco girando para o que está tocando, com reproduzir, pausar e pular."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: um disco girando para o que está tocando, com reproduzir, pausar e pular."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vinyl Music: un disco che gira per ciò che è in riproduzione, con play, pausa e salto."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "바이닐 뮤직: 재생 중인 곡을 회전하는 레코드로 보여주며 재생, 일시 정지, 건너뛰기를 지원합니다."
+          }
+        }
+      }
+    },
+    "Folder boxes: drop files in, drag to reorder, double-click the title to rename, press Space for Quick Look.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder boxes: drop files in, drag to reorder, double-click the title to rename, press Space for Quick Look."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件夹盒子：拖入文件，拖动排序，双击标题重命名，按空格键快速查看。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檔案夾盒子：拖入檔案，拖曳排序，雙擊標題重新命名，按空白鍵快速查看。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォルダボックス：ファイルをドロップ、ドラッグで並べ替え、タイトルをダブルクリックで名称変更、スペースでクイックルック。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordnerboxen: Dateien hineinziehen, zum Sortieren ziehen, Titel doppelklicken zum Umbenennen, Leertaste für Übersicht."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boîtes de dossiers : déposez des fichiers, faites glisser pour réordonner, double-cliquez sur le titre pour renommer, Espace pour l’Aperçu."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajas de carpetas: suelta archivos, arrastra para reordenar, haz doble clic en el título para renombrar y pulsa Espacio para Vista rápida."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cajas de carpetas: suelta archivos, arrastra para reordenar, haz doble clic en el título para renombrar y pulsa Espacio para Vista rápida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caixas de pastas: solte arquivos, arraste para reordenar, clique duas vezes no título para renomear e pressione Espaço para Visualização rápida."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caixas de pastas: solte arquivos, arraste para reordenar, clique duas vezes no título para renomear e pressione Espaço para Visualização rápida."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caselle cartella: trascina i file, trascina per riordinare, doppio clic sul titolo per rinominare, Spazio per Anteprima."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더 박스: 파일을 끌어다 놓고, 끌어서 순서를 바꾸고, 제목을 두 번 클릭해 이름을 바꾸고, 스페이스 바로 미리보기."
+          }
+        }
+      }
+    },
+    "Capsule mode: collapse any box to a pill from its ellipsis menu; hover to peek, or dock it to a screen edge.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capsule mode: collapse any box to a pill from its ellipsis menu; hover to peek, or dock it to a screen edge."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "胶囊模式：从省略号菜单把任意盒子折叠成胶囊；悬停即可展开查看，也可停靠到屏幕边缘。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "膠囊模式：從省略號選單把任意盒子摺疊成膠囊；懸停即可展開查看，也可停靠到螢幕邊緣。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カプセルモード：「…」メニューからボックスをカプセルに縮小。ホバーで一時表示、画面端への固定も可能。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapselmodus: Jede Box über das Ellipsenmenü zur Kapsel verkleinern; zum Ansehen darüberfahren oder am Bildschirmrand andocken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode capsule : réduisez une boîte en capsule depuis son menu « … » ; survolez pour jeter un œil ou ancrez-la au bord de l’écran."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo cápsula: contrae cualquier caja a una cápsula desde su menú de puntos suspensivos; pasa el cursor para ver o acóplala al borde de la pantalla."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo cápsula: contrae cualquier caja a una cápsula desde su menú de puntos suspensivos; pasa el cursor para ver o acóplala al borde de la pantalla."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo cápsula: recolha qualquer caixa em cápsula pelo menu de reticências; passe o mouse para espiar ou fixe na borda da tela."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo cápsula: recolha qualquer caixa em cápsula pelo menu de reticências; passe o mouse para espiar ou fixe na borda da tela."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modalità capsula: comprimi qualsiasi casella in capsula dal menu con i puntini; passa il cursore per sbirciare o agganciala al bordo dello schermo."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캡슐 모드: 말줄임표 메뉴에서 박스를 캡슐로 접고, 마우스를 올려 미리 보거나 화면 가장자리에 고정하세요."
+          }
+        }
+      }
+    },
+    "Quick Reveal: press the shortcut below to bring every box to the front, Esc to dismiss.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Reveal: press the shortcut below to bring every box to the front, Esc to dismiss."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速显示：按下方快捷键把所有盒子带到最前，按 Esc 收起。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速顯示：按下方快速鍵把所有盒子帶到最前，按 Esc 收起。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイックリビール：下のショートカットですべてのボックスを前面に表示、Esc で閉じます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnell einblenden: Mit dem Kurzbefehl unten alle Boxen nach vorn holen, Esc zum Schließen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affichage rapide : utilisez le raccourci ci-dessous pour amener toutes les boîtes au premier plan, Échap pour fermer."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar rápido: usa el atajo de abajo para traer todas las cajas al frente y Esc para cerrar."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar rápido: usa el atajo de abajo para traer todas las cajas al frente y Esc para cerrar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revelar rápido: use o atalho abaixo para trazer todas as caixas para a frente e Esc para dispensar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revelar rápido: use o atalho abaixo para trazer todas as caixas para a frente e Esc para dispensar."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra rapido: usa la scorciatoia qui sotto per portare tutte le caselle in primo piano, Esc per chiudere."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빠른 표시: 아래 단축키로 모든 박스를 맨 앞으로 가져오고 Esc로 닫습니다."
+          }
+        }
+      }
+    },
+    "Drag a box by its title bar; hold Control to move them all, Option-drag one onto another to group them as tabs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag a box by its title bar; hold Control to move them all, Option-drag one onto another to group them as tabs."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖动标题栏移动盒子；按住 Control 可一起移动全部；按住 Option 把一个盒子拖到另一个上可合并为标签页。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖曳標題列移動盒子；按住 Control 可一起移動全部；按住 Option 把一個盒子拖到另一個上可合併為標籤頁。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タイトルバーをドラッグして移動。Control を押しながらで全体を移動、Option を押しながら別のボックスへドラッグでタブにまとめます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Box an der Titelleiste ziehen; mit Control alle zusammen bewegen, mit Option auf eine andere ziehen, um sie als Tabs zu gruppieren."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser une boîte par sa barre de titre ; Contrôle déplace toutes les boîtes, Option-glisser sur une autre les regroupe en onglets."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra una caja por su barra de título; mantén Control para mover todas y arrastra con Opción sobre otra para agruparlas como pestañas."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra una caja por su barra de título; mantén Control para mover todas y arrastra con Opción sobre otra para agruparlas como pestañas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste uma caixa pela barra de título; segure Control para mover todas e arraste com Option sobre outra para agrupar como abas."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arraste uma caixa pela barra de título; segure Control para mover todas e arraste com Option sobre outra para agrupar como abas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trascina una casella dalla barra del titolo; tieni premuto Controllo per spostarle tutte, trascina con Opzione su un’altra per raggrupparle in schede."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제목 막대를 끌어 박스를 이동하세요. Control을 누르면 전부 함께 이동하고, Option을 누른 채 다른 박스 위로 끌면 탭으로 묶입니다."
           }
         }
       }

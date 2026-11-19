@@ -117,4 +117,29 @@ final class DesktopCapsuleTests: XCTestCase {
         // midX = 200 -> ratio = 200 / 1440 ~ 0.1388
         XCTAssertEqual(item.edgePositionRatio(for: .top, in: visibleFrame), 200.0 / 1440.0, accuracy: 0.001)
     }
+
+    func testDesktopBoxesDefaultOnAndSeedOnlyOnce() {
+        let suite = "kk.desktop.seed.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        // Never touched: on by default and eligible to seed.
+        XCTAssertTrue(DesktopCanvasConfig.isEnabledByUser(defaults: defaults))
+        XCTAssertTrue(DesktopCanvasConfig.shouldSeedDefaults(defaults: defaults, hasExistingItems: false))
+        // Existing boxes are never seeded over.
+        XCTAssertFalse(DesktopCanvasConfig.shouldSeedDefaults(defaults: defaults, hasExistingItems: true))
+        XCTAssertEqual(DesktopCanvasConfig.defaultSeedKinds, [.todo, .quickCapture])
+
+        // Once seeded, never again.
+        defaults.set(true, forKey: DesktopCanvasConfig.seededDefaultsKey)
+        XCTAssertFalse(DesktopCanvasConfig.shouldSeedDefaults(defaults: defaults, hasExistingItems: false))
+
+        // An explicit "off" is respected.
+        let offSuite = suite + ".off"
+        let off = UserDefaults(suiteName: offSuite)!
+        defer { off.removePersistentDomain(forName: offSuite) }
+        off.set(false, forKey: DesktopCanvasConfig.enabledKey)
+        XCTAssertFalse(DesktopCanvasConfig.isEnabledByUser(defaults: off))
+        XCTAssertFalse(DesktopCanvasConfig.shouldSeedDefaults(defaults: off, hasExistingItems: false))
+    }
 }

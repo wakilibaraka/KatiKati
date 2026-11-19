@@ -14,6 +14,7 @@ enum DesktopCanvasConfig {
     static let panoramaOpacityKey = "com.katikati.desktop.panoramaOpacity"
     static let panoramaBlurKey = "com.katikati.desktop.panoramaBlur"
     static let panoramaScaleModeKey = "com.katikati.desktop.panoramaScaleMode"
+    static let seededDefaultsKey = "com.katikati.desktop.seededDefaults"
     static let defaultCapsuleModeKey = "com.katikati.desktop.defaultCapsuleMode"
 
     static let defaultSnapGap: Double = 12
@@ -42,8 +43,21 @@ enum DesktopCanvasConfig {
         defaults: UserDefaults = .standard,
         environment: [String: String] = ProcessInfo.processInfo.environment
     ) -> Bool {
-        defaults.bool(forKey: enabledKey) || DebugSwitch.desktopCanvas.isEnabled(in: environment)
+        isEnabledByUser(defaults: defaults) || DebugSwitch.desktopCanvas.isEnabled(in: environment)
     }
+
+    /// Desktop Boxes are on unless the user explicitly turned them off.
+    static func isEnabledByUser(defaults: UserDefaults = .standard) -> Bool {
+        (defaults.object(forKey: enabledKey) as? Bool) ?? true
+    }
+
+    /// First-run starter widgets (To-Do + Quick Capture): once per profile, never over an explicit "off",
+    /// never on top of boxes the user already has.
+    static func shouldSeedDefaults(defaults: UserDefaults = .standard, hasExistingItems: Bool) -> Bool {
+        !defaults.bool(forKey: seededDefaultsKey) && isEnabledByUser(defaults: defaults) && !hasExistingItems
+    }
+
+    static let defaultSeedKinds: [DesktopWidgetKind] = [.todo, .quickCapture]
 }
 
 enum DesktopWidgetKind: String, Codable, CaseIterable, Sendable {

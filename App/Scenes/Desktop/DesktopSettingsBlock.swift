@@ -7,7 +7,7 @@ struct DesktopSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var manager = DesktopCanvasManager.shared
 
-    @AppStorage(DesktopCanvasConfig.enabledKey) private var enabled = false
+    @AppStorage(DesktopCanvasConfig.enabledKey) private var enabled = true
     @AppStorage(DesktopCanvasConfig.snapGapKey) private var snapGap = DesktopCanvasConfig.defaultSnapGap
     @AppStorage(DesktopCanvasConfig.edgeMarginKey) private var edgeMargin = DesktopCanvasConfig.defaultEdgeMargin
     @AppStorage(DesktopCanvasConfig.doubleClickDesktopKey) private var doubleClickDesktop = false
@@ -38,6 +38,11 @@ struct DesktopSettingsBlock: View {
         }
 
         if enabled {
+            if let coordinator = manager.activeCoordinator {
+                DesktopFeatureWidgetRows(boxStore: coordinator.store, coordinator: coordinator)
+            }
+            DesktopHowToCard()
+
             let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
             SettingsCard(Text("Quick Reveal & Shortcuts")) {
                 SettingsRow(Text(verbatim: SettingsLayoutPane.shortcutActionName(.desktopQuickReveal))) {
@@ -193,14 +198,6 @@ private struct DesktopBoxesManageRows: View {
                 HStack(spacing: SettingsMetrics.controlSpacing) {
                     Button("Create Managed Box") { coordinator.createManagedBox() }
                         .buttonStyle(SettingsGelButtonStyle())
-                    Menu(String(localized: "Add Widget")) {
-                        Button("To-Do") { coordinator.addFeatureBox(kind: .todo) }
-                        Button("Quick Capture") { coordinator.addFeatureBox(kind: .quickCapture) }
-                        Button("Glance") { coordinator.addFeatureBox(kind: .glance) }
-                        Button("Weather") { coordinator.addFeatureBox(kind: .weather) }
-                        Button("Vinyl Music") { coordinator.addFeatureBox(kind: .music) }
-                    }
-                    .fixedSize()
                     Button("Auto-Organize Folder…") {
                         coordinator.presentAutoOrganizeSheet()
                     }
@@ -300,6 +297,68 @@ private struct DesktopBoxesManageRows: View {
                     .accessibilityLabel(Text("Remove Box"))
                 }
             }
+        }
+    }
+}
+
+/// One on/off toggle per one-instance feature widget; off hides the box, on adds or unhides it.
+private struct DesktopFeatureWidgetRows: View {
+    @ObservedObject var boxStore: DesktopBoxStore
+    let coordinator: DesktopCanvasCoordinator
+
+    private struct Feature { let kind: DesktopWidgetKind; let title: String; let hint: String }
+
+    private var features: [Feature] {
+        [
+            Feature(kind: .todo, title: String(localized: "To-Do"), hint: String(localized: "To-Do: type a task and press Return, click the circle to finish it and the star to mark it important.")),
+            Feature(kind: .quickCapture, title: String(localized: "Quick Capture"), hint: String(localized: "Quick Capture: jot quick notes, or grab text from anywhere on screen with the capture button (OCR).")),
+            Feature(kind: .glance, title: String(localized: "Glance"), hint: String(localized: "Glance: today's date with the lunar date, solar term and festivals.")),
+            Feature(kind: .weather, title: String(localized: "Weather"), hint: String(localized: "Weather: live conditions, temperature and today's high and low.")),
+            Feature(kind: .music, title: String(localized: "Vinyl Music"), hint: String(localized: "Vinyl Music: a spinning record for what is playing, with play, pause and skip."))
+        ]
+    }
+
+    private func isOn(_ kind: DesktopWidgetKind) -> Bool {
+        boxStore.items.contains { $0.kind == kind && !$0.isHidden }
+    }
+
+    var body: some View {
+        SettingsCard(Text("Desktop Widgets")) {
+            ForEach(Array(features.enumerated()), id: \.element.kind) { index, feature in
+                if index > 0 { SettingsDivider() }
+                SettingsToggleRow(
+                    Text(verbatim: feature.title),
+                    isOn: Binding(
+                        get: { isOn(feature.kind) },
+                        set: { on in
+                            if on {
+                                coordinator.addFeatureBox(kind: feature.kind)
+                            } else if let item = boxStore.items.first(where: { $0.kind == feature.kind && !$0.isHidden }) {
+                                coordinator.toggleWidgetHidden(id: item.id)
+                            }
+                        }
+                    ),
+                    info: feature.hint
+                )
+            }
+        }
+    }
+}
+
+/// Plain-language usage notes for everything on the Desktop page.
+private struct DesktopHowToCard: View {
+    var body: some View {
+        SettingsCard(Text("How to Use")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Folder boxes: drop files in, drag to reorder, double-click the title to rename, press Space for Quick Look.")
+                Text("Capsule mode: collapse any box to a pill from its ellipsis menu; hover to peek, or dock it to a screen edge.")
+                Text("Quick Reveal: press the shortcut below to bring every box to the front, Esc to dismiss.")
+                Text("Drag a box by its title bar; hold Control to move them all, Option-drag one onto another to group them as tabs.")
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
