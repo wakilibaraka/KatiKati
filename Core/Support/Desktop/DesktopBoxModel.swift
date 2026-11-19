@@ -141,6 +141,7 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
     var tabOrder: Int
     var isActiveTab: Bool
     var appearance: DesktopWidgetAppearance
+    var capsuleMode: DesktopCapsuleMode
 
     init(
         id: UUID = UUID(),
@@ -166,7 +167,8 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         tabGroupID: UUID? = nil,
         tabOrder: Int = 0,
         isActiveTab: Bool = true,
-        appearance: DesktopWidgetAppearance = .standard
+        appearance: DesktopWidgetAppearance = .standard,
+        capsuleMode: DesktopCapsuleMode = .expanded
     ) {
         self.id = id
         self.kind = kind
@@ -197,13 +199,14 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         self.tabOrder = tabOrder
         self.isActiveTab = isActiveTab
         self.appearance = appearance
+        self.capsuleMode = capsuleMode
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, kind, title, backingPath, isManagedFolder, displayUUID, followMainDisplay
         case frame, normalizedFrame, viewStyle, compactDensity, iconSizeOverride
         case filenameLines, sortMode, manualOrder, isHidden, zOrder
-        case stackGroupingMode, stackDisplayMode, manualStacks, tabGroupID, tabOrder, isActiveTab, appearance
+        case stackGroupingMode, stackDisplayMode, manualStacks, tabGroupID, tabOrder, isActiveTab, appearance, capsuleMode
     }
 
     init(from decoder: Decoder) throws {
@@ -236,7 +239,8 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
             tabGroupID: try c.decodeIfPresent(UUID.self, forKey: .tabGroupID),
             tabOrder: try c.decodeIfPresent(Int.self, forKey: .tabOrder) ?? 0,
             isActiveTab: try c.decodeIfPresent(Bool.self, forKey: .isActiveTab) ?? true,
-            appearance: try c.decodeIfPresent(DesktopWidgetAppearance.self, forKey: .appearance) ?? .standard
+            appearance: try c.decodeIfPresent(DesktopWidgetAppearance.self, forKey: .appearance) ?? .standard,
+            capsuleMode: try c.decodeIfPresent(DesktopCapsuleMode.self, forKey: .capsuleMode) ?? .expanded
         )
     }
 
@@ -266,5 +270,6 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         try c.encode(tabOrder, forKey: .tabOrder)
         try c.encode(isActiveTab, forKey: .isActiveTab)
         try c.encode(appearance, forKey: .appearance)
+        try c.encode(capsuleMode, forKey: .capsuleMode)
     }
 }
