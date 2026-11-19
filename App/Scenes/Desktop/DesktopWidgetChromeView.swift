@@ -215,11 +215,23 @@ struct DesktopWidgetChromeView<Content: View>: View {
         }
     }
 
+    private var kindSymbol: String {
+        switch item.kind {
+        case .folder: return "folder.fill"
+        case .todo: return "checklist"
+        case .quickCapture: return "square.and.pencil"
+        case .glance: return "calendar"
+        case .weather: return "cloud.sun.fill"
+        case .music: return "opticaldisc.fill"
+        case .search: return "magnifyingglass"
+        }
+    }
+
     @ViewBuilder
     private var headerIconView: some View {
         switch item.appearance.iconBadge {
         case .systemDefault:
-            Image(systemName: "folder.fill")
+            Image(systemName: kindSymbol)
                 .font(.system(size: isTinyBox ? 11 : 13, weight: .medium))
                 .foregroundStyle(theme.labelActive.color)
         case .emoji(let value):
@@ -288,7 +300,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
 
             Spacer(minLength: 2)
 
-            if !isCompactWidth {
+            if !isCompactWidth && item.kind == .folder {
                 Button {
                     var updated = item
                     updated.viewStyle = (item.viewStyle == .iconGrid) ? .compactList : .iconGrid
@@ -320,6 +332,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
 
     private var overflowMenu: some View {
         Menu {
+            if item.kind == .folder {
             if isCompactWidth {
                 Button(String(localized: "New Folder"), action: onNewFolder)
                 Button(item.viewStyle == .iconGrid ? String(localized: "List") : String(localized: "Grid")) {
@@ -370,6 +383,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
                     onUpdateItem(updated)
                 }
             ))
+            }
 
             Divider()
             if !mergeTargets.isEmpty {
@@ -387,7 +401,9 @@ struct DesktopWidgetChromeView<Content: View>: View {
                 Button(String(localized: "Detach Tab")) { onDetachTab(item.id) }
             }
             Button(String(localized: "Customize Appearance…")) { showAppearancePopover = true }
-            Button(String(localized: "Show in Finder"), action: onRevealInFinder)
+            if item.kind == .folder {
+                Button(String(localized: "Show in Finder"), action: onRevealInFinder)
+            }
             Button(String(localized: "Remove Box"), role: .destructive, action: onRemoveBox)
         } label: {
             Image(systemName: "ellipsis.circle")

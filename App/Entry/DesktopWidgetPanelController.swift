@@ -64,6 +64,7 @@ private struct DesktopWidgetRootView: View {
     }
 
     private var itemCount: Int? {
+        guard hostState.item.kind == .folder else { return nil }
         if case .loaded(let entries) = activeModel.loadState { return entries.count }
         return nil
     }
@@ -104,6 +105,20 @@ private struct DesktopWidgetRootView: View {
                         onAcquireLock: callbacks.onAcquireLock,
                         onReleaseLock: callbacks.onReleaseLock
                     )
+                case .quickCapture:
+                    DesktopQuickCaptureBoxView(
+                        store: DesktopQuickCaptureStore.shared,
+                        onAcquireLock: callbacks.onAcquireLock,
+                        onReleaseLock: callbacks.onReleaseLock
+                    )
+                case .glance:
+                    DesktopGlanceBoxView()
+                case .weather:
+                    if let weather = AppDelegate.shared?.weatherService {
+                        DesktopWeatherBoxView(service: weather)
+                    }
+                case .music:
+                    DesktopVinylBoxView(service: DesktopWidgetServices.nowPlaying)
                 default:
                     DesktopFolderBoxView(
                         item: hostState.item,

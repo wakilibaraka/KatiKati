@@ -174,8 +174,14 @@ private struct DesktopBoxesManageRows: View {
                 HStack(spacing: SettingsMetrics.controlSpacing) {
                     Button("Create Managed Box") { coordinator.createManagedBox() }
                         .buttonStyle(SettingsGelButtonStyle())
-                    Button("Add To-Do Box") { coordinator.addTodoBox() }
-                        .buttonStyle(SettingsGelButtonStyle())
+                    Menu(String(localized: "Add Widget")) {
+                        Button("To-Do") { coordinator.addFeatureBox(kind: .todo) }
+                        Button("Quick Capture") { coordinator.addFeatureBox(kind: .quickCapture) }
+                        Button("Glance") { coordinator.addFeatureBox(kind: .glance) }
+                        Button("Weather") { coordinator.addFeatureBox(kind: .weather) }
+                        Button("Vinyl Music") { coordinator.addFeatureBox(kind: .music) }
+                    }
+                    .fixedSize()
                     Button("Auto-Organize Folder…") {
                         coordinator.presentAutoOrganizeSheet()
                     }

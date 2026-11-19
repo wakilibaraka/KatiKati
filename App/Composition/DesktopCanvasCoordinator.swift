@@ -197,22 +197,37 @@ final class DesktopCanvasCoordinator {
         )
     }
 
-    func addTodoBox() {
-        if var existing = store.items.first(where: { $0.kind == .todo }) {
+    func addTodoBox() { addFeatureBox(kind: .todo) }
+
+    /// One instance per feature kind; re-adding unhides the existing box instead of stacking duplicates.
+    func addFeatureBox(kind: DesktopWidgetKind) {
+        guard kind != .folder else { return }
+        if var existing = store.items.first(where: { $0.kind == kind }) {
             if existing.isHidden {
                 existing.isHidden = false
                 store.update(existing, immediate: true)
             }
             return
         }
+        let title: String
+        let size: CGSize
+        switch kind {
+        case .todo: title = String(localized: "To-Do"); size = CGSize(width: 260, height: 300)
+        case .quickCapture: title = String(localized: "Quick Capture"); size = CGSize(width: 260, height: 240)
+        case .glance: title = String(localized: "Glance"); size = CGSize(width: 240, height: 200)
+        case .weather: title = String(localized: "Weather"); size = CGSize(width: 260, height: 200)
+        case .music: title = String(localized: "Vinyl Music"); size = CGSize(width: 260, height: 280)
+        case .folder, .search: return
+        }
         let target = screenContaining(point: NSEvent.mouseLocation)
         let siblings = store.items.filter { !$0.isHidden }.map(\.frame)
-        let frame = DesktopLayoutEngine.initialPlacement(
+        var frame = DesktopLayoutEngine.initialPlacement(
             existing: siblings, visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
         )
+        frame.size = size
         store.add(DesktopWidgetItem(
-            kind: .todo,
-            title: String(localized: "To-Do"),
+            kind: kind,
+            title: title,
             displayUUID: target.uuid,
             frame: frame,
             normalizedFrame: DesktopLayoutEngine.normalize(frame, in: target.visibleFrame)
