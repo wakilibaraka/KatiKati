@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "App/Composition/ShortcutService.swift": {
-    "mtime": 1794918455.8358743,
-    "seen": 1794918705.7543108,
-    "ast_hash": "2b7c83bdeaf17491924452e18dfcf285",
+    "mtime": 1795105814.3159394,
+    "seen": 1795105982.387805,
+    "ast_hash": "99c6ebc142368b9e19fa840e96adfdca",
     "semantic_hash": ""
   },
   "App/Composition/SparkleUpdateService.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1795097422.6774313,
-    "seen": 1795097975.551211,
-    "ast_hash": "68aa32a243d30f65c322c4280dbc8227",
+    "mtime": 1795105813.308912,
+    "seen": 1795105982.3881989,
+    "ast_hash": "12b3496289df54d97ecd6f62650134a1",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -4056,9 +4056,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1795097491.7387617,
-    "seen": 1795097975.551529,
-    "ast_hash": "62e45b502fa578664101399abbf9a326",
+    "mtime": 1795105895.9223065,
+    "seen": 1795105982.388528,
+    "ast_hash": "73a7ab7314b30d5e4025576884b5a9dc",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795105747.579226,
-    "seen": 1795105765.9287949,
-    "ast_hash": "4c40e12bab8d06ea0ed3e47f148bc21e",
+    "mtime": 1795105963.1929202,
+    "seen": 1795105982.3887072,
+    "ast_hash": "8c88b13b0a2840ba293711aaeb9985b0",
     "semantic_hash": ""
   },
   "README.md": {
