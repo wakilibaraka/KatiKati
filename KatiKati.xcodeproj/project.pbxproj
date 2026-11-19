@@ -316,6 +316,7 @@
 		DB6200000000000000000052 /* DesktopAssetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6200000000000000000051 /* DesktopAssetStore.swift */; };
 		DB6200000000000000000053 /* DesktopAssetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6200000000000000000051 /* DesktopAssetStore.swift */; };
 		DB6200000000000000000062 /* DesktopAssetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6200000000000000000061 /* DesktopAssetStoreTests.swift */; };
+		DB6200000000000000000072 /* DesktopBoxAppearancePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6200000000000000000071 /* DesktopBoxAppearancePopover.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1634,6 +1635,7 @@
 		DB6200000000000000000041 /* DesktopPanoramaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopPanoramaTests.swift; path = Tests/Unit/DesktopPanoramaTests.swift; sourceTree = SOURCE_ROOT; };
 		DB6200000000000000000051 /* DesktopAssetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopAssetStore.swift; path = Platform/Desktop/DesktopAssetStore.swift; sourceTree = SOURCE_ROOT; };
 		DB6200000000000000000061 /* DesktopAssetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopAssetStoreTests.swift; path = Tests/Unit/DesktopAssetStoreTests.swift; sourceTree = SOURCE_ROOT; };
+		DB6200000000000000000071 /* DesktopBoxAppearancePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopBoxAppearancePopover.swift; path = App/Scenes/Desktop/DesktopBoxAppearancePopover.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3905,6 +3907,7 @@
 				DB6200000000000000000012 /* DesktopThemeModel.swift in Sources */,
 				DB6200000000000000000032 /* DesktopPanoramaEngine.swift in Sources */,
 				DB6200000000000000000052 /* DesktopAssetStore.swift in Sources */,
+				DB6200000000000000000072 /* DesktopBoxAppearancePopover.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,

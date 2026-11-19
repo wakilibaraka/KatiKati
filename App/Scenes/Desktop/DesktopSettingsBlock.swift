@@ -1,4 +1,6 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Desktop Folder Boxes configuration block mounted under Settings › Widgets.
 struct DesktopSettingsBlock: View {
@@ -10,6 +12,12 @@ struct DesktopSettingsBlock: View {
     @AppStorage(DesktopCanvasConfig.edgeMarginKey) private var edgeMargin = DesktopCanvasConfig.defaultEdgeMargin
     @AppStorage(DesktopCanvasConfig.doubleClickDesktopKey) private var doubleClickDesktop = false
     @AppStorage(DesktopCanvasConfig.showOnAllSpacesKey) private var showOnAllSpaces = true
+    @AppStorage(DesktopCanvasConfig.materialStyleKey) private var materialStyleRaw = DesktopBoxMaterialStyle.inheritDock.rawValue
+    @AppStorage(DesktopCanvasConfig.panoramaEnabledKey) private var panoramaEnabled = false
+    @AppStorage(DesktopCanvasConfig.panoramaImagePathKey) private var panoramaImagePath = ""
+    @AppStorage(DesktopCanvasConfig.panoramaOpacityKey) private var panoramaOpacity = DesktopCanvasConfig.defaultPanoramaOpacity
+    @AppStorage(DesktopCanvasConfig.panoramaBlurKey) private var panoramaBlur = DesktopCanvasConfig.defaultPanoramaBlur
+    @AppStorage(DesktopCanvasConfig.panoramaScaleModeKey) private var panoramaScaleModeRaw = DesktopPanoramaScaleMode.aspectFill.rawValue
 
     var body: some View {
         SettingsCard(Text("Desktop Boxes")) {
@@ -61,7 +69,83 @@ struct DesktopSettingsBlock: View {
                 SettingsDivider()
                 SettingsToggleRow(Text("Show on All Spaces"), isOn: $showOnAllSpaces)
             }
+
+            SettingsCard(Text("Desktop Appearance & Panorama")) {
+                SettingsPickerRow(Text("Default Box Material"), selection: $materialStyleRaw) {
+                    Text("Inherit Dock").tag(DesktopBoxMaterialStyle.inheritDock.rawValue)
+                    Text("Frosted Glass").tag(DesktopBoxMaterialStyle.frostedGlass.rawValue)
+                    Text("Tinted Glass").tag(DesktopBoxMaterialStyle.tintedGlass.rawValue)
+                    Text("Solid Card").tag(DesktopBoxMaterialStyle.solidCard.rawValue)
+                    Text("Clear").tag(DesktopBoxMaterialStyle.clearMinimal.rawValue)
+                }
+                SettingsDivider()
+                SettingsToggleRow(Text("Panorama Background"), isOn: $panoramaEnabled)
+                SettingsDivider()
+                SettingsRow(
+                    Text("Panorama Image"),
+                    note: panoramaImagePath.isEmpty
+                        ? nil
+                        : Text(verbatim: URL(fileURLWithPath: panoramaImagePath).lastPathComponent)
+                ) {
+                    HStack(spacing: SettingsMetrics.controlSpacing) {
+                        Button("Choose Image…") { pickPanoramaImage() }
+                            .buttonStyle(SettingsGelButtonStyle())
+                        if !panoramaImagePath.isEmpty {
+                            Button("Clear Image") {
+                                panoramaImagePath = ""
+                                manager.activeCoordinator?.pruneUnusedDesktopAssets()
+                            }
+                            .buttonStyle(SettingsGelButtonStyle())
+                        }
+                    }
+                }
+                SettingsDivider()
+                SettingsSegmentedRow(Text("Scale Mode"), selection: $panoramaScaleModeRaw) {
+                    Text("Fill").tag(DesktopPanoramaScaleMode.aspectFill.rawValue)
+                    Text("Fit").tag(DesktopPanoramaScaleMode.aspectFit.rawValue)
+                }
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Opacity"),
+                    value: panoramaOpacity,
+                    range: 0.1...1.0,
+                    step: 0.05,
+                    valueText: "\(Int((panoramaOpacity * 100).rounded()))%"
+                ) { panoramaOpacity = $0 }
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Blur"),
+                    value: panoramaBlur,
+                    range: 0...24,
+                    step: 1,
+                    valueText: "\(Int(panoramaBlur.rounded())) pt"
+                ) { panoramaBlur = $0 }
+                SettingsDivider()
+                SettingsButtonRow(Text("Apply to All Boxes")) {
+                    manager.activeCoordinator?.applyPanoramaToAllBoxes()
+                }
+                .disabled(
+                    !panoramaEnabled
+                        || panoramaImagePath.isEmpty
+                        || (manager.activeCoordinator?.store.items.isEmpty ?? true)
+                )
+            }
         }
+    }
+
+    private func pickPanoramaImage() {
+        NSApp.activate(ignoringOtherApps: true)
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url,
+              let imported = try? DesktopAssetStore.importImage(from: url, kind: .panorama)
+        else { return }
+        panoramaImagePath = imported.path
+        panoramaEnabled = true
+        manager.activeCoordinator?.pruneUnusedDesktopAssets()
     }
 }
 

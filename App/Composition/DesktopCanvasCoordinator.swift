@@ -305,7 +305,35 @@ final class DesktopCanvasCoordinator {
         store.replaceAll(next, immediate: true)
     }
 
-    func removeWidget(id: UUID) { store.remove(id: id) }
+    func removeWidget(id: UUID) {
+        store.remove(id: id)
+        pruneUnusedDesktopAssets()
+    }
+
+    func applyPanoramaToAllBoxes() {
+        let next = store.items.map { item -> DesktopWidgetItem in
+            var copy = item
+            copy.appearance.background = .panorama
+            return copy
+        }
+        store.replaceAll(next, immediate: true)
+    }
+
+    func pruneUnusedDesktopAssets() {
+        var refs: Set<String> = []
+        for item in store.items {
+            if case .customImage(let path) = item.appearance.iconBadge, !path.isEmpty {
+                refs.insert(path)
+            }
+            if case .image(let path, _, _) = item.appearance.background, !path.isEmpty {
+                refs.insert(path)
+            }
+        }
+        if let currentPanorama = DesktopCanvasThemeState.load().panoramaImagePath, !currentPanorama.isEmpty {
+            refs.insert(currentPanorama)
+        }
+        DesktopAssetStore.pruneUnusedAssets(referencedPaths: refs)
+    }
 
     func revealWidgetInFinder(id: UUID) {
         guard let path = store.item(for: id)?.backingPath else { return }
@@ -346,7 +374,7 @@ final class DesktopCanvasCoordinator {
                     onUpdateItem: { [weak self] updated in self?.store.update(updated, immediate: false) },
                     onRemoveBox: { [weak self] in
                         guard let id = self?.controllers[panelKey]?.activeWidgetID else { return }
-                        self?.store.remove(id: id)
+                        self?.removeWidget(id: id)
                     },
                     onSelectTab: { [weak self] tabID in
                         guard let self else { return }

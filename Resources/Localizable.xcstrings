@@ -142583,6 +142583,566 @@
         "it": { "stringUnit": { "state": "translated", "value": "Nessun file corrisponde alle categorie selezionate." } },
         "ko": { "stringUnit": { "state": "translated", "value": "선택한 카테고리와 일치하는 파일이 없습니다." } }
       }
+    },
+    "Accent Color": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Accent Color" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "强调色" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "強調色" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アクセントカラー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Akzentfarbe" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Couleur d’accent" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Color de énfasis" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Color de acento" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Cor de destaque" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Cor de destaque" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Colore di accento" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "강조 색상" } }
+      }
+    },
+    "Apply to All Boxes": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Apply to All Boxes" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "应用到所有盒子" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "套用到所有收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "すべてのボックスに適用" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Auf alle Boxen anwenden" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Appliquer à toutes les boîtes" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Aplicar a todas las cajas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Aplicar a todas las cajas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Aplicar a Todas as Caixas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Aplicar a Todas as Caixas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Applica a tutti i riquadri" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모든 상자에 적용" } }
+      }
+    },
+    "Background": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Background" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "背景" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "背景" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "背景" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Hintergrund" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Arrière-plan" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Fondo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Fondo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Fundo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Fundo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sfondo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "배경" } }
+      }
+    },
+    "Blur": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Blur" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "模糊" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "模糊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ぼかし" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Weichzeichnen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Flou" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desenfoque" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Desenfoque" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desfoque" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desfoque" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sfocatura" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "흐림 효과" } }
+      }
+    },
+    "Border": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Border" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "边框" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "邊框" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "枠線" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Rahmen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bordure" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Borde" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Borde" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Borda" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Contorno" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Bordo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "테두리" } }
+      }
+    },
+    "Choose Image…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Choose Image…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "选择图片…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "選擇圖片…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画像を選択…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bild auswählen…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Choisir une image…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Elegir imagen…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Elegir imagen…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Escolher Imagem…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Escolher Imagem…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scegli immagine…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이미지 선택…" } }
+      }
+    },
+    "Clear Image": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Clear Image" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "清除图片" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "清除圖片" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画像をクリア" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bild entfernen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Effacer l’image" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Quitar imagen" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Quitar imagen" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Limpar Imagem" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Limpar Imagem" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Rimuovi immagine" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이미지 지우기" } }
+      }
+    },
+    "Color Tint": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Color Tint" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "色彩着色" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "色彩染色" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カラーティント" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Farbtönung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Teinte de couleur" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tinte de color" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Tinte de color" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tonalidade" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tonalidade" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Tinta colore" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "색상 색조" } }
+      }
+    },
+    "Corner Radius": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Corner Radius" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "圆角半径" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "圓角半徑" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "角丸の半径" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Eckenradius" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rayon des coins" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Radio de esquinas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Radio de esquinas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Raio dos Cantos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Raio dos Cantos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Raggio angoli" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모서리 반경" } }
+      }
+    },
+    "Custom Emoji": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Custom Emoji" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自定义表情" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自訂表情符號" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カスタム絵文字" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Eigenes Emoji" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Émoji personnalisé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Emoji personalizado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Emoji personalizado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Emoji Personalizado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Emoji Personalizado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Emoji personalizzata" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "사용자 지정 이모티콘" } }
+      }
+    },
+    "Customize Appearance…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Customize Appearance…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自定义外观…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自訂外觀…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "外観をカスタマイズ…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Erscheinungsbild anpassen…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Personnaliser l’apparence…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Personalizar apariencia…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Personalizar apariencia…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Personalizar Aparência…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Personalizar Aspeto…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Personalizza aspetto…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모양 사용자화…" } }
+      }
+    },
+    "Default Box Material": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Default Box Material" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "默认盒子材质" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "預設收納盒材質" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デフォルトのボックス材質" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Standard-Boxmaterial" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Matériau de boîte par défaut" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Material predeterminado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Material predeterminado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Material Padrão das Caixas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Material Predefinido das Caixas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Materiale riquadri predefinito" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기본 상자 재질" } }
+      }
+    },
+    "Desktop Appearance & Panorama": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Desktop Appearance & Panorama" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "桌面外观与全景壁纸" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "桌面外觀與全景桌布" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "デスクトップ外観とパノラマ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibtisch-Design & Panorama" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Apparence du bureau et panorama" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Apariencia del escritorio y panorama" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Apariencia del escritorio y panorama" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Aparência da Mesa e Panorama" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Aspeto da Secretária e Panorama" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aspetto scrivania e panorama" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "데스크톱 모양 및 파노라마" } }
+      }
+    },
+    "Fill": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Fill" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "填充" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "填滿" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "拡大して埋める" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Füllen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Remplir" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Rellenar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Rellenar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Preencher" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Preencher" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Riempi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "채우기" } }
+      }
+    },
+    "Fit": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Fit" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "适应" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "符合大小" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "枠に合わせる" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Einpassen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ajuster" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ajustar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ajustar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ajustar" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Ajustar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Adatta" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "맞추기" } }
+      }
+    },
+    "Frosted Glass": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Frosted Glass" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "磨砂玻璃" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "霧面玻璃" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "すりガラス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Milchglas" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Verre dépoli" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vidrio esmerilado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vidrio esmerilado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Vidro Fosco" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Vidro Fosco" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Vetro satinato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "불투명 유리" } }
+      }
+    },
+    "Glow": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Glow" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "发光" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "發光" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "グロー" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Leuchten" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Lueur" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Resplandor" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Resplandor" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Brilho" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Brilho" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Bagliore" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "광선" } }
+      }
+    },
+    "Hairline": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Hairline" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "细线" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "極細線" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "極細線" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Haarlinie" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Trait fin" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Línea fina" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Línea fina" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Linha Fina" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Linha Fina" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Linea sottile" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "가는 선" } }
+      }
+    },
+    "High Contrast": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "High Contrast" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "高对比度" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "高對比" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ハイコントラスト" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Hoher Kontrast" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Contraste élevé" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Alto contraste" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Alto contraste" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Alto Contraste" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Alto Contraste" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Contrasto elevato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "고대비" } }
+      }
+    },
+    "Icon Badge": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Icon Badge" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "图标徽章" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "圖示徽章" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アイコンバッジ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Symbol-Badge" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Badge d’icône" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Insignia de icono" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Insignia de ícono" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Emblema de Ícone" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Emblema de Ícone" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Badge icona" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "아이콘 배지" } }
+      }
+    },
+    "Image": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Image" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "图片" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "圖片" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画像" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bild" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Image" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Imagen" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Imagen" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Imagem" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Imagem" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Immagine" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이미지" } }
+      }
+    },
+    "Inherit Dock": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Inherit Dock" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "跟随程序坞" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "繼承 Dock 外觀" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Dock に合わせる" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Von Dock übernehmen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Hériter du Dock" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Heredar del Dock" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Heredar del Dock" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Herdar do Dock" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Herdar da Dock" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Eredita dal Dock" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Dock 스타일 따르기" } }
+      }
+    },
+    "Material": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Material" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "材质" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "材質" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "材質" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Material" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Matériau" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Material" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Material" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Material" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Material" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Materiale" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "재질" } }
+      }
+    },
+    "Material Only": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Material Only" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "仅材质" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "僅材質" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "材質のみ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Nur Material" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Matériau seul" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Solo material" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Solo material" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Apenas Material" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Apenas Material" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Solo materiale" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "재질만" } }
+      }
+    },
+    "Monospaced": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Monospaced" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "等宽字体" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "等寬字體" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "等幅フォント" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dicktengleich" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Chasse fixe" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Monoespaciado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Monoespaciado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Monoespaçada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Monoespaçada" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Spaziatura fissa" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "고정폭" } }
+      }
+    },
+    "Panorama": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "全景" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "全景" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パノラマ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Panorama" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파노라마" } }
+      }
+    },
+    "Panorama Background": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Panorama Background" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "全景背景" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "全景背景" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パノラマ背景" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Panorama-Hintergrund" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Arrière-plan panorama" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Fondo panorámico" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Fondo panorámico" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Fundo Panorâmico" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Fundo Panorâmico" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Sfondo panoramico" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파노라마 배경" } }
+      }
+    },
+    "Panorama Image": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Panorama Image" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "全景图片" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "全景圖片" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パノラマ画像" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Panorama-Bild" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Image panoramique" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Imagen panorámica" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Imagen panorámica" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Imagem Panorâmica" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Imagem Panorâmica" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Immagine panoramica" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파노라마 이미지" } }
+      }
+    },
+    "Reset Appearance": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Reset Appearance" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "重置外观" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "重設外觀" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "外観をリセット" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Darstellung zurücksetzen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Réinitialiser l’apparence" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Restablecer apariencia" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Restablecer apariencia" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Redefinir Aparência" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Repor Aspeto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ripristina aspetto" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "모양 재설정" } }
+      }
+    },
+    "Scale Mode": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scale Mode" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "缩放模式" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "縮放模式" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "拡大・縮小" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Skalierung" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mise à l’échelle" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Modo de escala" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Modo de escala" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Modo de Escala" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Modo de Escala" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Modalità di scala" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "크기 조절 모드" } }
+      }
+    },
+    "Shadowed": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Shadowed" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "阴影文字" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "陰影文字" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ドロップシャドウ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schattiert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ombré" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sombreado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Sombreado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sombreado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Sombreado" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Ombreggiato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "그림자 적용" } }
+      }
+    },
+    "Solid Card": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Solid Card" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "实心卡片" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "實心卡片" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ソリッドカード" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Deckende Karte" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Carte opaque" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tarjeta sólida" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Tarjeta sólida" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Cartão Sólido" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Cartão Sólido" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scheda opaca" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "불투명 카드" } }
+      }
+    },
+    "Symbol": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Symbol" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "符号" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "符號" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "シンボル" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Symbol" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Symbole" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Símbolo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Símbolo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Símbolo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Símbolo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Simbolo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기호" } }
+      }
+    },
+    "Text Style": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Text Style" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文字样式" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "文字樣式" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "テキストスタイル" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Textstil" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Style de texte" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Estilo de texto" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Estilo de texto" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Estilo do Texto" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Estilo do Texto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Stile testo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "텍스트 스타일" } }
+      }
+    },
+    "Tinted Glass": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Tinted Glass" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "着色玻璃" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "染色玻璃" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "色付きガラス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Getöntes Glas" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Verre teinté" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vidrio tintado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Vidrio tintado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Vidro Colorido" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Vidro Colorido" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Vetro colorato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "틴트 유리" } }
+      }
     }
   },
   "version": "1.0"

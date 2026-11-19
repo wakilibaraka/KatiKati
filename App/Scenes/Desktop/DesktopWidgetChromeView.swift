@@ -36,6 +36,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
     @State private var isHovered = false
     @State private var isEditingTitle = false
     @State private var draftTitle = ""
+    @State private var showAppearancePopover = false
     @State private var dragStartMouse: CGPoint?
     @State private var resizeStartMouse: CGPoint?
     @State private var activeResizeHandle: DesktopResizeHandle?
@@ -385,6 +386,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
             if groupTabs.count > 1 {
                 Button(String(localized: "Detach Tab")) { onDetachTab(item.id) }
             }
+            Button(String(localized: "Customize Appearance…")) { showAppearancePopover = true }
             Button(String(localized: "Show in Finder"), action: onRevealInFinder)
             Button(String(localized: "Remove Box"), role: .destructive, action: onRemoveBox)
         } label: {
@@ -396,6 +398,21 @@ struct DesktopWidgetChromeView<Content: View>: View {
         .menuIndicator(.hidden)
         .fixedSize()
         .accessibilityLabel(Text("More Options"))
+        .popover(isPresented: $showAppearancePopover, arrowEdge: .trailing) {
+            DesktopBoxAppearancePopover(
+                item: item,
+                canvasTheme: canvasTheme,
+                onUpdate: onUpdateItem,
+                onReset: {
+                    var copy = item
+                    copy.appearance = .standard
+                    onUpdateItem(copy)
+                }
+            )
+        }
+        .onChange(of: showAppearancePopover) { _, isOpen in
+            if isOpen { onAcquireLock(.popover) } else { onReleaseLock(.popover) }
+        }
     }
 
     private func sortButton(title: String, mode: DesktopSortMode) -> some View {
