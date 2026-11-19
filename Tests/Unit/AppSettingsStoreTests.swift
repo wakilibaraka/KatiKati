@@ -489,6 +489,64 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
+    func testWindowManagementRevampDefaultsNormalizeAndPersist() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.switcherStyle, .thumbnail)
+        XCTAssertEqual(store.switcherStyleConfig, .standard)
+        XCTAssertNil(store.secondarySwitcherKey)
+        XCTAssertFalse(store.predictiveRankingEnabled)
+        XCTAssertEqual(store.switcherFilterPolicy, WindowFilterPolicy())
+        XCTAssertEqual(store.pinnedAppHotkeys, [])
+        XCTAssertEqual(store.greenButtonBehavior, .nativeFullscreen)
+        XCTAssertFalse(store.snapDragEnabled)
+        XCTAssertEqual(store.snapPreviewStyle, .outline)
+        XCTAssertEqual(store.snapEdgeMargin, 12)
+
+        store.setSwitcherStyle(.carousel)
+        store.setSwitcherStyleConfig(WindowSwitcherStyleConfig(iconSize: 999, spacing: -4, rows: 12,
+                                                               columns: 2, opacity: 0, animationSpeed: 9,
+                                                               keepOpenOnRelease: true))
+        store.setSecondarySwitcherKey(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option | ShortcutKey.command))
+        store.setPredictiveRankingEnabled(true)
+        store.setSwitcherFilterPolicy(WindowFilterPolicy(currentDisplayOnly: true, showMinimized: false,
+                                                         ignoredBundleIDs: ["com.example.ignored"]))
+        store.setPinnedAppHotkeys([PinnedAppHotkey(bundleID: "com.apple.Safari",
+                                                   key: ShortcutKey(keyCode: 1, modifiers: ShortcutKey.option))])
+        store.setGreenButtonBehavior(.maximizeInCurrentSpace)
+        store.setSnapDragEnabled(true)
+        store.setSnapPreviewStyle(.filled)
+        store.setSnapEdgeMargin(99)
+
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloaded.switcherStyle, .carousel)
+        XCTAssertEqual(reloaded.switcherStyleConfig.iconSize, 128)
+        XCTAssertEqual(reloaded.switcherStyleConfig.spacing, 0)
+        XCTAssertEqual(reloaded.switcherStyleConfig.rows, 8)
+        XCTAssertEqual(reloaded.switcherStyleConfig.opacity, 0.2)
+        XCTAssertEqual(reloaded.switcherStyleConfig.animationSpeed, 3)
+        XCTAssertTrue(reloaded.switcherStyleConfig.keepOpenOnRelease)
+        XCTAssertEqual(reloaded.secondarySwitcherKey, ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option | ShortcutKey.command))
+        XCTAssertTrue(reloaded.predictiveRankingEnabled)
+        XCTAssertTrue(reloaded.switcherFilterPolicy.currentDisplayOnly)
+        XCTAssertFalse(reloaded.switcherFilterPolicy.showMinimized)
+        XCTAssertEqual(reloaded.switcherFilterPolicy.ignoredBundleIDs, ["com.example.ignored"])
+        XCTAssertEqual(reloaded.pinnedAppHotkeys.map(\.bundleID), ["com.apple.Safari"])
+        XCTAssertEqual(reloaded.greenButtonBehavior, .maximizeInCurrentSpace)
+        XCTAssertTrue(reloaded.snapDragEnabled)
+        XCTAssertEqual(reloaded.snapPreviewStyle, .filled)
+        XCTAssertEqual(reloaded.snapEdgeMargin, 40)
+
+        reloaded.setSnapEdgeMargin(0)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).snapEdgeMargin, 4)
+
+        defaults.set(Data("learned".utf8), forKey: "com.katikati.switcher.learning")
+        reloaded.clearWindowSwitcherLearning()
+        XCTAssertNil(defaults.data(forKey: "com.katikati.switcher.learning"))
+    }
+
+    @MainActor
     func testFullscreenIntentDefaultsToOnAndPersists() {
         let defaults = makeDefaults()
         XCTAssertTrue(AppSettingsStore(defaults: defaults).fullscreenIntentEnabled)
@@ -1979,6 +2037,52 @@ final class AppSettingsStoreTests: XCTestCase {
     private func makeDefaults() -> UserDefaults {
         let defaults = TestDefaults.make("com.katikati.tests", for: self)
         return defaults
+    }
+
+    // MARK: Modular Dock slot layout (slice MD-2)
+
+    func testDockSlotLayoutMigratesFromLegacyUtilitiesAndSectionsOnce() {
+        let defaults = makeDefaults()
+        defaults.set(true, forKey: "com.katikati.dock.utilitiesMigrated.v1")
+        let utilities = DockUtilitiesConfig(order: [.trash, .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads],
+                                            hidden: [.clipboard])
+        defaults.set(utilities.encoded(), forKey: DockUtilitiesConfig.defaultsKey)
+        var instances = BarSection.canonicalOrder.map { WidgetInstance(section: $0, isVisible: !$0.startsHidden) }
+        instances.removeAll { $0.section == .media }
+        instances.insert(WidgetInstance(section: .media, isVisible: true), at: 0)
+        defaults.set(WidgetLayout(instances: instances).encoded(), forKey: WidgetLayout.defaultsKey)
+
+        let store = AppSettingsStore(defaults: defaults)
+        let layout = store.dockSlotLayout
+
+        XCTAssertEqual(layout.visibleItems.first, .music, "the user's own section order leads")
+        XCTAssertTrue(DockModularityValidator.isModular(layout))
+        XCTAssertEqual(layout.trailingCapsule, .controlCenter)
+        XCTAssertEqual(layout.items.first { $0.item == .clipboard }?.isHidden, true)
+        XCTAssertEqual(layout.items.map(\.item).filter { $0.utilityKind != nil },
+                       [.trash, .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads])
+        XCTAssertNotNil(defaults.data(forKey: DockSlotLayout.defaultsKey), "the migration is written once")
+        XCTAssertNotNil(defaults.data(forKey: DockUtilitiesConfig.defaultsKey), "the legacy key stays for a downgrade")
+
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSlotLayout, layout,
+                       "the second launch decodes instead of migrating again")
+    }
+
+    func testDockSlotLayoutPersistsEditsAndSurvivesCorruptState() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        let reversed = DockSlotLayout(items: Array(store.dockSlotLayout.items.reversed()),
+                                      trailingCapsule: .controlCenter)
+        store.setDockSlotLayout(reversed)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSlotLayout, reversed)
+
+        store.setDockSlotItem(.clipboard, hidden: true)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSlotLayout.items.first { $0.item == .clipboard }?.isHidden,
+                       true, "hiding a slot does not move it")
+
+        defaults.set(Data("not a layout".utf8), forKey: DockSlotLayout.defaultsKey)
+        XCTAssertTrue(DockModularityValidator.isModular(AppSettingsStore(defaults: defaults).dockSlotLayout),
+                      "corrupt state never blocks launch")
     }
 }
 

@@ -213,6 +213,9 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var widgetOrder: [BarSection]
     /// Phase 10a widget arrangement (order / size / visibility). Not yet consumed by the strip.
     @Published private(set) var widgetLayout: WidgetLayout
+    /// Modular Dock slot layout (slice MD-2). Migrated once from `widgetLayout` + `dockUtilities` at
+    /// the end of `init`; the strip renders from `widgetLayout` until MD-3a reads this instead.
+    @Published private(set) var dockSlotLayout: DockSlotLayout = .default
     /// Modular Mid-Dock Utilities cluster configuration (`Drawer · Screenshots · Clipboard · Dictionary · Terminal · Downloads · Trash`).
     @Published private(set) var dockUtilities: DockUtilitiesConfig
     /// Dock II flanking wing presets + opt-in integration toggles (off by default).
@@ -770,6 +773,24 @@ final class AppSettingsStore: ObservableObject {
         DockWindowManager.shared.layeringMode = initialLayeringMode
         DockWindowManager.shared.useSkyLightFallbackReinforcement = storedSkyLight
         DockWindowManager.shared.useAppleScriptResizeFallback = storedAppleScript
+
+        // Slice MD-2: one read key, two possible sources. A stored layout is decoded (and repaired)
+        // as-is; only a first run migrates, and it is written straight back so the next launch decodes.
+        // Read last, so migration sees the utilities config and visibility flags this init resolved.
+        // The capsule exists in every layout today, so Control Centre starts there (the MD-1 preset).
+        if let savedSlotLayout = DockSlotLayout.decode(defaults.data(forKey: DockSlotLayout.defaultsKey)) {
+            dockSlotLayout = DockModularityValidator.validate(savedSlotLayout)
+        } else {
+            let migrated = DockSlotLayout.migrating(
+                utilities: dockUtilities,
+                sectionOrder: widgetLayout.order,
+                hiddenSections: widgetLayout.hiddenSections,
+                shelfVisible: showShelf,
+                backgroundAppsVisible: showBackgroundApps
+            )
+            dockSlotLayout = migrated
+            defaults.set(migrated.encoded(), forKey: DockSlotLayout.defaultsKey)
+        }
     }
 
     /// Called on every accepted tick of a height drag (the drag decision already dedupes to
@@ -1814,6 +1835,27 @@ final class AppSettingsStore: ObservableObject {
         guard dockUtilities != next else { return }
         dockUtilities = next
         defaults.set(next.encoded(), forKey: DockUtilitiesConfig.defaultsKey)
+    }
+
+    // MARK: Modular Dock slot layout
+
+    /// Always repaired before it is stored, so the file on disk is modular even if a caller is not.
+    func setDockSlotLayout(_ next: DockSlotLayout) {
+        let repaired = DockModularityValidator.validate(next)
+        guard dockSlotLayout != repaired else { return }
+        dockSlotLayout = repaired
+        defaults.set(repaired.encoded(), forKey: DockSlotLayout.defaultsKey)
+    }
+
+    /// Hide or show one slot without moving it (I2).
+    func setDockSlotItem(_ item: DockSlotItem, hidden: Bool) {
+        setDockSlotLayout(DockSlotLayout(
+            items: dockSlotLayout.items.map {
+                $0.item == item ? DockSlotEntry(item: item, isHidden: hidden) : $0
+            },
+            trailingCapsule: dockSlotLayout.trailingCapsule,
+            groupAdjacentUtilities: dockSlotLayout.groupAdjacentUtilities
+        ))
     }
 
     // MARK: Dock II Wings

@@ -742,7 +742,7 @@ enum DockModularityValidator {
         return result
     }
 
-    private static func insertionIndex(for item: DockSlotItem, in items: [DockSlotEntry]) -> Int {
+    static func insertionIndex(for item: DockSlotItem, in items: [DockSlotEntry]) -> Int {
         let preset = DockSlotLayout.defaultPresetOrder
         guard let target = preset.firstIndex(of: item) else { return items.count }
         for (offset, entry) in items.enumerated() {
@@ -764,5 +764,103 @@ extension DockToolDeduplication {
     static func visibleAppBundleIDs(_ bundleIDs: [String], slotLayout: DockSlotLayout) -> [String] {
         let suppressed = suppressedAppBundleIDs(slotLayout: slotLayout)
         return bundleIDs.filter { !suppressed.contains($0) }
+    }
+}
+
+// MARK: - Modular Dock legacy migration (slice MD-2)
+
+extension DockSlotLayout {
+    static func decode(_ data: Data?) -> DockSlotLayout? {
+        guard let data else { return nil }
+        return try? JSONDecoder().decode(DockSlotLayout.self, from: data)
+    }
+
+    func encoded() -> Data? { try? JSONEncoder().encode(self) }
+
+    /// One-time translation of the pre-modular state into a slot layout.
+    ///
+    /// Order first: the user's section order and the utilities cluster order are carried over as-is,
+    /// with every hidden flag intact, so nothing that was positioned moves (I2). Promoted blocks —
+    /// slots `BarSection` has no case for, plus `launcher`/`controlCenter` — are only then inserted at
+    /// their preset positions, and never in front of nothing, never displacing a user item (step 3).
+    /// `validate` fills whatever the legacy state never mentioned; it never reorders what is there.
+    static func migrating(utilities: DockUtilitiesConfig,
+                          sectionOrder: [BarSection],
+                          hiddenSections: Set<BarSection> = [],
+                          shelfVisible: Bool = true,
+                          backgroundAppsVisible: Bool = true,
+                          capsuleEnabled: Bool = true) -> DockSlotLayout {
+        let visibleModules = Set(sectionOrder.filter { !hiddenSections.contains($0) })
+        var entries: [DockSlotEntry] = []
+        var seen = Set<DockSlotItem>()
+        for section in sectionOrder {
+            for item in slots(for: section, utilities: utilities) where seen.insert(item).inserted {
+                entries.append(DockSlotEntry(
+                    item: item,
+                    isHidden: isHidden(item, in: section, visibleModules: visibleModules, utilities: utilities)
+                ))
+            }
+        }
+
+        let promoted: [(DockSlotItem, Bool)] = [
+            (.launcher, false),
+            (.shelf, !shelfVisible),
+            (.backgroundApps, !backgroundAppsVisible),
+            (.controlCenter, false),
+        ]
+        for (item, hidden) in promoted where seen.insert(item).inserted {
+            entries.insert(DockSlotEntry(item: item, isHidden: hidden),
+                           at: DockModularityValidator.insertionIndex(for: item, in: entries))
+        }
+
+        return DockModularityValidator.validate(
+            DockSlotLayout(items: entries, trailingCapsule: capsuleEnabled ? .controlCenter : nil)
+        )
+    }
+
+    /// The slots a legacy section hosted, in the order that section painted them.
+    private static func slots(for section: BarSection, utilities: DockUtilitiesConfig) -> [DockSlotItem] {
+        switch section {
+        case .weather: return [.weather]
+        case .launcher: return [.launcher]
+        case .media: return [.music]
+        case .utilities: return utilities.order.map(slot(for:))
+        case .clock, .calendar: return [.clockCalendar]
+        case .dictionary: return [.dictionary]
+        case .terminal: return [.terminal]
+        case .ai: return [.aiTracking]
+        case .apps, .system, .devices, .drives, .widgets: return []
+        }
+    }
+
+    private static func slot(for kind: DockUtilityKind) -> DockSlotItem {
+        switch kind {
+        case .drawer: return .drawer
+        case .screenshots: return .screenshots
+        case .clipboard: return .clipboard
+        case .dictionary: return .dictionary
+        case .terminal: return .terminal
+        case .downloads: return .downloads
+        case .trash: return .trash
+        }
+    }
+
+    /// DI-1 keeps one stored truth per tool: either its utilities-cluster membership or its own
+    /// section. Visible in either place means the slot comes back visible.
+    private static func isHidden(_ item: DockSlotItem,
+                                 in section: BarSection,
+                                 visibleModules: Set<BarSection>,
+                                 utilities: DockUtilitiesConfig) -> Bool {
+        switch item {
+        case .dictionary:
+            return !(visibleModules.contains(.dictionary)
+                || !utilities.hidden.contains(.dictionary))
+        case .terminal:
+            return !(visibleModules.contains(.terminal)
+                || !utilities.hidden.contains(.terminal))
+        default:
+            guard let kind = item.utilityKind else { return !visibleModules.contains(section) }
+            return utilities.hidden.contains(kind)
+        }
     }
 }

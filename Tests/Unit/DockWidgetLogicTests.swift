@@ -896,4 +896,95 @@ final class ModularDockCoreTests: XCTestCase {
         XCTAssertEqual(DockToolDeduplication.bundleIDBySection.count, 2,
                        "the section-keyed table still drives the legacy path")
     }
+
+    // MARK: MD-2 migration
+
+    private func legacyUtilities() -> DockUtilitiesConfig {
+        DockUtilitiesConfig(order: [.trash, .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads])
+    }
+
+    func testMigrationKeepsUserSectionAndUtilityOrder() {
+        var order = BarSection.canonicalOrder
+        order.removeAll { $0 == .media }
+        order.insert(.media, at: 0)
+
+        let layout = DockSlotLayout.migrating(utilities: legacyUtilities(), sectionOrder: order)
+
+        XCTAssertEqual(Array(layout.visibleItems.prefix(2)), [.music, .launcher],
+                       "the user's section order leads")
+        XCTAssertEqual(layout.items.map(\.item).filter { $0.utilityKind != nil },
+                       [.trash, .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads],
+                       "the utilities cluster keeps its stored order")
+        XCTAssertEqual(layout.trailingCapsule, .controlCenter)
+        XCTAssertTrue(DockModularityValidator.isModular(layout))
+    }
+
+    func testMigrationKeepsHiddenFlagsAndTheirPositions() {
+        let layout = DockSlotLayout.migrating(
+            utilities: DockUtilitiesConfig(order: legacyUtilities().order, hidden: [.clipboard]),
+            sectionOrder: BarSection.canonicalOrder,
+            hiddenSections: [.weather, .clock, .calendar, .ai]
+        )
+
+        XCTAssertEqual(layout.items.first { $0.item == .clipboard }?.isHidden, true)
+        XCTAssertEqual(layout.items.first { $0.item == .weather }?.isHidden, true)
+        XCTAssertEqual(layout.items.first { $0.item == .clockCalendar }?.isHidden, true, "clock+calendar share a slot")
+        XCTAssertEqual(layout.items.first { $0.item == .aiTracking }?.isHidden, true)
+        XCTAssertEqual(layout.items.first { $0.item == .drawer }?.isHidden, false)
+
+        let items = layout.items.map(\.item)
+        XCTAssertEqual(items.firstIndex(of: .clipboard), items.firstIndex(of: .screenshots).map { $0 + 1 },
+                       "a hidden slot keeps its position")
+        XCTAssertEqual(items.firstIndex(of: .dictionary), items.firstIndex(of: .clipboard).map { $0 + 1 })
+    }
+
+    func testMigrationPlacesPromotedBlocksWithoutDisplacingUserItems() {
+        let order: [BarSection] = [.widgets, .terminal, .media, .utilities, .calendar, .weather]
+        let layout = DockSlotLayout.migrating(utilities: legacyUtilities(),
+                                              sectionOrder: order,
+                                              shelfVisible: false)
+        let promoted: Set<DockSlotItem> = [.launcher, .shelf, .backgroundApps, .controlCenter]
+
+        XCTAssertEqual(layout.items.map(\.item).filter { !promoted.contains($0) },
+                       [.terminal, .music, .trash, .drawer, .screenshots, .clipboard,
+                        .dictionary, .downloads, .clockCalendar, .weather, .aiTracking],
+                       "no user-ordered slot is displaced, deduped or reordered")
+        XCTAssertEqual(layout.items.first { $0.item == .shelf }?.isHidden, true, "a hidden Shelf stays hidden")
+        XCTAssertEqual(layout.items.first { $0.item == .backgroundApps }?.isHidden, false)
+        XCTAssertTrue(DockModularityValidator.isModular(layout))
+    }
+
+    func testMigrationWithoutCapsuleLeavesControlCenterOnTheStrip() {
+        let layout = DockSlotLayout.migrating(utilities: .default,
+                                              sectionOrder: BarSection.canonicalOrder,
+                                              capsuleEnabled: false)
+        XCTAssertNil(layout.trailingCapsule)
+        XCTAssertEqual(layout.visibleItems.last, .controlCenter)
+        XCTAssertTrue(DockModularityValidator.isModular(layout))
+    }
+
+    func testDictionaryVisibilityFollowsEitherLegacyPath() {
+        let asSection = DockSlotLayout.migrating(
+            utilities: DockUtilitiesConfig(hidden: [.dictionary]),
+            sectionOrder: BarSection.canonicalOrder,
+            hiddenSections: [.terminal, .ai]
+        )
+        XCTAssertEqual(asSection.items.first { $0.item == .dictionary }?.isHidden, false,
+                       "a visible Dictionary section keeps its module visible")
+
+        let nowhere = DockSlotLayout.migrating(
+            utilities: DockUtilitiesConfig(hidden: [.dictionary]),
+            sectionOrder: BarSection.canonicalOrder,
+            hiddenSections: [.dictionary, .terminal, .ai]
+        )
+        XCTAssertEqual(nowhere.items.first { $0.item == .dictionary }?.isHidden, true)
+    }
+
+    func testMigrationIsIdempotentAndRoundTrips() {
+        let first = DockSlotLayout.migrating(utilities: .default, sectionOrder: BarSection.canonicalOrder)
+        XCTAssertEqual(DockModularityValidator.validate(first), first, "repair is a no-op on a migrated layout")
+        XCTAssertEqual(DockSlotLayout.decode(first.encoded()), first)
+        XCTAssertEqual(DockSlotLayout.migrating(utilities: .default, sectionOrder: BarSection.canonicalOrder), first,
+                       "the same legacy state always yields the same layout")
+    }
 }
