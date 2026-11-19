@@ -297,6 +297,9 @@
 		DB6100000000000000000032 /* DesktopTabGroupModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000031 /* DesktopTabGroupModel.swift */; };
 		DB6100000000000000000033 /* DesktopTabGroupModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000031 /* DesktopTabGroupModel.swift */; };
 		DB6100000000000000000042 /* DesktopTabGroupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000041 /* DesktopTabGroupTests.swift */; };
+		DB6100000000000000000052 /* DesktopManagedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000051 /* DesktopManagedStorage.swift */; };
+		DB6100000000000000000053 /* DesktopManagedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000051 /* DesktopManagedStorage.swift */; };
+		DB6100000000000000000062 /* DesktopManagedStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000061 /* DesktopManagedStorageTests.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1602,6 +1605,8 @@
 		DB6100000000000000000021 /* DesktopFileStackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopFileStackTests.swift; path = Tests/Unit/DesktopFileStackTests.swift; sourceTree = SOURCE_ROOT; };
 		DB6100000000000000000031 /* DesktopTabGroupModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopTabGroupModel.swift; path = Core/Support/Desktop/DesktopTabGroupModel.swift; sourceTree = SOURCE_ROOT; };
 		DB6100000000000000000041 /* DesktopTabGroupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopTabGroupTests.swift; path = Tests/Unit/DesktopTabGroupTests.swift; sourceTree = SOURCE_ROOT; };
+		DB6100000000000000000051 /* DesktopManagedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopManagedStorage.swift; path = Platform/Desktop/DesktopManagedStorage.swift; sourceTree = SOURCE_ROOT; };
+		DB6100000000000000000061 /* DesktopManagedStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopManagedStorageTests.swift; path = Tests/Unit/DesktopManagedStorageTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3865,6 +3870,7 @@
 				DB6000000000000000000112 /* DesktopSettingsBlock.swift in Sources */,
 				DB6100000000000000000012 /* DesktopFileStackModel.swift in Sources */,
 				DB6100000000000000000032 /* DesktopTabGroupModel.swift in Sources */,
+				DB6100000000000000000052 /* DesktopManagedStorage.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
@@ -4064,6 +4070,8 @@
 				DB6100000000000000000022 /* DesktopFileStackTests.swift in Sources */,
 				DB6100000000000000000033 /* DesktopTabGroupModel.swift in Sources */,
 				DB6100000000000000000042 /* DesktopTabGroupTests.swift in Sources */,
+				DB6100000000000000000053 /* DesktopManagedStorage.swift in Sources */,
+				DB6100000000000000000062 /* DesktopManagedStorageTests.swift in Sources */,
 				A0000000000000000000B102 /* PeekHold.swift in Sources */,
 				7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,
