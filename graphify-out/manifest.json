@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795065606.478593,
-    "seen": 1795065625.131783,
-    "ast_hash": "25ade0e7819c8f4f706b1ed4270f8e1a",
+    "mtime": 1795065746.9426012,
+    "seen": 1795065767.2202659,
+    "ast_hash": "5d4cb1b71097c2adb7887ae47ad6f5e2",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7626,21 +7626,21 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795050898.2863188,
-    "seen": 1795051285.363125,
-    "ast_hash": "9a4ebd692f525da004800320d3dfcf02",
+    "mtime": 1795065710.1294956,
+    "seen": 1795065767.219413,
+    "ast_hash": "53e0134129f0f9e00120741b9e4ee8d9",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795051507.332145,
-    "seen": 1795051629.5469398,
-    "ast_hash": "795764e38b2ca4cdba0e8c9010e44d75",
+    "mtime": 1795065685.7606752,
+    "seen": 1795065767.2193348,
+    "ast_hash": "0b84dcee6e16526159eba516226d6fe0",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
-    "mtime": 1795051393.305604,
-    "seen": 1795051629.5470562,
-    "ast_hash": "599d1179927884ba153863767f66ca7b",
+    "mtime": 1795065685.819046,
+    "seen": 1795065767.2194529,
+    "ast_hash": "a80cd5d4c10ea9a0b70824dab6f4b585",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFileStackModel.swift": {
@@ -7761,6 +7761,12 @@
     "mtime": 1795065489.5534399,
     "seen": 1795065625.131451,
     "ast_hash": "c0e102b3dace0cf82e6e12ae124a4001",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopTodoBoxView.swift": {
+    "mtime": 1795065685.675022,
+    "seen": 1795065767.219456,
+    "ast_hash": "9b0d0b3662e65e19e40bad80eec8c23b",
     "semantic_hash": ""
   }
 }
