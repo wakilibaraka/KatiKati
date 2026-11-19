@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795080904.1262517,
-    "seen": 1795080938.135904,
-    "ast_hash": "a1a4fb841eaa4ad016308d4efdf10918",
+    "mtime": 1795082332.5205078,
+    "seen": 1795082352.533364,
+    "ast_hash": "577b17f09f387bf49fcd33016ce1d69d",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7614,9 +7614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWidgetChromeView.swift": {
-    "mtime": 1795076886.8917923,
-    "seen": 1795080198.6959062,
-    "ast_hash": "2c9515dbcc50114e5a33e88f61843bbd",
+    "mtime": 1795081314.1878476,
+    "seen": 1795082352.532583,
+    "ast_hash": "e660d172f5bb866177c770d9ce9b2067",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopFolderBoxView.swift": {
@@ -7626,15 +7626,15 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795076966.3349898,
-    "seen": 1795080198.6958468,
-    "ast_hash": "aacd616823675df473ffbfb7a54a2d41",
+    "mtime": 1795081958.7100825,
+    "seen": 1795082352.5325341,
+    "ast_hash": "2d4b3fedf9f2e79b69f60f2117c68b93",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795076966.6860611,
-    "seen": 1795080198.6957529,
-    "ast_hash": "ee0dafc30ff0e65049d36e94a4f3e2a9",
+    "mtime": 1795081567.3358426,
+    "seen": 1795082352.532458,
+    "ast_hash": "da1840697695e510492556f2c53d1a53",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
@@ -7818,15 +7818,21 @@
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopCapsuleModel.swift": {
-    "mtime": 1795080753.8605835,
-    "seen": 1795080938.1352909,
-    "ast_hash": "f74eb3bd36723d7f182043c47eb6381b",
+    "mtime": 1795081207.6562295,
+    "seen": 1795082352.532767,
+    "ast_hash": "39b74bb284143d0a6c06ca40d2708f99",
     "semantic_hash": ""
   },
   "Tests/Unit/DesktopCapsuleTests.swift": {
-    "mtime": 1795080504.2389593,
-    "seen": 1795080938.135595,
-    "ast_hash": "ff4682ce3733159c8d91cdd9d3dc1acc",
+    "mtime": 1795082283.8478148,
+    "seen": 1795082352.5330591,
+    "ast_hash": "ac58164dacba0cd3eff52a9d0d5483df",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopCapsuleView.swift": {
+    "mtime": 1795082188.4349344,
+    "seen": 1795082352.532575,
+    "ast_hash": "da6aa91e79cc64e2a7b8356d6fd995b6",
     "semantic_hash": ""
   }
 }

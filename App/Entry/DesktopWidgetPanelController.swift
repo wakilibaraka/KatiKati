@@ -29,8 +29,11 @@ private final class DesktopWidgetHostState: ObservableObject {
     @Published var usesLiquidGlass: Bool
     @Published var canvasTheme: DesktopCanvasThemeState
     @Published var canvasBounds: CGRect
+    @Published var visibleFrame: CGRect
     @Published var isDropHighlighted = false
     @Published var createNewFolderTrigger = 0
+    @Published var isTemporarilyExpanded = false
+    @Published var activeLocks: Set<DesktopInteractionLock> = []
 
     init(
         group: DesktopPanelGroup,
@@ -39,7 +42,8 @@ private final class DesktopWidgetHostState: ObservableObject {
         themeTuning: ThemeTuning,
         usesLiquidGlass: Bool,
         canvasTheme: DesktopCanvasThemeState,
-        canvasBounds: CGRect
+        canvasBounds: CGRect,
+        visibleFrame: CGRect = .zero
     ) {
         self.item = group.activeItem
         self.groupTabs = group.tabs
@@ -49,6 +53,7 @@ private final class DesktopWidgetHostState: ObservableObject {
         self.usesLiquidGlass = usesLiquidGlass
         self.canvasTheme = canvasTheme
         self.canvasBounds = canvasBounds
+        self.visibleFrame = visibleFrame
     }
 }
 
@@ -58,6 +63,9 @@ private struct DesktopWidgetRootView: View {
     let callbacks: DesktopWidgetPanelCallbacks
     let onQuickLook: ([URL]) -> Void
     let onRevealInFinder: () -> Void
+    let onExpandCapsule: () -> Void
+    let onCollapseCapsule: () -> Void
+    let onHoverChanged: (Bool) -> Void
 
     private var activeModel: DesktopFolderBoxModel {
         folderModelProvider(hostState.item)
@@ -70,34 +78,54 @@ private struct DesktopWidgetRootView: View {
     }
 
     var body: some View {
-        let model = activeModel
-        DesktopWidgetChromeView(
-            item: hostState.item,
-            canvasTheme: hostState.canvasTheme,
-            canvasBounds: hostState.canvasBounds,
-            groupTabs: hostState.groupTabs,
-            mergeTargets: hostState.mergeTargets,
-            itemCount: itemCount,
-            usesLiquidGlass: hostState.usesLiquidGlass,
-            isDropHighlighted: hostState.isDropHighlighted,
-            onUpdateItem: callbacks.onUpdateItem,
-            onSelectTab: callbacks.onSelectTab,
-            onCycleTab: callbacks.onCycleTab,
-            onDetachTab: callbacks.onDetachTab,
-            onMergeInto: callbacks.onMergeInto,
-            onNewFolder: { hostState.createNewFolderTrigger += 1 },
-            onRevealInFinder: onRevealInFinder,
-            onRemoveBox: callbacks.onRemoveBox,
-            onAcquireLock: callbacks.onAcquireLock,
-            onReleaseLock: callbacks.onReleaseLock,
-            onDragStarted: callbacks.onDragStarted,
-            onDragChanged: callbacks.onDragChanged,
-            onDragEnded: callbacks.onDragEnded,
-            onResizeStarted: callbacks.onResizeStarted,
-            onResizeChanged: callbacks.onResizeChanged,
-            onResizeEnded: callbacks.onResizeEnded
-        ) {
-            Group {
+        if hostState.item.capsuleMode != .expanded && !hostState.isTemporarilyExpanded {
+            DesktopCapsuleView(
+                item: hostState.item,
+                canvasTheme: hostState.canvasTheme,
+                itemCount: itemCount,
+                usesLiquidGlass: hostState.usesLiquidGlass,
+                onUpdateItem: callbacks.onUpdateItem,
+                onExpandTriggered: onExpandCapsule,
+                onRemoveBox: callbacks.onRemoveBox,
+                onAcquireLock: callbacks.onAcquireLock,
+                onReleaseLock: callbacks.onReleaseLock,
+                onDragStarted: callbacks.onDragStarted,
+                onDragChanged: callbacks.onDragChanged,
+                onDragEnded: callbacks.onDragEnded
+            )
+            .environment(\.dockThemeStyle, hostState.themeStyle)
+            .environment(\.themeTuning, hostState.themeTuning)
+        } else {
+            let model = activeModel
+            DesktopWidgetChromeView(
+                item: hostState.item,
+                canvasTheme: hostState.canvasTheme,
+                canvasBounds: hostState.canvasBounds,
+                groupTabs: hostState.groupTabs,
+                mergeTargets: hostState.mergeTargets,
+                itemCount: itemCount,
+                usesLiquidGlass: hostState.usesLiquidGlass,
+                isDropHighlighted: hostState.isDropHighlighted,
+                onUpdateItem: callbacks.onUpdateItem,
+                onSelectTab: callbacks.onSelectTab,
+                onCycleTab: callbacks.onCycleTab,
+                onDetachTab: callbacks.onDetachTab,
+                onMergeInto: callbacks.onMergeInto,
+                onNewFolder: { hostState.createNewFolderTrigger += 1 },
+                onRevealInFinder: onRevealInFinder,
+                onRemoveBox: callbacks.onRemoveBox,
+                onAcquireLock: callbacks.onAcquireLock,
+                onReleaseLock: callbacks.onReleaseLock,
+                onDragStarted: callbacks.onDragStarted,
+                onDragChanged: callbacks.onDragChanged,
+                onDragEnded: callbacks.onDragEnded,
+                onResizeStarted: callbacks.onResizeStarted,
+                onResizeChanged: callbacks.onResizeChanged,
+                onResizeEnded: callbacks.onResizeEnded,
+                onHoverChanged: onHoverChanged,
+                onCollapseCapsule: onCollapseCapsule
+            ) {
+                Group {
                 switch hostState.item.kind {
                 case .todo:
                     DesktopTodoBoxView(
@@ -136,6 +164,7 @@ private struct DesktopWidgetRootView: View {
         }
         .environment(\.dockThemeStyle, hostState.themeStyle)
         .environment(\.themeTuning, hostState.themeTuning)
+        }
     }
 }
 
@@ -155,6 +184,8 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     private var tabModels: [UUID: DesktopFolderBoxModel] = [:]
     private let callbacks: DesktopWidgetPanelCallbacks
 
+    private var activeLocks: Set<DesktopInteractionLock> = []
+    private var collapseTask: Task<Void, Never>?
     private var quickLookURLs: [URL] = []
     private var keyMonitor: Any?
 
@@ -166,6 +197,7 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         usesLiquidGlass: Bool,
         canvasTheme: DesktopCanvasThemeState,
         canvasBounds: CGRect,
+        visibleFrame: CGRect = .zero,
         showOnAllSpaces: Bool,
         callbacks: DesktopWidgetPanelCallbacks
     ) {
@@ -178,11 +210,23 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             themeTuning: themeTuning,
             usesLiquidGlass: usesLiquidGlass,
             canvasTheme: canvasTheme,
-            canvasBounds: canvasBounds
+            canvasBounds: canvasBounds,
+            visibleFrame: visibleFrame
         )
         self.hostState = state
 
-        let outerFrame = Self.outerPanelFrame(for: group.activeItem.frame)
+        let visible = (visibleFrame.isEmpty || visibleFrame.height < 100) ? group.activeItem.frame : visibleFrame
+        let initialFrame: CGRect
+        if group.activeItem.capsuleMode == .expanded {
+            initialFrame = group.activeItem.frame
+        } else if case .edgeDocked(let edge) = group.activeItem.capsuleMode {
+            let ratio = group.activeItem.edgePositionRatio(for: edge, in: visible)
+            initialFrame = DesktopCapsuleLayout.dockedFrame(edge: edge, positionRatio: ratio, visibleFrame: visible)
+        } else {
+            initialFrame = DesktopCapsuleLayout.capsuleFrame(for: group.activeItem.frame, visibleFrame: visible)
+        }
+
+        let outerFrame = Self.outerPanelFrame(for: initialFrame)
         let panel = DesktopWidgetPanel(
             contentRect: outerFrame,
             styleMask: [.borderless, .nonactivatingPanel],
@@ -203,6 +247,36 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         super.init()
 
         syncModels(for: group.tabs)
+        let wrappedCallbacks = DesktopWidgetPanelCallbacks(
+            onUpdateItem: callbacks.onUpdateItem,
+            onRemoveBox: callbacks.onRemoveBox,
+            onSelectTab: callbacks.onSelectTab,
+            onCycleTab: callbacks.onCycleTab,
+            onDetachTab: callbacks.onDetachTab,
+            onMergeInto: callbacks.onMergeInto,
+            onAcquireLock: { [weak self] lock in
+                guard let self else { return }
+                self.activeLocks.insert(lock)
+                self.hostState.activeLocks = self.activeLocks
+                self.collapseTask?.cancel()
+                self.callbacks.onAcquireLock(lock)
+            },
+            onReleaseLock: { [weak self] lock in
+                guard let self else { return }
+                self.activeLocks.remove(lock)
+                self.hostState.activeLocks = self.activeLocks
+                self.callbacks.onReleaseLock(lock)
+                if self.hostState.item.capsuleMode != .expanded, self.hostState.isTemporarilyExpanded {
+                    self.scheduleCollapse()
+                }
+            },
+            onDragStarted: callbacks.onDragStarted,
+            onDragChanged: callbacks.onDragChanged,
+            onDragEnded: callbacks.onDragEnded,
+            onResizeStarted: callbacks.onResizeStarted,
+            onResizeChanged: callbacks.onResizeChanged,
+            onResizeEnded: callbacks.onResizeEnded
+        )
         let root = DesktopWidgetRootView(
             hostState: state,
             folderModelProvider: { [weak self] item in
@@ -212,11 +286,21 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
                     manualOrder: item.manualOrder
                 )
             },
-            callbacks: callbacks,
+            callbacks: wrappedCallbacks,
             onQuickLook: { [weak self] urls in self?.toggleQuickLook(for: urls) },
             onRevealInFinder: { [weak self] in
                 guard let path = self?.hostState.item.backingPath else { return }
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
+            },
+            onExpandCapsule: { [weak self] in self?.expandCapsule() },
+            onCollapseCapsule: { [weak self] in self?.collapseCapsule() },
+            onHoverChanged: { [weak self] isHovered in
+                if isHovered {
+                    self?.collapseTask?.cancel()
+                    self?.collapseTask = nil
+                } else {
+                    self?.scheduleCollapse()
+                }
             }
         )
         panel.contentView = FirstMouseHostingView(rootView: root)
@@ -224,7 +308,9 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     }
 
     var windowNumber: Int { panel.windowNumber }
-    var currentFrame: CGRect { hostState.item.frame }
+    var currentFrame: CGRect {
+        effectiveWidgetFrame(for: hostState.item, isExpanded: hostState.isTemporarilyExpanded)
+    }
     var activeWidgetID: UUID { hostState.item.id }
 
     func update(
@@ -236,6 +322,7 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         usesLiquidGlass: Bool,
         canvasTheme: DesktopCanvasThemeState,
         canvasBounds: CGRect,
+        visibleFrame: CGRect = .zero,
         showOnAllSpaces: Bool
     ) {
         syncModels(for: group.tabs)
@@ -247,8 +334,10 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         hostState.usesLiquidGlass = usesLiquidGlass
         hostState.canvasTheme = canvasTheme
         hostState.canvasBounds = canvasBounds
+        if !visibleFrame.isEmpty { hostState.visibleFrame = visibleFrame }
 
-        let targetOuter = Self.outerPanelFrame(for: group.activeItem.frame)
+        let targetFrame = effectiveWidgetFrame(for: group.activeItem, isExpanded: hostState.isTemporarilyExpanded)
+        let targetOuter = Self.outerPanelFrame(for: targetFrame)
         if panel.frame != targetOuter {
             panel.setFrame(targetOuter, display: true)
         }
@@ -291,10 +380,13 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     }
 
     func contains(screenPoint: CGPoint) -> Bool {
-        panel.isVisible && hostState.item.frame.contains(screenPoint)
+        let frame = effectiveWidgetFrame(for: hostState.item, isExpanded: hostState.isTemporarilyExpanded)
+        return panel.isVisible && frame.contains(screenPoint)
     }
 
     func tearDown() {
+        collapseTask?.cancel()
+        collapseTask = nil
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         for model in tabModels.values { model.stop() }
@@ -304,6 +396,83 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         }
         panel.orderOut(nil)
         panel.close()
+    }
+
+    // MARK: - Capsule Frame & Hover Mechanics
+
+    private func effectiveWidgetFrame(for item: DesktopWidgetItem, isExpanded: Bool) -> CGRect {
+        let visible = (hostState.visibleFrame.isEmpty || hostState.visibleFrame.height < 100)
+            ? (panel.screen?.visibleFrame ?? item.frame)
+            : hostState.visibleFrame
+        if item.capsuleMode == .expanded || isExpanded {
+            if case .edgeDocked(let edge) = item.capsuleMode {
+                let ratio = item.edgePositionRatio(for: edge, in: visible)
+                let cap = DesktopCapsuleLayout.dockedFrame(edge: edge, positionRatio: ratio, visibleFrame: visible)
+                return DesktopCapsuleLayout.expandedFrame(from: cap, originalSize: item.frame.size, dockedEdge: edge, visibleFrame: visible)
+            } else if item.capsuleMode == .capsule {
+                let cap = DesktopCapsuleLayout.capsuleFrame(for: item.frame, visibleFrame: visible)
+                return DesktopCapsuleLayout.expandedFrame(from: cap, originalSize: item.frame.size, dockedEdge: nil, visibleFrame: visible)
+            } else {
+                return item.frame
+            }
+        } else {
+            switch item.capsuleMode {
+            case .edgeDocked(let edge):
+                let ratio = item.edgePositionRatio(for: edge, in: visible)
+                return DesktopCapsuleLayout.dockedFrame(edge: edge, positionRatio: ratio, visibleFrame: visible)
+            case .capsule:
+                return DesktopCapsuleLayout.capsuleFrame(for: item.frame, visibleFrame: visible)
+            case .expanded:
+                return item.frame
+            }
+        }
+    }
+
+    private func animateToOuterFrame(_ outer: CGRect) {
+        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        if reduceMotion {
+            panel.setFrame(outer, display: true)
+        } else {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.28
+                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                panel.animator().setFrame(outer, display: true)
+            }
+        }
+    }
+
+    private func expandCapsule() {
+        guard hostState.item.capsuleMode != .expanded, !hostState.isTemporarilyExpanded else { return }
+        collapseTask?.cancel()
+        collapseTask = nil
+        hostState.isTemporarilyExpanded = true
+        let targetFrame = effectiveWidgetFrame(for: hostState.item, isExpanded: true)
+        animateToOuterFrame(Self.outerPanelFrame(for: targetFrame))
+    }
+
+    private func scheduleCollapse() {
+        guard hostState.item.capsuleMode != .expanded, hostState.isTemporarilyExpanded else { return }
+        collapseTask?.cancel()
+        collapseTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            guard let self, !Task.isCancelled else { return }
+            let mouseLoc = NSEvent.mouseLocation
+            let isHovered = self.panel.frame.contains(mouseLoc)
+            if !DesktopCapsuleHoverPolicy.shouldRemainExpanded(isHovered: isHovered, activeLocks: self.activeLocks) {
+                self.hostState.isTemporarilyExpanded = false
+                let targetFrame = self.effectiveWidgetFrame(for: self.hostState.item, isExpanded: false)
+                self.animateToOuterFrame(Self.outerPanelFrame(for: targetFrame))
+            }
+        }
+    }
+
+    private func collapseCapsule() {
+        guard hostState.item.capsuleMode != .expanded, hostState.isTemporarilyExpanded else { return }
+        collapseTask?.cancel()
+        collapseTask = nil
+        hostState.isTemporarilyExpanded = false
+        let targetFrame = effectiveWidgetFrame(for: hostState.item, isExpanded: false)
+        animateToOuterFrame(Self.outerPanelFrame(for: targetFrame))
     }
 
     // MARK: - Models & Key Handling

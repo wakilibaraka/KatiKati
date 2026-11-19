@@ -27,6 +27,8 @@ struct DesktopWidgetChromeView<Content: View>: View {
     let onResizeStarted: () -> Void
     let onResizeChanged: (DesktopResizeHandle, CGSize) -> Void
     let onResizeEnded: (DesktopResizeHandle, CGSize) -> Void
+    var onHoverChanged: ((Bool) -> Void)? = nil
+    var onCollapseCapsule: (() -> Void)? = nil
     @ViewBuilder let content: () -> Content
 
     @Environment(\.colorScheme) private var colorScheme
@@ -83,7 +85,10 @@ struct DesktopWidgetChromeView<Content: View>: View {
                 )
             )
             .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.8), value: isDropHighlighted)
-            .onHover { isHovered = $0 }
+            .onHover {
+                isHovered = $0
+                onHoverChanged?($0)
+            }
             .padding(PanelLayoutMetrics.shadowPadding)
     }
 
@@ -322,6 +327,18 @@ struct DesktopWidgetChromeView<Content: View>: View {
                 .help(String(localized: "New Folder"))
             }
 
+            if item.capsuleMode != .expanded {
+                Button {
+                    onCollapseCapsule?()
+                } label: {
+                    Image(systemName: "arrow.down.right.and.arrow.up.left")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(theme.labelInactive.color)
+                }
+                .buttonStyle(.plain)
+                .help(String(localized: "Collapse to Capsule"))
+            }
+
             overflowMenu
         }
         .padding(.horizontal, isTinyBox ? 6 : 10)
@@ -401,6 +418,48 @@ struct DesktopWidgetChromeView<Content: View>: View {
                 Button(String(localized: "Detach Tab")) { onDetachTab(item.id) }
             }
             Button(String(localized: "Customize Appearance…")) { showAppearancePopover = true }
+            Divider()
+            if item.capsuleMode == .expanded {
+                Button(String(localized: "Collapse to Capsule")) {
+                    var updated = item
+                    updated.capsuleMode = .capsule
+                    onUpdateItem(updated)
+                }
+            } else {
+                Button(String(localized: "Expand to Window")) {
+                    var updated = item
+                    updated.capsuleMode = .expanded
+                    onUpdateItem(updated)
+                }
+            }
+            Menu(String(localized: "Dock to Screen Edge")) {
+                Button(String(localized: "Floating Capsule")) {
+                    var updated = item
+                    updated.capsuleMode = .capsule
+                    onUpdateItem(updated)
+                }
+                Divider()
+                Button(String(localized: "Left Edge")) {
+                    var updated = item
+                    updated.capsuleMode = .edgeDocked(edge: .left)
+                    onUpdateItem(updated)
+                }
+                Button(String(localized: "Right Edge")) {
+                    var updated = item
+                    updated.capsuleMode = .edgeDocked(edge: .right)
+                    onUpdateItem(updated)
+                }
+                Button(String(localized: "Top Edge")) {
+                    var updated = item
+                    updated.capsuleMode = .edgeDocked(edge: .top)
+                    onUpdateItem(updated)
+                }
+                Button(String(localized: "Bottom Edge")) {
+                    var updated = item
+                    updated.capsuleMode = .edgeDocked(edge: .bottom)
+                    onUpdateItem(updated)
+                }
+            }
             if item.kind == .folder {
                 Button(String(localized: "Show in Finder"), action: onRevealInFinder)
             }

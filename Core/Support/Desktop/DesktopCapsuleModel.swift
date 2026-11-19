@@ -161,3 +161,16 @@ enum DesktopCapsuleHoverPolicy {
         return isHovered
     }
 }
+
+extension DesktopWidgetItem {
+    func edgePositionRatio(for edge: DesktopScreenEdge, in visibleFrame: CGRect) -> CGFloat {
+        switch edge {
+        case .left, .right:
+            guard visibleFrame.height > 0 else { return 0.5 }
+            return min(max((frame.midY - visibleFrame.minY) / visibleFrame.height, 0.05), 0.95)
+        case .top, .bottom:
+            guard visibleFrame.width > 0 else { return 0.5 }
+            return min(max((frame.midX - visibleFrame.minX) / visibleFrame.width, 0.05), 0.95)
+        }
+    }
+}

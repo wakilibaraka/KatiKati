@@ -106,4 +106,15 @@ final class DesktopCapsuleTests: XCTestCase {
         // Multiple locks
         XCTAssertTrue(DesktopCapsuleHoverPolicy.shouldRemainExpanded(isHovered: false, activeLocks: [.contextMenu, .drag]))
     }
+
+    func testEdgePositionRatioCalculation() {
+        let visibleFrame = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        var item = DesktopWidgetItem(title: "Downloads", frame: CGRect(x: 100, y: 400, width: 200, height: 100))
+        // midY = 450 -> ratio = 450 / 900 = 0.5
+        XCTAssertEqual(item.edgePositionRatio(for: .left, in: visibleFrame), 0.5, accuracy: 0.001)
+        XCTAssertEqual(item.edgePositionRatio(for: .right, in: visibleFrame), 0.5, accuracy: 0.001)
+
+        // midX = 200 -> ratio = 200 / 1440 ~ 0.1388
+        XCTAssertEqual(item.edgePositionRatio(for: .top, in: visibleFrame), 200.0 / 1440.0, accuracy: 0.001)
+    }
 }

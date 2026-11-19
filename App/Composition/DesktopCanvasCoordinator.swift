@@ -404,7 +404,7 @@ final class DesktopCanvasCoordinator {
                     group: group, mergeTargets: targets, visibility: revealState.visibility,
                     themeStyle: themeStyle, themeTuning: themeTuning,
                     usesLiquidGlass: usesGlass, canvasTheme: canvasTheme,
-                    canvasBounds: target.screenFrame, showOnAllSpaces: allSpaces
+                    canvasBounds: target.screenFrame, visibleFrame: target.visibleFrame, showOnAllSpaces: allSpaces
                 )
             } else {
                 let callbacks = DesktopWidgetPanelCallbacks(
@@ -447,7 +447,8 @@ final class DesktopCanvasCoordinator {
                 let created = DesktopWidgetPanelController(
                     group: group, mergeTargets: targets, themeStyle: themeStyle, themeTuning: themeTuning,
                     usesLiquidGlass: usesGlass, canvasTheme: canvasTheme,
-                    canvasBounds: target.screenFrame, showOnAllSpaces: allSpaces, callbacks: callbacks
+                    canvasBounds: target.screenFrame, visibleFrame: target.visibleFrame,
+                    showOnAllSpaces: allSpaces, callbacks: callbacks
                 )
                 controllers[panelKey] = created
                 created.applyVisibility(revealState.visibility, isWidgetHidden: group.activeItem.isHidden)
