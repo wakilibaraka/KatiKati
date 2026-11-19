@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795051658.854546,
-    "seen": 1795051750.805946,
-    "ast_hash": "9fa3fec57976c07913f4d9cf699013c8",
+    "mtime": 1795080078.8648956,
+    "seen": 1795080198.69715,
+    "ast_hash": "3d8f67b30e5077adee6808de2cd14474",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795065746.9426012,
-    "seen": 1795065767.2202659,
-    "ast_hash": "5d4cb1b71097c2adb7887ae47ad6f5e2",
+    "mtime": 1795080098.6822896,
+    "seen": 1795080198.697425,
+    "ast_hash": "0a16fa6865c21523723b331f9d38e17e",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6960,9 +6960,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SettingsBackup.swift": {
-    "mtime": 1795043542.136714,
-    "seen": 1795043932.532684,
-    "ast_hash": "5cdf0beec73b117d5fdb62418aab61aa",
+    "mtime": 1795080039.3450046,
+    "seen": 1795080198.6963258,
+    "ast_hash": "7b3da711f03dea750a90fa2bfb5d4de6",
     "semantic_hash": ""
   },
   "Platform/Accessibility/AppMenuSearchReader.swift": {
@@ -6972,9 +6972,9 @@
     "semantic_hash": ""
   },
   "Platform/Backup/SettingsBackupService.swift": {
-    "mtime": 1795043545.0261662,
-    "seen": 1795043932.532762,
-    "ast_hash": "66bdcbe856b374725fc1fca4aec61df1",
+    "mtime": 1795080044.8030705,
+    "seen": 1795080198.6964228,
+    "ast_hash": "e9ce30a01e0fc225c3f2a60cdebbce90",
     "semantic_hash": ""
   },
   "Scripts/bench_katikati.sh": {
@@ -7614,9 +7614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWidgetChromeView.swift": {
-    "mtime": 1795051387.6669524,
-    "seen": 1795051629.5470579,
-    "ast_hash": "9ae9d7eddeef55ab916ecb426f2f431d",
+    "mtime": 1795076886.8917923,
+    "seen": 1795080198.6959062,
+    "ast_hash": "2c9515dbcc50114e5a33e88f61843bbd",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopFolderBoxView.swift": {
@@ -7626,21 +7626,21 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795065710.1294956,
-    "seen": 1795065767.219413,
-    "ast_hash": "53e0134129f0f9e00120741b9e4ee8d9",
+    "mtime": 1795076966.3349898,
+    "seen": 1795080198.6958468,
+    "ast_hash": "aacd616823675df473ffbfb7a54a2d41",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795065685.7606752,
-    "seen": 1795065767.2193348,
-    "ast_hash": "0b84dcee6e16526159eba516226d6fe0",
+    "mtime": 1795076966.6860611,
+    "seen": 1795080198.6957529,
+    "ast_hash": "ee0dafc30ff0e65049d36e94a4f3e2a9",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
-    "mtime": 1795065685.819046,
-    "seen": 1795065767.2194529,
-    "ast_hash": "a80cd5d4c10ea9a0b70824dab6f4b585",
+    "mtime": 1795079993.754504,
+    "seen": 1795080198.6959,
+    "ast_hash": "3e2288f524b47774fe86def47e605232",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFileStackModel.swift": {
@@ -7767,6 +7767,54 @@
     "mtime": 1795065685.675022,
     "seen": 1795065767.219456,
     "ast_hash": "9b0d0b3662e65e19e40bad80eec8c23b",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopGlanceBoxView.swift": {
+    "mtime": 1795076943.1226542,
+    "seen": 1795080198.695897,
+    "ast_hash": "f95a6cae4dab5817cc4043d971849751",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopQuickCaptureBoxView.swift": {
+    "mtime": 1795076942.9955847,
+    "seen": 1795080198.695898,
+    "ast_hash": "6b22614587eeecb711ac49eded1726bc",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopVinylBoxView.swift": {
+    "mtime": 1795076943.294801,
+    "seen": 1795080198.695903,
+    "ast_hash": "66038be9cb3a80f68684a546b7d679f7",
+    "semantic_hash": ""
+  },
+  "App/Scenes/Desktop/DesktopWeatherBoxView.swift": {
+    "mtime": 1795076943.2137873,
+    "seen": 1795080198.695904,
+    "ast_hash": "3760182f04fc64b9543b70864501fe33",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/DesktopGlanceNames.swift": {
+    "mtime": 1795076912.1392703,
+    "seen": 1795080198.6961632,
+    "ast_hash": "748d95b84d6dc0d579c6c4e3387af2c9",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/DesktopQuickCaptureModel.swift": {
+    "mtime": 1795076912.0479045,
+    "seen": 1795080198.696167,
+    "ast_hash": "774637ed74b720bafd8662bd2f87aeaa",
+    "semantic_hash": ""
+  },
+  "Platform/Desktop/DesktopQuickCaptureStore.swift": {
+    "mtime": 1795076912.2055883,
+    "seen": 1795080198.696455,
+    "ast_hash": "1dbe925c403973b0e5272cdf966f48f0",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/DesktopFeatureWidgetTests.swift": {
+    "mtime": 1795080057.3512855,
+    "seen": 1795080198.696579,
+    "ast_hash": "30f1577f98a771a3fcd1868a3f5686c9",
     "semantic_hash": ""
   }
 }
