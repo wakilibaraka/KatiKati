@@ -987,4 +987,49 @@ final class ModularDockCoreTests: XCTestCase {
         XCTAssertEqual(DockSlotLayout.migrating(utilities: .default, sectionOrder: BarSection.canonicalOrder), first,
                        "the same legacy state always yields the same layout")
     }
+
+    // MARK: MD-3a render order
+
+    func testRenderOrderDrawsOneUtilitiesSectionAndKeepsSectionsWithoutSlots() {
+        let layout = DockSlotLayout.migrating(utilities: .default, sectionOrder: BarSection.canonicalOrder)
+        let legacy: [BarSection] = [.launcher, .weather, .apps, .media, .utilities, .clock, .calendar,
+                                    .system, .devices, .drives, .ai, .widgets]
+        let order = DockModularityValidator.renderOrder(for: layout, legacyOrder: legacy)
+
+        XCTAssertEqual(order.filter { $0 == .utilities }.count, 1,
+                       "seven utility slots are one section on the strip")
+        XCTAssertEqual(order.filter { $0 == .apps }.count, 1)
+        XCTAssertEqual(order.filter { [.system, .devices, .drives, .widgets].contains($0) },
+                       [.system, .devices, .drives, .widgets],
+                       "widgets the slot model does not own keep their legacy order")
+        XCTAssertEqual(order.last, .widgets)
+    }
+
+    func testRenderOrderFollowsHiddenSlots() {
+        var items = DockSlotLayout.default.items
+        items = items.map { $0.item == .music ? DockSlotEntry(item: .music, isHidden: true) : $0 }
+        let layout = DockSlotLayout(items: items, trailingCapsule: .controlCenter)
+        XCTAssertFalse(DockModularityValidator.renderOrder(for: layout).contains(.media))
+
+        let noUtilities = DockSlotLayout(
+            items: DockSlotLayout.default.items.map {
+                $0.item.utilityKind == nil ? $0 : DockSlotEntry(item: $0.item, isHidden: true)
+            },
+            trailingCapsule: .controlCenter)
+        XCTAssertFalse(DockModularityValidator.renderOrder(for: noUtilities).contains(.utilities),
+                       "hiding every utility slot retires the section")
+    }
+
+    func testUtilitiesRailLengthCountsOnlyVisibleUtilitySlots() {
+        XCTAssertEqual(DockSlotLayout.default.utilitiesRailLength,
+                       BarSection.utilitiesRailLength(visibleCount: 7), accuracy: 0.001)
+        let twoHidden = DockSlotLayout(
+            items: DockSlotLayout.default.items.map { entry in
+                [.screenshots, .trash].contains(entry.item)
+                    ? DockSlotEntry(item: entry.item, isHidden: true) : entry
+            },
+            trailingCapsule: .controlCenter)
+        XCTAssertEqual(twoHidden.utilitiesRailLength,
+                       BarSection.utilitiesRailLength(visibleCount: 5), accuracy: 0.001)
+    }
 }

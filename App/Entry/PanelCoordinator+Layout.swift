@@ -367,7 +367,7 @@ extension PanelCoordinator {
             widgetLayout: settingsStore.widgetLayout,
             controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
             wingConfig: resolvedWingConfig(on: screen),
-            visibleUtilityCount: settingsStore.dockUtilities.visibleUtilities.count
+            visibleUtilityCount: settingsStore.dockVisibleUtilityCount
         )
     }
 
@@ -376,7 +376,7 @@ extension PanelCoordinator {
     var isCapsuleOwner: Bool {
         guard settingsStore.showBackgroundApps else { return false }
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
-                                          order: settingsStore.widgetOrder)
+                                          order: settingsStore.dockSectionOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
         return sections[islandSlot].contains(.apps)
     }
@@ -384,7 +384,7 @@ extension PanelCoordinator {
     /// Whether this coordinator unit owns the Dock II Left/Right Wing panels & Floating Widget Stack.
     var isWingOwner: Bool {
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
-                                          order: settingsStore.widgetOrder)
+                                          order: settingsStore.dockSectionOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
         return sections[islandSlot].contains(.apps)
     }

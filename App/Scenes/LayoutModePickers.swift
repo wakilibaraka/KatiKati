@@ -286,7 +286,8 @@ extension AppSettingsStore {
         inputs.placement = stripPlacementMap.global
         let fitted = fittedWidgetLayout(screenWidth: LayoutThumbnailModel.referenceScreen.width)
         inputs.widgetWidths = fitted.solverWidths()
-        inputs.widgetOrder = fitted.visibleOrder
+        // Slice MD-3a: the thumbnail follows the same section order the bar renders.
+        inputs.widgetOrder = dockSectionOrder
         return inputs
     }
 }

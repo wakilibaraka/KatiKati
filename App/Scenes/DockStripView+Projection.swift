@@ -20,8 +20,10 @@ extension DockStripView {
     /// A 路线) while the pinned messaging zone keeps its own `MessagingAppStore` order —
     /// the two zones never cross (拖动分区内进行).
     func makeProjection() -> StripProjection {
+        // Slice MD-3a: the persisted slot layout owns the order; `dockSectionOrder` merges back the
+        // sections the slot model has none for, so the switch cannot drop an enabled widget.
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
-                                          order: settingsStore.widgetOrder)
+                                          order: settingsStore.dockSectionOrder)
         let hostedSections = islandSlot < sections.count ? sections[islandSlot] : [.apps]
 
         guard hostedSections.contains(.apps) else {
@@ -75,9 +77,9 @@ extension DockStripView {
         // Slice DI-1: a Dictionary / Terminal module is the one glyph for that tool. Its app-level icon
         // (it may be running with no window, or kept) would be a second one, so it steps aside. Real
         // window chips stay — those are the app's windows, not another module tile.
+        // A hidden slot owns nothing, so the layout's visible items decide — not the section list.
         let moduleOwnedBundleIDs = DockToolDeduplication.suppressedAppBundleIDs(
-            enabledSections: settingsStore.widgetLayout.visibleOrder,
-            dockUtilities: settingsStore.dockUtilities
+            slotLayout: settingsStore.dockSlotLayout
         )
         let items = snapshotItems.filter { item in
             let bid = item.bundleIdentifier ?? ""
@@ -259,7 +261,7 @@ extension DockStripView {
         // Slice DI-1: the Dictionary / Terminal tail chips retired. They drew the same two tools the
         // `BarSection` modules already draw (and the modules are the ones Settings can order), so the
         // bar carried each tool twice before an app icon was even considered.
-        let hasUtilitiesSection = settingsStore.widgetOrder.contains(.utilities)
+        let hasUtilitiesSection = settingsStore.dockSectionOrder.contains(.utilities)
         let customFoldersOnly = pinnedEntries.filter { entry in
             guard case let .pinnedFolder(path) = entry else { return true }
             return !hasUtilitiesSection || !DockStripView.isDownloadsFolder(path)

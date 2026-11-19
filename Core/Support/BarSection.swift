@@ -742,6 +742,30 @@ enum DockModularityValidator {
         return result
     }
 
+    /// The strip's render order (slice MD-3a): the slot layout owns every section it has a slot for,
+    /// and the sections it has none for (`system`, `devices`, `drives`, `widgets`) are spliced back
+    /// after their nearest predecessor in the legacy order. Without that splice the switch would
+    /// silently delete enabled widgets the slot model never modelled.
+    static func renderOrder(for layout: DockSlotLayout,
+                            mode: BarLayoutMode = .windows,
+                            legacyOrder: [BarSection] = []) -> [BarSection] {
+        // Several slots (the seven utilities) stand for one section: the strip draws that section
+        // once, so repeats collapse to their first position.
+        var seen = Set<BarSection>()
+        var result = derivedSections(for: layout, mode: mode).filter { seen.insert($0).inserted }
+        // Only sections this model has no slot for are spliced back; a slot-backed section that the
+        // layout hides must disappear, not return from the legacy list.
+        let slotBacked = Set(DockSlotItem.allCases.compactMap(\.section))
+        for extra in legacyOrder
+        where extra != .apps && !slotBacked.contains(extra) && !result.contains(extra) {
+            guard let index = legacyOrder.firstIndex(of: extra) else { continue }
+            let anchor = legacyOrder[..<index].last { result.contains($0) }
+            let at = anchor.flatMap { result.lastIndex(of: $0) }.map { $0 + 1 } ?? result.count
+            result.insert(extra, at: at)
+        }
+        return result
+    }
+
     static func insertionIndex(for item: DockSlotItem, in items: [DockSlotEntry]) -> Int {
         let preset = DockSlotLayout.defaultPresetOrder
         guard let target = preset.firstIndex(of: item) else { return items.count }
@@ -776,6 +800,14 @@ extension DockSlotLayout {
     }
 
     func encoded() -> Data? { try? JSONEncoder().encode(self) }
+
+    /// Main-axis length of the utilities cluster on a side rail, counted from the **slots** rather
+    /// than `DockUtilitiesConfig`, so hiding a utility moves the rail by exactly one tile.
+    var utilitiesRailLength: CGFloat {
+        let count = visibleItems.filter { $0.utilityKind != nil }.count
+        guard count > 1 else { return CGFloat(count) * BarSection.railTileSize }
+        return BarSection.utilitiesRailLength(visibleCount: count)
+    }
 
     /// One-time translation of the pre-modular state into a slot layout.
     ///

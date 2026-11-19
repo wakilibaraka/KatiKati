@@ -1839,6 +1839,18 @@ final class AppSettingsStore: ObservableObject {
 
     // MARK: Modular Dock slot layout
 
+    /// Visible utility slots in the layout (slice MD-3a). The rail's cluster length reads this
+    /// instead of `dockUtilities.visibleUtilities.count`.
+    var dockVisibleUtilityCount: Int {
+        dockSlotLayout.visibleItems.filter { $0.utilityKind != nil }.count
+    }
+
+    /// The section order the strip and every island solve read: the slot layout owns what it can,
+    /// and widgets it has no slot for keep their user position (slice MD-3a).
+    var dockSectionOrder: [BarSection] {
+        DockModularityValidator.renderOrder(for: dockSlotLayout, mode: barLayoutMode, legacyOrder: widgetOrder)
+    }
+
     /// Always repaired before it is stored, so the file on disk is modular even if a caller is not.
     func setDockSlotLayout(_ next: DockSlotLayout) {
         let repaired = DockModularityValidator.validate(next)

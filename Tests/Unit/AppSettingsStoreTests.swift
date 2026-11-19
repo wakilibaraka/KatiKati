@@ -2084,6 +2084,26 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertTrue(DockModularityValidator.isModular(AppSettingsStore(defaults: defaults).dockSlotLayout),
                       "corrupt state never blocks launch")
     }
+
+    func testDockSectionOrderFollowsSlotsAndKeepsLegacyOnlyWidgets() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.dockSectionOrder.filter { $0 == .utilities }.count, 1)
+        XCTAssertEqual(store.dockSectionOrder.filter { $0 == .apps }.count, 1)
+
+        store.setDockSlotItem(.music, hidden: true)
+        XCTAssertFalse(store.dockSectionOrder.contains(.media),
+                       "a hidden slot leaves the strip order")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSectionOrder.contains(.media), false)
+
+        store.setWidgetVisible(true, for: .system)
+        XCTAssertTrue(store.dockSectionOrder.contains(.system),
+                      "a widget without a slot still renders where the user put it")
+        XCTAssertEqual(store.dockVisibleUtilityCount, 7)
+        store.setDockSlotItem(.trash, hidden: true)
+        XCTAssertEqual(store.dockVisibleUtilityCount, 6, "the rail counts slots, not the legacy config")
+    }
 }
 
 /// 只回答「读状态那一刻在不在主线程」：不在 → `.on`。

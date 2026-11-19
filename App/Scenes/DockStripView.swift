@@ -1640,7 +1640,7 @@ struct DockStripView: View {
                            animatedEntryIDs: $animatedEntryIDs)
         case .trash:
             HStack(spacing: 6) {
-                if showDockClipboardTile && !settingsStore.widgetOrder.contains(.utilities) {
+                if showDockClipboardTile && !settingsStore.dockSectionOrder.contains(.utilities) {
                     DockClipboardMicroTile()
                 }
                 trashChip(hovered: hovered)
@@ -1996,7 +1996,7 @@ extension DockStripView {
 
     /// The layout dividers bordering the apps zone (`makeProjection` ids).
     var fullWidthFlexibleDividerIDs: Set<String> {
-        let order = settingsStore.widgetOrder
+        let order = settingsStore.dockSectionOrder
         var ids: Set<String> = ["layout-divider-pre-apps"]
         if let apps = order.firstIndex(of: .apps), apps + 1 < order.count {
             ids.insert("layout-divider-\(order[apps + 1].rawValue)")
