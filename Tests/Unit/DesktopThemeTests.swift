@@ -42,4 +42,70 @@ final class DesktopThemeTests: XCTestCase {
         let item = try JSONDecoder().decode(DesktopWidgetItem.self, from: Data(legacyJSON.utf8))
         XCTAssertEqual(item.appearance, .standard)
     }
+
+    @MainActor
+    func testAppearanceRoundTripsThroughDesktopBoxStoreAndSettingsBackup() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let suiteName = "katikati.desktop.theme.tests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+            try? FileManager.default.removeItem(at: dir)
+        }
+
+        let boxesURL = dir.appendingPathComponent("desktop-boxes.json", isDirectory: false)
+        let customAppearance = DesktopWidgetAppearance(
+            materialOverride: .tintedGlass,
+            borderStyle: .glow,
+            accentHex: "#8B5CF6",
+            textTreatment: .highContrast,
+            iconBadge: .emoji("🎨"),
+            background: .panorama,
+            cornerRadiusOverride: 22
+        )
+        let item = DesktopWidgetItem(title: "Studio", appearance: customAppearance)
+
+        let store = DesktopBoxStore(storageURL: boxesURL, debounceInterval: 0.01)
+        store.add(item)
+        store.flushNow()
+
+        let reloadedStore = DesktopBoxStore(storageURL: boxesURL, debounceInterval: 0.01)
+        XCTAssertEqual(reloadedStore.items.first?.appearance, customAppearance)
+
+        defaults.set(DesktopBoxMaterialStyle.solidCard.rawValue, forKey: DesktopCanvasConfig.materialStyleKey)
+        defaults.set(true, forKey: DesktopCanvasConfig.panoramaEnabledKey)
+        defaults.set("/tmp/panorama.png", forKey: DesktopCanvasConfig.panoramaImagePathKey)
+        defaults.set(0.42, forKey: DesktopCanvasConfig.panoramaOpacityKey)
+        defaults.set(6.0, forKey: DesktopCanvasConfig.panoramaBlurKey)
+        defaults.set(DesktopPanoramaScaleMode.aspectFit.rawValue, forKey: DesktopCanvasConfig.panoramaScaleModeKey)
+        let expectedTheme = DesktopCanvasThemeState.load(defaults: defaults)
+
+        let service = SettingsBackupService(
+            defaults: defaults,
+            domainName: suiteName,
+            supportDirectory: dir,
+            appVersion: "1.0"
+        )
+        let backup = service.makeBackup(categories: [.settingsAndShortcuts])
+        for key in [
+            DesktopCanvasConfig.materialStyleKey,
+            DesktopCanvasConfig.panoramaEnabledKey,
+            DesktopCanvasConfig.panoramaImagePathKey,
+            DesktopCanvasConfig.panoramaOpacityKey,
+            DesktopCanvasConfig.panoramaBlurKey,
+            DesktopCanvasConfig.panoramaScaleModeKey,
+        ] {
+            XCTAssertNotNil(backup.defaults[key], "Missing Phase 62 key \(key) in backup defaults")
+        }
+        XCTAssertNotNil(backup.files["desktop-boxes.json"])
+
+        defaults.removePersistentDomain(forName: suiteName)
+        try FileManager.default.removeItem(at: boxesURL)
+        try service.restore(backup, categories: [.settingsAndShortcuts])
+
+        XCTAssertEqual(DesktopCanvasThemeState.load(defaults: defaults), expectedTheme)
+        let restoredStore = DesktopBoxStore(storageURL: boxesURL, debounceInterval: 0.01)
+        XCTAssertEqual(restoredStore.items.first?.appearance, customAppearance)
+    }
 }
