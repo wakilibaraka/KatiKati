@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795043552.7083127,
-    "seen": 1795043932.5330749,
-    "ast_hash": "c3efd5e2b38038bb202329df912644c0",
+    "mtime": 1795049979.33359,
+    "seen": 1795050099.687127,
+    "ast_hash": "bc3bedc6b7f382e7f60efb2c77271885",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795049894.3857667,
-    "seen": 1795049923.54478,
-    "ast_hash": "32393ea5b4834c91ca55864389629eb4",
+    "mtime": 1795050067.8844066,
+    "seen": 1795050099.6874151,
+    "ast_hash": "e9018aaad5ec351c5b96b2e47474722b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7560,9 +7560,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DesktopBoxCoreTests.swift": {
-    "mtime": 1795038303.7892528,
-    "seen": 1795038651.7451892,
-    "ast_hash": "a738f74ffa7b33ca8d8fd3d876ac7474",
+    "mtime": 1795049977.885761,
+    "seen": 1795050099.686917,
+    "ast_hash": "dd8e42392d5a1ff721dfdb996c1de759",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopRevealPolicy.swift": {
