@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795105020.1960363,
-    "seen": 1795105331.299762,
-    "ast_hash": "8f61dcaca3ce1d2a68795541039cb0d3",
+    "mtime": 1795105377.9044363,
+    "seen": 1795105481.523579,
+    "ast_hash": "2fc278455490ddd5da4b3e135d0c79e6",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Layout.swift": {
-    "mtime": 1795105038.4268975,
-    "seen": 1795105331.299874,
-    "ast_hash": "495ddd3a52577f5df6d7c96cdd84c1d6",
+    "mtime": 1795105382.180605,
+    "seen": 1795105481.523694,
+    "ast_hash": "600fc896197250d11f33977e4ad2b2fa",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
-    "mtime": 1795105034.7619412,
-    "seen": 1795105331.2999208,
-    "ast_hash": "6915026bc4f0e15eaa3320fb7b32f6e4",
+    "mtime": 1795105378.6502686,
+    "seen": 1795105481.523746,
+    "ast_hash": "5c195640f6edac505571d5566d76e2a6",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Trash.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795105037.7325282,
-    "seen": 1795105331.299923,
-    "ast_hash": "f4f16396bc51b34547d22fbf366533d5",
+    "mtime": 1795105394.1645374,
+    "seen": 1795105481.5237482,
+    "ast_hash": "7b9971eada8cf821530e1a566e888385",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795105085.175494,
-    "seen": 1795105331.300385,
-    "ast_hash": "e66bf900b3a5aeb8714e5caeb090b295",
+    "mtime": 1795105397.6440072,
+    "seen": 1795105481.524232,
+    "ast_hash": "b32c40ef8b975b474e3ad76c47408915",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795105309.1576412,
-    "seen": 1795105331.300724,
-    "ast_hash": "1553ef1895823a88a4775fead7e93b07",
+    "mtime": 1795105463.3254738,
+    "seen": 1795105481.5246038,
+    "ast_hash": "e491935d2d357d57bf5dee05bd1b5df3",
     "semantic_hash": ""
   },
   "README.md": {
