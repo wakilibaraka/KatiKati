@@ -125,6 +125,12 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
     var manualOrder: [String]
     var isHidden: Bool
     var zOrder: Int
+    var stackGroupingMode: DesktopStackGroupingMode
+    var stackDisplayMode: DesktopStackDisplayMode
+    var manualStacks: [DesktopManualStack]
+    var tabGroupID: UUID?
+    var tabOrder: Int
+    var isActiveTab: Bool
 
     init(
         id: UUID = UUID(),
@@ -143,7 +149,13 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         sortMode: DesktopSortMode = .rule(.dateAdded),
         manualOrder: [String] = [],
         isHidden: Bool = false,
-        zOrder: Int = 0
+        zOrder: Int = 0,
+        stackGroupingMode: DesktopStackGroupingMode = .none,
+        stackDisplayMode: DesktopStackDisplayMode = .adaptive,
+        manualStacks: [DesktopManualStack] = [],
+        tabGroupID: UUID? = nil,
+        tabOrder: Int = 0,
+        isActiveTab: Bool = true
     ) {
         self.id = id
         self.kind = kind
@@ -167,12 +179,19 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         self.manualOrder = manualOrder
         self.isHidden = isHidden
         self.zOrder = zOrder
+        self.stackGroupingMode = stackGroupingMode
+        self.stackDisplayMode = stackDisplayMode
+        self.manualStacks = manualStacks
+        self.tabGroupID = tabGroupID
+        self.tabOrder = tabOrder
+        self.isActiveTab = isActiveTab
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, kind, title, backingPath, isManagedFolder, displayUUID, followMainDisplay
         case frame, normalizedFrame, viewStyle, compactDensity, iconSizeOverride
         case filenameLines, sortMode, manualOrder, isHidden, zOrder
+        case stackGroupingMode, stackDisplayMode, manualStacks, tabGroupID, tabOrder, isActiveTab
     }
 
     init(from decoder: Decoder) throws {
@@ -198,7 +217,13 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
             sortMode: try c.decodeIfPresent(DesktopSortMode.self, forKey: .sortMode) ?? .rule(.dateAdded),
             manualOrder: try c.decodeIfPresent([String].self, forKey: .manualOrder) ?? [],
             isHidden: try c.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false,
-            zOrder: try c.decodeIfPresent(Int.self, forKey: .zOrder) ?? 0
+            zOrder: try c.decodeIfPresent(Int.self, forKey: .zOrder) ?? 0,
+            stackGroupingMode: try c.decodeIfPresent(DesktopStackGroupingMode.self, forKey: .stackGroupingMode) ?? .none,
+            stackDisplayMode: try c.decodeIfPresent(DesktopStackDisplayMode.self, forKey: .stackDisplayMode) ?? .adaptive,
+            manualStacks: try c.decodeIfPresent([DesktopManualStack].self, forKey: .manualStacks) ?? [],
+            tabGroupID: try c.decodeIfPresent(UUID.self, forKey: .tabGroupID),
+            tabOrder: try c.decodeIfPresent(Int.self, forKey: .tabOrder) ?? 0,
+            isActiveTab: try c.decodeIfPresent(Bool.self, forKey: .isActiveTab) ?? true
         )
     }
 
@@ -221,5 +246,11 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         try c.encode(manualOrder, forKey: .manualOrder)
         try c.encode(isHidden, forKey: .isHidden)
         try c.encode(zOrder, forKey: .zOrder)
+        try c.encode(stackGroupingMode, forKey: .stackGroupingMode)
+        try c.encode(stackDisplayMode, forKey: .stackDisplayMode)
+        try c.encode(manualStacks, forKey: .manualStacks)
+        try c.encodeIfPresent(tabGroupID, forKey: .tabGroupID)
+        try c.encode(tabOrder, forKey: .tabOrder)
+        try c.encode(isActiveTab, forKey: .isActiveTab)
     }
 }

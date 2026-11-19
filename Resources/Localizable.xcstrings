@@ -142023,6 +142023,134 @@
         "it": { "stringUnit": { "state": "translated", "value": "Impostazioni riquadri sulla Scrivania…" } },
         "ko": { "stringUnit": { "state": "translated", "value": "데스크톱 상자 설정…" } }
       }
+    },
+    "Documents": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Documents" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文稿" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "文件" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "書類" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dokumente" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Documents" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Documentos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Documentos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Documentos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Documentos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Documenti" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "문서" } }
+      }
+    },
+    "Images": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Images" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "图片" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "圖片" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "画像" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bilder" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Images" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Imágenes" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Imágenes" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Imagens" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Imagens" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Immagini" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "이미지" } }
+      }
+    },
+    "Videos": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Videos" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "视频" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "影片" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ビデオ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Videos" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vidéos" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Vídeos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Videos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Vídeos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Vídeos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Video" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "동영상" } }
+      }
+    },
+    "Audio": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Audio" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "音频" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "音訊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "オーディオ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Audio" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Audio" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Audio" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Audio" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Áudio" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Áudio" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Audio" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "오디오" } }
+      }
+    },
+    "Archives": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Archives" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "压缩包" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "封存檔" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アーカイブ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Archive" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Archives" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Archivos comprimidos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Archivos comprimidos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Arquivos Comprimidos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Arquivos Comprimidos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Archivi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "아카이브" } }
+      }
+    },
+    "Code": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Code" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "代码" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "程式碼" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コード" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Code" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Code" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Código" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Código" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Código" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Código" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Codice" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "코드" } }
+      }
+    },
+    "Folders": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Folders" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文件夹" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "資料夾" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ordner" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dossiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Carpetas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Carpetas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pastas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pastas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cartelle" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더" } }
+      }
+    },
+    "Other": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Other" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "其他" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "其他" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "その他" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Sonstige" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Autre" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Otros" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Otros" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Outros" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Outros" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Altro" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기타" } }
+      }
     }
   },
   "version": "1.0"
