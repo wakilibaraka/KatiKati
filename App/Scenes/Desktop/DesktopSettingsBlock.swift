@@ -174,6 +174,8 @@ private struct DesktopBoxesManageRows: View {
                 HStack(spacing: SettingsMetrics.controlSpacing) {
                     Button("Create Managed Box") { coordinator.createManagedBox() }
                         .buttonStyle(SettingsGelButtonStyle())
+                    Button("Add To-Do Box") { coordinator.addTodoBox() }
+                        .buttonStyle(SettingsGelButtonStyle())
                     Button("Auto-Organize Folder…") {
                         coordinator.presentAutoOrganizeSheet()
                     }

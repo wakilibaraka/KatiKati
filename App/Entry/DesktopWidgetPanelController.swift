@@ -96,16 +96,27 @@ private struct DesktopWidgetRootView: View {
             onResizeChanged: callbacks.onResizeChanged,
             onResizeEnded: callbacks.onResizeEnded
         ) {
-            DesktopFolderBoxView(
-                item: hostState.item,
-                model: model,
-                onUpdateItem: callbacks.onUpdateItem,
-                onQuickLook: onQuickLook,
-                onAcquireLock: callbacks.onAcquireLock,
-                onReleaseLock: callbacks.onReleaseLock,
-                onDropTargetedChanged: { hostState.isDropHighlighted = $0 },
-                createNewFolderTrigger: $hostState.createNewFolderTrigger
-            )
+            Group {
+                switch hostState.item.kind {
+                case .todo:
+                    DesktopTodoBoxView(
+                        tasks: ProductivityServices.shared.tasks,
+                        onAcquireLock: callbacks.onAcquireLock,
+                        onReleaseLock: callbacks.onReleaseLock
+                    )
+                default:
+                    DesktopFolderBoxView(
+                        item: hostState.item,
+                        model: model,
+                        onUpdateItem: callbacks.onUpdateItem,
+                        onQuickLook: onQuickLook,
+                        onAcquireLock: callbacks.onAcquireLock,
+                        onReleaseLock: callbacks.onReleaseLock,
+                        onDropTargetedChanged: { hostState.isDropHighlighted = $0 },
+                        createNewFolderTrigger: $hostState.createNewFolderTrigger
+                    )
+                }
+            }
             .id(hostState.item.id)
         }
         .environment(\.dockThemeStyle, hostState.themeStyle)
@@ -294,7 +305,7 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     }
 
     private func model(for item: DesktopWidgetItem) -> DesktopFolderBoxModel {
-        let path = item.backingPath ?? NSHomeDirectory()
+        let path = item.kind == .folder ? (item.backingPath ?? NSHomeDirectory()) : "/var/empty"
         if let existing = tabModels[item.id] {
             existing.updateConfig(backingPath: path, sortMode: item.sortMode, manualOrder: item.manualOrder)
             return existing

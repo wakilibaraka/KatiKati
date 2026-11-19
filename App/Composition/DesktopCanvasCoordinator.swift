@@ -197,6 +197,28 @@ final class DesktopCanvasCoordinator {
         )
     }
 
+    func addTodoBox() {
+        if var existing = store.items.first(where: { $0.kind == .todo }) {
+            if existing.isHidden {
+                existing.isHidden = false
+                store.update(existing, immediate: true)
+            }
+            return
+        }
+        let target = screenContaining(point: NSEvent.mouseLocation)
+        let siblings = store.items.filter { !$0.isHidden }.map(\.frame)
+        let frame = DesktopLayoutEngine.initialPlacement(
+            existing: siblings, visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
+        )
+        store.add(DesktopWidgetItem(
+            kind: .todo,
+            title: String(localized: "To-Do"),
+            displayUUID: target.uuid,
+            frame: frame,
+            normalizedFrame: DesktopLayoutEngine.normalize(frame, in: target.visibleFrame)
+        ))
+    }
+
     func createManagedBox() {
         let boxID = UUID()
         guard let url = try? DesktopManagedStorage.createManagedBoxDirectory(for: boxID) else { return }

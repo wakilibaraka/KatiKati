@@ -319,6 +319,7 @@
 		DB6200000000000000000072 /* DesktopBoxAppearancePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6200000000000000000071 /* DesktopBoxAppearancePopover.swift */; };
 		DB6300000000000000000012 /* DesktopGlanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6300000000000000000011 /* DesktopGlanceEngine.swift */; };
 		DB6300000000000000000013 /* DesktopGlanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6300000000000000000011 /* DesktopGlanceEngine.swift */; };
+		DB6300000000000000000032 /* DesktopTodoBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6300000000000000000031 /* DesktopTodoBoxView.swift */; };
 		DB6300000000000000000022 /* DesktopGlanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6300000000000000000021 /* DesktopGlanceTests.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1640,6 +1641,7 @@
 		DB6200000000000000000061 /* DesktopAssetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopAssetStoreTests.swift; path = Tests/Unit/DesktopAssetStoreTests.swift; sourceTree = SOURCE_ROOT; };
 		DB6200000000000000000071 /* DesktopBoxAppearancePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopBoxAppearancePopover.swift; path = App/Scenes/Desktop/DesktopBoxAppearancePopover.swift; sourceTree = SOURCE_ROOT; };
 		DB6300000000000000000011 /* DesktopGlanceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopGlanceEngine.swift; path = Core/Support/Desktop/DesktopGlanceEngine.swift; sourceTree = SOURCE_ROOT; };
+		DB6300000000000000000031 /* DesktopTodoBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopTodoBoxView.swift; path = App/Scenes/Desktop/DesktopTodoBoxView.swift; sourceTree = SOURCE_ROOT; };
 		DB6300000000000000000021 /* DesktopGlanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopGlanceTests.swift; path = Tests/Unit/DesktopGlanceTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
@@ -3914,6 +3916,7 @@
 				DB6200000000000000000052 /* DesktopAssetStore.swift in Sources */,
 				DB6200000000000000000072 /* DesktopBoxAppearancePopover.swift in Sources */,
 				DB6300000000000000000012 /* DesktopGlanceEngine.swift in Sources */,
+				DB6300000000000000000032 /* DesktopTodoBoxView.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,

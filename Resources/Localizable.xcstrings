@@ -143143,6 +143143,70 @@
         "it": { "stringUnit": { "state": "translated", "value": "Vetro colorato" } },
         "ko": { "stringUnit": { "state": "translated", "value": "틴트 유리" } }
       }
+    },
+    "To-Do": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "To-Do" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "待办" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "待辦" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ToDo" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aufgaben" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "À faire" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pendientes" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Pendientes" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tarefas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Tarefas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Da fare" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "할 일" } }
+      }
+    },
+    "Add a task…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add a task…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "添加任务…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新增任務…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "タスクを追加…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aufgabe hinzufügen…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ajouter une tâche…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Añadir una tarea…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agregar una tarea…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Adicionar tarefa…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Adicionar tarefa…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aggiungi un'attività…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "작업 추가…" } }
+      }
+    },
+    "Add To-Do Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add To-Do Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "添加待办盒子" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新增待辦收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ToDoボックスを追加" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aufgaben-Box hinzufügen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ajouter une boîte À faire" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Añadir caja de pendientes" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agregar caja de pendientes" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Adicionar Caixa de Tarefas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Adicionar Caixa de Tarefas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aggiungi riquadro Da fare" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "할 일 상자 추가" } }
+      }
+    },
+    "Important": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Important" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "重要" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "重要" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "重要" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Wichtig" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Important" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Importante" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Importante" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Importante" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Importante" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Importante" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "중요" } }
+      }
     }
   },
   "version": "1.0"
