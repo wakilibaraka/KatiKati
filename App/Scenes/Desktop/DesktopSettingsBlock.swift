@@ -17,6 +17,7 @@ struct DesktopSettingsBlock: View {
     @AppStorage(DesktopCanvasConfig.panoramaImagePathKey) private var panoramaImagePath = ""
     @AppStorage(DesktopCanvasConfig.panoramaOpacityKey) private var panoramaOpacity = DesktopCanvasConfig.defaultPanoramaOpacity
     @AppStorage(DesktopCanvasConfig.panoramaBlurKey) private var panoramaBlur = DesktopCanvasConfig.defaultPanoramaBlur
+    @AppStorage(DesktopCanvasConfig.defaultCapsuleModeKey) private var defaultCapsuleModeRaw = "expanded"
     @AppStorage(DesktopCanvasConfig.panoramaScaleModeKey) private var panoramaScaleModeRaw = DesktopPanoramaScaleMode.aspectFill.rawValue
 
     var body: some View {
@@ -130,6 +131,24 @@ struct DesktopSettingsBlock: View {
                         || (manager.activeCoordinator?.store.items.isEmpty ?? true)
                 )
             }
+
+            SettingsCard(Text("Capsule Mode")) {
+                SettingsPickerRow(Text("New Widget Default"), selection: $defaultCapsuleModeRaw) {
+                    Text("Full Window").tag("expanded")
+                    Text("Floating Capsule").tag("capsule")
+                }
+                .help(String(localized: "Sets the initial display mode for newly added widgets."))
+                if let coordinator = manager.activeCoordinator, !coordinator.store.items.isEmpty {
+                    SettingsDivider()
+                    SettingsButtonRow(Text("Collapse All to Capsule")) {
+                        coordinator.collapseAllToCapsule()
+                    }
+                    SettingsDivider()
+                    SettingsButtonRow(Text("Expand All to Window")) {
+                        coordinator.expandAllFromCapsule()
+                    }
+                }
+            }
         }
     }
 
@@ -240,6 +259,18 @@ private struct DesktopBoxesManageRows: View {
                         .help(Text("Convert to Managed Storage"))
                         .accessibilityLabel(Text("Convert to Managed Storage"))
                     }
+
+                    Button {
+                        coordinator.setCapsuleMode(
+                            item.capsuleMode == .expanded ? .capsule : .expanded,
+                            for: item.id
+                        )
+                    } label: {
+                        Image(systemName: item.capsuleMode == .expanded ? "pip.enter" : "pip.exit")
+                    }
+                    .buttonStyle(.borderless)
+                    .help(item.capsuleMode == .expanded ? Text("Collapse to Capsule") : Text("Expand to Window"))
+                    .accessibilityLabel(item.capsuleMode == .expanded ? Text("Collapse to Capsule") : Text("Expand to Window"))
 
                     Button {
                         coordinator.toggleWidgetHidden(id: item.id)

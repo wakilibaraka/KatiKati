@@ -14,6 +14,7 @@ enum DesktopCanvasConfig {
     static let panoramaOpacityKey = "com.katikati.desktop.panoramaOpacity"
     static let panoramaBlurKey = "com.katikati.desktop.panoramaBlur"
     static let panoramaScaleModeKey = "com.katikati.desktop.panoramaScaleMode"
+    static let defaultCapsuleModeKey = "com.katikati.desktop.defaultCapsuleMode"
 
     static let defaultSnapGap: Double = 12
     static let defaultEdgeMargin: Double = 12

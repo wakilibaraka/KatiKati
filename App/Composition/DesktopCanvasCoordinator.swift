@@ -230,8 +230,14 @@ final class DesktopCanvasCoordinator {
             title: title,
             displayUUID: target.uuid,
             frame: frame,
-            normalizedFrame: DesktopLayoutEngine.normalize(frame, in: target.visibleFrame)
+            normalizedFrame: DesktopLayoutEngine.normalize(frame, in: target.visibleFrame),
+            capsuleMode: defaultCapsuleMode
         ))
+    }
+
+    /// New-widget default from Settings › Capsule Mode.
+    private var defaultCapsuleMode: DesktopCapsuleMode {
+        UserDefaults.standard.string(forKey: DesktopCanvasConfig.defaultCapsuleModeKey) == "capsule" ? .capsule : .expanded
     }
 
     func createManagedBox() {
@@ -354,6 +360,33 @@ final class DesktopCanvasCoordinator {
             return copy
         }
         store.replaceAll(next, immediate: true)
+    }
+
+    /// Collapses every visible widget to compact capsule mode.
+    func collapseAllToCapsule() {
+        let next = store.items.map { item -> DesktopWidgetItem in
+            var copy = item
+            if copy.capsuleMode == .expanded { copy.capsuleMode = .capsule }
+            return copy
+        }
+        store.replaceAll(next, immediate: true)
+    }
+
+    /// Restores every widget from capsule/docked to full expanded mode.
+    func expandAllFromCapsule() {
+        let next = store.items.map { item -> DesktopWidgetItem in
+            var copy = item
+            copy.capsuleMode = .expanded
+            return copy
+        }
+        store.replaceAll(next, immediate: true)
+    }
+
+    /// Sets capsule mode for a single widget by ID.
+    func setCapsuleMode(_ mode: DesktopCapsuleMode, for id: UUID) {
+        guard var item = store.item(for: id) else { return }
+        item.capsuleMode = mode
+        store.update(item, immediate: true)
     }
 
     func pruneUnusedDesktopAssets() {
