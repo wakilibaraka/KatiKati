@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795080078.8648956,
-    "seen": 1795080198.69715,
-    "ast_hash": "3d8f67b30e5077adee6808de2cd14474",
+    "mtime": 1795083580.1904922,
+    "seen": 1795083662.0491352,
+    "ast_hash": "8d2a6086f36f6f15d610288a1e4a0ebc",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795082332.5205078,
-    "seen": 1795082352.533364,
-    "ast_hash": "577b17f09f387bf49fcd33016ce1d69d",
+    "mtime": 1795083580.1949952,
+    "seen": 1795083662.0492392,
+    "ast_hash": "c4e248a4a34f6734f321c5b1f3327a24",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7542,9 +7542,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopBoxModel.swift": {
-    "mtime": 1795080483.361809,
-    "seen": 1795080938.1352892,
-    "ast_hash": "8b58d5072b5604c6e253b131ad2961fd",
+    "mtime": 1795082559.6107059,
+    "seen": 1795083662.048585,
+    "ast_hash": "b080638c4f553a5c4951be9f557ec5e6",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFolderOrdering.swift": {
@@ -7632,15 +7632,15 @@
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795081567.3358426,
-    "seen": 1795082352.532458,
-    "ast_hash": "da1840697695e510492556f2c53d1a53",
+    "mtime": 1795083567.845886,
+    "seen": 1795083662.0482519,
+    "ast_hash": "209e3b31e80dd2ae548e0c2cd7b09ed5",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
-    "mtime": 1795079993.754504,
-    "seen": 1795080198.6959,
-    "ast_hash": "3e2288f524b47774fe86def47e605232",
+    "mtime": 1795082624.170566,
+    "seen": 1795083662.048374,
+    "ast_hash": "ab8f7faeebc7a6e57ee61de6b1d763d8",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFileStackModel.swift": {
