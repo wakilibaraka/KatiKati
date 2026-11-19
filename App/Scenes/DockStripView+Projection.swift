@@ -256,7 +256,8 @@ extension DockStripView {
         // The shelf is the last cell of the pinned-app (messaging) zone and shares its divider.
         // Folders sit at the bar's tail in one zone with the Trash, as on the native Dock: no
         // divider between them.
-        let headEntries = messaging + (settingsStore.showShelf ? [StripEntry.shelf] : [])
+        // Slice MD-3b: the Shelf cell is the `shelf` slot, not a separate boolean.
+        let headEntries = messaging + (settingsStore.showsShelfSlot ? [StripEntry.shelf] : [])
         // The drawer pop heads the tail zone: left of the pinned folders (Downloads) and the Trash.
         // Slice DI-1: the Dictionary / Terminal tail chips retired. They drew the same two tools the
         // `BarSection` modules already draw (and the modules are the ones Settings can order), so the

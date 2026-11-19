@@ -403,7 +403,7 @@ struct DockStripView: View {
             // 旧帧不会被清掉，只看帧的话落在原位置仍会误判成暂存。
             // Read at routing time, never copied here: the body no longer re-runs when the frames
             // move (`StripFrameBox`), so a value captured now would route a later drop by stale geometry.
-            shelfFrame: { [frames, showShelf = settingsStore.showShelf] in showShelf ? frames.shelfFrame : nil },
+            shelfFrame: { [frames, showsShelf = settingsStore.showsShelfSlot] in showsShelf ? frames.shelfFrame : nil },
             trashFrame: { [frames, showTrash = settingsStore.showTrash] in showTrash ? frames.trashFrame : nil },
             popFrame: { [frames] in frames.popFrame },
             folderFrames: { [frames] in frames.folderChipFrames },

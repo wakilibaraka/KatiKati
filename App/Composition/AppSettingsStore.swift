@@ -245,7 +245,10 @@ final class AppSettingsStore: ObservableObject {
     /// with anything after it there is no trailing end for the disc to take — and the drawer on the
     /// right, where the capsule's slot is.
     var controlCentreAtTrailingEnd: Bool {
-        guard controlCentreTrailing, drawerPlacement == .right, widgetOrder.last == .widgets else { return false }
+        // Slice MD-3b: the capsule membership is the layout's, with the legacy switch kept in the
+        // guard so an existing install does not move its disc the moment this ships.
+        guard controlCentreTrailing, dockSlotLayout.trailingCapsule == .controlCenter,
+              drawerPlacement == .right, dockSectionOrder.last == .widgets else { return false }
         // shortcut: a split bar's capsule came back blank once it moved into the Widgets island's plate
         // (2026-10-22), so the swap stays on the one-plate bars until that is understood.
         return barLayoutMode == .centered || barLayoutMode == .windows
@@ -1281,6 +1284,8 @@ final class AppSettingsStore: ObservableObject {
         guard showShelf != value else { return }
         showShelf = value
         defaults.set(value, forKey: Keys.showShelf)
+        // Slice MD-3b: the strip reads the slot, so the block's switch keeps it in step.
+        setDockSlotItem(.shelf, hidden: !value)
     }
 
     func setDockIslandEnabled(_ value: Bool) {
@@ -1534,12 +1539,24 @@ final class AppSettingsStore: ObservableObject {
         guard showBackgroundApps != value else { return }
         showBackgroundApps = value
         defaults.set(value, forKey: Keys.showBackgroundApps)
+        // The capsule block is the `backgroundApps` slot now (slice MD-3b).
+        setDockSlotItem(.backgroundApps, hidden: !value)
     }
 
     func setControlCentreTrailing(_ value: Bool) {
         guard controlCentreTrailing != value else { return }
         controlCentreTrailing = value
         defaults.set(value, forKey: Keys.controlCentreTrailing)
+        // Moving the disc is what the capsule **is**: one write decides both (slice MD-3b). OFF puts
+        // Control Centre back on the strip at its preset position instead of losing it.
+        var items = dockSlotLayout.items.filter { $0.item != .controlCenter }
+        if !value {
+            items.insert(DockSlotEntry(item: .controlCenter, isHidden: false),
+                         at: DockModularityValidator.insertionIndex(for: .controlCenter, in: items))
+        }
+        setDockSlotLayout(DockSlotLayout(items: items,
+                                         trailingCapsule: value ? .controlCenter : nil,
+                                         groupAdjacentUtilities: dockSlotLayout.groupAdjacentUtilities))
     }
 
     /// Seeds "lift maximized windows clear of the taskbar" to on for a fresh install (owner 2026-09-01).
@@ -1843,6 +1860,17 @@ final class AppSettingsStore: ObservableObject {
     /// instead of `dockUtilities.visibleUtilities.count`.
     var dockVisibleUtilityCount: Int {
         dockSlotLayout.visibleItems.filter { $0.utilityKind != nil }.count
+    }
+
+    /// The Background Apps block is `backgroundApps`' slot (slice MD-3b); the legacy key is only
+    /// mirrored into it, never read on the render path.
+    var showsBackgroundAppsSlot: Bool {
+        dockSlotLayout.visibleItems.contains(.backgroundApps)
+    }
+
+    /// The Shelf cell is `shelf`'s slot (slice MD-3b), same rule as the capsule block above.
+    var showsShelfSlot: Bool {
+        dockSlotLayout.visibleItems.contains(.shelf)
     }
 
     /// The section order the strip and every island solve read: the slot layout owns what it can,

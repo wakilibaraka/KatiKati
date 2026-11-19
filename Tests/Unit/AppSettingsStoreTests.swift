@@ -2104,6 +2104,50 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setDockSlotItem(.trash, hidden: true)
         XCTAssertEqual(store.dockVisibleUtilityCount, 6, "the rail counts slots, not the legacy config")
     }
+
+    // MARK: Modular Dock capsule (slice MD-3b)
+
+    func testControlCentreSwitchesBetweenCapsuleAndStrip() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
+        XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter })
+
+        store.setControlCentreTrailing(true)
+        XCTAssertTrue(store.controlCentreAtTrailingEnd)
+
+        store.setControlCentreTrailing(false)
+        XCTAssertNil(store.dockSlotLayout.trailingCapsule)
+        XCTAssertTrue(store.dockSlotLayout.visibleItems.contains(.controlCenter),
+                      "turning the disc off puts it back on the strip instead of losing it")
+        XCTAssertFalse(store.controlCentreAtTrailingEnd)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSlotLayout, store.dockSlotLayout)
+
+        store.setControlCentreTrailing(true)
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
+        XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter })
+        XCTAssertTrue(store.controlCentreAtTrailingEnd)
+    }
+
+    func testShelfAndBackgroundAppsSwitchesDriveTheirSlots() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.showsShelfSlot)
+
+        store.setShowShelf(false)
+        XCTAssertFalse(store.showsShelfSlot)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).showsShelfSlot)
+        XCTAssertEqual(store.dockSlotLayout.items.first { $0.item == .shelf }?.isHidden, true)
+        store.setShowShelf(true)
+        XCTAssertTrue(store.showsShelfSlot)
+
+        XCTAssertTrue(store.showsBackgroundAppsSlot)
+        store.setShowBackgroundApps(false)
+        XCTAssertFalse(store.showsBackgroundAppsSlot)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).showsBackgroundAppsSlot)
+        store.setShowBackgroundApps(true)
+        XCTAssertTrue(store.showsBackgroundAppsSlot)
+    }
 }
 
 /// 只回答「读状态那一刻在不在主线程」：不在 → `.on`。
