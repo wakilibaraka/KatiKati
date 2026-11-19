@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795050449.6316435,
-    "seen": 1795050478.821873,
-    "ast_hash": "715e85cf249b0b3662a8c5bf60329fca",
+    "mtime": 1795050610.983291,
+    "seen": 1795050639.796018,
+    "ast_hash": "ef0a81a0374292e761635b2fcd454e59",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7719,6 +7719,18 @@
     "mtime": 1795050249.7497501,
     "seen": 1795050478.821569,
     "ast_hash": "bc5a600b6b1c2dc128d6e663ebc963f1",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/DesktopPanoramaEngine.swift": {
+    "mtime": 1795050509.064485,
+    "seen": 1795050639.7954319,
+    "ast_hash": "c47741264258c46862a9da64341b685a",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/DesktopPanoramaTests.swift": {
+    "mtime": 1795050510.837685,
+    "seen": 1795050639.795721,
+    "ast_hash": "0ea762ed3fd106a256df0eba5547e292",
     "semantic_hash": ""
   }
 }
