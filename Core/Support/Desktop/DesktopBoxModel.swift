@@ -8,6 +8,12 @@ enum DesktopCanvasConfig {
     static let edgeMarginKey = "com.katikati.desktop.edgeMargin"
     static let doubleClickDesktopKey = "com.katikati.desktop.doubleClickDesktop"
     static let showOnAllSpacesKey = "com.katikati.desktop.showOnAllSpaces"
+    static let materialStyleKey = "com.katikati.desktop.materialStyle"
+    static let panoramaEnabledKey = "com.katikati.desktop.panoramaEnabled"
+    static let panoramaImagePathKey = "com.katikati.desktop.panoramaImagePath"
+    static let panoramaOpacityKey = "com.katikati.desktop.panoramaOpacity"
+    static let panoramaBlurKey = "com.katikati.desktop.panoramaBlur"
+    static let panoramaScaleModeKey = "com.katikati.desktop.panoramaScaleMode"
 
     static let defaultSnapGap: Double = 12
     static let defaultEdgeMargin: Double = 12
@@ -15,6 +21,9 @@ enum DesktopCanvasConfig {
     static let edgeMarginRange: ClosedRange<Double> = 0...48
     static let iconSizeRange: ClosedRange<CGFloat> = 24...96
     static let defaultIconSize: CGFloat = 44
+    static let defaultPanoramaOpacity: Double = 0.65
+    static let defaultPanoramaBlur: Double = 0.0
+    static let cornerRadiusRange: ClosedRange<CGFloat> = 6...28
 
     static func clampedSnapGap(_ value: Double) -> Double {
         min(max(value, snapGapRange.lowerBound), snapGapRange.upperBound)
@@ -131,6 +140,7 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
     var tabGroupID: UUID?
     var tabOrder: Int
     var isActiveTab: Bool
+    var appearance: DesktopWidgetAppearance
 
     init(
         id: UUID = UUID(),
@@ -155,7 +165,8 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         manualStacks: [DesktopManualStack] = [],
         tabGroupID: UUID? = nil,
         tabOrder: Int = 0,
-        isActiveTab: Bool = true
+        isActiveTab: Bool = true,
+        appearance: DesktopWidgetAppearance = .standard
     ) {
         self.id = id
         self.kind = kind
@@ -185,13 +196,14 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         self.tabGroupID = tabGroupID
         self.tabOrder = tabOrder
         self.isActiveTab = isActiveTab
+        self.appearance = appearance
     }
 
     private enum CodingKeys: String, CodingKey {
         case id, kind, title, backingPath, isManagedFolder, displayUUID, followMainDisplay
         case frame, normalizedFrame, viewStyle, compactDensity, iconSizeOverride
         case filenameLines, sortMode, manualOrder, isHidden, zOrder
-        case stackGroupingMode, stackDisplayMode, manualStacks, tabGroupID, tabOrder, isActiveTab
+        case stackGroupingMode, stackDisplayMode, manualStacks, tabGroupID, tabOrder, isActiveTab, appearance
     }
 
     init(from decoder: Decoder) throws {
@@ -223,7 +235,8 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
             manualStacks: try c.decodeIfPresent([DesktopManualStack].self, forKey: .manualStacks) ?? [],
             tabGroupID: try c.decodeIfPresent(UUID.self, forKey: .tabGroupID),
             tabOrder: try c.decodeIfPresent(Int.self, forKey: .tabOrder) ?? 0,
-            isActiveTab: try c.decodeIfPresent(Bool.self, forKey: .isActiveTab) ?? true
+            isActiveTab: try c.decodeIfPresent(Bool.self, forKey: .isActiveTab) ?? true,
+            appearance: try c.decodeIfPresent(DesktopWidgetAppearance.self, forKey: .appearance) ?? .standard
         )
     }
 
@@ -252,5 +265,6 @@ struct DesktopWidgetItem: Codable, Equatable, Identifiable, Sendable {
         try c.encodeIfPresent(tabGroupID, forKey: .tabGroupID)
         try c.encode(tabOrder, forKey: .tabOrder)
         try c.encode(isActiveTab, forKey: .isActiveTab)
+        try c.encode(appearance, forKey: .appearance)
     }
 }
