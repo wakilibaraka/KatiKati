@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795049979.33359,
-    "seen": 1795050099.687127,
-    "ast_hash": "bc3bedc6b7f382e7f60efb2c77271885",
+    "mtime": 1795051658.854546,
+    "seen": 1795051750.805946,
+    "ast_hash": "9fa3fec57976c07913f4d9cf699013c8",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795051601.6107023,
-    "seen": 1795051629.547893,
-    "ast_hash": "98db846c9476ff5eed8ba62c3fb782a9",
+    "mtime": 1795051661.8484397,
+    "seen": 1795051750.806043,
+    "ast_hash": "2155385d6bca41f90e72083d7d7ff534",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7716,9 +7716,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DesktopThemeTests.swift": {
-    "mtime": 1795050249.7497501,
-    "seen": 1795050478.821569,
-    "ast_hash": "bc5a600b6b1c2dc128d6e663ebc963f1",
+    "mtime": 1795051657.514006,
+    "seen": 1795051750.805749,
+    "ast_hash": "e403b4686826c2d1e610434b144d90b4",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopPanoramaEngine.swift": {
