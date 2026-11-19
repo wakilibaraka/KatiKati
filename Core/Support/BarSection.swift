@@ -461,3 +461,308 @@ struct DockUtilitiesConfig: Codable, Equatable, Sendable {
         try? JSONEncoder().encode(self)
     }
 }
+
+// MARK: - Modular Dock (slice MD-1)
+
+/// One addressable slot on the modular Dock. `aiTracking` is not `ai`: `BarSection.ai` and
+/// `DockWidgetPresetType.ai` already exist, and a third `.ai` makes unqualified use ambiguous.
+///
+/// `apps` is deliberately absent — the apps island is structural (running-app chips), so `.apps`
+/// uniqueness is asserted on the derived section order instead of being a duplicable slot.
+enum DockSlotItem: String, CaseIterable, Codable, Identifiable, Sendable {
+    case weather
+    case launcher
+    case drawer
+    case shelf
+    case backgroundApps
+    case music
+    case clockCalendar
+    case controlCenter
+    case screenshots
+    case clipboard
+    case dictionary
+    case terminal
+    case downloads
+    case trash
+    case aiTracking
+
+    var id: String { rawValue }
+
+    /// The app-level icon this slot already stands for, so the apps strip can drop it (I3).
+    var bundleID: String? { utilityKind?.bundleID }
+
+    var utilityKind: DockUtilityKind? {
+        switch self {
+        case .drawer: return .drawer
+        case .screenshots: return .screenshots
+        case .clipboard: return .clipboard
+        case .dictionary: return .dictionary
+        case .terminal: return .terminal
+        case .downloads: return .downloads
+        case .trash: return .trash
+        case .weather, .launcher, .shelf, .backgroundApps, .music, .clockCalendar,
+             .controlCenter, .aiTracking: return nil
+        }
+    }
+
+    /// The section this slot renders as. `shelf`, `backgroundApps` and `controlCenter` are
+    /// strip-level blocks — `BarSection` has no case for them, so they map to nil.
+    var section: BarSection? {
+        switch self {
+        case .weather: return .weather
+        case .launcher: return .launcher
+        case .drawer, .screenshots, .clipboard, .downloads, .trash: return .utilities
+        case .music: return .media
+        case .clockCalendar: return .clock
+        case .dictionary: return .dictionary
+        case .terminal: return .terminal
+        case .aiTracking: return .ai
+        case .shelf, .backgroundApps, .controlCenter: return nil
+        }
+    }
+
+    var isCapsuleEligible: Bool { self == .controlCenter }
+
+    /// Where this slot sits relative to the structural apps island. `music` rides with the apps
+    /// island except in `.split4`, mirroring `BarSection.rawIslands`.
+    var clusterAffinity: DockSlotClusterAffinity {
+        switch self {
+        case .weather, .drawer, .launcher: return .leading
+        case .music: return .ridesWithApps
+        case .shelf, .backgroundApps, .clockCalendar, .controlCenter, .screenshots,
+             .clipboard, .dictionary, .terminal, .downloads, .trash, .aiTracking: return .trailing
+        }
+    }
+}
+
+enum DockSlotClusterAffinity: String, Codable, Sendable {
+    case leading
+    case ridesWithApps
+    case trailing
+}
+
+/// One slot plus its hidden flag. Presence in `items` keeps a hidden slot's position (I2).
+struct DockSlotEntry: Codable, Equatable, Sendable, Identifiable {
+    var item: DockSlotItem
+    var isHidden: Bool
+
+    var id: DockSlotItem { item }
+
+    enum CodingKeys: String, CodingKey { case item, isHidden }
+}
+
+/// The one ordered Dock layout (I1). Decoding never normalises or reorders.
+struct DockSlotLayout: Codable, Equatable, Sendable {
+    /// MD-2 writes this. MD-1 only declares it.
+    static let defaultsKey = "com.katikati.dock.slotLayout.v1"
+
+    var items: [DockSlotEntry]
+    var trailingCapsule: DockSlotItem?
+    var groupAdjacentUtilities: Bool
+
+    init(items: [DockSlotEntry], trailingCapsule: DockSlotItem? = nil, groupAdjacentUtilities: Bool = true) {
+        self.items = items
+        self.trailingCapsule = trailingCapsule
+        self.groupAdjacentUtilities = groupAdjacentUtilities
+    }
+
+    /// Strip order for every slot, `controlCenter` last so repair can restore it.
+    static let defaultPresetOrder: [DockSlotItem] = [
+        .weather, .drawer, .launcher, .music, .clockCalendar, .shelf, .backgroundApps,
+        .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash,
+        .aiTracking, .controlCenter,
+    ]
+
+    static let defaultHidden: Set<DockSlotItem> = [.aiTracking]
+
+    static let `default` = DockSlotLayout(
+        items: defaultPresetOrder.filter { $0 != .controlCenter }.map {
+            DockSlotEntry(item: $0, isHidden: defaultHidden.contains($0))
+        },
+        trailingCapsule: .controlCenter
+    )
+
+    /// Strip-visible slots in order. The capsule is not in `items`, so it never appears here (I4).
+    var visibleItems: [DockSlotItem] { items.filter { !$0.isHidden }.map(\.item) }
+
+    /// Every slot in strip order, the capsule-hosted one included last.
+    var orderedItems: [DockSlotItem] { visibleItems + (trailingCapsule.map { [$0] } ?? []) }
+
+    enum CodingKeys: String, CodingKey { case items, trailingCapsule, groupAdjacentUtilities }
+
+    /// Tolerant by design: a schema change must not throw on the launch path (I6).
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let raw = try? c.decodeIfPresent([LenientSlotEntry].self, forKey: .items)
+        let decoded = (raw ?? nil)?.compactMap(\.entry) ?? []
+        self.items = decoded.isEmpty ? Self.default.items : decoded
+        self.trailingCapsule = (try? c.decodeIfPresent(DockSlotItem.self, forKey: .trailingCapsule)) ?? nil
+        self.groupAdjacentUtilities = (try? c.decodeIfPresent(Bool.self, forKey: .groupAdjacentUtilities)) ?? true
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(items, forKey: .items)
+        try c.encodeIfPresent(trailingCapsule, forKey: .trailingCapsule)
+        try c.encode(groupAdjacentUtilities, forKey: .groupAdjacentUtilities)
+    }
+
+    private struct LenientSlotEntry: Decodable {
+        let entry: DockSlotEntry?
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: DockSlotEntry.CodingKeys.self)
+            guard let raw = try c.decodeIfPresent(String.self, forKey: .item),
+                  let item = DockSlotItem(rawValue: raw) else {
+                entry = nil
+                return
+            }
+            entry = DockSlotEntry(item: item,
+                                  isHidden: try c.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false)
+        }
+    }
+
+    /// Main-axis length of a side rail, computed **after** capsule extraction and hidden removal.
+    /// Adjacent utility slots form one cluster when `groupAdjacentUtilities` is set, matching the
+    /// legacy `.utilities` tile length. `barHeight` is accepted for parity with
+    /// `BarSection.railTileLength`; rail tiles are a fixed square today.
+    func railTileLength(barHeight: CGFloat) -> CGFloat {
+        var groups: [[DockSlotItem]] = []
+        for item in visibleItems {
+            let joinsPrevious = groupAdjacentUtilities && item.utilityKind != nil
+                && groups.last?.last?.utilityKind != nil
+            if joinsPrevious {
+                groups[groups.count - 1].append(item)
+            } else {
+                groups.append([item])
+            }
+        }
+        var total: CGFloat = 0
+        for (index, group) in groups.enumerated() {
+            if index > 0 { total += IslandChrome.railChipSpacing }
+            let allUtilities = group.allSatisfy { $0.utilityKind != nil }
+            if allUtilities && group.count > 1 {
+                total += BarSection.utilitiesRailLength(visibleCount: group.count)
+            } else {
+                total += CGFloat(group.count) * BarSection.railTileSize
+            }
+        }
+        return total
+    }
+}
+
+/// One island for a layout mode. `index` is the 0-based island order.
+struct DockSlotCluster: Equatable, Sendable, Identifiable {
+    var index: Int
+    var items: [DockSlotItem]
+    /// True for the structural apps island, which holds running-app chips rather than slots.
+    var containsApps: Bool
+
+    var id: Int { index }
+}
+
+/// Pure, total, non-throwing repair and derivation.
+enum DockModularityValidator {
+    /// Duplicates collapse (first occurrence wins), the capsule wins over a strip copy, an
+    /// ineligible capsule item is demoted, and missing items are restored at preset positions.
+    /// Hidden flags and custom order are never disturbed (I2).
+    static func validate(_ layout: DockSlotLayout) -> DockSlotLayout {
+        var capsule = layout.trailingCapsule
+        if let candidate = capsule, !candidate.isCapsuleEligible { capsule = nil }
+
+        var kept: [DockSlotEntry] = []
+        var seen = Set<DockSlotItem>()
+        for entry in layout.items {
+            if let capsule, entry.item == capsule { continue }
+            guard seen.insert(entry.item).inserted else { continue }
+            kept.append(entry)
+        }
+        if let capsule { seen.insert(capsule) }
+
+        for item in DockSlotLayout.defaultPresetOrder where !seen.contains(item) {
+            let entry = DockSlotEntry(item: item, isHidden: DockSlotLayout.defaultHidden.contains(item))
+            kept.insert(entry, at: insertionIndex(for: item, in: kept))
+            seen.insert(item)
+        }
+        return DockSlotLayout(items: kept,
+                              trailingCapsule: capsule,
+                              groupAdjacentUtilities: layout.groupAdjacentUtilities)
+    }
+
+    /// Rule check without repair, so tests can prove a repair happened.
+    static func isModular(_ layout: DockSlotLayout) -> Bool {
+        let all = layout.items.map(\.item) + (layout.trailingCapsule.map { [$0] } ?? [])
+        guard all.count == DockSlotItem.allCases.count, Set(all).count == all.count else { return false }
+        if let capsule = layout.trailingCapsule, !capsule.isCapsuleEligible { return false }
+        return derivedSections(for: layout).filter { $0 == .apps }.count == 1
+    }
+
+    /// Island shapes matching `BarSection.rawIslands` (L158–190).
+    static func clusters(for layout: DockSlotLayout, mode: BarLayoutMode) -> [DockSlotCluster] {
+        let visible = layout.visibleItems
+        let leading = visible.filter { $0.clusterAffinity == .leading }
+        let rides = visible.filter { $0.clusterAffinity == .ridesWithApps }
+        let trailing = visible.filter { $0.clusterAffinity == .trailing }
+
+        var shapes: [(apps: Bool, items: [DockSlotItem])]
+        switch mode {
+        case .windows, .centered:
+            shapes = [(true, visible)]
+        case .split3:
+            shapes = [(false, leading), (true, rides), (false, trailing)]
+        case .split4:
+            shapes = [(false, leading), (true, []), (false, rides), (false, trailing)]
+        case .split5:
+            shapes = leading.map { (false, [$0]) } + [(true, rides)] + trailing.map { (false, [$0]) }
+        }
+
+        var result: [DockSlotCluster] = []
+        for shape in shapes where shape.apps || !shape.items.isEmpty {
+            result.append(DockSlotCluster(index: result.count, items: shape.items, containsApps: shape.apps))
+        }
+        return result
+    }
+
+    /// `BarSection` order this layout produces, with the structural apps island inserted once.
+    static func derivedSections(for layout: DockSlotLayout,
+                                mode: BarLayoutMode = .windows) -> [BarSection] {
+        var result: [BarSection] = []
+        for cluster in clusters(for: layout, mode: mode) {
+            // Inside a mixed island the apps chips sit after the leading slots, not at its head.
+            var emittedApps = false
+            for item in cluster.items {
+                if cluster.containsApps, !emittedApps, item.clusterAffinity != .leading {
+                    result.append(.apps)
+                    emittedApps = true
+                }
+                if let section = item.section { result.append(section) }
+            }
+            if cluster.containsApps, !emittedApps { result.append(.apps) }
+        }
+        return result
+    }
+
+    private static func insertionIndex(for item: DockSlotItem, in items: [DockSlotEntry]) -> Int {
+        let preset = DockSlotLayout.defaultPresetOrder
+        guard let target = preset.firstIndex(of: item) else { return items.count }
+        for (offset, entry) in items.enumerated() {
+            guard let index = preset.firstIndex(of: entry.item) else { continue }
+            if index > target { return offset }
+        }
+        return items.count
+    }
+}
+
+// MARK: - Capsule-aware deduplication (additive, slice MD-1)
+
+extension DockToolDeduplication {
+    /// Bundle IDs the layout already stands for. Hidden slots own nothing (I3).
+    static func suppressedAppBundleIDs(slotLayout: DockSlotLayout) -> Set<String> {
+        Set(slotLayout.orderedItems.compactMap(\.bundleID))
+    }
+
+    static func visibleAppBundleIDs(_ bundleIDs: [String], slotLayout: DockSlotLayout) -> [String] {
+        let suppressed = suppressedAppBundleIDs(slotLayout: slotLayout)
+        return bundleIDs.filter { !suppressed.contains($0) }
+    }
+}

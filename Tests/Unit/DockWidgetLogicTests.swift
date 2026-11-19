@@ -695,3 +695,205 @@ final class TickerModelTests: XCTestCase {
         XCTAssertEqual(reloaded.floatingWidgetStackOrigin, CGPoint(x: 420, y: 120))
     }
 }
+
+// MARK: - Modular Dock core (slice MD-1)
+
+final class ModularDockCoreTests: XCTestCase {
+    private func hidden(_ items: [DockSlotEntry], _ wanted: DockSlotItem...) -> [DockSlotEntry] {
+        items.map { DockSlotEntry(item: $0.item, isHidden: $0.isHidden || wanted.contains($0.item)) }
+    }
+
+    func testDefaultPresetIsCompleteAndModular() {
+        let preset = DockSlotLayout.default
+        XCTAssertEqual(preset.items.map(\.item), [
+            .weather, .drawer, .launcher, .music, .clockCalendar, .shelf, .backgroundApps,
+            .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash, .aiTracking
+        ])
+        XCTAssertEqual(preset.trailingCapsule, .controlCenter)
+        XCTAssertEqual(preset.items.filter(\.isHidden).map(\.item), [.aiTracking], "only AI starts hidden")
+        XCTAssertEqual(Set(preset.items.map(\.item) + [.controlCenter]).count, DockSlotItem.allCases.count,
+                       "the preset covers all 15 slots once")
+        XCTAssertTrue(DockModularityValidator.isModular(preset))
+        XCTAssertEqual(DockModularityValidator.validate(preset), preset, "a valid layout is untouched")
+    }
+
+    func testDuplicateItemsCollapseKeepingTheFirstOccurrence() {
+        let entries = [
+            DockSlotEntry(item: .weather, isHidden: false),
+            DockSlotEntry(item: .shelf, isHidden: true),
+            DockSlotEntry(item: .weather, isHidden: true),
+        ]
+        let repaired = DockModularityValidator.validate(DockSlotLayout(items: entries, trailingCapsule: .controlCenter))
+        XCTAssertEqual(repaired.items.filter { $0.item == .weather }.count, 1)
+        XCTAssertEqual(repaired.items.first { $0.item == .weather }?.isHidden, false, "first wins with its flag")
+        XCTAssertEqual(repaired.items.first { $0.item == .shelf }?.isHidden, true, "repair never un-hides")
+    }
+
+    func testCapsuleItemIsRemovedFromItemsAndWinsTheConflict() {
+        let entries = DockSlotItem.allCases.map { DockSlotEntry(item: $0, isHidden: false) }
+        let repaired = DockModularityValidator.validate(DockSlotLayout(items: entries, trailingCapsule: .controlCenter))
+        XCTAssertFalse(repaired.items.contains { $0.item == .controlCenter })
+        XCTAssertEqual(repaired.trailingCapsule, .controlCenter)
+        XCTAssertEqual(repaired.items.count, DockSlotItem.allCases.count - 1)
+    }
+
+    func testIneligibleCapsuleItemIsDemotedBackToTheStrip() {
+        let entries = DockSlotItem.allCases.filter { $0 != .music }
+            .map { DockSlotEntry(item: $0, isHidden: false) }
+        let repaired = DockModularityValidator.validate(DockSlotLayout(items: entries, trailingCapsule: .music))
+        XCTAssertNil(repaired.trailingCapsule)
+        XCTAssertEqual(repaired.items.first { $0.item == .music }?.isHidden, false)
+        XCTAssertTrue(DockModularityValidator.isModular(repaired))
+    }
+
+    func testMissingItemsAreRestoredAtPresetPositionsAndHiddenFlagsSurvive() {
+        let entries = [
+            DockSlotEntry(item: .terminal, isHidden: true),
+            DockSlotEntry(item: .launcher, isHidden: false),
+        ]
+        let repaired = DockModularityValidator.validate(DockSlotLayout(items: entries))
+        XCTAssertEqual(repaired.items.count, DockSlotItem.allCases.count, "no capsule, so all 15 live on the strip")
+        XCTAssertEqual(repaired.items.first { $0.item == .terminal }?.isHidden, true)
+        XCTAssertEqual(repaired.items.first { $0.item == .launcher }?.isHidden, false)
+        XCTAssertEqual(repaired.items.first?.item, .weather, "restored items keep preset order")
+        XCTAssertEqual(repaired.items.last?.item, .controlCenter, "a layout with no capsule shows Control Center")
+        XCTAssertTrue(DockModularityValidator.isModular(repaired))
+    }
+
+    func testDerivedSectionOrderContainsAppsExactlyOnce() {
+        let modes: [BarLayoutMode] = [.windows, .centered, .split3, .split4, .split5]
+        for mode in modes {
+            let sections = DockModularityValidator.derivedSections(for: .default, mode: mode)
+            XCTAssertEqual(sections.filter { $0 == .apps }.count, 1, "\(mode)")
+        }
+        XCTAssertEqual(Array(DockModularityValidator.derivedSections(for: .default).prefix(5)),
+                       [.weather, .utilities, .launcher, .apps, .media])
+        XCTAssertEqual(DockModularityValidator.derivedSections(for: .default).filter { $0 == .apps }.count, 1)
+    }
+
+    func testSplitModesMirrorTheSectionAnchorShapes() {
+        let preset = DockSlotLayout.default
+
+        let windows = DockModularityValidator.clusters(for: preset, mode: .windows)
+        XCTAssertEqual(windows.count, 1)
+        XCTAssertEqual(windows[0].items.count, 13, "hidden AI is not a cluster member")
+
+        let split3 = DockModularityValidator.clusters(for: preset, mode: .split3)
+        XCTAssertEqual(split3.count, 3)
+        XCTAssertEqual(split3[0].items, [.weather, .drawer, .launcher])
+        XCTAssertTrue(split3[1].containsApps)
+        XCTAssertEqual(split3[1].items, [.music], "split3 keeps media in the apps island")
+        XCTAssertEqual(split3[2].items.first, .clockCalendar)
+
+        let split4 = DockModularityValidator.clusters(for: preset, mode: .split4)
+        XCTAssertEqual(split4.count, 4)
+        XCTAssertEqual(split4[1].items, [], "the apps island holds running-app chips, not a slot")
+        XCTAssertEqual(split4[2].items, [.music])
+
+        let split5 = DockModularityValidator.clusters(for: preset, mode: .split5)
+        XCTAssertEqual(split5.count, 13, "3 leading + apps + 9 trailing")
+        XCTAssertEqual(split5.map(\.index), Array(0..<split5.count))
+    }
+
+    func testSplit4DetachesMusicAndSplit3DoesNot() {
+        let preset = DockSlotLayout.default
+        XCTAssertEqual(DockModularityValidator.clusters(for: preset, mode: .split3)[1].items, [.music])
+        XCTAssertEqual(DockModularityValidator.clusters(for: preset, mode: .split4)[2].items, [.music])
+
+        let withoutMusic = DockModularityValidator.validate(
+            DockSlotLayout(items: hidden(preset.items, .music), trailingCapsule: .controlCenter))
+        XCTAssertFalse(withoutMusic.visibleItems.contains(.music))
+        XCTAssertEqual(DockModularityValidator.clusters(for: withoutMusic, mode: .split4).count, 3,
+                       "no media means no fourth island, matching rawIslands")
+        XCTAssertEqual(DockModularityValidator.clusters(for: withoutMusic, mode: .split3).count, 3)
+    }
+
+    func testRailLengthIgnoresTheCapsuleHostedSlot() {
+        let preset = DockSlotLayout.default
+        let withoutCapsule = DockSlotLayout(items: preset.items, trailingCapsule: nil)
+        XCTAssertEqual(preset.railTileLength(barHeight: 40), withoutCapsule.railTileLength(barHeight: 40),
+                       "the capsule adds no rail tile")
+
+        let onStrip = DockSlotLayout(items: preset.items + [DockSlotEntry(item: .controlCenter, isHidden: false)],
+                                    trailingCapsule: nil)
+        XCTAssertEqual(onStrip.railTileLength(barHeight: 40) - withoutCapsule.railTileLength(barHeight: 40),
+                       BarSection.railTileSize + IslandChrome.railChipSpacing, accuracy: 0.001)
+    }
+
+    func testRailLengthMatchesTheLegacyUtilityPathForTheSameContent() {
+        let utilities: [DockSlotItem] = [.drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash]
+        let layout = DockSlotLayout(items: utilities.map { DockSlotEntry(item: $0, isHidden: false) })
+        XCTAssertEqual(layout.railTileLength(barHeight: 40),
+                       BarSection.utilities.railTileLength(barHeight: 40, visibleUtilityCount: utilities.count),
+                       accuracy: 0.001)
+        XCTAssertEqual(layout.railTileLength(barHeight: 40),
+                       BarSection.utilitiesRailLength(visibleCount: utilities.count), accuracy: 0.001)
+    }
+
+    func testCorruptAndLegacyJSONDecodesTolerantly() {
+        let empty = Data("{\"items\":[],\"trailingCapsule\":null}".utf8)
+        let decodedEmpty = try? JSONDecoder().decode(DockSlotLayout.self, from: empty)
+        XCTAssertEqual(decodedEmpty?.items.map(\.item), DockSlotLayout.default.items.map(\.item))
+        XCTAssertNil(decodedEmpty?.trailingCapsule)
+
+        let messy = Data("""
+        {"items":[{"item":"warpDrive"},{"item":"weather"}],"trailingCapsule":"weather","extra":1}
+        """.utf8)
+        let decodedMessy = try? JSONDecoder().decode(DockSlotLayout.self, from: messy)
+        XCTAssertEqual(decodedMessy?.items.map(\.item), [.weather], "unknown slots drop, known ones survive")
+        XCTAssertEqual(decodedMessy?.items.first?.isHidden, false, "a missing flag means visible")
+        XCTAssertEqual(decodedMessy?.trailingCapsule, .weather, "decode does not repair; validate does")
+
+        let repaired = DockModularityValidator.validate(decodedMessy!)
+        XCTAssertNil(repaired.trailingCapsule)
+        XCTAssertTrue(repaired.items.contains { $0.item == .weather })
+        XCTAssertTrue(DockModularityValidator.isModular(repaired))
+    }
+
+    func testLayoutRoundTripsWithoutReordering() {
+        let data = try? JSONEncoder().encode(DockSlotLayout.default)
+        XCTAssertNotNil(data)
+        let decoded = data.flatMap { try? JSONDecoder().decode(DockSlotLayout.self, from: $0) }
+        XCTAssertEqual(decoded, DockSlotLayout.default)
+        XCTAssertEqual(decoded?.items.map(\.item), DockSlotLayout.default.items.map(\.item),
+                       "decode must not normalise the order")
+    }
+
+    func testShelfAndDrawerSwapKeepsEveryOtherSlotInPlace() {
+        var items = DockSlotLayout.default.items
+        let shelfIndex = items.firstIndex { $0.item == .shelf }!
+        let drawerIndex = items.firstIndex { $0.item == .drawer }!
+        items.swapAt(shelfIndex, drawerIndex)
+
+        let swapped = DockSlotLayout(items: items, trailingCapsule: .controlCenter)
+        XCTAssertEqual(swapped.items[drawerIndex].item, .shelf)
+        XCTAssertEqual(swapped.items[shelfIndex].item, .drawer)
+        XCTAssertEqual(DockModularityValidator.validate(swapped).items.map(\.item), items.map(\.item),
+                       "repair preserves a custom order")
+        XCTAssertEqual(Set(swapped.items.map(\.item)), Set(DockSlotLayout.default.items.map(\.item)))
+    }
+
+    func testCapsuleAwareDedupSuppressesOnlyVisibleModules() {
+        let preset = DockSlotLayout.default
+        XCTAssertEqual(DockToolDeduplication.suppressedAppBundleIDs(slotLayout: preset),
+                       ["com.apple.Dictionary", "com.apple.Terminal"])
+        XCTAssertEqual(DockToolDeduplication.visibleAppBundleIDs(
+            ["com.apple.Terminal", "com.apple.Safari", "com.apple.Dictionary"], slotLayout: preset),
+            ["com.apple.Safari"], "the apps strip keeps only what has no slot of its own")
+
+        let hiddenTerminal = DockSlotLayout(items: hidden(preset.items, .terminal),
+                                           trailingCapsule: .controlCenter)
+        XCTAssertEqual(DockToolDeduplication.suppressedAppBundleIDs(slotLayout: hiddenTerminal),
+                       ["com.apple.Dictionary"], "a hidden slot owns nothing")
+    }
+
+    func testSlotDedupLeavesTheEnabledSectionResultsUnchanged() {
+        let sections: [BarSection] = [.apps, .dictionary, .terminal]
+        let legacy = DockToolDeduplication.suppressedAppBundleIDs(enabledSections: sections)
+        XCTAssertEqual(legacy, DockToolDeduplication.suppressedAppBundleIDs(slotLayout: .default))
+        XCTAssertEqual(DockToolDeduplication.visibleAppBundleIDs(["com.apple.Terminal"], enabledSections: sections),
+                       DockToolDeduplication.visibleAppBundleIDs(["com.apple.Terminal"], slotLayout: .default))
+        XCTAssertEqual(DockToolDeduplication.bundleIDBySection.count, 2,
+                       "the section-keyed table still drives the legacy path")
+    }
+}
