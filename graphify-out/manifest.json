@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795043885.8060875,
-    "seen": 1795043932.533175,
-    "ast_hash": "bda7d34d4bda8afebe5f03c945eafed2",
+    "mtime": 1795048161.1036367,
+    "seen": 1795048190.4723,
+    "ast_hash": "9eb724f81feecbec685aa57517de52c2",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7542,9 +7542,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopBoxModel.swift": {
-    "mtime": 1795038743.077557,
-    "seen": 1795039003.16862,
-    "ast_hash": "b625134aa8ea4b8ae8db81910691deb8",
+    "mtime": 1795048016.7293978,
+    "seen": 1795048190.4716759,
+    "ast_hash": "ba629f3923cb790c98ba7416316874f2",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFolderOrdering.swift": {
@@ -7641,6 +7641,18 @@
     "mtime": 1795042109.4242182,
     "seen": 1795043502.956495,
     "ast_hash": "cabf31ae496545f1a0d31d3624597a60",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/DesktopFileStackModel.swift": {
+    "mtime": 1795048014.7521257,
+    "seen": 1795048190.471678,
+    "ast_hash": "6404cdff73c4f0edea5fb0d1c50faeda",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/DesktopFileStackTests.swift": {
+    "mtime": 1795048018.652589,
+    "seen": 1795048190.471979,
+    "ast_hash": "cfd249c751d9a6ff1d63e381f843f738",
     "semantic_hash": ""
   }
 }
