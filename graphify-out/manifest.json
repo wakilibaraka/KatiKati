@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795049316.459426,
-    "seen": 1795049366.067033,
-    "ast_hash": "27e9de4efbdfc80be56a21313ea07972",
+    "mtime": 1795049684.2101743,
+    "seen": 1795049721.120382,
+    "ast_hash": "89006a3c6721dfb902fc722120db1c7c",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7578,9 +7578,9 @@
     "semantic_hash": ""
   },
   "Platform/Desktop/DesktopBoxStore.swift": {
-    "mtime": 1795039142.2807937,
-    "seen": 1795039303.108447,
-    "ast_hash": "1478ff8c011305b4e6ed45328548d87a",
+    "mtime": 1795049424.1142526,
+    "seen": 1795049721.119946,
+    "ast_hash": "75bba765d6e6fdc5c1c530e3420a6845",
     "semantic_hash": ""
   },
   "Tests/Unit/DesktopBoxStoreTests.swift": {
@@ -7614,9 +7614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWidgetChromeView.swift": {
-    "mtime": 1795049077.168694,
-    "seen": 1795049366.0659719,
-    "ast_hash": "4670a0ddf58647359ce75bd99e4e8e44",
+    "mtime": 1795049519.119914,
+    "seen": 1795049721.119531,
+    "ast_hash": "0d2b55987887e5d6bf1cf783749708ff",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopFolderBoxView.swift": {
@@ -7626,15 +7626,15 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795040882.483469,
-    "seen": 1795041008.902496,
-    "ast_hash": "6968bb93098a4a4bc8e9d4b16d4f654f",
+    "mtime": 1795049431.620733,
+    "seen": 1795049721.1194859,
+    "ast_hash": "8f51f925428a759e9e22538a7e9e6a47",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795043350.4915142,
-    "seen": 1795043502.956328,
-    "ast_hash": "a7d0b4375883f19ef8f0d4e4c946b8a9",
+    "mtime": 1795049477.6894443,
+    "seen": 1795049721.119404,
+    "ast_hash": "274b36ff3198442c16a6c096f2f8bdd0",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
