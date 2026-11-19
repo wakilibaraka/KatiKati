@@ -91,6 +91,33 @@ final class ShortcutsTests: XCTestCase {
         XCTAssertNil(tap(&d, 58, at: 0))
         XCTAssertNil(tap(&d, 61, at: 0.2))
     }
+
+    // MARK: Slice MD-5 · ⌘ guard
+
+    func testPointerActivityBreaksTheSequence() {
+        var d = ModifierDoubleTapDetector()
+        XCTAssertNil(tap(&d, 55, at: 0))
+        d.pointerActivity()
+        XCTAssertNil(tap(&d, 55, at: 0.2), "⌘+drag then a quick tap is not a double tap")
+        XCTAssertEqual(tap(&d, 55, at: 0.35), .leftCommand,
+                       "a clean pair after the break still fires")
+    }
+
+    func testCommandDoubleTapObeysTheDocumentedWindow() {
+        var d = ModifierDoubleTapDetector()
+        XCTAssertNil(tap(&d, 55, at: 0))
+        XCTAssertNil(tap(&d, 55, at: 0.4), "release-to-release over 350 ms is not a double tap")
+
+        var quick = ModifierDoubleTapDetector()
+        XCTAssertNil(tap(&quick, 55, at: 0))
+        XCTAssertEqual(tap(&quick, 55, at: 0.34), .leftCommand, "inside 350 ms it fires")
+    }
+
+    func testAHeldCommandIsNotATap() {
+        var d = ModifierDoubleTapDetector()
+        XCTAssertNil(tap(&d, 55, at: 0, hold: 0.4), "holding ⌘ is a hold, not a tap")
+        XCTAssertNil(tap(&d, 55, at: 0.5))
+    }
 }
 
 // MARK: - Phase 9d / 9e

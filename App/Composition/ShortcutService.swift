@@ -87,7 +87,11 @@ final class ShortcutService {
     }
 
     private func installEventMonitors() {
-        let mask: NSEvent.EventTypeMask = [.flagsChanged, .keyDown]
+        // Slice MD-5: pointer events are watched only so they can break a tap in progress — `handle`
+        // resets on any kind that is not `flagsChanged`. A `⌘`+drag therefore never pairs with a tap.
+        let mask: NSEvent.EventTypeMask = [.flagsChanged, .keyDown,
+                                           .leftMouseDown, .rightMouseDown, .otherMouseDown,
+                                           .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask) { [weak self] event in
             let kind = event.type, code = event.keyCode, flags = event.modifierFlags, time = event.timestamp
             Task { @MainActor in self?.handle(kind: kind, keyCode: code, flags: flags, time: time) }
@@ -106,7 +110,12 @@ final class ShortcutService {
     }
 
     private func handle(kind: NSEvent.EventType, keyCode: UInt16, flags: NSEvent.ModifierFlags, time: TimeInterval) {
-        guard kind == .flagsChanged else { detector.reset(); cancelHold(); return }
+        guard kind == .flagsChanged else {
+            // A key press, a click or a drag: none of them can be part of a double tap.
+            detector.pointerActivity()
+            cancelHold()
+            return
+        }
         guard let key = ShortcutTapKey(keyCode: keyCode) else { detector.reset(); cancelHold(); return }
         let family: NSEvent.ModifierFlags = {
             switch key {

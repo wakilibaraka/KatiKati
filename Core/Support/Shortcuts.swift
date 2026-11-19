@@ -436,6 +436,12 @@ struct ModifierDoubleTapDetector {
         return nil
     }
 
+    /// Any pointer press or drag breaks the sequence (slice MD-5). `⌘`+click and `⌘`+drag are chords,
+    /// not taps: without this the release ending a drag could pair with the next tap and fire.
+    mutating func pointerActivity() {
+        reset()
+    }
+
     /// Any non-modifier key (or a modifier combination) breaks the sequence.
     mutating func reset() {
         downKey = nil
