@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795099021.029233,
-    "seen": 1795100255.8491032,
-    "ast_hash": "ede7cd587cb2e1dcc31499ec8a1e788e",
+    "mtime": 1795104351.4650629,
+    "seen": 1795104707.9007208,
+    "ast_hash": "812cfa41aa40ce09d9b2ce4d6fdfccff",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795103335.8773577,
-    "seen": 1795103448.527325,
-    "ast_hash": "dfdcac0b499dcf5714d7e42dc5556364",
+    "mtime": 1795104199.024235,
+    "seen": 1795104707.901036,
+    "ast_hash": "35486f3e1d07395a5286187e10c206a4",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795100147.5535395,
-    "seen": 1795100255.84975,
-    "ast_hash": "db1d9d6552b28987709da0c17dccbe9d",
+    "mtime": 1795104258.1286623,
+    "seen": 1795104707.901345,
+    "ast_hash": "9aa06f6e96cb296d813e8d60326ef042",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795103414.1991806,
-    "seen": 1795103448.5279849,
-    "ast_hash": "ee34967b1f6bae1a00a924810dbb90a0",
+    "mtime": 1795104644.1405416,
+    "seen": 1795104707.901692,
+    "ast_hash": "9f181290eadf2326268d87bdabc5d0d3",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1795103162.0421202,
-    "seen": 1795103448.527694,
-    "ast_hash": "4550059838d859a797f3f4400397e172",
+    "mtime": 1795104249.2817597,
+    "seen": 1795104707.9013948,
+    "ast_hash": "e89f144d8bdf311e3c568fa72791d563",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
