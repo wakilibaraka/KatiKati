@@ -360,10 +360,10 @@
     "semantic_hash": "86cc29f5f50f94f2e7cb09e166ba65ba"
   },
   "App/Composition/RecentlyClosedStore.swift": {
-    "mtime": 1791999130.812332,
-    "seen": 1792295707.060408,
-    "ast_hash": "f6a9fc3326d65f1e3c167681c18ec1f2",
-    "semantic_hash": "f6a9fc3326d65f1e3c167681c18ec1f2"
+    "mtime": 1795096068.1891367,
+    "seen": 1795096712.650944,
+    "ast_hash": "17a3d50285d8a55cf958d9f47a54e4f7",
+    "semantic_hash": ""
   },
   "App/Composition/RunningApplicationStore.swift": {
     "mtime": 1794909641.2185123,
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795088545.3069432,
-    "seen": 1795089049.732776,
-    "ast_hash": "928bfd383d4dc099321b13fd661d5398",
+    "mtime": 1795096626.8346744,
+    "seen": 1795096712.6510122,
+    "ast_hash": "b81b96819b25be8301df08c227a46544",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -546,8 +546,8 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795009950.9952662,
-    "seen": 1795013547.141375,
+    "mtime": 1795096532.0900419,
+    "seen": 1795096712.651026,
     "ast_hash": "fc7cbc687c6fd35f329748f73e5f3f76",
     "semantic_hash": ""
   },
@@ -936,8 +936,8 @@
     "semantic_hash": ""
   },
   "App/Scenes/LauncherChip.swift": {
-    "mtime": 1794909644.9275386,
-    "seen": 1794910096.369366,
+    "mtime": 1795096430.2711706,
+    "seen": 1795096712.6511219,
     "ast_hash": "45d30192701aaa3f88ceb0f8d8ffc671",
     "semantic_hash": ""
   },
@@ -1050,8 +1050,8 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1795015822.8287802,
-    "seen": 1795016109.678773,
+    "mtime": 1795096531.4615877,
+    "seen": 1795096712.6511528,
     "ast_hash": "1a9dae12d48ab1bfc31e7bd5b2c9318f",
     "semantic_hash": ""
   },
@@ -7950,15 +7950,15 @@
     "semantic_hash": ""
   },
   "Platform/Backup/WebDAVBackupService.swift": {
-    "mtime": 1795089132.0045164,
-    "seen": 1795089205.827898,
-    "ast_hash": "d94fb2f60ab04c3d9afe375fcba5bfaf",
+    "mtime": 1795094202.6496975,
+    "seen": 1795094605.096707,
+    "ast_hash": "b04a9ad9e4f21ba46ec0a7940bb1a9af",
     "semantic_hash": ""
   },
   "Platform/Backup/WebDAVClient.swift": {
-    "mtime": 1795088246.7946022,
-    "seen": 1795089049.733249,
-    "ast_hash": "01724ad04ca8465c3e796f5cf607caf5",
+    "mtime": 1795094447.8306603,
+    "seen": 1795094605.096708,
+    "ast_hash": "b20574065d104a66ec78c05a060d9311",
     "semantic_hash": ""
   },
   "Platform/Backup/WebDAVCredentialStore.swift": {
@@ -7983,6 +7983,12 @@
     "mtime": 1795088575.4368286,
     "seen": 1795089049.733566,
     "ast_hash": "5b3c85eb00ce4a854c74e1ffc6215e0b",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/WebDAVClientTests.swift": {
+    "mtime": 1795094380.946762,
+    "seen": 1795094605.096995,
+    "ast_hash": "dcbe66e5eb54b0996baf799494a5c9f2",
     "semantic_hash": ""
   }
 }
