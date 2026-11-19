@@ -148,7 +148,7 @@ struct WebDAVClient: Sendable {
         }
         guard let http = response as? HTTPURLResponse else { throw WebDAVError.malformedResponse }
         if http.statusCode == 401 || http.statusCode == 403 { throw WebDAVError.unauthorized }
-        if http.statusCode == 404 { throw WebDAVError.notFound }
+        if http.statusCode == 404, !accepted.contains(404) { throw WebDAVError.notFound }
         let ok = accepted.isEmpty ? (200..<300).contains(http.statusCode) : accepted.contains(http.statusCode)
         guard ok else { throw WebDAVError.status(http.statusCode) }
         return data
@@ -163,6 +163,12 @@ private final class WebDAVMultistatusParser: NSObject, XMLParserDelegate {
     private var contentLength: Int64?
     private var text = ""
 
+    /// WebDAV servers normally namespace their multistatus elements (`D:response`). XMLParser
+    /// reports the qualified name unless namespace processing is enabled, so compare local names.
+    private func localName(_ name: String) -> String {
+        name.split(separator: ":").last.map(String.init)?.lowercased() ?? name.lowercased()
+    }
+
     func parser(
         _ parser: XMLParser,
         didStartElement elementName: String,
@@ -171,7 +177,7 @@ private final class WebDAVMultistatusParser: NSObject, XMLParserDelegate {
         attributes attributeDict: [String: String] = [:]
     ) {
         text = ""
-        switch elementName.lowercased() {
+        switch localName(elementName) {
         case "response":
             inResponse = true
             currentHref = nil
@@ -194,7 +200,7 @@ private final class WebDAVMultistatusParser: NSObject, XMLParserDelegate {
         namespaceURI: String?,
         qualifiedName qName: String?
     ) {
-        let name = elementName.lowercased()
+        let name = localName(elementName)
         if name == "href" && inResponse {
             currentHref = text.trimmingCharacters(in: .whitespacesAndNewlines)
         } else if name == "getcontentlength" && inResponse {

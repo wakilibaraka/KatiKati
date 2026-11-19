@@ -51,15 +51,21 @@ final class WebDAVBackupService: ObservableObject {
 
     let supportDirectory: URL
     private let defaults: UserDefaults
+    private let session: URLSession
+    private let passwordOverride: String?
     private var scheduler: Timer?
     private var isRunning = false
 
     init(
         defaults: UserDefaults = .standard,
         supportDirectory: URL? = nil,
-        startScheduler: Bool = false
+        startScheduler: Bool = false,
+        session: URLSession = .shared,
+        passwordOverride: String? = nil
     ) {
         self.defaults = defaults
+        self.session = session
+        self.passwordOverride = passwordOverride
         let base = supportDirectory
             ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
                 .map { $0.appendingPathComponent("KatiKati", isDirectory: true) }
@@ -83,7 +89,8 @@ final class WebDAVBackupService: ObservableObject {
     }
 
     func storedPassword() -> String? {
-        WebDAVCredentialStore.password(server: serverURL)
+        if let passwordOverride { return passwordOverride }
+        return WebDAVCredentialStore.password(server: serverURL)
     }
 
     private func makeClient() throws -> WebDAVClient {
@@ -92,7 +99,8 @@ final class WebDAVBackupService: ObservableObject {
         guard let password = storedPassword() else { throw ServiceError.noPassword }
         guard let client = WebDAVClient(
             serverURL: address,
-            credentials: WebDAVCredentials(username: username, password: password)
+            credentials: WebDAVCredentials(username: username, password: password),
+            session: session
         ) else { throw ServiceError.notConfigured }
         return client
     }

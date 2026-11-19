@@ -1454,6 +1454,7 @@
 		DB6700000000000000000162 /* DesktopPerformanceSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000161 /* DesktopPerformanceSettingsCard.swift */; };
 		DB6700000000000000000172 /* WebDAVSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000171 /* WebDAVSettingsCard.swift */; };
 		DB6700000000000000000182 /* WebDAVPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000181 /* WebDAVPerformanceTests.swift */; };
+		DB6800000000000000000102 /* WebDAVClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6800000000000000000101 /* WebDAVClientTests.swift */; };
 		DB6700000000000000000123 /* WebDAVCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000121 /* WebDAVCredentialStore.swift */; };
 		DB6700000000000000000133 /* WebDAVBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000131 /* WebDAVBackupService.swift */; };
 		DB6700000000000000000153 /* DesktopPerformanceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000151 /* DesktopPerformanceStore.swift */; };
@@ -2493,6 +2494,7 @@
 		DB6700000000000000000161 /* DesktopPerformanceSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopPerformanceSettingsCard.swift; path = App/Scenes/Desktop/DesktopPerformanceSettingsCard.swift; sourceTree = SOURCE_ROOT; };
 		DB6700000000000000000171 /* WebDAVSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVSettingsCard.swift; path = App/Scenes/WebDAVSettingsCard.swift; sourceTree = SOURCE_ROOT; };
 		DB6700000000000000000181 /* WebDAVPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVPerformanceTests.swift; path = Tests/Unit/WebDAVPerformanceTests.swift; sourceTree = SOURCE_ROOT; };
+		DB6800000000000000000101 /* WebDAVClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVClientTests.swift; path = Tests/Unit/WebDAVClientTests.swift; sourceTree = SOURCE_ROOT; };
 		DB6700000000000000000191 /* DesktopThumbnailCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopThumbnailCache.swift; path = Platform/Desktop/DesktopThumbnailCache.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -4266,6 +4268,7 @@
 				DB6700000000000000000113 /* WebDAVClient.swift in Sources */,
 				DB6700000000000000000143 /* DesktopPerformancePolicy.swift in Sources */,
 				DB6700000000000000000182 /* WebDAVPerformanceTests.swift in Sources */,
+				DB6800000000000000000102 /* WebDAVClientTests.swift in Sources */,
 				DB6700000000000000000193 /* DesktopThumbnailCache.swift in Sources */,
 				DB6700000000000000000123 /* WebDAVCredentialStore.swift in Sources */,
 				DB6700000000000000000133 /* WebDAVBackupService.swift in Sources */,
