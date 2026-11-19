@@ -69,6 +69,9 @@ private struct DesktopBoxesManageRows: View {
     @ObservedObject var boxStore: DesktopBoxStore
     let coordinator: DesktopCanvasCoordinator
 
+    @State private var hasOrganizeUndo = DesktopAutoOrganizeExecutor.loadLastUndoRecord() != nil
+    @State private var migrationError: String?
+
     var body: some View {
         SettingsRow(
             Text("Folder Boxes"),
@@ -76,13 +79,40 @@ private struct DesktopBoxesManageRows: View {
                 ? Text("Desktop stays clean until you add a folder box.")
                 : nil
         ) {
-            HStack(spacing: SettingsMetrics.controlSpacing) {
-                Button("Add Folder Box…") { coordinator.presentAddFolderBoxPanel() }
+            VStack(alignment: .trailing, spacing: 6) {
+                HStack(spacing: SettingsMetrics.controlSpacing) {
+                    Button("Add Folder Box…") { coordinator.presentAddFolderBoxPanel() }
+                        .buttonStyle(SettingsGelButtonStyle())
+                    Button("Create Starter Box") { coordinator.createStarterInboxBox() }
+                        .buttonStyle(SettingsGelButtonStyle())
+                        .help(Text(verbatim: "~/KatiKati/Inbox"))
+                }
+                HStack(spacing: SettingsMetrics.controlSpacing) {
+                    Button("Create Managed Box") { coordinator.createManagedBox() }
+                        .buttonStyle(SettingsGelButtonStyle())
+                    Button("Auto-Organize Folder…") {
+                        coordinator.presentAutoOrganizeSheet()
+                    }
                     .buttonStyle(SettingsGelButtonStyle())
-                Button("Create Starter Box") { coordinator.createStarterInboxBox() }
-                    .buttonStyle(SettingsGelButtonStyle())
-                    .help(Text(verbatim: "~/KatiKati/Inbox"))
+                    if hasOrganizeUndo {
+                        Button("Undo Last Organize") {
+                            _ = coordinator.undoLastAutoOrganize()
+                            hasOrganizeUndo = DesktopAutoOrganizeExecutor.loadLastUndoRecord() != nil
+                        }
+                        .buttonStyle(SettingsGelButtonStyle())
+                    }
+                }
             }
+        }
+        .onAppear {
+            hasOrganizeUndo = DesktopAutoOrganizeExecutor.loadLastUndoRecord() != nil
+        }
+
+        if let migrationError {
+            SettingsDivider()
+            Text(verbatim: migrationError)
+                .font(.caption)
+                .foregroundStyle(.red)
         }
 
         ForEach(boxStore.items) { item in
@@ -92,6 +122,33 @@ private struct DesktopBoxesManageRows: View {
                 note: item.backingPath.map { Text(verbatim: ($0 as NSString).abbreviatingWithTildeInPath) }
             ) {
                 HStack(spacing: 6) {
+                    if item.isManagedFolder {
+                        Text("Managed")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(.quaternary))
+
+                        Button {
+                            migrationError = coordinator.exportManagedBox(id: item.id)
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.borderless)
+                        .help(Text("Export to Folder…"))
+                        .accessibilityLabel(Text("Export to Folder…"))
+                    } else {
+                        Button {
+                            migrationError = coordinator.convertToManagedBox(id: item.id)
+                        } label: {
+                            Image(systemName: "internaldrive")
+                        }
+                        .buttonStyle(.borderless)
+                        .help(Text("Convert to Managed Storage"))
+                        .accessibilityLabel(Text("Convert to Managed Storage"))
+                    }
+
                     Button {
                         coordinator.toggleWidgetHidden(id: item.id)
                     } label: {

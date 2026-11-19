@@ -142343,6 +142343,246 @@
         "it": { "stringUnit": { "state": "translated", "value": "Separa pannello" } },
         "ko": { "stringUnit": { "state": "translated", "value": "탭 분리" } }
       }
+    },
+    "Managed Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Managed Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "托管收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "託管收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "管理ボックス" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verwaltete Box" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Boîte gérée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Caja gestionada" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Caja administrada" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Caixa Gerenciada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Caixa Gerida" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Riquadro gestito" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "관리형 상자" } }
+      }
+    },
+    "Auto-Organize Folder…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Auto-Organize Folder…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "智能整理文件夹…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "智慧整理資料夾…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダを自動整理…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ordner automatisch sortieren…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Organiser le dossier automatiquement…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Organizar carpeta automáticamente…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Organizar carpeta automáticamente…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Organizar Pasta Automaticamente…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Organizar Pasta Automaticamente…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Organizza cartella automaticamente…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더 자동 정리…" } }
+      }
+    },
+    "Undo Last Organize": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Undo Last Organize" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "撤销上次整理" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "還原上次整理" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "前回の整理を取り消す" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Letztes Sortieren widerrufen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Annuler la dernière organisation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Deshacer última organización" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Deshacer última organización" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desfazer Última Organização" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desfazer Última Organização" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Annulla ultima organizzazione" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "마지막 정리 실행 취소" } }
+      }
+    },
+    "Create Managed Box": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Create Managed Box" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新建托管收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新建託管收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "管理ボックスを作成" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verwaltete Box erstellen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Créer une boîte gérée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Crear caja gestionada" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Crear caja administrada" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Criar Caixa Gerenciada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Criar Caixa Gerida" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Crea riquadro gestito" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "관리형 상자 만들기" } }
+      }
+    },
+    "Convert to Managed Storage": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Convert to Managed Storage" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "转为 KatiKati 托管存储" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "轉為 KatiKati 託管儲存空間" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "管理ストレージへ変換" } },
+        "de": { "stringUnit": { "state": "translated", "value": "In verwalteten Speicher konvertieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Convertir vers le stockage géré" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Convertir a almacenamiento gestionado" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Convertir a almacenamiento administrado" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Converter para Armazenamento Gerenciado" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Converter para Armazenamento Gerido" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Converti in archiviazione gestita" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "관리형 저장소로 변환" } }
+      }
+    },
+    "Export to Folder…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Export to Folder…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "导出到文件夹…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "匯出至資料夾…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダへ書き出す…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "In Ordner exportieren…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Exporter vers un dossier…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Exportar a carpeta…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Exportar a carpeta…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Exportar para Pasta…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Exportar para Pasta…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Esporta in cartella…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더로 내보내기…" } }
+      }
+    },
+    "Managed": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Managed" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "托管" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "託管" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "管理" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verwaltet" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Gérée" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Gestionada" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Administrada" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Gerenciada" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Gerida" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Gestito" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "관리됨" } }
+      }
+    },
+    "Source Folder": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Source Folder" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "源文件夹" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "來源資料夾" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "整理元フォルダ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Quellordner" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dossier source" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Carpeta de origen" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Carpeta de origen" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pasta de Origem" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pasta de Origem" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cartella di origine" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "원본 폴더" } }
+      }
+    },
+    "Destination Folder": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Destination Folder" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "目标文件夹" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "目標資料夾" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "整理先フォルダ" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zielordner" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dossier de destination" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Carpeta de destino" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Carpeta de destino" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pasta de Destino" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pasta de Destino" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cartella di destinazione" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "대상 폴더" } }
+      }
+    },
+    "Choose…": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Choose…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "选择…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "選擇…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "選択…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Auswählen…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Choisir…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Seleccionar…" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Elegir…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Escolher…" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Escolher…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scegli…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "선택…" } }
+      }
+    },
+    "Include Folders": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Include Folders" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "包含子文件夹" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "包含子資料夾" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォルダも含める" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Ordner einschließen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Inclure les dossiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Incluir carpetas" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Incluir carpetas" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Incluir Pastas" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Incluir Pastas" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Includi cartelle" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "폴더 포함" } }
+      }
+    },
+    "Create Desktop Boxes for Categories": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Create Desktop Boxes for Categories" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "为分类文件夹创建桌面收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "為分類資料夾建立桌面收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "カテゴリごとのデスクトップボックスを作成" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibtisch-Boxen für Kategorien erstellen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Créer des boîtes du bureau pour les catégories" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Crear cajas de escritorio por categorías" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Crear cajas del escritorio por categorías" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Criar Caixas da Mesa por Categorias" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Criar Caixas da Secretária por Categorias" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Crea riquadri sulla Scrivania per categorie" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "카테고리별 데스크톱 상자 만들기" } }
+      }
+    },
+    "Organize Files": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Organize Files" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "开始整理" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "開始整理" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ファイルを整理" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dateien sortieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Organiser les fichiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Organizar archivos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Organizar archivos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Organizar Arquivos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Organizar Ficheiros" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Organizza file" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파일 정리" } }
+      }
+    },
+    "Folder access is required to preview files.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Folder access is required to preview files." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "需要文件夹访问权限才能预览文件。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "需要資料夾取用權限才能預覽檔案。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ファイルをプレビューするにはフォルダへのアクセス権が必要です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Für die Dateivorschau ist Ordnerzugriff erforderlich." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "L’accès au dossier est requis pour prévisualiser les fichiers." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se requiere acceso a la carpeta para previsualizar archivos." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Se requiere acceso a la carpeta para previsualizar archivos." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "O acesso à pasta é necessário para pré-visualizar arquivos." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "É necessário acesso à pasta para pré-visualizar ficheiros." } },
+        "it": { "stringUnit": { "state": "translated", "value": "È necessario l’accesso alla cartella per visualizzare l’anteprima dei file." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파일을 미리 보려면 폴더 접근 권한이 필요합니다." } }
+      }
+    },
+    "No files match the selected categories.": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No files match the selected categories." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "没有匹配所选分类的文件。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "沒有符合所選分類的檔案。" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "選択したカテゴリに一致するファイルはありません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Keine Dateien entsprechen den ausgewählten Kategorien." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucun fichier ne correspond aux catégories sélectionnées." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ningún archivo coincide con las categorías seleccionadas." } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Ningún archivo coincide con las categorías seleccionadas." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhum arquivo corresponde às categorias selecionadas." } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Nenhum ficheiro corresponde às categorias selecionadas." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessun file corrisponde alle categorie selezionate." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "선택한 카테고리와 일치하는 파일이 없습니다." } }
+      }
     }
   },
   "version": "1.0"

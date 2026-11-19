@@ -89,6 +89,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         var createStarterInboxBox: @MainActor () -> Void = {}
         var toggleQuickReveal: @MainActor () -> Void = {}
         var toggleHideAll: @MainActor () -> Void = {}
+        var autoOrganizeFolder: @MainActor () -> Void = {}
         var openSettings: @MainActor () -> Void = {}
     }
     private let desktopBoxes: DesktopBoxesMenuHooks
@@ -862,6 +863,14 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             starterItem.target = self
             desktopBoxesMenu.addItem(starterItem)
 
+            let organizeItem = NSMenuItem(
+                title: String(localized: "Auto-Organize Folder…"),
+                action: #selector(autoOrganizeDesktopFolderFromMenu),
+                keyEquivalent: ""
+            )
+            organizeItem.target = self
+            desktopBoxesMenu.addItem(organizeItem)
+
             if desktopBoxes.hasBoxes() {
                 desktopBoxesMenu.addItem(.separator())
                 let revealItem = NSMenuItem(
@@ -906,6 +915,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     @objc private func createStarterBoxFromMenu() {
         desktopBoxes.createStarterInboxBox()
+    }
+
+    @objc private func autoOrganizeDesktopFolderFromMenu() {
+        menu.cancelTrackingWithoutAnimation()
+        DispatchQueue.main.async { [desktopBoxes] in desktopBoxes.autoOrganizeFolder() }
     }
 
     @objc private func toggleDesktopQuickRevealFromMenu() {

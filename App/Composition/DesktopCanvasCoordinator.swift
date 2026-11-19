@@ -35,6 +35,7 @@ final class DesktopCanvasCoordinator {
 
     private var dragOriginFrames: [UUID: CGRect] = [:]
     private var resizeOriginFrame: CGRect?
+    private var autoOrganizeWindowController: DesktopAutoOrganizeWindowController?
 
     private var lastDoubleClickEnabled = false
     private var lastShowOnAllSpaces = true
@@ -99,6 +100,7 @@ final class DesktopCanvasCoordinator {
             queue: .main
         ) { [weak self] _ in MainActor.assumeIsolated { self?.reflowForDisplayChange() } }
 
+        DesktopManagedStorage.cleanupOrphanedStagingDirectories()
         reflowForDisplayChange()
         syncBlankDesktopMonitor()
         syncPanels()
@@ -106,6 +108,8 @@ final class DesktopCanvasCoordinator {
 
     func tearDown() {
         flushNow()
+        autoOrganizeWindowController?.close()
+        autoOrganizeWindowController = nil
         removeQuickRevealMonitors()
         blankDesktopMonitor?.stop()
         blankDesktopMonitor = nil
@@ -190,6 +194,101 @@ final class DesktopCanvasCoordinator {
         _ = try? store.createStarterInboxBox(
             displayUUID: target.uuid, visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
         )
+    }
+
+    func createManagedBox() {
+        let boxID = UUID()
+        guard let url = try? DesktopManagedStorage.createManagedBoxDirectory(for: boxID) else { return }
+        let target = screenContaining(point: NSEvent.mouseLocation)
+        let siblings = store.items.filter { !$0.isHidden }.map(\.frame)
+        let frame = DesktopLayoutEngine.initialPlacement(
+            existing: siblings, visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
+        )
+        let item = DesktopWidgetItem(
+            id: boxID,
+            kind: .folder,
+            title: String(localized: "Managed Box"),
+            backingPath: url.path,
+            isManagedFolder: true,
+            displayUUID: target.uuid,
+            frame: frame,
+            normalizedFrame: DesktopLayoutEngine.normalize(frame, in: target.visibleFrame)
+        )
+        store.add(item)
+    }
+
+    func convertToManagedBox(id: UUID) -> String? {
+        guard var item = store.item(for: id), !item.isManagedFolder, let path = item.backingPath else { return nil }
+        do {
+            let report = try DesktopManagedStorage.migrateToManagedStorage(
+                from: URL(fileURLWithPath: path, isDirectory: true),
+                boxID: id,
+                moveSourceToTrashAfterVerify: false
+            )
+            item.backingPath = report.destinationURL.path
+            item.isManagedFolder = true
+            store.update(item, immediate: true)
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
+
+    func exportManagedBox(id: UUID) -> String? {
+        guard var item = store.item(for: id), item.isManagedFolder, let path = item.backingPath else { return nil }
+        NSApp.activate(ignoringOtherApps: true)
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.prompt = String(localized: "Export")
+        guard panel.runModal() == .OK, let destDir = panel.url else { return nil }
+        do {
+            let report = try DesktopManagedStorage.exportManagedBox(
+                from: URL(fileURLWithPath: path, isDirectory: true),
+                to: destDir
+            )
+            item.backingPath = report.destinationURL.path
+            item.isManagedFolder = false
+            store.update(item, immediate: true)
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
+
+    func presentAutoOrganizeSheet() {
+        let controller = autoOrganizeWindowController ?? DesktopAutoOrganizeWindowController()
+        autoOrganizeWindowController = controller
+        controller.present(
+            onApply: { [weak self] plan, createBoxes in
+                guard let self else { throw CocoaError(.userCancelled) }
+                return try self.applyAutoOrganizePlan(plan, createBoxes: createBoxes)
+            },
+            onUndo: { [weak self] in
+                self?.undoLastAutoOrganize() ?? 0
+            }
+        )
+    }
+
+    func applyAutoOrganizePlan(
+        _ plan: DesktopOrganizePlan,
+        createBoxes: Bool
+    ) throws -> DesktopOrganizeUndoRecord {
+        let record = try DesktopAutoOrganizeExecutor.apply(plan)
+        if createBoxes {
+            for bucket in plan.buckets where !bucket.items.isEmpty {
+                addFolderBox(at: bucket.targetDirectory)
+            }
+        }
+        return record
+    }
+
+    func undoLastAutoOrganize() -> Int {
+        guard let record = DesktopAutoOrganizeExecutor.loadLastUndoRecord() else { return 0 }
+        let result = DesktopAutoOrganizeExecutor.undo(record)
+        return result.restoredCount
     }
 
     func toggleWidgetHidden(id: UUID) {

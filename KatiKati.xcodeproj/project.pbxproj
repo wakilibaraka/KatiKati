@@ -306,6 +306,7 @@
 		DB6100000000000000000083 /* DesktopAutoOrganizeExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000081 /* DesktopAutoOrganizeExecutor.swift */; };
 		DB6100000000000000000092 /* DesktopAutoOrganizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6100000000000000000091 /* DesktopAutoOrganizeTests.swift */; };
 		DB61000000000000000000A2 /* DesktopStackPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB61000000000000000000A1 /* DesktopStackPopoverView.swift */; };
+		DB61000000000000000000B2 /* DesktopAutoOrganizeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB61000000000000000000B1 /* DesktopAutoOrganizeSheet.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1617,6 +1618,7 @@
 		DB6100000000000000000081 /* DesktopAutoOrganizeExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopAutoOrganizeExecutor.swift; path = Platform/Desktop/DesktopAutoOrganizeExecutor.swift; sourceTree = SOURCE_ROOT; };
 		DB6100000000000000000091 /* DesktopAutoOrganizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopAutoOrganizeTests.swift; path = Tests/Unit/DesktopAutoOrganizeTests.swift; sourceTree = SOURCE_ROOT; };
 		DB61000000000000000000A1 /* DesktopStackPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopStackPopoverView.swift; path = App/Scenes/Desktop/DesktopStackPopoverView.swift; sourceTree = SOURCE_ROOT; };
+		DB61000000000000000000B1 /* DesktopAutoOrganizeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopAutoOrganizeSheet.swift; path = App/Scenes/Desktop/DesktopAutoOrganizeSheet.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3884,6 +3886,7 @@
 				DB6100000000000000000072 /* DesktopAutoOrganizeEngine.swift in Sources */,
 				DB6100000000000000000082 /* DesktopAutoOrganizeExecutor.swift in Sources */,
 				DB61000000000000000000A2 /* DesktopStackPopoverView.swift in Sources */,
+				DB61000000000000000000B2 /* DesktopAutoOrganizeSheet.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,

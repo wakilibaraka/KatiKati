@@ -313,6 +313,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             createStarterInboxBox: { [weak self] in self?.createDesktopStarterInboxBox() },
             toggleQuickReveal: { [weak self] in self?.toggleDesktopQuickReveal() },
             toggleHideAll: { [weak self] in self?.toggleDesktopHideAll() },
+            autoOrganizeFolder: { [weak self] in self?.presentDesktopAutoOrganize() },
             openSettings: { [weak self] in self?.openDesktopBoxesSettings() }
         )
     )
@@ -1222,6 +1223,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func toggleDesktopQuickReveal() { desktopCanvasCoordinator?.toggleQuickReveal() }
     func toggleDesktopHideAll() { desktopCanvasCoordinator?.toggleHideAll() }
+    func presentDesktopAutoOrganize() {
+        setDesktopCanvasEnabled(true)
+        desktopCanvasCoordinator?.presentAutoOrganizeSheet()
+    }
     func openDesktopBoxesSettings() { openSettings(selecting: .widgets) }
 
     /// Settings › Fixed Space Order (54d): the Dock's own `mru-spaces` state, nil when unreadable.
