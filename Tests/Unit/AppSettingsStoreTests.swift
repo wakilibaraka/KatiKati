@@ -2148,6 +2148,29 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setShowBackgroundApps(true)
         XCTAssertTrue(store.showsBackgroundAppsSlot)
     }
+
+    // MARK: Modular Dock settings (slice MD-4)
+
+    func testMovingASlotReordersAndPersistsWithoutLosingHiddenSlots() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        store.setDockSlotItem(.shelf, hidden: true)
+        let before = store.dockSlotLayout.items.map(\.item)
+        let shelfIndex = before.firstIndex(of: .shelf)!
+
+        store.moveDockSlotItem(.shelf, by: -1)
+        let after = store.dockSlotLayout.items.map(\.item)
+        XCTAssertEqual(after[shelfIndex - 1], .shelf, "a hidden slot still moves")
+        XCTAssertEqual(Set(after), Set(before), "nothing is lost")
+        XCTAssertEqual(store.dockSlotLayout.items.first { $0.item == .shelf }?.isHidden, true)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSlotLayout.items.map(\.item), after)
+
+        store.moveDockSlotItem(.shelf, by: -99)
+        XCTAssertEqual(store.dockSlotLayout.items.first?.item, .shelf, "moves clamp at the head")
+        store.moveDockSlotItem(.shelf, by: 99)
+        XCTAssertEqual(store.dockSlotLayout.items.last?.item, .shelf, "and at the tail")
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter, "the capsule never moves")
+    }
 }
 
 /// 只回答「读状态那一刻在不在主线程」：不在 → `.on`。

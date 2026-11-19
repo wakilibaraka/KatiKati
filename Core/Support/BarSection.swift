@@ -523,6 +523,27 @@ enum DockSlotItem: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var isCapsuleEligible: Bool { self == .controlCenter }
 
+    /// Settings label. Every name but `Control Centre` already existed as a localized key.
+    var title: String {
+        switch self {
+        case .weather: return String(localized: "Weather")
+        case .launcher: return String(localized: "Launcher")
+        case .drawer: return String(localized: "Drawer")
+        case .shelf: return String(localized: "Shelf")
+        case .backgroundApps: return String(localized: "Background Apps")
+        case .music: return String(localized: "Now Playing")
+        case .clockCalendar: return String(localized: "Clock & Date")
+        case .controlCenter: return String(localized: "Control Centre")
+        case .screenshots: return String(localized: "Screenshots")
+        case .clipboard: return String(localized: "Clipboard")
+        case .dictionary: return String(localized: "Dictionary")
+        case .terminal: return String(localized: "Terminal")
+        case .downloads: return String(localized: "Downloads")
+        case .trash: return String(localized: "Trash")
+        case .aiTracking: return String(localized: "AI")
+        }
+    }
+
     /// Where this slot sits relative to the structural apps island. `music` rides with the apps
     /// island except in `.split4`, mirroring `BarSection.rawIslands`.
     var clusterAffinity: DockSlotClusterAffinity {

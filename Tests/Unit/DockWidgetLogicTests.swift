@@ -1032,4 +1032,10 @@ final class ModularDockCoreTests: XCTestCase {
         XCTAssertEqual(twoHidden.utilitiesRailLength,
                        BarSection.utilitiesRailLength(visibleCount: 5), accuracy: 0.001)
     }
+
+    func testEverySlotHasADistinctSettingsLabel() {
+        let titles = DockSlotItem.allCases.map(\.title)
+        XCTAssertEqual(Set(titles).count, DockSlotItem.allCases.count, "a duplicated label would hide a slot")
+        XCTAssertTrue(titles.allSatisfy { !$0.isEmpty })
+    }
 }

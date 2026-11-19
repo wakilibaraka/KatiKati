@@ -1887,6 +1887,19 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(repaired.encoded(), forKey: DockSlotLayout.defaultsKey)
     }
 
+    /// Move one slot by `delta` positions, clamped. The capsule is not in `items`, so it never moves.
+    func moveDockSlotItem(_ item: DockSlotItem, by delta: Int) {
+        guard let index = dockSlotLayout.items.firstIndex(where: { $0.item == item }) else { return }
+        let target = min(max(0, index + delta), dockSlotLayout.items.count - 1)
+        guard target != index else { return }
+        var items = dockSlotLayout.items
+        let entry = items.remove(at: index)
+        items.insert(entry, at: target)
+        setDockSlotLayout(DockSlotLayout(items: items,
+                                         trailingCapsule: dockSlotLayout.trailingCapsule,
+                                         groupAdjacentUtilities: dockSlotLayout.groupAdjacentUtilities))
+    }
+
     /// Hide or show one slot without moving it (I2).
     func setDockSlotItem(_ item: DockSlotItem, hidden: Bool) {
         setDockSlotLayout(DockSlotLayout(

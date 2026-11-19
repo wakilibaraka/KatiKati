@@ -201,6 +201,46 @@ extension SettingsLayoutPane {
                 get: { store.showBackgroundApps },
                 set: { store.setShowBackgroundApps($0) }
             ))
+            // Slice MD-4: the one ordered slot list. Hide keeps a slot's position (I2), so the row
+            // stays listed while off; the capsule sits outside the list and gets its own picker.
+            SettingsDivider()
+            SettingsRow(Text("Dock Slots")) {
+                Picker("Control Centre", selection: Binding(
+                    get: { store.dockSlotLayout.trailingCapsule == .controlCenter },
+                    set: { store.setControlCentreTrailing($0) }
+                )) {
+                    Text("Capsule").tag(true)
+                    Text("Strip").tag(false)
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            ForEach(Array(store.dockSlotLayout.items.enumerated()), id: \.element.item) { index, entry in
+                SettingsDivider()
+                HStack(spacing: SettingsMetrics.controlSpacing) {
+                    Toggle(isOn: Binding(
+                        get: { !(store.dockSlotLayout.items.first { $0.item == entry.item }?.isHidden ?? false) },
+                        set: { store.setDockSlotItem(entry.item, hidden: !$0) }
+                    )) {
+                        Text(entry.item.title)
+                    }
+                    .toggleStyle(.switch)
+                    Spacer(minLength: SettingsMetrics.controlSpacing)
+                    Button {
+                        store.moveDockSlotItem(entry.item, by: -1)
+                    } label: {
+                        Image(systemName: "chevron.up")
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(index == 0)
+                    Button {
+                        store.moveDockSlotItem(entry.item, by: 1)
+                    } label: {
+                        Image(systemName: "chevron.down")
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(index == store.dockSlotLayout.items.count - 1)
+                }
+            }
             SettingsDivider()
             SettingsSegmentedRow(Text("Icon Set"), selection: Binding(
                 get: { store.iconSet }, set: store.setIconSet
