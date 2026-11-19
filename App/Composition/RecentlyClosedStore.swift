@@ -42,11 +42,19 @@ final class RecentlyClosedStore: ObservableObject {
     }
 
     /// Entries still worth offering: not running now, and the app is still installed.
-    func restorable() -> [(id: String, url: URL)] {
-        let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
-        return list.visible(excluding: running).compactMap { id in
-            NSWorkspace.shared.urlForApplication(withBundleIdentifier: id).map { (id, $0) }
-        }
+    ///
+    /// LaunchServices resolves an app URL and validates its signature here, so keep the work off
+    /// the main thread; the status menu must only read the finished cache.
+    func restorable() async -> [(id: String, url: URL)] {
+        let candidates = list.bundleIDs
+        return await Task.detached(priority: .utility) {
+            let running = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+            return candidates
+                .filter { !running.contains($0) }
+                .compactMap { id in
+                    NSWorkspace.shared.urlForApplication(withBundleIdentifier: id).map { (id, $0) }
+                }
+        }.value
     }
 
     func restore(_ url: URL) {

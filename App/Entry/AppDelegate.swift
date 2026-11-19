@@ -259,6 +259,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Keeps the drawer pop's app items equal to the stashed apps (`PopStore.syncApps`).
     private var popAppsSubscription: AnyCancellable?
     private var windowLiftSettingSubscription: AnyCancellable?
+    /// Recently Closed menu data is prepared off the menu-open path: resolving app URLs and asking
+    /// LaunchServices for icons there validates code signatures and logs main-thread faults.
+    private struct RecentlyClosedMenuSource {
+        let id: String
+        let url: URL
+        let title: String
+    }
+    private var recentlyClosedSubscription: AnyCancellable?
+    private var recentlyClosedCacheTask: Task<Void, Never>?
+    private var recentlyClosedMenuSources: [RecentlyClosedMenuSource] = []
+    private var recentlyClosedMenuEntries: [StatusMenuController.RecentlyClosedEntry] = []
+    private var recentlyClosedIcons: [String: NSImage] = [:]
+    private var recentlyClosedIconLoads: Set<String> = []
+    private static let recentlyClosedPlaceholderIcon: NSImage = {
+        let icon = NSImage(named: NSImage.applicationIconName) ?? NSImage(size: NSSize(width: 16, height: 16))
+        icon.size = NSSize(width: 16, height: 16)
+        return icon
+    }()
     private var trashSettingSubscription: AnyCancellable?
     /// 全局反转鼠标滚轮。active tap 需要辅助功能授权，所以挂在任务条运行期
     ///（startTaskbarRuntime 建、suspend/终止拆），与全屏 tap 同一生命周期语义。
@@ -291,16 +309,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onExportDebugSnapshot: { [weak self] in self?.exportDebugSnapshot() },
         onShowSettings: { [weak self] in self?.openSettings(nil) },
         onPickColor: { [weak self] in self?.colorPicker.pick() },
-        recentlyClosed: {
-            let store = RecentlyClosedStore.shared
-            return store.restorable().map { entry in
-                let icon = NSWorkspace.shared.icon(forFile: entry.url.path)
-                icon.size = NSSize(width: 16, height: 16)
-                return StatusMenuController.RecentlyClosedEntry(
-                    title: AppDisplayNameResolver.displayName(for: entry.id), icon: icon,
-                    restore: { [weak store] in store?.restore(entry.url) })
-            }
-        },
+        recentlyClosed: { [weak self] in self?.recentlyClosedMenuEntries ?? [] },
         onShowLayoutSettings: { [weak self] in self?.openSettings(selecting: .appearance) },
         onToggleEditMode: { WidgetEditMode.shared.toggle() },
         isEditModeActive: { WidgetEditMode.shared.isEditing },
@@ -612,6 +621,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.liveEventCenter.deliver(.downloadFinished(name: name), now: Date())
             }
             RecentlyClosedStore.shared.start()
+            refreshRecentlyClosedMenuCache()
+            recentlyClosedSubscription = RecentlyClosedStore.shared.$list
+                .dropFirst()
+                .sink { [weak self] _ in
+                    MainActor.assumeIsolated { self?.refreshRecentlyClosedMenuCache() }
+                }
             // Phase 44b: unfinished torrents resume through the normal add path (no-op without aria2).
             DownloadManagerService.shared.restoreTorrentSession()
 
@@ -1541,6 +1556,55 @@ extension AppDelegate: PermissionEffectHandler {
     func restoreLiftedWindows(episode: UInt64) async {
         await windowLiftAvoidanceController?.restoreAndStopForPermissionRecovery()
         windowLiftAvoidanceController = nil
+    }
+
+    /// Rebuild the status menu's Recently Closed rows from the current list. Runs at launch and
+    /// when the list changes, never from `menuWillOpen`; the menu only reads the cached entries.
+    private func refreshRecentlyClosedMenuCache() {
+        recentlyClosedCacheTask?.cancel()
+        recentlyClosedCacheTask = Task { @MainActor [weak self] in
+            let restorable = await RecentlyClosedStore.shared.restorable()
+            let named = await Task.detached(priority: .utility) {
+                restorable.map { ($0, AppDisplayNameResolver.displayName(for: $0.id)) }
+            }.value
+            guard !Task.isCancelled, let self else { return }
+            self.recentlyClosedMenuSources = named.map {
+                RecentlyClosedMenuSource(id: $0.0.id, url: $0.0.url, title: $0.1)
+            }
+            self.rebuildRecentlyClosedMenuEntries()
+            for source in self.recentlyClosedMenuSources {
+                self.loadRecentlyClosedIconIfNeeded(source)
+            }
+        }
+    }
+
+    private func rebuildRecentlyClosedMenuEntries() {
+        recentlyClosedMenuEntries = recentlyClosedMenuSources.map { source in
+            StatusMenuController.RecentlyClosedEntry(
+                title: source.title,
+                icon: recentlyClosedIcons[source.id] ?? Self.recentlyClosedPlaceholderIcon,
+                restore: { RecentlyClosedStore.shared.restore(source.url) }
+            )
+        }
+    }
+
+    /// Icons are the expensive part: LaunchServices resolves the app and validates its signature.
+    /// Load them on a utility task and publish the finished image back on the main actor.
+    private func loadRecentlyClosedIconIfNeeded(_ source: RecentlyClosedMenuSource) {
+        guard recentlyClosedIcons[source.id] == nil,
+              recentlyClosedIconLoads.insert(source.id).inserted
+        else { return }
+        Task.detached(priority: .utility) { [weak self] in
+            let sourceIcon = NSWorkspace.shared.icon(forFile: source.url.path)
+            let icon = (sourceIcon.copy() as? NSImage) ?? sourceIcon
+            icon.size = NSSize(width: 16, height: 16)
+            await MainActor.run {
+                guard let self else { return }
+                self.recentlyClosedIcons[source.id] = icon
+                self.recentlyClosedIconLoads.remove(source.id)
+                self.rebuildRecentlyClosedMenuEntries()
+            }
+        }
     }
 
     func launchNewInstance(episode: UInt64) async -> Result<Void, Error> {
