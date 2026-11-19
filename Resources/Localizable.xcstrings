@@ -142151,6 +142151,166 @@
         "it": { "stringUnit": { "state": "translated", "value": "Altro" } },
         "ko": { "stringUnit": { "state": "translated", "value": "기타" } }
       }
+    },
+    "File Stacks": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "File Stacks" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文件叠放" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "檔案堆疊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ファイルスタック" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dateistapel" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Piles de fichiers" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pilas de archivos" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Pilas de archivos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pilhas de Arquivos" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pilhas de Ficheiros" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pile di file" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "파일 스택" } }
+      }
+    },
+    "Flat": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Flat" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "平铺显示" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "平鋪顯示" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フラット表示" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Untersortiert" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "À plat" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sin agrupar" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Sin agrupar" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Plano" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Plano" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Non raggruppato" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "펼쳐 보기" } }
+      }
+    },
+    "Auto by Kind": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Auto by Kind" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "按类型自动叠放" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "依類型自動堆疊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "種類別に自動スタック" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Automatisch nach Art" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Auto par type" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Automático por tipo" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Automático por tipo" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Automático por Tipo" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Automático por Tipo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Automatico per tipo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "종류별 자동 스택" } }
+      }
+    },
+    "Manual Stacks": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Manual Stacks" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "手动叠放" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "手動堆疊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "手動スタック" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Manuelle Stapel" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Piles manuelles" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pilas manuales" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Pilas manuales" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pilhas Manuais" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Pilhas Manuais" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pile manuali" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "수동 스택" } }
+      }
+    },
+    "Popover Layout": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Popover Layout" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "弹出网格布局" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "彈出網格佈局" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ポップオーバー配置" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Popover-Layout" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Disposition du popover" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Diseño del desplegable" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Diseño del menú emergente" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Layout do Popover" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Disposição do Popover" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Layout del popover" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "팝오버 레이아웃" } }
+      }
+    },
+    "Adaptive": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Adaptive" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自适应" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自動調整" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "自動調整" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Adaptiv" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Adaptatif" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Adaptable" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Adaptable" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Adaptável" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Adaptável" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Adattivo" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자동 맞춤" } }
+      }
+    },
+    "Group into Stack": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Group into Stack" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "组合为叠放" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "組合成堆疊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スタックにまとめる" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zu Stapel gruppieren" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Grouper en pile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Agrupar en pila" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agrupar en pila" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Agrupar em Pilha" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Agrupar em Pilha" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Raggruppa in pila" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스택으로 묶기" } }
+      }
+    },
+    "Add to Stack": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add to Stack" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "添加到叠放" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "加入堆疊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スタックに追加" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Zu Stapel hinzufügen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ajouter à la pile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Añadir a la pila" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agregar a la pila" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Adicionar à Pilha" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Adicionar à Pilha" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Aggiungi alla pila" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스택에 추가" } }
+      }
+    },
+    "Remove from Stack": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Remove from Stack" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "从叠放移出" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "從堆疊移出" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スタックから取り除く" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aus Stapel entfernen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Retirer de la pile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Quitar de la pila" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Quitar de la pila" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Remover da Pilha" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Remover da Pilha" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Rimuovi dalla pila" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스택에서 제거" } }
+      }
+    },
+    "Ungroup Stack": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ungroup Stack" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "解散叠放" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "解散堆疊" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スタックを解除" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Stapel auflösen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dissocier la pile" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desagrupar pila" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Desagrupar pila" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desagrupar Pilha" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desagrupar Pilha" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Separa pila" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "스택 해제" } }
+      }
     }
   },
   "version": "1.0"

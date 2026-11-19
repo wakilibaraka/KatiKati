@@ -16,12 +16,15 @@ struct DesktopFolderBoxView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.displayScale) private var displayScale
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var anchorSelectionPath: String?
     @State private var draggingFilename: String?
     @State private var renamingPath: String?
     @State private var renameDraft = ""
     @State private var pendingScrollPath: String?
+    @State private var openStackID: String?
+    @State private var hoveredStackID: String?
     @State private var permanentDeleteURLs: [URL] = []
     @State private var showPermanentDeleteConfirm = false
     @FocusState private var renameFieldFocused: Bool
@@ -121,6 +124,15 @@ struct DesktopFolderBoxView: View {
 
     @ViewBuilder
     private func loadedContent(_ entries: [FolderContentsLoader.Entry]) -> some View {
+        let cells = DesktopStackProjection.project(
+            entries: entries,
+            mode: item.stackGroupingMode,
+            manualStacks: item.manualStacks
+        )
+        let activeStack: DesktopResolvedStack? = cells.compactMap {
+            if case .stack(let s) = $0 { return s } else { return nil }
+        }.first { $0.id == openStackID }
+
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
@@ -145,17 +157,29 @@ struct DesktopFolderBoxView: View {
                                 columns: [GridItem(.adaptive(minimum: colWidth), spacing: spacing, alignment: .top)],
                                 spacing: spacing
                             ) {
-                                ForEach(Array(entries.enumerated()), id: \.element.url.path) { index, entry in
-                                    tileView(entry: entry, index: index, entries: entries)
-                                        .id(entry.url.path)
+                                ForEach(Array(cells.enumerated()), id: \.element.id) { index, cell in
+                                    switch cell {
+                                    case .file(let entry):
+                                        tileView(entry: entry, index: index, entries: entries)
+                                            .id(cell.id)
+                                    case .stack(let stack):
+                                        stackTileView(stack)
+                                            .id(cell.id)
+                                    }
                                 }
                             }
                             .padding(item.compactDensity ? 6 : 10)
                         } else {
                             LazyVStack(spacing: item.compactDensity ? 1 : 3) {
-                                ForEach(Array(entries.enumerated()), id: \.element.url.path) { index, entry in
-                                    listRowView(entry: entry, index: index, entries: entries)
-                                        .id(entry.url.path)
+                                ForEach(Array(cells.enumerated()), id: \.element.id) { index, cell in
+                                    switch cell {
+                                    case .file(let entry):
+                                        listRowView(entry: entry, index: index, entries: entries)
+                                            .id(cell.id)
+                                    case .stack(let stack):
+                                        stackListRowView(stack)
+                                            .id(cell.id)
+                                    }
                                 }
                             }
                             .padding(item.compactDensity ? 6 : 8)
@@ -163,12 +187,127 @@ struct DesktopFolderBoxView: View {
                     }
                     .onChange(of: entries.count) { _ in
                         if let path = pendingScrollPath, entries.contains(where: { $0.url.path == path }) {
-                            proxy.scrollTo(path, anchor: .center)
+                            proxy.scrollTo("file:\(path)", anchor: .center)
                             pendingScrollPath = nil
                         }
                     }
                 }
             }
+        }
+        .popover(isPresented: Binding(
+            get: { activeStack != nil },
+            set: { shown in if !shown { openStackID = nil } }
+        )) {
+            if let stack = activeStack {
+                DesktopStackPopoverView(
+                    stack: stack,
+                    displayMode: item.stackDisplayMode,
+                    directoryURL: directoryURL,
+                    onChangeDisplayMode: { mode in
+                        var updated = item
+                        updated.stackDisplayMode = mode
+                        onUpdateItem(updated)
+                    },
+                    onRenameStack: { id, title in
+                        var updated = item
+                        updated.manualStacks = DesktopStackProjection.rename(stackID: id, to: title, in: item.manualStacks)
+                        onUpdateItem(updated)
+                    },
+                    onUngroupStack: { id in
+                        var updated = item
+                        updated.manualStacks = DesktopStackProjection.ungroup(stackID: id, in: item.manualStacks)
+                        onUpdateItem(updated)
+                        openStackID = nil
+                    },
+                    onRemoveFromStack: { id, targetURLs in
+                        var updated = item
+                        let names = targetURLs.map(\.lastPathComponent)
+                        updated.manualStacks = DesktopStackProjection.removeFiles(names, fromStackID: id, in: item.manualStacks)
+                        onUpdateItem(updated)
+                    },
+                    onQuickLook: onQuickLook,
+                    onMutated: { model.reload() },
+                    onDismiss: { openStackID = nil }
+                )
+                .environment(\.dockThemeStyle, dockThemeStyle)
+            }
+        }
+        .onChange(of: openStackID) { next in
+            if next != nil { onAcquireLock(.popover) } else { onReleaseLock(.popover) }
+        }
+    }
+
+    private func stackTileView(_ stack: DesktopResolvedStack) -> some View {
+        let previews = Array(stack.entries.prefix(4))
+        let miniSize = max(14, iconSide * 0.42)
+        let cardSide = max(38, iconSide)
+        return VStack(spacing: 4) {
+            ZStack(alignment: .bottomTrailing) {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(theme.chipPillFill.normal.color)
+                    .overlay(
+                        LazyVGrid(columns: [GridItem(.fixed(miniSize), spacing: 2), GridItem(.fixed(miniSize), spacing: 2)], spacing: 2) {
+                            ForEach(previews, id: \.url.path) { entry in
+                                DesktopFileIconView(entry: entry, size: miniSize, scale: displayScale)
+                            }
+                        }
+                        .padding(4)
+                    )
+                    .frame(width: cardSide, height: cardSide)
+
+                Text(verbatim: "\(stack.entries.count)")
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .foregroundStyle(theme.labelActive.color)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(Capsule().fill(.ultraThinMaterial))
+                    .offset(x: 3, y: 3)
+            }
+
+            if item.filenameLines != .hidden {
+                Text(verbatim: stack.title)
+                    .font(.system(size: item.compactDensity ? 10 : 11, weight: .medium))
+                    .foregroundStyle(theme.labelActive.color)
+                    .lineLimit(item.filenameLines.rawValue)
+                    .multilineTextAlignment(.center)
+                    .truncationMode(.tail)
+            }
+        }
+        .padding(item.compactDensity ? 4 : 6)
+        .frame(maxWidth: .infinity)
+        .scaleEffect(hoveredStackID == stack.id ? 1.03 : 1.0)
+        .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.65), value: hoveredStackID == stack.id)
+        .contentShape(Rectangle())
+        .onHover { hovered in
+            hoveredStackID = hovered ? stack.id : (hoveredStackID == stack.id ? nil : hoveredStackID)
+        }
+        .onTapGesture { openStackID = stack.id }
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+            handleDropOntoStack(providers, stack: stack)
+        }
+        .help(stack.title)
+    }
+
+    private func stackListRowView(_ stack: DesktopResolvedStack) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: stack.category?.symbolName ?? "square.stack.3d.up.fill")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(theme.labelActive.color)
+            Text(verbatim: stack.title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(theme.labelActive.color)
+                .lineLimit(1)
+            Spacer(minLength: 4)
+            Text(verbatim: "\(stack.entries.count)")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundStyle(theme.labelSubtitle.color)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, item.compactDensity ? 3 : 5)
+        .contentShape(Rectangle())
+        .onTapGesture { openStackID = stack.id }
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+            handleDropOntoStack(providers, stack: stack)
         }
     }
 
@@ -319,6 +458,13 @@ struct DesktopFolderBoxView: View {
             },
             onExtract: { archiveURL in
                 DesktopFileOperations.extractZip(archiveURL, to: directoryURL) { _ in model.reload() }
+            },
+            onGroupIntoStack: { targetURLs in
+                groupURLsIntoManualStack(targetURLs)
+            },
+            manualStackTargets: item.manualStacks.map { ($0.id, $0.title) },
+            onAddToManualStack: { stackID, targetURLs in
+                addURLsToManualStack(targetURLs, stackID: stackID)
             }
         )
         let menu = DesktopFileOperations.buildContextMenu(
@@ -451,9 +597,45 @@ struct DesktopFolderBoxView: View {
             }
         }
     }
+
+    private func groupURLsIntoManualStack(_ urls: [URL]) {
+        let names = urls.map(\.lastPathComponent)
+        var updated = item
+        updated.manualStacks = DesktopStackProjection.createStack(title: "", filenames: names, in: item.manualStacks)
+        updated.stackGroupingMode = .manual
+        onUpdateItem(updated)
+    }
+
+    private func addURLsToManualStack(_ urls: [URL], stackID: UUID) {
+        let names = urls.map(\.lastPathComponent)
+        var updated = item
+        updated.manualStacks = DesktopStackProjection.addFiles(names, toStackID: stackID, in: item.manualStacks)
+        updated.stackGroupingMode = .manual
+        onUpdateItem(updated)
+    }
+
+    private func handleDropOntoStack(_ providers: [NSItemProvider], stack: DesktopResolvedStack) -> Bool {
+        if let manualID = stack.manualStackID, let dragged = draggingFilename {
+            draggingFilename = nil
+            var updated = item
+            updated.manualStacks = DesktopStackProjection.addFiles([dragged], toStackID: manualID, in: item.manualStacks)
+            updated.stackGroupingMode = .manual
+            onUpdateItem(updated)
+            return true
+        }
+        guard let manualID = stack.manualStackID else {
+            return handleExternalDrop(providers, into: directoryURL)
+        }
+        extractDroppedURLs(from: providers) { urls in
+            let imported = (try? DesktopFileOperations.importFiles(urls, into: directoryURL)) ?? urls
+            addURLsToManualStack(imported, stackID: manualID)
+            model.reload()
+        }
+        return !providers.isEmpty
+    }
 }
 
-private struct DesktopFileIconView: View {
+struct DesktopFileIconView: View {
     let entry: FolderContentsLoader.Entry
     let size: CGFloat
     let scale: CGFloat

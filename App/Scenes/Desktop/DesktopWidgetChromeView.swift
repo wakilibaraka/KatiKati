@@ -176,6 +176,18 @@ struct DesktopWidgetChromeView<Content: View>: View {
                 }
             }
 
+            Menu(String(localized: "File Stacks")) {
+                groupingButton(title: String(localized: "Flat"), mode: .none)
+                groupingButton(title: String(localized: "Auto by Kind"), mode: .autoByKind)
+                groupingButton(title: String(localized: "Manual Stacks"), mode: .manual)
+                Divider()
+                Menu(String(localized: "Popover Layout")) {
+                    displayModeButton(title: String(localized: "Adaptive"), mode: .adaptive)
+                    displayModeButton(title: "3×3", mode: .grid3x3)
+                    displayModeButton(title: "5×5", mode: .grid5x5)
+                }
+            }
+
             Menu(String(localized: "Icon Size")) {
                 iconSizeButton(title: String(localized: "Small"), size: 32)
                 iconSizeButton(title: String(localized: "Medium"), size: nil)
@@ -247,6 +259,34 @@ struct DesktopWidgetChromeView<Content: View>: View {
         } label: {
             if item.filenameLines == lines {
                 Label(title, systemImage: "checkmark")
+            } else {
+                Text(verbatim: title)
+            }
+        }
+    }
+
+    private func groupingButton(title: String, mode: DesktopStackGroupingMode) -> some View {
+        Button {
+            var updated = item
+            updated.stackGroupingMode = mode
+            onUpdateItem(updated)
+        } label: {
+            if item.stackGroupingMode == mode {
+                Label(title, systemImage: "checkmark")
+            } else {
+                Text(verbatim: title)
+            }
+        }
+    }
+
+    private func displayModeButton(title: String, mode: DesktopStackDisplayMode) -> some View {
+        Button {
+            var updated = item
+            updated.stackDisplayMode = mode
+            onUpdateItem(updated)
+        } label: {
+            if item.stackDisplayMode == mode {
+                Label { Text(verbatim: title) } icon: { Image(systemName: "checkmark") }
             } else {
                 Text(verbatim: title)
             }

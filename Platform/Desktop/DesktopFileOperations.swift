@@ -33,6 +33,10 @@ struct DesktopFileMenuCallbacks {
     var onTrash: ([URL]) -> Void
     var onCompress: ([URL]) -> Void
     var onExtract: (URL) -> Void
+    var onGroupIntoStack: (([URL]) -> Void)? = nil
+    var manualStackTargets: [(id: UUID, title: String)] = []
+    var onAddToManualStack: ((UUID, [URL]) -> Void)? = nil
+    var onRemoveFromManualStack: (([URL]) -> Void)? = nil
 }
 
 private final class DesktopMenuItem: NSMenuItem {
@@ -277,6 +281,34 @@ enum DesktopFileOperations {
         } else {
             menu.addItem(DesktopMenuItem(title: String(localized: "Compress"), systemSymbol: "archivebox") { callbacks.onCompress(urls) })
         }
+
+        let hasStackActions = (urls.count >= 2 && callbacks.onGroupIntoStack != nil)
+            || (!callbacks.manualStackTargets.isEmpty && callbacks.onAddToManualStack != nil)
+            || (callbacks.onRemoveFromManualStack != nil)
+        if hasStackActions {
+            menu.addItem(.separator())
+            if urls.count >= 2, let onGroupIntoStack = callbacks.onGroupIntoStack {
+                menu.addItem(DesktopMenuItem(title: String(localized: "Group into Stack"), systemSymbol: "square.stack.3d.up") {
+                    onGroupIntoStack(urls)
+                })
+            }
+            if !callbacks.manualStackTargets.isEmpty, let onAddToManualStack = callbacks.onAddToManualStack {
+                let addItem = NSMenuItem(title: String(localized: "Add to Stack"), action: nil, keyEquivalent: "")
+                addItem.image = NSImage(systemSymbolName: "plus.square.on.square", accessibilityDescription: nil)
+                let sub = NSMenu()
+                for target in callbacks.manualStackTargets {
+                    sub.addItem(DesktopMenuItem(title: target.title) { onAddToManualStack(target.id, urls) })
+                }
+                addItem.submenu = sub
+                menu.addItem(addItem)
+            }
+            if let onRemoveFromManualStack = callbacks.onRemoveFromManualStack {
+                menu.addItem(DesktopMenuItem(title: String(localized: "Remove from Stack"), systemSymbol: "minus.rectangle") {
+                    onRemoveFromManualStack(urls)
+                })
+            }
+        }
+
         menu.addItem(.separator())
         menu.addItem(DesktopMenuItem(title: String(localized: "Move to Trash"), systemSymbol: "trash") { callbacks.onTrash(urls) })
         return menu
