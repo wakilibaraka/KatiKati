@@ -41,6 +41,7 @@ final class DesktopCanvasCoordinator {
     private var lastShowOnAllSpaces = true
     private var lastSnapGap: CGFloat = CGFloat(DesktopCanvasConfig.defaultSnapGap)
     private var lastEdgeMargin: CGFloat = CGFloat(DesktopCanvasConfig.defaultEdgeMargin)
+    private var canvasTheme = DesktopCanvasThemeState.load()
 
     init(
         store: DesktopBoxStore? = nil,
@@ -328,6 +329,7 @@ final class DesktopCanvasCoordinator {
 
         for group in groups {
             let panelKey = group.panelKey
+            let target = targetScreen(for: group.activeItem)
             let targets = groups
                 .filter { $0.panelKey != panelKey }
                 .map { ($0.activeItem.id, $0.activeItem.title) }
@@ -336,7 +338,8 @@ final class DesktopCanvasCoordinator {
                 existing.update(
                     group: group, mergeTargets: targets, visibility: revealState.visibility,
                     themeStyle: themeStyle, themeTuning: themeTuning,
-                    usesLiquidGlass: usesGlass, showOnAllSpaces: allSpaces
+                    usesLiquidGlass: usesGlass, canvasTheme: canvasTheme,
+                    canvasBounds: target.screenFrame, showOnAllSpaces: allSpaces
                 )
             } else {
                 let callbacks = DesktopWidgetPanelCallbacks(
@@ -378,7 +381,8 @@ final class DesktopCanvasCoordinator {
                 )
                 let created = DesktopWidgetPanelController(
                     group: group, mergeTargets: targets, themeStyle: themeStyle, themeTuning: themeTuning,
-                    usesLiquidGlass: usesGlass, showOnAllSpaces: allSpaces, callbacks: callbacks
+                    usesLiquidGlass: usesGlass, canvasTheme: canvasTheme,
+                    canvasBounds: target.screenFrame, showOnAllSpaces: allSpaces, callbacks: callbacks
                 )
                 controllers[panelKey] = created
                 created.applyVisibility(revealState.visibility, isWidgetHidden: group.activeItem.isHidden)
@@ -427,7 +431,7 @@ final class DesktopCanvasCoordinator {
                 frames: visibleOriginFrames(sameDisplayAs: group.activeItem, groups: groups), delta: delta,
                 visibleFrame: target.visibleFrame, edgeMargin: edgeMargin
             )
-            for (movedKey, rect) in moved { controllers[movedKey]?.applyLiveFrame(rect) }
+            for (movedKey, rect) in moved { controllers[movedKey]?.applyLiveFrame(rect, canvasBounds: target.screenFrame) }
             if commit {
                 var next = store.items
                 for (movedKey, rect) in moved {
@@ -450,7 +454,7 @@ final class DesktopCanvasCoordinator {
             candidate: candidate, others: otherFrames(excludingPanelKey: panelKey, displayUUID: target.uuid, groups: groups),
             visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
         )
-        controllers[panelKey]?.applyLiveFrame(snapped.frame)
+        controllers[panelKey]?.applyLiveFrame(snapped.frame, canvasBounds: target.screenFrame)
         if commit {
             if NSEvent.modifierFlags.contains(.option) {
                 let mouse = NSEvent.mouseLocation
@@ -486,7 +490,7 @@ final class DesktopCanvasCoordinator {
             others: otherFrames(excludingPanelKey: panelKey, displayUUID: target.uuid, groups: groups),
             visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
         )
-        controllers[panelKey]?.applyLiveFrame(snapped.frame)
+        controllers[panelKey]?.applyLiveFrame(snapped.frame, canvasBounds: target.screenFrame)
         if commit {
             let norm = DesktopLayoutEngine.normalize(snapped.frame, in: target.visibleFrame)
             let next = DesktopTabGroupEngine.syncGroupGeometry(
@@ -552,12 +556,21 @@ final class DesktopCanvasCoordinator {
     }
 
     private func handleDefaultsChanged() {
+        var needsPanelSync = false
         if doubleClickDesktop != lastDoubleClickEnabled {
             lastDoubleClickEnabled = doubleClickDesktop
             syncBlankDesktopMonitor()
         }
         if showOnAllSpaces != lastShowOnAllSpaces {
             lastShowOnAllSpaces = showOnAllSpaces
+            needsPanelSync = true
+        }
+        let nextTheme = DesktopCanvasThemeState.load()
+        if nextTheme != canvasTheme {
+            canvasTheme = nextTheme
+            needsPanelSync = true
+        }
+        if needsPanelSync {
             syncPanels()
         }
         if snapGap != lastSnapGap || edgeMargin != lastEdgeMargin {
@@ -599,27 +612,33 @@ final class DesktopCanvasCoordinator {
         UserDefaults.standard.bool(forKey: DesktopCanvasConfig.doubleClickDesktopKey)
     }
 
-    private func fallbackPrimaryScreen() -> (uuid: String?, visibleFrame: CGRect) {
+    private func fallbackPrimaryScreen() -> (uuid: String?, visibleFrame: CGRect, screenFrame: CGRect) {
         let primary = NSScreen.screens.first
-        return (primary.flatMap { DisplayIdentity.uuidString(for: $0) },
-                primary?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900))
+        let fallback = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        return (
+            primary.flatMap { DisplayIdentity.uuidString(for: $0) },
+            primary?.visibleFrame ?? fallback,
+            primary?.frame ?? fallback
+        )
     }
 
-    private func targetScreen(for item: DesktopWidgetItem) -> (uuid: String?, visibleFrame: CGRect) {
-        var byUUID: [String: CGRect] = [:]
+    private func targetScreen(for item: DesktopWidgetItem) -> (uuid: String?, visibleFrame: CGRect, screenFrame: CGRect) {
+        var byUUID: [String: (visibleFrame: CGRect, screenFrame: CGRect)] = [:]
         for screen in NSScreen.screens {
-            if let uuid = DisplayIdentity.uuidString(for: screen) { byUUID[uuid] = screen.visibleFrame }
+            if let uuid = DisplayIdentity.uuidString(for: screen) {
+                byUUID[uuid] = (screen.visibleFrame, screen.frame)
+            }
         }
         if let resolved = DesktopLayoutEngine.resolveDisplay(for: item, table: displayTopologyStore.table),
-           let frame = byUUID[resolved.uuid] {
-            return (resolved.uuid, frame)
+           let pair = byUUID[resolved.uuid] {
+            return (resolved.uuid, pair.visibleFrame, pair.screenFrame)
         }
         return fallbackPrimaryScreen()
     }
 
-    private func screenContaining(point: CGPoint) -> (uuid: String?, visibleFrame: CGRect) {
+    private func screenContaining(point: CGPoint) -> (uuid: String?, visibleFrame: CGRect, screenFrame: CGRect) {
         for screen in NSScreen.screens where screen.frame.contains(point) {
-            return (DisplayIdentity.uuidString(for: screen), screen.visibleFrame)
+            return (DisplayIdentity.uuidString(for: screen), screen.visibleFrame, screen.frame)
         }
         return fallbackPrimaryScreen()
     }

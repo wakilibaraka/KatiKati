@@ -27,6 +27,8 @@ private final class DesktopWidgetHostState: ObservableObject {
     @Published var themeStyle: DockThemeStyle
     @Published var themeTuning: ThemeTuning
     @Published var usesLiquidGlass: Bool
+    @Published var canvasTheme: DesktopCanvasThemeState
+    @Published var canvasBounds: CGRect
     @Published var isDropHighlighted = false
     @Published var createNewFolderTrigger = 0
 
@@ -35,7 +37,9 @@ private final class DesktopWidgetHostState: ObservableObject {
         mergeTargets: [(id: UUID, title: String)],
         themeStyle: DockThemeStyle,
         themeTuning: ThemeTuning,
-        usesLiquidGlass: Bool
+        usesLiquidGlass: Bool,
+        canvasTheme: DesktopCanvasThemeState,
+        canvasBounds: CGRect
     ) {
         self.item = group.activeItem
         self.groupTabs = group.tabs
@@ -43,6 +47,8 @@ private final class DesktopWidgetHostState: ObservableObject {
         self.themeStyle = themeStyle
         self.themeTuning = themeTuning
         self.usesLiquidGlass = usesLiquidGlass
+        self.canvasTheme = canvasTheme
+        self.canvasBounds = canvasBounds
     }
 }
 
@@ -66,6 +72,8 @@ private struct DesktopWidgetRootView: View {
         let model = activeModel
         DesktopWidgetChromeView(
             item: hostState.item,
+            canvasTheme: hostState.canvasTheme,
+            canvasBounds: hostState.canvasBounds,
             groupTabs: hostState.groupTabs,
             mergeTargets: hostState.mergeTargets,
             itemCount: itemCount,
@@ -130,6 +138,8 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         themeStyle: DockThemeStyle,
         themeTuning: ThemeTuning,
         usesLiquidGlass: Bool,
+        canvasTheme: DesktopCanvasThemeState,
+        canvasBounds: CGRect,
         showOnAllSpaces: Bool,
         callbacks: DesktopWidgetPanelCallbacks
     ) {
@@ -140,7 +150,9 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             mergeTargets: mergeTargets,
             themeStyle: themeStyle,
             themeTuning: themeTuning,
-            usesLiquidGlass: usesLiquidGlass
+            usesLiquidGlass: usesLiquidGlass,
+            canvasTheme: canvasTheme,
+            canvasBounds: canvasBounds
         )
         self.hostState = state
 
@@ -196,6 +208,8 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         themeStyle: DockThemeStyle,
         themeTuning: ThemeTuning,
         usesLiquidGlass: Bool,
+        canvasTheme: DesktopCanvasThemeState,
+        canvasBounds: CGRect,
         showOnAllSpaces: Bool
     ) {
         syncModels(for: group.tabs)
@@ -205,6 +219,8 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         hostState.themeStyle = themeStyle
         hostState.themeTuning = themeTuning
         hostState.usesLiquidGlass = usesLiquidGlass
+        hostState.canvasTheme = canvasTheme
+        hostState.canvasBounds = canvasBounds
 
         let targetOuter = Self.outerPanelFrame(for: group.activeItem.frame)
         if panel.frame != targetOuter {
@@ -218,10 +234,11 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         applyVisibility(visibility, isWidgetHidden: group.activeItem.isHidden)
     }
 
-    func applyLiveFrame(_ frame: CGRect) {
+    func applyLiveFrame(_ frame: CGRect, canvasBounds: CGRect? = nil) {
         var next = hostState.item
         next.frame = frame
         hostState.item = next
+        if let canvasBounds { hostState.canvasBounds = canvasBounds }
         let outer = Self.outerPanelFrame(for: frame)
         if panel.frame != outer {
             panel.setFrame(outer, display: true)

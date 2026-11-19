@@ -4,6 +4,8 @@ import SwiftUI
 /// Desktop-layer widget frame using `DockPanelBackdrop`, `dockPanelRim`, title controls, and 8-way snap resize.
 struct DesktopWidgetChromeView<Content: View>: View {
     let item: DesktopWidgetItem
+    var canvasTheme: DesktopCanvasThemeState = DesktopCanvasThemeState()
+    var canvasBounds: CGRect = .zero
     var groupTabs: [DesktopWidgetItem] = []
     var mergeTargets: [(id: UUID, title: String)] = []
     let itemCount: Int?
@@ -43,21 +45,18 @@ struct DesktopWidgetChromeView<Content: View>: View {
     private var isCompactWidth: Bool { item.frame.width < 165 }
     private var isTinyBox: Bool { item.frame.width < 105 || item.frame.height < 85 }
     private var headerHeight: CGFloat { isTinyBox ? 24 : 32 }
+    private var effectiveMaterial: DesktopBoxMaterialStyle { item.appearance.materialOverride ?? canvasTheme.materialStyle }
+    private var effectiveCornerRadius: CGFloat { item.appearance.cornerRadiusOverride ?? DockShape.panelCornerRadius }
+    private var effectiveAccentColor: Color {
+        guard let hex = item.appearance.accentHex, let rgb = DesktopHexColor.parse(hex) else { return .accentColor }
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
 
     var body: some View {
-        let cornerRadius = DockShape.panelCornerRadius
-        ZStack {
-            DockPanelBackdrop(
-                theme: theme,
-                cornerRadius: cornerRadius,
-                usesLiquidGlass: usesLiquidGlass,
-                matchesDockRefraction: true
-            )
-            .padding(1)
-
-            if theme.drawsEffectiveThickness && !usesLiquidGlass {
-                theme.panelThicknessLayer(cornerRadius: cornerRadius)
-            }
+        let cornerRadius = effectiveCornerRadius
+        let baseCard = ZStack {
+            backdropLayer(cornerRadius: cornerRadius)
+            backgroundDecorationLayer(cornerRadius: cornerRadius)
 
             VStack(spacing: 0) {
                 titleBar
@@ -69,35 +68,188 @@ struct DesktopWidgetChromeView<Content: View>: View {
                 content()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
         .frame(width: item.frame.width, height: item.frame.height)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .overlay { resizeHandlesOverlay }
-        .dockPanelRim(
-            cornerRadius: cornerRadius,
-            style: theme.panelRimStyle(highlighted: isDropHighlighted),
-            lineWidth: theme.panelRimLineWidth(highlighted: isDropHighlighted),
-            usesLiquidGlass: usesLiquidGlass,
-            highlighted: isDropHighlighted,
-            visible: true
-        )
-        .dockShadow(
-            theme.popupShadow,
-            visible: DockLiquidGlassConfiguration.stripShadowVisible(
-                usesLiquidGlass: usesLiquidGlass,
-                usesSystemVariant: DockGlassPresentation.usesSystemVariant
+
+        styledChrome(baseCard, cornerRadius: cornerRadius)
+            .dockShadow(
+                theme.popupShadow,
+                visible: DockLiquidGlassConfiguration.stripShadowVisible(
+                    usesLiquidGlass: usesLiquidGlass,
+                    usesSystemVariant: DockGlassPresentation.usesSystemVariant
+                )
             )
-        )
-        .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.8), value: isDropHighlighted)
-        .onHover { isHovered = $0 }
-        .padding(PanelLayoutMetrics.shadowPadding)
+            .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.8), value: isDropHighlighted)
+            .onHover { isHovered = $0 }
+            .padding(PanelLayoutMetrics.shadowPadding)
+    }
+
+    @ViewBuilder
+    private func backdropLayer(cornerRadius: CGFloat) -> some View {
+        switch effectiveMaterial {
+        case .inheritDock:
+            DockPanelBackdrop(
+                theme: theme,
+                cornerRadius: cornerRadius,
+                usesLiquidGlass: usesLiquidGlass,
+                matchesDockRefraction: true
+            )
+            .padding(1)
+            if theme.drawsEffectiveThickness && !usesLiquidGlass {
+                theme.panelThicknessLayer(cornerRadius: cornerRadius)
+            }
+        case .frostedGlass:
+            DockVisualEffectView(material: .hudWindow)
+        case .tintedGlass:
+            DockPanelBackdrop(
+                theme: theme,
+                cornerRadius: cornerRadius,
+                usesLiquidGlass: usesLiquidGlass,
+                matchesDockRefraction: true
+            )
+            .padding(1)
+            effectiveAccentColor.opacity(0.16).allowsHitTesting(false)
+        case .solidCard:
+            let fill = colorScheme == .dark ? Color(white: 0.14, opacity: 0.96) : Color(white: 0.96, opacity: 0.96)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous).fill(fill)
+        case .clearMinimal:
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill((colorScheme == .dark ? Color.black : Color.white).opacity(0.08))
+        }
+    }
+
+    @ViewBuilder
+    private func backgroundDecorationLayer(cornerRadius: CGFloat) -> some View {
+        switch item.appearance.background {
+        case .materialOnly:
+            EmptyView()
+        case .tint(let hex, let opacity):
+            if let rgb = DesktopHexColor.parse(hex) {
+                Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+                    .opacity(opacity)
+                    .allowsHitTesting(false)
+            }
+        case .image(let path, let opacity, let blurRadius):
+            if let nsImg = DesktopAssetStore.decodedImage(
+                at: path,
+                maxPixelDimension: DesktopAssetKind.widgetBackground.maxPixelDimension
+            ) {
+                Image(nsImage: nsImg)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: item.frame.width, height: item.frame.height)
+                    .blur(radius: blurRadius)
+                    .opacity(opacity)
+                    .allowsHitTesting(false)
+            }
+        case .panorama:
+            if canvasTheme.panoramaEnabled,
+               let path = canvasTheme.panoramaImagePath,
+               let nsImg = DesktopAssetStore.decodedImage(
+                   at: path,
+                   maxPixelDimension: DesktopAssetKind.panorama.maxPixelDimension
+               ),
+               let slice = DesktopPanoramaEngine.slice(
+                   widgetFrame: item.frame,
+                   canvasBounds: canvasBounds,
+                   imageSize: nsImg.size,
+                   scaleMode: canvasTheme.panoramaScaleMode
+               ) {
+                Image(nsImage: nsImg)
+                    .resizable()
+                    .frame(width: slice.imageDrawSize.width, height: slice.imageDrawSize.height)
+                    .blur(radius: canvasTheme.panoramaBlur)
+                    .opacity(canvasTheme.panoramaOpacity)
+                    .position(
+                        x: slice.imageOriginInWidget.x + slice.imageDrawSize.width / 2.0,
+                        y: slice.imageOriginInWidget.y + slice.imageDrawSize.height / 2.0
+                    )
+                    .frame(width: item.frame.width, height: item.frame.height)
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func styledChrome<Card: View>(_ card: Card, cornerRadius: CGFloat) -> some View {
+        switch item.appearance.borderStyle {
+        case .standard:
+            card.dockPanelRim(
+                cornerRadius: cornerRadius,
+                style: theme.panelRimStyle(highlighted: isDropHighlighted),
+                lineWidth: theme.panelRimLineWidth(highlighted: isDropHighlighted),
+                usesLiquidGlass: usesLiquidGlass,
+                highlighted: isDropHighlighted,
+                visible: true
+            )
+        case .glow:
+            card
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(effectiveAccentColor.opacity(isDropHighlighted ? 0.95 : 0.7), lineWidth: 1.5)
+                        .allowsHitTesting(false)
+                )
+                .shadow(color: effectiveAccentColor.opacity(0.32), radius: 8)
+        case .hairline:
+            card
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(
+                            isDropHighlighted ? effectiveAccentColor.opacity(0.9) : Color.primary.opacity(0.18),
+                            lineWidth: isDropHighlighted ? 1.5 : 0.5
+                        )
+                        .allowsHitTesting(false)
+                )
+        case .none:
+            card.dockPanelRim(
+                cornerRadius: cornerRadius,
+                style: theme.panelRimStyle(highlighted: isDropHighlighted),
+                lineWidth: theme.panelRimLineWidth(highlighted: isDropHighlighted),
+                usesLiquidGlass: usesLiquidGlass,
+                highlighted: isDropHighlighted,
+                visible: isDropHighlighted
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var headerIconView: some View {
+        switch item.appearance.iconBadge {
+        case .systemDefault:
+            Image(systemName: "folder.fill")
+                .font(.system(size: isTinyBox ? 11 : 13, weight: .medium))
+                .foregroundStyle(theme.labelActive.color)
+        case .emoji(let value):
+            Text(verbatim: value)
+                .font(.system(size: isTinyBox ? 12 : 14))
+        case .sfSymbol(let name):
+            Image(systemName: name)
+                .font(.system(size: isTinyBox ? 11 : 13, weight: .medium))
+                .foregroundStyle(effectiveAccentColor)
+        case .customImage(let path):
+            if let nsImg = DesktopAssetStore.decodedImage(
+                at: path,
+                maxPixelDimension: DesktopAssetKind.widgetIcon.maxPixelDimension
+            ) {
+                let side: CGFloat = isTinyBox ? 13 : 16
+                Image(nsImage: nsImg)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: side, height: side)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            } else {
+                Image(systemName: "folder.fill")
+                    .font(.system(size: isTinyBox ? 11 : 13, weight: .medium))
+                    .foregroundStyle(theme.labelActive.color)
+            }
+        }
     }
 
     private var titleBar: some View {
         HStack(spacing: 6) {
-            Image(systemName: "folder.fill")
-                .font(.system(size: isTinyBox ? 11 : 13, weight: .medium))
-                .foregroundStyle(theme.labelActive.color)
+            headerIconView
 
             if !isTinyBox {
                 if isEditingTitle {
@@ -117,6 +269,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
                     Text(verbatim: item.title)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(theme.labelActive.color)
+                        .desktopTextTreatment(item.appearance.textTreatment)
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .onTapGesture(count: 2) { beginTitleEdit() }
@@ -474,6 +627,23 @@ private struct DesktopTabWheelCatcher: NSViewRepresentable {
             guard now - lastCycleTimestamp >= 0.14 else { return }
             lastCycleTimestamp = now
             onCycle?(dominant > 0 ? 1 : -1)
+        }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func desktopTextTreatment(_ treatment: DesktopBoxTextTreatment) -> some View {
+        switch treatment {
+        case .auto:
+            self
+        case .shadowed:
+            self.shadow(color: .black.opacity(0.65), radius: 2, x: 0, y: 1)
+        case .highContrast:
+            self.fontWeight(.semibold)
+                .shadow(color: .black.opacity(0.45), radius: 1.5, x: 0, y: 0.5)
+        case .monospaced:
+            self.fontDesign(.monospaced)
         }
     }
 }
