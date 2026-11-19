@@ -48,6 +48,26 @@ final class DesktopBoxCoreTests: XCTestCase {
         XCTAssertEqual(decoded.backingPath, "/tmp/Inbox")
     }
 
+    func testPhase61FileStacksAndTabGroupRoundTrip() throws {
+        let groupID = UUID()
+        let item = DesktopWidgetItem(
+            title: "Design Box",
+            backingPath: "/tmp/DesignBox",
+            isManagedFolder: true,
+            displayUUID: "DISP-2",
+            frame: CGRect(x: 120, y: 140, width: 340, height: 280),
+            stackGroupingMode: .manual,
+            stackDisplayMode: .grid5x5,
+            manualStacks: [DesktopManualStack(title: "Design", filenames: ["a.png", "b.fig"])],
+            tabGroupID: groupID,
+            tabOrder: 2,
+            isActiveTab: false
+        )
+        let data = try JSONEncoder().encode(item)
+        let decoded = try JSONDecoder().decode(DesktopWidgetItem.self, from: data)
+        XCTAssertEqual(decoded, item)
+    }
+
     func testClampRespectsMinimumSizeAndEdgeMargin() {
         let tinyOut = CGRect(x: -50, y: 2000, width: 10, height: 20)
         let clamped = DesktopLayoutEngine.clamp(tinyOut, in: screenFrame, edgeMargin: 12)

@@ -6,6 +6,7 @@ All notable changes to KatiKati are documented in this file.
 
 ### Added
 - **Desktop Folder Boxes MVP (Phase 60, off by default):** Pin real Finder folders on the desktop as native floating glass boxes (`desktopIconWindow + 1` resting layer) with snap-to-edge/sibling resizing (`50×50` min), `⌃`-drag group movement, manual/rule sorting, `QLThumbnailGenerator` previews, Finder context menu + ZIP compress/extract, spacebar QuickLook, Quick Reveal (`Esc` / click-outside dismiss), opt-in blank-desktop double-click toggle, optional 1-click starter box (`~/KatiKati/Inbox`), **Settings › Widgets › Desktop Boxes**, status menu submenu controls, and `.katikati` backup support (`desktop-boxes.json`).
+- **Desktop File Stacks, Tabbed Groups, Managed Storage & Auto-Organize (Phase 61):** Group files inside any Desktop Box via **Auto by Kind** or **Manual Stacks** (expanded in Adaptive, `3×3`, or `5×5` glass popovers); merge boxes into synchronized multi-tab windows via **Option-drag** or **Group With ▸** and cycle tabs with `⌃Tab` / header trackpad scroll; create, convert (copy-first byte/manifest verified with source preserved), or export boxes using optional **Managed Storage** (`~/Library/Application Support/KatiKati/ManagedBoxes`); and tidy folders via **Preview-First Auto-Organize** with dry-run category buckets and 1-click **Undo**.
 
 ## [0.18.0 beta 1] — 2026-11-17
 
