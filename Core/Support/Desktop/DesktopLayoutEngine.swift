@@ -214,10 +214,15 @@ enum DesktopLayoutEngine {
 
     static func resolveDisplay(
         for item: DesktopWidgetItem,
-        table: WindowDisplayAttribution.Table
+        table: WindowDisplayAttribution.Table,
+        defaultDisplayUUID: String? = nil
     ) -> WindowDisplayAttribution.Display? {
         if !item.followMainDisplay, let uuid = item.displayUUID,
            let matched = table.displays.first(where: { $0.uuid == uuid }) {
+            return matched
+        }
+        if let preferred = defaultDisplayUUID,
+           let matched = table.displays.first(where: { $0.uuid == preferred }) {
             return matched
         }
         if let primary = table.primaryUUID,

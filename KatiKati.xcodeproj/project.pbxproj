@@ -336,6 +336,26 @@
 		DB6400000000000000000013 /* DesktopCapsuleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6400000000000000000011 /* DesktopCapsuleModel.swift */; };
 		DB6400000000000000000022 /* DesktopCapsuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6400000000000000000021 /* DesktopCapsuleTests.swift */; };
 		DB6400000000000000000032 /* DesktopCapsuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6400000000000000000031 /* DesktopCapsuleView.swift */; };
+		DB6500000000000000000102 /* DesktopTopologyArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000101 /* DesktopTopologyArchive.swift */; };
+		DB6500000000000000000103 /* DesktopTopologyArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000101 /* DesktopTopologyArchive.swift */; };
+		DB6500000000000000000112 /* DesktopDisconnectPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000111 /* DesktopDisconnectPlanner.swift */; };
+		DB6500000000000000000113 /* DesktopDisconnectPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000111 /* DesktopDisconnectPlanner.swift */; };
+		DB6500000000000000000122 /* DesktopMoveAllPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000121 /* DesktopMoveAllPlan.swift */; };
+		DB6500000000000000000123 /* DesktopMoveAllPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000121 /* DesktopMoveAllPlan.swift */; };
+		DB6500000000000000000132 /* DesktopTopologyArchiveStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000131 /* DesktopTopologyArchiveStore.swift */; };
+		DB6500000000000000000133 /* DesktopTopologyArchiveStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000131 /* DesktopTopologyArchiveStore.swift */; };
+		DB6500000000000000000142 /* DesktopDisplaysSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000141 /* DesktopDisplaysSettingsCard.swift */; };
+		DB6500000000000000000152 /* ScreenIdentifyOverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000151 /* ScreenIdentifyOverlayController.swift */; };
+		DB6600000000000000000102 /* DesktopSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000101 /* DesktopSearchModel.swift */; };
+		DB6600000000000000000103 /* DesktopSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000101 /* DesktopSearchModel.swift */; };
+		DB6600000000000000000112 /* DesktopSearchSpotlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000111 /* DesktopSearchSpotlight.swift */; };
+		DB6600000000000000000122 /* DesktopSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000121 /* DesktopSearchService.swift */; };
+		DB6600000000000000000132 /* DesktopSearchActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000131 /* DesktopSearchActions.swift */; };
+		DB6600000000000000000142 /* DesktopSearchPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000141 /* DesktopSearchPanelController.swift */; };
+		DB6600000000000000000152 /* DesktopSearchPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000151 /* DesktopSearchPanelView.swift */; };
+		DB6600000000000000000162 /* DesktopSearchPillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000161 /* DesktopSearchPillView.swift */; };
+		DB6600000000000000000173 /* DesktopSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6600000000000000000171 /* DesktopSearchTests.swift */; };
+		DB6500000000000000000163 /* DesktopTopologyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6500000000000000000161 /* DesktopTopologyTests.swift */; };
 		7B5000000000000000040112 /* WindowChipGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040111 /* WindowChipGroupingTests.swift */; };
 		7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
 		7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040011 /* WindowChipGrouping.swift */; };
@@ -1422,6 +1442,25 @@
 		A20000000000002013 /* DriveMenuBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002012 /* DriveMenuBarItem.swift */; };
 		A20000000000002015 /* DriveInventoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002014 /* DriveInventoryTests.swift */; };
 		A20000000000002017 /* DriveInventory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000002008 /* DriveInventory.swift */; };
+		DB6700000000000000000102 /* WebDAVSyncPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000101 /* WebDAVSyncPlan.swift */; };
+		DB6700000000000000000103 /* WebDAVSyncPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000101 /* WebDAVSyncPlan.swift */; };
+		DB6700000000000000000112 /* WebDAVClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000111 /* WebDAVClient.swift */; };
+		DB6700000000000000000113 /* WebDAVClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000111 /* WebDAVClient.swift */; };
+		DB6700000000000000000122 /* WebDAVCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000121 /* WebDAVCredentialStore.swift */; };
+		DB6700000000000000000132 /* WebDAVBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000131 /* WebDAVBackupService.swift */; };
+		DB6700000000000000000142 /* DesktopPerformancePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000141 /* DesktopPerformancePolicy.swift */; };
+		DB6700000000000000000143 /* DesktopPerformancePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000141 /* DesktopPerformancePolicy.swift */; };
+		DB6700000000000000000152 /* DesktopPerformanceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000151 /* DesktopPerformanceStore.swift */; };
+		DB6700000000000000000162 /* DesktopPerformanceSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000161 /* DesktopPerformanceSettingsCard.swift */; };
+		DB6700000000000000000172 /* WebDAVSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000171 /* WebDAVSettingsCard.swift */; };
+		DB6700000000000000000182 /* WebDAVPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000181 /* WebDAVPerformanceTests.swift */; };
+		DB6700000000000000000123 /* WebDAVCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000121 /* WebDAVCredentialStore.swift */; };
+		DB6700000000000000000133 /* WebDAVBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000131 /* WebDAVBackupService.swift */; };
+		DB6700000000000000000153 /* DesktopPerformanceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000151 /* DesktopPerformanceStore.swift */; };
+		DB6700000000000000000163 /* DesktopPerformanceSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000161 /* DesktopPerformanceSettingsCard.swift */; };
+		DB6700000000000000000173 /* WebDAVSettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000171 /* WebDAVSettingsCard.swift */; };
+		DB6700000000000000000192 /* DesktopThumbnailCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000191 /* DesktopThumbnailCache.swift */; };
+		DB6700000000000000000193 /* DesktopThumbnailCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6700000000000000000191 /* DesktopThumbnailCache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1669,6 +1708,21 @@
 		DB6400000000000000000011 /* DesktopCapsuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopCapsuleModel.swift; path = Core/Support/Desktop/DesktopCapsuleModel.swift; sourceTree = SOURCE_ROOT; };
 		DB6400000000000000000021 /* DesktopCapsuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopCapsuleTests.swift; path = Tests/Unit/DesktopCapsuleTests.swift; sourceTree = SOURCE_ROOT; };
 		DB6400000000000000000031 /* DesktopCapsuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopCapsuleView.swift; path = App/Scenes/Desktop/DesktopCapsuleView.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000101 /* DesktopTopologyArchive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopTopologyArchive.swift; path = Core/Support/Desktop/DesktopTopologyArchive.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000111 /* DesktopDisconnectPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopDisconnectPlanner.swift; path = Core/Support/Desktop/DesktopDisconnectPlanner.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000121 /* DesktopMoveAllPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopMoveAllPlan.swift; path = Core/Support/Desktop/DesktopMoveAllPlan.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000131 /* DesktopTopologyArchiveStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopTopologyArchiveStore.swift; path = Platform/Desktop/DesktopTopologyArchiveStore.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000141 /* DesktopDisplaysSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopDisplaysSettingsCard.swift; path = App/Scenes/Desktop/DesktopDisplaysSettingsCard.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000151 /* ScreenIdentifyOverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScreenIdentifyOverlayController.swift; path = App/Entry/ScreenIdentifyOverlayController.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000101 /* DesktopSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchModel.swift; path = Core/Support/Desktop/DesktopSearchModel.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000111 /* DesktopSearchSpotlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchSpotlight.swift; path = Platform/Desktop/DesktopSearchSpotlight.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000121 /* DesktopSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchService.swift; path = App/Composition/DesktopSearchService.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000131 /* DesktopSearchActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchActions.swift; path = App/Composition/DesktopSearchActions.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000141 /* DesktopSearchPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchPanelController.swift; path = App/Entry/DesktopSearchPanelController.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000151 /* DesktopSearchPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchPanelView.swift; path = App/Scenes/Desktop/DesktopSearchPanelView.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000161 /* DesktopSearchPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchPillView.swift; path = App/Scenes/Desktop/DesktopSearchPillView.swift; sourceTree = SOURCE_ROOT; };
+		DB6600000000000000000171 /* DesktopSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopSearchTests.swift; path = Tests/Unit/DesktopSearchTests.swift; sourceTree = SOURCE_ROOT; };
+		DB6500000000000000000161 /* DesktopTopologyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopTopologyTests.swift; path = Tests/Unit/DesktopTopologyTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040111 /* WindowChipGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGroupingTests.swift; path = Tests/Unit/WindowChipGroupingTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040011 /* WindowChipGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowChipGrouping.swift; path = Core/Support/WindowChipGrouping.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000003B51 /* ShelfIconStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShelfIconStateTests.swift; path = Tests/Unit/ShelfIconStateTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2430,6 +2484,16 @@
 		A10000000000002010 /* DrivesDockWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DrivesDockWidget.swift; path = App/Scenes/DockWidgets/DrivesDockWidget.swift; sourceTree = SOURCE_ROOT; };
 		A10000000000002012 /* DriveMenuBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveMenuBarItem.swift; sourceTree = "<group>"; };
 		A10000000000002014 /* DriveInventoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveInventoryTests.swift; sourceTree = "<group>"; };
+		DB6700000000000000000101 /* WebDAVSyncPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVSyncPlan.swift; path = Core/Support/WebDAVSyncPlan.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000111 /* WebDAVClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVClient.swift; path = Platform/Backup/WebDAVClient.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000121 /* WebDAVCredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVCredentialStore.swift; path = Platform/Backup/WebDAVCredentialStore.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000131 /* WebDAVBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVBackupService.swift; path = Platform/Backup/WebDAVBackupService.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000141 /* DesktopPerformancePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopPerformancePolicy.swift; path = Core/Support/Desktop/DesktopPerformancePolicy.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000151 /* DesktopPerformanceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopPerformanceStore.swift; path = Platform/Desktop/DesktopPerformanceStore.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000161 /* DesktopPerformanceSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopPerformanceSettingsCard.swift; path = App/Scenes/Desktop/DesktopPerformanceSettingsCard.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000171 /* WebDAVSettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVSettingsCard.swift; path = App/Scenes/WebDAVSettingsCard.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000181 /* WebDAVPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebDAVPerformanceTests.swift; path = Tests/Unit/WebDAVPerformanceTests.swift; sourceTree = SOURCE_ROOT; };
+		DB6700000000000000000191 /* DesktopThumbnailCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DesktopThumbnailCache.swift; path = Platform/Desktop/DesktopThumbnailCache.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3952,6 +4016,28 @@
 				DB63000000000000000000A2 /* DesktopVinylBoxView.swift in Sources */,
 				DB6400000000000000000012 /* DesktopCapsuleModel.swift in Sources */,
 				DB6400000000000000000032 /* DesktopCapsuleView.swift in Sources */,
+				DB6500000000000000000102 /* DesktopTopologyArchive.swift in Sources */,
+				DB6500000000000000000112 /* DesktopDisconnectPlanner.swift in Sources */,
+				DB6500000000000000000122 /* DesktopMoveAllPlan.swift in Sources */,
+				DB6500000000000000000132 /* DesktopTopologyArchiveStore.swift in Sources */,
+				DB6500000000000000000142 /* DesktopDisplaysSettingsCard.swift in Sources */,
+				DB6500000000000000000152 /* ScreenIdentifyOverlayController.swift in Sources */,
+				DB6600000000000000000102 /* DesktopSearchModel.swift in Sources */,
+				DB6700000000000000000192 /* DesktopThumbnailCache.swift in Sources */,
+				DB6700000000000000000102 /* WebDAVSyncPlan.swift in Sources */,
+				DB6700000000000000000112 /* WebDAVClient.swift in Sources */,
+				DB6700000000000000000122 /* WebDAVCredentialStore.swift in Sources */,
+				DB6700000000000000000132 /* WebDAVBackupService.swift in Sources */,
+				DB6700000000000000000142 /* DesktopPerformancePolicy.swift in Sources */,
+				DB6700000000000000000152 /* DesktopPerformanceStore.swift in Sources */,
+				DB6700000000000000000162 /* DesktopPerformanceSettingsCard.swift in Sources */,
+				DB6700000000000000000172 /* WebDAVSettingsCard.swift in Sources */,
+				DB6600000000000000000112 /* DesktopSearchSpotlight.swift in Sources */,
+				DB6600000000000000000122 /* DesktopSearchService.swift in Sources */,
+				DB6600000000000000000132 /* DesktopSearchActions.swift in Sources */,
+				DB6600000000000000000142 /* DesktopSearchPanelController.swift in Sources */,
+				DB6600000000000000000152 /* DesktopSearchPanelView.swift in Sources */,
+				DB6600000000000000000162 /* DesktopSearchPillView.swift in Sources */,
 				A0000000000000000000B101 /* PeekHold.swift in Sources */,
 				7B5000000000000000040012 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B12 /* ShelfIconState.swift in Sources */,
@@ -4170,6 +4256,23 @@
 				DB6300000000000000000B2 /* DesktopFeatureWidgetTests.swift in Sources */,
 				DB6400000000000000000013 /* DesktopCapsuleModel.swift in Sources */,
 				DB6400000000000000000022 /* DesktopCapsuleTests.swift in Sources */,
+				DB6500000000000000000103 /* DesktopTopologyArchive.swift in Sources */,
+				DB6500000000000000000113 /* DesktopDisconnectPlanner.swift in Sources */,
+				DB6500000000000000000123 /* DesktopMoveAllPlan.swift in Sources */,
+				DB6500000000000000000133 /* DesktopTopologyArchiveStore.swift in Sources */,
+				DB6500000000000000000163 /* DesktopTopologyTests.swift in Sources */,
+				DB6600000000000000000103 /* DesktopSearchModel.swift in Sources */,
+				DB6700000000000000000103 /* WebDAVSyncPlan.swift in Sources */,
+				DB6700000000000000000113 /* WebDAVClient.swift in Sources */,
+				DB6700000000000000000143 /* DesktopPerformancePolicy.swift in Sources */,
+				DB6700000000000000000182 /* WebDAVPerformanceTests.swift in Sources */,
+				DB6700000000000000000193 /* DesktopThumbnailCache.swift in Sources */,
+				DB6700000000000000000123 /* WebDAVCredentialStore.swift in Sources */,
+				DB6700000000000000000133 /* WebDAVBackupService.swift in Sources */,
+				DB6700000000000000000153 /* DesktopPerformanceStore.swift in Sources */,
+				DB6700000000000000000163 /* DesktopPerformanceSettingsCard.swift in Sources */,
+				DB6700000000000000000173 /* WebDAVSettingsCard.swift in Sources */,
+				DB6600000000000000000173 /* DesktopSearchTests.swift in Sources */,
 				A0000000000000000000B102 /* PeekHold.swift in Sources */,
 				7B5000000000000000040013 /* WindowChipGrouping.swift in Sources */,
 				7B5000000000000000003B13 /* ShelfIconState.swift in Sources */,

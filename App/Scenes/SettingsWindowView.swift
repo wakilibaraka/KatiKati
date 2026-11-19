@@ -245,6 +245,7 @@ struct SettingsWindowContent: View {
         }
         welcomeGuideButton
         BackupSettingsBlock()
+        WebDAVSettingsCard()
     }
 
     @ViewBuilder

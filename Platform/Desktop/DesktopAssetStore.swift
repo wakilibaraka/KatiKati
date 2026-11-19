@@ -75,7 +75,7 @@ enum DesktopAssetStore {
             return nil
         }
         let image = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
-        cacheBox.storage.setObject(image, forKey: key)
+        cacheBox.storage.setObject(image, forKey: key, cost: cgImage.width * cgImage.height * 4)
         return image
     }
 
@@ -92,6 +92,10 @@ enum DesktopAssetStore {
                 try? fm.removeItem(at: url)
             }
         }
+    }
+
+    nonisolated static func setCacheBudget(megabytes: Int) {
+        cacheBox.storage.totalCostLimit = max(1, megabytes) * 1024 * 1024
     }
 
     nonisolated static func clearCache() {

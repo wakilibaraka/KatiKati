@@ -10,14 +10,16 @@ enum DesktopWidgetServices {
 /// Desktop Vinyl Music: album art on a record that spins only while playing (and never under Reduce Motion).
 struct DesktopVinylBoxView: View {
     @ObservedObject var service: NowPlayingService
+    @ObservedObject private var performance = DesktopPerformanceStore.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let state = service.state
+        let spins = performance.settings.allowsAnimation(.vinylSpin)
         VStack(spacing: 8) {
-            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !state.isPlaying || reduceMotion)) { context in
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !state.isPlaying || reduceMotion || !spins)) { context in
                 record(state: state)
-                    .rotationEffect(.degrees(state.isPlaying && !reduceMotion
+                    .rotationEffect(.degrees(state.isPlaying && !reduceMotion && spins
                         ? context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 9) * 40
                         : 0))
             }

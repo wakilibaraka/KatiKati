@@ -16,6 +16,7 @@ struct DesktopCapsuleView: View {
     let onDragChanged: (CGSize, Bool) -> Void
     let onDragEnded: (CGSize, Bool) -> Void
 
+    @ObservedObject private var performance = DesktopPerformanceStore.shared
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -110,9 +111,13 @@ struct DesktopCapsuleView: View {
                     lineWidth: 0.75
                 )
         case .glow:
-            Capsule()
-                .strokeBorder(effectiveAccentColor.opacity(0.7), lineWidth: 1.5)
-                .shadow(color: effectiveAccentColor.opacity(0.55), radius: 6)
+            if performance.settings.allowsAnimation(.capsuleEffects) {
+                Capsule()
+                    .strokeBorder(effectiveAccentColor.opacity(0.7), lineWidth: 1.5)
+                    .shadow(color: effectiveAccentColor.opacity(0.55), radius: 6)
+            } else {
+                Capsule().strokeBorder(effectiveAccentColor.opacity(0.7), lineWidth: 1.5)
+            }
         case .hairline:
             Capsule()
                 .strokeBorder(effectiveAccentColor.opacity(0.45), lineWidth: 0.5)
@@ -155,6 +160,16 @@ struct DesktopCapsuleView: View {
 
     @ViewBuilder
     private func backdropLayer(cornerRadius: CGFloat) -> some View {
+        if !performance.settings.allowsAnimation(.capsuleEffects) {
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill((colorScheme == .dark ? Color(white: 0.14) : Color(white: 0.96)).opacity(0.96))
+        } else {
+            backdropMaterial(cornerRadius: cornerRadius)
+        }
+    }
+
+    @ViewBuilder
+    private func backdropMaterial(cornerRadius: CGFloat) -> some View {
         switch effectiveMaterial {
         case .inheritDock:
             DockPanelBackdrop(

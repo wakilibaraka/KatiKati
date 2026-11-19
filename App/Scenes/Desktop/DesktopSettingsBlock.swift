@@ -42,6 +42,8 @@ struct DesktopSettingsBlock: View {
                 DesktopFeatureWidgetRows(boxStore: coordinator.store, coordinator: coordinator)
             }
             DesktopHowToCard()
+            DesktopSearchSettingsCard()
+            DesktopPerformanceSettingsCard()
 
             let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
             SettingsCard(Text("Quick Reveal & Shortcuts")) {
@@ -135,6 +137,10 @@ struct DesktopSettingsBlock: View {
                         || panoramaImagePath.isEmpty
                         || (manager.activeCoordinator?.store.items.isEmpty ?? true)
                 )
+            }
+
+            if let coordinator = manager.activeCoordinator {
+                DesktopDisplaysSettingsCard(boxStore: coordinator.store, coordinator: coordinator)
             }
 
             SettingsCard(Text("Capsule Mode")) {
@@ -314,7 +320,8 @@ private struct DesktopFeatureWidgetRows: View {
             Feature(kind: .quickCapture, title: String(localized: "Quick Capture"), hint: String(localized: "Quick Capture: jot quick notes, or grab text from anywhere on screen with the capture button (OCR).")),
             Feature(kind: .glance, title: String(localized: "Glance"), hint: String(localized: "Glance: today's date with the lunar date, solar term and festivals.")),
             Feature(kind: .weather, title: String(localized: "Weather"), hint: String(localized: "Weather: live conditions, temperature and today's high and low.")),
-            Feature(kind: .music, title: String(localized: "Vinyl Music"), hint: String(localized: "Vinyl Music: a spinning record for what is playing, with play, pause and skip."))
+            Feature(kind: .music, title: String(localized: "Vinyl Music"), hint: String(localized: "Vinyl Music: a spinning record for what is playing, with play, pause and skip.")),
+            Feature(kind: .search, title: String(localized: "Search"), hint: String(localized: "Search: one pill for Spotlight files, apps, Settings pages, notes and to-dos, with ⌘/⇧ multi-select and batch actions."))
         ]
     }
 
@@ -340,6 +347,39 @@ private struct DesktopFeatureWidgetRows: View {
                     ),
                     info: feature.hint
                 )
+            }
+        }
+    }
+}
+
+/// Unified desktop search options (Phase 66A–B): result cap and Spotlight exclusion paths.
+private struct DesktopSearchSettingsCard: View {
+    @AppStorage(DesktopSearchConfig.resultLimitKey)
+    private var resultLimit = DesktopSearchConfig.defaultResultLimit
+    @AppStorage(DesktopSearchConfig.excludedPathsKey) private var excludedPaths = ""
+
+    var body: some View {
+        SettingsCard(Text("Desktop Search")) {
+            SettingsStepperRow(
+                Text("Result Limit"),
+                value: Binding(
+                    get: { Double(resultLimit) },
+                    set: { resultLimit = DesktopSearchConfig.clampedResultLimit(Int($0)) }
+                ),
+                in: Double(DesktopSearchConfig.resultLimitRange.lowerBound)...Double(DesktopSearchConfig.resultLimitRange.upperBound),
+                step: 10,
+                readout: "\(resultLimit)"
+            )
+            SettingsDivider()
+            SettingsEditorRow(
+                Text("Excluded Paths"),
+                text: $excludedPaths,
+                placeholder: Text(verbatim: "~/Library/Caches\n~/Projects/archive"),
+                height: 70
+            )
+            SettingsDivider()
+            SettingsButtonRow(Text("Open Search")) {
+                DesktopSearchPanelController.shared.present()
             }
         }
     }

@@ -147,6 +147,8 @@ private struct DesktopWidgetRootView: View {
                     }
                 case .music:
                     DesktopVinylBoxView(service: DesktopWidgetServices.nowPlaying)
+                case .search:
+                    DesktopSearchPillView()
                 default:
                     DesktopFolderBoxView(
                         item: hostState.item,
@@ -188,6 +190,9 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     private var collapseTask: Task<Void, Never>?
     private var quickLookURLs: [URL] = []
     private var keyMonitor: Any?
+    private var wrappedCallbacks: DesktopWidgetPanelCallbacks?
+    /// Released while hidden under Resource Saver, then rebuilt on the next show.
+    private var hostingView: NSView?
 
     init(
         group: DesktopPanelGroup,
@@ -277,8 +282,16 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             onResizeChanged: callbacks.onResizeChanged,
             onResizeEnded: callbacks.onResizeEnded
         )
+        self.wrappedCallbacks = wrappedCallbacks
+        installSurface(with: wrappedCallbacks)
+        installKeyMonitor()
+    }
+
+    private func installSurface(with wrappedCallbacks: DesktopWidgetPanelCallbacks) {
+        guard hostingView == nil else { return }
+        self.wrappedCallbacks = wrappedCallbacks
         let root = DesktopWidgetRootView(
-            hostState: state,
+            hostState: hostState,
             folderModelProvider: { [weak self] item in
                 self?.model(for: item) ?? DesktopFolderBoxModel(
                     backingPath: item.backingPath ?? NSHomeDirectory(),
@@ -303,8 +316,21 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
                 }
             }
         )
-        panel.contentView = FirstMouseHostingView(rootView: root)
-        installKeyMonitor()
+        let host = FirstMouseHostingView(rootView: root)
+        hostingView = host
+        panel.contentView = host
+    }
+
+    private func ensureSurface() {
+        if hostingView == nil, let wrappedCallbacks {
+            installSurface(with: wrappedCallbacks)
+        }
+    }
+
+    private func releaseSurfaceIfAllowed() {
+        guard DesktopPerformanceStore.shared.settings.releasesHiddenSurfaces else { return }
+        hostingView = nil
+        panel.contentView = nil
     }
 
     var windowNumber: Int { panel.windowNumber }
@@ -363,8 +389,10 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     func applyVisibility(_ visibility: DesktopCanvasVisibility, isWidgetHidden: Bool) {
         if isWidgetHidden || visibility == .hiddenAll {
             if panel.isVisible { panel.orderOut(nil) }
+            releaseSurfaceIfAllowed()
             return
         }
+        ensureSurface()
         switch visibility {
         case .desktopLayer:
             panel.isFloatingPanel = false
@@ -376,6 +404,7 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             else { panel.orderFrontRegardless() }
         case .hiddenAll:
             if panel.isVisible { panel.orderOut(nil) }
+            releaseSurfaceIfAllowed()
         }
     }
 
@@ -395,6 +424,8 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             ql.orderOut(nil)
         }
         panel.orderOut(nil)
+        hostingView = nil
+        panel.contentView = nil
         panel.close()
     }
 

@@ -125,7 +125,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return "gearshape"
         case .menuBar: return "menubar.rectangle"
         case .appearance: return "paintpalette"
-        case .dockItems: return "square.grid.1x2"
+        case .dockItems: return "square.grid.2x2"
         case .drawer: return "sidebar.squares.trailing"
         case .shelf: return "tray.and.arrow.down"
         case .widgets: return "square.grid.2x2"

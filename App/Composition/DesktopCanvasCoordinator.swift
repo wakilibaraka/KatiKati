@@ -43,14 +43,25 @@ final class DesktopCanvasCoordinator {
     private var lastEdgeMargin: CGFloat = CGFloat(DesktopCanvasConfig.defaultEdgeMargin)
     private var canvasTheme = DesktopCanvasThemeState.load()
 
+    private let topologyArchive: DesktopTopologyArchiveStore
+    private var lastTopologyDisplays: [TopologyDisplay] = []
+    private var lastTopologySignature = ""
+    private var pendingDisconnectWork: DispatchWorkItem?
+    private var moveAllUndoPlan: MoveAllWidgetsUndoPlan?
+    private var idleCleanupTimer: Timer?
+    private var lastDesktopInteraction = ProcessInfo.processInfo.systemUptime
+    private var lastIdleCleanup = ProcessInfo.processInfo.systemUptime
+
     init(
         store: DesktopBoxStore? = nil,
         settingsStore: AppSettingsStore,
-        displayTopologyStore: DisplayTopologyStore
+        displayTopologyStore: DisplayTopologyStore,
+        topologyArchiveStore: DesktopTopologyArchiveStore? = nil
     ) {
         self.store = store ?? DesktopBoxStore()
         self.settingsStore = settingsStore
         self.displayTopologyStore = displayTopologyStore
+        self.topologyArchive = topologyArchiveStore ?? DesktopTopologyArchiveStore()
         self.lastDoubleClickEnabled = doubleClickDesktop
         self.lastShowOnAllSpaces = showOnAllSpaces
         self.lastSnapGap = snapGap
@@ -77,7 +88,7 @@ final class DesktopCanvasCoordinator {
         displayTopologyStore.$table
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.reflowForDisplayChange() }
+            .sink { [weak self] _ in self?.handleTopologyChange() }
             .store(in: &cancellables)
 
         store.$items
@@ -99,17 +110,23 @@ final class DesktopCanvasCoordinator {
             forName: NSWorkspace.didWakeNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in MainActor.assumeIsolated { self?.reflowForDisplayChange() } }
+        ) { [weak self] _ in MainActor.assumeIsolated { self?.handleTopologyChange() } }
 
         DesktopManagedStorage.cleanupOrphanedStagingDirectories()
         seedDefaultWidgetsIfNeeded()
-        reflowForDisplayChange()
+        handleTopologyChange()
         syncBlankDesktopMonitor()
         syncPanels()
+        startIdleCleanupTimer()
     }
 
     func tearDown() {
         flushNow()
+        idleCleanupTimer?.invalidate()
+        idleCleanupTimer = nil
+        pendingDisconnectWork?.cancel()
+        pendingDisconnectWork = nil
+        ScreenIdentifyOverlayController.shared.dismiss()
         autoOrganizeWindowController?.close()
         autoOrganizeWindowController = nil
         removeQuickRevealMonitors()
@@ -131,18 +148,49 @@ final class DesktopCanvasCoordinator {
     // MARK: - Visibility & Quick Reveal
 
     func toggleQuickReveal() {
+        noteDesktopInteraction()
         guard revealState.toggleQuickReveal(now: ProcessInfo.processInfo.systemUptime) else { return }
         applyCurrentVisibility()
     }
 
     func toggleHideAll() {
+        noteDesktopInteraction()
         guard revealState.toggleHiddenAll(now: ProcessInfo.processInfo.systemUptime) else { return }
         applyCurrentVisibility()
     }
 
     func requestDismissQuickReveal(reason: DesktopDismissReason) {
+        noteDesktopInteraction()
         guard revealState.requestDismissQuickReveal(reason: reason) else { return }
         applyCurrentVisibility()
+    }
+
+    private func noteDesktopInteraction() {
+        lastDesktopInteraction = ProcessInfo.processInfo.systemUptime
+    }
+
+    /// Resource Saver's visible-idle cleanup: purge thumbnail and image caches once the desktop has
+    /// gone untouched for the profile's idle window. Hidden widget surfaces are released by their panels.
+    private func startIdleCleanupTimer() {
+        idleCleanupTimer?.invalidate()
+        let timer = Timer(timeInterval: 15, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.cleanupCachesIfIdle() }
+        }
+        timer.tolerance = 5
+        RunLoop.main.add(timer, forMode: .common)
+        idleCleanupTimer = timer
+    }
+
+    private func cleanupCachesIfIdle() {
+        let now = ProcessInfo.processInfo.systemUptime
+        let window = DesktopPerformanceStore.shared.settings.visibleIdleCleanupSeconds
+        guard now - lastDesktopInteraction >= window,
+              now - lastIdleCleanup >= max(window, 10),
+              !isQuickRevealed
+        else { return }
+        DesktopThumbnailCache.clearAll()
+        DesktopAssetStore.clearCache()
+        lastIdleCleanup = now
     }
 
     // MARK: - Box Actions
@@ -226,7 +274,8 @@ final class DesktopCanvasCoordinator {
         case .glance: title = String(localized: "Glance"); size = CGSize(width: 240, height: 200)
         case .weather: title = String(localized: "Weather"); size = CGSize(width: 260, height: 200)
         case .music: title = String(localized: "Vinyl Music"); size = CGSize(width: 260, height: 280)
-        case .folder, .search: return
+        case .search: title = String(localized: "Search"); size = CGSize(width: 320, height: 96)
+        case .folder: return
         }
         let target = screenContaining(point: NSEvent.mouseLocation)
         let siblings = store.items.filter { !$0.isHidden }.map(\.frame)
@@ -514,6 +563,283 @@ final class DesktopCanvasCoordinator {
         store.replaceAll(next, immediate: false)
     }
 
+    // MARK: - Multi-Display Topology Memory
+
+    /// Connected displays in `NSScreen.screens` order (the first is the menu-bar display).
+    func connectedDisplays() -> [DesktopConnectedDisplay] {
+        let primaryUUID = NSScreen.screens.first.flatMap { DisplayIdentity.uuidString(for: $0) }
+        return NSScreen.screens.compactMap { screen in
+            guard let uuid = DisplayIdentity.uuidString(for: screen) else { return nil }
+            return DesktopConnectedDisplay(
+                uuid: uuid,
+                title: screen.localizedName,
+                isPrimary: uuid == primaryUUID,
+                screenFrame: screen.frame,
+                visibleFrame: screen.visibleFrame
+            )
+        }
+    }
+
+    func identifyScreens() {
+        ScreenIdentifyOverlayController.shared.present()
+    }
+
+    /// Settings › Displays › Pin Layout: remembers the current arrangement under its signature.
+    func pinCurrentLayout() {
+        let displays = currentTopologyDisplays()
+        guard !displays.isEmpty else { return }
+        recordTopologyArchive(displays: displays)
+    }
+
+    func setDisplayBinding(for id: UUID, followMain: Bool) {
+        guard var item = store.item(for: id) else { return }
+        let onScreenUUID = resolvedDisplayUUID(forWidget: id)
+        item.followMainDisplay = followMain
+        if !followMain {
+            item.displayUUID = onScreenUUID ?? item.displayUUID ?? targetScreen(for: item).uuid
+        }
+        store.update(item, immediate: true)
+    }
+
+    func resolvedDisplayUUID(forWidget id: UUID) -> String? {
+        guard let item = store.item(for: id) else { return nil }
+        return resolvedDisplayUUID(for: item, in: currentTopologyDisplays())
+    }
+
+    func setDefaultDisplay(_ uuid: String?) {
+        if let uuid, !uuid.isEmpty {
+            UserDefaults.standard.set(uuid, forKey: DesktopTopologyConfig.defaultDisplayUUIDKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: DesktopTopologyConfig.defaultDisplayUUIDKey)
+        }
+        reflowForDisplayChange()
+    }
+
+    /// Undoable proportional move-all: every widget from the other displays lands on `uuid`,
+    /// keeping its relative position and size.
+    @discardableResult
+    func moveAllWidgets(toDisplay uuid: String) -> Bool {
+        let displays = currentTopologyDisplays()
+        guard let target = displays.first(where: { $0.uuid == uuid }) else { return false }
+        let visible = store.items.filter { !$0.isHidden }
+        let groups = Dictionary(grouping: visible) { item in
+            resolvedDisplayUUID(for: item, in: displays) ?? target.uuid
+        }
+        var plans: [MoveAllWidgetsUndoPlan] = []
+        for (sourceUUID, items) in groups where sourceUUID != uuid {
+            guard let source = displays.first(where: { $0.uuid == sourceUUID }) else { continue }
+            plans.append(DesktopMoveAllPlanner.plan(
+                items: items,
+                sourceDisplay: source,
+                targetDisplay: target,
+                edgeMargin: edgeMargin
+            ))
+        }
+        guard !plans.isEmpty else { return false }
+        let plan = DesktopMoveAllPlanner.combined(plans, targetDisplayUUID: uuid)
+        moveAllUndoPlan = plan
+        store.replaceAll(plan.applying(store.items), immediate: true)
+        return true
+    }
+
+    var canUndoMoveAll: Bool { moveAllUndoPlan != nil }
+
+    @discardableResult
+    func undoMoveAllWidgets() -> Bool {
+        guard let plan = moveAllUndoPlan else { return false }
+        store.replaceAll(plan.applying(store.items, forward: false), immediate: true)
+        moveAllUndoPlan = nil
+        return true
+    }
+
+    private func handleTopologyChange() {
+        let current = currentTopologyDisplays()
+        guard !current.isEmpty else {
+            reflowForDisplayChange()
+            return
+        }
+        let signature = DisplayTopologySignature.make(current.map(\.uuid))
+        let previous = lastTopologyDisplays
+        lastTopologyDisplays = current
+        guard signature != lastTopologySignature else {
+            reflowForDisplayChange()
+            return
+        }
+        lastTopologySignature = signature
+
+        // Remember the arrangement we are leaving at the exact geometry it had.
+        if !previous.isEmpty {
+            recordTopologyArchive(displays: previous)
+        }
+
+        pendingDisconnectWork?.cancel()
+        pendingDisconnectWork = nil
+
+        guard !previous.isEmpty else {
+            applyInitialArrangement(current: current, signature: signature)
+            recordTopologyArchive(displays: current)
+            reflowForDisplayChange()
+            return
+        }
+
+        let previousUUIDs = Set(previous.map(\.uuid))
+        let currentUUIDs = Set(current.map(\.uuid))
+        let removed = previous.filter { !currentUUIDs.contains($0.uuid) }
+        let added = currentUUIDs.subtracting(previousUUIDs)
+
+        if removed.isEmpty {
+            if !added.isEmpty {
+                restoreReconnected(added, current: current)
+            }
+            reflowForDisplayChange()
+        } else {
+            scheduleDisconnect(removed: removed, current: current)
+        }
+    }
+
+    /// A topology this Mac has not seen: exact archive match first, otherwise seed the most similar
+    /// remembered arrangement onto the closest connected display.
+    private func applyInitialArrangement(current: [TopologyDisplay], signature: String) {
+        if let entry = topologyArchive.entry(forSignature: signature) {
+            let plan = DisplayDisconnectPlanner.restorePlan(
+                reconnectedUUIDs: Set(current.map(\.uuid)),
+                widgets: topologyWidgets(for: current),
+                placements: entry.placements
+            )
+            applyTopologyPlan(plan, displays: current)
+            return
+        }
+        guard let best = topologyArchive.bestEntry(matching: current) else { return }
+        let plan = DisplayDisconnectPlanner.seedPlan(
+            entry: best,
+            current: current,
+            widgets: topologyWidgets(for: current)
+        )
+        applyTopologyPlan(plan, displays: current)
+    }
+
+    private func scheduleDisconnect(removed: [TopologyDisplay], current: [TopologyDisplay]) {
+        let grace = DesktopTopologyConfig.graceSeconds()
+        guard grace > 0 else {
+            applyDisconnect(removed: removed, current: current)
+            reflowForDisplayChange()
+            return
+        }
+        let work = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.pendingDisconnectWork = nil
+            let live = self.currentTopologyDisplays()
+            self.applyDisconnect(removed: removed, current: live.isEmpty ? current : live)
+            self.reflowForDisplayChange()
+        }
+        pendingDisconnectWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + grace, execute: work)
+    }
+
+    private func applyDisconnect(removed: [TopologyDisplay], current: [TopologyDisplay]) {
+        guard !current.isEmpty else { return }
+        let plan = DisplayDisconnectPlanner.disconnectPlan(
+            disconnected: removed,
+            current: current,
+            widgets: topologyWidgets(for: current),
+            action: DesktopTopologyConfig.disconnectAction()
+        )
+        applyTopologyPlan(plan, displays: current)
+    }
+
+    private func restoreReconnected(_ added: Set<String>, current: [TopologyDisplay]) {
+        let signature = DisplayTopologySignature.make(current.map(\.uuid))
+        let archived = topologyArchive.placements(forSignature: signature)
+        let placements = archived.isEmpty
+            ? (topologyArchive.bestEntry(matching: current)?.placements ?? [:])
+            : archived
+        let plan = DisplayDisconnectPlanner.restorePlan(
+            reconnectedUUIDs: added,
+            widgets: topologyWidgets(for: current),
+            placements: placements
+        )
+        applyTopologyPlan(plan, displays: current)
+    }
+
+    private func recordTopologyArchive(displays: [TopologyDisplay]) {
+        guard !displays.isEmpty else { return }
+        topologyArchive.record(
+            signature: DisplayTopologySignature.make(displays.map(\.uuid)),
+            displays: displays,
+            placements: DisplayDisconnectPlanner.placements(from: topologyWidgets(for: displays))
+        )
+    }
+
+    private func applyTopologyPlan(_ plan: DisplayTopologyPlan, displays: [TopologyDisplay]) {
+        guard !plan.isEmpty else { return }
+        var next = store.items
+        for index in next.indices {
+            guard let move = plan.moves[next[index].id],
+                  let display = displays.first(where: { $0.uuid == move.displayUUID })
+            else { continue }
+            next[index].displayUUID = move.displayUUID
+            next[index].followMainDisplay = false
+            next[index].capsuleMode = move.capsuleMode
+            next[index].normalizedFrame = move.normalizedFrame
+            next[index].frame = DesktopLayoutEngine.denormalize(
+                move.normalizedFrame,
+                in: display.visibleFrame.cgRect,
+                edgeMargin: edgeMargin
+            )
+        }
+        store.replaceAll(next, immediate: true)
+    }
+
+    private func currentTopologyDisplays() -> [TopologyDisplay] {
+        NSScreen.screens.compactMap { screen in
+            guard let uuid = DisplayIdentity.uuidString(for: screen) else { return nil }
+            return TopologyDisplay(
+                uuid: uuid,
+                screenFrame: screen.frame,
+                visibleFrame: screen.visibleFrame
+            )
+        }
+    }
+
+    /// Planner snapshots resolve a widget's home even when that display just disappeared, so the
+    /// disconnect planner can see which screen it came from.
+    private func topologyWidgets(for displays: [TopologyDisplay]) -> [DesktopTopologyWidget] {
+        let byUUID = Dictionary(uniqueKeysWithValues: displays.map { ($0.uuid, $0) })
+        let fallbackVisible = displays.first?.visibleFrame.cgRect
+            ?? CGRect(x: 0, y: 0, width: 1440, height: 900)
+        return store.items.map { item in
+            let home: String?
+            if !item.followMainDisplay, let uuid = item.displayUUID {
+                home = uuid
+            } else {
+                home = displayContaining(frame: item.frame, in: displays)
+                    ?? DesktopTopologyConfig.defaultDisplayUUID()
+                    ?? displays.first?.uuid
+            }
+            let visible = home.flatMap { byUUID[$0] }?.visibleFrame.cgRect ?? fallbackVisible
+            return DesktopTopologyWidget(
+                item: item,
+                resolvedDisplayUUID: home,
+                visibleFrame: visible
+            )
+        }
+    }
+
+    private func resolvedDisplayUUID(for item: DesktopWidgetItem, in displays: [TopologyDisplay]) -> String? {
+        if !item.followMainDisplay, let uuid = item.displayUUID,
+           displays.contains(where: { $0.uuid == uuid }) {
+            return uuid
+        }
+        return displayContaining(frame: item.frame, in: displays)
+            ?? DesktopTopologyConfig.defaultDisplayUUID()
+            ?? displays.first?.uuid
+    }
+
+    private func displayContaining(frame: CGRect, in displays: [TopologyDisplay]) -> String? {
+        let center = CGPoint(x: frame.midX, y: frame.midY)
+        return displays.first { $0.screenFrame.cgRect.contains(center) }?.uuid
+    }
+
     // MARK: - Drag & Resize
 
     private func snapshotOriginFrames() {
@@ -530,6 +856,7 @@ final class DesktopCanvasCoordinator {
     }
 
     private func handleDrag(panelKey: UUID, delta: CGSize, controlHeld: Bool, commit: Bool) {
+        noteDesktopInteraction()
         let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
         guard let group = groups.first(where: { $0.panelKey == panelKey }) else { return }
 
@@ -588,6 +915,7 @@ final class DesktopCanvasCoordinator {
     }
 
     private func handleResize(panelKey: UUID, handle: DesktopResizeHandle, delta: CGSize, commit: Bool) {
+        noteDesktopInteraction()
         let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
         guard let origin = resizeOriginFrame,
               let group = groups.first(where: { $0.panelKey == panelKey })
@@ -737,7 +1065,11 @@ final class DesktopCanvasCoordinator {
                 byUUID[uuid] = (screen.visibleFrame, screen.frame)
             }
         }
-        if let resolved = DesktopLayoutEngine.resolveDisplay(for: item, table: displayTopologyStore.table),
+        if let resolved = DesktopLayoutEngine.resolveDisplay(
+            for: item,
+            table: displayTopologyStore.table,
+            defaultDisplayUUID: DesktopTopologyConfig.defaultDisplayUUID()
+        ),
            let pair = byUUID[resolved.uuid] {
             return (resolved.uuid, pair.visibleFrame, pair.screenFrame)
         }

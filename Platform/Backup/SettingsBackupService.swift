@@ -152,7 +152,26 @@ struct SettingsBackupService {
         try restore(SettingsBackupFile.decode(Data(contentsOf: url)), categories: categories, notesPassword: notesPassword)
     }
 
-    private func writeSafetyBackup(categories: Set<BackupCategory>, notesPassword: String?) throws -> URL {
+    /// Merge instead of replace: incoming values win, but keys and files this Mac has that the file does
+    /// not mention survive. Used by WebDAV merge restores.
+    @discardableResult
+    func merge(_ file: SettingsBackupFile, categories wanted: Set<BackupCategory>) throws -> RestoreSummary {
+        let categories = wanted.intersection(file.categories).subtracting([.notes])
+        let incoming = file.restorableDefaults(categories: categories)
+        let incomingFiles = file.restorableFiles(categories: categories).filter { !$0.key.hasPrefix("Notes/") }
+        let safety = try writeSafetyBackup(categories: categories, notesPassword: nil)
+        for (key, value) in incoming { defaults.set(value.propertyList, forKey: key) }
+        for (name, data) in incomingFiles {
+            let target = supportDirectory.appendingPathComponent(name)
+            try FileManager.default.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try data.write(to: target, options: .atomic)
+        }
+        return RestoreSummary(defaultsWritten: incoming.count, defaultsRemoved: 0,
+                              filesWritten: incomingFiles.count, safetyBackup: safety)
+    }
+
+    @discardableResult
+    func writeSafetyBackup(categories: Set<BackupCategory>, notesPassword: String?) throws -> URL {
         try FileManager.default.createDirectory(at: backupsDirectory, withIntermediateDirectories: true)
         let stamp = Self.stampFormatter.string(from: now())
         let url = backupsDirectory.appendingPathComponent("Before restore \(stamp).katikati")

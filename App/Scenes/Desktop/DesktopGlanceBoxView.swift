@@ -2,9 +2,15 @@ import SwiftUI
 
 /// Desktop Glance: big date, lunar date, solar term and festivals for today.
 struct DesktopGlanceBoxView: View {
+    @ObservedObject private var performance = DesktopPerformanceStore.shared
+
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 60)) { context in
-            content(for: context.date)
+        if performance.settings.allowsAnimation(.glanceRotation) {
+            TimelineView(.periodic(from: .now, by: 60)) { context in
+                content(for: context.date)
+            }
+        } else {
+            content(for: Date())
         }
     }
 

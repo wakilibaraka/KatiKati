@@ -5,6 +5,7 @@ struct MarqueeText: View {
     let text: String
     let font: Font
     var nearEnd = false
+    @ObservedObject private var performance = DesktopPerformanceStore.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var textW: CGFloat = 0
     @State private var boxW: CGFloat = 0
@@ -50,7 +51,7 @@ struct MarqueeText: View {
 
     private func scroll() async {
         offset = 0
-        guard overflow > 1, !reduceMotion else { return }
+        guard overflow > 1, !reduceMotion, performance.settings.allowsAnimation(.marquee) else { return }
         let travel = Double(overflow) / 28
         for _ in 0..<(nearEnd ? 1 : 2) {
             try? await Task.sleep(for: .seconds(1.2))

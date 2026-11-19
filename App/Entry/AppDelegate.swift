@@ -176,6 +176,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func toggleShelf() { panelCoordinator?.toggleShelf() }
     /// Toggled from double-tap ⌘, shortcut, or search button.
     func toggleCommandBar() { commandBarPanel.toggle() }
+
+    /// Desktop Search pill → Command Bar with the pill's query already filled in.
+    func presentCommandBar(query: String) {
+        if commandBarPanel.isShown { commandBarPanel.dismiss() }
+        commandBarPanel.show(prefill: query)
+    }
     private func applyPinch(_ on: Bool) {
         guard on else { pinchMonitor?.stop(); pinchMonitor = nil; return }
         guard pinchMonitor == nil else { return }
@@ -329,6 +335,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installTerminationSignalHandlers()
         ClaudeApprovalService.shared.startIfEnabled()
         KeepAwakeService.shared.start()
+        _ = DesktopPerformanceStore.shared
+        WebDAVBackupService.shared.startScheduler()
 
         startMainLoopStallProbeIfTracing()
         StackPopupSnapshotProbe.runIfRequested()

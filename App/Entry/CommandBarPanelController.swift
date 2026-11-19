@@ -53,8 +53,14 @@ final class CommandBarPanelController {
         }
     }
 
-    func show() {
-        guard !isShown else { return }
+    func show() { show(prefill: "") }
+
+    /// Opens the bar with the query already in the field (used by the Desktop Search pill).
+    func show(prefill: String) {
+        guard !isShown else {
+            if !prefill.isEmpty { model.query = prefill }
+            return
+        }
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else { return }
         model.query = ""
         let front = NSWorkspace.shared.frontmostApplication
@@ -84,6 +90,7 @@ final class CommandBarPanelController {
         panel.setFrame(NSRect(x: f.midX - size.width / 2, y: f.maxY - size.height - f.height * 0.12, width: size.width, height: size.height), display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
+        if !prefill.isEmpty { model.query = prefill }
         installKeyMonitor()
         installOutsideMonitor()
     }
