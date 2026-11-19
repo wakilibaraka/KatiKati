@@ -83,10 +83,17 @@ final class DesktopBoxStore: ObservableObject {
     }
 
     func remove(id: UUID) {
-        let before = items.count
-        items.removeAll { $0.id == id }
-        guard items.count != before else { return }
+        let filtered = items.filter { $0.id != id }
+        guard filtered.count != items.count else { return }
+        items = DesktopTabGroupEngine.reconcile(filtered)
         flushNow()
+    }
+
+    func replaceAll(_ nextItems: [DesktopWidgetItem], immediate: Bool = true) {
+        let reconciled = DesktopTabGroupEngine.reconcile(nextItems)
+        guard reconciled != items else { return }
+        items = reconciled
+        immediate ? flushNow() : scheduleSave()
     }
 
     /// Creates `~/KatiKati/Inbox` (or custom URL) if missing and registers a non-TCC starter box.

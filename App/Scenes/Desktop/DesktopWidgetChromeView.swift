@@ -4,10 +4,16 @@ import SwiftUI
 /// Desktop-layer widget frame using `DockPanelBackdrop`, `dockPanelRim`, title controls, and 8-way snap resize.
 struct DesktopWidgetChromeView<Content: View>: View {
     let item: DesktopWidgetItem
+    var groupTabs: [DesktopWidgetItem] = []
+    var mergeTargets: [(id: UUID, title: String)] = []
     let itemCount: Int?
     let usesLiquidGlass: Bool
     let isDropHighlighted: Bool
     let onUpdateItem: (DesktopWidgetItem) -> Void
+    var onSelectTab: (UUID) -> Void = { _ in }
+    var onCycleTab: (Int) -> Void = { _ in }
+    var onDetachTab: (UUID) -> Void = { _ in }
+    var onMergeInto: (UUID) -> Void = { _ in }
     let onNewFolder: () -> Void
     let onRevealInFinder: () -> Void
     let onRemoveBox: () -> Void
@@ -105,6 +111,8 @@ struct DesktopWidgetChromeView<Content: View>: View {
                         .onChange(of: titleFieldFocused) { focused in
                             if !focused && isEditingTitle { commitTitleEdit() }
                         }
+                } else if groupTabs.count > 1 {
+                    tabStripView
                 } else {
                     Text(verbatim: item.title)
                         .font(.system(size: 12, weight: .semibold))
@@ -114,7 +122,7 @@ struct DesktopWidgetChromeView<Content: View>: View {
                         .onTapGesture(count: 2) { beginTitleEdit() }
                 }
 
-                if let itemCount, !isCompactWidth {
+                if let itemCount, !isCompactWidth, groupTabs.count <= 1 {
                     Text(verbatim: "\(itemCount)")
                         .font(.system(size: 10, weight: .medium, design: .rounded))
                         .foregroundStyle(theme.labelSubtitle.color)
@@ -210,6 +218,20 @@ struct DesktopWidgetChromeView<Content: View>: View {
             ))
 
             Divider()
+            if !mergeTargets.isEmpty {
+                Menu(String(localized: "Group With")) {
+                    ForEach(mergeTargets, id: \.id) { target in
+                        Button {
+                            onMergeInto(target.id)
+                        } label: {
+                            Text(verbatim: target.title)
+                        }
+                    }
+                }
+            }
+            if groupTabs.count > 1 {
+                Button(String(localized: "Detach Tab")) { onDetachTab(item.id) }
+            }
             Button(String(localized: "Show in Finder"), action: onRevealInFinder)
             Button(String(localized: "Remove Box"), role: .destructive, action: onRemoveBox)
         } label: {
@@ -384,5 +406,74 @@ struct DesktopWidgetChromeView<Content: View>: View {
     private func cancelTitleEdit() {
         isEditingTitle = false
         onReleaseLock(.inlineRename)
+    }
+
+    private var tabStripView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 4) {
+                ForEach(groupTabs) { tab in
+                    let isSelected = tab.id == item.id
+                    Text(verbatim: tab.title)
+                        .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected ? theme.labelActive.color : theme.labelInactive.color)
+                        .lineLimit(1)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(
+                            Capsule().fill(isSelected ? theme.chipPillFill.normal.color : Color.clear)
+                        )
+                        .contentShape(Capsule())
+                        .onTapGesture(count: 2) {
+                            if isSelected { beginTitleEdit() } else { onSelectTab(tab.id) }
+                        }
+                        .onTapGesture {
+                            if !isSelected { onSelectTab(tab.id) }
+                        }
+                        .contextMenu {
+                            Button(String(localized: "Detach Tab")) { onDetachTab(tab.id) }
+                            if isSelected {
+                                Button(String(localized: "Remove Box"), role: .destructive, action: onRemoveBox)
+                            }
+                        }
+                }
+            }
+            .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.8), value: item.id)
+        }
+        .overlay(DesktopTabWheelCatcher(onCycle: onCycleTab))
+    }
+}
+
+private struct DesktopTabWheelCatcher: NSViewRepresentable {
+    let onCycle: (Int) -> Void
+
+    func makeNSView(context: Context) -> WheelNSView {
+        let view = WheelNSView()
+        view.onCycle = onCycle
+        return view
+    }
+
+    func updateNSView(_ nsView: WheelNSView, context: Context) {
+        nsView.onCycle = onCycle
+    }
+
+    final class WheelNSView: NSView {
+        var onCycle: ((Int) -> Void)?
+        private var lastCycleTimestamp: TimeInterval = 0
+
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func scrollWheel(with event: NSEvent) {
+            let dominant = abs(event.scrollingDeltaX) > abs(event.scrollingDeltaY)
+                ? event.scrollingDeltaX
+                : event.scrollingDeltaY
+            guard abs(dominant) > 1.5 else {
+                super.scrollWheel(with: event)
+                return
+            }
+            let now = ProcessInfo.processInfo.systemUptime
+            guard now - lastCycleTimestamp >= 0.14 else { return }
+            lastCycleTimestamp = now
+            onCycle?(dominant > 0 ? 1 : -1)
+        }
     }
 }

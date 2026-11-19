@@ -142311,6 +142311,38 @@
         "it": { "stringUnit": { "state": "translated", "value": "Separa pila" } },
         "ko": { "stringUnit": { "state": "translated", "value": "스택 해제" } }
       }
+    },
+    "Group With": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Group With" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "与以下收纳盒合并标签页" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "與以下收納盒合併分頁" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "グループ化先" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gruppieren mit" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Grouper avec" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Agrupar con" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Agrupar con" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Agrupar Com" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Agrupar Com" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Raggruppa con" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "다음과 그룹화" } }
+      }
+    },
+    "Detach Tab": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Detach Tab" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "拆分为独立收纳盒" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "拆分為獨立收納盒" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "タブを切り離す" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Tab lösen" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Détacher l’onglet" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Separar pestaña" } },
+        "es-419": { "stringUnit": { "state": "translated", "value": "Separar pestaña" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Destacar Aba" } },
+        "pt-PT": { "stringUnit": { "state": "translated", "value": "Separar Separador" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Separa pannello" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "탭 분리" } }
+      }
     }
   },
   "version": "1.0"

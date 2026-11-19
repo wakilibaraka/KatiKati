@@ -193,9 +193,16 @@ final class DesktopCanvasCoordinator {
     }
 
     func toggleWidgetHidden(id: UUID) {
-        guard var item = store.item(for: id) else { return }
-        item.isHidden.toggle()
-        store.update(item, immediate: true)
+        guard let anchor = store.item(for: id) else { return }
+        let nextHidden = !anchor.isHidden
+        let next = store.items.map { item -> DesktopWidgetItem in
+            var copy = item
+            if copy.id == id || (anchor.tabGroupID != nil && copy.tabGroupID == anchor.tabGroupID) {
+                copy.isHidden = nextHidden
+            }
+            return copy
+        }
+        store.replaceAll(next, immediate: true)
     }
 
     func removeWidget(id: UUID) { store.remove(id: id) }
@@ -208,10 +215,11 @@ final class DesktopCanvasCoordinator {
     // MARK: - Panel Sync & Reflow
 
     private func syncPanels() {
-        let liveIDs = Set(store.items.map(\.id))
-        for (id, controller) in controllers where !liveIDs.contains(id) {
+        let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
+        let liveKeys = Set(groups.map(\.panelKey))
+        for (key, controller) in controllers where !liveKeys.contains(key) {
             controller.tearDown()
-            controllers.removeValue(forKey: id)
+            controllers.removeValue(forKey: key)
         }
 
         let themeStyle = settingsStore.themeMaterial
@@ -219,109 +227,173 @@ final class DesktopCanvasCoordinator {
         let usesGlass = DockGlassPresentation.shouldAttemptTaskbarComposite
         let allSpaces = showOnAllSpaces
 
-        for item in store.items {
-            if let existing = controllers[item.id] {
+        for group in groups {
+            let panelKey = group.panelKey
+            let targets = groups
+                .filter { $0.panelKey != panelKey }
+                .map { ($0.activeItem.id, $0.activeItem.title) }
+
+            if let existing = controllers[panelKey] {
                 existing.update(
-                    item: item, visibility: revealState.visibility, themeStyle: themeStyle,
-                    themeTuning: themeTuning, usesLiquidGlass: usesGlass, showOnAllSpaces: allSpaces
+                    group: group, mergeTargets: targets, visibility: revealState.visibility,
+                    themeStyle: themeStyle, themeTuning: themeTuning,
+                    usesLiquidGlass: usesGlass, showOnAllSpaces: allSpaces
                 )
             } else {
-                let id = item.id
                 let callbacks = DesktopWidgetPanelCallbacks(
                     onUpdateItem: { [weak self] updated in self?.store.update(updated, immediate: false) },
-                    onRemoveBox: { [weak self] in self?.store.remove(id: id) },
+                    onRemoveBox: { [weak self] in
+                        guard let id = self?.controllers[panelKey]?.activeWidgetID else { return }
+                        self?.store.remove(id: id)
+                    },
+                    onSelectTab: { [weak self] tabID in
+                        guard let self else { return }
+                        self.store.replaceAll(DesktopTabGroupEngine.selectTab(id: tabID, in: self.store.items), immediate: true)
+                    },
+                    onCycleTab: { [weak self] delta in
+                        guard let self else { return }
+                        self.store.replaceAll(DesktopTabGroupEngine.cycleTab(groupID: panelKey, delta: delta, in: self.store.items), immediate: true)
+                    },
+                    onDetachTab: { [weak self] tabID in
+                        guard let self, let anchor = self.store.item(for: tabID) else { return }
+                        let target = self.targetScreen(for: anchor)
+                        let detached = DesktopTabGroupEngine.detachTab(
+                            id: tabID, in: self.store.items,
+                            visibleFrame: target.visibleFrame, edgeMargin: self.edgeMargin
+                        )
+                        self.store.replaceAll(detached, immediate: true)
+                    },
+                    onMergeInto: { [weak self] targetID in
+                        guard let self, let activeID = self.controllers[panelKey]?.activeWidgetID else { return }
+                        let merged = DesktopTabGroupEngine.merge(movingID: activeID, into: targetID, in: self.store.items)
+                        self.store.replaceAll(merged, immediate: true)
+                    },
                     onAcquireLock: { [weak self] lock in self?.revealState.acquireLock(lock) },
                     onReleaseLock: { [weak self] lock in self?.handleLockReleased(lock) },
                     onDragStarted: { [weak self] in self?.snapshotOriginFrames() },
-                    onDragChanged: { [weak self] d, ctrl in self?.handleDrag(id: id, delta: d, controlHeld: ctrl, commit: false) },
-                    onDragEnded: { [weak self] d, ctrl in self?.handleDrag(id: id, delta: d, controlHeld: ctrl, commit: true) },
-                    onResizeStarted: { [weak self] in self?.snapshotResizeOrigin(id: id) },
-                    onResizeChanged: { [weak self] h, d in self?.handleResize(id: id, handle: h, delta: d, commit: false) },
-                    onResizeEnded: { [weak self] h, d in self?.handleResize(id: id, handle: h, delta: d, commit: true) }
+                    onDragChanged: { [weak self] d, ctrl in self?.handleDrag(panelKey: panelKey, delta: d, controlHeld: ctrl, commit: false) },
+                    onDragEnded: { [weak self] d, ctrl in self?.handleDrag(panelKey: panelKey, delta: d, controlHeld: ctrl, commit: true) },
+                    onResizeStarted: { [weak self] in self?.snapshotResizeOrigin(panelKey: panelKey) },
+                    onResizeChanged: { [weak self] h, d in self?.handleResize(panelKey: panelKey, handle: h, delta: d, commit: false) },
+                    onResizeEnded: { [weak self] h, d in self?.handleResize(panelKey: panelKey, handle: h, delta: d, commit: true) }
                 )
                 let created = DesktopWidgetPanelController(
-                    item: item, themeStyle: themeStyle, themeTuning: themeTuning,
+                    group: group, mergeTargets: targets, themeStyle: themeStyle, themeTuning: themeTuning,
                     usesLiquidGlass: usesGlass, showOnAllSpaces: allSpaces, callbacks: callbacks
                 )
-                controllers[id] = created
-                created.applyVisibility(revealState.visibility, isWidgetHidden: item.isHidden)
+                controllers[panelKey] = created
+                created.applyVisibility(revealState.visibility, isWidgetHidden: group.activeItem.isHidden)
             }
         }
     }
 
     private func reflowForDisplayChange() {
-        var newFrames: [UUID: CGRect] = [:]
-        var newNorms: [UUID: NormalizedWidgetRect] = [:]
-        for item in store.items {
+        var next = DesktopTabGroupEngine.reconcile(store.items)
+        for group in DesktopTabGroupEngine.panelGroups(from: next) {
+            let item = group.activeItem
             let target = targetScreen(for: item)
             let updatedFrame = item.normalizedFrame.map {
                 DesktopLayoutEngine.denormalize($0, in: target.visibleFrame, edgeMargin: edgeMargin)
             } ?? DesktopLayoutEngine.clamp(item.frame, in: target.visibleFrame, edgeMargin: edgeMargin)
-            newFrames[item.id] = updatedFrame
-            newNorms[item.id] = item.normalizedFrame ?? DesktopLayoutEngine.normalize(updatedFrame, in: target.visibleFrame)
+            let norm = item.normalizedFrame ?? DesktopLayoutEngine.normalize(updatedFrame, in: target.visibleFrame)
+            next = DesktopTabGroupEngine.syncGroupGeometry(
+                for: item.id, frame: updatedFrame, normalizedFrame: norm, displayUUID: target.uuid, in: next
+            )
         }
-        store.updateFrames(newFrames, normalized: newNorms, immediate: false)
+        store.replaceAll(next, immediate: false)
     }
 
     // MARK: - Drag & Resize
 
     private func snapshotOriginFrames() {
+        let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
         dragOriginFrames = Dictionary(
-            uniqueKeysWithValues: store.items.map { ($0.id, controllers[$0.id]?.currentFrame ?? $0.frame) }
+            uniqueKeysWithValues: groups.map { ($0.panelKey, controllers[$0.panelKey]?.currentFrame ?? $0.activeItem.frame) }
         )
     }
 
-    private func snapshotResizeOrigin(id: UUID) {
-        resizeOriginFrame = controllers[id]?.currentFrame ?? store.item(for: id)?.frame
+    private func snapshotResizeOrigin(panelKey: UUID) {
+        let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
+        resizeOriginFrame = controllers[panelKey]?.currentFrame
+            ?? groups.first(where: { $0.panelKey == panelKey })?.activeItem.frame
     }
 
-    private func handleDrag(id: UUID, delta: CGSize, controlHeld: Bool, commit: Bool) {
+    private func handleDrag(panelKey: UUID, delta: CGSize, controlHeld: Bool, commit: Bool) {
+        let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
+        guard let group = groups.first(where: { $0.panelKey == panelKey }) else { return }
+
         if controlHeld {
-            guard let item = store.item(for: id) else { return }
-            let target = targetScreen(for: item)
+            let target = targetScreen(for: group.activeItem)
             let moved = DesktopLayoutEngine.boundedGroupMove(
-                frames: visibleOriginFrames(sameDisplayAs: item), delta: delta,
+                frames: visibleOriginFrames(sameDisplayAs: group.activeItem, groups: groups), delta: delta,
                 visibleFrame: target.visibleFrame, edgeMargin: edgeMargin
             )
-            for (movedID, rect) in moved { controllers[movedID]?.applyLiveFrame(rect) }
+            for (movedKey, rect) in moved { controllers[movedKey]?.applyLiveFrame(rect) }
             if commit {
-                let norms = moved.mapValues { DesktopLayoutEngine.normalize($0, in: target.visibleFrame) }
-                store.updateFrames(moved, normalized: norms, immediate: true)
+                var next = store.items
+                for (movedKey, rect) in moved {
+                    guard let movedGroup = groups.first(where: { $0.panelKey == movedKey }) else { continue }
+                    let norm = DesktopLayoutEngine.normalize(rect, in: target.visibleFrame)
+                    next = DesktopTabGroupEngine.syncGroupGeometry(
+                        for: movedGroup.activeItem.id, frame: rect, normalizedFrame: norm, displayUUID: target.uuid, in: next
+                    )
+                }
+                store.replaceAll(next, immediate: true)
                 dragOriginFrames.removeAll()
             }
             return
         }
 
-        guard let origin = dragOriginFrames[id], var item = store.item(for: id) else { return }
+        guard let origin = dragOriginFrames[panelKey] else { return }
         let candidate = origin.offsetBy(dx: delta.width, dy: delta.height)
         let target = screenContaining(point: CGPoint(x: candidate.midX, y: candidate.midY))
         let snapped = DesktopLayoutEngine.snapMove(
-            candidate: candidate, others: otherFrames(excluding: id, displayUUID: target.uuid),
+            candidate: candidate, others: otherFrames(excludingPanelKey: panelKey, displayUUID: target.uuid, groups: groups),
             visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
         )
-        controllers[id]?.applyLiveFrame(snapped.frame)
+        controllers[panelKey]?.applyLiveFrame(snapped.frame)
         if commit {
-            item.frame = snapped.frame
-            if let uuid = target.uuid { item.displayUUID = uuid }
-            item.normalizedFrame = DesktopLayoutEngine.normalize(snapped.frame, in: target.visibleFrame)
-            store.update(item, immediate: true)
+            if NSEvent.modifierFlags.contains(.option) {
+                let mouse = NSEvent.mouseLocation
+                let dropCenter = CGPoint(x: snapped.frame.midX, y: snapped.frame.midY)
+                if let (_, targetCtrl) = controllers.first(where: { key, ctrl in
+                    key != panelKey && (ctrl.contains(screenPoint: mouse) || ctrl.contains(screenPoint: dropCenter))
+                }) {
+                    let merged = DesktopTabGroupEngine.merge(
+                        movingID: group.activeItem.id, into: targetCtrl.activeWidgetID, in: store.items
+                    )
+                    store.replaceAll(merged, immediate: true)
+                    dragOriginFrames.removeAll()
+                    return
+                }
+            }
+            let norm = DesktopLayoutEngine.normalize(snapped.frame, in: target.visibleFrame)
+            let next = DesktopTabGroupEngine.syncGroupGeometry(
+                for: group.activeItem.id, frame: snapped.frame, normalizedFrame: norm, displayUUID: target.uuid, in: store.items
+            )
+            store.replaceAll(next, immediate: true)
             dragOriginFrames.removeAll()
         }
     }
 
-    private func handleResize(id: UUID, handle: DesktopResizeHandle, delta: CGSize, commit: Bool) {
-        guard let origin = resizeOriginFrame, var item = store.item(for: id) else { return }
-        let target = targetScreen(for: item)
+    private func handleResize(panelKey: UUID, handle: DesktopResizeHandle, delta: CGSize, commit: Bool) {
+        let groups = DesktopTabGroupEngine.panelGroups(from: store.items)
+        guard let origin = resizeOriginFrame,
+              let group = groups.first(where: { $0.panelKey == panelKey })
+        else { return }
+        let target = targetScreen(for: group.activeItem)
         let snapped = DesktopLayoutEngine.snapResize(
             origin: origin, handle: handle, delta: delta,
-            others: otherFrames(excluding: id, displayUUID: target.uuid),
+            others: otherFrames(excludingPanelKey: panelKey, displayUUID: target.uuid, groups: groups),
             visibleFrame: target.visibleFrame, gap: snapGap, edgeMargin: edgeMargin
         )
-        controllers[id]?.applyLiveFrame(snapped.frame)
+        controllers[panelKey]?.applyLiveFrame(snapped.frame)
         if commit {
-            item.frame = snapped.frame
-            item.normalizedFrame = DesktopLayoutEngine.normalize(snapped.frame, in: target.visibleFrame)
-            store.update(item, immediate: true)
+            let norm = DesktopLayoutEngine.normalize(snapped.frame, in: target.visibleFrame)
+            let next = DesktopTabGroupEngine.syncGroupGeometry(
+                for: group.activeItem.id, frame: snapped.frame, normalizedFrame: norm, displayUUID: target.uuid, in: store.items
+            )
+            store.replaceAll(next, immediate: true)
             resizeOriginFrame = nil
         }
     }
@@ -337,8 +409,8 @@ final class DesktopCanvasCoordinator {
     }
 
     private func applyCurrentVisibility() {
-        for item in store.items {
-            controllers[item.id]?.applyVisibility(revealState.visibility, isWidgetHidden: item.isHidden)
+        for group in DesktopTabGroupEngine.panelGroups(from: store.items) {
+            controllers[group.panelKey]?.applyVisibility(revealState.visibility, isWidgetHidden: group.activeItem.isHidden)
         }
         revealState.visibility == .quickRevealed ? installQuickRevealMonitors() : removeQuickRevealMonitors()
     }
@@ -453,21 +525,30 @@ final class DesktopCanvasCoordinator {
         return fallbackPrimaryScreen()
     }
 
-    private func otherFrames(excluding id: UUID, displayUUID: String?) -> [CGRect] {
-        store.items.compactMap { item in
-            guard item.id != id, !item.isHidden else { return nil }
-            let targetUUID = targetScreen(for: item).uuid
+    private func otherFrames(
+        excludingPanelKey panelKey: UUID,
+        displayUUID: String?,
+        groups: [DesktopPanelGroup]
+    ) -> [CGRect] {
+        groups.compactMap { group in
+            guard group.panelKey != panelKey, !group.activeItem.isHidden else { return nil }
+            let targetUUID = targetScreen(for: group.activeItem).uuid
             guard displayUUID == nil || targetUUID == displayUUID else { return nil }
-            return controllers[item.id]?.currentFrame ?? item.frame
+            return controllers[group.panelKey]?.currentFrame ?? group.activeItem.frame
         }
     }
 
-    private func visibleOriginFrames(sameDisplayAs anchor: DesktopWidgetItem) -> [UUID: CGRect] {
+    private func visibleOriginFrames(
+        sameDisplayAs anchor: DesktopWidgetItem,
+        groups: [DesktopPanelGroup]
+    ) -> [UUID: CGRect] {
         let anchorUUID = targetScreen(for: anchor).uuid
         var map: [UUID: CGRect] = [:]
-        for item in store.items where !item.isHidden {
-            if anchorUUID == nil || targetScreen(for: item).uuid == anchorUUID {
-                map[item.id] = dragOriginFrames[item.id] ?? controllers[item.id]?.currentFrame ?? item.frame
+        for group in groups where !group.activeItem.isHidden {
+            if anchorUUID == nil || targetScreen(for: group.activeItem).uuid == anchorUUID {
+                map[group.panelKey] = dragOriginFrames[group.panelKey]
+                    ?? controllers[group.panelKey]?.currentFrame
+                    ?? group.activeItem.frame
             }
         }
         return map

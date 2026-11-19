@@ -5,6 +5,10 @@ import SwiftUI
 struct DesktopWidgetPanelCallbacks {
     var onUpdateItem: (DesktopWidgetItem) -> Void
     var onRemoveBox: () -> Void
+    var onSelectTab: (UUID) -> Void
+    var onCycleTab: (Int) -> Void
+    var onDetachTab: (UUID) -> Void
+    var onMergeInto: (UUID) -> Void
     var onAcquireLock: (DesktopInteractionLock) -> Void
     var onReleaseLock: (DesktopInteractionLock) -> Void
     var onDragStarted: () -> Void
@@ -18,6 +22,8 @@ struct DesktopWidgetPanelCallbacks {
 @MainActor
 private final class DesktopWidgetHostState: ObservableObject {
     @Published var item: DesktopWidgetItem
+    @Published var groupTabs: [DesktopWidgetItem]
+    @Published var mergeTargets: [(id: UUID, title: String)]
     @Published var themeStyle: DockThemeStyle
     @Published var themeTuning: ThemeTuning
     @Published var usesLiquidGlass: Bool
@@ -25,12 +31,15 @@ private final class DesktopWidgetHostState: ObservableObject {
     @Published var createNewFolderTrigger = 0
 
     init(
-        item: DesktopWidgetItem,
+        group: DesktopPanelGroup,
+        mergeTargets: [(id: UUID, title: String)],
         themeStyle: DockThemeStyle,
         themeTuning: ThemeTuning,
         usesLiquidGlass: Bool
     ) {
-        self.item = item
+        self.item = group.activeItem
+        self.groupTabs = group.tabs
+        self.mergeTargets = mergeTargets
         self.themeStyle = themeStyle
         self.themeTuning = themeTuning
         self.usesLiquidGlass = usesLiquidGlass
@@ -39,23 +48,34 @@ private final class DesktopWidgetHostState: ObservableObject {
 
 private struct DesktopWidgetRootView: View {
     @ObservedObject var hostState: DesktopWidgetHostState
-    @ObservedObject var folderModel: DesktopFolderBoxModel
+    let folderModelProvider: (DesktopWidgetItem) -> DesktopFolderBoxModel
     let callbacks: DesktopWidgetPanelCallbacks
     let onQuickLook: ([URL]) -> Void
     let onRevealInFinder: () -> Void
 
+    private var activeModel: DesktopFolderBoxModel {
+        folderModelProvider(hostState.item)
+    }
+
     private var itemCount: Int? {
-        if case .loaded(let entries) = folderModel.loadState { return entries.count }
+        if case .loaded(let entries) = activeModel.loadState { return entries.count }
         return nil
     }
 
     var body: some View {
+        let model = activeModel
         DesktopWidgetChromeView(
             item: hostState.item,
+            groupTabs: hostState.groupTabs,
+            mergeTargets: hostState.mergeTargets,
             itemCount: itemCount,
             usesLiquidGlass: hostState.usesLiquidGlass,
             isDropHighlighted: hostState.isDropHighlighted,
             onUpdateItem: callbacks.onUpdateItem,
+            onSelectTab: callbacks.onSelectTab,
+            onCycleTab: callbacks.onCycleTab,
+            onDetachTab: callbacks.onDetachTab,
+            onMergeInto: callbacks.onMergeInto,
             onNewFolder: { hostState.createNewFolderTrigger += 1 },
             onRevealInFinder: onRevealInFinder,
             onRemoveBox: callbacks.onRemoveBox,
@@ -70,7 +90,7 @@ private struct DesktopWidgetRootView: View {
         ) {
             DesktopFolderBoxView(
                 item: hostState.item,
-                model: folderModel,
+                model: model,
                 onUpdateItem: callbacks.onUpdateItem,
                 onQuickLook: onQuickLook,
                 onAcquireLock: callbacks.onAcquireLock,
@@ -78,6 +98,7 @@ private struct DesktopWidgetRootView: View {
                 onDropTargetedChanged: { hostState.isDropHighlighted = $0 },
                 createNewFolderTrigger: $hostState.createNewFolderTrigger
             )
+            .id(hostState.item.id)
         }
         .environment(\.dockThemeStyle, hostState.themeStyle)
         .environment(\.themeTuning, hostState.themeTuning)
@@ -89,50 +110,41 @@ private final class DesktopWidgetPanel: NonConstrainingPanel {
     override var canBecomeMain: Bool { false }
 }
 
-/// Hosts one desktop-layer `NSPanel` with `desktopIconWindow + 1` resting level, Quick Reveal, and QuickLook.
+/// Hosts one desktop-layer `NSPanel` for a `DesktopPanelGroup` (supporting tabs, Quick Reveal, and QuickLook).
 @MainActor
 final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QLPreviewPanelDelegate {
     static let desktopLayerLevel = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.desktopIconWindow)) + 1)
 
-    let widgetID: UUID
+    let panelKey: UUID
     private let panel: DesktopWidgetPanel
     private let hostState: DesktopWidgetHostState
-    private let folderModel: DesktopFolderBoxModel
+    private var tabModels: [UUID: DesktopFolderBoxModel] = [:]
     private let callbacks: DesktopWidgetPanelCallbacks
 
     private var quickLookURLs: [URL] = []
-    private var spaceKeyMonitor: Any?
+    private var keyMonitor: Any?
 
     init(
-        item: DesktopWidgetItem,
+        group: DesktopPanelGroup,
+        mergeTargets: [(id: UUID, title: String)],
         themeStyle: DockThemeStyle,
         themeTuning: ThemeTuning,
         usesLiquidGlass: Bool,
         showOnAllSpaces: Bool,
         callbacks: DesktopWidgetPanelCallbacks
     ) {
-        self.widgetID = item.id
+        self.panelKey = group.panelKey
         self.callbacks = callbacks
         let state = DesktopWidgetHostState(
-            item: item,
+            group: group,
+            mergeTargets: mergeTargets,
             themeStyle: themeStyle,
             themeTuning: themeTuning,
             usesLiquidGlass: usesLiquidGlass
         )
         self.hostState = state
-        let model = DesktopFolderBoxModel(
-            backingPath: item.backingPath ?? NSHomeDirectory(),
-            sortMode: item.sortMode,
-            manualOrder: item.manualOrder,
-            onManualOrderUpdated: { updatedOrder in
-                var next = state.item
-                next.manualOrder = updatedOrder
-                callbacks.onUpdateItem(next)
-            }
-        )
-        self.folderModel = model
 
-        let outerFrame = Self.outerPanelFrame(for: item.frame)
+        let outerFrame = Self.outerPanelFrame(for: group.activeItem.frame)
         let panel = DesktopWidgetPanel(
             contentRect: outerFrame,
             styleMask: [.borderless, .nonactivatingPanel],
@@ -152,9 +164,16 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         self.panel = panel
         super.init()
 
+        syncModels(for: group.tabs)
         let root = DesktopWidgetRootView(
             hostState: state,
-            folderModel: model,
+            folderModelProvider: { [weak self] item in
+                self?.model(for: item) ?? DesktopFolderBoxModel(
+                    backingPath: item.backingPath ?? NSHomeDirectory(),
+                    sortMode: item.sortMode,
+                    manualOrder: item.manualOrder
+                )
+            },
             callbacks: callbacks,
             onQuickLook: { [weak self] urls in self?.toggleQuickLook(for: urls) },
             onRevealInFinder: { [weak self] in
@@ -162,34 +181,32 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
             }
         )
-        let hosting = FirstMouseHostingView(rootView: root)
-        panel.contentView = hosting
-        installSpaceKeyMonitor()
-        model.start()
+        panel.contentView = FirstMouseHostingView(rootView: root)
+        installKeyMonitor()
     }
 
     var windowNumber: Int { panel.windowNumber }
     var currentFrame: CGRect { hostState.item.frame }
+    var activeWidgetID: UUID { hostState.item.id }
 
     func update(
-        item: DesktopWidgetItem,
+        group: DesktopPanelGroup,
+        mergeTargets: [(id: UUID, title: String)],
         visibility: DesktopCanvasVisibility,
         themeStyle: DockThemeStyle,
         themeTuning: ThemeTuning,
         usesLiquidGlass: Bool,
         showOnAllSpaces: Bool
     ) {
-        hostState.item = item
+        syncModels(for: group.tabs)
+        hostState.item = group.activeItem
+        hostState.groupTabs = group.tabs
+        hostState.mergeTargets = mergeTargets
         hostState.themeStyle = themeStyle
         hostState.themeTuning = themeTuning
         hostState.usesLiquidGlass = usesLiquidGlass
-        folderModel.updateConfig(
-            backingPath: item.backingPath ?? NSHomeDirectory(),
-            sortMode: item.sortMode,
-            manualOrder: item.manualOrder
-        )
 
-        let targetOuter = Self.outerPanelFrame(for: item.frame)
+        let targetOuter = Self.outerPanelFrame(for: group.activeItem.frame)
         if panel.frame != targetOuter {
             panel.setFrame(targetOuter, display: true)
         }
@@ -198,7 +215,7 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             panel.collectionBehavior = targetBehavior
         }
 
-        applyVisibility(visibility, isWidgetHidden: item.isHidden)
+        applyVisibility(visibility, isWidgetHidden: group.activeItem.isHidden)
     }
 
     func applyLiveFrame(_ frame: CGRect) {
@@ -235,14 +252,51 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     }
 
     func tearDown() {
-        if let spaceKeyMonitor { NSEvent.removeMonitor(spaceKeyMonitor) }
-        spaceKeyMonitor = nil
-        folderModel.stop()
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        keyMonitor = nil
+        for model in tabModels.values { model.stop() }
+        tabModels.removeAll()
         if let ql = QLPreviewPanel.shared(), ql.isVisible, ql.dataSource === self {
             ql.orderOut(nil)
         }
         panel.orderOut(nil)
         panel.close()
+    }
+
+    // MARK: - Models & Key Handling
+
+    private func syncModels(for tabs: [DesktopWidgetItem]) {
+        let liveIDs = Set(tabs.map(\.id))
+        for (id, model) in tabModels where !liveIDs.contains(id) {
+            model.stop()
+            tabModels.removeValue(forKey: id)
+        }
+        for tab in tabs {
+            _ = model(for: tab)
+        }
+    }
+
+    private func model(for item: DesktopWidgetItem) -> DesktopFolderBoxModel {
+        let path = item.backingPath ?? NSHomeDirectory()
+        if let existing = tabModels[item.id] {
+            existing.updateConfig(backingPath: path, sortMode: item.sortMode, manualOrder: item.manualOrder)
+            return existing
+        }
+        let tabID = item.id
+        let model = DesktopFolderBoxModel(
+            backingPath: path,
+            sortMode: item.sortMode,
+            manualOrder: item.manualOrder,
+            onManualOrderUpdated: { [weak self] updatedOrder in
+                guard let self else { return }
+                guard var target = self.hostState.groupTabs.first(where: { $0.id == tabID }) else { return }
+                target.manualOrder = updatedOrder
+                self.callbacks.onUpdateItem(target)
+            }
+        )
+        tabModels[tabID] = model
+        model.start()
+        return model
     }
 
     private func toggleQuickLook(for urls: [URL]) {
@@ -257,14 +311,21 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         if ql.isVisible { ql.reloadData() } else { ql.makeKeyAndOrderFront(nil) }
     }
 
-    private func installSpaceKeyMonitor() {
-        spaceKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, event.keyCode == 49, NSApp.keyWindow === self.panel else { return event }
+    private func installKeyMonitor() {
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, NSApp.keyWindow === self.panel else { return event }
             if self.panel.firstResponder is NSTextView { return event }
-            let urls = self.folderModel.selectedPaths.map { URL(fileURLWithPath: $0) }
-            guard !urls.isEmpty else { return event }
-            self.toggleQuickLook(for: urls)
-            return nil
+            if event.keyCode == 48, event.modifierFlags.contains(.control), self.hostState.groupTabs.count > 1 {
+                self.callbacks.onCycleTab(event.modifierFlags.contains(.shift) ? -1 : 1)
+                return nil
+            }
+            if event.keyCode == 49, let model = self.tabModels[self.hostState.item.id] {
+                let urls = model.selectedPaths.map { URL(fileURLWithPath: $0) }
+                guard !urls.isEmpty else { return event }
+                self.toggleQuickLook(for: urls)
+                return nil
+            }
+            return event
         }
     }
 
