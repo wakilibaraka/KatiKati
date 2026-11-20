@@ -2105,9 +2105,9 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setWidgetVisible(true, for: .system)
         XCTAssertTrue(store.dockSectionOrder.contains(.system),
                       "a widget without a slot still renders where the user put it")
-        XCTAssertEqual(store.dockVisibleUtilityCount, 7)
+        XCTAssertEqual(store.dockVisibleUtilityCount, 5, "DP-1: five island utilities; Dictionary/Terminal are own sections")
         store.setDockSlotItem(.trash, hidden: true)
-        XCTAssertEqual(store.dockVisibleUtilityCount, 6, "the rail counts slots, not the legacy config")
+        XCTAssertEqual(store.dockVisibleUtilityCount, 4, "the rail counts island slots, not the legacy config")
     }
 
     // MARK: Modular Dock capsule (slice MD-3b)

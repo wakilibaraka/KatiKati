@@ -2043,17 +2043,21 @@ extension DockStripView {
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
         case .dictionary:
+            // DP-1: this section is now the only Dictionary chip. It also reports the island's old
+            // frame id so `AppDelegate`'s menu anchors keep resolving.
             DictionaryDockChip(onOpen: {
-                runtime.onToggleDictionary?(utilityAnchorScreenRect(id: "sec-dictionary"))
+                runtime.onToggleDictionary?(utilityAnchorScreenRect(id: "utility-dictionary"))
             })
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
+                .reportStripChipFrame(id: "utility-dictionary", zone: .section)
         case .terminal:
             TerminalDockChip(onOpen: {
-                runtime.onToggleTerminal?(utilityAnchorScreenRect(id: "sec-terminal"))
+                runtime.onToggleTerminal?(utilityAnchorScreenRect(id: "utility-terminal"))
             })
                 .environment(\.widgetSize, widgetSize)
                 .nativeScaled(dockScale)
+                .reportStripChipFrame(id: "utility-terminal", zone: .section)
         case .ai:
             AIDockChip()
                 .environment(\.widgetSize, widgetSize)
@@ -2385,7 +2389,11 @@ private struct DockUtilitiesClusterView: View {
         // Slice MD-3a follow-up (2026-11-20): the island drew the legacy utilities config, so a
         // utility slot hidden in Settings (Trash, Drawer, Clipboard…) kept its chip. The slot layout
         // is the one order and the one hidden flag now; `dockUtilities.order` only feeds migration.
-        let items = settingsStore.dockSlotLayout.visibleItems.compactMap(\.utilityKind)
+        // Slice DP-1: only the utilities this island owns. Dictionary and Terminal have a
+        // `BarSection` of their own, so drawing them here too put two glyphs per tool on the bar.
+        let items = settingsStore.dockSlotLayout.visibleItems
+            .filter(\.islandUtility)
+            .compactMap(\.utilityKind)
         if isRail {
             VStack(spacing: ChipPillMetrics.chipSpacing * dockScale) {
                 ForEach(items) { utilityView(for: $0) }

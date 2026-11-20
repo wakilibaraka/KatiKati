@@ -491,6 +491,12 @@ enum DockSlotItem: String, CaseIterable, Codable, Identifiable, Sendable {
     /// The app-level icon this slot already stands for, so the apps strip can drop it (I3).
     var bundleID: String? { utilityKind?.bundleID }
 
+    /// True only for the slots the utilities island draws (slice DP-1). `dictionary` and
+    /// `terminal` are utilities with a `BarSection` of their own: the island drawing them **and**
+    /// their section drawing them put two glyphs for one tool on the bar. The island takes this
+    /// subset, their sections take the rest, so one renderer owns each module.
+    var islandUtility: Bool { utilityKind != nil && section == .utilities }
+
     var utilityKind: DockUtilityKind? {
         switch self {
         case .drawer: return .drawer
@@ -650,8 +656,8 @@ struct DockSlotLayout: Codable, Equatable, Sendable {
     func railTileLength(barHeight: CGFloat) -> CGFloat {
         var groups: [[DockSlotItem]] = []
         for item in visibleItems {
-            let joinsPrevious = groupAdjacentUtilities && item.utilityKind != nil
-                && groups.last?.last?.utilityKind != nil
+            let joinsPrevious = groupAdjacentUtilities && item.islandUtility
+                && groups.last?.last?.islandUtility == true
             if joinsPrevious {
                 groups[groups.count - 1].append(item)
             } else {
@@ -661,7 +667,7 @@ struct DockSlotLayout: Codable, Equatable, Sendable {
         var total: CGFloat = 0
         for (index, group) in groups.enumerated() {
             if index > 0 { total += IslandChrome.railChipSpacing }
-            let allUtilities = group.allSatisfy { $0.utilityKind != nil }
+            let allUtilities = group.allSatisfy(\.islandUtility)
             if allUtilities && group.count > 1 {
                 total += BarSection.utilitiesRailLength(visibleCount: group.count)
             } else {
@@ -825,7 +831,8 @@ extension DockSlotLayout {
     /// Main-axis length of the utilities cluster on a side rail, counted from the **slots** rather
     /// than `DockUtilitiesConfig`, so hiding a utility moves the rail by exactly one tile.
     var utilitiesRailLength: CGFloat {
-        let count = visibleItems.filter { $0.utilityKind != nil }.count
+        // Only the island's own utilities: dictionary and terminal are separate rail tiles now.
+        let count = visibleItems.filter(\.islandUtility).count
         guard count > 1 else { return CGFloat(count) * BarSection.railTileSize }
         return BarSection.utilitiesRailLength(visibleCount: count)
     }

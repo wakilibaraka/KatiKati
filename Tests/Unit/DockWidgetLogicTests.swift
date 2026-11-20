@@ -1048,8 +1048,9 @@ final class ModularDockCoreTests: XCTestCase {
     }
 
     func testUtilitiesRailLengthCountsOnlyVisibleUtilitySlots() {
+        // DP-1: the island owns five utilities; dictionary and terminal are their own rail tiles.
         XCTAssertEqual(DockSlotLayout.default.utilitiesRailLength,
-                       BarSection.utilitiesRailLength(visibleCount: 7), accuracy: 0.001)
+                       BarSection.utilitiesRailLength(visibleCount: 5), accuracy: 0.001)
         let twoHidden = DockSlotLayout(
             items: DockSlotLayout.default.items.map { entry in
                 [.screenshots, .trash].contains(entry.item)
@@ -1057,7 +1058,33 @@ final class ModularDockCoreTests: XCTestCase {
             },
             trailingCapsule: .controlCenter)
         XCTAssertEqual(twoHidden.utilitiesRailLength,
-                       BarSection.utilitiesRailLength(visibleCount: 5), accuracy: 0.001)
+                       BarSection.utilitiesRailLength(visibleCount: 3), accuracy: 0.001)
+    }
+
+    /// Slice DP-1: each module is drawn by exactly one renderer, so no preset can put two glyphs
+    /// for Dictionary or Terminal on the bar.
+    func testModulesAreOwnedByExactlyOneRenderer() {
+        XCTAssertEqual(DockSlotItem.allCases.filter(\.islandUtility),
+                       [.drawer, .screenshots, .clipboard, .downloads, .trash])
+        XCTAssertFalse(DockSlotItem.dictionary.islandUtility)
+        XCTAssertFalse(DockSlotItem.terminal.islandUtility)
+
+        for layout in [DockSlotLayout.default,
+                       DockSlotLayout.migrating(utilities: .default, sectionOrder: BarSection.canonicalOrder)] {
+            for mode in BarLayoutMode.allCases {
+                let order = DockModularityValidator.renderOrder(for: layout, mode: mode,
+                                                                legacyOrder: BarSection.canonicalOrder)
+                XCTAssertEqual(order.count, Set(order).count,
+                               "\(mode): a section drawn twice is a duplicate glyph")
+                XCTAssertEqual(order.filter { $0 == .dictionary }.count, 1,
+                               "\(mode): Dictionary has one renderer")
+                XCTAssertEqual(order.filter { $0 == .terminal }.count, 1,
+                               "\(mode): Terminal has one renderer")
+                XCTAssertFalse(DockSlotItem.allCases.filter(\.islandUtility).compactMap(\.section)
+                    .contains { $0 == .dictionary || $0 == .terminal },
+                               "\(mode): the island never draws a section-owned module")
+            }
+        }
     }
 
     func testEverySlotHasADistinctSettingsLabel() {

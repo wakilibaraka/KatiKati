@@ -2000,7 +2000,7 @@ final class AppSettingsStore: ObservableObject {
     /// Visible utility slots in the layout (slice MD-3a). The rail's cluster length reads this
     /// instead of `dockUtilities.visibleUtilities.count`.
     var dockVisibleUtilityCount: Int {
-        dockSlotLayout.visibleItems.filter { $0.utilityKind != nil }.count
+        dockSlotLayout.visibleItems.filter(\.islandUtility).count
     }
 
     /// The Background Apps block is `backgroundApps`' slot (slice MD-3b); the legacy key is only
