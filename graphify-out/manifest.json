@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795182173.4948514,
-    "seen": 1795182478.094033,
-    "ast_hash": "cb5088322ce819a1ec255ee828aff2c3",
+    "mtime": 1795183371.2634072,
+    "seen": 1795184094.632082,
+    "ast_hash": "7eb11b12433529e7406b09f40c71fac3",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Layout.swift": {
-    "mtime": 1795105382.180605,
-    "seen": 1795105481.523694,
-    "ast_hash": "600fc896197250d11f33977e4ad2b2fa",
+    "mtime": 1795183382.0332575,
+    "seen": 1795184094.632127,
+    "ast_hash": "38add49847dd0b1ab9ef9bdabf8ec318",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
@@ -1902,9 +1902,9 @@
     "semantic_hash": "ff5c4bbb981f04283e0cde0f931b7fa8"
   },
   "Core/Support/IslandLayoutSolver.swift": {
-    "mtime": 1795182602.9201257,
-    "seen": 1795183176.5228438,
-    "ast_hash": "f5c8e44797c5c9bbd3380dd3867aff6f",
+    "mtime": 1795183381.4708636,
+    "seen": 1795184094.632406,
+    "ast_hash": "94204220414eef505795e7c6d664e398",
     "semantic_hash": ""
   },
   "Core/Support/IslandSlotSet.swift": {
@@ -3582,9 +3582,9 @@
     "semantic_hash": "46d465216e2b6d7c9319060f064af595"
   },
   "Tests/Unit/IslandLayoutSolverTests.swift": {
-    "mtime": 1795182631.4790099,
-    "seen": 1795183176.523745,
-    "ast_hash": "1d77179b9f6fd85812f0e9fec743f449",
+    "mtime": 1795183689.7765925,
+    "seen": 1795184094.632704,
+    "ast_hash": "62918f58554b03641f6f445c7f164db8",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandPanelGeometryTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795183149.5734096,
-    "seen": 1795183176.5244958,
-    "ast_hash": "e5225fb7ce6b5c540b5256b6c3988bbf",
+    "mtime": 1795184051.9672062,
+    "seen": 1795184094.6329548,
+    "ast_hash": "4648664dab68829aba99e51dbb606337",
     "semantic_hash": ""
   },
   "README.md": {
