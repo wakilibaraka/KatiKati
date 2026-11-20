@@ -782,14 +782,20 @@ final class AppSettingsStore: ObservableObject {
         // Read last, so migration sees the utilities config and visibility flags this init resolved.
         // The capsule exists in every layout today, so Control Centre starts there (the MD-1 preset).
         if let savedSlotLayout = DockSlotLayout.decode(defaults.data(forKey: DockSlotLayout.defaultsKey)) {
-            dockSlotLayout = DockModularityValidator.validate(savedSlotLayout)
+            let repaired = DockSlotLayout.reconciled(DockModularityValidator.validate(savedSlotLayout),
+                                                     controlCentreTrailing: controlCentreTrailing)
+            dockSlotLayout = repaired
+            if repaired != savedSlotLayout {
+                defaults.set(repaired.encoded(), forKey: DockSlotLayout.defaultsKey)
+            }
         } else {
             let migrated = DockSlotLayout.migrating(
                 utilities: dockUtilities,
                 sectionOrder: widgetLayout.order,
                 hiddenSections: widgetLayout.hiddenSections,
                 shelfVisible: showShelf,
-                backgroundAppsVisible: showBackgroundApps
+                backgroundAppsVisible: showBackgroundApps,
+                capsuleEnabled: controlCentreTrailing
             )
             dockSlotLayout = migrated
             defaults.set(migrated.encoded(), forKey: DockSlotLayout.defaultsKey)

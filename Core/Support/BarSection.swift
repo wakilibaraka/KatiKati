@@ -871,6 +871,27 @@ extension DockSlotLayout {
         )
     }
 
+    /// Makes the capsule agree with the legacy `controlCentreTrailing` flag, which stays the
+    /// authority for installs that shipped before the slot model.
+    ///
+    /// MD-2's migration always parked Control Centre in the capsule, so an install that had the disc
+    /// on the strip ended up with a layout claiming the capsule while the flag (and therefore the
+    /// strip's own drawing) said otherwise — Settings showed one placement and the bar rendered the
+    /// other. Reconciling in the flag's direction leaves what a user sees untouched.
+    static func reconciled(_ layout: DockSlotLayout, controlCentreTrailing: Bool) -> DockSlotLayout {
+        guard (layout.trailingCapsule == .controlCenter) != controlCentreTrailing else { return layout }
+        var items = layout.items.filter { $0.item != .controlCenter }
+        if !controlCentreTrailing {
+            items.insert(DockSlotEntry(item: .controlCenter, isHidden: false),
+                         at: DockModularityValidator.insertionIndex(for: .controlCenter, in: items))
+        }
+        return DockModularityValidator.validate(
+            DockSlotLayout(items: items,
+                           trailingCapsule: controlCentreTrailing ? .controlCenter : nil,
+                           groupAdjacentUtilities: layout.groupAdjacentUtilities)
+        )
+    }
+
     /// The slots a legacy section hosted, in the order that section painted them.
     private static func slots(for section: BarSection, utilities: DockUtilitiesConfig) -> [DockSlotItem] {
         switch section {

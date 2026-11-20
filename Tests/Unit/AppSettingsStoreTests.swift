@@ -2057,7 +2057,11 @@ final class AppSettingsStoreTests: XCTestCase {
 
         XCTAssertEqual(layout.visibleItems.first, .music, "the user's own section order leads")
         XCTAssertTrue(DockModularityValidator.isModular(layout))
-        XCTAssertEqual(layout.trailingCapsule, .controlCenter)
+        // The disc's placement follows the legacy switch, which is off on a fresh install: the
+        // capsule hosts nothing and Control Centre stays a strip slot (a capsule holding a disc the
+        // bar draws on the strip was the mismatch found live on 2026-11-20).
+        XCTAssertNil(layout.trailingCapsule)
+        XCTAssertEqual(layout.visibleItems.last, .controlCenter)
         XCTAssertEqual(layout.items.first { $0.item == .clipboard }?.isHidden, true)
         XCTAssertEqual(layout.items.map(\.item).filter { $0.utilityKind != nil },
                        [.trash, .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads])
@@ -2070,6 +2074,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testDockSlotLayoutPersistsEditsAndSurvivesCorruptState() {
         let defaults = makeDefaults()
+        defaults.set(true, forKey: "com.katikati.dock.controlCentreTrailing")
         let store = AppSettingsStore(defaults: defaults)
         let reversed = DockSlotLayout(items: Array(store.dockSlotLayout.items.reversed()),
                                       trailingCapsule: .controlCenter)
@@ -2110,10 +2115,13 @@ final class AppSettingsStoreTests: XCTestCase {
     func testControlCentreSwitchesBetweenCapsuleAndStrip() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
-        XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter })
+        XCTAssertNil(store.dockSlotLayout.trailingCapsule, "the flag is off on a fresh install")
+        XCTAssertTrue(store.dockSlotLayout.visibleItems.contains(.controlCenter))
 
         store.setControlCentreTrailing(true)
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
+        XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter },
+                       "the picker shows Capsule, so the capsule really holds it")
         XCTAssertTrue(store.controlCentreAtTrailingEnd)
 
         store.setControlCentreTrailing(false)
@@ -2127,6 +2135,28 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
         XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter })
         XCTAssertTrue(store.controlCentreAtTrailingEnd)
+    }
+
+    func testStoredLayoutIsReconciledWithTheFlagOnLaunch() {
+        // Live check 2026-11-20: an install could hold a layout that disagrees with the flag (MD-2's
+        // migration put Control Centre in the capsule while the switch said strip). Launch repairs
+        // both directions so the settings card and the bar can never describe different bars.
+        let stripDefaults = makeDefaults()
+        stripDefaults.set(DockSlotLayout.default.encoded(), forKey: DockSlotLayout.defaultsKey)
+        stripDefaults.set(false, forKey: "com.katikati.dock.controlCentreTrailing")
+        let demoted = AppSettingsStore(defaults: stripDefaults).dockSlotLayout
+        XCTAssertNil(demoted.trailingCapsule)
+        XCTAssertTrue(demoted.visibleItems.contains(.controlCenter))
+
+        let capsuleDefaults = makeDefaults()
+        let onStrip = DockSlotLayout(items: DockSlotLayout.default.items
+            + [DockSlotEntry(item: .controlCenter, isHidden: false)], trailingCapsule: nil)
+        capsuleDefaults.set(onStrip.encoded(), forKey: DockSlotLayout.defaultsKey)
+        capsuleDefaults.set(true, forKey: "com.katikati.dock.controlCentreTrailing")
+        let promoted = AppSettingsStore(defaults: capsuleDefaults).dockSlotLayout
+        XCTAssertEqual(promoted.trailingCapsule, .controlCenter,
+                       "the flag says capsule, so the layout must host it there")
+        XCTAssertEqual(promoted.items.count, onStrip.items.count - 1)
     }
 
     func testShelfAndBackgroundAppsSwitchesDriveTheirSlots() {
@@ -2153,6 +2183,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testMovingASlotReordersAndPersistsWithoutLosingHiddenSlots() {
         let defaults = makeDefaults()
+        defaults.set(true, forKey: "com.katikati.dock.controlCentreTrailing")
         let store = AppSettingsStore(defaults: defaults)
         store.setDockSlotItem(.shelf, hidden: true)
         let before = store.dockSlotLayout.items.map(\.item)

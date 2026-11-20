@@ -963,6 +963,33 @@ final class ModularDockCoreTests: XCTestCase {
         XCTAssertTrue(DockModularityValidator.isModular(layout))
     }
 
+    func testReconcileDemotesACapsuleControlCentreWhenTheLegacyFlagSaysStrip() {
+        // The live install this was found on: MD-2 migrated the capsule in, but the flag stayed off,
+        // so the settings picker read "Strip" while the layout claimed the capsule.
+        let stored = DockSlotLayout(items: DockSlotLayout.default.items, trailingCapsule: .controlCenter)
+        let repaired = DockSlotLayout.reconciled(stored, controlCentreTrailing: false)
+        XCTAssertNil(repaired.trailingCapsule)
+        XCTAssertEqual(repaired.visibleItems.last, .controlCenter, "the disc returns to the strip")
+        XCTAssertTrue(DockModularityValidator.isModular(repaired))
+        XCTAssertEqual(repaired.items.filter { $0.item == .controlCenter }.count, 1)
+    }
+
+    func testReconcilePromotesWhenTheLegacyFlagSaysCapsule() {
+        let entries = DockSlotLayout.default.items + [DockSlotEntry(item: .controlCenter, isHidden: false)]
+        let stored = DockSlotLayout(items: entries, trailingCapsule: nil)
+        let repaired = DockSlotLayout.reconciled(stored, controlCentreTrailing: true)
+        XCTAssertEqual(repaired.trailingCapsule, .controlCenter)
+        XCTAssertFalse(repaired.items.contains { $0.item == .controlCenter }, "one place, never both")
+        XCTAssertTrue(DockModularityValidator.isModular(repaired))
+    }
+
+    func testReconcileLeavesAConsistentLayoutAlone() {
+        let consistent = DockSlotLayout.default
+        XCTAssertEqual(DockSlotLayout.reconciled(consistent, controlCentreTrailing: true), consistent)
+        let stripped = DockSlotLayout.reconciled(consistent, controlCentreTrailing: false)
+        XCTAssertEqual(DockSlotLayout.reconciled(stripped, controlCentreTrailing: false), stripped)
+    }
+
     func testDictionaryVisibilityFollowsEitherLegacyPath() {
         let asSection = DockSlotLayout.migrating(
             utilities: DockUtilitiesConfig(hidden: [.dictionary]),

@@ -159,11 +159,8 @@ extension SettingsLayoutPane {
             contextPresetRows
             // The menu-bar menu's four switches moved here (2026-10-21). Dock motion moved into
             // the Dock card above, where it is Animation Speed.
-            SettingsDivider()
-            SettingsToggleRow(Text("Control Centre on the right"), isOn: Binding(
-                get: { store.controlCentreTrailing },
-                set: { store.setControlCentreTrailing($0) }
-            ))
+            // The pre-MD-4 "Control Centre on the right" switch is gone: the slot list's
+            // Capsule/Strip picker is the one control for that decision.
             SettingsDivider()
             SettingsToggleRow(Text("Show Shelf"), isOn: Binding(
                 get: { store.showShelf },
