@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795208029.6059213,
-    "seen": 1795209118.6040268,
-    "ast_hash": "bf5cce8ce0879c543b2e12d715dbe854",
+    "mtime": 1795213858.6883888,
+    "seen": 1795214458.195909,
+    "ast_hash": "95c1c778b82f9dcb6c2b794c8262e5a3",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795210540.5967596,
-    "seen": 1795211001.8904881,
-    "ast_hash": "c3744cdb81e115eee25d9ac51f185c6e",
+    "mtime": 1795213908.5544248,
+    "seen": 1795214458.1959481,
+    "ast_hash": "a58ed323a31a567363522bda395c2668",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1795206916.9630768,
-    "seen": 1795207684.324942,
-    "ast_hash": "dc7ea2c44ab6a5faf644075a72c64ee6",
+    "mtime": 1795213979.481838,
+    "seen": 1795214458.1961422,
+    "ast_hash": "31ad0e6cbde1a3eca094ef745ee245fc",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
-    "mtime": 1795209759.0107687,
-    "seen": 1795211001.89092,
-    "ast_hash": "ffbb0dff14bf63bbdb780cd458f4b070",
+    "mtime": 1795213781.9740577,
+    "seen": 1795214458.1964428,
+    "ast_hash": "ca15230ba0cf347933f1a5cc181e147c",
     "semantic_hash": ""
   },
   "Core/Support/TilingPolicy.swift": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1795208341.1641839,
-    "seen": 1795209118.6048052,
-    "ast_hash": "32cd6a4734993f7148de3965e5355c10",
+    "mtime": 1795213779.277375,
+    "seen": 1795214458.1967318,
+    "ast_hash": "f35256acff3d932dfb4a61f59382137e",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
@@ -4230,9 +4230,9 @@
     "semantic_hash": "afffa1afc3e79b6011f58862e979ac29"
   },
   "Tests/Unit/TilingLayoutTests.swift": {
-    "mtime": 1795196296.2712815,
-    "seen": 1795196634.6616561,
-    "ast_hash": "3519ca681740bde1d5e2353cbf16c22a",
+    "mtime": 1795213946.5181823,
+    "seen": 1795214458.196855,
+    "ast_hash": "66d48cd0d9ff76bf267db9f1a31a1042",
     "semantic_hash": ""
   },
   "Tests/Unit/TilingTreeTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795211563.6726947,
-    "seen": 1795211991.566102,
-    "ast_hash": "6a4b19ebd63f66cf7411a04ec777c8dd",
+    "mtime": 1795214193.7816586,
+    "seen": 1795214458.196912,
+    "ast_hash": "5544226b71bcfcccec2edbad4a56f9c3",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5448,9 +5448,9 @@
     "semantic_hash": ""
   },
   "Docs/SETTINGS.md": {
-    "mtime": 1793037922.904108,
-    "seen": 1793037942.4244092,
-    "ast_hash": "874a2a5fc465e471379261915652fd89",
+    "mtime": 1795214193.7810671,
+    "seen": 1795214458.197027,
+    "ast_hash": "afc85be3dc9241cbe41423acc50ef6d3",
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
