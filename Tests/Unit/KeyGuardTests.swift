@@ -626,3 +626,160 @@ final class MultitouchClassifierTests: XCTestCase {
         XCTAssertEqual(reducer.feed(points: [], at: t0.addingTimeInterval(1.30)), .fourFingerTap)
     }
 }
+
+final class TrackpadGestureBindingTests: XCTestCase {
+    /// The values read off this Mac: 4-finger Spaces, 3-finger Mission Control, App Exposé off,
+    /// both pinch keys set, Look Up and Notification Center off.
+    private var liveSettings: TrackpadSettingsSnapshot {
+        TrackpadSettingsSnapshot(
+            threeFingerHorizSwipe: false, threeFingerVertSwipe: true,
+            fourFingerHorizSwipe: true, fourFingerVertSwipe: true,
+            fourFingerPinch: true, fiveFingerPinch: true,
+            threeFingerTap: false, twoFingerRightEdgeSwipe: false,
+            missionControlGestureEnabled: true, appExposeGestureEnabled: false
+        )
+    }
+
+    func testConflictBadgesMatchTheLiveSettings() {
+        let settings = liveSettings
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeLeft, settings: settings), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeRight, settings: settings), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: settings), .clash(.missionControl))
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeDown, settings: settings), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerSwipeLeft, settings: settings), .clash(.spaces))
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerSwipeRight, settings: settings), .clash(.spaces))
+        // The trackpad key reports four-finger vertical as on while App Exposé is off: the dock gate wins.
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerSwipeUp, settings: settings), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerSwipeDown, settings: settings), .clear)
+        // Both pinch keys reading on leaves no way to tell Apps from Show Desktop.
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .pinchIn, settings: settings), .unverifiable)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .pinchOut, settings: settings), .unverifiable)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .twoFingerRightEdgeSwipeLeft, settings: settings), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerTipTapLeft, settings: settings), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerTap, settings: settings), .clear)
+    }
+
+    func testMissingDataIsNeverClear() {
+        let empty = TrackpadSettingsSnapshot()
+        for kind in MultitouchGestureKind.allCases where kind != .fourFingerTap {
+            XCTAssertEqual(TrackpadConflictDetector.conflict(for: kind, settings: empty), .unverifiable, "\(kind)")
+        }
+    }
+
+    func testDockGateFallsBackToTheTrackpadKeyWhenAbsent() {
+        let missingGate = TrackpadSettingsSnapshot(threeFingerVertSwipe: true)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: missingGate), .clash(.missionControl))
+        let gateOff = TrackpadSettingsSnapshot(threeFingerVertSwipe: true, missionControlGestureEnabled: false)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: gateOff), .clear)
+    }
+
+    func testThreeFingerPageSwipesMakeTheThreeFingerSwipesClash() {
+        let settings = TrackpadSettingsSnapshot(threeFingerHorizSwipe: true, fourFingerHorizSwipe: false)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeLeft, settings: settings), .clash(.swipeBetweenPages))
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerSwipeRight, settings: settings), .clear)
+    }
+
+    func testPinchKeysResolveOnlyWhenOneIsOn() {
+        let appsOnly = TrackpadSettingsSnapshot(fourFingerPinch: true, fiveFingerPinch: false)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .pinchIn, settings: appsOnly), .clash(.appsPinch))
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .pinchOut, settings: appsOnly), .clear)
+        let desktopOnly = TrackpadSettingsSnapshot(fourFingerPinch: false, fiveFingerPinch: true)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .pinchIn, settings: desktopOnly), .clear)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .pinchOut, settings: desktopOnly), .clash(.showDesktop))
+    }
+
+    func testRouterPrefersTheTilingBindingOnlyWhileTilingIsOn() {
+        let rule = GestureBindingRule(windowAction: .snapCycleLeft, tilingAction: .stripPrevious)
+        XCTAssertEqual(GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: false)), .snapCycleLeft)
+        XCTAssertEqual(GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: true)), .stripPrevious)
+        // Without a tiling binding the window action runs in both contexts.
+        let shared = GestureBindingRule(windowAction: .maximize)
+        XCTAssertEqual(GestureRouter.target(for: shared, context: GestureContext(tilingEnabled: true)), .maximize)
+        // Disabled and unbound rules fire nothing.
+        XCTAssertNil(GestureRouter.target(for: .off, context: GestureContext(tilingEnabled: true)))
+        XCTAssertNil(GestureRouter.target(for: GestureBindingRule(windowAction: .none), context: GestureContext(tilingEnabled: false)))
+    }
+
+    func testPresetSkipsGesturesMacOSAlreadyOwns() {
+        let applicable = TrackpadGesturePreset.applicable(to: liveSettings)
+        XCTAssertNil(applicable[.threeFingerSwipeUp])   // Mission Control
+        XCTAssertNil(applicable[.fourFingerSwipeLeft])  // Spaces
+        XCTAssertEqual(applicable[.threeFingerSwipeLeft]?.windowAction, .snapCycleLeft)
+        // Unverifiable is a warning, not a refusal: the pinch binding still applies.
+        XCTAssertEqual(applicable[.pinchIn]?.tilingAction, .toggleTiling)
+        for kind in [MultitouchGestureKind.threeFingerSwipeUp, .fourFingerSwipeLeft, .fourFingerSwipeRight, .pinchOut] {
+            XCTAssertNil(TrackpadGesturePreset.clashFree[kind], "\(kind)")
+        }
+    }
+
+    func testRulesRoundTripThroughCodable() throws {
+        let rules = TrackpadGesturePreset.clashFree
+        let data = try JSONEncoder().encode(rules)
+        let decoded = try JSONDecoder().decode([MultitouchGestureKind: GestureBindingRule].self, from: data)
+        XCTAssertEqual(decoded, rules)
+    }
+
+    func testSnapCycleWalksHalfThirdTwoThirdsPerEdge() {
+        var cycle = SnapCycleState()
+        let t0 = Date(timeIntervalSince1970: 3000)
+        XCTAssertEqual(cycle.next(side: .left, at: t0), .leftHalf)
+        XCTAssertEqual(cycle.next(side: .left, at: t0.addingTimeInterval(0.4)), .leftThird)
+        XCTAssertEqual(cycle.next(side: .left, at: t0.addingTimeInterval(0.8)), .leftTwoThirds)
+        XCTAssertEqual(cycle.next(side: .left, at: t0.addingTimeInterval(1.2)), .leftHalf)
+        // The other edge starts over, and so does a pause longer than the window.
+        XCTAssertEqual(cycle.next(side: .right, at: t0.addingTimeInterval(1.4)), .rightHalf)
+        XCTAssertEqual(cycle.next(side: .right, at: t0.addingTimeInterval(1.6)), .rightThird)
+        XCTAssertEqual(cycle.next(side: .right, at: t0.addingTimeInterval(3.4)), .rightHalf)
+    }
+
+    // MARK: - Reducer coverage for the new directions
+
+    private func cluster(count: Int, cx: Double, cy: Double, spread: Double = 0.08, vy: Double = 0) -> [MultitouchPoint] {
+        (0..<count).map { i in
+            let offset = (Double(i) - Double(count - 1) / 2.0) * spread
+            return MultitouchPoint(id: Int32(i + 1), x: cx + offset, y: cy, vx: 0, vy: vy)
+        }
+    }
+
+    func testVerticalSwipesAreClassifiedByDirection() {
+        var reducer = GestureClassificationReducer()
+        let t0 = Date(timeIntervalSince1970: 4000)
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.5, cy: 0.30), at: t0))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 3, cx: 0.5, cy: 0.46), at: t0.addingTimeInterval(0.06)), .threeFingerSwipeUp)
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.10)))
+
+        XCTAssertNil(reducer.feed(points: cluster(count: 4, cx: 0.5, cy: 0.60), at: t0.addingTimeInterval(0.60)))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 4, cx: 0.5, cy: 0.44), at: t0.addingTimeInterval(0.66)), .fourFingerSwipeDown)
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.70)))
+    }
+
+    func testRightEdgeSwipeNeedsTheEdge() {
+        var reducer = GestureClassificationReducer()
+        let t0 = Date(timeIntervalSince1970: 5000)
+        // Two fingers travelling left away from the edge is page scrolling, not Notification Center.
+        XCTAssertNil(reducer.feed(points: cluster(count: 2, cx: 0.60, cy: 0.5, spread: 0.04), at: t0))
+        XCTAssertNil(reducer.feed(points: cluster(count: 2, cx: 0.44, cy: 0.5, spread: 0.04), at: t0.addingTimeInterval(0.06)))
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.10)))
+
+        XCTAssertNil(reducer.feed(points: cluster(count: 2, cx: 0.94, cy: 0.5, spread: 0.04), at: t0.addingTimeInterval(0.60)))
+        XCTAssertEqual(reducer.feed(points: cluster(count: 2, cx: 0.80, cy: 0.5, spread: 0.04), at: t0.addingTimeInterval(0.66)), .twoFingerRightEdgeSwipeLeft)
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.70)))
+    }
+
+    func testDirectionalThreeFingerTapAndPlainTap() {
+        var reducer = GestureClassificationReducer()
+        let t0 = Date(timeIntervalSince1970: 6000)
+        // A plain three-finger tap belongs to Look Up and fires nothing here.
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.5, cy: 0.5), at: t0))
+        XCTAssertNil(reducer.feed(points: [], at: t0.addingTimeInterval(0.08)))
+
+        // A tap fires on release, so the travel frame stays silent and the lift carries the direction.
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.50, cy: 0.5), at: t0.addingTimeInterval(0.60)))
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.524, cy: 0.5), at: t0.addingTimeInterval(0.64)))
+        XCTAssertEqual(reducer.feed(points: [], at: t0.addingTimeInterval(0.66)), .threeFingerTipTapRight)
+
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.52, cy: 0.5), at: t0.addingTimeInterval(1.20)))
+        XCTAssertNil(reducer.feed(points: cluster(count: 3, cx: 0.496, cy: 0.5), at: t0.addingTimeInterval(1.24)))
+        XCTAssertEqual(reducer.feed(points: [], at: t0.addingTimeInterval(1.26)), .threeFingerTipTapLeft)
+    }
+}
