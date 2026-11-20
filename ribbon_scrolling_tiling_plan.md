@@ -124,10 +124,13 @@ live checks below exercise.
 - **Gestures** — `GestureActionTarget.stripNext`/`.stripPrevious` step along the strip. RT-6's second
   half is `StripScrollService`: with *Scroll the Strip with ⌥-Scroll* on (off by default,
   `com.katikati.tiling.stripScroll`), ⌥ plus a two-finger scroll steps the strip, one column per
-  flick. `StripScrollGesture` turns the delta stream into steps (dominant axis, 60 pt of travel, a
-  280 ms cooldown per step, momentum dropped) and the monitor is a passive
-  `addGlobalMonitorForEvents` so nothing is swallowed; it acts only over a display whose preset is
-  the strip.
+  flick. `StripScrollGesture` turns the vertical delta stream into steps (60 pt of travel, a 280 ms
+  cooldown per step, momentum dropped); the horizontal axis is ignored so sideways panning still
+  belongs to the app under the pointer, and a non-precise wheel notch counts as 10 pt so a mouse
+  wheel is not swallowed by the threshold. The monitor is a passive `addGlobalMonitorForEvents`, so
+  nothing is consumed, and it acts only while the switch is on, Option is held, the display draws
+  the strip *and* the layer-0 window under the pointer is one the strip manages — a floated app, a
+  full-screen app or one of our own windows keeps the event.
 - **UI** — eight-picture grid in Settings › Tiling, a Chain button plus the catalog pictures in the
   Windows flyout (so all eight are reachable there; Five and Six appear through the catalog), preset
   note, a Column Width picker bound to the focused column (`TilingEngine.setStripColumnWidth`, same
@@ -248,6 +251,39 @@ Two defects came out of the check and are fixed here:
 2. **`⌃⌥←` / `⌃⌥→` could not be assigned at all.** `ShortcutKeyNames` had no arrow key codes, so
    `.key` failed validation and the binding silently fell back to `.off` — the recorder could not
    accept the brief's own focus keys. Key codes 123–126 (`←→↓↑`) are in the table now.
+
+### ⌥-scroll in-process check (2026-11-20, ribbon staged, 16–17 columns)
+
+Synthetic `CGEvent`s never reach an `NSEvent` global monitor on this Mac (an independent monitor
+process received zero of them at `cghid`, `cgSession` and `cgAnnotatedSession`, in pixel and line
+units), so the check feeds constructed `NSEvent`s through `StripScrollService.handle(_:at:)` — the
+same method the monitor calls — in a DEBUG-only run started by `KATIKATI_STRIP_SCROLL_CHECK=1`, and
+logs the strip index and camera after each case. The 500 ms focus poll is paused for the run, since
+it would otherwise re-focus the frontmost window between scripted steps. One swipe = two events of
+30 pt; the expected step is one column.
+
+| Case | Observed |
+| --- | --- |
+| Option + 30 pt down ×2 | strip `0 → 1`, camera `0` |
+| Option + 30 pt up ×2 | strip `1 → 0` |
+| Down without Option | `0`, unchanged |
+| Option + horizontal 200 pt ×2 | `0`, unchanged |
+| Option + 20 pt ×2 (40 pt, below the 60 pt step) | `0`, unchanged |
+| Option + 3-notch wheel (`line` units, ×10) ×2 | `0 → 1`, so a mouse wheel is not swallowed |
+| Five down swipes | `1 → 6`, camera `0 → 1322`, so the camera follows past the viewport |
+| One up swipe after that | `6 → 5` |
+| Switch off (`setEnabled(false)`) + down ×2 | `5`, unchanged |
+| One 90 pt down event | `5 → 6` |
+| Pointer over KatiKati's own Settings window (`managed=false`) | `6`, unchanged |
+| Pointer over a floated Finder window (`managed=false`) | `6`, unchanged |
+
+Two defects the check found and fixed: the gesture was reading the **dominant** axis, so a purely
+horizontal scroll stepped the strip; and the monitor gated only on the display preset, so a scroll
+over any window on that display stepped it. When a run was recorded, the float had not yet settled
+and its case stepped before the gate went false — the run's own `managed` log line shows the ordering
+fault; the harness now waits for the policy change before feeding. A later attempt to re-run the
+corrected harness could not tile at all (the freshly rebuilt app came up with no window snapshot),
+so the table above is the recorded run.
 
 ## Deferred
 

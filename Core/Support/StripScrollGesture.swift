@@ -14,8 +14,12 @@ enum StripScrollStep: Equatable, Sendable {
 /// `stepDistance`, then stays quiet for `cooldown` so one flick is one column. Momentum events are
 /// dropped outright: they carry the rest of a flick and would otherwise step again on their own.
 ///
-/// Sign convention follows `NSEvent.scrollingDelta`: negative (scroll down, or swipe left) moves
-/// forward along the strip, positive moves back — the same way the content under the pointer would.
+/// Only the vertical axis is fed in. A horizontal scroll belongs to whatever the pointer is over
+/// (sideways panning, swipe-back), so it must never move the strip; `StripScrollService` passes
+/// `scrollingDeltaY` only.
+///
+/// Sign convention follows `NSEvent.scrollingDeltaY`: negative (scroll down) moves forward along the
+/// strip, positive moves back — the same way the content under the pointer would.
 struct StripScrollGesture: Sendable {
     let stepDistance: Double
     let cooldown: TimeInterval
@@ -32,20 +36,10 @@ struct StripScrollGesture: Sendable {
         accumulated = 0
     }
 
-    /// Feeds one scroll event; `horizontal`/`vertical` are its `scrollingDeltaX/Y`. The dominant
-    /// axis wins, so a mostly-vertical trackpad scroll does not get read as a sideways step.
-    mutating func feed(
-        horizontal: Double,
-        vertical: Double,
-        isMomentum: Bool,
-        at time: TimeInterval
-    ) -> StripScrollStep? {
+    /// Feeds one event's vertical travel, already scaled to points (a wheel notch is worth more
+    /// than one trackpad point; the service does that conversion).
+    mutating func feed(delta: Double, isMomentum: Bool, at time: TimeInterval) -> StripScrollStep? {
         guard !isMomentum else { accumulated = 0; return nil }
-        let delta = abs(horizontal) >= abs(vertical) ? horizontal : vertical
-        return feed(delta: delta, at: time)
-    }
-
-    mutating func feed(delta: Double, at time: TimeInterval) -> StripScrollStep? {
         guard delta != 0 else { return nil }
         if accumulated != 0, (delta < 0) != (accumulated < 0) { accumulated = 0 }
         accumulated += delta

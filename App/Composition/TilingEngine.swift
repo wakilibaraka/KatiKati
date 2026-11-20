@@ -181,6 +181,9 @@ final class TilingEngine: ObservableObject {
     /// ⌘-Tabbed to.
     private func pollFrontmostWindow() {
         guard isEnabled, isRibbonActive, let snapshot = lastSnapshot else { return }
+        #if DEBUG
+        if debugPauseFocusPoll { return }
+        #endif
         let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
         guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return }
         let ownPID = ProcessInfo.processInfo.processIdentifier
@@ -296,14 +299,61 @@ final class TilingEngine: ObservableObject {
         mutateStrip { $0.setWidth(width) }
     }
 
-    /// True when the display under the pointer draws the strip. The ⌥-scroll gesture only steps a
-    /// strip the pointer can actually see; elsewhere it stays inert.
-    var ribbonCoversPointer: Bool {
+    /// True when the display under `point` draws the strip *and* the window under the pointer is one
+    /// the strip manages. The ⌥-scroll gesture acts only there: over a floating window, a full-screen
+    /// app or one of our own panels the event belongs to whatever the pointer is on.
+    func ribbonCoversPointer(at point: NSPoint) -> Bool {
         guard isEnabled else { return false }
-        let point = NSEvent.mouseLocation
         guard let screen = NSScreen.screens.first(where: { $0.frame.contains(point) }) else { return false }
-        return preset(for: screen) == .ribbon
+        guard preset(for: screen) == .ribbon else { return false }
+        guard let cgID = Self.frontmostWindowID(at: point) else { return false }
+        let key = screenKey(for: screen)
+        return trees[key]?.allWindowIDs.contains(WindowID(rawValue: "cgw-\(cgID)")) ?? false
     }
+
+    /// The layer-0 window under a Cocoa point, in the WindowServer's front-to-back order. The strip's
+    /// own frames are not used on purpose: a floating window drawn over a column still owns the event.
+    /// (Quartz bounds are top-left from the main display; this converts a Cocoa point for the same
+    /// single-display geometry the strip itself works in.)
+    static func frontmostWindowID(at point: NSPoint) -> CGWindowID? {
+        guard let main = NSScreen.screens.first else { return nil }
+        let cgPoint = CGPoint(x: point.x, y: main.frame.height - point.y)
+        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+        guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return nil }
+        for info in list {
+            guard (info[kCGWindowLayer as String] as? Int) == 0,
+                  let boundsDict = info[kCGWindowBounds as String] as? [String: Any],
+                  let bounds = CGRect(dictionaryRepresentation: boundsDict as CFDictionary),
+                  bounds.contains(cgPoint),
+                  let number = info[kCGWindowNumber as String] as? Int else { continue }
+            return CGWindowID(number)
+        }
+        return nil
+    }
+
+    #if DEBUG
+    /// Live-check only: the active display's focused column, camera and column count.
+    var debugStripState: (column: Int, camera: CGFloat, columns: Int) {
+        guard let key = activeScreenKey(), let strip = strips[key] else { return (0, 0, 0) }
+        return (strip.focusedIndex, stripOffsets[key] ?? 0, strip.columns.count)
+    }
+
+    /// Live-check only: whether a WindowServer window belongs to the active display's strip.
+    func debugIsManaged(_ id: CGWindowID?) -> Bool {
+        guard let id, let key = activeScreenKey() else { return false }
+        return trees[key]?.allWindowIDs.contains(WindowID(rawValue: "cgw-\(id)")) ?? false
+    }
+
+    /// Live-check only: the focus poll would fight a scripted sequence, so it can be paused.
+    var debugPauseFocusPoll = false
+
+    /// Live-check only: every input to the ⌥-scroll gate for a point, for the check's log.
+    func debugGate(at point: NSPoint) -> (managed: Bool, cg: String, preset: String) {
+        let screen = NSScreen.screens.first(where: { $0.frame.contains(point) })
+        let cg = Self.frontmostWindowID(at: point)
+        return (debugIsManaged(cg), cg.map(String.init) ?? "nil", screen.map { preset(for: $0).rawValue } ?? "-")
+    }
+    #endif
 
     /// Focus a neighbouring column of the active display's strip, and bring its window forward.
     func focusStripColumn(_ offset: Int) {
