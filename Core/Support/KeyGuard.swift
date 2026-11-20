@@ -697,6 +697,51 @@ enum GestureRouter {
     }
 }
 
+/// The strip command a gesture runs, kept separate from the AppKit call so the route is testable.
+enum TilingGestureCommand: Equatable, Sendable {
+    case toggle
+    case focusNext, focusPrevious
+    case cycleWidth, stack, tabs
+    case swapNext, swapPrevious
+}
+
+/// Where a resolved target goes. One table, so a target cannot exist without a destination.
+enum GestureDispatchRoute: Equatable, Sendable {
+    case snap(SnapPosition)
+    case snapCycle(SnapSide)
+    case moveDisplay(Int)
+    case tiling(TilingGestureCommand)
+    case panel(GestureActionTarget)
+    case spaceSwitch(left: Bool)
+    case nothing
+
+    static func route(for target: GestureActionTarget) -> GestureDispatchRoute {
+        switch target {
+        case .none: return .nothing
+        case .snapLeft: return .snap(.leftHalf)
+        case .snapRight: return .snap(.rightHalf)
+        case .snapCycleLeft: return .snapCycle(.left)
+        case .snapCycleRight: return .snapCycle(.right)
+        case .maximize: return .snap(.maximize)
+        case .centerRestore: return .snap(.center)
+        case .nextDisplay: return .moveDisplay(1)
+        case .previousDisplay: return .moveDisplay(-1)
+        case .toggleNotch, .commandBar, .launcher, .windowSwitcher, .quickLayoutPicker:
+            return .panel(target)
+        case .spaceLeft: return .spaceSwitch(left: true)
+        case .spaceRight: return .spaceSwitch(left: false)
+        case .toggleTiling: return .tiling(.toggle)
+        case .stripNext: return .tiling(.focusNext)
+        case .stripPrevious: return .tiling(.focusPrevious)
+        case .stripCycleWidth: return .tiling(.cycleWidth)
+        case .stripStack: return .tiling(.stack)
+        case .stripTabs: return .tiling(.tabs)
+        case .stripSwapNext: return .tiling(.swapNext)
+        case .stripSwapPrevious: return .tiling(.swapPrevious)
+        }
+    }
+}
+
 /// ½ → ⅓ → ⅔ → ½, only while the same edge is repeated inside `window`.
 enum SnapWidthCycle: Int, CaseIterable, Sendable {
     case half, third, twoThirds

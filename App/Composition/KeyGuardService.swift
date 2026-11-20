@@ -1257,28 +1257,34 @@ final class GestureDispatcher: ObservableObject {
     }
 
     private func dispatch(_ target: GestureActionTarget) {
-        switch target {
-        case .snapLeft: WindowSnapService.apply(.leftHalf)
-        case .snapRight: WindowSnapService.apply(.rightHalf)
-        case .stripNext: TilingEngine.shared.focusStripColumn(1)
-        case .stripPrevious: TilingEngine.shared.focusStripColumn(-1)
-        case .spaceLeft: postSpaceSwitch(left: true)
-        case .spaceRight: postSpaceSwitch(left: false)
-        case .toggleNotch, .commandBar, .launcher: onAction?(target)
-        case .snapCycleLeft: WindowSnapService.apply(snapCycle.next(side: .left, at: Date()))
-        case .snapCycleRight: WindowSnapService.apply(snapCycle.next(side: .right, at: Date()))
-        case .maximize: WindowSnapService.apply(.maximize)
-        case .centerRestore: WindowSnapService.apply(.center)
-        case .nextDisplay: WindowSnapService.moveToDisplay(step: 1)
-        case .previousDisplay: WindowSnapService.moveToDisplay(step: -1)
-        case .toggleTiling: TilingEngine.shared.setEnabled(!TilingEngine.shared.isEnabled)
-        case .stripCycleWidth: TilingEngine.shared.cycleStripWidth()
-        case .stripStack: TilingEngine.shared.stackStripLeft()
-        case .stripTabs: TilingEngine.shared.toggleStripTabs()
-        case .stripSwapNext: TilingEngine.shared.moveStripColumn(1)
-        case .stripSwapPrevious: TilingEngine.shared.moveStripColumn(-1)
-        case .windowSwitcher, .quickLayoutPicker: onAction?(target)
-        case .none: break
+        switch GestureDispatchRoute.route(for: target) {
+        case let .snap(position):
+            WindowSnapService.apply(position)
+        case let .snapCycle(side):
+            WindowSnapService.apply(snapCycle.next(side: side, at: Date()))
+        case let .moveDisplay(step):
+            WindowSnapService.moveToDisplay(step: step)
+        case let .tiling(command):
+            applyTiling(command)
+        case let .panel(target):
+            onAction?(target)
+        case let .spaceSwitch(left):
+            postSpaceSwitch(left: left)
+        case .nothing:
+            break
+        }
+    }
+
+    private func applyTiling(_ command: TilingGestureCommand) {
+        switch command {
+        case .toggle: TilingEngine.shared.setEnabled(!TilingEngine.shared.isEnabled)
+        case .focusNext: TilingEngine.shared.focusStripColumn(1)
+        case .focusPrevious: TilingEngine.shared.focusStripColumn(-1)
+        case .cycleWidth: TilingEngine.shared.cycleStripWidth()
+        case .stack: TilingEngine.shared.stackStripLeft()
+        case .tabs: TilingEngine.shared.toggleStripTabs()
+        case .swapNext: TilingEngine.shared.moveStripColumn(1)
+        case .swapPrevious: TilingEngine.shared.moveStripColumn(-1)
         }
     }
 

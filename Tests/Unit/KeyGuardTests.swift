@@ -1079,3 +1079,79 @@ final class StripPreviewMutationTests: XCTestCase {
         }
     }
 }
+
+/// TG-4: no action may be a dead end. Every target must have one destination, and the whole locked set
+/// must survive the routed entry point (`GestureRouter`) and reach it.
+final class GestureDispatchReachabilityTests: XCTestCase {
+    private let lockedWindowActions: [GestureActionTarget] = [
+        .snapCycleLeft, .snapCycleRight, .maximize, .centerRestore, .windowSwitcher, .nextDisplay
+    ]
+    private let lockedTilingActions: [GestureActionTarget] = [
+        .toggleTiling, .stripNext, .stripPrevious, .stripCycleWidth, .stripStack,
+        .stripTabs, .stripSwapNext, .stripSwapPrevious, .quickLayoutPicker
+    ]
+
+    func testEveryTargetExceptNoneHasADestination() {
+        for target in GestureActionTarget.allCases {
+            let route = GestureDispatchRoute.route(for: target)
+            if target == .none {
+                XCTAssertEqual(route, .nothing)
+            } else {
+                XCTAssertNotEqual(route, .nothing, "\(target) has no destination")
+            }
+        }
+    }
+
+    func testWindowActionsLandOnTheirOwnWindowRoutes() {
+        XCTAssertEqual(GestureDispatchRoute.route(for: .snapLeft), .snap(.leftHalf))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .snapRight), .snap(.rightHalf))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .snapCycleLeft), .snapCycle(.left))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .snapCycleRight), .snapCycle(.right))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .maximize), .snap(.maximize))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .centerRestore), .snap(.center))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .nextDisplay), .moveDisplay(1))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .previousDisplay), .moveDisplay(-1))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .windowSwitcher), .panel(.windowSwitcher))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .commandBar), .panel(.commandBar))
+    }
+
+    func testTilingActionsLandOnTheirOwnTilingCommands() {
+        XCTAssertEqual(GestureDispatchRoute.route(for: .toggleTiling), .tiling(.toggle))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripNext), .tiling(.focusNext))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripPrevious), .tiling(.focusPrevious))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripCycleWidth), .tiling(.cycleWidth))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripStack), .tiling(.stack))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripTabs), .tiling(.tabs))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripSwapNext), .tiling(.swapNext))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .stripSwapPrevious), .tiling(.swapPrevious))
+        XCTAssertEqual(GestureDispatchRoute.route(for: .quickLayoutPicker), .panel(.quickLayoutPicker))
+    }
+
+    /// A rule bound to each locked action must survive the router in both tiling contexts and still land
+    /// on a real destination — the chain the dispatcher switches on.
+    func testTheWholeLockedSetIsReachableFromTheRoutedEntryPoint() throws {
+        for action in lockedWindowActions + lockedTilingActions {
+            for tilingOn in [false, true] {
+                let rule = GestureBindingRule(windowAction: action)
+                let resolved = try XCTUnwrap(
+                    GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: tilingOn)),
+                    "\(action) resolved to nothing with tiling \(tilingOn ? "on" : "off")"
+                )
+                XCTAssertEqual(resolved, action)
+                XCTAssertNotEqual(GestureDispatchRoute.route(for: resolved), .nothing, "\(action)")
+            }
+        }
+    }
+
+    func testTheTilingSideOfTheLockedSetIsReachableWhileTilingIsOn() throws {
+        for action in lockedTilingActions {
+            let rule = GestureBindingRule(windowAction: .maximize, tilingAction: action)
+            let resolved = try XCTUnwrap(
+                GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: true)),
+                "\(action) is unreachable as a tiling binding"
+            )
+            XCTAssertEqual(resolved, action)
+            XCTAssertNotEqual(GestureDispatchRoute.route(for: resolved), .nothing, "\(action)")
+        }
+    }
+}
