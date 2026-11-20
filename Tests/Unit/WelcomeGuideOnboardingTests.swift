@@ -12,18 +12,29 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
         WelcomeGuideLayoutContext(initialMode: mode, inputs: LayoutThumbnailModel.Inputs(), onPick: onPick)
     }
 
-    func testStepsRunPickLayoutThenDockSettings() {
-        XCTAssertEqual(WelcomeGuideStep.first, .pickLayout)
-        XCTAssertEqual(WelcomeGuideStep.pickLayout.next, .dockWidgets)
-        XCTAssertEqual(WelcomeGuideStep.dockWidgets.next, .liveIsland)
-        XCTAssertEqual(WelcomeGuideStep.liveIsland.next, .permissions)
-        XCTAssertEqual(WelcomeGuideStep.permissions.next, .dockSettings)
-        XCTAssertNil(WelcomeGuideStep.dockSettings.next)
-        XCTAssertEqual(WelcomeGuideStep.dockSettings.previous, .permissions)
-        XCTAssertEqual(WelcomeGuideStep.permissions.previous, .liveIsland)
-        XCTAssertEqual(WelcomeGuideStep.liveIsland.previous, .dockWidgets)
-        XCTAssertEqual(WelcomeGuideStep.dockWidgets.previous, .pickLayout)
-        XCTAssertNil(WelcomeGuideStep.pickLayout.previous)
+    /// DP-8: three live-applying steps — layout & edge, widgets & wings, permissions & triggers.
+    func testThreeStepsRunLayoutWidgetsPermissions() {
+        XCTAssertEqual(WelcomeGuideStep.first, .layout)
+        XCTAssertEqual(WelcomeGuideStep.allCases, [.layout, .widgets, .permissions])
+        XCTAssertEqual(WelcomeGuideStep.layout.next, .widgets)
+        XCTAssertEqual(WelcomeGuideStep.widgets.next, .permissions)
+        XCTAssertNil(WelcomeGuideStep.permissions.next)
+        XCTAssertEqual(WelcomeGuideStep.permissions.previous, .widgets)
+        XCTAssertEqual(WelcomeGuideStep.widgets.previous, .layout)
+        XCTAssertNil(WelcomeGuideStep.layout.previous)
+    }
+
+    /// DP-8's pure step → settings map: every setting the guide can write belongs to exactly one step.
+    func testEachStepMapsToTheSettingsItWrites() {
+        XCTAssertEqual(WelcomeGuideStep.layout.settings, [.dockStyle, .edgePlacement])
+        XCTAssertEqual(WelcomeGuideStep.widgets.settings, [.sections, .wings, .weatherCity, .aiTracking, .notch])
+        XCTAssertEqual(WelcomeGuideStep.permissions.settings, [.permissions, .launcherTrigger, .clipboardToast, .systemDock])
+        let union = WelcomeGuideStep.allCases.reduce(into: Set<WelcomeGuideSetting>()) { $0.formUnion($1.settings) }
+        XCTAssertEqual(union, Set(WelcomeGuideSetting.allCases), "a setting no step writes would be dead UI")
+        let counts = WelcomeGuideSetting.allCases.map { setting in
+            WelcomeGuideStep.allCases.filter { $0.settings.contains(setting) }.count
+        }
+        XCTAssertTrue(counts.allSatisfy { $0 == 1 }, "each setting is written by exactly one step")
     }
 
     func testGuideMeasuresToAStableFixedWidthWindow() {

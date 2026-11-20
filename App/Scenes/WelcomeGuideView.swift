@@ -107,6 +107,22 @@ struct WelcomeGuideLayoutContext {
     var onToggleSection: (BarSection, Bool) -> Void = { _, _ in }
     var initialWings: DockWingsConfiguration = .default
     var onPickWing: (DockWingPlacement, DockWidgetPresetType) -> Void = { _, _ in }
+    /// DP-8 step 1: the Bottom / Left / Right edge, written live.
+    var initialPlacement: StripPlacement = .bottom
+    var onPickPlacement: (StripPlacement) -> Void = { _ in }
+    /// DP-8 step 2: the weather city, asked for here so a fresh bar never shows an empty pill.
+    var initialCitySelection: WeatherLocationSelection = .current
+    var searchCities: (String) async -> [SavedCity] = { _ in [] }
+    var onAddCity: (SavedCity) -> Void = { _ in }
+    var onPickCity: (WeatherLocationSelection) -> Void = { _ in }
+    /// DP-8 step 2: AI Tracking is an explicit opt-in, off by default.
+    var aiTrackingEnabled = false
+    var onSetAITracking: (Bool) -> Void = { _ in }
+    /// DP-8 step 3: the two triggers the guide offers.
+    var launcherDoubleTap = false
+    var onSetLauncherDoubleTap: (Bool) -> Void = { _ in }
+    var clipboardToastEnabled = true
+    var onSetClipboardToast: (Bool) -> Void = { _ in }
 }
 
 struct WelcomeGuideView: View {
@@ -118,12 +134,13 @@ struct WelcomeGuideView: View {
     @State private var step = WelcomeGuideStep.first
     @State private var pickedMode: BarLayoutMode?
     @State private var pickedStyleID: String?
-    @State private var pickedTheme: DockThemeStyle?
-
-    /// A short, varied row from the Appearance grid; the full set stays in Settings › Appearance.
-    private static let onboardingThemes: [DockThemeStyle] = [
-        .auto, .translucent, .titaniumFrost, .deepOcean, .forestMoss, .emberSunset, .cyberpunkGlass,
-    ]
+    @State private var pickedPlacement: StripPlacement?
+    @State private var cityQuery = ""
+    @State private var cityResults: [SavedCity] = []
+    @State private var pickedCity: WeatherLocationSelection?
+    @State private var aiOn: Bool?
+    @State private var launcherOn: Bool?
+    @State private var toastOn: Bool?
     @State private var notchOn: Bool?
     @State private var visibleSections: Set<BarSection>?
     @State private var wingsConfig: DockWingsConfiguration?
@@ -167,11 +184,9 @@ struct WelcomeGuideView: View {
     @ViewBuilder
     private func stepView(_ step: WelcomeGuideStep) -> some View {
         switch step {
-        case .pickLayout: pickLayoutStep
-        case .dockWidgets: dockWidgetsStep
-        case .liveIsland: liveIslandStep
+        case .layout: layoutStep
+        case .widgets: widgetsStep
         case .permissions: permissionsStep
-        case .dockSettings: dockSettingsStep
         }
     }
 
@@ -181,16 +196,18 @@ struct WelcomeGuideView: View {
 
     private var currentMode: BarLayoutMode { pickedMode ?? layout.initialMode }
 
-    private var pickLayoutStep: some View {
+    /// DP-8 step 1: four look cards (Wide preselected) and the edge the bar sits on.
+    private var layoutStep: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Pick a Layout")
+            Text("Layout & Edge")
                 .font(.title2.weight(.semibold))
-            Text("Choose how the bar sits at the bottom of your screen. You can change it any time in Settings or from the menu bar.")
+            Text("Pick a look and the screen edge it sits on. You can change both any time in Settings or from the menu bar.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             DockStylePicker(selection: pickedStyleID ?? layout.initialStyleID, inputs: layout.inputs,
-                            thumbnailSize: CGSize(width: 74, height: 32)) { style in
+                            thumbnailSize: CGSize(width: 74, height: 32),
+                            styles: DockStyle.onboardingCards) { style in
                 pickedStyleID = style.id
                 pickedMode = style.mode
                 layout.onPickStyle(style)
@@ -199,24 +216,16 @@ struct WelcomeGuideView: View {
                 .font(.callout)
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
-            Text("Theme").font(.headline)
-            HStack(spacing: 8) {
-                ForEach(Self.onboardingThemes, id: \.token) { theme in
-                    let isSelected = theme == (pickedTheme ?? layout.initialTheme)
-                    Button {
-                        pickedTheme = theme
-                        layout.onPickTheme(theme)
-                    } label: {
-                        ThemeSwatch(style: theme)
-                            .frame(width: 52, height: 32)
-                            .padding(3)
-                            .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous)
-                                .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(isSelected ? .isSelected : [])
-                }
+            Picker("Edge", selection: Binding(
+                get: { pickedPlacement ?? layout.initialPlacement },
+                set: { pickedPlacement = $0; layout.onPickPlacement($0) }
+            )) {
+                Text("Bottom").tag(StripPlacement.bottom)
+                Text("Left").tag(StripPlacement.left)
+                Text("Right").tag(StripPlacement.right)
             }
+            .pickerStyle(.segmented)
+            .labelsHidden()
             Divider()
             HStack(spacing: 8) {
                 Spacer()
@@ -227,12 +236,12 @@ struct WelcomeGuideView: View {
         }
     }
 
-    private var dockWidgetsStep: some View {
+    /// DP-8 step 2: widgets, wings, the weather city, the AI opt-in and the Dynamic Notch row.
+    private var widgetsStep: some View {
         let activeOrder = BarSection.canonicalOrder.filter { $0 == .apps || currentSections.contains($0) }
-        return VStack(alignment: .leading, spacing: 14) {
-            Text("Dock Items").font(.title2.weight(.semibold))
-            Text(verbatim: "Configure visible widgets (including AI) and Dock II flanking wings with a live preview.")
-                .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+        return VStack(alignment: .leading, spacing: 12) {
+            Text("Widgets & Wings")
+                .font(.title2.weight(.semibold))
             DockLivePreviewStrip(mode: currentMode, visibleOrder: activeOrder, wings: currentWings)
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                 ForEach(configurableSections, id: \.self) { section in
@@ -264,6 +273,50 @@ struct WelcomeGuideView: View {
                 wingPicker(label: Text("Left Wing"), placement: .leftWing, current: currentWings.left.preset)
                 wingPicker(label: Text("Right Wing"), placement: .rightWing, current: currentWings.right.preset)
             }
+            Divider()
+            // The city is asked for here: a fresh bar used to show an empty "Add City" pill.
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Weather").font(.callout.weight(.semibold))
+                HStack(spacing: 8) {
+                    TextField("Search for a city", text: $cityQuery)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit { Task { cityResults = await layout.searchCities(cityQuery) } }
+                    Button("Use Current Location") {
+                        pickedCity = .current
+                        layout.onPickCity(.current)
+                    }
+                    .fixedSize()
+                }
+                if !cityResults.isEmpty {
+                    ForEach(Array(cityResults.prefix(4))) { city in
+                        Button {
+                            pickedCity = .city(city.id)
+                            layout.onAddCity(city)
+                            cityQuery = ""
+                            cityResults = []
+                        } label: {
+                            Text(verbatim: city.subtitle.isEmpty ? city.name : "\(city.name) — \(city.subtitle)")
+                                .font(.callout)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            Divider()
+            VStack(alignment: .leading, spacing: 3) {
+                Toggle("AI Tracking", isOn: Binding(
+                    get: { aiOn ?? layout.aiTrackingEnabled },
+                    set: { aiOn = $0; layout.onSetAITracking($0) }
+                ))
+                Text("Off unless you turn it on: it reads window titles on this Mac and spends a little CPU to keep the AI chip current.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Toggle("Show the Dynamic Notch", isOn: Binding(
+                get: { notchOn ?? layout.notchEnabled },
+                set: { notchOn = $0; layout.onNotchToggle($0) }
+            ))
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
@@ -291,34 +344,9 @@ struct WelcomeGuideView: View {
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var liveIslandStep: some View {
-        let binding = Binding(get: { notchOn ?? layout.notchEnabled },
-                              set: { notchOn = $0; layout.onNotchToggle($0) })
-        return VStack(alignment: .leading, spacing: 18) {
-            Text("Dynamic Notch")
-                .font(.title2.weight(.semibold))
-            Toggle("Show the Dynamic Notch", isOn: binding)
-            NotchPreview(skin: layout.notchSkin, isEnabled: notchOn ?? layout.notchEnabled)
-            Text("You can change this later in Settings › Notch.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            Divider()
-            HStack(spacing: 8) {
-                Spacer()
-                Button("Back") { if let previous = step.previous { step = previous } }
-                    .fixedSize()
-                Button("Continue") { if let next = self.step.next { self.step = next } }
-                    .keyboardShortcut(.defaultAction)
-                    .fixedSize()
-            }
-        }
-    }
-
     private var permissionsStep: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Permissions")
+            Text("Permissions & Triggers")
                 .font(.title2.weight(.semibold))
             Text("These permissions help KatiKati work properly. You can change them any time in System Settings › Privacy & Security.")
                 .font(.callout)
@@ -370,14 +398,37 @@ struct WelcomeGuideView: View {
                           note: Text("Puts the weather widget on your current city instead of the first saved one."),
                           isGranted: locationGranted,
                           grant: { PermissionRow.openPrivacy("Privacy_LocationServices") })
+            Divider()
+            // DP-8: the two triggers the guide offers, both live.
+            Toggle("Double-tap ⌘ opens the Launcher", isOn: Binding(
+                get: { launcherOn ?? layout.launcherDoubleTap },
+                set: { launcherOn = $0; layout.onSetLauncherDoubleTap($0) }
+            ))
+            Toggle("Show a clipboard toast in the Notch", isOn: Binding(
+                get: { toastOn ?? layout.clipboardToastEnabled },
+                set: { toastOn = $0; layout.onSetClipboardToast($0) }
+            ))
+            Divider()
+            Text("Recommended Dock Settings")
+                .font(.headline)
+            options
+            comeBackNote
             Spacer(minLength: 0)
             Divider()
             HStack(spacing: 8) {
+                Text("The screen will flash once when you apply this.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Spacer()
                 Button("Back") { if let previous = step.previous { step = previous } }
                     .fixedSize()
-                Button("Continue") { if let next = self.step.next { self.step = next } }
+                Button("Not Now") { onDismiss() }
+                    .keyboardShortcut(.cancelAction)
+                    .fixedSize()
+                Button("Apply Recommended Settings") { onApply(selection) }
                     .keyboardShortcut(.defaultAction)
+                    .disabled(selection.isEmpty)
                     .fixedSize()
             }
         }
@@ -460,43 +511,6 @@ struct WelcomeGuideView: View {
         Task {
             let settings = await UNUserNotificationCenter.current().notificationSettings()
             await MainActor.run { notificationsGranted = settings.authorizationStatus == .authorized }
-        }
-    }
-
-    private var dockSettingsStep: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            // 图标撤走之后，标题得自己撑住这一屏的重心，所以比原来大一号。
-            Text("Recommended Dock Settings")
-                .font(.title2.weight(.semibold))
-
-            options
-
-            comeBackNote
-
-            // 去掉色块之后，这条线是「建议区 / 行动区」唯一的分界。
-            Divider()
-
-            HStack(spacing: 8) {
-                // 唯一的闪屏预告。放在手指要点的地方，而不是段落里；**无条件显示**——
-                // 随勾选出现/消失会让窗口高度对不上内容（高度只在建窗时量一次）。
-                // The note yields, the buttons never do: without `fixedSize()` the HStack
-                // squeezes the primary button to "Apply Recommended Set…" even in English
-                // (measured 173pt of the 207pt it needs) while the note keeps free space.
-                Text("The screen will flash once when you apply this.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer()
-                Button("Back") { if let previous = step.previous { step = previous } }
-                    .fixedSize()
-                Button("Not Now") { onDismiss() }
-                    .keyboardShortcut(.cancelAction)
-                    .fixedSize()
-                Button("Apply Recommended Settings") { onApply(selection) }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(selection.isEmpty)
-                    .fixedSize()
-            }
         }
     }
 

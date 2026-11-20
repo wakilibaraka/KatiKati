@@ -854,7 +854,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             initialVisibleSections: Set(settingsStore.widgetLayout.visibleOrder),
             onToggleSection: { [weak self] section, on in self?.settingsStore.setWidgetVisible(on, for: section) },
             initialWings: settingsStore.dockWings,
-            onPickWing: { [weak self] placement, preset in self?.settingsStore.setDockWing(preset, placement: placement) }
+            onPickWing: { [weak self] placement, preset in self?.settingsStore.setDockWing(preset, placement: placement) },
+            // DP-8: the three-step guide writes these live too.
+            initialPlacement: settingsStore.stripPlacementMap.global,
+            onPickPlacement: { [weak self] placement in self?.settingsStore.setStripPlacement(placement) },
+            initialCitySelection: weatherService.selection,
+            searchCities: { [weak self] query in await self?.weatherService.searchCities(query) ?? [] },
+            onAddCity: { [weak self] city in _ = self?.weatherService.addCity(city) },
+            onPickCity: { [weak self] selection in self?.weatherService.select(selection) },
+            aiTrackingEnabled: settingsStore.dockSlotLayout.visibleItems.contains(.aiTracking),
+            onSetAITracking: { [weak self] on in self?.settingsStore.setDockSlotItem(.aiTracking, hidden: !on) },
+            launcherDoubleTap: settingsStore.shortcutBindings[.launcher] == .doubleTap(.leftCommand)
+                || settingsStore.shortcutBindings[.launcher] == .doubleTap(.rightCommand),
+            onSetLauncherDoubleTap: { [weak self] (on: Bool) in
+                self?.settingsStore.setShortcut(
+                    .launcher,
+                    on ? .doubleTap(.leftCommand) : ShortcutAction.launcher.defaultTrigger)
+            },
+            clipboardToastEnabled: UserDefaults.standard.object(forKey: ClipboardMonitor.notchToastKey) as? Bool ?? true,
+            onSetClipboardToast: { on in UserDefaults.standard.set(on, forKey: ClipboardMonitor.notchToastKey) }
         )
         let content = WelcomeGuideWindowContent(
             layout: layoutContext,

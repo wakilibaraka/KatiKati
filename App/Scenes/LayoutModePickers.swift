@@ -158,11 +158,13 @@ struct DockStylePicker: View {
     let inputs: LayoutThumbnailModel.Inputs
     // Five cards must fit the pane's ~504 pt content width (live check 18h: 104 pt overflowed).
     var thumbnailSize = CGSize(width: 78, height: 34)
+    /// DP-8: the welcome guide shows a subset (Wide / Sections / Minimal / Side Rail).
+    var styles: [DockStyle] = DockStyle.builtIns
     let onSelect: (DockStyle) -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            ForEach(DockStyle.builtIns) { style in
+            ForEach(styles) { style in
                 let isSelected = style.id == selection
                 Button {
                     onSelect(style)

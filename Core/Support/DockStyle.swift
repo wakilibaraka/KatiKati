@@ -108,6 +108,10 @@ struct DockStyle: Equatable, Identifiable, Sendable {
     /// Sections (the previous default) follows.
     static let builtIns: [DockStyle] = [.wide, .classic, .islands, .minimal, .sideRail]
 
+    /// DP-8: the welcome guide offers four cards — Wide preselected — and leaves Floating to
+    /// Settings, so step 1 stays a single row of choices.
+    static let onboardingCards: [DockStyle] = [.wide, .islands, .minimal, .sideRail]
+
     /// The built-in the live values equal, or `nil` (= Custom). Widget presets are not compared:
     /// re-arranging widgets after picking a style keeps the style selected.
     static func matching(mode: BarLayoutMode, barHeight: CGFloat, gap: CGFloat, margin: CGFloat,
