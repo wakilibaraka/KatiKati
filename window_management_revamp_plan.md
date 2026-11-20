@@ -1,6 +1,6 @@
 # Window Management Revamp — Audit & 5-Slice Plan
 
-Status: **plan only, no production edits**.
+Status: **WM-1…WM-5 shipped; §4 tiling follow-ups shipped 2026-11-20.**
 Scope: hybrid extension of the existing Window Management surfaces; nothing below is removed unless an existing control is superseded by a clearer control for the same setting.
 
 ## 1. Audit
@@ -191,29 +191,36 @@ Livecheck must confirm all five sub-tabs, the 3×2 grid, gear popover, keep-open
 4. WM-4a/4b snap; WM-4c only after G1 decision.
 5. WM-5 settings UI + localization + page-height gate.
 
-No production code has been changed by this audit. Awaiting approval of the plan and decisions on **G1 (green-button hook)**, **G2 (current-Space filter)**, and **G3 (drag monitor)** before starting WM-1.
+G1 shipped as the optional green-button override (default untouched, ⌃⌘F still the app's own shortcut), G2 stayed deferred — the switcher lists windows across Spaces — and G3 shipped as `SnapDragMonitor`, which is created only while the snap-drag setting is on. Nothing in the plan is still waiting on approval.
 
-## 4. Tiling follow-ups — plan only, no code change (2026-11-20)
+## 4. Tiling follow-ups — implemented 2026-11-20
 
 The owner split Window Management into two panes (**Window Switcher** — Option-Tab/⌘Tab — and
 **Dock & Desktop**) and turned the always-visible strip into a **desktop window box**: a 264 pt glass
 card in the top-left of the main display's work area, at window level `normal − 1`, so it is drawn
-underneath every app window and can never cover one. Everything below is tiling work and is
-deliberately **not implemented** in this change.
+underneath every app window and can never cover one. The follow-ups below were the tiling work that
+split left open; they all landed in `eef1c1f2`.
 
-1. **Retire or resize `WindowStripReserve`.** `TilingEngine.workArea` still trims 56 pt off the
-   primary display's left edge whenever `com.katikati.strip.enabled` is on. That number was the old
-   icon rail; the box is a 264 pt card. Today the reserve therefore stops tiled windows inside the
-   card instead of clear of it. Decide between (a) deleting the reserve entirely — the box lives
-   under windows and needs no work-area reservation — and (b) reserving the card's real width and
-   margin.
-2. **Per-display work areas.** If a reserve stays, it must follow the box's display rather than
-   `NSScreen.screens.first`, and recompute when the box moves.
-3. **Tiling rows' home.** Neither new pane carries tiling controls. Gaps, presets, per-display
-   layouts and retile belong on the existing **Tiling** page when they get a home in this revamp.
-4. **Layout restore vs. the box.** `WindowLayoutRestoreController` re-applies frames from the last
-   sleep; restored frames must be clamped to the same work area tiling computes once the reserve
-   changes.
+1. **Reserve retired — option (a).** `WindowStripReserve` is gone and `TilingEngine.workArea(of:)`
+   is now just the screen's visible frame less a solid dock: it no longer reads
+   `com.katikati.strip.enabled` at all, and `reapplyForWorkAreaChange` (the strip toggle's re-tile
+   hook) went with it. (a) won over (b) because the box is drawn one level under every window and
+   can never cover one; reserving 264 pt + margin would shrink every tile by a quarter of a laptop
+   screen to guarantee something that is already guaranteed by the window level.
+2. **Per-display work areas — moot.** With no reserve the work area does not depend on where the box
+   is, so there is nothing to follow between displays and nothing to recompute when it moves. The
+   old code trimmed only `NSScreen.screens.first`, which is exactly the bug the item predicted.
+3. **Tiling rows' home — already correct, verified.** Settings → **Tiling** (`SettingsTab.tiling` →
+   `SettingsTilingPane`) still carries auto-tiling, the preset picker with per-display overrides,
+   main-ratio/mirroring, inner and outer gaps, app rules, **Re-tile Moved Windows** and the Snap
+   Zones summary. Neither Window Switcher nor Dock & Desktop duplicates any of them.
+4. **Layout restore matches tiling.** `WindowLayoutRestoreController.fitToWorkArea` takes each
+   remembered frame, finds the screen holding its centre, converts `TilingEngine.workArea(of:)` to
+   Quartz and fits the frame with the new pure `WindowFit.fitted(_:into:)` — shrink to the area, then
+   shift inside. A memory from a bigger display, or from behind a Dock that has since grown, now
+   lands inside the area a fresh tile would use instead of hanging off an edge; a frame whose screen
+   is gone is left untouched rather than guessed onto another display. Covered by
+   `TilingLayoutTests.testFittedFitsRestoredFrameIntoWorkArea`.
 5. **Read §2 accordingly.** WM-2/WM-5 describe "five sub-tabs"; the shipped page is two panes with
    four sections each — *Window Switcher*: Style, Hotkeys, Filtering, Ordering; *Dock & Desktop*:
    Hover Preview, Desktop, Windows, Snap Preview.
