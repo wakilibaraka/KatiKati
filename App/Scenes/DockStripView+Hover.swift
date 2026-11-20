@@ -212,7 +212,7 @@ extension DockStripView {
     }
 
     private func allStripChipFrames() -> [CGRect] {
-        let hiddenTrash = settingsStore.showTrash ? CGRect.zero : frames.trashFrame
+        let hiddenTrash = settingsStore.showsTrashSlot ? CGRect.zero : frames.trashFrame
         return frames.chipRegistry.all.filter { hiddenTrash == .zero || $0 != hiddenTrash }
     }
 }

@@ -404,7 +404,7 @@ struct DockStripView: View {
             // Read at routing time, never copied here: the body no longer re-runs when the frames
             // move (`StripFrameBox`), so a value captured now would route a later drop by stale geometry.
             shelfFrame: { [frames, showsShelf = settingsStore.showsShelfSlot] in showsShelf ? frames.shelfFrame : nil },
-            trashFrame: { [frames, showTrash = settingsStore.showTrash] in showTrash ? frames.trashFrame : nil },
+            trashFrame: { [frames, showTrash = settingsStore.showsTrashSlot] in showTrash ? frames.trashFrame : nil },
             popFrame: { [frames] in frames.popFrame },
             folderFrames: { [frames] in frames.folderChipFrames },
             orderedPaths: pinnedFolderStore.folderPaths,
@@ -580,7 +580,7 @@ struct DockStripView: View {
             if !visible { animatedEntryIDs.remove("shelf") }
             externalDropHoverEnded(isLanding: false)
         }
-        .onChange(of: settingsStore.showTrash) { visible in
+        .onChange(of: settingsStore.showsTrashSlot) { visible in
             if !visible { animatedEntryIDs.remove("trash") }
             externalDropHoverEnded(isLanding: false)
         }
@@ -625,7 +625,7 @@ struct DockStripView: View {
         FolderChipDropZone.zoneMinX(
             folderMinX: folderChipFrames.values.map { axisRect($0).minX }.min(),
             draggedSlotCollapsed: ownsActiveDrag && dragController.stripSlotCollapsed,
-            trashMinX: settingsStore.showTrash && trashFrame != .zero ? axisRect(trashFrame).minX : nil,
+            trashMinX: settingsStore.showsTrashSlot && trashFrame != .zero ? axisRect(trashFrame).minX : nil,
             stripWidth: axisRect(stripRootScreenRect).width)
     }
 
@@ -2200,7 +2200,7 @@ extension DockStripView {
     var fluidItemCentres: [CGFloat] {
         // The registry is the union. This used to be a second hand-built list that forgot the pop chip,
         // so the pop's lobe never crested; there is no second list any more.
-        let hiddenTrash = settingsStore.showTrash ? CGRect.zero : frames.trashFrame
+        let hiddenTrash = settingsStore.showsTrashSlot ? CGRect.zero : frames.trashFrame
         return frames.chipRegistry.all
             .filter { hiddenTrash == .zero || $0 != hiddenTrash }
             .map { isRail ? $0.midY : $0.midX }
@@ -2382,7 +2382,10 @@ private struct DockUtilitiesClusterView: View {
     let trashTile: () -> AnyView
 
     var body: some View {
-        let items = settingsStore.dockUtilities.visibleUtilities
+        // Slice MD-3a follow-up (2026-11-20): the island drew the legacy utilities config, so a
+        // utility slot hidden in Settings (Trash, Drawer, Clipboard…) kept its chip. The slot layout
+        // is the one order and the one hidden flag now; `dockUtilities.order` only feeds migration.
+        let items = settingsStore.dockSlotLayout.visibleItems.compactMap(\.utilityKind)
         if isRail {
             VStack(spacing: ChipPillMetrics.chipSpacing * dockScale) {
                 ForEach(items) { utilityView(for: $0) }

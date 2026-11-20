@@ -48,7 +48,7 @@ extension DockStripView {
         // This is the only snapshot-to-strip conversion in one body evaluation. Everything below,
         // including drag callbacks captured by that body, consumes the same immutable projection.
         // The Trash chip stands in for Finder's Trash window, so that window gets no card of its own.
-        let stripSnapshot = settingsStore.showTrash
+        let stripSnapshot = settingsStore.showsTrashSlot
             ? TrashWindowAbsorption.removing(
                 TrashWindowAbsorption.absorbedWindowIDs(in: runtime.snapshot, trashTitles: TrashWindowLookup.liveTitles),
                 from: runtime.snapshot)
@@ -269,9 +269,9 @@ extension DockStripView {
         }
         let tailEntries: [StripEntry] = hasUtilitiesSection
             ? customFoldersOnly
-            : (settingsStore.showDrawer ? [StripEntry.pop] : [])
+            : (settingsStore.showsDrawerSlot ? [StripEntry.pop] : [])
                 + customFoldersOnly
-                + (settingsStore.showTrash ? [StripEntry.trash] : [])
+                + (settingsStore.showsTrashSlot ? [StripEntry.trash] : [])
         var zones = [headEntries, liveWithGhost, tailEntries]
             .map { zone in zone.filter { $0.id != collapsedEntryID } }
             .filter { !$0.isEmpty }

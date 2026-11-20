@@ -475,7 +475,7 @@ struct StageDrawer: View {
             let flankX = store.drawerPlacement == .left ? max(28, w * 0.19) : min(w - 28, w * 0.81)
 
             ZStack {
-                if store.showDrawer {
+                if store.showsDrawerSlot {
                     VStack(spacing: 4) {
                         RoundedRectangle(cornerRadius: 7, style: .continuous)
                             .fill(.ultraThinMaterial)
@@ -499,7 +499,7 @@ struct StageDrawer: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.showDrawer)
+        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.showsDrawerSlot)
         .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.drawerPlacement)
     }
 }
