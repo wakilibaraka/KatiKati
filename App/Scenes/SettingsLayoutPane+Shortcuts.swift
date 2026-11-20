@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 // The Shortcuts mode of `SettingsLayoutPane`; state lives in the main file.
@@ -1066,7 +1067,7 @@ private struct MultitouchGesturesSection: View {
             )
             SettingsDivider()
             DisclosureGroup("Gesture Mapping & Live Visualizer") {
-                LiveTouchVisualizerBox(dispatcher: dispatcher)
+                GesturePreviewStage(dispatcher: dispatcher)
                 SettingsDivider()
                 SettingsSliderRow(
                     Text("Swipe Sensitivity"),
@@ -1085,95 +1086,303 @@ private struct MultitouchGesturesSection: View {
                     valueText: String(format: "%.2f", dispatcher.flickVelocityThreshold),
                     set: { dispatcher.setFlickVelocityThreshold($0) }
                 )
+                HStack(spacing: 12) {
+                    Button("Apply Clash-Free Preset") { dispatcher.applyClashFreePreset() }
+                    Button("Open Trackpad Settings…") { openTrackpadSettings() }
+                }
+                .buttonStyle(.link)
+                .padding(.vertical, 6)
                 ForEach(MultitouchGestureKind.allCases) { kind in
                     SettingsDivider()
-                    SettingsPickerRow(Text(verbatim: gestureTitle(kind)), selection: Binding(
-                        get: { dispatcher.mappings[kind] ?? .none },
-                        set: { dispatcher.setAction($0, for: kind) }
-                    )) {
-                        ForEach(GestureActionTarget.allCases) { action in
-                            Text(verbatim: actionTitle(action)).tag(action)
-                        }
-                    }
+                    GestureBindingRow(dispatcher: dispatcher, kind: kind)
                 }
             }
         }
+        // The clash badges are advisory: read the live settings when the page opens, never poll.
+        .onAppear { dispatcher.refreshTrackpadSettings() }
     }
 
-    private func gestureTitle(_ kind: MultitouchGestureKind) -> String {
-        switch kind {
-        case .threeFingerSwipeLeft: return String(localized: "3-Finger Swipe Left")
-        case .threeFingerSwipeRight: return String(localized: "3-Finger Swipe Right")
-        case .fourFingerSwipeLeft: return String(localized: "4-Finger Swipe Left")
-        case .fourFingerSwipeRight: return String(localized: "4-Finger Swipe Right")
-        case .pinchIn: return String(localized: "Pinch In")
-        case .pinchOut: return String(localized: "Pinch Out")
-        case .fourFingerTap: return String(localized: "4-Finger Tap")
-        default:
-            // TG-4 adds the localized titles for the swipe-up/down, edge and tip-tap triggers.
-            return kind.rawValue
-        }
-    }
+}
 
-    private func actionTitle(_ action: GestureActionTarget) -> String {
-        switch action {
-        case .none: return String(localized: "None")
-        case .toggleNotch: return String(localized: "Toggle Notch")
-        case .commandBar: return String(localized: "Command Bar")
-        case .launcher: return String(localized: "Launcher")
-        case .spaceLeft: return String(localized: "Space Left")
-        case .spaceRight: return String(localized: "Space Right")
-        case .snapLeft: return String(localized: "Snap Left Half")
-        case .snapRight: return String(localized: "Snap Right Half")
-        case .stripNext: return String(localized: "Focus Next Column")
-        case .stripPrevious: return String(localized: "Focus Previous Column")
-        default:
-            // TG-4 replaces this with the localized labels for the window-management and tiling set.
-            return action.rawValue
+private func gestureTitleFor(_ kind: MultitouchGestureKind) -> String {
+    switch kind {
+    case .threeFingerSwipeLeft: return String(localized: "3-Finger Swipe Left")
+    case .threeFingerSwipeRight: return String(localized: "3-Finger Swipe Right")
+    case .threeFingerSwipeUp: return String(localized: "3-Finger Swipe Up")
+    case .threeFingerSwipeDown: return String(localized: "3-Finger Swipe Down")
+    case .fourFingerSwipeLeft: return String(localized: "4-Finger Swipe Left")
+    case .fourFingerSwipeRight: return String(localized: "4-Finger Swipe Right")
+    case .fourFingerSwipeUp: return String(localized: "4-Finger Swipe Up")
+    case .fourFingerSwipeDown: return String(localized: "4-Finger Swipe Down")
+    case .pinchIn: return String(localized: "Pinch In")
+    case .pinchOut: return String(localized: "Pinch Out")
+    case .fourFingerTap: return String(localized: "4-Finger Tap")
+    case .twoFingerRightEdgeSwipeLeft: return String(localized: "Right-Edge Swipe Left")
+    case .threeFingerTipTapLeft: return String(localized: "3-Finger Tap Left")
+    case .threeFingerTipTapRight: return String(localized: "3-Finger Tap Right")
+    }
+}
+
+private func gestureActionTitle(_ action: GestureActionTarget) -> String {
+    switch action {
+    case .none: return String(localized: "None")
+    case .toggleNotch: return String(localized: "Toggle Notch")
+    case .commandBar: return String(localized: "Command Bar")
+    case .launcher: return String(localized: "Launcher")
+    case .spaceLeft: return String(localized: "Space Left")
+    case .spaceRight: return String(localized: "Space Right")
+    case .snapLeft: return String(localized: "Snap Left Half")
+    case .snapRight: return String(localized: "Snap Right Half")
+    case .snapCycleLeft: return String(localized: "Snap Left and Cycle Width")
+    case .snapCycleRight: return String(localized: "Snap Right and Cycle Width")
+    case .maximize: return String(localized: "Maximize")
+    case .centerRestore: return String(localized: "Center")
+    case .windowSwitcher: return String(localized: "Window Switcher")
+    case .nextDisplay: return String(localized: "Next Display")
+    case .previousDisplay: return String(localized: "Previous Display")
+    case .toggleTiling: return String(localized: "Toggle Tiling")
+    case .stripNext: return String(localized: "Focus Next Column")
+    case .stripPrevious: return String(localized: "Focus Previous Column")
+    case .stripCycleWidth: return String(localized: "Cycle Column Width")
+    case .stripStack: return String(localized: "Stack Columns")
+    case .stripTabs: return String(localized: "Toggle Column Tabs")
+    case .stripSwapNext: return String(localized: "Swap With Next Column")
+    case .stripSwapPrevious: return String(localized: "Swap With Previous Column")
+    case .quickLayoutPicker: return String(localized: "Quick Layout Picker")
+    }
+}
+
+private func openTrackpadSettings() {
+    guard let url = URL(string: "x-apple.systempreferences:com.apple.Trackpad-Settings.extension") else { return }
+    NSWorkspace.shared.open(url)
+}
+
+/// Three states, never two: a green dot only appears when the settings actually say the slot is free.
+private struct GestureConflictBadge: View {
+    let conflict: GestureConflict
+
+    var body: some View {
+        switch conflict {
+        case .clear:
+            Circle().fill(Color.green).frame(width: 7, height: 7)
+                .accessibilityLabel(Text("Clear"))
+        case .clash:
+            Circle().fill(Color.orange).frame(width: 7, height: 7)
+                .help(Text("Used by macOS"))
+                .accessibilityLabel(Text("Used by macOS"))
+        case .unverifiable:
+            Circle().fill(Color.secondary.opacity(0.6)).frame(width: 7, height: 7)
+                .help(Text("Could not verify"))
+                .accessibilityLabel(Text("Could not verify"))
         }
     }
 }
 
-private struct LiveTouchVisualizerBox: View {
+/// One gesture: what it does with tiling off, and what it does instead with tiling on.
+private struct GestureBindingRow: View {
     @ObservedObject var dispatcher: GestureDispatcher
+    let kind: MultitouchGestureKind
+
+    private var rule: GestureBindingRule { dispatcher.rules[kind] ?? .off }
+    private var conflict: GestureConflict {
+        TrackpadConflictDetector.conflict(for: kind, settings: dispatcher.trackpadSettings)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 6) {
+                GestureConflictBadge(conflict: conflict)
+                Text(verbatim: gestureTitleFor(kind)).font(.callout)
+                Spacer(minLength: 8)
+                actionMenu(title: gestureActionTitle(rule.windowAction)) { action in
+                    dispatcher.setAction(action, for: kind)
+                }
+            }
+            HStack(spacing: 6) {
+                Text("Window").font(.caption2).foregroundStyle(.secondary).frame(width: 46, alignment: .leading)
+                Spacer(minLength: 8)
+                actionMenu(title: rule.tilingAction.map(gestureActionTitle) ?? String(localized: "Same as Window")) { action in
+                    dispatcher.setTilingAction(action, for: kind)
+                }
+            }
+        }
+        .padding(.vertical, 5)
+    }
+
+    private func actionMenu(title: String, set: @escaping (GestureActionTarget) -> Void) -> some View {
+        Menu {
+            ForEach(GestureActionTarget.allCases) { action in
+                Button(gestureActionTitle(action)) { set(action) }
+            }
+        } label: {
+            Text(verbatim: title)
+                .font(.callout)
+                .lineLimit(1)
+                .frame(minWidth: 150, alignment: .trailing)
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+    }
+}
+
+/// Live fingers on the left, the resolved action drawn by the real solvers on the right.
+private struct GesturePreviewStage: View {
+    @ObservedObject var dispatcher: GestureDispatcher
+    @ObservedObject private var engine = TilingEngine.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var picked: MultitouchGestureKind = .threeFingerSwipeLeft
+
+    private var rule: GestureBindingRule { dispatcher.rules[picked] ?? .off }
+    private var context: GestureContext { GestureContext(tilingEnabled: engine.isEnabled) }
+    private var resolved: GestureActionTarget? { GestureRouter.target(for: rule, context: context) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("Live Touch Visualizer").font(.caption).foregroundStyle(.secondary)
-                Spacer()
-                if let last = dispatcher.lastGesture {
-                    Text(verbatim: last.rawValue).font(.caption2.monospaced()).foregroundStyle(Color.accentColor)
-                }
+            HStack(spacing: 10) {
+                trackpadPane
+                actionPane
             }
-            GeometryReader { geo in
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(Color.primary.opacity(0.06))
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.14), lineWidth: 1)
-                    if dispatcher.livePoints.isEmpty {
-                        Text("Touch trackpad to preview fingers")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    } else {
-                        ForEach(dispatcher.livePoints, id: \.id) { pt in
-                            Circle()
-                                .fill(Color.accentColor.opacity(0.85))
-                                .frame(width: 16, height: 16)
-                                .position(
-                                    x: max(8, min(geo.size.width - 8, pt.x * geo.size.width)),
-                                    y: max(8, min(geo.size.height - 8, (1 - pt.y) * geo.size.height))
-                                )
-                        }
+            .frame(height: 96)
+            HStack(spacing: 6) {
+                Menu {
+                    ForEach(MultitouchGestureKind.allCases) { kind in
+                        Button(gestureTitleFor(kind)) { picked = kind }
                     }
+                } label: {
+                    Text(verbatim: gestureTitleFor(picked)).font(.caption)
                 }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                Text(verbatim: "\u{2192}").font(.caption2).foregroundStyle(.tertiary)
+                Text(verbatim: resolved.map(gestureActionTitle) ?? String(localized: "None"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+                if context.tilingEnabled { Text("Tiling").font(.caption2).foregroundStyle(.tertiary) }
             }
-            .frame(height: 92)
         }
         .padding(.vertical, 6)
         .onAppear { dispatcher.beginVisualizer() }
         .onDisappear { dispatcher.endVisualizer() }
+        .onChange(of: dispatcher.lastGesture) { _, kind in if let kind { picked = kind } }
+    }
+
+    private var trackpadPane: some View {
+        GeometryReader { geo in
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06))
+                RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1)
+                if dispatcher.livePoints.isEmpty {
+                    ForEach(Array(Self.keyframe(for: picked).enumerated()), id: \.offset) { _, at in
+                        Circle().fill(Color.secondary.opacity(0.5))
+                            .frame(width: 12, height: 12)
+                            .position(x: at.x * geo.size.width, y: (1 - at.y) * geo.size.height)
+                    }
+                    Text(verbatim: Self.glyph(for: picked))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.tertiary)
+                        .position(x: geo.size.width / 2, y: geo.size.height * 0.82)
+                } else {
+                    ForEach(dispatcher.livePoints, id: \.id) { pt in
+                        Circle().fill(Color.accentColor.opacity(0.85))
+                            .frame(width: 14, height: 14)
+                            .position(x: min(max(8, pt.x * geo.size.width), geo.size.width - 8),
+                                      y: min(max(8, (1 - pt.y) * geo.size.height), geo.size.height - 8))
+                    }
+                }
+            }
+        }
+    }
+
+    private var actionPane: some View {
+        GeometryReader { geo in
+            let area = CGRect(origin: .zero, size: geo.size).insetBy(dx: 8, dy: 8)
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1)
+                if context.tilingEnabled, rule.tilingAction != nil {
+                    // The engine's own solver, so the preview cannot drift from what tiling does.
+                    ForEach(Array(StageTiling.rects(preset: engine.preset, area: area, gap: engine.gaps.inner * 0.25).enumerated()), id: \.offset) { _, r in
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
+                            .frame(width: max(2, r.width), height: max(2, r.height))
+                            .position(x: r.midX, y: r.midY)
+                    }
+                } else if let position = Self.snapPosition(for: resolved) {
+                    let r = position.frame(in: area)
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .fill(Color.accentColor.opacity(0.28))
+                        .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Color.accentColor.opacity(0.65), lineWidth: 1))
+                        .frame(width: max(2, r.width), height: max(2, r.height))
+                        .position(x: r.midX, y: r.midY)
+                } else {
+                    Image(systemName: Self.symbol(for: resolved))
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                        .position(x: area.midX, y: area.midY)
+                }
+            }
+            .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: picked)
+            .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: engine.preset)
+        }
+    }
+
+    private static func snapPosition(for action: GestureActionTarget?) -> SnapPosition? {
+        switch action {
+        case .snapLeft, .snapCycleLeft: return .leftHalf
+        case .snapRight, .snapCycleRight: return .rightHalf
+        case .maximize: return .maximize
+        case .centerRestore: return .center
+        default: return nil
+        }
+    }
+
+    private static func symbol(for action: GestureActionTarget?) -> String {
+        guard let action, action != .none else { return "questionmark" }
+        switch action {
+        case .windowSwitcher: return "rectangle.on.rectangle"
+        case .nextDisplay, .previousDisplay: return "display.2"
+        case .toggleTiling: return "square.grid.2x2"
+        case .quickLayoutPicker, .stripStack, .stripTabs, .stripCycleWidth,
+             .stripSwapNext, .stripSwapPrevious, .stripNext, .stripPrevious: return "rectangle.split.3x1"
+        case .commandBar: return "circle.hexagongrid"
+        case .launcher: return "square.grid.3x3"
+        case .toggleNotch: return "menubar.rectangle"
+        case .spaceLeft, .spaceRight: return "rectangle.split.2x1"
+        case .none, .snapLeft, .snapRight, .snapCycleLeft, .snapCycleRight, .maximize, .centerRestore: return "macwindow"
+        }
+    }
+
+    private static func keyframe(for kind: MultitouchGestureKind) -> [CGPoint] {
+        let count = Self.fingerCount(kind)
+        let spacing = 0.09
+        return (0..<count).map { i in
+            CGPoint(x: 0.5 + (CGFloat(i) - CGFloat(count - 1) / 2) * spacing, y: 0.5)
+        }
+    }
+
+    private static func fingerCount(_ kind: MultitouchGestureKind) -> Int {
+        switch kind {
+        case .twoFingerRightEdgeSwipeLeft: return 2
+        case .threeFingerSwipeLeft, .threeFingerSwipeRight, .threeFingerSwipeUp, .threeFingerSwipeDown,
+             .threeFingerTipTapLeft, .threeFingerTipTapRight: return 3
+        default: return 4
+        }
+    }
+
+    private static func glyph(for kind: MultitouchGestureKind) -> String {
+        switch kind {
+        case .threeFingerSwipeLeft, .fourFingerSwipeLeft, .twoFingerRightEdgeSwipeLeft: return "\u{2190}"
+        case .threeFingerSwipeRight, .fourFingerSwipeRight: return "\u{2192}"
+        case .threeFingerSwipeUp, .fourFingerSwipeUp: return "\u{2191}"
+        case .threeFingerSwipeDown, .fourFingerSwipeDown: return "\u{2193}"
+        case .pinchIn: return "\u{2192}\u{2190}"
+        case .pinchOut: return "\u{2190}\u{2192}"
+        case .fourFingerTap: return "\u{25CF}"
+        case .threeFingerTipTapLeft: return "\u{2022}\u{2190}"
+        case .threeFingerTipTapRight: return "\u{2192}\u{2022}"
+        }
     }
 }
 
