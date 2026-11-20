@@ -1090,6 +1090,9 @@ enum PanelGeometry {
         var rightFrame: CGRect?
         var leftSize: WidgetSize
         var rightSize: WidgetSize
+        /// Slice DP-6: the resolved rung per side. `.hidden` means the strip must not reserve room for it.
+        var leftStep: DockWingLadder.Step = .hidden
+        var rightStep: DockWingLadder.Step = .hidden
     }
 
     static func wingPanelFrames(
@@ -1131,9 +1134,11 @@ enum PanelGeometry {
                 availableBottom: maxBelow,
                 scale: scale
             )
-            // Keep vertical caps aligned flush to the rail's thickness and X position.
-            let railX = dockPlate.minX
-            let plateWidth = metrics.panelHeight
+            // Keep vertical caps aligned flush to the rail's thickness and X position. The rail plate is
+            // `RailPitchPlan.thickness` (48 at native), not `metrics.panelHeight`, so the caps must use the
+            // same rule and hug the screen edge the rail hugs instead of its old raw inner edge.
+            let plateWidth = RailPitchPlan.thickness(barHeight: metrics.panelHeight)
+            let railX = stripPlacement == .left ? dockPlate.minX : dockPlate.maxX - plateWidth
             let minWingH = 36 * scale
 
             var leftFrame: CGRect?
@@ -1165,39 +1170,36 @@ enum PanelGeometry {
 
         let leftAvailable = max(0, leftAnchorMaxX - (screen.frame.minX + margin) - gap)
         let rightAvailable = max(0, (screen.frame.maxX - margin) - (rightAnchorMinX + gap))
-        let totalBudget = (config.left.preset.isAssigned ? leftAvailable : 0)
-            + (config.right.preset.isAssigned ? rightAvailable : 0)
-
-        let resolved = DockWingLayoutPlanner.resolveSizes(
+        // Slice DP-6: each side gets its own budget and walks the explicit L → M → S → icon pillar → hidden
+        // ladder; the two sides never pool room, so one wing can no longer consume the other's span.
+        let ladder = DockWingLadder.resolve(
             config: config,
-            availableWingBudget: totalBudget,
+            availableLeft: leftAvailable,
+            availableRight: rightAvailable,
             scale: scale
         )
+        let resolved = DockWingLayoutPlanner.ResolvedSizes(
+            left: ladder.left.size ?? .small, right: ladder.right.size ?? .small)
 
         var leftFrame: CGRect?
-        if config.left.preset.isAssigned {
-            let desiredW = DockWingDimensions.scaledWidth(for: config.left.preset, size: resolved.left, scale: scale)
-            let w = min(desiredW, leftAvailable)
-            if w >= 40 * scale {
-                let x = leftAnchorMaxX - gap - w
-                leftFrame = CGRect(x: x - pad, y: dockFrame.minY,
-                                   width: w + 2 * pad, height: metrics.windowHeight)
-            }
+        if config.left.preset.isAssigned, ladder.left.isVisible {
+            let w = DockWingLadder.width(of: ladder.left, preset: config.left.preset, scale: scale)
+            let x = leftAnchorMaxX - gap - w
+            leftFrame = CGRect(x: x - pad, y: dockFrame.minY,
+                               width: w + 2 * pad, height: metrics.windowHeight)
         }
 
         var rightFrame: CGRect?
-        if config.right.preset.isAssigned {
-            let desiredW = DockWingDimensions.scaledWidth(for: config.right.preset, size: resolved.right, scale: scale)
-            let w = min(desiredW, rightAvailable)
-            if w >= 40 * scale {
-                let x = rightAnchorMinX + gap
-                rightFrame = CGRect(x: x - pad, y: dockFrame.minY,
-                                    width: w + 2 * pad, height: metrics.windowHeight)
-            }
+        if config.right.preset.isAssigned, ladder.right.isVisible {
+            let w = DockWingLadder.width(of: ladder.right, preset: config.right.preset, scale: scale)
+            let x = rightAnchorMinX + gap
+            rightFrame = CGRect(x: x - pad, y: dockFrame.minY,
+                                width: w + 2 * pad, height: metrics.windowHeight)
         }
 
         return DockWingPanelLayout(leftFrame: leftFrame, rightFrame: rightFrame,
-                                   leftSize: resolved.left, rightSize: resolved.right)
+                                   leftSize: resolved.left, rightSize: resolved.right,
+                                   leftStep: ladder.left, rightStep: ladder.right)
     }
 
     /// Pure target frame for the torn-off Floating Widget Stack panel (bottom-left screen coordinates,

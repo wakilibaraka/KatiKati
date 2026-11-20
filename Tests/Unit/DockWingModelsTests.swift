@@ -49,21 +49,71 @@ final class DockWingModelsTests: XCTestCase {
         XCTAssertTrue(cleared.hasAnyActiveWing)
     }
 
-    func testAutoDegradeStepsDownWidestWingFirst() {
+    func testWingLadderStepsDownPerSideWithoutPooling() {
         let config = DockWingsConfiguration(
             left: DockWingSlotConfig(preset: .spotify, size: .large),     // 248
             right: DockWingSlotConfig(preset: .telemetry, size: .large),  // 240
             gap: 10
         )
-        // Budget 450 < 248 + 240: steps down left (248 -> 188), total = 188 + 240 = 428 <= 450
-        let fit450 = DockWingLayoutPlanner.resolveSizes(config: config, availableWingBudget: 450)
-        XCTAssertEqual(fit450.left, .medium)
-        XCTAssertEqual(fit450.right, .large)
+        // A starved right side degrades on its own; the roomy left side keeps `.large` (never pooled).
+        let perSide = DockWingLadder.resolve(config: config, availableLeft: 450, availableRight: 200)
+        XCTAssertEqual(perSide.left, .size(.large))
+        XCTAssertEqual(perSide.right, .size(.medium))
 
-        // Tight budget 240 forces both down to .small
-        let fit240 = DockWingLayoutPlanner.resolveSizes(config: config, availableWingBudget: 240)
-        XCTAssertEqual(fit240.left, .small)
-        XCTAssertEqual(fit240.right, .small)
+        // Under `.small` there is still a rung: the icon pillar, not an instant vanish.
+        let pillow = DockWingLadder.resolve(config: config, availableLeft: 100, availableRight: 100)
+        XCTAssertEqual(pillow.left, .iconPillar)
+        XCTAssertEqual(pillow.right, .iconPillar)
+        XCTAssertEqual(DockWingLadder.width(of: .iconPillar, preset: .spotify, scale: 1), 52, accuracy: 0.01)
+
+        // Only below the pillar width does a wing go hidden.
+        let gone = DockWingLadder.resolve(config: config, availableLeft: 40, availableRight: 10)
+        XCTAssertEqual(gone.left, .hidden)
+        XCTAssertEqual(gone.right, .hidden)
+        XCTAssertFalse(gone.left.isVisible)
+
+        // An empty slot owns no rung at all.
+        let empty = DockWingLadder.resolve(
+            config: DockWingsConfiguration(left: .init(preset: .none, size: .large),
+                                           right: .init(preset: .none, size: .large), gap: 10),
+            availableLeft: 900, availableRight: 900)
+        XCTAssertEqual(empty.left, .hidden)
+        XCTAssertEqual(empty.right, .hidden)
+    }
+
+    func testWingPanelFramesTakeTheIconPillarStepBeforeHidingOnLaptopWidths() throws {
+        let metrics = PanelLayoutMetrics.tungstenEdge
+        let pad = metrics.shadowPadding
+        let scale = max(0.5, metrics.panelHeight / IslandChrome.nativeBarHeight)
+        // 12 window chips: the bar itself is wide, so the flanks are what run out of room.
+        let chipSpan: CGFloat = 12 * 38 + 16
+
+        for screenWidth: CGFloat in [1440, 1512] {
+            let screen = PanelScreenGeometry(
+                frame: CGRect(x: 0, y: 0, width: screenWidth, height: 900),
+                visibleFrame: CGRect(x: 0, y: 0, width: screenWidth, height: 875),
+                safeAreaTop: 0)
+            // Dock sits near the left edge: 58 pt of left flank (pillar, not full wing), roomy right flank.
+            let plate = CGRect(x: 80, y: 2, width: chipSpan, height: metrics.panelHeight)
+            let dockFrame = plate.insetBy(dx: -pad, dy: -pad)
+            let config = DockWingsConfiguration(
+                left: DockWingSlotConfig(preset: .spotify, size: .large),
+                right: DockWingSlotConfig(preset: .telemetry, size: .large),
+                gap: 10)
+
+            let layout = PanelGeometry.wingPanelFrames(
+                dockFrame: dockFrame, capsuleFrame: .zero, config: config,
+                stripPlacement: .bottom, drawerPlacement: .right, controlCentreTrailing: false,
+                on: screen, metrics: metrics)
+
+            XCTAssertEqual(layout.leftStep, .iconPillar, "width \(screenWidth)")
+            XCTAssertEqual(layout.rightStep, .size(.large), "width \(screenWidth): right keeps its own budget")
+            let leftPlate = try XCTUnwrap(layout.leftFrame).insetBy(dx: pad, dy: pad)
+            XCTAssertEqual(leftPlate.width,
+                           DockWingLadder.nativeIconPillarWidth * scale, accuracy: 0.01)
+            XCTAssertGreaterThanOrEqual(leftPlate.minX, screen.frame.minX + 12)
+            XCTAssertLessThanOrEqual(leftPlate.maxX, plate.minX - 10 + 0.01)
+        }
     }
 
     func testVpnRateFormatting() {

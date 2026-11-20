@@ -292,6 +292,79 @@ enum DockWingDimensions {
     }
 }
 
+/// Slice DP-6: the wing ladder. Each side resolves against **its own** free span — the two wings never
+/// pool their room, so a wide left wing cannot shrink or evict the right one — and the ladder between
+/// "requested size" and "gone" has an explicit icon-pillar step: `L → M → S → icon pillar → hidden`.
+/// The resolved step is published on `DockWingPanelLayout` so the strip knows which sides still take space.
+enum DockWingLadder {
+    enum Step: Equatable, Sendable {
+        case size(WidgetSize)
+        case iconPillar
+        case hidden
+
+        var isVisible: Bool { self != .hidden }
+
+        var size: WidgetSize? {
+            if case .size(let size) = self { return size }
+            return nil
+        }
+    }
+
+    struct Plan: Equatable, Sendable {
+        var left: Step
+        var right: Step
+    }
+
+    /// Native-scale width of the icon pillar: one icon plus padding, still wide enough to open the wing.
+    static let nativeIconPillarWidth: CGFloat = 52
+
+    static func resolve(
+        config: DockWingsConfiguration,
+        availableLeft: CGFloat,
+        availableRight: CGFloat,
+        scale: CGFloat = 1
+    ) -> Plan {
+        Plan(
+            left: step(for: config.left, available: availableLeft, scale: scale),
+            right: step(for: config.right, available: availableRight, scale: scale)
+        )
+    }
+
+    static func width(of step: Step, preset: DockWidgetPresetType, scale: CGFloat) -> CGFloat {
+        switch step {
+        case .size(let size):
+            return DockWingDimensions.scaledWidth(for: preset, size: size, scale: scale)
+        case .iconPillar:
+            return nativeIconPillarWidth * max(scale, 0.5)
+        case .hidden:
+            return 0
+        }
+    }
+
+    private static func step(for slot: DockWingSlotConfig, available: CGFloat, scale: CGFloat) -> Step {
+        guard slot.preset.isAssigned else { return .hidden }
+        var size = slot.size
+        while DockWingDimensions.scaledWidth(for: slot.preset, size: size, scale: scale) > available,
+              size > .small {
+            size = steppedDown(size)
+        }
+        if DockWingDimensions.scaledWidth(for: slot.preset, size: size, scale: scale) <= available {
+            return .size(size)
+        }
+        if available >= nativeIconPillarWidth * max(scale, 0.5) {
+            return .iconPillar
+        }
+        return .hidden
+    }
+
+    private static func steppedDown(_ size: WidgetSize) -> WidgetSize {
+        switch size {
+        case .large: return .medium
+        case .medium, .small: return .small
+        }
+    }
+}
+
 /// Pure auto-degrade planner (`L -> M -> S`) when total screen span cannot host both wings at requested sizes.
 enum DockWingLayoutPlanner {
     struct ResolvedSizes: Equatable, Sendable {
@@ -305,14 +378,17 @@ enum DockWingLayoutPlanner {
         var sizes: ResolvedSizes
     }
 
+    /// DP-6: per-side budgets. Kept as the size-only view of `DockWingLadder` for callers that map a
+    /// resolved step back onto the widget models (an icon pillar still renders the `.small` model).
     static func resolveSizes(
         config: DockWingsConfiguration,
-        availableWingBudget: CGFloat,
+        availableLeft: CGFloat,
+        availableRight: CGFloat,
         scale: CGFloat = 1
     ) -> ResolvedSizes {
-        resolve(config: config, availableWingBudget: availableWingBudget) { slot, size in
-            DockWingDimensions.scaledWidth(for: slot.preset, size: size, scale: scale)
-        }
+        let plan = DockWingLadder.resolve(
+            config: config, availableLeft: availableLeft, availableRight: availableRight, scale: scale)
+        return ResolvedSizes(left: plan.left.size ?? .small, right: plan.right.size ?? .small)
     }
 
     static func resolveVerticalSizes(
