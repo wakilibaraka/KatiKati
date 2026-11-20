@@ -558,9 +558,13 @@ enum PanelGeometry {
     }
 
     /// Widgets as compact rail tiles (decision 1); the apps zone keeps its own measured length.
+    /// - Parameter tileLength: DP-5 — the pitch-derived tile length (native scale) for a widget
+    ///   section. Omitted, a rail keeps the fixed 40 pt tile; the utilities cluster keeps its own
+    ///   slot count either way.
     static func railWidgetLayout(
         _ layout: WidgetLayout,
-        visibleUtilityCount: Int = storedUtilitiesConfig().visibleUtilities.count
+        visibleUtilityCount: Int = storedUtilitiesConfig().visibleUtilities.count,
+        tileLength: CGFloat? = nil
     ) -> WidgetLayout {
         WidgetLayout(instances: layout.instances.map { inst in
             var copy = inst
@@ -569,6 +573,9 @@ enum PanelGeometry {
                     barHeight: IslandChrome.nativeBarHeight,
                     visibleUtilityCount: visibleUtilityCount
                 )
+                if let tileLength, inst.section != .utilities {
+                    copy.exactWidth = tileLength
+                }
             }
             return copy
         })
@@ -601,16 +608,25 @@ enum PanelGeometry {
         let wingPlan = railWingPlan(config: wingConfig, on: screen, metrics: metrics, margin: margin)
         let virtual = railVirtualScreen(on: screen, placement: stripPlacement,
                                         topReserve: wingPlan.topReserve, bottomReserve: wingPlan.bottomReserve)
+        // DP-5: the rail's pitch is adaptive. `contentLength` is the measured chip run, so dividing
+        // it by the natural stride gives the chip count the rail is trying to place; the plan then
+        // shares the rail's usable length across that count, floors at the legibility minimum and
+        // reports overflow rather than letting the last tile be cut.
+        let naturalPitch = IslandChrome.railChipStride(barHeight: metrics.panelHeight)
+        let chipCount = max(1, Int((contentLength / max(naturalPitch, 1)).rounded()))
+        let railPlan = RailPitchPlan.resolve(usable: virtual.frame.width, count: chipCount,
+                                             barHeight: metrics.panelHeight)
         let layout = railWidgetLayout(
             widgetLayout ?? storedWidgetLayout(),
-            visibleUtilityCount: visibleUtilityCount ?? storedUtilitiesConfig().visibleUtilities.count
+            visibleUtilityCount: visibleUtilityCount ?? storedUtilitiesConfig().visibleUtilities.count,
+            tileLength: RailPitchPlan.widgetTile(pitch: railPlan.pitch, barHeight: metrics.panelHeight)
         )
         let solved = islandTargetFrame(slot: slot, contentWidth: contentLength,
                                        mode: mode, on: virtual,
                                        placement: .right, metrics: metrics,
                                        centeredWidth: centeredWidth,
                                        gap: gap, margin: margin, widgetLayout: layout,
-                                       tileStride: IslandChrome.railChipStride(barHeight: metrics.panelHeight),
+                                       tileStride: railPlan.pitch,
                                        contentInset: IslandChrome.railContentInset,
                                        enforceMinimumWidgetWidths: false)
         return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics, topReserve: wingPlan.topReserve)

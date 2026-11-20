@@ -37,6 +37,21 @@ final class DockStyleTests: XCTestCase {
         }
     }
 
+    /// DP-5: Minimal is a widget set, not "whatever the user had visible" — the presets that used to
+    /// leave every wide widget on a centered island whose width is `min(centeredWidth, content)`.
+    func testMinimalWritesAWidgetSetThatKeepsTheNarrowOnes() {
+        guard let id = DockStyle.minimal.widgetPresetID,
+              let preset = WidgetPresets.builtIns.first(where: { $0.id == id }) else {
+            return XCTFail("Minimal no longer writes a widget set")
+        }
+        let visible = Set(preset.layout.visibleOrder)
+        XCTAssertTrue(visible.contains(.apps))
+        XCTAssertTrue(visible.contains(.clock))
+        XCTAssertTrue(visible.contains(.utilities))
+        XCTAssertFalse(visible.contains(.weather), "Minimal was still inheriting Weather")
+        XCTAssertFalse(visible.contains(.media), "Minimal was still inheriting Now Playing")
+    }
+
     func testHandTunedValuesReadAsCustom() {
         XCTAssertNil(DockStyle.matching(mode: .split3, barHeight: 54, gap: 9.5, margin: 10, bottomGap: 2))
         // Hand-tuned height with otherwise fresh values: the height alone is enough to read Custom.

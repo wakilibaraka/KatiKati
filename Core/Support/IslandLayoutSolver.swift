@@ -341,6 +341,63 @@ enum BackgroundAppsAnchor {
     }
 }
 
+/// Thickness and chip pitch of a side rail (slice DP-5).
+///
+/// The rail used to be one `metrics.panelHeight` thick (54 pt at the native size) while a tile inside
+/// was 40 pt, so 14 pt of cross-axis slack went to nothing, and the along-rail pitch was the fixed
+/// `railChipStride` regardless of how many chips the rail had. The native vertical Dock is ~42–46 pt
+/// wide with a tight pitch. Two formulas replace both numbers:
+///
+/// - thickness `T = tile + 2·inset` (`inset` 3–4), scaled with the bar and clamped to `maximumThickness`;
+/// - pitch `min(tile + gap, (usable − 2·inset) / (count + 0.5))`, floored at `minimumPitch`. When the
+///   floor does not fit the count, `overflows` is true and the strip scrolls its app tiles instead of
+///   clipping the last one.
+///
+/// Pure and total so the solver, the strip and the tests share one arithmetic.
+enum RailPitchPlan {
+    /// Cross-axis padding inside a rail's plate, each side. 4 keeps a 40 pt tile off the plate's edge
+    /// while landing the plate at 48 pt — inside the native 42–46 pt range once the bar is smaller.
+    static let inset: CGFloat = 4
+    /// A rail plate never grows past this on the cross axis, however tall the bar gets.
+    static let maximumThickness: CGFloat = 48
+    /// Smallest pitch that still leaves two neighbouring tiles distinguishable.
+    static let minimumPitch: CGFloat = 26
+
+    struct Plan: Equatable, Sendable {
+        /// Distance from one chip's leading edge to the next, along the rail.
+        let pitch: CGFloat
+        /// Cross-axis thickness of the rail's plate.
+        let thickness: CGFloat
+        /// The legibility floor does not fit `count` chips: the strip scrolls rather than clips.
+        let overflows: Bool
+    }
+
+    static func thickness(barHeight: CGFloat, tile: CGFloat = BarSection.railTileSize) -> CGFloat {
+        min((tile + 2 * inset) * IslandChrome.scale(barHeight: barHeight), maximumThickness)
+    }
+
+    /// - Parameters:
+    ///   - usable: length the rail has for chips, ends included.
+    ///   - count: chips the rail wants to show.
+    ///   - barHeight: the bar's height, the rail's scale reference.
+    static func resolve(usable: CGFloat, count: Int, barHeight: CGFloat) -> Plan {
+        let scale = IslandChrome.scale(barHeight: barHeight)
+        let natural = (BarSection.railTileSize + IslandChrome.railChipSpacing) * scale
+        let floor = minimumPitch * scale
+        let thickness = thickness(barHeight: barHeight)
+        guard count > 0 else { return Plan(pitch: natural, thickness: thickness, overflows: false) }
+        let budget = max(0, usable - 2 * inset * scale)
+        let fit = budget / (CGFloat(count) + 0.5)
+        return Plan(pitch: max(floor, min(natural, fit)), thickness: thickness, overflows: fit < floor)
+    }
+
+    /// Length a widget tile keeps when the pitch shrinks: the tile plus its gap, minus that gap.
+    /// Authored at native scale, like every widget width the solver takes.
+    static func widgetTile(pitch: CGFloat, barHeight: CGFloat) -> CGFloat {
+        max(0, pitch / max(IslandChrome.scale(barHeight: barHeight), 0.01) - IslandChrome.railChipSpacing)
+    }
+}
+
 /// How Wide (`.windows`) spends the width its plate has but its content does not (slice DP-3).
 ///
 /// Wide forces the strip to the plate's width, and until DP-3 two dividers absorbed every spare

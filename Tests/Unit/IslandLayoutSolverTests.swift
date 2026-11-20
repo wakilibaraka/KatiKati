@@ -627,6 +627,41 @@ final class WideGapPlanTests: XCTestCase {
         XCTAssertEqual(BackgroundAppsAnchor.hostSlot(islands: emptyTrailing), 1)
     }
 
+    // MARK: DP-5 — rail pitch and thickness
+
+    func testEighteenChipsFitNineHundredPointsAboveTheFloor() {
+        let plan = RailPitchPlan.resolve(usable: 900, count: 18, barHeight: 54)
+        XCTAssertGreaterThanOrEqual(plan.pitch, RailPitchPlan.minimumPitch)
+        XCTAssertFalse(plan.overflows)
+        XCTAssertLessThanOrEqual(plan.pitch * 18 + 2 * RailPitchPlan.inset, 900 + 0.001,
+                                 "the pitch it chose actually fits the count it was given")
+        XCTAssertLessThanOrEqual(plan.pitch, 40 + IslandChrome.railChipSpacing,
+                                 "a roomy rail never stretches chips past their natural stride")
+    }
+
+    func testThirtyChipsOverflowRatherThanClip() {
+        let plan = RailPitchPlan.resolve(usable: 700, count: 30, barHeight: 54)
+        XCTAssertTrue(plan.overflows, "30 chips cannot fit 700 pt at the legibility floor")
+        XCTAssertEqual(plan.pitch, RailPitchPlan.minimumPitch, accuracy: 0.001,
+                       "the floor is where it stops shrinking; the strip scrolls from there")
+    }
+
+    func testRailThicknessIsInTheNativeRangeAndClamped() {
+        XCTAssertEqual(RailPitchPlan.thickness(barHeight: 54), 48, accuracy: 0.001)
+        XCTAssertTrue((42.0...48.0).contains(RailPitchPlan.thickness(barHeight: 54)))
+        // Scales down with the bar, and never past 48 however tall the bar gets.
+        XCTAssertEqual(RailPitchPlan.thickness(barHeight: 32), 48 * 32 / 54, accuracy: 0.001)
+        XCTAssertEqual(RailPitchPlan.thickness(barHeight: 120), RailPitchPlan.maximumThickness)
+    }
+
+    func testWidgetTileFollowsThePitch() {
+        let plan = RailPitchPlan.resolve(usable: 400, count: 14, barHeight: 54)
+        let tile = RailPitchPlan.widgetTile(pitch: plan.pitch, barHeight: 54)
+        XCTAssertEqual(tile + IslandChrome.railChipSpacing, plan.pitch, accuracy: 0.001,
+                       "a widget tile plus the rail's gap is exactly one pitch")
+        XCTAssertLessThan(tile, BarSection.railTileSize, "the squeezed rail shrinks its widget tiles too")
+    }
+
     func testBackgroundAppsAnchorStaysOnTheAppsIslandForARail() {
         let islands = BarSection.islands(for: .split3, order: BarSection.defaultOrder)
         XCTAssertEqual(BackgroundAppsAnchor.hostSlot(islands: islands, isRail: true),

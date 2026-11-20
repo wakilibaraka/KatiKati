@@ -88,8 +88,11 @@ struct DockStyle: Equatable, Identifiable, Sendable {
                                 bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
     // No built-in applies a widget preset: a style that hid widgets left them hidden after switching
     // to another style (live check 11g) — widgets, like the theme, stay the user's own choice.
+    // DP-5: Minimal writes a widget set (apps + clock + utilities). It used to inherit every widget the
+    // user had visible, so Weather / Now Playing / Clock could overflow a centered island whose width
+    // is `min(centeredWidth, content)`. The preset is still the user's to change afterwards.
     static let minimal = DockStyle(id: "style.minimal", mode: .centered, size: .small, spacing: .compact,
-                                   bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil)
+                                   bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: "builtin.minimal")
 
     /// Rail on the left edge, in Split 3: three stacked islands with compact tiles. (Phase 41a made
     /// every mode available on a rail, so this is now a plain style choice, not a special case.)
