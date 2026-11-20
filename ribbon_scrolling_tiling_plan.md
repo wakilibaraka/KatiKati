@@ -212,6 +212,35 @@ the same staged prefs, restored afterwards.
   passes; its failures in the earlier run came from the locked session and appear only while
   `CGSSessionScreenIsLocked` is 1.
 
+### Three-window re-check (2026-11-20, after the audit)
+
+Three TextEdit documents placed at `100, 160` (620 × 480), `240, 700` (560 × 420) and
+`780, 260` (700 × 520), ribbon on, columns at ½.
+
+- **Narrow columns + sliver.** The focused column sat at `8`, the next at `863`, and the rest
+  parked at `1709` on a 1710 pt display — `CGWindowList` reports `cg=33735` at
+  `1709, 46, 847 × 1010`, the 1 pt sliver macOS allows (finding 2).
+- **Reveal on activation.** Raising a parked column scrolled the camera `1718 → 26513` and wrote
+  that column at `855`, fully on screen.
+- **Reveal from a Settings-assigned shortcut.** With `⌃⌥→` bound to *Focus Next Column* in
+  Settings › Shortcuts, the next parked column was revealed (`camera 27368`, window at `855`);
+  `⌃⌥←` stepped back `31 → 30 → 29 → 28` (camera `25658 → 24999 → 24795 → 23940`), one trace line
+  per press, and a parked TextEdit column arrived at `863`.
+- **Disable restore.** Toggling tiling off returned all three windows to exactly the frames above.
+- **Quit restore.** Enabling again and quitting returned the same three frames.
+
+Two defects came out of the check and are fixed here:
+
+1. **The pre-tiling frame could be a column frame.** Capture read `record.bounds` from the snapshot,
+   which can still carry the parked column a previous pass wrote; the restore then had nothing to
+   put back and that window stayed parked on *every* cycle (reproduced three times on the third
+   window before the fix, `cg=33735` captured at `1709, 46, 847 × 1010` instead of `100, 160`). The
+   live AX frame is now captured first, with the snapshot as the fallback; the same cycle then
+   restored all three windows exactly.
+2. **`⌃⌥←` / `⌃⌥→` could not be assigned at all.** `ShortcutKeyNames` had no arrow key codes, so
+   `.key` failed validation and the binding silently fell back to `.off` — the recorder could not
+   accept the brief's own focus keys. Key codes 123–126 (`←→↓↑`) are in the table now.
+
 ## Deferred
 
 - **⌥+2-finger scroll on the strip.** A passive global monitor cannot consume the event, so the app
