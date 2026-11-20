@@ -145,5 +145,11 @@ final class StripPlacementTests: XCTestCase {
         let content: [EdgeSide: [String]] = [.left: ["widgets"], .right: ["notes"]]
         XCTAssertEqual(EdgeOccupancy.resolve(content, dock: .left, policy: .hide), [.right: ["notes"]])
     }
-}
 
+    /// DP-5: a rail scrolls vertically, so its content must pin to the top. `.leading` has no
+    /// vertical meaning, which left a long rail centred and clipped at both ends.
+    func testRailPinsItsScrollContentToTheTop() {
+        XCTAssertTrue(StripScrollAnchor.pinsToTop(isRail: true))
+        XCTAssertFalse(StripScrollAnchor.pinsToTop(isRail: false))
+    }
+}

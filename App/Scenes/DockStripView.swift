@@ -312,7 +312,7 @@ struct DockStripView: View {
                 .environment(\.chipPillUsesGlass, usesLiquidGlass)
             }
             .clipShape(RoundedRectangle(cornerRadius: taskbarCornerRadius, style: .continuous))
-            .defaultScrollAnchor(.leading)
+            .defaultScrollAnchor(StripScrollAnchor.pinsToTop(isRail: isRail) ? .top : .leading)
             .onReceive(NotificationCenter.default.publisher(for: .dockFocusToggle)) { _ in
                 toggleDockFocus()
             }

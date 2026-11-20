@@ -140,6 +140,16 @@ extension BarSection {
     static let railTileSize: CGFloat = 40
 }
 
+/// Where a strip's scroll view parks its content when the row is longer than the plate (DP-5).
+///
+/// The bottom bar scrolls horizontally, so `.leading` is its start. A rail scrolls **vertically**, and
+/// `.leading` has no meaning on that axis: the content stayed centred, so a rail holding more chips
+/// than fit cut the first chips above the plate and the last ones below it, with no scroll origin at
+/// the top (DP-5 visual pass, frames at y = −178 and y = 1431 in a ~1000 pt plate).
+enum StripScrollAnchor {
+    static func pinsToTop(isRail: Bool) -> Bool { isRail }
+}
+
 /// Which side of a chip the running dot hugs: **the screen edge**, the same rule the bottom bar already
 /// follows (its dot sits at the bottom). Phase 18c put a rail's dot on the workspace-facing edge instead,
 /// which is why the bottom bar and the rail disagreed — corrected in Phase 40c. On a left rail the screen
