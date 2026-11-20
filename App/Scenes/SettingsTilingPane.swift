@@ -238,16 +238,18 @@ struct SettingsTilingPane: View {
                 TilingLayoutThumbnail(preset: preset)
                     .frame(height: 38)
                 HStack(spacing: 4) {
-                    if !preset.localizedTitleKey.hasPrefix(preset.alias.abbreviation) {
-                        Text(verbatim: preset.alias.abbreviation)
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 1)
-                            .background(Capsule().fill(Color.secondary.opacity(0.15)))
+                    // Every tile carries its badge, so the nine captions share one rhythm; the
+                    // title is dropped only when it would repeat the badge word for word (BSP).
+                    Text(verbatim: preset.alias.abbreviation)
+                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(Color.secondary.opacity(0.15)))
+                    if preset.localizedTitleKey != preset.alias.abbreviation {
+                        Text(preset.localizedTitleKey)
+                            .font(.caption2)
+                            .lineLimit(1)
                     }
-                    Text(preset.localizedTitleKey)
-                        .font(.caption2)
-                        .lineLimit(1)
                 }
             }
             .padding(6)
