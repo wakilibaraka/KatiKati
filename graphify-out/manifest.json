@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795027437.0526521,
-    "seen": 1795027789.3861618,
-    "ast_hash": "eb360893e7f91ffb63f410c80540f799",
+    "mtime": 1795182173.4948514,
+    "seen": 1795182478.094033,
+    "ast_hash": "cb5088322ce819a1ec255ee828aff2c3",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -582,9 +582,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1795019718.338402,
-    "seen": 1795027280.465724,
-    "ast_hash": "29074cd3cfded199557bfcb7c36de99c",
+    "mtime": 1795182174.0368178,
+    "seen": 1795182478.094081,
+    "ast_hash": "22c9538fe8a374b9cc89cfe5ee814151",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795181429.488081,
-    "seen": 1795181685.41759,
-    "ast_hash": "174dadbd7b738afead2f8f1b406b0fce",
+    "mtime": 1795182172.4392147,
+    "seen": 1795182478.09429,
+    "ast_hash": "758d0f8f795b550e6ddea9a7cff74c20",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -2328,9 +2328,9 @@
     "semantic_hash": "fc8e8614eb1f458dca9dc2c1119a9c1b"
   },
   "Core/Support/StripPlacement.swift": {
-    "mtime": 1795019035.837985,
-    "seen": 1795019625.081741,
-    "ast_hash": "40dfea2c278c898424ed0ad50d57839d",
+    "mtime": 1795182360.691783,
+    "seen": 1795182478.094456,
+    "ast_hash": "6e1494b2e097be2c861ec3bf18322989",
     "semantic_hash": ""
   },
   "Core/Support/StripPointerBox.swift": {
@@ -3210,9 +3210,9 @@
     "semantic_hash": "2ca0a88d8fd48cd79ccc8c7a3c03376c"
   },
   "Tests/Unit/BarLayoutModeTests.swift": {
-    "mtime": 1795181608.39644,
-    "seen": 1795181685.417898,
-    "ast_hash": "0e4003066b2d129fa8ee83331b6d1b95",
+    "mtime": 1795182187.5914874,
+    "seen": 1795182478.0946062,
+    "ast_hash": "5635d09f8e8d669cc5bbbf1ebc026e94",
     "semantic_hash": ""
   },
   "Tests/Unit/BluetoothDevicesTests.swift": {
@@ -4128,10 +4128,10 @@
     "semantic_hash": "47925ddc2c3390a045b8a7f5be216151"
   },
   "Tests/Unit/StripPlacementTests.swift": {
-    "mtime": 1792272871.0382404,
-    "seen": 1792295707.060799,
-    "ast_hash": "46b91f15bd9fe916042f56f9aac3dba0",
-    "semantic_hash": "46b91f15bd9fe916042f56f9aac3dba0"
+    "mtime": 1795182361.219402,
+    "seen": 1795182478.094773,
+    "ast_hash": "3711ca0cd4e9fda1921ae5986ab12500",
+    "semantic_hash": ""
   },
   "Tests/Unit/StripPointerBoxTests.swift": {
     "mtime": 1791999130.9439964,
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795178152.1246264,
-    "seen": 1795178230.168823,
-    "ast_hash": "bdfb050f24468e53a46f4e83dc63eed8",
+    "mtime": 1795182451.7036538,
+    "seen": 1795182478.094939,
+    "ast_hash": "cf9d3bcc31c1afc4ec3c0de0cefe00a7",
     "semantic_hash": ""
   },
   "README.md": {
