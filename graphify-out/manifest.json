@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795194740.9246452,
-    "seen": 1795194764.0658638,
-    "ast_hash": "c4397dbcb9297105afb70c98bd81bceb",
+    "mtime": 1795195649.4125001,
+    "seen": 1795195668.640148,
+    "ast_hash": "f6c3cf237583768145b89a75134f78ea",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7992,9 +7992,9 @@
     "semantic_hash": ""
   },
   "window_management_revamp_plan.md": {
-    "mtime": 1795175301.6686404,
-    "seen": 1795176222.466541,
-    "ast_hash": "4a58eefca9f03c995bd9ab01e0e64b09",
+    "mtime": 1795195634.8932762,
+    "seen": 1795195668.6401558,
+    "ast_hash": "7a2c4e4f75e0a67ea9f29c8d6d388b7b",
     "semantic_hash": ""
   },
   ".livecheck/windows.swift": {
