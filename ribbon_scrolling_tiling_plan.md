@@ -243,10 +243,13 @@ Two defects came out of the check and are fixed here:
 
 ## Deferred
 
-- **⌥+2-finger scroll on the strip.** A passive global monitor cannot consume the event, so the app
-  under the pointer scrolls too; consuming it needs a HID tap, which the single-tap rule forbids.
-  The gesture targets cover stepping focus without that cost, so the scroll monitor stays unbuilt
-  rather than shipping a control that fights the app it is used over.
+- **⌥+2-finger scroll on the strip.** A passive global monitor cannot consume the event, so the
+  app under the pointer scrolls too. (This entry first said consuming it "needs a HID tap, which the
+  single-tap rule forbids" — both halves were wrong: there is no single-tap rule, the tree runs four
+  `CGEventTap`s, and `ScrollReverserMonitor` is already an active `.scrollWheel` tap that can swallow
+  events. Consuming is possible by widening that one existing tap into a shared scroll hub; the real
+  cost is semantic — it takes ⌥+scroll away from every app under a tiled window — so the gesture is
+  still unbuilt, now for a reason that holds.)
 - **Live rebuild of a multi-display ribbon.** This machine has one display; the neighbour-display
   parking path is unit-tested (`StripParking.side(forEdge:neighbourOnEdge:)`) but has no on-screen
   witness here. This is the only item above that was not demonstrated on screen.
