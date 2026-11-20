@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowSwitcherController.swift": {
-    "mtime": 1795208030.2519557,
-    "seen": 1795209118.604077,
-    "ast_hash": "a3a051565f2ec42b8003ed87caf3fc36",
+    "mtime": 1795217453.0056813,
+    "seen": 1795217502.0050461,
+    "ast_hash": "c4fae0997247162527a30f63d0e768f7",
     "semantic_hash": ""
   },
   "App/Composition/WindowThumbnailCapture.swift": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
-    "mtime": 1795215535.3314571,
-    "seen": 1795215824.0342212,
-    "ast_hash": "4e42f016bdc5a5538debce9746a5922c",
+    "mtime": 1795217502.7789137,
+    "seen": 1795217548.4571352,
+    "ast_hash": "52b8240058b083f7353e8d38467c1800",
     "semantic_hash": ""
   },
   "Core/Support/TilingPolicy.swift": {
@@ -2424,9 +2424,9 @@
     "semantic_hash": ""
   },
   "Core/Support/TilingTree.swift": {
-    "mtime": 1794870044.0486858,
-    "seen": 1794870218.277673,
-    "ast_hash": "f4d49befc13a1b3e35778ea7e6335fae",
+    "mtime": 1795217484.9771702,
+    "seen": 1795217502.00544,
+    "ast_hash": "274da5a583d844239249ab4f326bb2c5",
     "semantic_hash": ""
   },
   "Core/Support/Translate.swift": {
@@ -2580,9 +2580,9 @@
     "semantic_hash": ""
   },
   "Core/Support/WindowSwitcherModel.swift": {
-    "mtime": 1795097859.4639177,
-    "seen": 1795097975.551262,
-    "ast_hash": "fc1d99de73f000ec519a9eb5e1731a24",
+    "mtime": 1795217397.901008,
+    "seen": 1795217502.005465,
+    "ast_hash": "68cf9bf6ee28e40aba504948b7bf8ce5",
     "semantic_hash": ""
   },
   "Core/Support/WindowTitleSettle.swift": {
@@ -2610,9 +2610,9 @@
     "semantic_hash": "56364c96692e99f21abbb13ce0b36db3"
   },
   "Platform/Accessibility/AccessibilitySource.swift": {
-    "mtime": 1794840021.6847172,
-    "seen": 1794840433.410274,
-    "ast_hash": "d2a024a7dbe406651c2ab39bcaf053f3",
+    "mtime": 1795217502.4834023,
+    "seen": 1795217548.45717,
+    "ast_hash": "ab9947027146db2400fe5084741f2358",
     "semantic_hash": ""
   },
   "Platform/Accessibility/DockBadgeReader.swift": {
@@ -6852,9 +6852,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DockWindowManager.swift": {
-    "mtime": 1793190240.2151263,
-    "seen": 1793190252.33641,
-    "ast_hash": "a644d689957ebff5c118f810f9610bf1",
+    "mtime": 1795217449.4167957,
+    "seen": 1795217502.004983,
+    "ast_hash": "7cf491f097f0ed20ae3bf4a41e02633e",
     "semantic_hash": ""
   },
   "Core/Support/DockLayeringMode.swift": {

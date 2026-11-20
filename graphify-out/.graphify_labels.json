@@ -9,7 +9,6 @@
   "65": "LiveSurfaceRouting",
   "95": "ScanAdmissionDecisionTests",
   "100": "check_localization",
-  "102": "StackPopupGeometry",
   "114": "DragConversionPlanTests",
   "116": "DeckStateMachine",
   "156": "WindowInventoryAnomalyLogTests",
