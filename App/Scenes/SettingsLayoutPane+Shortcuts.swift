@@ -1336,14 +1336,17 @@ private struct GesturePreviewStage: View {
         }
     }
 
+    /// Driven by what the router resolved, not by what happens to be bound: a disabled rule draws the
+    /// question mark even when it still carries a tiling action.
     @ViewBuilder
     private func actionArt(in area: CGRect) -> some View {
-        if context.tilingEnabled, rule.tilingAction != nil {
+        switch GesturePreviewPlan.art(for: resolved) {
+        case .tiling:
             tilingArt(in: area)
-        } else if let position = Self.snapPosition(for: resolved) {
+        case let .snap(position):
             snapArt(position, in: area)
-        } else {
-            Image(systemName: Self.symbol(for: resolved))
+        case let .symbol(name):
+            Image(systemName: name)
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .position(x: area.midX, y: area.midY)
@@ -1371,32 +1374,6 @@ private struct GesturePreviewStage: View {
             .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Color.accentColor.opacity(0.65), lineWidth: 1))
             .frame(width: max(2, r.width), height: max(2, r.height))
             .position(x: r.midX, y: r.midY)
-    }
-
-    private static func snapPosition(for action: GestureActionTarget?) -> SnapPosition? {
-        switch action {
-        case .snapLeft, .snapCycleLeft: return .leftHalf
-        case .snapRight, .snapCycleRight: return .rightHalf
-        case .maximize: return .maximize
-        case .centerRestore: return .center
-        default: return nil
-        }
-    }
-
-    private static func symbol(for action: GestureActionTarget?) -> String {
-        guard let action, action != .none else { return "questionmark" }
-        switch action {
-        case .windowSwitcher: return "rectangle.on.rectangle"
-        case .nextDisplay, .previousDisplay: return "display.2"
-        case .toggleTiling: return "square.grid.2x2"
-        case .quickLayoutPicker, .stripStack, .stripTabs, .stripCycleWidth,
-             .stripSwapNext, .stripSwapPrevious, .stripNext, .stripPrevious: return "rectangle.split.3x1"
-        case .commandBar: return "circle.hexagongrid"
-        case .launcher: return "square.grid.3x3"
-        case .toggleNotch: return "menubar.rectangle"
-        case .spaceLeft, .spaceRight: return "rectangle.split.2x1"
-        case .none, .snapLeft, .snapRight, .snapCycleLeft, .snapCycleRight, .maximize, .centerRestore: return "macwindow"
-        }
     }
 
     private static func keyframe(for kind: MultitouchGestureKind) -> [CGPoint] {

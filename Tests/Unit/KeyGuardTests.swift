@@ -959,3 +959,64 @@ final class WindowManagementActionTests: XCTestCase {
         XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: gateAbsentTrackpadOn), .clash(.missionControl))
     }
 }
+
+/// TG-3: the preview's right-hand pane. The pane is SwiftUI, so what it can be pinned to is the plan
+/// it draws from — the same routing the dispatcher fires, so the picture cannot promise an effect the
+/// gesture would not perform.
+final class GestureTilingPreviewTests: XCTestCase {
+    private let tilingActions: [GestureActionTarget] = [
+        .stripNext, .stripPrevious, .stripCycleWidth, .stripStack, .stripTabs,
+        .stripSwapNext, .stripSwapPrevious, .quickLayoutPicker
+    ]
+
+    func testEveryTilingActionDrawsTheSolverStage() {
+        for action in tilingActions {
+            XCTAssertEqual(GesturePreviewPlan.art(for: action), .tiling, "\(action)")
+        }
+    }
+
+    func testWindowActionsDrawTheirSnapOrSymbol() {
+        XCTAssertEqual(GesturePreviewPlan.art(for: .snapLeft), .snap(.leftHalf))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .snapCycleLeft), .snap(.leftHalf))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .snapRight), .snap(.rightHalf))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .snapCycleRight), .snap(.rightHalf))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .maximize), .snap(.maximize))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .centerRestore), .snap(.center))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .windowSwitcher), .symbol("rectangle.on.rectangle"))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .nextDisplay), .symbol("display.2"))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .commandBar), .symbol("circle.hexagongrid"))
+    }
+
+    /// A rule that carries a tiling action but is switched off fires nothing, so the pane must not draw
+    /// a tiling layout behind a caption that reads "None".
+    func testDisabledAndUnboundRulesPreviewNothing() {
+        let disabled = GestureBindingRule(windowAction: .maximize, tilingAction: .stripStack, enabled: false)
+        for tilingOn in [true, false] {
+            let resolved = GestureRouter.target(for: disabled, context: GestureContext(tilingEnabled: tilingOn))
+            XCTAssertNil(resolved)
+            XCTAssertEqual(GesturePreviewPlan.art(for: resolved), .symbol("questionmark"))
+        }
+        XCTAssertEqual(GesturePreviewPlan.art(for: nil), .symbol("questionmark"))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .none), .symbol("questionmark"))
+    }
+
+    func testTheTilingContextPicksWhichSideThePreviewDraws() {
+        let rule = GestureBindingRule(windowAction: .maximize, tilingAction: .stripStack)
+        let off = GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: false))
+        let on = GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: true))
+        XCTAssertEqual(GesturePreviewPlan.art(for: off), .snap(.maximize))
+        XCTAssertEqual(GesturePreviewPlan.art(for: on), .tiling)
+    }
+
+    func testEveryResolvedActionHasAStageAndOnlyTheTilingFamilyUsesTheSolver() {
+        for action in GestureActionTarget.allCases where action != .none {
+            let art = GesturePreviewPlan.art(for: action)
+            XCTAssertNotEqual(art, .symbol("questionmark"), "\(action) has no stage")
+            if tilingActions.contains(action) {
+                XCTAssertEqual(art, .tiling, "\(action)")
+            } else {
+                XCTAssertNotEqual(art, .tiling, "\(action) is not a tiling action")
+            }
+        }
+    }
+}

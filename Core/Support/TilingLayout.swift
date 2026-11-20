@@ -591,3 +591,48 @@ enum TilingPreview {
 private extension Comparable {
     func clamped(to range: ClosedRange<Self>) -> Self { min(max(self, range.lowerBound), range.upperBound) }
 }
+
+/// What the gesture preview's right-hand pane draws for one resolved action.
+enum GesturePreviewArt: Equatable, Sendable {
+    case tiling
+    case snap(SnapPosition)
+    case symbol(String)
+}
+
+enum GesturePreviewPlan {
+    /// The art for the action the router actually resolved. `nil` — a disabled or unbound rule, or an
+    /// action of `.none` — draws the question mark, so the pane never previews an effect the gesture
+    /// would not perform.
+    static func art(for resolved: GestureActionTarget?) -> GesturePreviewArt {
+        switch resolved {
+        case nil, .some(.none):
+            return .symbol("questionmark")
+        case .some(.snapLeft), .some(.snapCycleLeft):
+            return .snap(.leftHalf)
+        case .some(.snapRight), .some(.snapCycleRight):
+            return .snap(.rightHalf)
+        case .some(.maximize):
+            return .snap(.maximize)
+        case .some(.centerRestore):
+            return .snap(.center)
+        case .some(.stripNext), .some(.stripPrevious), .some(.stripCycleWidth),
+             .some(.stripStack), .some(.stripTabs), .some(.stripSwapNext),
+             .some(.stripSwapPrevious), .some(.quickLayoutPicker):
+            return .tiling
+        case .some(.toggleTiling):
+            return .symbol("square.grid.2x2")
+        case .some(.windowSwitcher):
+            return .symbol("rectangle.on.rectangle")
+        case .some(.nextDisplay), .some(.previousDisplay):
+            return .symbol("display.2")
+        case .some(.commandBar):
+            return .symbol("circle.hexagongrid")
+        case .some(.launcher):
+            return .symbol("square.grid.3x3")
+        case .some(.toggleNotch):
+            return .symbol("menubar.rectangle")
+        case .some(.spaceLeft), .some(.spaceRight):
+            return .symbol("rectangle.split.2x1")
+        }
+    }
+}
