@@ -36,6 +36,36 @@ final class TilingEngine: ObservableObject {
     /// What we last asked each window to be. A parked window is granted less than it asks for, so
     /// comparing against the granted frame alone would re-fire AX on every snapshot (RT-4).
     private var lastRequestedFrames: [CGWindowID: CGRect] = [:]
+    /// Watches the frontmost window so a parked column is revealed on activation, a click or
+    /// ⌘-Tab. The snapshot stream does not publish on every focus change, NSWorkspace's activation
+    /// notification does not reach this agent app, and its `frontmostApplication` goes stale here,
+    /// so the WindowServer's front-to-back window list is the source: one read per 500 ms while the
+    /// ribbon is on, and nothing at all otherwise.
+    private var focusTimer: DispatchSourceTimer?
+    private var lastFocusedCG: CGWindowID?
+
+    /// True when the active display list is the strip; used where a preset-dependent rule applies
+    /// to the whole engine (hand-move adoption, restore on quit).
+    private var isRibbonActive: Bool {
+        preset == .ribbon || displayPresets.values.contains(.ribbon)
+    }
+
+    #if DEBUG
+    /// Live-check trace (`KATIKATI_RIBBON_DEBUG=1`): who the engine thinks is focused, where the
+    /// strip put the camera, and which columns it parked. Debug builds only; no idle work otherwise.
+    private func ribbonDebug(_ line: @autoclosure () -> String) {
+        guard ProcessInfo.processInfo.environment["KATIKATI_RIBBON_DEBUG"] != nil else { return }
+        let url = URL(fileURLWithPath: "/tmp/ribbon-debug.log")
+        let data = Data(((line()) + "\n").utf8)
+        if let handle = try? FileHandle(forWritingTo: url) {
+            handle.seekToEndOfFile()
+            handle.write(data)
+            try? handle.close()
+        } else {
+            try? data.write(to: url)
+        }
+    }
+    #endif
 
     // MARK: - UserDefaults Keys
     static let enabledKey = "com.katikati.tiling.enabled"
@@ -116,6 +146,7 @@ final class TilingEngine: ObservableObject {
                 self?.handleSnapshot(snapshot)
             }
         if isEnabled {
+            startFocusObservation()
             reapplyLayout()
         }
     }
@@ -123,6 +154,74 @@ final class TilingEngine: ObservableObject {
     func stop() {
         snapshotSink?.cancel()
         snapshotSink = nil
+        focusTimer?.cancel()
+        focusTimer = nil
+        lastFocusedCG = nil
+    }
+
+    private func startFocusObservation() {
+        guard focusTimer == nil else { return }
+        #if DEBUG
+        ribbonDebug("focus-watch start")
+        #endif
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.schedule(deadline: .now() + 0.5, repeating: 0.5, leeway: .milliseconds(250))
+        timer.setEventHandler { [weak self] in
+            self?.pollFrontmostWindow()
+        }
+        timer.resume()
+        focusTimer = timer
+        pollFrontmostWindow()
+    }
+
+    /// Reads who the user is actually looking at. The engine's own frames are not trusted: a parked
+    /// window's granted frame is off-screen and says nothing about focus. `NSWorkspace`'s frontmost
+    /// app is stale for this agent app, so the WindowServer's front-to-back list is the source: the
+    /// first layer-0 window the strip manages is the one the user just activated, clicked or
+    /// ⌘-Tabbed to.
+    private func pollFrontmostWindow() {
+        guard isEnabled, isRibbonActive, let snapshot = lastSnapshot else { return }
+        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+        guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return }
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+
+        var picked: (CGWindowID, WindowRecord)?
+        for info in list {
+            guard (info[kCGWindowOwnerPID as String] as? pid_t) != ownPID,
+                  (info[kCGWindowLayer as String] as? Int) == 0,
+                  ((info[kCGWindowBounds as String] as? [String: Any])?["Width"] as? CGFloat ?? 0) > 40,
+                  let number = info[kCGWindowNumber as String] as? CGWindowID, number != 0
+            else { continue }
+            if let record = snapshot.windows.values.first(where: { $0.cgWindowID == number }) {
+                picked = (number, record)
+                break
+            }
+        }
+
+        guard let (number, record) = picked, number != lastFocusedCG else { return }
+        grantFocus(to: record, cg: number)
+    }
+
+    /// Makes `record` the strip's focus and re-lays the strip, so `StripCamera` reveals its column.
+    private func grantFocus(to record: WindowRecord, cg: CGWindowID) {
+        let screens = NSScreen.screens
+        guard let screen = screens.first(where: {
+            resolveScreen(for: record, screens: screens, primaryMaxY: screens[0].frame.maxY) === $0
+        }) ?? screens.first else { return }
+        let key = screenKey(for: screen)
+        guard var tree = trees[key], tree.contains(record.id) else { return }
+        lastFocusedCG = cg
+        guard strips[key]?.focusedID != record.id else { return }
+        tree.focus(record.id)
+        trees[key] = tree
+        if var state = strips[key] {
+            state.focus(record.id)
+            strips[key] = state
+        }
+        #if DEBUG
+        ribbonDebug("focus cg=\(cg) id=\(record.id.rawValue) key=\(key)")
+        #endif
+        reapplyLayout()
     }
 
     // MARK: - Settings Updaters
@@ -134,6 +233,7 @@ final class TilingEngine: ObservableObject {
 
         if on {
             releasedWindowIDs.removeAll()
+            startFocusObservation()
             if let snap = lastSnapshot { reconcile(with: snap) } else { reapplyLayout() }
         } else {
             restorePreTilingFrames()
@@ -404,7 +504,15 @@ final class TilingEngine: ObservableObject {
                                 abs(currentBounds.minY - lastApplied.minY) > 10 ||
                                 abs(currentBounds.width - lastApplied.width) > 10 ||
                                 abs(currentBounds.height - lastApplied.height) > 10
-                    if moved && !releasedWindowIDs.contains(cg) && !policy.alwaysTiles(bundleIdentifier: record.bundleIdentifier) {
+                    if moved && !releasedWindowIDs.contains(cg) && !policy.alwaysTiles(bundleIdentifier: record.bundleIdentifier) && isRibbonActive {
+                        // In the ribbon a hand-move is an adoption, not a release: the strip keeps the
+                        // window and focuses it, so a drag out of a parked column ends with that
+                        // column revealed instead of the window falling out of tiling.
+                        for (screenKey, var tree) in trees where tree.contains(record.id) {
+                            tree.focus(record.id)
+                            trees[screenKey] = tree
+                        }
+                    } else if moved && !releasedWindowIDs.contains(cg) && !policy.alwaysTiles(bundleIdentifier: record.bundleIdentifier) {
                         releasedWindowIDs.insert(cg)
                         // Remove from trees so remaining windows retile smoothly
                         for (screenKey, var tree) in trees {
@@ -495,7 +603,7 @@ final class TilingEngine: ObservableObject {
             } else if preset(for: screen) == .ribbon {
                 // A strip never shrinks a column to fit — it scrolls — so the usable-size guard is
                 // deliberately skipped here, otherwise a ¼ column would evict its own windows.
-                let ribbon = ribbonFrames(tree, on: screen, workArea: workArea)
+                let ribbon = ribbonFrames(tree, on: screen, workArea: workArea, activeID: activeIDByScreen[key])
                 targetFrames = ribbon.frames
                 parked = ribbon.parked
             } else {
@@ -524,6 +632,14 @@ final class TilingEngine: ObservableObject {
             let key = screenKey(for: screen)
             guard let tree = trees[key], !tree.isEmpty else { continue }
             let workArea = workArea(of: screen)
+            // A focus grant must lay out the strip, not the catalogue: resolving the plain tree here
+            // would write column frames the strip never asked for and leave the revealed window off
+            // screen while the camera had already scrolled to its column.
+            if preset(for: screen) == .ribbon {
+                let ribbon = ribbonFrames(tree, on: screen, workArea: workArea, activeID: nil)
+                applyFrames(ribbon.frames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea, parked: ribbon.parked)
+                continue
+            }
             let targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
 
             applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea)
@@ -535,12 +651,16 @@ final class TilingEngine: ObservableObject {
     private func ribbonFrames(
         _ tree: TilingTree,
         on screen: NSScreen,
-        workArea: CGRect
+        workArea: CGRect,
+        activeID: WindowID?
     ) -> (frames: [WindowID: CGRect], parked: [WindowID: StripParking.Side]) {
         let key = screenKey(for: screen)
         var state = strips[key] ?? ScrollingStripState(windowIDs: tree.allWindowIDs, width: stripWidth)
         state.sync(with: tree.allWindowIDs)
-        if let focused = tree.focusedID { state.focus(focused) }
+        // The frontmost window wins, not the tree's last salt: a click, a ⌘-Tab, or activating the
+        // app must bring a parked column on screen even when the tree never saw that window become
+        // active. The tree focus is only the fallback.
+        if let focused = activeID ?? tree.focusedID { state.focus(focused) }
         strips[key] = state
 
         let content = CGRect(
@@ -553,6 +673,9 @@ final class TilingEngine: ObservableObject {
             state: state, in: content, gap: gaps.inner, camera: stripOffsets[key] ?? 0
         )
         stripOffsets[key] = laid.camera
+        #if DEBUG
+        ribbonDebug("ribbon screen=\(key) tree=\(tree.focusedID?.rawValue ?? "-") active=\(activeID?.rawValue ?? "-") strip=\(state.focusedIndex) camera=\(laid.camera) content=\(laid.contentWidth) parked=\(laid.parked.map { "\($0.key.rawValue):\($0.value)" }.sorted().joined(separator: ","))")
+        #endif
 
         let screens = NSScreen.screens
         let neighbourLeft = screens.contains { other in
@@ -583,6 +706,9 @@ final class TilingEngine: ObservableObject {
         parked: [WindowID: StripParking.Side] = [:]
     ) {
         guard !targetFrames.isEmpty else { return }
+        // Never move windows while a button is held: a drag must not be fought frame by frame. The
+        // next snapshot after the drag applies the column the window now belongs to.
+        guard NSEvent.pressedMouseButtons == 0 else { return }
         isApplyingLayout = true
         defer { isApplyingLayout = false }
 
@@ -592,12 +718,22 @@ final class TilingEngine: ObservableObject {
             let quartz = CGRect(origin: SnapPosition.accessibilityOrigin(of: cocoaFrame, primaryMaxY: primaryMaxY), size: cocoaFrame.size)
 
             // Skip AX IPC when the window is already where we asked (a parked window is granted
-            // less than it asked for, so the granted frame alone would never match).
-            if let currentBounds = record.bounds,
-               WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2)
-                || lastRequestedFrames[cg].map({ WindowFit.isNearlyEqual(currentBounds, $0, tolerance: 2) }) == true {
-                lastAppliedFrames[cg] = currentBounds
-                continue
+            // less than it asked for, so the granted frame alone would never match). The repeat
+            // check has to compare this request with the last one, not with where the window sits:
+            // a revealed column asks for a new frame while the window is still in its park band.
+            if let currentBounds = record.bounds {
+                if WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2) {
+                    lastAppliedFrames[cg] = currentBounds
+                    continue
+                }
+                // A parked column is granted less than it asked for (the OS clamps it into the edge),
+                // so an identical repeat request can be trusted. An on-screen column has to actually
+                // be there before the write is skipped — otherwise a reveal that was parked earlier
+                // is never re-asked and the window stays off screen.
+                if parked[winID] != nil,
+                   lastRequestedFrames[cg].map({ WindowFit.isNearlyEqual($0, quartz, tolerance: 2) }) == true {
+                    continue
+                }
             }
 
             guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { continue }

@@ -125,11 +125,41 @@ keys were deleted afterwards; they were absent from the snapshot).
   sliver. That reproduces finding 2 (macOS keeps far more than the requested 1 pt) and confirms the
   parked column is written without the work-area clamp, since a clamped write would have pulled it
   back to `x = 877`.
-- **Gap found:** the camera did **not** scroll to reveal the parked column when TextEdit was
-  activated (app activation and a click on its sliver both left the offset at 0), so a parked window
-  is only reachable through the strip shortcuts or by assigning them. The camera itself is
-  unit-tested (`testCameraMovesOnlyAsFarAsTheFocusNeeds`, `testRibbonColumnsScrollToTheFocusedColumn`),
-  so the open question is the active-window → strip-focus sync on this path, not the geometry.
+- **Reveal on focus (the gap from the first pass, now closed).** The camera does scroll when a
+  parked column's window becomes focused, by app activation, a click on its sliver, ⌘-Tab or a strip
+  shortcut. Recorded on the rebuilt app (single 1710 pt display, same staged prefs, restored after):
+
+  | Event | Strip focus | Camera | Window frame (AS `{x, y, w, h}`) |
+  | --- | --- | --- | --- |
+  | TextEdit parked at the right edge | `strip = 32` | `25832` | `1664, 46, 825, 1010` (parked) |
+  | TextEdit activated | `strip = 32` | `25832` | `832, 46, 825, 1010` (fully on screen) |
+  | Safari parked at the left edge | `strip = 17` | `13688` | `-824, 46, 847, 1010` (parked) |
+  | Safari activated | `strip = 17` | `13688` | `832, 46, 847, 1010` (fully on screen) |
+  | click on the right-edge sliver at x = 1709 | `strip = 19` (YouTube Music) | `15003` | `832, 46, 825, 1010` |
+  | click on a window that is already visible | `strip = 19` (unchanged) | `15003` (unchanged) | unchanged |
+
+  Three defects had to fall out for that to work, and each was confirmed live rather than only in
+  tests:
+
+  1. **Nothing polled for focus.** The snapshot stream does not publish on every focus change,
+     `NSWorkspace`'s `didActivateApplication` notification never reaches this agent app (a standalone
+     listener receives it), the AX observer fired once at start, and `NSWorkspace.frontmostApplication`
+     reports a stale app here. The engine now reads the WindowServer's front-to-back window list
+     (`CGWindowListCopyWindowInfo`, first layer-0 window the strip manages) on a 500 ms main-queue
+     timer, only while the ribbon is on, and maps that CGWindowID onto a `WindowRecord` — the
+     window's granted frame is never used as the focus signal.
+  2. **The reveal laid out the wrong thing.** `reapplyLayout()` resolved catalogue frames on every
+     preset, so a focus grant scrolled the camera but wrote column frames the strip never asked for.
+     It now resolves `ribbonFrames` when the preset is the strip, including the parked set.
+  3. **The AX repeat guard swallowed the reveal.** `applyFrames` skipped a write whenever the last
+     request equalled the new target, so a column that had once been asked on screen and then parked
+     was never re-asked and stayed in its band. Parked targets still trust the repeat (the
+     WindowServer clamps them, so re-firing AX every snapshot would be pointless); on-screen targets
+     must actually be there first.
+
+  Clicking a visible column leaves the offset untouched, and the revealed column stays put across
+  later snapshots — the engine does not re-park the window it just revealed, and a partial drag is
+  adopted as focus (`tree.focus`, not a release) instead of being snapped back mid-drag.
 
 ## Deferred
 
