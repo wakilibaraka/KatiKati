@@ -1,7 +1,7 @@
 # Ribbon (Scrolling Strip) — audit + slice plan
 
-Status: **implementing.** RT-0…RT-2 land first (doc, pure strip state, camera/parking); the
-engine, shortcuts, gestures, UI and catalog follow as their own commits.
+Status: **shipped.** RT-0…RT-5 and RT-7 are in `main` (`b8ed2d25`, `786a0be1`, `f2c7e028`,
+`1f7c469e`); the ⌥-scroll half of RT-6 is deliberately deferred (see *Deferred* below).
 
 Scope: a scrollable strip of columns as a *tiling preset* (`.ribbon`), reusing the existing
 `TilingTree`, `TilingEngine`, `TilingGaps`, `WindowSnapService.place`, the Carbon hotkey registry
@@ -76,7 +76,7 @@ on quit.
   behind a default-off key.
 - **RT-7 UI** — eight-picture grid in `SettingsTilingPane` and the Windows flyout, preset note,
   width/peek rows.
-- **RT-8 localization** — the new keys, hand-anchored in `Localizable.xcstrings` for all 12 locales
+- **RT-8 localization** — the new keys, hand-anchored in `Localizable.xcstrings` for all 15 locales
   (catalog-only commit; no whole-file rewrite).
 
 ## Verification per slice
@@ -85,3 +85,58 @@ on quit.
 suite + `Scripts/check_localization.py` + `Scripts/check_debug_switches.py`. Live: enable the
 ribbon, verify new windows join right, widths survive a new open, parking peek, ⌃⌥N handoff,
 disable/quit restore. Idle CPU measured with `top -l 5 -pid` (expect ~0.0–0.3 %), not asserted.
+
+## What shipped
+
+- **Strip model** — `ColumnWidthPreset` (¼…Full, `next` wraps), `StripColumn` (tabs share one
+  column, active index), `ScrollingStripState` (insert right of focus, close-gap removal, width
+  cycling that only touches the focused column, stack-left, tab toggling/splitting, tab focus,
+  `sync(with:)` that adopts newcomers without reordering, focus-aware removal).
+- **Camera + parking** — `StripCamera.offset` moves only as far as the focused column needs and
+  clamps at both ends; `StripParking` requests the 1 pt sliver macOS actually grants, parks at the
+  bottom edge when a display sits to the side, and the engine converts the Quartz work area before
+  fitting.
+- **Geometry** — `TilingLayout.resolveRibbon` returns frames, camera and the parked set; every
+  window of a tabbed column shares its column's frame. `TilingLayoutPreset.ribbon` falls back to
+  equal columns when called without strip state.
+- **Eight pictures** — `RibbonQuickLayout` (Chain, Halves, 2 + 1, 1 + 2, Thirds, Quarters, Five,
+  Six) is a table over the catalog; `LayoutCatalog` gained the slot-capped `fiveUp`/`sixUp`
+  pictures so 5 and 6 reuse the grid instead of squeezing windows.
+- **Engine** — per-display `strips`/`stripOffsets`, ribbon branch before the catalog branch, the
+  usable-size guard skipped on this path, parking written with `within: nil`, a requested-frame
+  cache so the WindowServer's clamp does not re-fire AX, width persisted
+  (`com.katikati.tiling.stripWidth`), `applyQuickLayout`, and ribbon-only restore on quit.
+- **Shortcuts** — ids 56–64 for the strip, 65–72 for the pictures; ⌃⌥⇧R cycles width and ⌘⌃1–8 set
+  the pictures; all strip actions are `.off` by default so nothing new grabs a key.
+- **Gestures** — `GestureActionTarget.stripNext`/`.stripPrevious` step along the strip.
+- **UI** — eight-picture grid in Settings › Tiling, a Chain button in the Windows flyout (Five and
+  Six appear through the catalog), preset note, all 16 new labels in 15 locales.
+
+## Live check (2026-11-20, single 1710 pt display)
+
+Staged through stored preferences only (`tiling.enabled = true`, `tiling.preset = ribbon`) on the
+rebuilt app, then the owner's defaults were restored (`defaults import` merges, so the two staged
+keys were deleted afterwards; they were absent from the snapshot).
+
+- **Two windows:** drawn as two half-width, full-height columns side by side — the strip path runs,
+  the usable-size guard does not evict, and the camera sits at offset 0 because both columns fit.
+- **Third window (TextEdit):** the strip parked it at the right edge. The solver asked for the 1 pt
+  peek and the WindowServer granted `x = 1665` with `width = 825` on a 1710 pt screen — a ~45 pt
+  sliver. That reproduces finding 2 (macOS keeps far more than the requested 1 pt) and confirms the
+  parked column is written without the work-area clamp, since a clamped write would have pulled it
+  back to `x = 877`.
+- **Gap found:** the camera did **not** scroll to reveal the parked column when TextEdit was
+  activated (app activation and a click on its sliver both left the offset at 0), so a parked window
+  is only reachable through the strip shortcuts or by assigning them. The camera itself is
+  unit-tested (`testCameraMovesOnlyAsFarAsTheFocusNeeds`, `testRibbonColumnsScrollToTheFocusedColumn`),
+  so the open question is the active-window → strip-focus sync on this path, not the geometry.
+
+## Deferred
+
+- **⌥+2-finger scroll on the strip.** A passive global monitor cannot consume the event, so the app
+  under the pointer scrolls too; consuming it needs a HID tap, which the single-tap rule forbids.
+  The gesture targets cover stepping focus without that cost, so the scroll monitor stays unbuilt
+  rather than shipping a control that fights the app it is used over.
+- **Live rebuild of a multi-display ribbon.** This machine has one display; the neighbour-display
+  parking path is unit-tested (`StripParking.side(forEdge:neighbourOnEdge:)`) but has no on-screen
+  witness here.
