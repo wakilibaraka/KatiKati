@@ -135,9 +135,10 @@ final class AppSettingsStore: ObservableObject {
     // Fresh install = the **Comfortable** Spacing card (Phase 41c). Derived, not a literal: while
     // these said 10/12 and the card said 10/12 the two agreed by coincidence, and the segmented row
     // reads Custom the moment they drift.
-    static let defaultIslandGap: CGFloat = DockSpacing.comfortable.gap
+    // DP-7: a fresh install is the Wide look, so its spacing default is `DockStyle.freshInstall`'s.
+    static let defaultIslandGap: CGFloat = DockStyle.freshInstall.spacing.gap
     static let minimumIslandGap: CGFloat = 0.5
-    static let defaultIslandMargin: CGFloat = DockSpacing.comfortable.margin
+    static let defaultIslandMargin: CGFloat = DockStyle.freshInstall.spacing.margin
     static let minimumIslandMargin: CGFloat = 0
 
     @Published private(set) var launchAtLogin: Bool
@@ -436,7 +437,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
             // 首次安装 = 常驻；remembered 的种子仍是有限档，见常量注释。
             Keys.edgeAutoHideDelay: Self.firstRunEdgeAutoHideDelay,
-            Keys.barLayoutMode: BarLayoutMode.centered.rawValue,
+            Keys.barLayoutMode: DockStyle.freshInstall.mode.rawValue,
             Keys.centeredWidth: Double(Self.defaultCenteredWidth),
             Keys.islandGap: Double(Self.defaultIslandGap),
             Keys.islandMargin: Double(Self.defaultIslandMargin),
@@ -583,7 +584,8 @@ final class AppSettingsStore: ObservableObject {
         contextPresetsEnabled = defaults.bool(forKey: ContextPresetRules.enabledKey)
         contextWorkPresetID = defaults.string(forKey: Keys.contextWorkPreset) ?? ""
         contextEveningPresetID = defaults.string(forKey: Keys.contextEveningPreset) ?? ""
-        barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "") ?? .centered
+        barLayoutMode = BarLayoutMode(rawValue: defaults.string(forKey: Keys.barLayoutMode) ?? "")
+            ?? DockStyle.freshInstall.mode
         let storedCentered = Self.storedNumericValue(defaults.object(forKey: Keys.centeredWidth)) ?? Double(Self.defaultCenteredWidth)
         centeredWidth = CGFloat(min(max(storedCentered, Double(Self.minimumCenteredWidth)), Double(Self.maximumCenteredWidth)))
         let storedGap = Self.storedNumericValue(defaults.object(forKey: Keys.islandGap)) ?? Double(Self.defaultIslandGap)
@@ -2234,7 +2236,8 @@ final class AppSettingsStore: ObservableObject {
            let migrated = DockPanelHeight.migratingLegacyTier(rawValue: legacy) {
             return migrated
         }
-        return .default
+        // DP-7: no stored height means a fresh install, which opens as Wide (small bar).
+        return DockPanelHeight(clamping: DockStyle.freshInstall.size.barHeight)
     }
 
     private static func migrateLegacyEnabledKey(defaults: UserDefaults, enabledKey: String, delayKey: String) {
@@ -2244,13 +2247,13 @@ final class AppSettingsStore: ObservableObject {
         defaults.removeObject(forKey: enabledKey)
     }
 
-    /// Owner 2026-10-14: **hugging** (not floating) and **centred** (not split3) are the defaults,
-    /// and an install that already saved one of them gets the new default too. A stamp makes this
-    /// run exactly once, so a later deliberate change to either setting still sticks.
+    /// Owner 2026-10-14: **hugging** (not floating) is the default, and an install that already saved
+    /// a floating gap gets the hugging one too. A stamp makes this run exactly once, so a later
+    /// deliberate change sticks. DP-7: the layout mode is **not** touched — existing installs keep the
+    /// mode they saved; only first installs get the new Wide default.
     private static func forceNewLayoutDefaults(defaults: UserDefaults) {
         guard defaults.object(forKey: Keys.huggingCentredDefaultsStamp) == nil else { return }
         defaults.removeObject(forKey: Keys.bottomGap)
-        defaults.removeObject(forKey: Keys.barLayoutMode)
         defaults.set(true, forKey: Keys.huggingCentredDefaultsStamp)
     }
 }

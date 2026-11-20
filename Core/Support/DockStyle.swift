@@ -67,7 +67,8 @@ struct DockStyle: Equatable, Identifiable, Sendable {
         switch id {
         // Display name only (2026-10-20): dock-facing copy says "sections", never "islands".
         case "style.islands": return String(localized: "Sections")
-        case "style.classic": return String(localized: "Classic")
+        // DP-7: display name only — the id stays `style.classic` so saved selections keep meaning.
+        case "style.classic": return String(localized: "Floating")
         case "style.wide": return String(localized: "Wide")
         case "style.minimal": return String(localized: "Minimal")
         case "style.sideRail": return String(localized: "Side Rail")
@@ -100,8 +101,12 @@ struct DockStyle: Equatable, Identifiable, Sendable {
                                     bottomGap: PanelLayoutMetrics.huggingBottomGap, widgetPresetID: nil,
                                     placement: .left)
 
-    /// Card order in Settings and the welcome guide. Islands first: it is the fresh-install look.
-    static let builtIns: [DockStyle] = [.islands, .classic, .wide, .minimal, .sideRail]
+    /// The fresh-install look (DP-7): Wide first, and the card the welcome guide pre-selects.
+    static let freshInstall = DockStyle.wide
+
+    /// Card order in Settings and the welcome guide. Wide leads because it is the out-of-the-box look;
+    /// Sections (the previous default) follows.
+    static let builtIns: [DockStyle] = [.wide, .classic, .islands, .minimal, .sideRail]
 
     /// The built-in the live values equal, or `nil` (= Custom). Widget presets are not compared:
     /// re-arranging widgets after picking a style keeps the style selected.

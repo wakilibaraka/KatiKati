@@ -383,10 +383,13 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testDockPanelHeightDefaultsToNativeAndPersists() {
+    func testDockPanelHeightDefaultsToFreshInstallHeightAndPersists() {
         let defaults = makeDefaults()
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
-        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), 54, "清洗后的值启动即写回")
+        // DP-7: a fresh install opens as Wide, whose card size is the small bar.
+        let freshHeight = DockPanelHeight(clamping: DockStyle.freshInstall.size.barHeight)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, freshHeight)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"),
+                       DockStyle.freshInstall.size.barHeight, "清洗后的值启动即写回")
 
         let store = AppSettingsStore(defaults: defaults)
         store.setDockPanelHeight(DockPanelHeight(clamping: 70))
@@ -395,15 +398,17 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testDockPanelHeightRewritesCorruptStoredValueToNative() {
+    func testDockPanelHeightRewritesCorruptStoredValueToFreshInstallHeight() {
         let defaults = makeDefaults()
+        let freshHeight = DockPanelHeight(clamping: DockStyle.freshInstall.size.barHeight)
         defaults.set("huge", forKey: "com.katikati.dockPanelHeight")
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, freshHeight)
         // 必须**立刻重写**，否则每次启动都要重走一遍回退。
-        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"), 54)
+        XCTAssertEqual(defaults.double(forKey: "com.katikati.dockPanelHeight"),
+                       DockStyle.freshInstall.size.barHeight)
 
         defaults.set(Double.nan, forKey: "com.katikati.dockPanelHeight")
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native, "NaN 也要回退")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, freshHeight, "NaN 也要回退")
 
         defaults.set(999, forKey: "com.katikati.dockPanelHeight")
         XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight.points, DockPanelHeight.maximum, "越界夹到范围")
@@ -428,10 +433,11 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     @MainActor
-    func testUnknownLegacyTierFallsBackToNative() {
+    func testUnknownLegacyTierFallsBackToFreshInstallHeight() {
         let defaults = makeDefaults()
         defaults.set("gigantic", forKey: "com.katikati.dockSize")
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight, .native)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockPanelHeight,
+                       DockPanelHeight(clamping: DockStyle.freshInstall.size.barHeight))
         XCTAssertEqual(defaults.string(forKey: "com.katikati.dockSize"), "gigantic", "旧键不动")
     }
 
@@ -1878,15 +1884,13 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
 
-        // First-run default is centred (owner 2026-10-14): fresh installs open the
-        // single centred island, not the modular three-island layout.
-        XCTAssertEqual(store.barLayoutMode, .centered)
+        // DP-7: fresh installs open as Wide (the wide bar, compact spacing), not the old centred island.
+        XCTAssertEqual(store.barLayoutMode, DockStyle.freshInstall.mode)
         XCTAssertEqual(store.centeredWidth, 720)
-        // Phase 41c: the fresh-install gap/margin are the Comfortable card's own values.
-        XCTAssertEqual(store.islandGap, 8)
-        XCTAssertEqual(store.islandMargin, 10)
-        XCTAssertEqual(DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin), .comfortable,
-                       "a fresh install must read as Comfortable, not Custom")
+        XCTAssertEqual(store.islandGap, DockSpacing.compact.gap)
+        XCTAssertEqual(store.islandMargin, DockSpacing.compact.margin)
+        XCTAssertEqual(DockSpacing.matching(gap: store.islandGap, margin: store.islandMargin), .compact,
+                       "a fresh install must read as Compact, not Custom")
 
         store.setBarLayoutMode(.split3)
         XCTAssertEqual(store.barLayoutMode, .split3)
@@ -1913,20 +1917,20 @@ final class AppSettingsStoreTests: XCTestCase {
         defaults.set("futureMode2028", forKey: "com.katikati.layout.mode")
 
         let store = AppSettingsStore(defaults: defaults)
-        // Unknown stored value falls back to the first-run default (centred).
-        XCTAssertEqual(store.barLayoutMode, .centered)
+        // Unknown stored value falls back to the first-run default (DP-7: Wide).
+        XCTAssertEqual(store.barLayoutMode, DockStyle.freshInstall.mode)
         XCTAssertEqual(defaults.string(forKey: "com.katikati.layout.mode"), "futureMode2028")
     }
 
-    /// Owner 2026-10-14: an install that already saved layout mode / bottom gap gets the new
-    /// defaults too — once, so a later deliberate change still sticks.
-    func testHuggingCentredDefaultsReplaceSavedValuesOnce() {
+    /// Owner 2026-10-14 (DP-7 narrowed it): an install that already saved a floating bottom gap gets
+    /// the hugging one too — once — but its saved **layout mode is never overwritten**.
+    func testHuggingDefaultsReplaceSavedBottomGapOnceAndKeepTheMode() {
         let defaults = makeDefaults()
         defaults.set("split3", forKey: "com.katikati.layout.mode")
         defaults.set(8, forKey: "com.katikati.layout.bottomGap")
 
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.barLayoutMode, .centered)
+        XCTAssertEqual(store.barLayoutMode, .split3, "DP-7: an existing install keeps its stored mode")
         XCTAssertEqual(store.bottomGap, PanelLayoutMetrics.huggingBottomGap)
 
         // Second launch must not stomp a value the user changed after the switch.

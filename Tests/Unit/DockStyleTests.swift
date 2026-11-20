@@ -16,17 +16,27 @@ final class DockStyleTests: XCTestCase {
         }
     }
 
-    func testFreshInstallValuesReadAsIslands() {
-        // Fresh install: split3, native 54 pt, the Comfortable spacing (8/10 since Phase 41c),
-        // the hugging bottom gap — and those defaults come from `DockSpacing.comfortable` and
-        // `PanelLayoutMetrics` themselves, so this cannot drift into "Custom" on a fresh install again.
-        let style = DockStyle.matching(mode: .split3, barHeight: 54,
-                                       gap: DockSpacing.comfortable.gap,
-                                       margin: DockSpacing.comfortable.margin,
-                                       bottomGap: PanelLayoutMetrics.huggingBottomGap)
-        XCTAssertEqual(style?.id, DockStyle.islands.id)
-        XCTAssertEqual(AppSettingsStore.defaultIslandGap, DockSpacing.comfortable.gap)
-        XCTAssertEqual(AppSettingsStore.defaultIslandMargin, DockSpacing.comfortable.margin)
+    func testFreshInstallValuesReadAsWide() {
+        // DP-7: a fresh install opens as Wide — mode, bar height, spacing and hugging gap all come from
+        // `DockStyle.freshInstall`, so the welcome guide pre-selects the card the bar already is.
+        let style = DockStyle.matching(mode: DockStyle.freshInstall.mode,
+                                       barHeight: DockStyle.freshInstall.size.barHeight,
+                                       gap: AppSettingsStore.defaultIslandGap,
+                                       margin: AppSettingsStore.defaultIslandMargin,
+                                       bottomGap: DockStyle.freshInstall.bottomGap)
+        XCTAssertEqual(style?.id, DockStyle.wide.id)
+        XCTAssertEqual(DockStyle.freshInstall.id, DockStyle.wide.id)
+        XCTAssertEqual(AppSettingsStore.defaultIslandGap, DockSpacing.compact.gap)
+        XCTAssertEqual(AppSettingsStore.defaultIslandMargin, DockSpacing.compact.margin)
+    }
+
+    /// DP-7: Wide leads the cards, `Classic` reads as Floating while keeping its persisted id.
+    func testWideLeadsTheCardsAndClassicReadsAsFloating() {
+        XCTAssertEqual(DockStyle.builtIns.map(\.id),
+                       [DockStyle.wide.id, DockStyle.classic.id, DockStyle.islands.id,
+                        DockStyle.minimal.id, DockStyle.sideRail.id])
+        XCTAssertEqual(DockStyle.classic.localizedTitle, String(localized: "Floating"))
+        XCTAssertEqual(DockStyle.classic.id, "style.classic")
     }
 
     /// Owner 2026-10-16: a style card must not lift the bar off the edge — every built-in hugs, the

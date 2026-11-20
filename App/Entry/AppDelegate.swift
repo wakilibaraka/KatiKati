@@ -842,7 +842,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             initialMode: settingsStore.barLayoutMode,
             inputs: settingsStore.layoutThumbnailInputs,
             onPick: { [weak self] mode in self?.settingsStore.setBarLayoutMode(mode) },
-            initialStyleID: settingsStore.currentDockStyle?.id,
+            initialStyleID: settingsStore.currentDockStyle?.id ?? DockStyle.freshInstall.id,
             onPickStyle: { [weak self] style in
                 self?.settingsStore.applyDockStyle(style, screenWidth: NSScreen.main?.frame.width ?? 1440)
             },
