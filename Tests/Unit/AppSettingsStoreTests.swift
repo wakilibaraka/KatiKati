@@ -2284,6 +2284,40 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.dockSlotLayout.items.last?.item, .shelf, "and at the tail")
         XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter, "the capsule never moves")
     }
+
+    // MARK: Preset -> rendered slots (DP-5)
+
+    /// The strip draws `dockSlotLayout`, so a style's widget preset has to reach it, or the card's
+    /// widget set never renders (Minimal kept showing Weather and Now Playing on the bar).
+    func testMinimalStyleReachesTheRenderedSlotLayout() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        store.applyDockStyle(.minimal, screenWidth: 1712)
+
+        let sections = DockModularityValidator.derivedSections(for: store.dockSlotLayout,
+                                                               mode: store.barLayoutMode)
+        XCTAssertEqual(Set(sections), [.launcher, .apps, .utilities, .clock],
+                       "Minimal renders apps + clock + utilities (plus the launcher FAB)")
+        for item in [DockSlotItem.weather, .music, .dictionary, .terminal, .aiTracking] {
+            XCTAssertFalse(store.dockSlotLayout.visibleItems.contains(item), "\(item) survived Minimal")
+        }
+        XCTAssertEqual(store.barLayoutMode, .centered)
+    }
+
+    /// A preset speaks about widgets: the utilities slots and the capsule host stay as they are.
+    func testPresetVisibilityLeavesUtilitiesAndCapsuleAlone() {
+        let layout = DockSlotLayout(
+            items: DockSlotItem.allCases.filter { $0 != .controlCenter }
+                .map { DockSlotEntry(item: $0, isHidden: false) },
+            trailingCapsule: .controlCenter)
+        let preset = WidgetPresets.builtIns.first { $0.id == "builtin.minimal" }!
+        let applied = layout.applying(visibleSections: Set(preset.layout.visibleOrder))
+        XCTAssertTrue(applied.visibleItems.contains(.drawer))
+        XCTAssertTrue(applied.visibleItems.contains(.trash))
+        XCTAssertEqual(applied.trailingCapsule, .controlCenter)
+        XCTAssertFalse(applied.visibleItems.contains(.weather))
+        XCTAssertFalse(applied.visibleItems.contains(.dictionary))
+    }
 }
 
 /// 只回答「读状态那一刻在不在主线程」：不在 → `.on`。

@@ -619,6 +619,24 @@ struct DockSlotLayout: Codable, Equatable, Sendable {
     /// Strip-visible slots in order. The capsule is not in `items`, so it never appears here (I4).
     var visibleItems: [DockSlotItem] { items.filter { !$0.isHidden }.map(\.item) }
 
+    /// Copy whose slot visibility follows a widget set (slice DP-5).
+    ///
+    /// The strip draws `dockSlotLayout`, not `WidgetLayout`, so a widget preset that only rewrote
+    /// `WidgetLayout` never reached the bar: choosing Minimal hid Weather and Now Playing in the
+    /// widget model while their slots kept rendering — the live check that selected the Minimal card
+    /// still showed Viterbo and Not Playing. Slots that share the utilities section are left alone
+    /// (a preset speaks about widgets, not about Drawer/Trash/Shelf), and the capsule is untouched.
+    func applying(visibleSections: Set<BarSection>) -> DockSlotLayout {
+        var copy = self
+        copy.items = items.map { entry in
+            guard let section = entry.item.section, section != .utilities else { return entry }
+            var updated = entry
+            updated.isHidden = !visibleSections.contains(section)
+            return updated
+        }
+        return copy
+    }
+
     /// Every slot in strip order, the capsule-hosted one included last.
     var orderedItems: [DockSlotItem] { visibleItems + (trailingCapsule.map { [$0] } ?? []) }
 

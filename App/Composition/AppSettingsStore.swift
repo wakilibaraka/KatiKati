@@ -1931,6 +1931,9 @@ final class AppSettingsStore: ObservableObject {
         setStripPlacement(fitted.placement)
         if let id = fitted.widgetPresetID, let preset = WidgetPresets.builtIns.first(where: { $0.id == id }) {
             applyWidgetPreset(preset)
+            // DP-5: the strip draws the slot model, so the preset has to reach it too — otherwise
+            // the card's widget set is written and the bar keeps rendering the old slots.
+            setDockSlotLayout(dockSlotLayout.applying(visibleSections: Set(preset.layout.visibleOrder)))
         }
     }
 
