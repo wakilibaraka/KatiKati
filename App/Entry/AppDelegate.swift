@@ -469,6 +469,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.adjustMainRatio(by: -0.05)
                 case .tilingFlipMain:
                     TilingEngine.shared.setOptions(TilingLayoutOptions(mainRatio: TilingEngine.shared.options.mainRatio, mirrored: !TilingEngine.shared.options.mirrored))
+                case .stripFocusNext:
+                    TilingEngine.shared.focusStripColumn(1)
+                case .stripFocusPrevious:
+                    TilingEngine.shared.focusStripColumn(-1)
+                case .stripMoveNext:
+                    TilingEngine.shared.moveStripColumn(1)
+                case .stripMovePrevious:
+                    TilingEngine.shared.moveStripColumn(-1)
+                case .stripCycleWidth:
+                    TilingEngine.shared.cycleStripWidth()
+                case .stripStackLeft:
+                    TilingEngine.shared.stackStripLeft()
+                case .stripToggleTabs:
+                    TilingEngine.shared.toggleStripTabs()
+                case .stripTabNext:
+                    TilingEngine.shared.focusStripTab(1)
+                case .stripTabPrevious:
+                    TilingEngine.shared.focusStripTab(-1)
+                case .ribbonChain:
+                    TilingEngine.shared.applyQuickLayout(.chain)
+                case .ribbonHalves:
+                    TilingEngine.shared.applyQuickLayout(.halves)
+                case .ribbonTwoPlusOne:
+                    TilingEngine.shared.applyQuickLayout(.twoPlusOne)
+                case .ribbonOnePlusTwo:
+                    TilingEngine.shared.applyQuickLayout(.onePlusTwo)
+                case .ribbonThirds:
+                    TilingEngine.shared.applyQuickLayout(.thirds)
+                case .ribbonQuarters:
+                    TilingEngine.shared.applyQuickLayout(.quarters)
+                case .ribbonFive:
+                    TilingEngine.shared.applyQuickLayout(.fiveUp)
+                case .ribbonSix:
+                    TilingEngine.shared.applyQuickLayout(.sixUp)
                 case .radialDial:
                     self.radialDialPanel.toggle()
                 case .radialDialSnap:
@@ -543,7 +577,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .toggleNotch: self.notchPanel.toggleTools()
                 case .commandBar: self.toggleCommandBar()
                 case .launcher: self.launcherPanel.toggle()
-                case .none, .spaceLeft, .spaceRight, .snapLeft, .snapRight: break
+                case .none, .spaceLeft, .spaceRight, .snapLeft, .snapRight, .stripNext, .stripPrevious: break
                 }
             }
             GestureDispatcher.shared.syncMonitor()
@@ -1555,6 +1589,7 @@ extension AppDelegate: PermissionEffectHandler {
         KeyGuardService.shared.tearDown()
         NotificationMoveService.shared.tearDown()
         PowerNotificationCenter.shared.stop()
+        TilingEngine.shared.restoreOnQuitIfNeeded()
         TilingEngine.shared.stop()
         radialDialPanel.tearDown()
         scrollReverserSettingSubscription?.cancel()

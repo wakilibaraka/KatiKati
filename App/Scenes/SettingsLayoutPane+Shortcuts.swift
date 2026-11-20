@@ -1122,6 +1122,8 @@ private struct MultitouchGesturesSection: View {
         case .spaceRight: return String(localized: "Space Right")
         case .snapLeft: return String(localized: "Snap Left Half")
         case .snapRight: return String(localized: "Snap Right Half")
+        case .stripNext: return String(localized: "Focus Next Column")
+        case .stripPrevious: return String(localized: "Focus Previous Column")
         }
     }
 }

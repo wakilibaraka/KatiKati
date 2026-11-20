@@ -14048,6 +14048,1431 @@
         }
       }
     },
+    "Chain": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "سلسلة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Kette"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Chain"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cadena"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cadena"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Chaîne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Catena"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "チェーン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "체인"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ketting"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cadeia"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cadeia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Цепочка"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "链"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "鏈"
+          }
+        }
+      }
+    },
+    "Five": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "خمسة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Fünf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Five"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cinco"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cinco"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cinq"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cinque"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "5枚"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "다섯"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Vijf"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cinco"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cinco"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Пять"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "五"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "五"
+          }
+        }
+      }
+    },
+    "Six": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "ستة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Sechs"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Six"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Seis"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Seis"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Six"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Sei"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "6枚"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "여섯"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Zes"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Seis"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Seis"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Шесть"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "六"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "六"
+          }
+        }
+      }
+    },
+    "2 + 1": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "٢ + ١"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "2 + 1"
+          }
+        }
+      }
+    },
+    "1 + 2": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "١ + ٢"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1 + 2"
+          }
+        }
+      }
+    },
+    "Next Tab": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "التبويب التالي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Nächster Tab"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Next Tab"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pestaña siguiente"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pestaña siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Onglet suivant"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Scheda successiva"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "次のタブ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "다음 탭"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Volgende tab"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Próxima aba"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Separador seguinte"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Следующая вкладка"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "下一个标签页"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "下一個標籤頁"
+          }
+        }
+      }
+    },
+    "Previous Tab": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "التبويب السابق"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Vorheriger Tab"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Previous Tab"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pestaña anterior"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Pestaña anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Onglet précédent"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Scheda precedente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "前のタブ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "이전 탭"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Vorige tab"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Aba anterior"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Separador anterior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Предыдущая вкладка"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "上一个标签页"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "上一個標籤頁"
+          }
+        }
+      }
+    },
+    "Focus Next Column": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "التركيز على العمود التالي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Nächste Spalte fokussieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focus Next Column"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Enfocar columna siguiente"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Enfocar columna siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focaliser la colonne suivante"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Passa alla colonna successiva"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "次のコラムにフォーカス"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "다음 열로 포커스"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Volgende kolom focussen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focar coluna seguinte"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focar coluna seguinte"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Фокус на следующую колонку"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "聚焦下一列"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "聚焦下一欄"
+          }
+        }
+      }
+    },
+    "Focus Previous Column": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "التركيز على العمود السابق"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Vorherige Spalte fokussieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focus Previous Column"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Enfocar columna anterior"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Enfocar columna anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focaliser la colonne précédente"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Passa alla colonna precedente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "前のコラムにフォーカス"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "이전 열로 포커스"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Vorige kolom focussen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focar coluna anterior"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Focar coluna anterior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Фокус на предыдущую колонку"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "聚焦上一列"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "聚焦上一欄"
+          }
+        }
+      }
+    },
+    "Move Column Right": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "انقل العمود يمينًا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Spalte nach rechts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move Column Right"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover columna a la derecha"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover columna a la derecha"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Déplacer la colonne à droite"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Sposta colonna a destra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "コラムを右へ移動"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "열을 오른쪽으로 이동"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Kolom naar rechts"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover coluna para a direita"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover coluna para a direita"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Переместить колонку вправо"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "将列右移"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "將欄位右移"
+          }
+        }
+      }
+    },
+    "Move Column Left": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "انقل العمود يسارًا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Spalte nach links"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Move Column Left"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover columna a la izquierda"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover columna a la izquierda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Déplacer la colonne à gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Sposta colonna a sinistra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "コラムを左へ移動"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "열을 왼쪽으로 이동"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Kolom naar links"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover coluna para a esquerda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Mover coluna para a esquerda"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Переместить колонку влево"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "将列左移"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "將欄位左移"
+          }
+        }
+      }
+    },
+    "Cycle Column Width": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "تبديل عرض العمود"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Spaltenbreite wechseln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cycle Column Width"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cambiar ancho de columna"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cambiar ancho de columna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Changer la largeur de colonne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cambia larghezza colonna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "コラム幅を切り替え"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "열 너비 전환"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Kolombreedte wisselen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Alternar largura da coluna"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Alternar largura da coluna"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Сменить ширину колонки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "切换列宽"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "切換欄位寬度"
+          }
+        }
+      }
+    },
+    "Stack Into Left Column": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "ادمج في العمود الأيسر"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "In linke Spalte stapeln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Stack Into Left Column"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Apilar en la columna izquierda"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Apilar en la columna izquierda"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Empiler dans la colonne de gauche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Impila nella colonna sinistra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "左のコラムにまとめる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "왼쪽 열에 쌓기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Stapelen in linkerkolom"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Empilhar na coluna esquerda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Empilhar na coluna esquerda"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Сложить в левую колонку"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "堆叠到左侧列"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "堆疊到左側欄位"
+          }
+        }
+      }
+    },
+    "Toggle Column Tabs": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "تبديل تبويبات العمود"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Spalten-Tabs umschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Toggle Column Tabs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Alternar pestañas de columna"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Alternar pestañas de columna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Basculer les onglets de colonne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Attiva/disattiva schede colonna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "コラムのタブを切り替え"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "열 탭 전환"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Kolomtabbladen wisselen"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Alternar abas da coluna"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Alternar separadores da coluna"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Переключить вкладки колонки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "切换列标签页"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "切換欄位標籤頁"
+          }
+        }
+      }
+    },
+    "Ribbon pictures: pick a shape for the strip, or set one with ⌘⌃1–8.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "صور الشريط: اختر شكلًا للشريط، أو عيّنه بـ ⌘⌃1–8."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon-Bilder: Wähle eine Form für den Streifen oder setze sie mit ⌘⌃1–8."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon pictures: pick a shape for the strip, or set one with ⌘⌃1–8."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Imágenes del ribbon: elige una forma para la tira o fíjala con ⌘⌃1–8."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Imágenes del ribbon: elige una forma para la tira o fíjala con ⌘⌃1–8."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Images du ribbon : choisissez une forme pour la bande ou définissez-la avec ⌘⌃1–8."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Immagini del ribbon: scegli una forma per la striscia o impostala con ⌘⌃1–8."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "リボンの絵柄：ストリップの形を選ぶか、⌘⌃1–8 で設定します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "리본 그림: 스트립 모양을 고르거나 ⌘⌃1–8로 지정하세요."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon-afbeeldingen: kies een vorm voor de strook of stel er een in met ⌘⌃1–8."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Imagens do ribbon: escolha um formato para a faixa ou defina com ⌘⌃1–8."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Imagens do ribbon: escolha uma forma para a faixa ou defina com ⌘⌃1–8."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Картинки ленты: выберите форму полосы или задайте её через ⌘⌃1–8."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "条带样式：为条带选择一种形状，或用 ⌘⌃1–8 设定。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "條帶樣式：為條帶選擇一種形狀，或用 ⌘⌃1–8 設定。"
+          }
+        }
+      }
+    },
     "BSP: each new window takes half of the space left, so four windows form a grid.": {
       "extractionState": "manual",
       "localizations": {

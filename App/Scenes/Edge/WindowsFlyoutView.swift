@@ -66,6 +66,23 @@ struct WindowsFlyoutView: View {
         let current = screen.flatMap { tiling.layout(for: $0) }
         let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
         return VStack(spacing: 8) {
+            // The ribbon itself is the eighth picture the catalog cannot draw: a strip of columns.
+            Button {
+                guard AXIsProcessTrusted() else { blocked = true; return }
+                blocked = false
+                tiling.applyQuickLayout(.chain)
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "rectangle.split.3x1")
+                    Text(String(localized: "Chain"))
+                }
+                .font(.system(size: 11))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
+                .background(RoundedRectangle(cornerRadius: 6).fill(tiling.isEnabled && (screen.map { tiling.preset(for: $0) } ?? tiling.preset) == .ribbon ? env.accent(.alarms).opacity(0.2) : env.hairline))
+            }
+            .buttonStyle(.plain)
+            .help(String(localized: "Chain"))
             LazyVGrid(columns: columns, spacing: 8) {
                 ForEach(LayoutCatalog.allCases, id: \.self) { layout in
                     Button {

@@ -46,6 +46,20 @@ struct SettingsTilingPane: View {
                     }
                 }
                 SettingsNote(presetNote)
+                SettingsDivider()
+                SettingsNote(Text("Ribbon pictures: pick a shape for the strip, or set one with ⌘⌃1–8."))
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 4), spacing: 6) {
+                    ForEach(RibbonQuickLayout.allCases, id: \.self) { picture in
+                        Button { TilingEngine.shared.applyQuickLayout(picture) } label: {
+                            Text(picture.title)
+                                .font(.caption)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 5)
+                        }
+                        .buttonStyle(.bordered)
+                        .help(Text(picture.title))
+                    }
+                }
                 if NSScreen.screens.count > 1 {
                     ForEach(NSScreen.screens, id: \.self) { screen in
                         SettingsDivider()

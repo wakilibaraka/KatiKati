@@ -54,6 +54,14 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case dockFocus
     /// Phase 60: elevate desktop boxes above windows temporarily / toggle hide all. Both default `.off`.
     case desktopQuickReveal, desktopToggleHidden
+    /// Ribbon (scrolling strip): focus, column moves, width, stacking and tabs.
+    case stripFocusNext, stripFocusPrevious
+    case stripMoveNext, stripMovePrevious
+    case stripCycleWidth, stripStackLeft, stripToggleTabs
+    case stripTabNext, stripTabPrevious
+    /// The ribbon's eight pictures, ⌘⌃1–8 in visual order (1 = Chain).
+    case ribbonChain, ribbonHalves, ribbonTwoPlusOne, ribbonOnePlusTwo
+    case ribbonThirds, ribbonQuarters, ribbonFive, ribbonSix
 
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
@@ -114,6 +122,24 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .dockFocus: return 53
         case .desktopQuickReveal: return 54
         case .desktopToggleHidden: return 55
+        // Ribbon: ids 56–64 for the strip, 65–72 for the eight pictures.
+        case .stripFocusNext: return 56
+        case .stripFocusPrevious: return 57
+        case .stripMoveNext: return 58
+        case .stripMovePrevious: return 59
+        case .stripCycleWidth: return 60
+        case .stripStackLeft: return 61
+        case .stripToggleTabs: return 62
+        case .stripTabNext: return 63
+        case .stripTabPrevious: return 64
+        case .ribbonChain: return 65
+        case .ribbonHalves: return 66
+        case .ribbonTwoPlusOne: return 67
+        case .ribbonOnePlusTwo: return 68
+        case .ribbonThirds: return 69
+        case .ribbonQuarters: return 70
+        case .ribbonFive: return 71
+        case .ribbonSix: return 72
         }
     }
 
@@ -143,6 +169,19 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .desktopQuickReveal, .desktopToggleHidden: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))
         case .windowDrawer: return .key(ShortcutKey(keyCode: 13, modifiers: ShortcutKey.control | ShortcutKey.option))
+        // Ribbon: ⌃⌥⇧R cycles the focused column's width (⌃⌥R belongs to the radial dial), and the
+        // eight pictures sit on ⌘⌃1–8 in visual order.
+        case .stripCycleWidth: return .key(ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .ribbonChain: return .key(ShortcutKey(keyCode: 18, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonHalves: return .key(ShortcutKey(keyCode: 19, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonTwoPlusOne: return .key(ShortcutKey(keyCode: 20, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonOnePlusTwo: return .key(ShortcutKey(keyCode: 21, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonThirds: return .key(ShortcutKey(keyCode: 23, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonQuarters: return .key(ShortcutKey(keyCode: 22, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonFive: return .key(ShortcutKey(keyCode: 26, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .ribbonSix: return .key(ShortcutKey(keyCode: 28, modifiers: ShortcutKey.command | ShortcutKey.control))
+        case .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
+             .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious: return .off
         }
     }
 
@@ -152,7 +191,11 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .toggleTiling, .cycleTilingLayout,
              .tilingFocusNext, .tilingFocusPrevious,
              .tilingSwapNext, .tilingSwapPrevious,
-             .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return true
+             .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain,
+             .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
+             .stripCycleWidth, .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious,
+             .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,
+             .ribbonThirds, .ribbonQuarters, .ribbonFive, .ribbonSix: return true
         default: return false
         }
     }
