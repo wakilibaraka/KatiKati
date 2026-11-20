@@ -190,3 +190,10 @@ arriving from either.
 
 The badges and the spelled-out names are technical terms and stay in English in every locale, the way
 `h_tiles` and `Tall` do; only the layout titles and the explanations are translated.
+
+BSP and Spiral are deliberately different shapes, not two names for the same picture. BSP grows a
+balanced tree: a new window splits the **shallowest** leaf, so the split axes follow depth (side by
+side, then stacked, then side by side again) and four windows land in a 2×2 grid. Spiral gives each
+new window half of the **space that is left**, so every split nests inside the previous remainder and
+the tiles wind around the corner. Because BSP at four windows is exactly the Grid picture, its tile
+draws five windows; every other picture keeps four.

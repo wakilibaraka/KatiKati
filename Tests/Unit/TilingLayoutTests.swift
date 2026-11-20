@@ -39,6 +39,45 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertEqual(resolved, direct)
     }
 
+    /// BSP's depth-driven tree and Spiral's remainder-slicing must not draw the same picture: four
+    /// BSP windows sit in a 2×2 grid, four Spiral windows wind around the corner.
+    func testBSPAndSpiralDifferAtFourWindows() {
+        var tree = TilingTree()
+        let ids = (0..<4).map { WindowID(rawValue: "w\($0)") }
+        ids.forEach { tree.insert($0) }
+
+        let bsp = TilingLayout.resolve(tree: tree, preset: .bsp, workArea: screen, gaps: defaultGaps)
+        let spiral = TilingLayout.resolve(tree: tree, preset: .spiral, workArea: screen, gaps: defaultGaps)
+
+        XCTAssertNotEqual(bsp, spiral, "the picker must not show the same picture twice")
+
+        // BSP: two columns, two rows, all four tiles the same size.
+        XCTAssertEqual(Set(bsp.values.map { "\($0.width)x\($0.height)" }).count, 1)
+        XCTAssertEqual(Set(bsp.values.map(\.minX)).count, 2)
+        XCTAssertEqual(Set(bsp.values.map(\.minY)).count, 2)
+
+        // Spiral: the second window only gets half of the right side, so it is shorter than the first.
+        XCTAssertEqual(spiral[ids[0]]?.height, screen.height - 16)
+        XCTAssertLessThan(spiral[ids[1]]!.height, spiral[ids[0]]!.height)
+    }
+
+    /// The BSP tile draws five windows, so its depth-driven grid cannot be mistaken for Grid's four
+    /// panes; every other picture keeps four.
+    func testBSPPreviewDrawsFiveWindowsAndDiffersFromItsNeighbours() {
+        XCTAssertEqual(TilingPreview.windowCount(for: .bsp), 5)
+        XCTAssertEqual(TilingPreview.windowCount(for: .spiral), 4)
+
+        let area = CGRect(x: 0, y: 0, width: 200, height: 100)
+        let bsp = TilingPreview.rects(preset: .bsp, area: area, gap: 2)
+        let grid = TilingPreview.rects(preset: .grid, area: area, gap: 2)
+        let spiral = TilingPreview.rects(preset: .spiral, area: area, gap: 2)
+
+        XCTAssertEqual(bsp.count, 5)
+        XCTAssertEqual(grid.count, 4)
+        XCTAssertNotEqual(bsp, grid)
+        XCTAssertNotEqual(bsp, spiral)
+    }
+
     // MARK: - Layout Presets: Main + Stack
 
     func testMainStackSingleWindow() {
@@ -342,7 +381,8 @@ final class TilingLayoutTests: XCTestCase {
     // MARK: - Sliced presets
 
     func testSlicedPresetsTileInsideWorkAreaWithoutOverlap() {
-        for preset in [TilingLayoutPreset.grid, .spiral, .columns, .rows, .centeredMain] {
+        // BSP is tree-based rather than sliced, but it owes the same invariants.
+        for preset in [TilingLayoutPreset.bsp, .grid, .spiral, .columns, .rows, .centeredMain] {
             for n in 1...6 {
                 var tree = TilingTree()
                 for i in 0..<n { tree.insert(WindowID(rawValue: "w\(i)")) }

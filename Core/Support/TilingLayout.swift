@@ -120,6 +120,9 @@ enum TilingLayout {
 
         switch preset {
         case .bsp:
+            // The tree is the layout. Inserts split the shallowest leaf, so the axes follow depth
+            // (side by side, then stacked, then side by side again) and four windows land in a 2×2
+            // grid — where Spiral would keep nesting inside the space that is left.
             return tree.resolveTiles(in: workArea, gaps: gaps)
 
         case .mainStack:
@@ -261,6 +264,8 @@ enum TilingLayout {
                 frames += split(row, count: min(cols, n - r * cols), horizontal: true, gap: inner)
             }
         case .spiral:
+            // Dwindle: every window takes half of the space that is left, so each split nests inside
+            // the previous remainder and the tiles wind around the corner instead of forming a grid.
             var rest = area
             for i in 0..<n {
                 if i == n - 1 { frames.append(rest); break }
@@ -565,10 +570,17 @@ extension TilingLayout {
     }
 }
 
-/// Four sample windows for the settings previews, produced by the same solver tiling uses, so the
-/// picture cannot drift from the behaviour it describes. Monocle windows overlap by design, so they
-/// are drawn as an offset stack.
+/// Sample windows for the settings previews, produced by the same solver tiling uses, so the picture
+/// cannot drift from the behaviour it describes. Monocle windows overlap by design, so they are drawn
+/// as an offset stack.
 enum TilingPreview {
+    /// How many windows a picture draws. Four is enough for every preset but BSP, whose balanced
+    /// tree is exactly a four-pane Grid at that count; five shows the depth-driven split it actually
+    /// makes, so the tile is not mistaken for Grid.
+    static func windowCount(for preset: TilingLayoutPreset) -> Int {
+        preset == .bsp ? 5 : 4
+    }
+
     static func rects(preset: TilingLayoutPreset, area: CGRect, gap: CGFloat) -> [CGRect] {
         if preset == .monocle {
             return (0..<3).map { i in
@@ -577,7 +589,7 @@ enum TilingPreview {
             }
         }
         var tree = TilingTree()
-        let ids = (0..<4).map { WindowID(rawValue: "preview\($0)") }
+        let ids = (0..<windowCount(for: preset)).map { WindowID(rawValue: "preview\($0)") }
         ids.forEach { tree.insert($0) }
         let solved = TilingLayout.resolve(tree: tree, preset: preset, workArea: area,
                                           gaps: TilingGaps(inner: gap, outer: 0))

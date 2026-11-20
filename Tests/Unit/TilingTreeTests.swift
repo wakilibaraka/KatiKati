@@ -66,14 +66,14 @@ final class TilingTreeTests: XCTestCase {
         XCTAssertFalse(r1.intersects(r2), "Tiles must not overlap")
     }
 
-    func testThreeWindowsAlternatesSplitByDepth() {
+    func testThreeWindowsBalanceTheTreeByDepth() {
         var tree = TilingTree()
         let w1 = WindowID(rawValue: "w1")
         let w2 = WindowID(rawValue: "w2")
         let w3 = WindowID(rawValue: "w3")
-        tree.insert(w1) // depth 0: root
-        tree.insert(w2) // depth 1: root splits horizontally, w2 focused
-        tree.insert(w3) // depth 1 split: splits w2 vertically (depth 1 is odd -> vertical)
+        tree.insert(w1) // root
+        tree.insert(w2) // the root leaf splits side by side: w1 left, w2 right
+        tree.insert(w3) // the shallowest leaf is w1 (depth 1), so w3 stacks under it
 
         XCTAssertEqual(tree.count, 3)
         let tiles = tree.resolveTiles(in: screen, gaps: defaultGaps)
@@ -89,11 +89,54 @@ final class TilingTreeTests: XCTestCase {
         XCTAssertFalse(r1.intersects(r3))
         XCTAssertFalse(r2.intersects(r3))
 
-        // w2 and w3 share the right column
-        XCTAssertEqual(r2.minX, r3.minX)
-        XCTAssertEqual(r2.width, r3.width)
-        // w2 (top) and w3 (bottom) are stacked with an inner gap
-        XCTAssertEqual(r3.maxY + 8, r2.minY, "Vertical inner gap between stacked tiles")
+        // w1 and w3 share the left column; the split axis follows the leaf's depth (odd -> stacked).
+        XCTAssertEqual(r1.minX, r3.minX)
+        XCTAssertEqual(r1.width, r3.width)
+        XCTAssertEqual(r3.maxY + 8, r1.minY, "Vertical inner gap between stacked tiles")
+
+        // w2 keeps the whole right half: the shallow gap was the left one.
+        XCTAssertEqual(r2.minX, r1.maxX + 8)
+        XCTAssertEqual(r2.height, screen.height - 16)
+    }
+
+    func testFourWindowsFormAGrid() {
+        var tree = TilingTree()
+        let ids = (1...4).map { WindowID(rawValue: "w\($0)") }
+        ids.forEach { tree.insert($0) }
+
+        let tiles = tree.resolveTiles(in: screen, gaps: defaultGaps)
+        guard let r1 = tiles[ids[0]], let r2 = tiles[ids[1]],
+              let r3 = tiles[ids[2]], let r4 = tiles[ids[3]] else {
+            XCTFail("Missing tiles")
+            return
+        }
+
+        // Two equal columns: [w1 over w3] beside [w2 over w4].
+        XCTAssertEqual(r1.minX, r3.minX)
+        XCTAssertEqual(r2.minX, r4.minX)
+        XCTAssertEqual(r1.width, r2.width)
+        XCTAssertEqual(r1.maxX + 8, r2.minX, "The two columns are separated by one inner gap")
+
+        // Two equal rows, aligned across both columns.
+        XCTAssertEqual(r1.minY, r2.minY)
+        XCTAssertEqual(r3.minY, r4.minY)
+        XCTAssertEqual(r1.height, r2.height)
+        XCTAssertEqual(r3.maxY + 8, r1.minY, "The two rows are separated by one inner gap")
+        XCTAssertEqual(r1.maxY, screen.maxY - 8)
+        XCTAssertEqual(r3.minY, screen.minY + 8)
+    }
+
+    func testWindowOrderStaysTheOrderTheyJoined() {
+        var tree = TilingTree()
+        let ids = (1...5).map { WindowID(rawValue: "w\($0)") }
+        ids.forEach { tree.insert($0) }
+
+        XCTAssertEqual(tree.allWindowIDs, ids,
+                       "the tree balances, but the list other layouts place windows from must not")
+
+        tree.remove(ids[1])
+        tree.insert(WindowID(rawValue: "w6"))
+        XCTAssertEqual(tree.allWindowIDs.map(\.rawValue), ["w1", "w3", "w4", "w5", "w6"])
     }
 
     // MARK: - Removal

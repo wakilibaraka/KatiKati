@@ -41,10 +41,16 @@ struct TilingTree: Equatable, Sendable {
     private(set) var root: TilingTreeNode?
     /// The currently focused window ID in this tree, if any.
     private(set) var focusedID: WindowID?
+    /// Windows in the order they joined, independent of where the tree put them. The balanced tree
+    /// below is traversed in a different order than it was built, but every other preset places
+    /// windows by their position in this list (Columns, Rows, Grid, the strip, drag-to-slot), so the
+    /// order has to stay the order windows appeared.
+    private(set) var order: [WindowID]
 
     init(root: TilingTreeNode? = nil, focusedID: WindowID? = nil) {
         self.root = root
         self.focusedID = focusedID
+        order = root?.windowIDs ?? []
     }
 
     /// Total count of managed windows.
@@ -57,9 +63,9 @@ struct TilingTree: Equatable, Sendable {
         root == nil
     }
 
-    /// All managed window identifiers in tree traversal order.
+    /// All managed window identifiers, in the order the windows joined.
     var allWindowIDs: [WindowID] {
-        root?.windowIDs ?? []
+        order
     }
 
     /// Whether the specified window is managed in this tree.
@@ -76,9 +82,11 @@ struct TilingTree: Equatable, Sendable {
     }
 
     /// Insert a window into the tree.
-    /// If the tree is empty, becomes the root leaf.
-    /// Otherwise, splits the focused window's region. Split direction alternates by tree depth:
-    /// even depth splits horizontally, odd depth splits vertically.
+    /// If the tree is empty, becomes the root leaf. Otherwise the new window splits the shallowest
+    /// leaf, so the tree grows breadth-first and stays balanced instead of turning into one spine of
+    /// nested splits. The split axis follows that leaf's depth: even depths split side by side, odd
+    /// depths split stacked — which is what gives BSP its grid, where splitting the newest window's
+    /// own region (Spiral's rule) would only ever nest deeper.
     mutating func insert(_ id: WindowID) {
         // If already present, focus it and do nothing.
         if contains(id) {
@@ -88,18 +96,29 @@ struct TilingTree: Equatable, Sendable {
 
         guard let currentRoot = root else {
             root = .leaf(id)
+            order = [id]
             focusedID = id
             return
         }
 
-        guard let targetID = (focusedID.flatMap { contains($0) ? $0 : nil }) ?? currentRoot.windowIDs.first else {
-            root = .leaf(id)
-            focusedID = id
-            return
-        }
+        let targetID = shallowestLeaf(in: currentRoot, depth: 0).id
         let (newRoot, _) = insert(newID: id, atTarget: targetID, in: currentRoot, currentDepth: 0)
         root = newRoot
+        order.append(id)
         focusedID = id
+    }
+
+    /// The first leaf at the tree's minimum depth: the gap a new window fills so the tree stays
+    /// balanced. Ties go to the earlier subtree, so the growth reads left to right.
+    private func shallowestLeaf(in node: TilingTreeNode, depth: Int) -> (id: WindowID, depth: Int) {
+        switch node {
+        case .leaf(let leafID):
+            return (leafID, depth)
+        case .split(_, _, let first, let second):
+            let leading = shallowestLeaf(in: first, depth: depth + 1)
+            let trailing = shallowestLeaf(in: second, depth: depth + 1)
+            return trailing.depth < leading.depth ? trailing : leading
+        }
     }
 
     private func insert(
@@ -148,6 +167,7 @@ struct TilingTree: Equatable, Sendable {
         guard contains(id) else { return false }
 
         guard let currentRoot = root else { return false }
+        order.removeAll { $0 == id }
         if case .leaf(let rootID) = currentRoot, rootID == id {
             root = nil
             focusedID = nil
@@ -158,7 +178,7 @@ struct TilingTree: Equatable, Sendable {
         root = updatedRoot
 
         if focusedID == id {
-            focusedID = updatedRoot?.windowIDs.first
+            focusedID = order.first
         }
         return true
     }
