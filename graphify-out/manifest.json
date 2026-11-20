@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795181352.9536233,
-    "seen": 1795181407.5075939,
-    "ast_hash": "93d5a57530ad952fb616eaa31d2940f2",
+    "mtime": 1795182614.2391808,
+    "seen": 1795183176.5225952,
+    "ast_hash": "aa34d48507cca1e0f55169620cbd13cf",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1902,9 +1902,9 @@
     "semantic_hash": "ff5c4bbb981f04283e0cde0f931b7fa8"
   },
   "Core/Support/IslandLayoutSolver.swift": {
-    "mtime": 1795027420.0338562,
-    "seen": 1795027789.386485,
-    "ast_hash": "a77c87b615b6884fbc117c4efc6dba65",
+    "mtime": 1795182602.9201257,
+    "seen": 1795183176.5228438,
+    "ast_hash": "f5c8e44797c5c9bbd3380dd3867aff6f",
     "semantic_hash": ""
   },
   "Core/Support/IslandSlotSet.swift": {
@@ -3582,9 +3582,9 @@
     "semantic_hash": "46d465216e2b6d7c9319060f064af595"
   },
   "Tests/Unit/IslandLayoutSolverTests.swift": {
-    "mtime": 1795181609.3665116,
-    "seen": 1795181685.417974,
-    "ast_hash": "5bcaad979ed3e05ce3af60c5fbe88569",
+    "mtime": 1795182631.4790099,
+    "seen": 1795183176.523745,
+    "ast_hash": "1d77179b9f6fd85812f0e9fec743f449",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandPanelGeometryTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795182451.7036538,
-    "seen": 1795182478.094939,
-    "ast_hash": "cf9d3bcc31c1afc4ec3c0de0cefe00a7",
+    "mtime": 1795183149.5734096,
+    "seen": 1795183176.5244958,
+    "ast_hash": "e5225fb7ce6b5c540b5256b6c3988bbf",
     "semantic_hash": ""
   },
   "README.md": {
