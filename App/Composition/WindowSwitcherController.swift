@@ -80,6 +80,12 @@ final class WindowSwitcherController: ObservableObject {
         UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true
     }
 
+    /// Gesture entry point: opens the switcher without a held modifier, pinned so it waits for a pick.
+    func show() {
+        open(reverse: false)
+        if panel != nil { pinned = true }
+    }
+
     private func applyEnabled() {
         commandTab.setEnabled(isEnabled && UserDefaults.standard.bool(forKey: CommandTabTakeover.enabledKey))
         applyPrimary()

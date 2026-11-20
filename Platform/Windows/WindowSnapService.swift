@@ -49,7 +49,11 @@ enum WindowSnapService {
 
     /// Moves the focused window to the next display, keeping its relative position and size in the work area.
     @discardableResult
-    static func moveToNextDisplay() -> Outcome {
+    static func moveToNextDisplay() -> Outcome { moveToDisplay(step: 1) }
+
+    /// Same move, `step` displays along and wrapping around, so a gesture can send a window back too.
+    @discardableResult
+    static func moveToDisplay(step: Int) -> Outcome {
         guard AXIsProcessTrusted() else { return .needsAccessibility }
         let screens = NSScreen.screens
         guard screens.count > 1, let primary = screens.first?.frame,
@@ -61,7 +65,7 @@ enum WindowSnapService {
         let window = ref as! AXUIElement
         guard isTileable(window), let f = frame(of: window), let from = screenContaining(window, primaryMaxY: primary.maxY),
               let index = screens.firstIndex(of: from) else { return .noWindow }
-        let to = screens[(index + 1) % screens.count]
+        let to = screens[((index + step) % screens.count + screens.count) % screens.count]
         func area(_ s: NSScreen) -> CGRect { DockReserve.workArea(visible: s.visibleFrame, screen: s.frame, dock: dockFrame(s)) }
         func quartz(_ r: CGRect) -> CGRect { CGRect(origin: SnapPosition.accessibilityOrigin(of: r, primaryMaxY: primary.maxY), size: r.size) }
         let a = quartz(area(from)), b = quartz(area(to))

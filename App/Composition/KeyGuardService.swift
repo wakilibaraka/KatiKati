@@ -1069,6 +1069,7 @@ final class GestureDispatcher: ObservableObject {
     static let swipeThresholdKey = "com.katikati.gestures.swipeThreshold"
     static let flickVelocityKey = "com.katikati.gestures.flickVelocity"
     static let mappingsKey = "com.katikati.gestures.mappings"
+    static let rulesKey = "com.katikati.gestures.rules"
     static let ignoredAppsKey = "com.katikati.gestures.ignoredApps"
 
     @Published private(set) var isEnabled = UserDefaults.standard.bool(forKey: GestureDispatcher.enabledKey)
@@ -1080,7 +1081,11 @@ final class GestureDispatcher: ObservableObject {
         let v = UserDefaults.standard.double(forKey: GestureDispatcher.flickVelocityKey)
         return v > 0 ? v : GestureClassificationConfig().flickVelocityThreshold
     }()
-    @Published private(set) var mappings: [MultitouchGestureKind: GestureActionTarget] = GestureDispatcher.loadMappings()
+    @Published private(set) var rules: [MultitouchGestureKind: GestureBindingRule] = GestureDispatcher.loadRules()
+    /// One action per gesture, window-management side, for the pickers that only ask for one.
+    var mappings: [MultitouchGestureKind: GestureActionTarget] { rules.mapValues(\.windowAction) }
+    /// Read when Settings opens, never polled: the clash badges are advisory, not a guard.
+    @Published private(set) var trackpadSettings = GestureDispatcher.readTrackpadSettings()
     @Published private(set) var ignoredApps: String = UserDefaults.standard.string(forKey: GestureDispatcher.ignoredAppsKey) ?? ""
     @Published private(set) var livePoints: [MultitouchPoint] = []
     @Published private(set) var lastGesture: MultitouchGestureKind?
@@ -1091,6 +1096,7 @@ final class GestureDispatcher: ObservableObject {
 
     private var visualizerConsumers = 0
     private var reducer = GestureClassificationReducer()
+    private var snapCycle = SnapCycleState()
     private var devices: [AnyObject] = []
     private var stopFn: (@convention(c) (UnsafeMutableRawPointer) -> Void)?
     private var lastRadialEdgeAt: Date = .distantPast
@@ -1123,10 +1129,40 @@ final class GestureDispatcher: ObservableObject {
     }
 
     func setAction(_ action: GestureActionTarget, for gesture: MultitouchGestureKind) {
-        mappings[gesture] = action
-        let raw = mappings.reduce(into: [String: String]()) { $0[$1.key.rawValue] = $1.value.rawValue }
-        if let data = try? JSONEncoder().encode(raw) {
-            UserDefaults.standard.set(data, forKey: Self.mappingsKey)
+        update(gesture) { $0.windowAction = action; $0.enabled = true }
+    }
+
+    func setTilingAction(_ action: GestureActionTarget?, for gesture: MultitouchGestureKind) {
+        update(gesture) { $0.tilingAction = action; $0.enabled = true }
+    }
+
+    func setRuleEnabled(_ enabled: Bool, for gesture: MultitouchGestureKind) {
+        update(gesture) { $0.enabled = enabled }
+    }
+
+    /// Applies the clash-free preset to whatever macOS does not already own; returns how many took.
+    @discardableResult
+    func applyClashFreePreset() -> Int {
+        let applicable = TrackpadGesturePreset.applicable(to: trackpadSettings)
+        for (kind, rule) in applicable { rules[kind] = rule }
+        persistRules()
+        return applicable.count
+    }
+
+    func refreshTrackpadSettings() {
+        trackpadSettings = Self.readTrackpadSettings()
+    }
+
+    private func update(_ gesture: MultitouchGestureKind, _ change: (inout GestureBindingRule) -> Void) {
+        var rule = rules[gesture] ?? GestureBindingRule()
+        change(&rule)
+        rules[gesture] = rule
+        persistRules()
+    }
+
+    private func persistRules() {
+        if let data = try? JSONEncoder().encode(rules) {
+            UserDefaults.standard.set(data, forKey: Self.rulesKey)
         }
     }
 
@@ -1192,8 +1228,9 @@ final class GestureDispatcher: ObservableObject {
             let ignored = Set(ignoredApps.split { $0 == "," || $0.isWhitespace }.map(String.init))
             if ignored.contains(frontID) { return }
         }
-        let target = mappings[gesture] ?? .none
-        guard target != .none else { return }
+        guard let rule = rules[gesture] else { return }
+        let context = GestureContext(tilingEnabled: TilingEngine.shared.isEnabled)
+        guard let target = GestureRouter.target(for: rule, context: context) else { return }
         dispatch(target)
     }
 
@@ -1223,11 +1260,19 @@ final class GestureDispatcher: ObservableObject {
         case .spaceLeft: postSpaceSwitch(left: true)
         case .spaceRight: postSpaceSwitch(left: false)
         case .toggleNotch, .commandBar, .launcher: onAction?(target)
-        case .snapCycleLeft, .snapCycleRight, .maximize, .centerRestore, .windowSwitcher,
-             .nextDisplay, .previousDisplay, .toggleTiling, .stripCycleWidth, .stripStack,
-             .stripTabs, .stripSwapNext, .stripSwapPrevious, .quickLayoutPicker:
-            // TG-2 routes these; nothing binds them before the rules store lands.
-            break
+        case .snapCycleLeft: WindowSnapService.apply(snapCycle.next(side: .left, at: Date()))
+        case .snapCycleRight: WindowSnapService.apply(snapCycle.next(side: .right, at: Date()))
+        case .maximize: WindowSnapService.apply(.maximize)
+        case .centerRestore: WindowSnapService.apply(.center)
+        case .nextDisplay: WindowSnapService.moveToDisplay(step: 1)
+        case .previousDisplay: WindowSnapService.moveToDisplay(step: -1)
+        case .toggleTiling: TilingEngine.shared.setEnabled(!TilingEngine.shared.isEnabled)
+        case .stripCycleWidth: TilingEngine.shared.cycleStripWidth()
+        case .stripStack: TilingEngine.shared.stackStripLeft()
+        case .stripTabs: TilingEngine.shared.toggleStripTabs()
+        case .stripSwapNext: TilingEngine.shared.moveStripColumn(1)
+        case .stripSwapPrevious: TilingEngine.shared.moveStripColumn(-1)
+        case .windowSwitcher, .quickLayoutPicker: onAction?(target)
         case .none: break
         }
     }
@@ -1241,6 +1286,33 @@ final class GestureDispatcher: ObservableObject {
         up.flags = .maskControl
         down.post(tap: .cghidEventTap)
         up.post(tap: .cghidEventTap)
+    }
+
+    private static func loadRules() -> [MultitouchGestureKind: GestureBindingRule] {
+        if let data = UserDefaults.standard.data(forKey: rulesKey),
+           let decoded = try? JSONDecoder().decode([MultitouchGestureKind: GestureBindingRule].self, from: data) {
+            return decoded
+        }
+        // One-time migration: the pre-slice store held a single action per gesture.
+        return loadMappings().mapValues { GestureBindingRule(windowAction: $0) }
+    }
+
+    /// The live trackpad and dock settings, read through CFPreferences so no helper process runs.
+    static func readTrackpadSettings() -> TrackpadSettingsSnapshot {
+        let builtIn = domain("com.apple.AppleMultitouchTrackpad")
+        let bluetooth = domain("com.apple.driver.AppleBluetoothMultitouch.trackpad")
+        let trackpad = builtIn.isEmpty ? bluetooth : builtIn
+        return TrackpadSettingsReader.snapshot(trackpad: trackpad, dock: domain("com.apple.dock"))
+    }
+
+    private static func domain(_ appID: String) -> [String: Any] {
+        var out: [String: Any] = [:]
+        for key in TrackpadSettingsReader.trackpadKeys + TrackpadSettingsReader.dockKeys {
+            if let value = CFPreferencesCopyAppValue(key as CFString, appID as CFString) {
+                out[key] = value
+            }
+        }
+        return out
     }
 
     private static func loadMappings() -> [MultitouchGestureKind: GestureActionTarget] {

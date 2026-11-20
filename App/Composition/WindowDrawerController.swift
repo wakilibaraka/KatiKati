@@ -108,6 +108,12 @@ final class WindowDrawerController: ObservableObject {
 
     func toggle() { panel == nil ? open() : close() }
 
+    /// Gesture entry point: reveals the Windows section, opening the drawer when it is closed.
+    func showWindows() {
+        select(.windows)
+        if panel == nil { open() }
+    }
+
     func select(_ tab: Tab) {
         self.tab = tab
         query = ""

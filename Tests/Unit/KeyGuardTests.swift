@@ -659,6 +659,27 @@ final class TrackpadGestureBindingTests: XCTestCase {
         XCTAssertEqual(TrackpadConflictDetector.conflict(for: .fourFingerTap, settings: settings), .clear)
     }
 
+    func testReaderParsesTheDefaultsDomains() {
+        let trackpad: [String: Any] = [
+            "TrackpadThreeFingerHorizSwipeGesture": 0,
+            "TrackpadThreeFingerVertSwipeGesture": 2,
+            "TrackpadFourFingerHorizSwipeGesture": 2,
+            "TrackpadTwoFingerFromRightEdgeSwipeGesture": 0,
+        ]
+        let dock: [String: Any] = ["showMissionControlGestureEnabled": 1, "showAppExposeGestureEnabled": 0]
+        let snapshot = TrackpadSettingsReader.snapshot(trackpad: trackpad, dock: dock)
+        XCTAssertEqual(snapshot.threeFingerHorizSwipe, false)
+        XCTAssertEqual(snapshot.threeFingerVertSwipe, true)
+        XCTAssertEqual(snapshot.fourFingerHorizSwipe, true)
+        XCTAssertEqual(snapshot.twoFingerRightEdgeSwipe, false)
+        XCTAssertEqual(snapshot.missionControlGestureEnabled, true)
+        XCTAssertEqual(snapshot.appExposeGestureEnabled, false)
+        // Keys a domain does not carry stay unknown instead of defaulting to off.
+        XCTAssertNil(snapshot.fourFingerPinch)
+        XCTAssertNil(snapshot.fiveFingerPinch)
+        XCTAssertNil(snapshot.threeFingerTap)
+    }
+
     func testMissingDataIsNeverClear() {
         let empty = TrackpadSettingsSnapshot()
         for kind in MultitouchGestureKind.allCases where kind != .fourFingerTap {

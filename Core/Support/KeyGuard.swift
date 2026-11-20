@@ -879,6 +879,39 @@ struct SnapCycleState: Equatable, Sendable {
     }
 }
 
+enum TrackpadSettingsReader {
+    /// The undocumented per-trackpad keys, in the order the snapshot stores them.
+    static let trackpadKeys = [
+        "TrackpadThreeFingerHorizSwipeGesture", "TrackpadThreeFingerVertSwipeGesture",
+        "TrackpadFourFingerHorizSwipeGesture", "TrackpadFourFingerVertSwipeGesture",
+        "TrackpadFourFingerPinchGesture", "TrackpadFiveFingerPinchGesture",
+        "TrackpadThreeFingerTapGesture", "TrackpadTwoFingerFromRightEdgeSwipeGesture",
+    ]
+    /// Where the modern More Gestures toggles actually live.
+    static let dockKeys = ["showMissionControlGestureEnabled", "showAppExposeGestureEnabled"]
+
+    /// These arrive as small integers: 0 is off and anything else (1 or 2) is on.
+    static func snapshot(trackpad: [String: Any], dock: [String: Any]) -> TrackpadSettingsSnapshot {
+        TrackpadSettingsSnapshot(
+            threeFingerHorizSwipe: flag(trackpad["TrackpadThreeFingerHorizSwipeGesture"]),
+            threeFingerVertSwipe: flag(trackpad["TrackpadThreeFingerVertSwipeGesture"]),
+            fourFingerHorizSwipe: flag(trackpad["TrackpadFourFingerHorizSwipeGesture"]),
+            fourFingerVertSwipe: flag(trackpad["TrackpadFourFingerVertSwipeGesture"]),
+            fourFingerPinch: flag(trackpad["TrackpadFourFingerPinchGesture"]),
+            fiveFingerPinch: flag(trackpad["TrackpadFiveFingerPinchGesture"]),
+            threeFingerTap: flag(trackpad["TrackpadThreeFingerTapGesture"]),
+            twoFingerRightEdgeSwipe: flag(trackpad["TrackpadTwoFingerFromRightEdgeSwipeGesture"]),
+            missionControlGestureEnabled: flag(dock["showMissionControlGestureEnabled"]),
+            appExposeGestureEnabled: flag(dock["showAppExposeGestureEnabled"])
+        )
+    }
+
+    private static func flag(_ value: Any?) -> Bool? {
+        guard let number = value as? Int else { return nil }
+        return number != 0
+    }
+}
+
 enum TrackpadGesturePreset {
     /// Clash-free for a 4-finger Spaces / 3-finger Mission Control setup. Gestures macOS owns
     /// (3-finger up, 4-finger left/right, spread) are deliberately absent rather than remapped.
