@@ -65,7 +65,7 @@ enum WindowSnapService {
         let window = ref as! AXUIElement
         guard isTileable(window), let f = frame(of: window), let from = screenContaining(window, primaryMaxY: primary.maxY),
               let index = screens.firstIndex(of: from) else { return .noWindow }
-        let to = screens[((index + step) % screens.count + screens.count) % screens.count]
+        let to = screens[DisplayMove.destination(from: index, count: screens.count, step: step)]
         func area(_ s: NSScreen) -> CGRect { DockReserve.workArea(visible: s.visibleFrame, screen: s.frame, dock: dockFrame(s)) }
         func quartz(_ r: CGRect) -> CGRect { CGRect(origin: SnapPosition.accessibilityOrigin(of: r, primaryMaxY: primary.maxY), size: r.size) }
         let a = quartz(area(from)), b = quartz(area(to))

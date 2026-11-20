@@ -884,3 +884,78 @@ final class GestureRulesStoreTests: XCTestCase {
         XCTAssertEqual(loaded.rules[.threeFingerSwipeRight]?.windowAction, .maximize)
     }
 }
+
+/// TG-2: the six window-management actions. What they do to an AX window needs Accessibility and a
+/// real frontmost app, so these pin the decisions that feed it: geometry, display stepping, routing,
+/// and the rule that an action binding never clears a clash badge.
+final class WindowManagementActionTests: XCTestCase {
+    func testDisplayMoveWrapsBothWaysAndHoldsOnASingleDisplay() {
+        XCTAssertEqual(DisplayMove.destination(from: 0, count: 3, step: 1), 1)
+        XCTAssertEqual(DisplayMove.destination(from: 2, count: 3, step: 1), 0)
+        XCTAssertEqual(DisplayMove.destination(from: 0, count: 3, step: -1), 2)
+        XCTAssertEqual(DisplayMove.destination(from: 1, count: 2, step: -1), 0)
+        XCTAssertEqual(DisplayMove.destination(from: 1, count: 3, step: 3), 1)
+        // Nothing to move to: the window stays on the display it is already on.
+        XCTAssertEqual(DisplayMove.destination(from: 0, count: 1, step: 1), 0)
+        XCTAssertEqual(DisplayMove.destination(from: 0, count: 0, step: 1), 0)
+        XCTAssertEqual(DisplayMove.destination(from: 7, count: 2, step: 1), 7)
+    }
+
+    func testHalvesThirdsAndRestoreLandInsideTheWorkArea() {
+        let visible = CGRect(x: 100, y: 50, width: 1600, height: 1000)
+        XCTAssertEqual(SnapPosition.leftHalf.frame(in: visible), CGRect(x: 100, y: 50, width: 800, height: 1000))
+        XCTAssertEqual(SnapPosition.rightHalf.frame(in: visible), CGRect(x: 900, y: 50, width: 800, height: 1000))
+        XCTAssertEqual(SnapPosition.maximize.frame(in: visible), visible)
+        XCTAssertEqual(SnapPosition.leftThird.frame(in: visible), CGRect(x: 100, y: 50, width: 533, height: 1000))
+        XCTAssertEqual(SnapPosition.centerThird.frame(in: visible), CGRect(x: 633, y: 50, width: 533, height: 1000))
+        // Center restores to a smaller frame that still sits inside the same work area.
+        XCTAssertEqual(SnapPosition.center.frame(in: visible), CGRect(x: 300, y: 150, width: 1200, height: 800))
+        for position in [SnapPosition.leftHalf, .rightHalf, .leftThird, .centerThird, .rightThird,
+                         .leftTwoThirds, .rightTwoThirds, .center, .maximize] {
+            XCTAssertTrue(visible.contains(position.frame(in: visible)) || position.frame(in: visible) == visible,
+                          "\(position) escaped the work area")
+        }
+    }
+
+    func testEveryWindowActionRunsAsTheWindowSideUnlessTilingIsOn() {
+        let windowActions: [GestureActionTarget] = [.snapCycleLeft, .snapCycleRight, .maximize,
+                                                    .centerRestore, .windowSwitcher, .nextDisplay]
+        for action in windowActions {
+            let rule = GestureBindingRule(windowAction: action, tilingAction: .stripCycleWidth)
+            XCTAssertEqual(GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: false)), action)
+            XCTAssertEqual(GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: true)), .stripCycleWidth)
+        }
+    }
+
+    func testThePresetShipsAllSixWindowActionsAndRoutesEachOne() {
+        let actions = Set(TrackpadGesturePreset.clashFree.values.map(\.windowAction))
+        XCTAssertTrue(actions.isSuperset(of: [.snapCycleLeft, .snapCycleRight, .maximize,
+                                              .centerRestore, .windowSwitcher, .nextDisplay]))
+        for (kind, rule) in TrackpadGesturePreset.clashFree {
+            XCTAssertEqual(GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: false)),
+                           rule.windowAction, "\(kind)")
+            XCTAssertEqual(GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: true)),
+                           rule.tilingAction ?? rule.windowAction, "\(kind)")
+        }
+    }
+
+    /// Binding a window action to a gesture must never turn its badge green: the badge describes what
+    /// macOS owns, and it stays a clash or unverifiable whatever KatiKati has bound.
+    func testWindowActionBindingsNeverClearAClashBadge() {
+        let bound = GestureBindingRule(windowAction: .maximize, tilingAction: .stripCycleWidth)
+        XCTAssertEqual(GestureRouter.target(for: bound, context: GestureContext(tilingEnabled: true)), .stripCycleWidth)
+
+        let owned = TrackpadSettingsSnapshot(threeFingerVertSwipe: true, missionControlGestureEnabled: true)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: owned), .clash(.missionControl))
+
+        // Absent data is unverifiable, never clear — including where a window action is bound.
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: TrackpadSettingsSnapshot()), .unverifiable)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeLeft, settings: TrackpadSettingsSnapshot()), .unverifiable)
+
+        // The dock gate outranks the per-trackpad key when the two disagree.
+        let gateOffTrackpadOn = TrackpadSettingsSnapshot(threeFingerVertSwipe: true, missionControlGestureEnabled: false)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: gateOffTrackpadOn), .clear)
+        let gateAbsentTrackpadOn = TrackpadSettingsSnapshot(threeFingerVertSwipe: true)
+        XCTAssertEqual(TrackpadConflictDetector.conflict(for: .threeFingerSwipeUp, settings: gateAbsentTrackpadOn), .clash(.missionControl))
+    }
+}

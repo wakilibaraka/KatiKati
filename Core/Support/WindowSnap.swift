@@ -159,3 +159,13 @@ enum SnapZonePlanner {
         return nil
     }
 }
+
+/// Which display a window moves to when a gesture asks for the next or previous one.
+enum DisplayMove {
+    /// `step` displays along the live order, wrapping both ways so a gesture can send a window back.
+    /// A single display, or an index outside it, stays where it is rather than pointing at nothing.
+    static func destination(from index: Int, count: Int, step: Int) -> Int {
+        guard count > 0, index >= 0, index < count else { return index }
+        return ((index + step) % count + count) % count
+    }
+}
