@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795175154.6785376,
-    "seen": 1795176222.465377,
-    "ast_hash": "1db2409d65d497817ec5676c18d20613",
+    "mtime": 1795177306.6794333,
+    "seen": 1795177967.043592,
+    "ast_hash": "3cbd581e41e6b7f407998d8f854d80f5",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -774,15 +774,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Hover.swift": {
-    "mtime": 1794876944.8134317,
-    "seen": 1794877586.105186,
-    "ast_hash": "f3684fc98ce708657823c3b6f2266bb7",
+    "mtime": 1795177313.2537432,
+    "seen": 1795177967.043761,
+    "ast_hash": "58cee9ccef3577271696f2c603b3b506",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
-    "mtime": 1795105378.6502686,
-    "seen": 1795105481.523746,
-    "ast_hash": "5c195640f6edac505571d5566d76e2a6",
+    "mtime": 1795177313.2515023,
+    "seen": 1795177967.043762,
+    "ast_hash": "5cb01e1ff95f76170041b0fc0384c47c",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Trash.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795105394.1645374,
-    "seen": 1795105481.5237482,
-    "ast_hash": "7b9971eada8cf821530e1a566e888385",
+    "mtime": 1795177810.9103203,
+    "seen": 1795177967.043763,
+    "ast_hash": "17317b859c8318e6c05ee5ea3b03353f",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795176066.9754953,
-    "seen": 1795176222.466157,
-    "ast_hash": "ec02602ed6fa45766850354b8d904563",
+    "mtime": 1795177322.0344875,
+    "seen": 1795177967.044277,
+    "ast_hash": "1a725272ceeef9001b3fbdb119b0b20c",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
-    "mtime": 1795010968.5386794,
-    "seen": 1795013547.1414988,
-    "ast_hash": "b20b8c9b5fdf182e22961b323d6fb872",
+    "mtime": 1795177313.2542324,
+    "seen": 1795177967.043856,
+    "ast_hash": "bc19396f595a5e2b96125544a8424f8c",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Appearance.swift": {
