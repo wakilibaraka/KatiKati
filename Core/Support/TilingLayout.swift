@@ -251,6 +251,186 @@ enum TilingLayout {
     }
 }
 
+// MARK: - Ribbon (RT-1)
+
+/// Width of one ribbon column, as a share of the display's work area. Cycling walks the cases in
+/// order, so ⌃⌥⇧R steps ¼ → ⅓ → ½ → ⅔ → Full → ¼.
+enum ColumnWidthPreset: String, CaseIterable, Sendable, Codable {
+    case quarter, third, half, twoThirds, full
+
+    var fraction: CGFloat {
+        switch self {
+        case .quarter: return 0.25
+        case .third: return 1.0 / 3.0
+        case .half: return 0.5
+        case .twoThirds: return 2.0 / 3.0
+        case .full: return 1
+        }
+    }
+
+    var next: ColumnWidthPreset {
+        let all = Self.allCases
+        guard let i = all.firstIndex(of: self) else { return .half }
+        return all[(i + 1) % all.count]
+    }
+}
+
+/// One column of the scrolling strip. A tabbed column holds several windows and shows its active
+/// one; a plain column holds exactly one.
+struct StripColumn: Equatable, Sendable {
+    var windowIDs: [WindowID]
+    var activeIndex: Int
+    var width: ColumnWidthPreset
+
+    init(_ id: WindowID, width: ColumnWidthPreset = .half) {
+        windowIDs = [id]
+        activeIndex = 0
+        self.width = width
+    }
+
+    init(windowIDs: [WindowID], activeIndex: Int = 0, width: ColumnWidthPreset = .half) {
+        self.windowIDs = windowIDs
+        self.activeIndex = windowIDs.isEmpty ? 0 : min(max(0, activeIndex), windowIDs.count - 1)
+        self.width = width
+    }
+
+    var activeID: WindowID? {
+        guard !windowIDs.isEmpty else { return nil }
+        return windowIDs[min(activeIndex, windowIDs.count - 1)]
+    }
+
+    var isTabbed: Bool { windowIDs.count > 1 }
+}
+
+/// Per-display ribbon state: an ordered list of columns and the focused column (RT-1). Order is the
+/// strip's left→right order; a new window joins to the right of focus, closing removes the column
+/// and closes the gap.
+struct ScrollingStripState: Equatable, Sendable {
+    private(set) var columns: [StripColumn]
+    private(set) var focusedIndex: Int
+    /// Width new columns are born with; cycling a column also remembers its width here.
+    private(set) var width: ColumnWidthPreset
+
+    init(windowIDs: [WindowID] = [], width: ColumnWidthPreset = .half) {
+        self.width = width
+        columns = windowIDs.map { StripColumn($0, width: width) }
+        focusedIndex = 0
+    }
+
+    var windowIDs: [WindowID] { columns.flatMap(\.windowIDs) }
+
+    var focusedColumn: StripColumn? {
+        columns.indices.contains(focusedIndex) ? columns[focusedIndex] : nil
+    }
+
+    var focusedID: WindowID? { focusedColumn?.activeID }
+
+    /// Adds windows the tree gained and drops ones it lost, keeping the strip's own order.
+    mutating func sync(with ids: [WindowID]) {
+        let live = Set(ids)
+        columns = columns.compactMap { column in
+            var c = column
+            c.windowIDs = c.windowIDs.filter { live.contains($0) }
+            guard !c.windowIDs.isEmpty else { return nil }
+            c.activeIndex = min(c.activeIndex, c.windowIDs.count - 1)
+            return c
+        }
+        let known = Set(windowIDs)
+        for id in ids where !known.contains(id) { insert(id) }
+        focusedIndex = columns.isEmpty ? 0 : min(focusedIndex, columns.count - 1)
+        if let focused = focusedID, !ids.contains(focused), let first = columns.first?.activeID {
+            focus(first)
+        }
+    }
+
+    mutating func insert(_ id: WindowID) {
+        guard !windowIDs.contains(id) else { focus(id); return }
+        let column = StripColumn(id, width: width)
+        guard !columns.isEmpty else {
+            columns = [column]
+            focusedIndex = 0
+            return
+        }
+        let at = min(focusedIndex + 1, columns.count)
+        columns.insert(column, at: at)
+        focusedIndex = at
+    }
+
+    mutating func remove(_ id: WindowID) {
+        guard let index = columns.firstIndex(where: { $0.windowIDs.contains(id) }) else { return }
+        columns[index].windowIDs.removeAll { $0 == id }
+        if columns[index].windowIDs.isEmpty {
+            columns.remove(at: index)
+            if focusedIndex > index { focusedIndex -= 1 }
+            focusedIndex = columns.isEmpty ? 0 : min(focusedIndex, columns.count - 1)
+        } else {
+            columns[index].activeIndex = min(columns[index].activeIndex, columns[index].windowIDs.count - 1)
+        }
+    }
+
+    mutating func focus(_ id: WindowID) {
+        guard let index = columns.firstIndex(where: { $0.windowIDs.contains(id) }) else { return }
+        focusedIndex = index
+        if let tab = columns[index].windowIDs.firstIndex(of: id) { columns[index].activeIndex = tab }
+    }
+
+    mutating func focusColumn(_ offset: Int) {
+        guard !columns.isEmpty else { return }
+        focusedIndex = min(max(0, focusedIndex + offset), columns.count - 1)
+    }
+
+    mutating func swapFocused(_ offset: Int) {
+        let target = focusedIndex + offset
+        guard columns.indices.contains(focusedIndex), columns.indices.contains(target) else { return }
+        columns.swapAt(focusedIndex, target)
+        focusedIndex = target
+    }
+
+    mutating func cycleWidth() {
+        setWidth((focusedColumn?.width ?? width).next)
+    }
+
+    mutating func setWidth(_ new: ColumnWidthPreset) {
+        width = new
+        guard columns.indices.contains(focusedIndex) else { return }
+        columns[focusedIndex].width = new
+    }
+
+    /// Merges the focused column into the one on its left as a tab. The leftmost column has
+    /// nothing to merge into, so it stays put.
+    mutating func stackLeft() {
+        guard focusedIndex > 0, columns.indices.contains(focusedIndex) else { return }
+        let column = columns.remove(at: focusedIndex)
+        let left = focusedIndex - 1
+        columns[left].windowIDs += column.windowIDs
+        columns[left].activeIndex = columns[left].windowIDs.count - 1
+        columns[left].width = column.width
+        focusedIndex = left
+    }
+
+    /// Toggles tabbing on the focused column: a tabbed column splits back into single columns, a
+    /// single column merges into its left neighbour when it has one.
+    mutating func toggleTabs() {
+        guard columns.indices.contains(focusedIndex) else { return }
+        guard columns[focusedIndex].isTabbed else { stackLeft(); return }
+        let ids = columns[focusedIndex].windowIDs
+        let w = columns[focusedIndex].width
+        columns[focusedIndex] = StripColumn(ids[0], width: w)
+        for id in ids.dropFirst() {
+            columns.insert(StripColumn(id, width: w), at: focusedIndex + 1)
+        }
+    }
+
+    /// Steps the active window inside a tabbed column; a plain column has nowhere to step.
+    mutating func focusTab(_ offset: Int) {
+        guard columns.indices.contains(focusedIndex) else { return }
+        let count = columns[focusedIndex].windowIDs.count
+        guard count > 1 else { return }
+        let next = (columns[focusedIndex].activeIndex + offset + count) % count
+        columns[focusedIndex].activeIndex = next
+    }
+}
+
 private extension Comparable {
     func clamped(to range: ClosedRange<Self>) -> Self { min(max(self, range.lowerBound), range.upperBound) }
 }

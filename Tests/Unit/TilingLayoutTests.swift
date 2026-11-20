@@ -182,6 +182,108 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertFalse(WindowFit.isNativeTile(CGRect(x: 300, y: 200, width: 800, height: 500), in: area))
     }
 
+    // MARK: - Ribbon strip state (RT-1) and camera/parking (RT-2)
+
+    private func w(_ n: Int) -> WindowID { WindowID(rawValue: "\(n)") }
+
+    func testStripInsertsRightOfFocusAndClosesGaps() {
+        var strip = ScrollingStripState(windowIDs: [w(1), w(2), w(3)])
+        XCTAssertEqual(strip.windowIDs, [w(1), w(2), w(3)])
+
+        strip.focus(w(2))
+        strip.insert(w(4))
+        XCTAssertEqual(strip.windowIDs, [w(1), w(2), w(4), w(3)], "a new window joins right of focus")
+        XCTAssertEqual(strip.focusedID, w(4))
+
+        strip.remove(w(2))
+        XCTAssertEqual(strip.windowIDs, [w(1), w(4), w(3)], "closing leaves no gap")
+        XCTAssertEqual(strip.focusedID, w(4))
+
+        strip.remove(w(4))
+        XCTAssertEqual(strip.windowIDs, [w(1), w(3)])
+    }
+
+    func testStripWidthCyclesInPlace() {
+        var strip = ScrollingStripState(windowIDs: [w(1), w(2)])
+        strip.focus(w(1))
+        XCTAssertEqual(strip.focusedColumn?.width, .half)
+        strip.cycleWidth()
+        XCTAssertEqual(strip.focusedColumn?.width, .twoThirds)
+        strip.cycleWidth()
+        XCTAssertEqual(strip.focusedColumn?.width, .full)
+        strip.cycleWidth()
+        XCTAssertEqual(strip.focusedColumn?.width, .quarter, "cycling wraps")
+        XCTAssertEqual(strip.columns[1].width, .half, "only the focused column changes")
+        XCTAssertEqual(strip.width, .quarter, "the strip remembers the width for new columns")
+        strip.insert(w(3))
+        XCTAssertEqual(strip.focusedColumn?.width, .quarter)
+    }
+
+    func testStripStacksLeftAndUntabs() {
+        var strip = ScrollingStripState(windowIDs: [w(1), w(2), w(3)])
+        strip.focus(w(2))
+        strip.stackLeft()
+        XCTAssertEqual(strip.columns.map(\.windowIDs), [[w(1), w(2)], [w(3)]])
+        XCTAssertEqual(strip.focusedColumn?.windowIDs, [w(1), w(2)])
+        XCTAssertTrue(strip.focusedColumn?.isTabbed == true)
+        XCTAssertEqual(strip.focusedID, w(2))
+
+        strip.toggleTabs()
+        XCTAssertEqual(strip.columns.map(\.windowIDs), [[w(1)], [w(2)], [w(3)]], "untabbing splits the tab back out")
+        XCTAssertEqual(strip.focusedIndex, 0)
+    }
+
+    func testStripTabsStepInsideTheColumn() {
+        var strip = ScrollingStripState(windowIDs: [w(1), w(2), w(3)])
+        strip.focus(w(2))
+        strip.stackLeft()
+        strip.focusTab(1)
+        XCTAssertEqual(strip.focusedID, w(1))
+        strip.focusTab(1)
+        XCTAssertEqual(strip.focusedID, w(2), "tab focus wraps inside the column")
+        strip.focusTab(-2)
+        XCTAssertEqual(strip.focusedID, w(2))
+    }
+
+    func testStripSyncKeepsOrderAndAdoptsNewWindows() {
+        var strip = ScrollingStripState(windowIDs: [w(1), w(2), w(3)])
+        strip.focus(w(2))
+        strip.swapFocused(1)
+        XCTAssertEqual(strip.windowIDs, [w(1), w(3), w(2)])
+        strip.sync(with: [w(1), w(3), w(2), w(4)])
+        XCTAssertEqual(strip.windowIDs, [w(1), w(3), w(2), w(4)], "sync appends newcomers without reordering")
+        strip.sync(with: [w(4), w(1)])
+        XCTAssertEqual(strip.windowIDs, [w(1), w(4)], "vanished windows are dropped")
+    }
+
+    func testCameraMovesOnlyAsFarAsTheFocusNeeds() {
+        let viewport: CGFloat = 1000
+        let content: CGFloat = 3000
+        // Focus already fully visible: no movement.
+        XCTAssertEqual(StripCamera.offset(focused: CGRect(x: 100, y: 0, width: 500, height: 800), viewportWidth: viewport, contentWidth: content, current: 0), 0)
+        // Focus past the right edge: scroll just enough to reveal it.
+        XCTAssertEqual(StripCamera.offset(focused: CGRect(x: 1300, y: 0, width: 500, height: 800), viewportWidth: viewport, contentWidth: content, current: 0), 800)
+        // Focus before the left edge: scroll back to its leading edge.
+        XCTAssertEqual(StripCamera.offset(focused: CGRect(x: 400, y: 0, width: 500, height: 800), viewportWidth: viewport, contentWidth: content, current: 1200), 400)
+        // Never scrolls past either end.
+        XCTAssertEqual(StripCamera.offset(focused: CGRect(x: 2800, y: 0, width: 500, height: 800), viewportWidth: viewport, contentWidth: content, current: 0), 2000)
+        XCTAssertEqual(StripCamera.offset(focused: CGRect(x: 0, y: 0, width: 500, height: 800), viewportWidth: viewport, contentWidth: content, current: 900), 0)
+        // Content narrower than the viewport has nothing to scroll.
+        XCTAssertEqual(StripCamera.offset(focused: CGRect(x: 0, y: 0, width: 900, height: 800), viewportWidth: viewport, contentWidth: 900, current: 400), 0)
+    }
+
+    func testParkingLeavesTheOnePointPeekMacOSAllows() {
+        let area = CGRect(x: 0, y: 0, width: 1600, height: 1000)
+        let column = CGRect(x: 0, y: 0, width: 500, height: 1000)
+        XCTAssertEqual(StripParking.parked(column, in: area, side: .left).minX, -499)
+        XCTAssertEqual(StripParking.parked(column, in: area, side: .right).minX, 1599)
+        XCTAssertEqual(StripParking.parked(column, in: area, side: .bottom).minY, -999)
+        XCTAssertEqual(StripParking.parked(column, in: area, side: .left).width, column.width)
+        XCTAssertEqual(StripParking.side(forEdge: .left, neighbourOnEdge: false), .left)
+        XCTAssertEqual(StripParking.side(forEdge: .left, neighbourOnEdge: true), .bottom, "a neighbour makes the column park below")
+        XCTAssertEqual(StripParking.side(forEdge: .right, neighbourOnEdge: true), .bottom)
+    }
+
     // MARK: - Sliced presets
 
     func testSlicedPresetsTileInsideWorkAreaWithoutOverlap() {

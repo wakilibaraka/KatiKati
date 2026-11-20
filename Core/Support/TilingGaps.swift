@@ -94,3 +94,54 @@ enum WindowFit {
         CGPoint(x: frame.midX, y: primaryMaxY - frame.midY)
     }
 }
+
+/// The ribbon's camera: the smallest scroll offset that shows the focused column whole (RT-2).
+/// Offsets are points from the strip's first column; `0` shows the left edge, and the maximum is
+/// `contentWidth - viewportWidth`, so the last column can sit flush at the right edge.
+enum StripCamera {
+    static func offset(
+        focused: CGRect,
+        viewportWidth: CGFloat,
+        contentWidth: CGFloat,
+        current: CGFloat
+    ) -> CGFloat {
+        guard viewportWidth > 0, contentWidth > viewportWidth else { return 0 }
+        var offset = current
+        if focused.minX < offset {
+            offset = focused.minX
+        } else if focused.maxX > offset + viewportWidth {
+            offset = focused.maxX - viewportWidth
+        }
+        return min(max(0, offset), contentWidth - viewportWidth)
+    }
+}
+
+/// Where the ribbon keeps a column that is outside the viewport (RT-2). macOS keeps a sliver of
+/// any window on screen — ~1 pt at an edge; asking for more snaps back to ~40 pt and never above
+/// the menu bar — so the strip asks for that clamp and reads back what it was granted.
+enum StripParking {
+    enum Side: Sendable { case left, right, bottom }
+
+    /// The sliver macOS leaves visible. Larger asks are clamped by the WindowServer, so the solver
+    /// requests this value to keep the requested and granted frames in agreement.
+    static let peek: CGFloat = 1
+
+    static func parked(_ frame: CGRect, in area: CGRect, side: Side) -> CGRect {
+        var f = frame
+        switch side {
+        case .left: f.origin.x = area.minX - frame.width + peek
+        case .right: f.origin.x = area.maxX - peek
+        case .bottom: f.origin.y = area.minY - frame.height + peek
+        }
+        return f
+    }
+
+    /// The side to park on: the viewport-relative side, unless another display sits that way, in
+    /// which case the column parks at the bottom edge and cannot leak onto the neighbour.
+    static func side(forEdge edge: Side, neighbourOnEdge: Bool) -> Side {
+        switch edge {
+        case .left, .right: return neighbourOnEdge ? .bottom : edge
+        case .bottom: return .bottom
+        }
+    }
+}
