@@ -507,6 +507,29 @@ extension TilingLayout {
     }
 }
 
+/// Four sample windows for the settings previews, produced by the same solver tiling uses, so the
+/// picture cannot drift from the behaviour it describes. Monocle windows overlap by design, so they
+/// are drawn as an offset stack.
+enum TilingPreview {
+    static func rects(preset: TilingLayoutPreset, area: CGRect, gap: CGFloat) -> [CGRect] {
+        if preset == .monocle {
+            return (0..<3).map { i in
+                CGRect(x: area.minX + CGFloat(i) * 8, y: area.minY + CGFloat(i) * 8,
+                       width: area.width - 16, height: area.height - 16)
+            }
+        }
+        var tree = TilingTree()
+        let ids = (0..<4).map { WindowID(rawValue: "preview\($0)") }
+        ids.forEach { tree.insert($0) }
+        let solved = TilingLayout.resolve(tree: tree, preset: preset, workArea: area,
+                                          gaps: TilingGaps(inner: gap, outer: 0))
+        // Solver output is bottom-left origin; SwiftUI offsets are top-left.
+        return ids.compactMap { solved[$0] }.map {
+            CGRect(x: $0.minX, y: area.minY + area.maxY - $0.maxY, width: $0.width, height: $0.height)
+        }
+    }
+}
+
 private extension Comparable {
     func clamped(to range: ClosedRange<Self>) -> Self { min(max(self, range.lowerBound), range.upperBound) }
 }

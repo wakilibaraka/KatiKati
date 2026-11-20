@@ -1273,23 +1273,37 @@ private struct GesturePreviewStage: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06))
                 RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1)
                 if dispatcher.livePoints.isEmpty {
-                    ForEach(Array(Self.keyframe(for: picked).enumerated()), id: \.offset) { _, at in
-                        Circle().fill(Color.secondary.opacity(0.5))
-                            .frame(width: 12, height: 12)
-                            .position(x: at.x * geo.size.width, y: (1 - at.y) * geo.size.height)
-                    }
-                    Text(verbatim: Self.glyph(for: picked))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(.tertiary)
-                        .position(x: geo.size.width / 2, y: geo.size.height * 0.82)
+                    keyframeArt(in: geo.size)
                 } else {
-                    ForEach(dispatcher.livePoints, id: \.id) { pt in
-                        Circle().fill(Color.accentColor.opacity(0.85))
-                            .frame(width: 14, height: 14)
-                            .position(x: min(max(8, pt.x * geo.size.width), geo.size.width - 8),
-                                      y: min(max(8, (1 - pt.y) * geo.size.height), geo.size.height - 8))
-                    }
+                    liveArt(in: geo.size)
                 }
+            }
+        }
+    }
+
+    private func keyframeArt(in size: CGSize) -> some View {
+        let points = Self.keyframe(for: picked)
+        return ZStack {
+            ForEach(Array(points.enumerated()), id: \.offset) { _, at in
+                Circle().fill(Color.secondary.opacity(0.5))
+                    .frame(width: 12, height: 12)
+                    .position(x: at.x * size.width, y: (1 - at.y) * size.height)
+            }
+            Text(verbatim: Self.glyph(for: picked))
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.tertiary)
+                .position(x: size.width / 2, y: size.height * 0.82)
+        }
+    }
+
+    private func liveArt(in size: CGSize) -> some View {
+        let points = dispatcher.livePoints
+        return ZStack {
+            ForEach(points, id: \.id) { pt in
+                Circle().fill(Color.accentColor.opacity(0.85))
+                    .frame(width: 14, height: 14)
+                    .position(x: min(max(8, pt.x * size.width), size.width - 8),
+                              y: min(max(8, (1 - pt.y) * size.height), size.height - 8))
             }
         }
     }
@@ -1300,32 +1314,48 @@ private struct GesturePreviewStage: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.ultraThinMaterial)
                 RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Color.primary.opacity(0.14), lineWidth: 1)
-                if context.tilingEnabled, rule.tilingAction != nil {
-                    // The engine's own solver, so the preview cannot drift from what tiling does.
-                    ForEach(Array(StageTiling.rects(preset: engine.preset, area: area, gap: engine.gaps.inner * 0.25).enumerated()), id: \.offset) { _, r in
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(.ultraThinMaterial)
-                            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
-                            .frame(width: max(2, r.width), height: max(2, r.height))
-                            .position(x: r.midX, y: r.midY)
-                    }
-                } else if let position = Self.snapPosition(for: resolved) {
-                    let r = position.frame(in: area)
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(Color.accentColor.opacity(0.28))
-                        .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Color.accentColor.opacity(0.65), lineWidth: 1))
-                        .frame(width: max(2, r.width), height: max(2, r.height))
-                        .position(x: r.midX, y: r.midY)
-                } else {
-                    Image(systemName: Self.symbol(for: resolved))
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                        .position(x: area.midX, y: area.midY)
-                }
+                actionArt(in: area)
             }
             .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: picked)
             .animation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.86), value: engine.preset)
         }
+    }
+
+    @ViewBuilder
+    private func actionArt(in area: CGRect) -> some View {
+        if context.tilingEnabled, rule.tilingAction != nil {
+            tilingArt(in: area)
+        } else if let position = Self.snapPosition(for: resolved) {
+            snapArt(position, in: area)
+        } else {
+            Image(systemName: Self.symbol(for: resolved))
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .position(x: area.midX, y: area.midY)
+        }
+    }
+
+    /// The engine's own solver, so the preview cannot drift from what tiling does.
+    private func tilingArt(in area: CGRect) -> some View {
+        let rects = TilingPreview.rects(preset: engine.preset, area: area, gap: engine.gaps.inner * 0.25)
+        return ZStack {
+            ForEach(Array(rects.enumerated()), id: \.offset) { _, r in
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
+                    .frame(width: max(2, r.width), height: max(2, r.height))
+                    .position(x: r.midX, y: r.midY)
+            }
+        }
+    }
+
+    private func snapArt(_ position: SnapPosition, in area: CGRect) -> some View {
+        let r = position.frame(in: area)
+        return RoundedRectangle(cornerRadius: 4, style: .continuous)
+            .fill(Color.accentColor.opacity(0.28))
+            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Color.accentColor.opacity(0.65), lineWidth: 1))
+            .frame(width: max(2, r.width), height: max(2, r.height))
+            .position(x: r.midX, y: r.midY)
     }
 
     private static func snapPosition(for action: GestureActionTarget?) -> SnapPosition? {
