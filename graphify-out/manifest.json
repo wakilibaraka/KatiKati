@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1795207946.94492,
-    "seen": 1795209118.6044312,
-    "ast_hash": "cf32ea9205b9f893ce74fb4e64edc227",
+    "mtime": 1795213619.6959124,
+    "seen": 1795213746.45428,
+    "ast_hash": "93cf047cc6ec94eda51e78980822e85a",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -2148,10 +2148,10 @@
     "semantic_hash": ""
   },
   "Core/Support/PinchGesture.swift": {
-    "mtime": 1791999130.7545788,
-    "seen": 1792295707.0605881,
-    "ast_hash": "cb29ed361b405f535b2322b46d9a4be6",
-    "semantic_hash": "cb29ed361b405f535b2322b46d9a4be6"
+    "mtime": 1795213619.6700253,
+    "seen": 1795213746.454321,
+    "ast_hash": "d40179beae24c96ee9fa1d8f13017f41",
+    "semantic_hash": ""
   },
   "Core/Support/PlayerAccess.swift": {
     "mtime": 1792111425.114029,
