@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795181436.9663353,
-    "seen": 1795181685.417274,
-    "ast_hash": "3907f7a5fead07e30a4daabe255f1820",
+    "mtime": 1795188654.3337576,
+    "seen": 1795189474.453224,
+    "ast_hash": "4636d781657777475a94e49e714c844a",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795182172.4392147,
-    "seen": 1795182478.09429,
-    "ast_hash": "758d0f8f795b550e6ddea9a7cff74c20",
+    "mtime": 1795188653.722568,
+    "seen": 1795189474.453583,
+    "ast_hash": "de61425e235fe25815734de59c702a0e",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795181461.19012,
-    "seen": 1795181685.417892,
-    "ast_hash": "bb8d7b068e858c0a4156b089dd93d818",
+    "mtime": 1795189071.4036825,
+    "seen": 1795189474.453918,
+    "ast_hash": "a64d89ed15e0506674bbf3e9c214d4e5",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795188046.3939264,
-    "seen": 1795188067.115448,
-    "ast_hash": "fa72144bc9b040a641921b47d1f88d0c",
+    "mtime": 1795189454.8493848,
+    "seen": 1795189474.454265,
+    "ast_hash": "ffa086cf7c630113b414e9f6d362f78d",
     "semantic_hash": ""
   },
   "README.md": {
