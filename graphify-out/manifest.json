@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795206757.684361,
-    "seen": 1795207684.324728,
-    "ast_hash": "ab823e537361ab7292390470ef47160a",
+    "mtime": 1795208029.6059213,
+    "seen": 1795209118.6040268,
+    "ast_hash": "bf5cce8ce0879c543b2e12d715dbe854",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowSwitcherController.swift": {
-    "mtime": 1795098917.3685231,
-    "seen": 1795100255.849202,
-    "ast_hash": "a521ee0c8ff60f84f0351d3cf52604fd",
+    "mtime": 1795208030.2519557,
+    "seen": 1795209118.604077,
+    "ast_hash": "a3a051565f2ec42b8003ed87caf3fc36",
     "semantic_hash": ""
   },
   "App/Composition/WindowThumbnailCapture.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795206915.0756512,
-    "seen": 1795207684.324776,
-    "ast_hash": "b7ee2f8a9204bf364506e5ee259fc818",
+    "mtime": 1795208034.6889417,
+    "seen": 1795209118.604079,
+    "ast_hash": "579b33ed1f4a84d081f544f7c73c5f9d",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1795207657.2734418,
-    "seen": 1795207684.325103,
-    "ast_hash": "65efbf3d55ec47526632d3c62f9d6f29",
+    "mtime": 1795207946.94492,
+    "seen": 1795209118.6044312,
+    "ast_hash": "cf32ea9205b9f893ce74fb4e64edc227",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -2970,9 +2970,9 @@
     "semantic_hash": "ff91fe3d118e3cb16a04b0c1664b293c"
   },
   "Platform/Windows/WindowSnapService.swift": {
-    "mtime": 1795099023.9270644,
-    "seen": 1795100255.849717,
-    "ast_hash": "bd765b291f55ee1643c45e7fe4e89ddd",
+    "mtime": 1795207948.2798958,
+    "seen": 1795209118.604658,
+    "ast_hash": "fcf610e215f05cd5067b0e2e1c405bf0",
     "semantic_hash": ""
   },
   "Resources/AppIcon.icon/icon.json": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1795207658.2968524,
-    "seen": 1795207684.325438,
-    "ast_hash": "2e82878d344c0d115cd8e01c4e2272f6",
+    "mtime": 1795208341.1641839,
+    "seen": 1795209118.6048052,
+    "ast_hash": "32cd6a4734993f7148de3965e5355c10",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
@@ -7086,9 +7086,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1794908883.8586566,
-    "seen": 1794909452.567775,
-    "ast_hash": "03d56507395eb2dc70c50eb690c301e1",
+    "mtime": 1795208033.4416616,
+    "seen": 1795209118.604073,
+    "ast_hash": "ca6567cb3f9c50134b63a434676223fc",
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
