@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795184533.443381,
-    "seen": 1795187356.741483,
-    "ast_hash": "98db00fab4c76d98e8499c220d44b9d2",
+    "mtime": 1795190774.4670231,
+    "seen": 1795190868.523735,
+    "ast_hash": "a361afa3f1a490554afa3c2396163867",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795189454.8493848,
-    "seen": 1795189474.454265,
-    "ast_hash": "ffa086cf7c630113b414e9f6d362f78d",
+    "mtime": 1795190838.2094243,
+    "seen": 1795190868.5246341,
+    "ast_hash": "0f37e112d28f9518a505d0bc7d5a9e89",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7506,9 +7506,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795018453.939611,
-    "seen": 1795018623.8310819,
-    "ast_hash": "2b8d7777e94decd0d16d5a24d1ac7c04",
+    "mtime": 1795190529.1801693,
+    "seen": 1795190868.524034,
+    "ast_hash": "a2438942762066a1ffb6411ee2be4bd3",
     "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
@@ -7530,9 +7530,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingModelsTests.swift": {
-    "mtime": 1795018633.549259,
-    "seen": 1795018640.288161,
-    "ast_hash": "46cc4487930a5c631629e13b59418a55",
+    "mtime": 1795190582.6918411,
+    "seen": 1795190868.524342,
+    "ast_hash": "47ea454288f48bc15c1d3a4481c7079e",
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingServicesTests.swift": {
