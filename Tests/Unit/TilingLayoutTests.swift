@@ -284,6 +284,61 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertEqual(StripParking.side(forEdge: .right, neighbourOnEdge: true), .bottom)
     }
 
+    func testRibbonColumnsScrollToTheFocusedColumn() {
+        let strip = ScrollingStripState(windowIDs: [w(1), w(2), w(3)], width: .half)
+        let content = CGRect(x: 100, y: 40, width: 1000, height: 800)
+        let start = TilingLayout.resolveRibbon(state: strip, in: content, gap: 8, camera: 0)
+        XCTAssertEqual(start.frames[w(1)]?.minX, 100)
+        XCTAssertEqual(start.frames[w(2)]?.minX, 608)
+        XCTAssertEqual(start.frames[w(3)]?.minX, 1116)
+        XCTAssertEqual(start.parked[w(3)], .right, "a column past the right edge parks there")
+        XCTAssertNil(start.parked[w(1)])
+
+        var focused = strip
+        focused.focus(w(3))
+        let scrolled = TilingLayout.resolveRibbon(state: focused, in: content, gap: 8, camera: 0)
+        XCTAssertEqual(scrolled.camera, 516, "the camera stops when the last column is flush right")
+        XCTAssertEqual(scrolled.frames[w(3)]?.maxX, 1100)
+        XCTAssertEqual(scrolled.parked[w(1)], .left, "the column pushed out on the left parks there")
+        XCTAssertNil(scrolled.parked[w(3)])
+    }
+
+    func testRibbonTabsShareTheirColumnFrame() {
+        var strip = ScrollingStripState(windowIDs: [w(1), w(2), w(3)])
+        strip.focus(w(2))
+        strip.stackLeft()
+        let laid = TilingLayout.resolveRibbon(state: strip, in: CGRect(x: 0, y: 0, width: 1000, height: 800), gap: 8, camera: 0)
+        XCTAssertEqual(laid.frames[w(1)], laid.frames[w(2)], "both tabs sit in the same column")
+        XCTAssertEqual(laid.frames[w(1)]?.width, 500)
+    }
+
+    // MARK: - Ribbon pictures (RT-3)
+
+    func testRibbonPicturesMapOntoExistingGeometry() {
+        XCTAssertEqual(RibbonQuickLayout.allCases.count, 8)
+        XCTAssertEqual(RibbonQuickLayout.allCases.first, .chain, "Chain leads the visual order")
+        XCTAssertNil(RibbonQuickLayout.chain.catalog)
+        XCTAssertEqual(RibbonQuickLayout.chain.slots, 0, "the strip itself has no slot cap")
+        for picture in RibbonQuickLayout.allCases where picture != .chain {
+            guard let catalog = picture.catalog else {
+                XCTFail("\(picture) must map to a catalog picture")
+                continue
+            }
+            XCTAssertEqual(picture.slots, catalog.slots, "picture and catalog agree on \(picture)")
+            let ids = (0..<6).map { WindowID(rawValue: "p\($0)") }
+            let area = CGRect(x: 0, y: 0, width: 1440, height: 860)
+            let frames = catalog.frames(for: ids, workArea: area, gaps: TilingGaps(inner: 8, outer: 8))
+            XCTAssertEqual(frames.count, catalog.slots, "\(picture) shows exactly its slots")
+            for frame in frames.values {
+                XCTAssertTrue(area.contains(frame), "\(picture) stays inside the work area")
+            }
+        }
+        XCTAssertEqual(RibbonQuickLayout.fiveUp.slots, 5)
+        XCTAssertEqual(RibbonQuickLayout.sixUp.slots, 6)
+        XCTAssertEqual(RibbonQuickLayout.twoPlusOne.catalog, .mainRight)
+        XCTAssertEqual(RibbonQuickLayout.onePlusTwo.catalog, .mainLeft)
+    }
+
     // MARK: - Sliced presets
 
     func testSlicedPresetsTileInsideWorkAreaWithoutOverlap() {

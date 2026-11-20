@@ -188,6 +188,7 @@ struct SettingsTilingPane: View {
         case .columns: return Text("Columns: windows sit side by side, full height.")
         case .rows: return Text("Rows: windows stack top to bottom, full width.")
         case .centeredMain: return Text("Centered Main: the first window sits in the middle; the rest flank it.")
+        case .ribbon: return Text("Ribbon: windows sit in a row of columns. The strip scrolls to follow focus; ⌃⌥⇧R changes the focused column's width.")
         }
     }
 

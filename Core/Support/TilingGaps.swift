@@ -120,7 +120,7 @@ enum StripCamera {
 /// any window on screen — ~1 pt at an edge; asking for more snaps back to ~40 pt and never above
 /// the menu bar — so the strip asks for that clamp and reads back what it was granted.
 enum StripParking {
-    enum Side: Sendable { case left, right, bottom }
+    enum Side: Sendable, Hashable { case left, right, bottom }
 
     /// The sliver macOS leaves visible. Larger asks are clamped by the WindowServer, so the solver
     /// requests this value to keep the requested and granted frames in agreement.

@@ -13953,6 +13953,101 @@
         }
       }
     },
+    "Ribbon: windows sit in a row of columns. The strip scrolls to follow focus; ⌃⌥⇧R changes the focused column's width.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "ريبون: تصطف النوافذ في أعمدة. يتحرك الشريط لمتابعة التركيز، ويغيّر ⌃⌥⇧R عرض العمود النشط."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: Fenster sitzen in einer Reihe von Spalten. Der Streifen scrollt zum Fokus; ⌃⌥⇧R ändert die Breite der fokussierten Spalte."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: windows sit in a row of columns. The strip scrolls to follow focus; ⌃⌥⇧R changes the focused column's width."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: las ventanas se colocan en una fila de columnas. La tira se desplaza para seguir el foco; ⌃⌥⇧R cambia el ancho de la columna enfocada."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: las ventanas se colocan en una fila de columnas. La tira se desplaza para seguir el foco; ⌃⌥⇧R cambia el ancho de la columna enfocada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon : les fenêtres s'alignent en colonnes. La bande défile pour suivre le focus ; ⌃⌥⇧R change la largeur de la colonne active."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: le finestre stanno in una fila di colonne. La striscia scorre per seguire il focus; ⌃⌥⇧R cambia la larghezza della colonna attiva."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "リボン：ウインドウが横一列のコラムに並びます。フォーカスに合わせてストリップがスクロールし、⌃⌥⇧R でフォーカス中のコラム幅を変えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "리본: 윈도우가 가로 열로 나란히 놓입니다. 포커스를 따라 스트립이 스크롤되며, ⌃⌥⇧R로 포커스된 열의 너비를 바꿉니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: vensters staan in een rij kolommen. De strook scrolt mee met de focus; ⌃⌥⇧R wijzigt de breedte van de actieve kolom."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: as janelas ficam em uma fileira de colunas. A faixa rola para seguir o foco; ⌃⌥⇧R muda a largura da coluna em foco."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: as janelas ficam numa fila de colunas. A faixa desliza para seguir o foco; ⌃⌥⇧R altera a largura da coluna em foco."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon: окна стоят в ряд колонками. Лента прокручивается вслед за фокусом; ⌃⌥⇧R меняет ширину активной колонки."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon：窗口排成一列列。条带会滚动跟随焦点，⌃⌥⇧R 调整当前列的宽度。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Ribbon：視窗排成一列列。條帶會捲動跟隨焦點，⌃⌥⇧R 調整目前欄位的寬度。"
+          }
+        }
+      }
+    },
     "BSP: each new window takes half of the space left, so four windows form a grid.": {
       "extractionState": "manual",
       "localizations": {

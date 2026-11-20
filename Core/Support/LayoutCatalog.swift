@@ -4,13 +4,16 @@ import CoreGraphics
 /// and a slot count: windows past `slots` wait out of the way instead of shrinking the tiles.
 enum LayoutCatalog: String, CaseIterable, Sendable {
     case staged, fullscreen, halves, twoThirdsOneThird, thirds, quarters, stacked, mainLeft, mainRight
+    /// Ribbon pictures (RT-3): the same grid preset with a five- or six-slot cap, so the strip can
+    /// offer 5/6 without new geometry.
+    case fiveUp, sixUp
 
     var preset: TilingLayoutPreset {
         switch self {
         case .staged, .fullscreen: return .monocle
         case .halves, .thirds: return .columns
         case .stacked: return .rows
-        case .quarters: return .grid
+        case .quarters, .fiveUp, .sixUp: return .grid
         case .twoThirdsOneThird, .mainLeft, .mainRight: return .mainStack
         }
     }
@@ -32,6 +35,8 @@ enum LayoutCatalog: String, CaseIterable, Sendable {
         case .halves, .twoThirdsOneThird, .stacked: return 2
         case .thirds, .mainLeft, .mainRight: return 3
         case .quarters: return 4
+        case .fiveUp: return 5
+        case .sixUp: return 6
         }
     }
 
@@ -46,6 +51,8 @@ enum LayoutCatalog: String, CaseIterable, Sendable {
         case .stacked: return "Stacked"
         case .mainLeft: return "Main Left"
         case .mainRight: return "Main Right"
+        case .fiveUp: return "Five"
+        case .sixUp: return "Six"
         }
     }
 
@@ -61,6 +68,8 @@ enum LayoutCatalog: String, CaseIterable, Sendable {
         case .stacked: return "Two windows, top and bottom"
         case .mainLeft: return "One on the left, two on the right"
         case .mainRight: return "Two on the left, one on the right"
+        case .fiveUp: return "Five windows in a grid"
+        case .sixUp: return "Six windows in a grid"
         }
     }
 
@@ -76,3 +85,41 @@ enum LayoutCatalog: String, CaseIterable, Sendable {
         return TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
     }
 }
+
+/// The ribbon picker's eight pictures, in visual order (RT-3). A quick layout is a table over the
+/// existing presets, not new geometry: Chain is the strip itself, and each of the other seven is a
+/// catalog picture with a slot cap, so the picture and the strip agree on how many windows show.
+enum RibbonQuickLayout: String, CaseIterable, Sendable {
+    case chain, halves, twoPlusOne, onePlusTwo, thirds, quarters, fiveUp, sixUp
+
+    /// The catalog picture this key draws; `nil` for Chain, which is the scrolling strip itself.
+    var catalog: LayoutCatalog? {
+        switch self {
+        case .chain: return nil
+        case .halves: return .halves
+        case .twoPlusOne: return .mainRight
+        case .onePlusTwo: return .mainLeft
+        case .thirds: return .thirds
+        case .quarters: return .quarters
+        case .fiveUp: return .fiveUp
+        case .sixUp: return .sixUp
+        }
+    }
+
+    /// Windows the picture shows; Chain shows everything the strip holds.
+    var slots: Int { catalog?.slots ?? 0 }
+
+    var title: String {
+        switch self {
+        case .chain: return "Chain"
+        case .halves: return "Halves"
+        case .twoPlusOne: return "2 + 1"
+        case .onePlusTwo: return "1 + 2"
+        case .thirds: return "Thirds"
+        case .quarters: return "Quarters"
+        case .fiveUp: return "Five"
+        case .sixUp: return "Six"
+        }
+    }
+}
+

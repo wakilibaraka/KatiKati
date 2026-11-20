@@ -19,6 +19,8 @@ enum TilingLayoutPreset: String, CaseIterable, Sendable, Codable {
     case rows
     /// Centered Main: primary window in the middle, the rest split to either side.
     case centeredMain
+    /// Ribbon: a horizontal strip of columns that scrolls to keep the focused one in view.
+    case ribbon
 
     var localizedTitleKey: String {
         switch self {
@@ -30,6 +32,7 @@ enum TilingLayoutPreset: String, CaseIterable, Sendable, Codable {
         case .columns: return "Columns"
         case .rows: return "Rows"
         case .centeredMain: return "Centered Main"
+        case .ribbon: return "Ribbon"
         }
     }
 }
@@ -69,6 +72,11 @@ enum TilingLayout {
 
         case .grid, .spiral, .columns, .rows, .centeredMain:
             return resolveSliced(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
+
+        case .ribbon:
+            // The strip's own geometry needs its column state; without it the closest static shape
+            // is a row of equal columns (the engine always passes the state, see `resolveRibbon`).
+            return resolveSliced(tree: tree, preset: .columns, workArea: workArea, gaps: gaps, options: options)
         }
     }
 
@@ -302,6 +310,18 @@ struct StripColumn: Equatable, Sendable {
     var isTabbed: Bool { windowIDs.count > 1 }
 }
 
+/// One screen's ribbon geometry: the columns laid left→right, the camera that shows the focused
+/// column, and the windows that ended up outside the viewport.
+struct RibbonFrames: Equatable, Sendable {
+    var frames: [WindowID: CGRect]
+    var camera: CGFloat
+    var contentWidth: CGFloat
+    /// Windows fully outside the viewport, with the edge they should park against.
+    var parked: [WindowID: StripParking.Side]
+
+    static let empty = RibbonFrames(frames: [:], camera: 0, contentWidth: 0, parked: [:])
+}
+
 /// Per-display ribbon state: an ordered list of columns and the focused column (RT-1). Order is the
 /// strip's left→right order; a new window joins to the right of focus, closing removes the column
 /// and closes the gap.
@@ -428,6 +448,50 @@ struct ScrollingStripState: Equatable, Sendable {
         guard count > 1 else { return }
         let next = (columns[focusedIndex].activeIndex + offset + count) % count
         columns[focusedIndex].activeIndex = next
+    }
+}
+
+extension TilingLayout {
+    /// Lays the columns out in content coordinates (0 = the strip's first column) and resolves the
+    /// camera so the focused column is wholly visible. Every window of a tabbed column shares the
+    /// column's frame; the active one is simply the last written into the strip.
+    static func resolveRibbon(
+        state: ScrollingStripState,
+        in content: CGRect,
+        gap: CGFloat,
+        camera: CGFloat
+    ) -> RibbonFrames {
+        guard !state.columns.isEmpty, content.width > 0, content.height > 0 else { return .empty }
+        let spacing = max(0, gap)
+
+        var x: CGFloat = 0
+        var rects: [CGRect] = []
+        for column in state.columns {
+            let width = max(1, (content.width * column.width.fraction).rounded())
+            rects.append(CGRect(x: x, y: 0, width: width, height: content.height))
+            x += width + spacing
+        }
+        let contentWidth = max(0, x - spacing)
+        let focused = rects.indices.contains(state.focusedIndex) ? rects[state.focusedIndex] : rects[0]
+        let offset = StripCamera.offset(
+            focused: focused, viewportWidth: content.width, contentWidth: contentWidth, current: camera
+        )
+
+        var frames: [WindowID: CGRect] = [:]
+        var parked: [WindowID: StripParking.Side] = [:]
+        for (rect, column) in zip(rects, state.columns) {
+            var frame = rect
+            frame.origin.x += content.minX - offset
+            frame.origin.y = content.minY
+            let side: StripParking.Side? = frame.maxX <= content.minX
+                ? .left
+                : (frame.minX >= content.maxX ? .right : nil)
+            for id in column.windowIDs {
+                frames[id] = frame
+                if let side { parked[id] = side }
+            }
+        }
+        return RibbonFrames(frames: frames, camera: offset, contentWidth: contentWidth, parked: parked)
     }
 }
 
