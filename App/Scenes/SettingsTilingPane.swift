@@ -11,6 +11,11 @@ struct SettingsTilingPane: View {
     @State private var floatingAppsDraft: String = ""
     @AppStorage(FocusFollowService.enabledKey) private var focusFollow = false
 
+    /// The strip's own rows only make sense when a display is actually drawing the ribbon.
+    private var showsRibbonRows: Bool {
+        engine.preset == .ribbon || engine.displayPresets.values.contains(.ribbon)
+    }
+
     var body: some View {
         // One card, not four. Window Management carried **six** sections — Tiling, Layout, Floating
         // Applications, Tiling Shortcuts, Window Chips, Window Behaviour — against rule 5's three,
@@ -59,6 +64,21 @@ struct SettingsTilingPane: View {
                         .buttonStyle(.bordered)
                         .help(Text(picture.title))
                     }
+                }
+                if showsRibbonRows {
+                    SettingsDivider()
+                    SettingsPickerRow(
+                        Text("Column Width"),
+                        selection: Binding(
+                            get: { engine.focusedColumnWidth },
+                            set: { engine.setStripColumnWidth($0) }
+                        )
+                    ) {
+                        ForEach(ColumnWidthPreset.allCases, id: \.self) { width in
+                            Text(verbatim: width.glyph).tag(width)
+                        }
+                    }
+                    SettingsNote(Text("Parked columns keep the sliver macOS allows at the edge (about 1 pt); the peek is the OS clamp, so there is nothing to tune."))
                 }
                 if NSScreen.screens.count > 1 {
                     ForEach(NSScreen.screens, id: \.self) { screen in

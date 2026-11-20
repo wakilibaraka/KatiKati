@@ -166070,6 +166070,196 @@
           }
         }
       }
+    },
+    "Column Width": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Column Width"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض العمود"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spaltenbreite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancho de columna"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancho de columna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Largeur de colonne"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Larghezza colonna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "列の幅"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "열 너비"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kolombreedte"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Largura da coluna"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Largura da coluna"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ширина столбца"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "列宽"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欄寬"
+          }
+        }
+      }
+    },
+    "Parked columns keep the sliver macOS allows at the edge (about 1 pt); the peek is the OS clamp, so there is nothing to tune.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parked columns keep the sliver macOS allows at the edge (about 1 pt); the peek is the OS clamp, so there is nothing to tune."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتفظ الأعمدة المثبّتة بالشريط الصغير الذي يسمح به macOS عند الحافة (حوالي 1 نقطة)؛ هذا الظهور هو حد النظام، لذا لا يوجد ما يمكن ضبطه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geparkte Spalten behalten den schmalen Streifen, den macOS am Rand zulässt (etwa 1 pt); dieser Peek ist die Vorgabe des Systems, es gibt also nichts einzustellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las columnas aparcadas conservan la franja que macOS permite en el borde (unos 1 pt); ese asomo lo impone el sistema, así que no hay nada que ajustar."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las columnas aparcadas conservan la franja que macOS permite en el borde (unos 1 pt); ese asomo lo impone el sistema, así que no hay nada que ajustar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les colonnes garées gardent le mince bandeau que macOS autorise au bord (environ 1 pt) ; cet aperçu vient du système, il n’y a donc rien à régler."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le colonne parcheggiate mantengono la striscia che macOS consente al bordo (circa 1 pt); quella sbirciatina è il limite del sistema, quindi non c’è nulla da regolare."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退避した列は、macOS が端に許すわずかなのぞき（約 1 pt）を残します。この幅はシステムの制限なので、調整する項目はありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "파킹된 열은 macOS가 가장자리에 허용하는 얇은 조각(약 1pt)을 유지합니다. 이 미리보기는 시스템 제한이라 조정할 값이 없습니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geparkeerde kolommen houden het strookje dat macOS aan de rand toestaat (ongeveer 1 pt); die glimp is de limiet van het systeem, dus er valt niets in te stellen."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As colunas estacionadas mantêm a faixa que o macOS permite na borda (cerca de 1 pt); essa espiada é o limite do sistema, então não há nada para ajustar."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As colunas estacionadas mantêm a faixa que o macOS permite na borda (cerca de 1 pt); esta espreitadela é o limite do sistema, por isso não há nada para ajustar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Припаркованные столбцы сохраняют полоску, которую macOS допускает у края (около 1 pt); этот край задаёт система, настраивать нечего."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停靠的列会保留 macOS 在屏幕边缘允许的窄条（约 1 点）；这个露出量由系统决定，没有可调项。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停駐的欄會保留 macOS 在螢幕邊緣允許的窄條（約 1 點）；這個露出量由系統決定，沒有可調項目。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

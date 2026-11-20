@@ -281,6 +281,21 @@ final class TilingEngine: ObservableObject {
         UserDefaults.standard.set(stripWidth.rawValue, forKey: Self.stripWidthKey)
     }
 
+    /// The width the strip gives its focused column; falls back to the width new columns start at.
+    /// The Settings picker binds to this, and ⌃⌥⇧R cycles the same value.
+    var focusedColumnWidth: ColumnWidthPreset {
+        guard let key = activeScreenKey(), let column = strips[key]?.focusedColumn else { return stripWidth }
+        return column.width
+    }
+
+    /// Settings › Tiling row: set the focused column's width, and remember it as the width new
+    /// columns are born with — the same two effects cycling with ⌃⌥⇧R has.
+    func setStripColumnWidth(_ width: ColumnWidthPreset) {
+        stripWidth = width
+        UserDefaults.standard.set(width.rawValue, forKey: Self.stripWidthKey)
+        mutateStrip { $0.setWidth(width) }
+    }
+
     /// Focus a neighbouring column of the active display's strip, and bring its window forward.
     func focusStripColumn(_ offset: Int) {
         guard isEnabled, let key = activeScreenKey() else { return }

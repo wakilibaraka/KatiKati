@@ -796,6 +796,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // Ribbon-only restore (RT-4): the strip parks columns off screen, so give those windows back
+        // before the process goes. This used to hang off `suspendPanelsAndStores()`, which nothing
+        // calls — the strip's windows stayed parked after a quit.
+        TilingEngine.shared.restoreOnQuitIfNeeded()
         KeepAwakeService.shared.shutdown()
         // Give the system Dock back as the user had it before KatiKati hid it (next launch re-hides it).
         nativeDockPreferencesService.restoreOriginal()

@@ -281,6 +281,18 @@ enum ColumnWidthPreset: String, CaseIterable, Sendable, Codable {
         guard let i = all.firstIndex(of: self) else { return .half }
         return all[(i + 1) % all.count]
     }
+
+    /// Compact glyph for the width pickers (¼, ⅓, ½, ⅔, 1). Deliberately language-neutral: the
+    /// fraction *is* the label, so no locale should have to invent a word for "two thirds".
+    var glyph: String {
+        switch self {
+        case .quarter: return "¼"
+        case .third: return "⅓"
+        case .half: return "½"
+        case .twoThirds: return "⅔"
+        case .full: return "1"
+        }
+    }
 }
 
 /// One column of the scrolling strip. A tabbed column holds several windows and shows its active

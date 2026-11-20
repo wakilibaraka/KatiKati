@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795201518.5175476,
-    "seen": 1795201573.009639,
-    "ast_hash": "0f1d53e5d6fc3fae2496633f4a110c73",
+    "mtime": 1795202190.1973822,
+    "seen": 1795202776.666424,
+    "ast_hash": "c146c9cdd9b9059f3e5669cb49ec4ec1",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795196942.3079011,
-    "seen": 1795197010.4589,
-    "ast_hash": "90097f5ba72307d2cccf46a69a697a6c",
+    "mtime": 1795202512.3579018,
+    "seen": 1795202776.6664362,
+    "ast_hash": "35a60d882c7f4aecfdf72888c018d9fa",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1795196917.536242,
-    "seen": 1795197010.459061,
-    "ast_hash": "865027abd8459b3dd3d9c457d05b7dcd",
+    "mtime": 1795202190.197942,
+    "seen": 1795202776.666589,
+    "ast_hash": "a294d6fee24abfed2d51fb6ce0179933",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
-    "mtime": 1795196450.6047761,
-    "seen": 1795196634.6612961,
-    "ast_hash": "0b8d7bec418a329db725700af47a6077",
+    "mtime": 1795202190.1984556,
+    "seen": 1795202776.6668391,
+    "ast_hash": "3d98b16efeafab1e7dd4d81e50dc0e51",
     "semantic_hash": ""
   },
   "Core/Support/TilingPolicy.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795201419.6478813,
-    "seen": 1795201573.010562,
-    "ast_hash": "812b26b13ed21ce3300b1d31eada46ae",
+    "mtime": 1795202648.4354622,
+    "seen": 1795202776.6673331,
+    "ast_hash": "db2ff3c41eecc7da3fe1422698ceddc5",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7997,60 +7997,6 @@
     "ast_hash": "7a2c4e4f75e0a67ea9f29c8d6d388b7b",
     "semantic_hash": ""
   },
-  ".livecheck/windows.swift": {
-    "mtime": 1795103068.6449885,
-    "seen": 1795103448.5269918,
-    "ast_hash": "6d248a40c020975272e72234c1283029",
-    "semantic_hash": ""
-  },
-  ".livecheck/current.jpg": {
-    "mtime": 1795103037.892448,
-    "seen": 1795103448.5279932,
-    "ast_hash": "ba263644b6a434b1b03b9d7daaf07214",
-    "semantic_hash": ""
-  },
-  ".livecheck/front.jpg": {
-    "mtime": 1795102902.6451752,
-    "seen": 1795103448.5279942,
-    "ast_hash": "9edcb03637782caf623cd2cbd30c050f",
-    "semantic_hash": ""
-  },
-  ".livecheck/screen.png": {
-    "mtime": 1795102849.1107235,
-    "seen": 1795103448.5279949,
-    "ast_hash": "4c754e4d701f2bdf2e495d8dd7f5ad2b",
-    "semantic_hash": ""
-  },
-  ".livecheck/screen2-small.png": {
-    "mtime": 1795102882.824587,
-    "seen": 1795103448.5279949,
-    "ast_hash": "8df223e5fec284f11cdf25988571d389",
-    "semantic_hash": ""
-  },
-  ".livecheck/screen2.jpg": {
-    "mtime": 1795102887.3597283,
-    "seen": 1795103448.5279958,
-    "ast_hash": "a48426246fe2cb7f146e0a9a047ddaac",
-    "semantic_hash": ""
-  },
-  ".livecheck/screen2.png": {
-    "mtime": 1795102872.7920632,
-    "seen": 1795103448.527997,
-    "ast_hash": "8d67550158d2756847e8e2d00df36404",
-    "semantic_hash": ""
-  },
-  ".livecheck/settings-only.jpg": {
-    "mtime": 1795103084.0017757,
-    "seen": 1795103448.527997,
-    "ast_hash": "ae08c33c25d274c41bac48761a3a1052",
-    "semantic_hash": ""
-  },
-  ".livecheck/wm-live.jpg": {
-    "mtime": 1795103159.9119377,
-    "seen": 1795103448.527998,
-    "ast_hash": "34cc6e0306cb4a93a2147f6420594a50",
-    "semantic_hash": ""
-  },
   "dock_polish_overflow_onboarding_plan.md": {
     "mtime": 1795181123.4078426,
     "seen": 1795181407.5083961,
@@ -8058,9 +8004,9 @@
     "semantic_hash": ""
   },
   "ribbon_scrolling_tiling_plan.md": {
-    "mtime": 1795201419.6456053,
-    "seen": 1795201573.010571,
-    "ast_hash": "4c1bc4c8d236ed15047ed910307cfe7f",
+    "mtime": 1795202640.4834588,
+    "seen": 1795202776.667341,
+    "ast_hash": "cf34255c4a60b5dae2dfd0f2c269c251",
     "semantic_hash": ""
   }
 }

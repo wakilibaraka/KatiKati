@@ -1,7 +1,9 @@
 # Ribbon (Scrolling Strip) — audit + slice plan
 
-Status: **shipped.** RT-0…RT-5 and RT-7 are in `main` (`b8ed2d25`, `786a0be1`, `f2c7e028`,
-`1f7c469e`); the ⌥-scroll half of RT-6 is deliberately deferred (see *Deferred* below).
+Status: **shipped.** RT-0…RT-8 are in `main` (`b8ed2d25`, `786a0be1`, `f2c7e028`, `1f7c469e`,
+`85611113`, plus the close-out commits at the end of this file's log); the ⌥-scroll half of RT-6 is
+deliberately deferred (see *Deferred* below), and so is the peek row as a *control* — macOS owns that
+number. No checklist item is open.
 
 Scope: a scrollable strip of columns as a *tiling preset* (`.ribbon`), reusing the existing
 `TilingTree`, `TilingEngine`, `TilingGaps`, `WindowSnapService.place`, the Carbon hotkey registry
@@ -74,8 +76,9 @@ on quit.
   `AppDelegate` dispatch. Width cycle defaults to ⌃⌥⇧R; pictures to ⌘⌃1–8; the rest `.off`.
 - **RT-6 gestures** — `.stripNext` / `.stripPrevious` targets + dispatch, optional ⌥-scroll monitor
   behind a default-off key.
-- **RT-7 UI** — eight-picture grid in `SettingsTilingPane` and the Windows flyout, preset note,
-  width/peek rows.
+- **RT-7 UI** — eight-picture grid in `SettingsTilingPane` and the Windows flyout (the flyout draws
+  Chain itself and the other seven as the catalog pictures), preset note, a Column Width row, and a
+  parking-peek note.
 - **RT-8 localization** — the new keys, hand-anchored in `Localizable.xcstrings` for all 15 locales
   (catalog-only commit; no whole-file rewrite).
 
@@ -83,8 +86,15 @@ on quit.
 
 `xcodebuild test -only-testing:KatiKatiTests/TilingLayoutTests` for the pure slices, then the full
 suite + `Scripts/check_localization.py` + `Scripts/check_debug_switches.py`. Live: enable the
-ribbon, verify new windows join right, widths survive a new open, parking peek, ⌃⌥N handoff,
-disable/quit restore. Idle CPU measured with `top -l 5 -pid` (expect ~0.0–0.3 %), not asserted.
+ribbon, verify new windows join right, widths survive a new open, the parking peek, focusing a
+column from its shortcut, and disable/quit restore. Idle CPU measured with `top -l 5 -pid`, not
+asserted.
+
+The first draft of this line said "⌃⌥N handoff" as if a strip focus key shipped bound. It does not:
+every strip focus/move/tab action is `.off` by default (only ⌃⌥⇧R and ⌘⌃1–8 have defaults), so the
+shortcut path is reachable only after the owner assigns a key in Settings › Shortcuts. The focus
+path it drives is the same one app activation and a click on a sliver drive, and that is what the
+live checks below exercise.
 
 ## What shipped
 
@@ -105,12 +115,16 @@ disable/quit restore. Idle CPU measured with `top -l 5 -pid` (expect ~0.0–0.3 
 - **Engine** — per-display `strips`/`stripOffsets`, ribbon branch before the catalog branch, the
   usable-size guard skipped on this path, parking written with `within: nil`, a requested-frame
   cache so the WindowServer's clamp does not re-fire AX, width persisted
-  (`com.katikati.tiling.stripWidth`), `applyQuickLayout`, and ribbon-only restore on quit.
+  (`com.katikati.tiling.stripWidth`), `applyQuickLayout`, and ribbon-only restore on quit — wired
+  into `applicationWillTerminate` at close-out, because the call used to live in
+  `suspendPanelsAndStores()`, which nothing calls, so a quit left the parked columns parked.
 - **Shortcuts** — ids 56–64 for the strip, 65–72 for the pictures; ⌃⌥⇧R cycles width and ⌘⌃1–8 set
   the pictures; all strip actions are `.off` by default so nothing new grabs a key.
 - **Gestures** — `GestureActionTarget.stripNext`/`.stripPrevious` step along the strip.
-- **UI** — eight-picture grid in Settings › Tiling, a Chain button in the Windows flyout (Five and
-  Six appear through the catalog), preset note, all 16 new labels in 15 locales.
+- **UI** — eight-picture grid in Settings › Tiling, a Chain button plus the catalog pictures in the
+  Windows flyout (so all eight are reachable there; Five and Six appear through the catalog), preset
+  note, a Column Width picker bound to the focused column (`TilingEngine.setStripColumnWidth`, same
+  effect as ⌃⌥⇧R), a note that the parking peek is the OS clamp, and all 18 new labels in 15 locales.
 
 ## Live check (2026-11-20, single 1710 pt display)
 
@@ -161,6 +175,33 @@ keys were deleted afterwards; they were absent from the snapshot).
   later snapshots — the engine does not re-park the window it just revealed, and a partial drag is
   adopted as focus (`tree.focus`, not a release) instead of being snapped back mid-drag.
 
+### Close-out (2026-11-20, after the audit against `85611113`)
+
+The plan was re-read item by item against the code, not against earlier summaries. Two RT-7 items and
+one RT-4 item were still open and are closed here; the measurements below are from the rebuilt app on
+the same staged prefs, restored afterwards.
+
+- **New windows join right.** A new TextEdit document grew the strip by one column —
+  `content 28314 → 29917`, camera `10838 → 11123` — written at the strip's current width.
+  `ScrollingStripState.insert` places it right of focus and `sync(with:)` does not reorder the
+  existing columns.
+- **Widths survive a new open.** ⌃⌥⇧R on the focused column widened Freebuff `847 → 1129`
+  (½ → ⅔, camera `11123 → 11405`, frame `573, 46, 1129, 1010`). Opening another TextEdit document
+  afterwards left that column at `1129` and gave the new column the same width (`content 30199 →
+  31336`); cycling also stores the value as the width new columns start at, by design.
+- **Quit restore.** Before the wiring fix a quit with the ribbon on left YouTube Music at
+  `1664, 46, 1099, 1010` instead of its pre-launch `1709, 46, 847, 1010`. After moving the call into
+  `applicationWillTerminate`, the same quit returned it from a tiled `1709, 46, 1129, 1010` to
+  `1664, 46, 1099, 1010` — its pre-launch frame.
+- **Idle CPU.** `top -l 5 -pid` on the running app: ribbon on `4.0–4.8 %`, tiling off `2.7–5.2 %`.
+  The strip adds nothing measurable; the plan's "expect ~0.0–0.3 %" was a guess about the whole
+  process, and neither state matches it.
+- **Disable restore** is the pre-existing toggle path (`setEnabled(false)` → `restorePreTilingFrames`),
+  unchanged by this work and not driven live here; the quit path is the one measured above.
+- **Column Width row.** Added to Settings › Tiling (shown only while a display draws the ribbon); it
+  writes the focused column and the new-column default through `setStripColumnWidth`. Not inspected
+  on screen — the build and the settings catalog are the evidence for that row.
+
 ## Deferred
 
 - **⌥+2-finger scroll on the strip.** A passive global monitor cannot consume the event, so the app
@@ -170,3 +211,9 @@ keys were deleted afterwards; they were absent from the snapshot).
 - **Live rebuild of a multi-display ribbon.** This machine has one display; the neighbour-display
   parking path is unit-tested (`StripParking.side(forEdge:neighbourOnEdge:)`) but has no on-screen
   witness here.
+- **A peek control.** `StripParking` asks for the 1 pt sliver and the WindowServer grants ~45 pt, so
+  the peek belongs to macOS and the Settings row is a note rather than a slider: there is no number
+  of ours to tune (finding 2).
+- **A default ⌃⌥N strip key.** Every strip focus/move/tab action ships `.off`; the plan's earlier
+  "⌃⌥N handoff" note described an idea, not a binding, and adding a default would grab a key nobody
+  asked for.
