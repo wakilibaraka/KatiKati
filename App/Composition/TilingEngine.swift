@@ -21,6 +21,22 @@ final class TilingEngine: ObservableObject {
         DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
     }
 
+    // MARK: - Ribbon State
+
+    static let stripWidthKey = "com.katikati.tiling.stripWidth"
+
+    /// Width new ribbon columns are born with; cycling a column updates it too.
+    @Published private(set) var stripWidth: ColumnWidthPreset = {
+        UserDefaults.standard.string(forKey: stripWidthKey).flatMap(ColumnWidthPreset.init(rawValue:)) ?? .half
+    }()
+    /// One strip per display, keyed like the trees; seeded from the tree and written back each pass.
+    private var strips: [String: ScrollingStripState] = [:]
+    /// Scroll offset per display, so the camera does not jitter between passes.
+    private var stripOffsets: [String: CGFloat] = [:]
+    /// What we last asked each window to be. A parked window is granted less than it asks for, so
+    /// comparing against the granted frame alone would re-fire AX on every snapshot (RT-4).
+    private var lastRequestedFrames: [CGWindowID: CGRect] = [:]
+
     // MARK: - UserDefaults Keys
     static let enabledKey = "com.katikati.tiling.enabled"
     static let presetKey = "com.katikati.tiling.preset"
@@ -122,10 +138,71 @@ final class TilingEngine: ObservableObject {
         } else {
             restorePreTilingFrames()
             trees.removeAll()
+            strips.removeAll()
+            stripOffsets.removeAll()
             releasedWindowIDs.removeAll()
             lastAppliedFrames.removeAll()
+            lastRequestedFrames.removeAll()
         }
     }
+
+    /// Ribbon-only: put windows back where the strip found them when the app quits. Every other
+    /// preset keeps the existing behaviour (restore only when tiling is switched off).
+    func restoreOnQuitIfNeeded() {
+        guard isEnabled, preset == .ribbon || displayPresets.values.contains(.ribbon) else { return }
+        restorePreTilingFrames()
+    }
+
+    /// Applies one of the ribbon's eight pictures. Chain turns the strip on; the others pick the
+    /// catalog picture that draws that shape.
+    func applyQuickLayout(_ picture: RibbonQuickLayout) {
+        guard let screen = activeScreen() ?? NSScreen.screens.first else { return }
+        if let catalog = picture.catalog {
+            setLayout(catalog, for: screen)
+        } else {
+            setPreset(.ribbon, for: screen)
+        }
+        if !isEnabled { setEnabled(true) }
+    }
+
+    /// Runs `body` on the active display's strip, seeding it from the tree when the strip is new.
+    private func mutateStrip(_ body: (inout ScrollingStripState) -> Void) {
+        guard isEnabled, let key = activeScreenKey() else { return }
+        var state = strips[key]
+            ?? ScrollingStripState(windowIDs: trees[key]?.allWindowIDs ?? [], width: stripWidth)
+        body(&state)
+        strips[key] = state
+        reapplyLayout()
+    }
+
+    func cycleStripWidth() {
+        mutateStrip { $0.cycleWidth() }
+        if let width = strips[activeScreenKey() ?? ""]?.width { stripWidth = width }
+        UserDefaults.standard.set(stripWidth.rawValue, forKey: Self.stripWidthKey)
+    }
+
+    /// Focus a neighbouring column of the active display's strip, and bring its window forward.
+    func focusStripColumn(_ offset: Int) {
+        guard isEnabled, let key = activeScreenKey() else { return }
+        var state = strips[key]
+            ?? ScrollingStripState(windowIDs: trees[key]?.allWindowIDs ?? [], width: stripWidth)
+        state.focusColumn(offset)
+        strips[key] = state
+        if let id = state.focusedID, var tree = trees[key] {
+            tree.focus(id)
+            trees[key] = tree
+            activateWindow(id)
+        }
+        reapplyLayout()
+    }
+
+    func moveStripColumn(_ offset: Int) { mutateStrip { $0.swapFocused(offset) } }
+
+    func stackStripLeft() { mutateStrip { $0.stackLeft() } }
+
+    func toggleStripTabs() { mutateStrip { $0.toggleTabs() } }
+
+    func focusStripTab(_ offset: Int) { mutateStrip { $0.focusTab(offset) } }
 
     /// Brings every hand-moved window back under tiling.
     func retileAll() {
@@ -309,6 +386,7 @@ final class TilingEngine: ObservableObject {
         let liveCGIDs = Set(snapshot.windows.values.compactMap(\.cgWindowID))
         preTilingFrames = preTilingFrames.filter { liveCGIDs.contains($0.key) }
         lastAppliedFrames = lastAppliedFrames.filter { liveCGIDs.contains($0.key) }
+        lastRequestedFrames = lastRequestedFrames.filter { liveCGIDs.contains($0.key) }
         let prunedReleased = releasedWindowIDs.intersection(liveCGIDs)
         if prunedReleased != releasedWindowIDs {
             releasedWindowIDs = prunedReleased
@@ -409,10 +487,19 @@ final class TilingEngine: ObservableObject {
 
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
-            var targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
+            var targetFrames: [WindowID: CGRect]
+            var parked: [WindowID: StripParking.Side] = [:]
             if let catalogLayout = layout(for: screen) {
+                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
                 overflow += max(0, eligible.count - catalogLayout.slots)
+            } else if preset(for: screen) == .ribbon {
+                // A strip never shrinks a column to fit — it scrolls — so the usable-size guard is
+                // deliberately skipped here, otherwise a ¼ column would evict its own windows.
+                let ribbon = ribbonFrames(tree, on: screen, workArea: workArea)
+                targetFrames = ribbon.frames
+                parked = ribbon.parked
             } else {
+                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
                 let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
                 for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
                     tree.remove(id)
@@ -423,7 +510,7 @@ final class TilingEngine: ObservableObject {
             trees[key] = tree
 
             // Apply frames via AX
-            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea)
+            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea, parked: parked)
         }
     }
 
@@ -443,13 +530,57 @@ final class TilingEngine: ObservableObject {
         }
     }
 
+    /// The active display's strip, synced with its tree and resolved with the camera. Columns that
+    /// fall outside the viewport are parked at the edge macOS will accept.
+    private func ribbonFrames(
+        _ tree: TilingTree,
+        on screen: NSScreen,
+        workArea: CGRect
+    ) -> (frames: [WindowID: CGRect], parked: [WindowID: StripParking.Side]) {
+        let key = screenKey(for: screen)
+        var state = strips[key] ?? ScrollingStripState(windowIDs: tree.allWindowIDs, width: stripWidth)
+        state.sync(with: tree.allWindowIDs)
+        if let focused = tree.focusedID { state.focus(focused) }
+        strips[key] = state
+
+        let content = CGRect(
+            x: workArea.minX + gaps.outer,
+            y: workArea.minY + gaps.outer,
+            width: max(0, workArea.width - 2 * gaps.outer),
+            height: max(0, workArea.height - 2 * gaps.outer)
+        )
+        let laid = TilingLayout.resolveRibbon(
+            state: state, in: content, gap: gaps.inner, camera: stripOffsets[key] ?? 0
+        )
+        stripOffsets[key] = laid.camera
+
+        let screens = NSScreen.screens
+        let neighbourLeft = screens.contains { other in
+            other !== screen && abs(other.frame.maxX - screen.frame.minX) < 1
+        }
+        let neighbourRight = screens.contains { other in
+            other !== screen && abs(other.frame.minX - screen.frame.maxX) < 1
+        }
+
+        var frames = laid.frames
+        var parked: [WindowID: StripParking.Side] = [:]
+        for (id, edge) in laid.parked {
+            let neighbour = edge == .left ? neighbourLeft : neighbourRight
+            let side = StripParking.side(forEdge: edge, neighbourOnEdge: neighbour)
+            frames[id] = StripParking.parked(frames[id] ?? content, in: workArea, side: side)
+            parked[id] = side
+        }
+        return (frames, parked)
+    }
+
     // MARK: - AX Frame Writing
 
     private func applyFrames(
         _ targetFrames: [WindowID: CGRect],
         records: [WindowID: WindowRecord],
         primaryMaxY: CGFloat,
-        area: CGRect
+        area: CGRect,
+        parked: [WindowID: StripParking.Side] = [:]
     ) {
         guard !targetFrames.isEmpty else { return }
         isApplyingLayout = true
@@ -460,8 +591,11 @@ final class TilingEngine: ObservableObject {
 
             let quartz = CGRect(origin: SnapPosition.accessibilityOrigin(of: cocoaFrame, primaryMaxY: primaryMaxY), size: cocoaFrame.size)
 
-            // Skip AX IPC when the window is already at the target frame within 2pt tolerance.
-            if let currentBounds = record.bounds, WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2) {
+            // Skip AX IPC when the window is already where we asked (a parked window is granted
+            // less than it asked for, so the granted frame alone would never match).
+            if let currentBounds = record.bounds,
+               WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2)
+                || lastRequestedFrames[cg].map({ WindowFit.isNearlyEqual(currentBounds, $0, tolerance: 2) }) == true {
                 lastAppliedFrames[cg] = currentBounds
                 continue
             }
@@ -471,8 +605,12 @@ final class TilingEngine: ObservableObject {
             let quartzArea = CGRect(origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primaryMaxY), size: area.size)
 
             // Snapshot bounds are Quartz (top-left); store what the app really took (it may clamp to a minimum size)
-            // in the same space or the window reads as hand-moved.
-            lastAppliedFrames[cg] = WindowSnapService.place(element, quartzFrame: quartz, within: quartzArea) ?? quartz
+            // in the same space or the window reads as hand-moved. Parked windows are written without
+            // the work-area clamp, or the clamp would pull them straight back on screen.
+            lastRequestedFrames[cg] = quartz
+            lastAppliedFrames[cg] = WindowSnapService.place(
+                element, quartzFrame: quartz, within: parked[winID] == nil ? quartzArea : nil
+            ) ?? quartz
         }
     }
 

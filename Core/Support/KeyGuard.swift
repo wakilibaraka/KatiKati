@@ -530,6 +530,8 @@ enum GestureActionTarget: String, CaseIterable, Identifiable, Codable, Sendable 
     case spaceRight
     case snapLeft
     case snapRight
+    /// Ribbon: step focus along the active display's strip (RT-6).
+    case stripNext, stripPrevious
     var id: String { rawValue }
 }
 

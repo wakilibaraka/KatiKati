@@ -1218,6 +1218,8 @@ final class GestureDispatcher: ObservableObject {
         switch target {
         case .snapLeft: WindowSnapService.apply(.leftHalf)
         case .snapRight: WindowSnapService.apply(.rightHalf)
+        case .stripNext: TilingEngine.shared.focusStripColumn(1)
+        case .stripPrevious: TilingEngine.shared.focusStripColumn(-1)
         case .spaceLeft: postSpaceSwitch(left: true)
         case .spaceRight: postSpaceSwitch(left: false)
         case .toggleNotch, .commandBar, .launcher: onAction?(target)
