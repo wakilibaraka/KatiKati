@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795105531.332305,
-    "seen": 1795105765.927833,
-    "ast_hash": "fcd6d645d5476acc8c6394f412737e76",
+    "mtime": 1795175154.6785376,
+    "seen": 1795176222.465377,
+    "ast_hash": "1db2409d65d497817ec5676c18d20613",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1795099669.6867108,
-    "seen": 1795100255.849236,
-    "ast_hash": "8cbe5eb202c978ce13b4c0c6781e420c",
+    "mtime": 1795175145.598202,
+    "seen": 1795176222.465526,
+    "ast_hash": "b1bfe5e6b1bbed22d0b6c0d1a7a12ff6",
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795105530.5190396,
-    "seen": 1795105765.9281468,
-    "ast_hash": "948273a69bb19e83cb69a3f2df1dcfea",
+    "mtime": 1795175057.4110503,
+    "seen": 1795176222.465798,
+    "ast_hash": "6ff4a84ef28c94c5dbd3a10c1ce1a798",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795105668.344182,
-    "seen": 1795105765.9284532,
-    "ast_hash": "140cb0ea22d5a00cf761b75fff0a45e1",
+    "mtime": 1795176066.9754953,
+    "seen": 1795176222.466157,
+    "ast_hash": "ec02602ed6fa45766850354b8d904563",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795105538.6103158,
-    "seen": 1795105765.928075,
-    "ast_hash": "411bf434112695945888555e59f55b42",
+    "mtime": 1795175094.5329509,
+    "seen": 1795176222.465663,
+    "ast_hash": "051a29b65f2f00bf8e1eb4ce19c0598f",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795105963.1929202,
-    "seen": 1795105982.3887072,
-    "ast_hash": "8c88b13b0a2840ba293711aaeb9985b0",
+    "mtime": 1795176199.0838335,
+    "seen": 1795176222.466534,
+    "ast_hash": "1b5f320d64ca4c69030eae8debbddba7",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1795105675.4713054,
-    "seen": 1795105765.928502,
-    "ast_hash": "0bcb583b525da5fdc2ef111a97ce2036",
+    "mtime": 1795175112.4072838,
+    "seen": 1795176222.4662101,
+    "ast_hash": "0e55b1eca3b96bc6a2f6a357bbe8b934",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -7092,9 +7092,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
-    "mtime": 1793835075.9195082,
-    "seen": 1793835598.1128561,
-    "ast_hash": "26459c737c040f3eae682e7c427a9b6b",
+    "mtime": 1795176043.4562824,
+    "seen": 1795176222.465483,
+    "ast_hash": "0debe0f93a3912932db3be6301fa902a",
     "semantic_hash": ""
   },
   "App/Composition/PeekController.swift": {
@@ -7992,9 +7992,9 @@
     "semantic_hash": ""
   },
   "window_management_revamp_plan.md": {
-    "mtime": 1795097105.0568373,
-    "seen": 1795097975.551711,
-    "ast_hash": "ef368603970dd6bc805039a844647f85",
+    "mtime": 1795175301.6686404,
+    "seen": 1795176222.466541,
+    "ast_hash": "4a58eefca9f03c995bd9ab01e0e64b09",
     "semantic_hash": ""
   },
   ".livecheck/windows.swift": {
