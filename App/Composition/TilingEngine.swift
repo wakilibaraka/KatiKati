@@ -572,9 +572,15 @@ final class TilingEngine: ObservableObject {
                 activeIDByScreen[key] = record.id
             }
 
-            // Snapshot initial frame if not yet recorded
-            if preTilingFrames[cg] == nil, let b = record.bounds {
-                preTilingFrames[cg] = b
+            // Snapshot the frame tiling is about to displace. The live AX frame wins over the
+            // snapshot's: a parked window's record can still carry the column frame from before the
+            // user (or a restore) moved it, and capturing that leaves the restore with nothing to
+            // put back, so the window stays in its column when tiling is switched off or the app
+            // quits. A record the tracker has not sampled at all also lands here.
+            if preTilingFrames[cg] == nil {
+                let frame = axElement(for: record.pid, cgWindowID: cg).flatMap(WindowSnapService.frame(of:))
+                    ?? record.bounds
+                if let frame { preTilingFrames[cg] = frame }
             }
         }
 
