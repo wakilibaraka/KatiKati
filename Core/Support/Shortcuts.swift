@@ -345,6 +345,9 @@ enum ShortcutKeyNames {
         26: "7", 27: "-", 28: "8", 29: "0", 30: "]", 31: "O", 32: "U", 33: "[", 34: "I", 35: "P", 37: "L", 38: "J",
         39: "'", 40: "K", 41: ";", 42: "\\", 43: ",", 44: "/", 45: "N", 46: "M", 47: ".", 48: "Tab", 49: "Space", 50: "`",
         122: "F1", 120: "F2", 99: "F3", 118: "F4", 96: "F5", 97: "F6", 98: "F7", 100: "F8", 101: "F9", 109: "F10",
+        // Arrows: the ribbon's own focus keys (⌃⌥← / ⌃⌥→) need to be assignable at all, and a
+        // chord with ⌃ or ⌥ still cannot steal typing.
+        123: "\u{2190}", 124: "\u{2192}", 125: "\u{2193}", 126: "\u{2191}",
         103: "F11", 111: "F12", 105: "F13", 107: "F14", 113: "F15", 106: "F16", 64: "F17", 79: "F18", 80: "F19",
     ]
     static func name(for keyCode: UInt16) -> String? { table[keyCode] }
