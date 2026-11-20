@@ -1194,17 +1194,25 @@ private struct GestureBindingRow: View {
                 GestureConflictBadge(conflict: conflict)
                 Text(verbatim: gestureTitleFor(kind)).font(.callout)
                 Spacer(minLength: 8)
+            }
+            HStack(spacing: 6) {
+                Text("Window")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 42, alignment: .trailing)
                 actionMenu(title: gestureActionTitle(rule.windowAction)) { action in
                     dispatcher.setAction(action, for: kind)
                 }
-            }
-            HStack(spacing: 6) {
-                Text("Window").font(.caption2).foregroundStyle(.secondary).frame(width: 46, alignment: .leading)
-                Spacer(minLength: 8)
+                Spacer(minLength: 12)
+                Text("Tiling")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 42, alignment: .trailing)
                 actionMenu(title: rule.tilingAction.map(gestureActionTitle) ?? String(localized: "Same as Window")) { action in
                     dispatcher.setTilingAction(action, for: kind)
                 }
             }
+            .padding(.leading, 18)
         }
         .padding(.vertical, 5)
     }
@@ -1257,8 +1265,15 @@ private struct GesturePreviewStage: View {
                 Text(verbatim: resolved.map(gestureActionTitle) ?? String(localized: "None"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-                if context.tilingEnabled { Text("Tiling").font(.caption2).foregroundStyle(.tertiary) }
+                if context.tilingEnabled {
+                    Text("Tiling")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Capsule().fill(.quaternary))
+                }
+                Spacer(minLength: 0)
             }
         }
         .padding(.vertical, 6)
