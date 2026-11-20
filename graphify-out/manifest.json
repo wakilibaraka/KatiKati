@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795196902.9695146,
-    "seen": 1795197010.458853,
-    "ast_hash": "5b7f62525a2b4879aa0a2201bbe269bc",
+    "mtime": 1795206757.684361,
+    "seen": 1795207684.324728,
+    "ast_hash": "ab823e537361ab7292390470ef47160a",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795205384.5462594,
-    "seen": 1795205787.524354,
-    "ast_hash": "d897107c84dad0acc48314d95146e942",
+    "mtime": 1795206914.4540765,
+    "seen": 1795207684.324764,
+    "ast_hash": "bc81b13645b74069c5a3a58574bcc643",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795202512.3579018,
-    "seen": 1795202776.6664362,
-    "ast_hash": "35a60d882c7f4aecfdf72888c018d9fa",
+    "mtime": 1795206915.0756512,
+    "seen": 1795207684.324776,
+    "ast_hash": "b7ee2f8a9204bf364506e5ee259fc818",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1795202190.197942,
-    "seen": 1795202776.666589,
-    "ast_hash": "a294d6fee24abfed2d51fb6ce0179933",
+    "mtime": 1795206916.9630768,
+    "seen": 1795207684.324942,
+    "ast_hash": "dc7ea2c44ab6a5faf644075a72c64ee6",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1795196900.9762568,
-    "seen": 1795197010.459218,
-    "ast_hash": "de314cb9831ca079f3927d953edc0b68",
+    "mtime": 1795207657.2734418,
+    "seen": 1795207684.325103,
+    "ast_hash": "65efbf3d55ec47526632d3c62f9d6f29",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1794910914.2914956,
-    "seen": 1794911175.517211,
-    "ast_hash": "b7680d515fe28e493f8a72dd9240406d",
+    "mtime": 1795207658.2968524,
+    "seen": 1795207684.325438,
+    "ast_hash": "2e82878d344c0d115cd8e01c4e2272f6",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1795196904.0192773,
-    "seen": 1795197010.4590561,
-    "ast_hash": "f97bd045479de497257faec21520e9e8",
+    "mtime": 1795206859.9296968,
+    "seen": 1795207684.324938,
+    "ast_hash": "79980ae3df9bf8f2857cb19352cc08d8",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795089021.644974,
-    "seen": 1795089049.733651,
-    "ast_hash": "5433cda2babb2e5ffc4fad8c1bd26351",
+    "mtime": 1795206986.5696397,
+    "seen": 1795207684.3256042,
+    "ast_hash": "ba0d9fbc482120d368a179941c705fe5",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795202648.4354622,
-    "seen": 1795202776.6673331,
-    "ast_hash": "db2ff3c41eecc7da3fe1422698ceddc5",
+    "mtime": 1795206968.4948304,
+    "seen": 1795207684.325712,
+    "ast_hash": "0411e683dbc34d6fb68add0ef63b95cc",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8004,9 +8004,27 @@
     "semantic_hash": ""
   },
   "ribbon_scrolling_tiling_plan.md": {
-    "mtime": 1795206040.588544,
-    "seen": 1795206062.219258,
-    "ast_hash": "e4a402c63f06ede9a914bb74ee009c54",
+    "mtime": 1795206968.4918277,
+    "seen": 1795207684.32572,
+    "ast_hash": "3b72363e1dd0a4e030b9d138d94fb260",
+    "semantic_hash": ""
+  },
+  "App/Composition/StripScrollService.swift": {
+    "mtime": 1795206899.5286522,
+    "seen": 1795207684.324759,
+    "ast_hash": "c8436c7450017ef27e42ce53584971ad",
+    "semantic_hash": ""
+  },
+  "Core/Support/StripScrollGesture.swift": {
+    "mtime": 1795206898.8239005,
+    "seen": 1795207684.3251882,
+    "ast_hash": "79dc034ca387b8e77b30c07f8ab921ab",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/StripScrollGestureTests.swift": {
+    "mtime": 1795207365.8613021,
+    "seen": 1795207684.325535,
+    "ast_hash": "35febe13738b78ff83f475bcdc569797",
     "semantic_hash": ""
   }
 }
