@@ -64,22 +64,34 @@ final class StripPlacementTests: XCTestCase {
     }
 
     func testRailTilesAreCompact() {
-        for section in BarSection.allCases where section != .apps {
+        for section in BarSection.allCases where section != .apps && section != .utilities {
             let tile = section.railTileLength(barHeight: 54)
             XCTAssertGreaterThan(tile, 0)
             XCTAssertLessThanOrEqual(tile, 54 * (section == .media ? 1.7 : 1.2), "\(section) stays a compact tile on a rail")
         }
+        // `.utilities` is not one tile: it is the cluster of visible utility slots (DP-1 keeps
+        // Dictionary and Terminal out of it), so its length is the sum of those 40 pt tiles.
+        let cluster = BarSection.utilities.railTileLength(barHeight: 54)
+        XCTAssertEqual(cluster, BarSection.utilitiesRailLength(visibleCount: 5),
+                       "the fresh cluster is five slots, not the seven legacy utility kinds")
+        XCTAssertLessThanOrEqual(cluster, 54 * 4, "five 40 pt tiles still fit a rail's usable run")
     }
 
     /// Phase 40b / Phase 49: one size for every rail tile (weather, clock, media, launcher, widgets),
     /// matching the app chips' own 40 pt width. The tile is native-sized and scaled by `dockScale`,
     /// so the bar's thickness must not change it.
     func testEveryRailTileMatchesTheAppChipsBesideIt() {
-        for section in BarSection.allCases where section != .apps {
+        // One utility slot is one tile; the cluster is the sum of its slots, checked below.
+        for section in BarSection.allCases where section != .apps && section != .utilities {
             XCTAssertEqual(section.railTileLength(barHeight: 54), BarSection.railTileSize, "\(section)")
             XCTAssertEqual(section.railTileLength(barHeight: 30), BarSection.railTileSize,
                            "\(section): native-sized, scaled by dockScale — not by barHeight")
         }
+        XCTAssertEqual(BarSection.utilitiesRailLength(visibleCount: 1), BarSection.railTileSize,
+                       "one utility slot is exactly one app-chip-width tile")
+        XCTAssertEqual(BarSection.utilities.railTileLength(barHeight: 54),
+                       BarSection.utilitiesRailLength(visibleCount: 5),
+                       "the cluster is its visible slots, not one tile")
         XCTAssertEqual(BarSection.railTileSize, ChipPillMetrics.cardWidth,
                        "a rail tile must be the width of the app chip it sits beside")
     }

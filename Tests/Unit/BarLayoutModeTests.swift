@@ -158,7 +158,9 @@ final class BarLayoutModeTests: XCTestCase {
         XCTAssertFalse(UtilityFlyoutPreset.cleanFloat.resolvesArrowVisible(for: .anchored))
         XCTAssertFalse(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .bottomFloat))
         XCTAssertFalse(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .centerFloat))
-        XCTAssertFalse(UtilityFlyoutPreset.shelfDeck.resolvesArrowVisible(for: .anchored, isVerticalRail: true))
+        // A side rail points sideways (`<` / `>`), it does not stop pointing: the anchored preset
+        // keeps its arrow there. The edge, not the orientation, decides the shape — the rail case is
+        // asserted against the real geometry below and in RailGeometryTests.
 
         XCTAssertFalse(UtilityDismissalBehavior.persistentTerminal.dismissesOnOutsideClick(
             isTerminal: true, placement: .anchored, isPinned: false))
@@ -198,5 +200,17 @@ final class BarLayoutModeTests: XCTestCase {
         )
         XCTAssertFalse(centered.showsArrow)
         XCTAssertEqual(centered.frame.midY, screen.visibleFrame.midY, accuracy: 0.5)
+
+        // A side rail keeps the anchored pointer and reserves it on the horizontal axis: the arrow
+        // becomes the plate's leading chevron instead of the downward `v`.
+        let rail = PanelGeometry.utilityPanelFrame(
+            plateSize: size, anchorVisibleRect: anchor,
+            placement: .anchored, flyoutPreset: .shelfDeck,
+            stripPlacement: .left, on: screen
+        )
+        XCTAssertTrue(rail.showsArrow, "an anchored rail popup still points at its chip")
+        XCTAssertEqual(rail.frame.width,
+                       size.width + StackPopupMetrics.arrowHeight + StackPopupMetrics.panelMargin * 2,
+                       accuracy: 0.5, "the rail reserves the arrow beside the plate, not below it")
     }
 }

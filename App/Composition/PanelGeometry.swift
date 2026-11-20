@@ -920,7 +920,7 @@ enum PanelGeometry {
     ) -> UtilityPanelLayout {
         let m = StackPopupMetrics.self
         let effectivePlacement = (flyoutPreset == .cleanFloat && placement == .anchored) ? .bottomFloat : placement
-        let showsArrow = flyoutPreset.resolvesArrowVisible(for: effectivePlacement, isVerticalRail: stripPlacement.isVertical)
+        let showsArrow = flyoutPreset.resolvesArrowVisible(for: effectivePlacement)
         let arrowW: CGFloat = (showsArrow && stripPlacement.isVertical) ? m.arrowHeight : 0
         let arrowH: CGFloat = (showsArrow && !stripPlacement.isVertical) ? m.arrowHeight : 0
         let totalSize = CGSize(

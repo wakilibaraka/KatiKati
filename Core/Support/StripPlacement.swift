@@ -117,7 +117,13 @@ extension BarSection {
     /// Main-axis length of a widget as a compact square tile on a side rail (Phase 40b / Phase 49:
     /// every rail widget tile — weather, clock, media, launcher, widgets — is a 40×40 square matching
     /// `ChipPillMetrics.cardWidth`). Scales with the bar thickness like every other strip metric.
-    func railTileLength(barHeight: CGFloat, visibleUtilityCount: Int = DockUtilityKind.allCases.count) -> CGFloat {
+    /// - Parameter visibleUtilityCount: how many utility **slots** the cluster draws. Defaults to the
+    ///   fresh-install island (`DockSlotLayout.default`, which excludes Dictionary and Terminal — they
+    ///   are their own rail tiles since DP-1). Callers that know the user's layout pass the real count.
+    func railTileLength(
+        barHeight: CGFloat,
+        visibleUtilityCount: Int = DockSlotLayout.default.visibleItems.filter(\.islandUtility).count
+    ) -> CGFloat {
         switch self {
         case .utilities: return Self.utilitiesRailLength(visibleCount: visibleUtilityCount)
         case .weather, .clock, .media, .launcher, .widgets, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return Self.railTileSize

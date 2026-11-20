@@ -320,7 +320,13 @@ enum UtilityFlyoutPreset: String, Codable, CaseIterable, Identifiable, Sendable 
     }
 
     /// True only when both the preset and placement allow an anchored pointer (`v` / `<` / `>`).
-    func resolvesArrowVisible(for placement: UtilityPopoverPlacement, isVerticalRail: Bool = false) -> Bool {
+    ///
+    /// Which **edge** carries it is the caller's business, not the preset's: a bottom bar draws the
+    /// downward `v`, a side rail draws a leading/trailing chevron
+    /// (`StackPopupArrowModel.edge`, `PanelGeometry.arrowW`). It is the same anchored pointer, so a
+    /// rail does **not** suppress it. The signature used to take `isVerticalRail` and ignore it,
+    /// which read like a rule that never existed; DP-3 removed the false promise.
+    func resolvesArrowVisible(for placement: UtilityPopoverPlacement) -> Bool {
         guard placement == .anchored else { return false }
         return self != .cleanFloat
     }

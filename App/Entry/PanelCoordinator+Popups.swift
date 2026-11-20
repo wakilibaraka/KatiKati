@@ -341,10 +341,7 @@ extension PanelCoordinator {
         let utilityCfg = settingsStore.dockUtilities
         let effectivePlacement = utilityCfg.effectivePlacementForPreset
         arrow.edge = stripPlacement == .left ? .leading : (stripPlacement == .right ? .trailing : .bottom)
-        arrow.isHidden = !utilityCfg.flyoutPreset.resolvesArrowVisible(
-            for: effectivePlacement,
-            isVerticalRail: stripPlacement.isVertical
-        )
+        arrow.isHidden = !utilityCfg.flyoutPreset.resolvesArrowVisible(for: effectivePlacement)
         let context = StackPopupContext(
             limits: StackGridLayout.limits(
                 screenSize: screenGeometry.frame.size,
