@@ -399,7 +399,8 @@ enum PanelGeometry {
         tileStride: CGFloat? = nil,
         contentInset: CGFloat = IslandChrome.contentInset,
         controlCentreTrailing: Bool = false,
-        enforceMinimumWidgetWidths: Bool = true
+        enforceMinimumWidgetWidths: Bool = true,
+        capsuleOwnerSlot: Int? = nil
     ) -> CGRect {
         switch mode {
         case .windows:
@@ -480,7 +481,12 @@ enum PanelGeometry {
             }
             let island = layout.islands[slot]
             let isApps = island.sections.contains(.apps)
-            let currentCapsuleSpace = isApps ? capsuleSpace : 0
+            // DP-4: the capsule rides with the Background Apps host island (the trailing one in a
+            // split), so the island that gives up the room is that host, not the apps island.
+            let ownerSlot = capsuleOwnerSlot
+                ?? layout.islands.firstIndex { $0.sections.contains(.apps) }
+            let ownsCapsule = slot == ownerSlot
+            let currentCapsuleSpace = ownsCapsule ? capsuleSpace : 0
             
             #if DEBUG
             if !IslandLayoutSolver.validate(layout: layout, screenWidth: screen.frame.width,
@@ -492,8 +498,8 @@ enum PanelGeometry {
             // frame, or a narrow trailing island grows past the screen edge (Phase 11a, B3).
             let panelWidth = isApps
                 ? max(island.frame.width - currentCapsuleSpace, metrics.minimumDockWidth)
-                : island.frame.width
-            let panelX = (isApps && placement == .left) ? island.frame.minX + currentCapsuleSpace : island.frame.minX
+                : max(island.frame.width - currentCapsuleSpace, 0)
+            let panelX = (ownsCapsule && placement == .left) ? island.frame.minX + currentCapsuleSpace : island.frame.minX
             
             return CGRect(
                 x: panelX - metrics.shadowPadding,

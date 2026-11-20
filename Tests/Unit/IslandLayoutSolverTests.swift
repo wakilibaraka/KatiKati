@@ -548,4 +548,89 @@ final class WideGapPlanTests: XCTestCase {
         XCTAssertLessThanOrEqual(baseSpacing + plan.gap, cap + baseSpacing)
         XCTAssertEqual(plan.endPadding, (spare - plan.gap * CGFloat(gaps)) / 2, accuracy: 0.001)
     }
+
+    // MARK: DP-4 — island content width
+
+    private func dp4Split3(screenWidth: CGFloat) -> IslandLayoutSolver.IslandLayout {
+        IslandLayoutSolver.layout(
+            screenWidth: screenWidth,
+            mode: .split3, widgetOrder: BarSection.defaultOrder, widgetWidths: [:],
+            tileStride: 46,
+            appCount: 8,
+            weatherWidth: 200,
+            clockWidth: 100,
+            clusterWidth: 140,
+            gap: 10,
+            margin: 12,
+            barHeight: 46,
+            bottomMargin: 8
+        )
+    }
+
+    /// A shrunk island reports the width its chips need, not the width it was given: the strip
+    /// scrolls that content inside the frame (the row already lives in a `ScrollView` with the
+    /// edge fade), so "reachable" is `contentWidth > frame.width` rather than a silent cut.
+    func testShrunkIslandReportsContentNotFrame() {
+        let roomy = dp4Split3(screenWidth: 1728)
+        let tight = dp4Split3(screenWidth: 640)
+
+        XCTAssertTrue(roomy.islands.allSatisfy { !$0.isClipping }, "a roomy bar fits its content exactly")
+        XCTAssertTrue(tight.islands.contains { $0.isClipping }, "a 640 pt split3 cannot fit three islands' content")
+
+        for index in tight.islands.indices {
+            let narrow = tight.islands[index]
+            if !narrow.sections.contains(.apps) {
+                XCTAssertEqual(narrow.contentWidth, roomy.islands[index].contentWidth, accuracy: 0.001,
+                               "a fixed island's content width is intrinsic; the span only subtracts from its frame")
+            } else {
+                // The apps island's content is the tiles it still has room to show.
+                XCTAssertLessThanOrEqual(narrow.contentWidth, roomy.islands[index].contentWidth + 0.001)
+            }
+            if narrow.isClipping {
+                XCTAssertGreaterThan(narrow.contentWidth, narrow.frame.width,
+                                     "a clipping island still knows how much it has to scroll")
+            }
+        }
+    }
+
+    /// The apps island is the one that keeps its tiles: its content width is the tile cluster it
+    /// renders, so shrinking it is visible instead of silently pretending the row fits.
+    func testAppsIslandContentWidthFollowsItsTiles() {
+        let tight = dp4Split3(screenWidth: 640)
+        let apps = tight.islands.first { $0.sections.contains(.apps) }
+        XCTAssertNotNil(apps)
+        XCTAssertGreaterThan(apps!.contentWidth, 0)
+        XCTAssertLessThanOrEqual(tight.visibleAppTiles, 8)
+    }
+
+    // MARK: DP-4 — Background Apps anchor
+
+    func testBackgroundAppsAnchorIsTheTrailingIslandInEverySplit() {
+        for mode in [BarLayoutMode.split3, .split4, .split5] {
+            let islands = BarSection.islands(for: mode, order: BarSection.defaultOrder)
+            let apps = islands.firstIndex { $0.contains(.apps) }
+            XCTAssertEqual(BackgroundAppsAnchor.hostSlot(islands: islands), islands.count - 1,
+                           "\(mode) hosts the block on the trailing island")
+            XCTAssertNotEqual(BackgroundAppsAnchor.hostSlot(islands: islands), apps,
+                              "\(mode) left the block floating between islands")
+        }
+    }
+
+    func testBackgroundAppsAnchorFallsBackToAppsWhenThereIsNoTrailingIsland() {
+        for mode in [BarLayoutMode.windows, .centered] {
+            let islands = BarSection.islands(for: mode, order: BarSection.defaultOrder)
+            XCTAssertEqual(islands.count, 1)
+            XCTAssertEqual(BackgroundAppsAnchor.hostSlot(islands: islands), 0)
+        }
+        // A split whose trailing group lost every section: nothing to host it but the apps island.
+        let emptyTrailing: [[BarSection]] = [[.launcher, .weather], [.apps, .media], []]
+        XCTAssertEqual(BackgroundAppsAnchor.hostSlot(islands: emptyTrailing), 1)
+    }
+
+    func testBackgroundAppsAnchorStaysOnTheAppsIslandForARail() {
+        let islands = BarSection.islands(for: .split3, order: BarSection.defaultOrder)
+        XCTAssertEqual(BackgroundAppsAnchor.hostSlot(islands: islands, isRail: true),
+                       islands.firstIndex { $0.contains(.apps) },
+                       "a rail hangs the block off the apps island, not the bottom of the stack")
+    }
 }

@@ -351,7 +351,12 @@ extension PanelCoordinator {
                 gap: CGFloat(settingsStore.islandGap),
                 margin: CGFloat(settingsStore.islandMargin),
                 widgetLayout: settingsStore.widgetLayout,
-                controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd
+                controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
+                capsuleOwnerSlot: BackgroundAppsAnchor.hostSlot(
+                    islands: BarSection.islands(for: settingsStore.barLayoutMode,
+                                                order: settingsStore.dockSectionOrder),
+                    isRail: false
+                )
             )
         }
         return PanelGeometry.stripTargetFrame(
@@ -375,11 +380,12 @@ extension PanelCoordinator {
     /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
     var isCapsuleOwner: Bool {
         // Slice MD-3b: the capsule block follows the `backgroundApps` slot.
+        // Slice DP-4: the slot's host is the trailing island in a split, not the apps island.
         guard settingsStore.showsBackgroundAppsSlot else { return false }
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
                                           order: settingsStore.dockSectionOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
-        return sections[islandSlot].contains(.apps)
+        return BackgroundAppsAnchor.hostSlot(islands: sections, isRail: stripPlacement.isVertical) == islandSlot
     }
 
     /// Whether this coordinator unit owns the Dock II Left/Right Wing panels & Floating Widget Stack.

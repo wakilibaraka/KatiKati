@@ -21,6 +21,21 @@ enum IslandLayoutSolver {
             var sections: [BarSection]
             /// Absolute window frame in bottom-left screen space.
             var frame: CGRect
+            /// Intrinsic main-axis length the island's sections need at this bar height, measured
+            /// **before** any shrink (slice DP-4). A split island squeezed by the span keeps its
+            /// content at this width and scrolls it; the frame no longer implies the content.
+            var contentWidth: CGFloat
+
+            init(slot: Int, sections: [BarSection], frame: CGRect, contentWidth: CGFloat? = nil) {
+                self.slot = slot
+                self.sections = sections
+                self.frame = frame
+                self.contentWidth = contentWidth ?? frame.width
+            }
+
+            /// The frame is narrower than what the sections draw, so the strip scrolls (it already
+            /// lives in a `ScrollView` with the edge fade) instead of pretending the island fits.
+            var isClipping: Bool { contentWidth > frame.width + 0.5 }
         }
 
         /// The islands produced for the layout mode.
@@ -154,7 +169,8 @@ enum IslandLayoutSolver {
                 width: availableWidth,
                 height: barHeight
             )
-            let island = IslandLayout.Island(slot: 0, sections: islandSections[0], frame: frame)
+            let island = IslandLayout.Island(slot: 0, sections: islandSections[0], frame: frame,
+                                             contentWidth: fixedElements + totalInnerGap + appsWidth(visibleApps))
             return IslandLayout(islands: [island], visibleAppTiles: visibleApps, showsOverflow: overflow)
 
         case .centered:
@@ -179,7 +195,8 @@ enum IslandLayoutSolver {
             let x = screenOriginX + (screenWidth - finalWidth) / 2
 
             let frame = CGRect(x: x, y: y, width: finalWidth, height: barHeight)
-            let island = IslandLayout.Island(slot: 0, sections: islandSections[0], frame: frame)
+            let island = IslandLayout.Island(slot: 0, sections: islandSections[0], frame: frame,
+                                             contentWidth: intrinsic)
             return IslandLayout(islands: [island], visibleAppTiles: visibleApps, showsOverflow: overflow)
 
         case .split3, .split4, .split5:
@@ -190,7 +207,10 @@ enum IslandLayoutSolver {
             // Overlap resolution (Phase 11a): the fixed islands plus the smallest apps island
             // must fit the span. First collapse the gaps to their minimum, then shrink the fixed
             // islands proportionally (their content scrolls inside). Islands never overlap.
-            var fixedWidths = islandSections.map { $0.contains(.apps) ? 0 : fixedIslandWidth($0) }
+            // DP-4: the width each island needs, kept beside the width it gets. Shrinking is a
+            // subtraction from the frame, never a claim that the chips got narrower.
+            let intrinsicWidths = islandSections.map { $0.contains(.apps) ? 0 : fixedIslandWidth($0) }
+            var fixedWidths = intrinsicWidths
             let span = max(0, screenWidth - 2 * effectiveMargin)
             let gapCount = CGFloat(max(0, islandSections.count - 1))
             let minApps = hasApps ? min(appsWidth(1), span) : 0
@@ -245,7 +265,12 @@ enum IslandLayoutSolver {
             }
 
             let islands = islandSections.enumerated().map { (index, sections) in
-                IslandLayout.Island(slot: index, sections: sections, frame: frames[index])
+                IslandLayout.Island(
+                    slot: index,
+                    sections: sections,
+                    frame: frames[index],
+                    contentWidth: sections.contains(.apps) ? appsWidth(visibleApps) : intrinsicWidths[index]
+                )
             }
             return IslandLayout(islands: islands, visibleAppTiles: visibleApps, showsOverflow: overflow)
         }
@@ -291,6 +316,28 @@ enum IslandLayoutSolver {
         }
 
         return true
+    }
+}
+
+/// Which island hosts the Background Apps block on a bar (slice DP-4).
+///
+/// `backgroundApps` is a slot without a `BarSection`, so it is invisible to `derivedSections` and
+/// used to be placed off the **apps** island's frame. In a split bar that put the block in the gap
+/// between the apps island and the trailing group — the block floated where neither group owned it.
+/// The rule is the trailing island when the bar has one, and the apps island when it does not
+/// (single-island modes, or every trailing section hidden). Rails use the same shapes, so a rail
+/// anchor is the bottom-most island.
+enum BackgroundAppsAnchor {
+    /// Slot index of the island that owns the block, or `nil` when there is no island to own it.
+    /// A rail stacks its islands top-to-bottom and the block hangs off the apps island, so a rail
+    /// keeps the apps island as host; the trailing-island rule is a horizontal-bar rule.
+    static func hostSlot(islands: [[BarSection]], isRail: Bool = false) -> Int? {
+        guard !islands.isEmpty else { return nil }
+        let apps = islands.firstIndex { $0.contains(.apps) }
+        guard !isRail else { return apps }
+        let trailing = islands.count - 1
+        guard trailing != apps, !islands[trailing].isEmpty else { return apps }
+        return trailing
     }
 }
 
