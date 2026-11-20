@@ -2034,6 +2034,43 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(store.controlCentreAtTrailingEnd, "the capsule's slot is on the right")
     }
 
+    // MARK: AI Tracking opt-in (slice DP-2)
+
+    func testAIStartsHiddenAndAnExplicitOptInSurvivesRelaunch() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(store.dockSlotLayout.visibleItems.contains(.aiTracking),
+                       "AI Tracking is opt-in, so a fresh install hides it")
+
+        store.setDockSlotItem(.aiTracking, hidden: false)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).dockSlotLayout.visibleItems.contains(.aiTracking),
+                      "a user's opt-in is never overridden by the default-off migration")
+
+        store.setDockSlotItem(.aiTracking, hidden: true)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).dockSlotLayout.visibleItems.contains(.aiTracking),
+                       "and turning it back off also sticks")
+    }
+
+    func testVisibleAIFromAnEarlierInstallIsHiddenOnceAndRespectsTheChoice() {
+        let defaults = makeDefaults()
+        // A pre-DP-2 install: stored layout with AI visible, no explicit choice, no migration mark.
+        let visible = DockSlotLayout(
+            items: DockSlotLayout.default.items.map {
+                $0.item == .aiTracking ? DockSlotEntry(item: .aiTracking, isHidden: false) : $0
+            },
+            trailingCapsule: .controlCenter)
+        defaults.set(visible.encoded(), forKey: DockSlotLayout.defaultsKey)
+
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(store.dockSlotLayout.visibleItems.contains(.aiTracking),
+                       "the one-time hide applies to an install that never chose")
+        XCTAssertTrue(defaults.bool(forKey: DockAITrackingDefault.migrationKey))
+
+        store.setDockSlotItem(.aiTracking, hidden: false)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).dockSlotLayout.visibleItems.contains(.aiTracking),
+                      "after the migration ran, the user's later opt-in is final")
+    }
+
     private func makeDefaults() -> UserDefaults {
         let defaults = TestDefaults.make("com.katikati.tests", for: self)
         return defaults

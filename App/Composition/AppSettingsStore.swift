@@ -839,6 +839,22 @@ final class AppSettingsStore: ObservableObject {
             dockSlotLayout = migrated
             defaults.set(migrated.encoded(), forKey: DockSlotLayout.defaultsKey)
         }
+
+        // Slice DP-2: AI Tracking is opt-in. The legacy section shipped visible, so both the migration
+        // above and an existing install's stored layout can carry it on; hide it once for anyone who
+        // never chose, then never again — an explicit opt-in outlives this rule.
+        let aiAdjusted = DockAITrackingDefault.applying(
+            dockSlotLayout,
+            hasExplicitChoice: defaults.bool(forKey: DockAITrackingDefault.explicitChoiceKey),
+            alreadyMigrated: defaults.bool(forKey: DockAITrackingDefault.migrationKey)
+        )
+        if aiAdjusted != dockSlotLayout {
+            dockSlotLayout = aiAdjusted
+            defaults.set(aiAdjusted.encoded(), forKey: DockSlotLayout.defaultsKey)
+        }
+        if !defaults.bool(forKey: DockAITrackingDefault.migrationKey) {
+            defaults.set(true, forKey: DockAITrackingDefault.migrationKey)
+        }
     }
 
     /// Called on every accepted tick of a height drag (the drag decision already dedupes to
@@ -1673,6 +1689,10 @@ final class AppSettingsStore: ObservableObject {
 
     func setWidgetVisible(_ isVisible: Bool, for section: BarSection) {
         guard widgetLayout.instance(for: section).isVisible != isVisible else { return }
+        // DP-2: enabling AI from any surface counts as the explicit choice the one-time hide respects.
+        if section == .ai {
+            defaults.set(true, forKey: DockAITrackingDefault.explicitChoiceKey)
+        }
         setWidgetLayout(widgetLayout.updating(section) { $0.isVisible = isVisible })
     }
 
@@ -2054,6 +2074,11 @@ final class AppSettingsStore: ObservableObject {
 
     /// Hide or show one slot without moving it (I2).
     func setDockSlotItem(_ item: DockSlotItem, hidden: Bool) {
+        // DP-2: a user's own AI switch is an explicit choice, so the one-time default-off never
+        // overrides it on a later launch.
+        if item == .aiTracking {
+            defaults.set(true, forKey: DockAITrackingDefault.explicitChoiceKey)
+        }
         setDockSlotLayout(DockSlotLayout(
             items: dockSlotLayout.items.map {
                 $0.item == item ? DockSlotEntry(item: item, isHidden: hidden) : $0

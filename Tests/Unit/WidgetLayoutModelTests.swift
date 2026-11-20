@@ -5,7 +5,7 @@ final class WidgetLayoutModelTests: XCTestCase {
     func testDefaultLayoutReproducesTodaysBehaviour() {
         let layout = WidgetLayout.default
         XCTAssertEqual(layout.order, BarSection.canonicalOrder)
-        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices, .drives, .dictionary, .terminal], "opt-in & utility-hosted widgets start hidden")
+        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices, .drives, .dictionary, .terminal, .ai], "opt-in & utility-hosted widgets start hidden")
         XCTAssertEqual(layout.solverWidths(), [:])
     }
 
@@ -50,7 +50,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [inst])
         let decoded = WidgetLayout.decode(layout.encoded())
         XCTAssertEqual(decoded, layout)
-        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices, .drives, .dictionary, .terminal])
+        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai])
         XCTAssertNil(WidgetLayout.decode(Data("junk".utf8)))
     }
 
@@ -84,7 +84,7 @@ extension WidgetLayoutModelTests {
 
     func testVisibleOrderDropsHiddenButNeverApps() {
         let layout = WidgetLayout.default.updating(.weather) { $0.isVisible = false }.updating(.apps) { $0.isVisible = false }
-        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .utilities, .clock, .ai, .widgets])
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .apps, .media, .utilities, .clock, .widgets])
     }
 }
 

@@ -111,12 +111,13 @@ final class DockWidgetLogicTests: XCTestCase {
             XCTAssertFalse(layout.instance(for: section).isVisible)
             XCTAssertTrue(section.supportsWidgetSizes)
         }
-        XCTAssertEqual(layout.visibleOrder, [.launcher, .weather, .apps, .media, .utilities, .clock, .ai, .widgets])
+        // DP-2: AI Tracking is opt-in, so it is not in the fresh visible set.
+        XCTAssertEqual(layout.visibleOrder, [.launcher, .weather, .apps, .media, .utilities, .clock, .widgets])
     }
 
     func testOldStoredLayoutGainsHiddenNewWidgets() {
         let old = WidgetLayout(instances: [.launcher, .weather, .apps, .media, .clock, .widgets].map { WidgetInstance(section: $0) })
-        XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets, .utilities, .ai], "Utilities and AI are on by default, appended after an old layout")
+        XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets, .utilities], "Utilities starts visible, AI is opt-in, both appended after an old layout")
         XCTAssertEqual(Set(old.order), Set(BarSection.allCases))
     }
 
@@ -1085,6 +1086,28 @@ final class ModularDockCoreTests: XCTestCase {
                                "\(mode): the island never draws a section-owned module")
             }
         }
+    }
+
+    /// DP-2: AI is hidden once for anyone who never chose, and the rule never overrides a choice.
+    func testAITrackingDefaultHidesOnceAndRespectsAnExplicitChoice() {
+        let visibleAI = DockSlotLayout(
+            items: DockSlotLayout.default.items.map {
+                $0.item == .aiTracking ? DockSlotEntry(item: .aiTracking, isHidden: false) : $0
+            },
+            trailingCapsule: .controlCenter)
+
+        let hidden = DockAITrackingDefault.applying(visibleAI, hasExplicitChoice: false, alreadyMigrated: false)
+        XCTAssertEqual(hidden.items.first { $0.item == .aiTracking }?.isHidden, true)
+        XCTAssertEqual(hidden.items.count, visibleAI.items.count, "hiding never drops the slot")
+
+        XCTAssertEqual(DockAITrackingDefault.applying(visibleAI, hasExplicitChoice: true, alreadyMigrated: false),
+                       visibleAI, "an explicit opt-in outranks the default")
+        XCTAssertEqual(DockAITrackingDefault.applying(visibleAI, hasExplicitChoice: false, alreadyMigrated: true),
+                       visibleAI, "the hide happens once, not on every launch")
+        XCTAssertEqual(DockAITrackingDefault.applying(DockSlotLayout.default,
+                                                     hasExplicitChoice: false, alreadyMigrated: false),
+                       .default, "an already hidden slot is untouched")
+        XCTAssertTrue(BarSection.ai.startsHidden, "the legacy section agrees with the slot")
     }
 
     func testEverySlotHasADistinctSettingsLabel() {

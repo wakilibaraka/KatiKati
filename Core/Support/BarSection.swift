@@ -35,7 +35,8 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case dictionary
     /// Shell in a floating panel (SwiftTerm). Lives in Utilities by default.
     case terminal
-    /// AI usage spend, live agent heartbeat, inline approvals, and Loadout presets. On by default.
+    /// AI usage spend, live agent heartbeat, inline approvals, and Loadout presets. Opt-in (DP-2):
+    /// it costs screen space and, for most people, money to keep on the bar.
     case ai
     case widgets
 
@@ -48,8 +49,8 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     /// Widgets added after the core strip start hidden unless enabled in Settings.
     var startsHidden: Bool {
         switch self {
-        case .calendar, .system, .devices, .drives, .dictionary, .terminal: return true
-        case .launcher, .weather, .apps, .media, .utilities, .clock, .widgets, .ai: return false
+        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai: return true
+        case .launcher, .weather, .apps, .media, .utilities, .clock, .widgets: return false
         }
     }
 
@@ -801,6 +802,38 @@ enum DockModularityValidator {
             if index > target { return offset }
         }
         return items.count
+    }
+}
+
+// MARK: - AI Tracking opt-in (slice DP-2)
+
+/// AI Tracking is off for everyone who never chose, once.
+///
+/// The slot shipped visible because the legacy `BarSection.ai` did, so every install inherited a
+/// cost pill nobody asked for. [DockSlotLayout.default] hid it, but migration — the path both fresh
+/// and existing installs take — only copies the legacy flag. This rule closes that: on the first
+/// launch after the change, a visible AI slot is hidden **unless** the user has already made an
+/// explicit choice, and the migration never runs again (so a later opt-in survives).
+///
+/// Pure and total so the rule is testable without `UserDefaults` and cannot half-apply.
+enum DockAITrackingDefault {
+    /// Written whenever the user turns AI on or off themselves. Its presence is the promise that the
+    /// one-time hide will never touch their setting again.
+    static let explicitChoiceKey = "com.katikati.dock.aiTracking.explicitChoice"
+    /// Written after the one-time hide has been considered, so it happens exactly once.
+    static let migrationKey = "com.katikati.dock.aiTrackingDefaultedOff.v1"
+
+    static func applying(_ layout: DockSlotLayout,
+                         hasExplicitChoice: Bool,
+                         alreadyMigrated: Bool) -> DockSlotLayout {
+        guard !hasExplicitChoice, !alreadyMigrated,
+              let index = layout.items.firstIndex(where: { $0.item == .aiTracking }),
+              !layout.items[index].isHidden else { return layout }
+        var items = layout.items
+        items[index] = DockSlotEntry(item: .aiTracking, isHidden: true)
+        return DockSlotLayout(items: items,
+                              trailingCapsule: layout.trailingCapsule,
+                              groupAdjacentUtilities: layout.groupAdjacentUtilities)
     }
 }
 
