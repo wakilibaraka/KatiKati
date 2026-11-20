@@ -166166,6 +166166,196 @@
         }
       }
     },
+    "Scroll the Strip with ⌥-Scroll": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scroll the Strip with ⌥-Scroll"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تمرير الشريط بـ ⌥"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streifen mit ⌥ scrollen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desplazar la tira con ⌥"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desplazar la tira con ⌥"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faire défiler le ruban avec ⌥"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri la striscia con ⌥"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥スクロールでストリップを移動"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ 스크롤로 스트립 이동"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strip scrollen met ⌥"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rolar a faixa com ⌥"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deslocar a faixa com ⌥"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прокрутка ленты с ⌥"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ 滚动切换长条列"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌥ 捲動切換長條欄"
+          }
+        }
+      }
+    },
+    "Holding Option, a two-finger scroll steps to the next or previous column. Off by default: the app under the pointer still scrolls, because the gesture does not take the event away from it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holding Option, a two-finger scroll steps to the next or previous column. Off by default: the app under the pointer still scrolls, because the gesture does not take the event away from it."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مع الاستمرار على Option، يؤدي التمرير بإصبعين إلى الانتقال إلى العمود التالي أو السابق. معطّل افتراضيًا: يظل التطبيق تحت المؤشر يمرّر، لأن الإيماءة لا تسحب الحدث منه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit gedrückter Wahltaste blättert ein Zwei-Finger-Scrollen zur nächsten oder vorherigen Spalte. Standardmäßig aus: Die App unter dem Zeiger scrollt weiterhin, weil die Geste ihr das Ereignis nicht entzieht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Opción pulsada, un desplazamiento con dos dedos pasa a la columna siguiente o anterior. Desactivado de forma predeterminada: la app bajo el puntero también se desplaza, porque el gesto no le quita el evento."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Opción pulsada, un desplazamiento con dos dedos pasa a la columna siguiente o anterior. Desactivado de forma predeterminada: la app bajo el puntero también se desplaza, porque el gesto no le quita el evento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option enfoncée, un défilement à deux doigts passe à la colonne suivante ou précédente. Désactivé par défaut : l’app sous le pointeur défile aussi, car le geste ne lui prend pas l’événement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenendo premuto Opzione, uno scorrimento a due dita passa alla colonna successiva o precedente. Disattivato per impostazione predefinita: l’app sotto il puntatore scorre comunque, perché il gesto non le sottrae l’evento."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option を押しながら2本指でスクロールすると、次の列・前の列に移動します。既定ではオフです。イベントを奪わないため、ポインタ下のアプリもスクロールします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option을 누른 채 두 손가락으로 스크롤하면 다음 열이나 이전 열로 이동합니다. 기본적으로 꺼져 있습니다. 이벤트를 가져오지 않으므로 포인터 아래 앱도 함께 스크롤됩니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Met Option ingedrukt stapt een tweevingerscroll naar de volgende of vorige kolom. Standaard uit: de app onder de aanwijzer scrolt ook, omdat de beweging het event niet overneemt."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com Option pressionada, uma rolagem de dois dedos passa para a coluna seguinte ou anterior. Desativado por padrão: o app sob o ponteiro também rola, porque o gesto não tira o evento dele."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com Option premida, um deslocamento com dois dedos passa para a coluna seguinte ou anterior. Desativado por predefinição: a app sob o ponteiro também se desloca, porque o gesto não lhe retira o evento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С зажатой Option прокрутка двумя пальцами переключает на следующую или предыдущую колонку. По умолчанию выключено: приложение под указателем тоже прокручивается, потому что жест не забирает событие."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 Option 双指滚动，切到下一列或上一列。默认关闭：指针下的应用仍会滚动，因为这个手势不会把事件从它那里拿走。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住 Option 雙指捲動，切到下一欄或上一欄。預設關閉：指標下的應用程式仍會捲動，因為這個手勢不會把事件從它那裡拿走。"
+          }
+        }
+      }
+    },
     "Parked columns keep the sliver macOS allows at the edge (about 1 pt); the peek is the OS clamp, so there is nothing to tune.": {
       "extractionState": "manual",
       "localizations": {

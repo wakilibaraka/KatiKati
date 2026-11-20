@@ -10,6 +10,7 @@ struct SettingsTilingPane: View {
     @ObservedObject private var engine = TilingEngine.shared
     @State private var floatingAppsDraft: String = ""
     @AppStorage(FocusFollowService.enabledKey) private var focusFollow = false
+    @AppStorage(StripScrollService.enabledKey) private var stripScroll = false
 
     /// The strip's own rows only make sense when a display is actually drawing the ribbon.
     private var showsRibbonRows: Bool {
@@ -79,6 +80,13 @@ struct SettingsTilingPane: View {
                         }
                     }
                     SettingsNote(Text("Parked columns keep the sliver macOS allows at the edge (about 1 pt); the peek is the OS clamp, so there is nothing to tune."))
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        Text("Scroll the Strip with ⌥-Scroll"),
+                        isOn: $stripScroll,
+                        note: Text("Holding Option, a two-finger scroll steps to the next or previous column. Off by default: the app under the pointer still scrolls, because the gesture does not take the event away from it.")
+                    )
+                    .onChange(of: stripScroll) { _, on in StripScrollService.shared.setEnabled(on) }
                 }
                 if NSScreen.screens.count > 1 {
                     ForEach(NSScreen.screens, id: \.self) { screen in

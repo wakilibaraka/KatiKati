@@ -153,6 +153,11 @@
 		A0000000000000000001F052 /* TilingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F050 /* TilingPolicy.swift */; };
 		A0000000000000000001F061 /* TilingLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F060 /* TilingLayout.swift */; };
 		A0000000000000000001F062 /* TilingLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F060 /* TilingLayout.swift */; };
+		A0000000000000000002B101 /* StripScrollGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002B100 /* StripScrollGesture.swift */; };
+		A0000000000000000002B102 /* StripScrollGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002B100 /* StripScrollGesture.swift */; };
+		A0000000000000000002B111 /* StripScrollService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002B110 /* StripScrollService.swift */; };
+		A0000000000000000002B112 /* StripScrollService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002B110 /* StripScrollService.swift */; };
+		A0000000000000000002B121 /* StripScrollGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002B120 /* StripScrollGestureTests.swift */; };
 		A0000000000000000001F071 /* TilingLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F070 /* TilingLayoutTests.swift */; };
 		A0000000000000000001F021 /* TilingGaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F020 /* TilingGaps.swift */; };
 		A0000000000000000001F022 /* TilingGaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F020 /* TilingGaps.swift */; };
@@ -1574,6 +1579,9 @@
 		A0000000000000000001F080 /* TilingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingEngine.swift; path = App/Composition/TilingEngine.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F050 /* TilingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingPolicy.swift; path = Core/Support/TilingPolicy.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F060 /* TilingLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingLayout.swift; path = Core/Support/TilingLayout.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000002B100 /* StripScrollGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StripScrollGesture.swift; path = Core/Support/StripScrollGesture.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000002B110 /* StripScrollService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StripScrollService.swift; path = App/Composition/StripScrollService.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000002B120 /* StripScrollGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StripScrollGestureTests.swift; path = Tests/Unit/StripScrollGestureTests.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F070 /* TilingLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilingLayoutTests.swift; sourceTree = "<group>"; };
 		A0000000000000000001F020 /* TilingGaps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingGaps.swift; path = Core/Support/TilingGaps.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F030 /* TilingTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingTree.swift; path = Core/Support/TilingTree.swift; sourceTree = SOURCE_ROOT; };
@@ -2995,6 +3003,7 @@
 				A0000000000000000001F010 /* SnapRectsTests.swift */,
 				A0000000000000000001F040 /* TilingTreeTests.swift */,
 				A0000000000000000001F070 /* TilingLayoutTests.swift */,
+				A0000000000000000002B120 /* StripScrollGestureTests.swift */,
 				A0000000000000000001F0B0 /* LayoutCatalogTests.swift */,
 				A0000000000000000001F120 /* RadialDialGeometryTests.swift */,
 				A0000000000000000001F210 /* SystemGaugeTests.swift */,
@@ -3150,6 +3159,7 @@
 				A0000000000000000001F030 /* TilingTree.swift */,
 				A0000000000000000001F050 /* TilingPolicy.swift */,
 				A0000000000000000001F060 /* TilingLayout.swift */,
+				A0000000000000000002B100 /* StripScrollGesture.swift */,
 				A0000000000000000001F0A0 /* LayoutCatalog.swift */,
 				A0000000000000000001F100 /* RadialDialGeometry.swift */,
 				A0000000000000000001F110 /* RadialDialModel.swift */,
@@ -3810,6 +3820,8 @@
 				A0000000000000000001F031 /* TilingTree.swift in Sources */,
 				A0000000000000000001F051 /* TilingPolicy.swift in Sources */,
 				A0000000000000000001F061 /* TilingLayout.swift in Sources */,
+				A0000000000000000002B101 /* StripScrollGesture.swift in Sources */,
+				A0000000000000000002B111 /* StripScrollService.swift in Sources */,
 				A0000000000000000001F0A1 /* LayoutCatalog.swift in Sources */,
 				A0000000000000000001F101 /* RadialDialGeometry.swift in Sources */,
 				A0000000000000000001F111 /* RadialDialModel.swift in Sources */,
@@ -4376,8 +4388,11 @@
 				A0000000000000000001F041 /* TilingTreeTests.swift in Sources */,
 				A0000000000000000001F052 /* TilingPolicy.swift in Sources */,
 				A0000000000000000001F062 /* TilingLayout.swift in Sources */,
+				A0000000000000000002B102 /* StripScrollGesture.swift in Sources */,
+				A0000000000000000002B112 /* StripScrollService.swift in Sources */,
 				A0000000000000000001F0A2 /* LayoutCatalog.swift in Sources */,
 				A0000000000000000001F071 /* TilingLayoutTests.swift in Sources */,
+				A0000000000000000002B121 /* StripScrollGestureTests.swift in Sources */,
 				A0000000000000000001F0B1 /* LayoutCatalogTests.swift in Sources */,
 				A0000000000000000001F102 /* RadialDialGeometry.swift in Sources */,
 				A0000000000000000001F112 /* RadialDialModel.swift in Sources */,

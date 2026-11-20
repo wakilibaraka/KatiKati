@@ -296,6 +296,15 @@ final class TilingEngine: ObservableObject {
         mutateStrip { $0.setWidth(width) }
     }
 
+    /// True when the display under the pointer draws the strip. The ⌥-scroll gesture only steps a
+    /// strip the pointer can actually see; elsewhere it stays inert.
+    var ribbonCoversPointer: Bool {
+        guard isEnabled else { return false }
+        let point = NSEvent.mouseLocation
+        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(point) }) else { return false }
+        return preset(for: screen) == .ribbon
+    }
+
     /// Focus a neighbouring column of the active display's strip, and bring its window forward.
     func focusStripColumn(_ offset: Int) {
         guard isEnabled, let key = activeScreenKey() else { return }

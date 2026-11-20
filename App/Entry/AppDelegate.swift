@@ -583,6 +583,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             GestureDispatcher.shared.syncMonitor()
             QuitOnLastWindowService.shared.start()
             FocusFollowService.shared.startIfEnabled()
+            StripScrollService.shared.startIfEnabled()
             NotificationMoveService.shared.refresh()
             PowerNotificationCenter.shared.start()
             DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }

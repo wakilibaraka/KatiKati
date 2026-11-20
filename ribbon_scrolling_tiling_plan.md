@@ -1,9 +1,9 @@
 # Ribbon (Scrolling Strip) — audit + slice plan
 
 Status: **shipped.** RT-0…RT-8 are in `main` (`b8ed2d25`, `786a0be1`, `f2c7e028`, `1f7c469e`,
-`85611113`, plus the close-out commits at the end of this file's log); the ⌥-scroll half of RT-6 is
-deliberately deferred (see *Deferred* below), and so is the peek row as a *control* — macOS owns that
-number. No checklist item is open.
+`85611113`, plus the close-out commits at the end of this file's log). RT-6 is complete: the
+⌥-scroll half ships as an opt-in, default-off passive monitor. The peek row stays a *note* rather
+than a control — macOS owns that number. No checklist item is open.
 
 Scope: a scrollable strip of columns as a *tiling preset* (`.ribbon`), reusing the existing
 `TilingTree`, `TilingEngine`, `TilingGaps`, `WindowSnapService.place`, the Carbon hotkey registry
@@ -55,8 +55,9 @@ on quit.
 - **Restore on quit is ribbon-only.** No preset restores on quit today; applying it to every preset
   is a behaviour delta nobody asked for.
 - **⌥+2-finger scroll is opt-in and non-consuming.** A passive `NSEvent` monitor cannot consume the
-  event, so the app under the pointer scrolls too. Consuming it would need a HID tap, which the
-  single-tap rule forbids; the setting is default-off and says so.
+  event, so the app under the pointer scrolls too — the row's note says exactly that. Consuming it
+  would mean taking ⌥+scroll away from every app under a tiled window, which is a semantic change
+  nobody asked for; the setting is default-off and exists only while switched on.
 - **Vertically stacked displays** are the documented caveat: columns that would park onto a
   vertically adjacent display park at the bottom edge instead.
 
@@ -74,7 +75,7 @@ on quit.
   bypass, widths preserved across picture switches, ribbon-only restore on quit.
 - **RT-5 shortcuts** — 9 strip actions + 8 picture actions, IDs 56–72, `shortcutActionName`,
   `AppDelegate` dispatch. Width cycle defaults to ⌃⌥⇧R; pictures to ⌘⌃1–8; the rest `.off`.
-- **RT-6 gestures** — `.stripNext` / `.stripPrevious` targets + dispatch, optional ⌥-scroll monitor
+- **RT-6 gestures** — `.stripNext` / `.stripPrevious` targets + dispatch, and the ⌥-scroll monitor
   behind a default-off key.
 - **RT-7 UI** — eight-picture grid in `SettingsTilingPane` and the Windows flyout (the flyout draws
   Chain itself and the other seven as the catalog pictures), preset note, a Column Width row, and a
@@ -120,11 +121,18 @@ live checks below exercise.
   `suspendPanelsAndStores()`, which nothing calls, so a quit left the parked columns parked.
 - **Shortcuts** — ids 56–64 for the strip, 65–72 for the pictures; ⌃⌥⇧R cycles width and ⌘⌃1–8 set
   the pictures; all strip actions are `.off` by default so nothing new grabs a key.
-- **Gestures** — `GestureActionTarget.stripNext`/`.stripPrevious` step along the strip.
+- **Gestures** — `GestureActionTarget.stripNext`/`.stripPrevious` step along the strip. RT-6's second
+  half is `StripScrollService`: with *Scroll the Strip with ⌥-Scroll* on (off by default,
+  `com.katikati.tiling.stripScroll`), ⌥ plus a two-finger scroll steps the strip, one column per
+  flick. `StripScrollGesture` turns the delta stream into steps (dominant axis, 60 pt of travel, a
+  280 ms cooldown per step, momentum dropped) and the monitor is a passive
+  `addGlobalMonitorForEvents` so nothing is swallowed; it acts only over a display whose preset is
+  the strip.
 - **UI** — eight-picture grid in Settings › Tiling, a Chain button plus the catalog pictures in the
   Windows flyout (so all eight are reachable there; Five and Six appear through the catalog), preset
   note, a Column Width picker bound to the focused column (`TilingEngine.setStripColumnWidth`, same
-  effect as ⌃⌥⇧R), a note that the parking peek is the OS clamp, and all 18 new labels in 15 locales.
+  effect as ⌃⌥⇧R), the ⌥-scroll switch and its note, a note that the parking peek is the OS clamp,
+  and all 20 new labels in 15 locales.
 
 ## Live check (2026-11-20, single 1710 pt display)
 
@@ -243,13 +251,6 @@ Two defects came out of the check and are fixed here:
 
 ## Deferred
 
-- **⌥+2-finger scroll on the strip.** A passive global monitor cannot consume the event, so the
-  app under the pointer scrolls too. (This entry first said consuming it "needs a HID tap, which the
-  single-tap rule forbids" — both halves were wrong: there is no single-tap rule, the tree runs four
-  `CGEventTap`s, and `ScrollReverserMonitor` is already an active `.scrollWheel` tap that can swallow
-  events. Consuming is possible by widening that one existing tap into a shared scroll hub; the real
-  cost is semantic — it takes ⌥+scroll away from every app under a tiled window — so the gesture is
-  still unbuilt, now for a reason that holds.)
 - **Live rebuild of a multi-display ribbon.** This machine has one display; the neighbour-display
   parking path is unit-tested (`StripParking.side(forEdge:neighbourOnEdge:)`) but has no on-screen
   witness here. This is the only item above that was not demonstrated on screen.
