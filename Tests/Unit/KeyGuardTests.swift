@@ -804,3 +804,83 @@ final class TrackpadGestureBindingTests: XCTestCase {
         XCTAssertEqual(reducer.feed(points: [], at: t0.addingTimeInterval(1.26)), .threeFingerTipTapLeft)
     }
 }
+
+/// The rule store is read once at launch, so a blob that exists but will not decode used to look
+/// exactly like a first launch: no rules, no complaint. These drive the real launch decode path.
+final class GestureRulesStoreTests: XCTestCase {
+    private var suite: UserDefaults!
+    private var suiteName = ""
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        suiteName = "com.katikati.tests.gestureRules.\(UUID().uuidString)"
+        suite = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+    }
+
+    override func tearDown() {
+        suite?.removePersistentDomain(forName: suiteName)
+        suite = nil
+        super.tearDown()
+    }
+
+    private func store(_ rules: [MultitouchGestureKind: GestureBindingRule]) throws {
+        suite.set(try JSONEncoder().encode(rules), forKey: GestureDispatcher.rulesKey)
+    }
+
+    func testStoredBlobDecodesEveryBindingThroughTheLaunchPath() throws {
+        try store([
+            .threeFingerSwipeLeft: GestureBindingRule(windowAction: .snapCycleLeft, tilingAction: .stripPrevious),
+            .threeFingerSwipeUp: GestureBindingRule(windowAction: .windowSwitcher)
+        ])
+
+        let loaded = GestureDispatcher.loadRules(from: suite)
+
+        XCTAssertNil(loaded.error)
+        XCTAssertEqual(loaded.rules.count, 2)
+        XCTAssertEqual(loaded.rules[.threeFingerSwipeLeft]?.windowAction, .snapCycleLeft)
+        XCTAssertEqual(loaded.rules[.threeFingerSwipeLeft]?.tilingAction, .stripPrevious)
+        XCTAssertEqual(loaded.rules[.threeFingerSwipeUp]?.windowAction, .windowSwitcher)
+        XCTAssertNil(loaded.rules[.threeFingerSwipeUp]?.tilingAction)
+    }
+
+    func testTruncatedBlobIsReportedNotTreatedAsNoBindings() {
+        suite.set(Data("{\"threeFingerSwipeLeft\":{\"windowAction\":".utf8), forKey: GestureDispatcher.rulesKey)
+
+        let loaded = GestureDispatcher.loadRules(from: suite)
+
+        XCTAssertTrue(loaded.rules.isEmpty)
+        XCTAssertNotNil(loaded.error, "a rule blob that will not decode must surface, not read as \"nothing is bound\"")
+    }
+
+    func testUnknownGestureNameIsReported() {
+        suite.set(Data("{\"threeFingerWiggle\":{\"enabled\":true}}".utf8), forKey: GestureDispatcher.rulesKey)
+
+        let loaded = GestureDispatcher.loadRules(from: suite)
+
+        XCTAssertTrue(loaded.rules.isEmpty)
+        XCTAssertNotNil(loaded.error)
+    }
+
+    func testDecodeRulesThrowsRatherThanReturningASubset() {
+        XCTAssertThrowsError(try GestureDispatcher.decodeRules(Data("not json".utf8)))
+    }
+
+    func testLegacyMappingsMigrateOnlyWhenNoBlobIsStored() throws {
+        suite.set(try JSONEncoder().encode(["threeFingerSwipeRight": "snapRight"]), forKey: GestureDispatcher.mappingsKey)
+
+        let loaded = GestureDispatcher.loadRules(from: suite)
+
+        XCTAssertNil(loaded.error)
+        XCTAssertEqual(loaded.rules[.threeFingerSwipeRight]?.windowAction, .snapRight)
+    }
+
+    func testStoredBlobWinsOverLegacyMappings() throws {
+        suite.set(try JSONEncoder().encode(["threeFingerSwipeRight": "snapRight"]), forKey: GestureDispatcher.mappingsKey)
+        try store([.threeFingerSwipeRight: GestureBindingRule(windowAction: .maximize)])
+
+        let loaded = GestureDispatcher.loadRules(from: suite)
+
+        XCTAssertNil(loaded.error)
+        XCTAssertEqual(loaded.rules[.threeFingerSwipeRight]?.windowAction, .maximize)
+    }
+}

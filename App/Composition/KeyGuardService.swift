@@ -1081,7 +1081,12 @@ final class GestureDispatcher: ObservableObject {
         let v = UserDefaults.standard.double(forKey: GestureDispatcher.flickVelocityKey)
         return v > 0 ? v : GestureClassificationConfig().flickVelocityThreshold
     }()
-    @Published private(set) var rules: [MultitouchGestureKind: GestureBindingRule] = GestureDispatcher.loadRules()
+    /// Decoded once per launch; `rulesLoadError` carries the reason when the stored blob would not decode.
+    private static let loadedRules = GestureDispatcher.loadRules()
+    @Published private(set) var rules: [MultitouchGestureKind: GestureBindingRule] = GestureDispatcher.loadedRules.rules
+    /// Non-nil when the stored rule set exists but could not be decoded: the pickers read empty, and the
+    /// reason is kept and logged rather than presented as "no gesture is bound".
+    @Published private(set) var rulesLoadError: String? = GestureDispatcher.loadedRules.error.map { String(describing: $0) }
     /// One action per gesture, window-management side, for the pickers that only ask for one.
     var mappings: [MultitouchGestureKind: GestureActionTarget] { rules.mapValues(\.windowAction) }
     /// Read when Settings opens, never polled: the clash badges are advisory, not a guard.
@@ -1288,13 +1293,26 @@ final class GestureDispatcher: ObservableObject {
         up.post(tap: .cghidEventTap)
     }
 
-    private static func loadRules() -> [MultitouchGestureKind: GestureBindingRule] {
-        if let data = UserDefaults.standard.data(forKey: rulesKey),
-           let decoded = try? JSONDecoder().decode([MultitouchGestureKind: GestureBindingRule].self, from: data) {
-            return decoded
+    /// The rule set read at launch. A stored blob that exists but will not decode is reported instead of
+    /// being folded into the empty set that a first launch also produces; only an absent blob migrates.
+    nonisolated static func loadRules(
+        from defaults: UserDefaults = .standard
+    ) -> (rules: [MultitouchGestureKind: GestureBindingRule], error: Error?) {
+        guard let data = defaults.data(forKey: rulesKey) else {
+            // One-time migration: the pre-slice store held a single action per gesture.
+            return (loadMappings(from: defaults).mapValues { GestureBindingRule(windowAction: $0) }, nil)
         }
-        // One-time migration: the pre-slice store held a single action per gesture.
-        return loadMappings().mapValues { GestureBindingRule(windowAction: $0) }
+        do {
+            return (try decodeRules(data), nil)
+        } catch {
+            keyGuardLog.error("gesture rules could not be decoded: \(String(describing: error), privacy: .public)")
+            return ([:], error)
+        }
+    }
+
+    /// The real decode path, kept separate so a test can drive exactly what launch drives.
+    nonisolated static func decodeRules(_ data: Data) throws -> [MultitouchGestureKind: GestureBindingRule] {
+        try JSONDecoder().decode([MultitouchGestureKind: GestureBindingRule].self, from: data)
     }
 
     /// The live trackpad and dock settings, read through CFPreferences so no helper process runs.
@@ -1315,8 +1333,8 @@ final class GestureDispatcher: ObservableObject {
         return out
     }
 
-    private static func loadMappings() -> [MultitouchGestureKind: GestureActionTarget] {
-        guard let data = UserDefaults.standard.data(forKey: mappingsKey),
+    nonisolated private static func loadMappings(from defaults: UserDefaults = .standard) -> [MultitouchGestureKind: GestureActionTarget] {
+        guard let data = defaults.data(forKey: mappingsKey),
               let raw = try? JSONDecoder().decode([String: String].self, from: data) else { return [:] }
         var out: [MultitouchGestureKind: GestureActionTarget] = [:]
         for (k, v) in raw {
