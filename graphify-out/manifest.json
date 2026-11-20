@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795191000.1279688,
-    "seen": 1795191464.8696918,
-    "ast_hash": "d8bb64d3c9c397231a89eef27b9cf843",
+    "mtime": 1795191859.2386942,
+    "seen": 1795192044.171368,
+    "ast_hash": "70b5484305f1bb29be06b85a6477d389",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1795007239.9548547,
-    "seen": 1795009097.722549,
-    "ast_hash": "6a702de522ec7f1faf41c02398f41137",
+    "mtime": 1795191776.2152622,
+    "seen": 1795192044.171565,
+    "ast_hash": "ec48999c1c6dc61010198629953d80fa",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -1722,9 +1722,9 @@
     "semantic_hash": "2b19067179b52f7586a92a57719350a3"
   },
   "Core/Support/DockStyle.swift": {
-    "mtime": 1795190989.8812723,
-    "seen": 1795191464.869958,
-    "ast_hash": "c50f3822462261427ed782a60fd448c8",
+    "mtime": 1795191698.5029993,
+    "seen": 1795192044.17165,
+    "ast_hash": "95571abf3b1cea81c0f9814845d3a853",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyle.swift": {
@@ -2502,9 +2502,9 @@
     "semantic_hash": "c67500d2664875a06720b0a5c719a093"
   },
   "Core/Support/WelcomeGuideStep.swift": {
-    "mtime": 1795007166.1795688,
-    "seen": 1795009097.723297,
-    "ast_hash": "6495693d6b8e3eba6b791670b4802d17",
+    "mtime": 1795191693.1634321,
+    "seen": 1795192044.171815,
+    "ast_hash": "9b4d9c879ed6469a8744dc313bbbaff7",
     "semantic_hash": ""
   },
   "Core/Support/WidgetLayoutModel.swift": {
@@ -4296,9 +4296,9 @@
     "semantic_hash": "95ea6b80e13237dae8450c33b7c239bc"
   },
   "Tests/Unit/WelcomeGuideOnboardingTests.swift": {
-    "mtime": 1795007224.502342,
-    "seen": 1795009097.7240908,
-    "ast_hash": "a5898d3899e030977652afa683d9930e",
+    "mtime": 1795191816.4907246,
+    "seen": 1795192044.172153,
+    "ast_hash": "8fcf63cfb74c64fa7579471d98de1ae9",
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetLayoutModelTests.swift": {
@@ -4560,9 +4560,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LayoutModePickers.swift": {
-    "mtime": 1795105071.4557717,
-    "seen": 1795105331.299963,
-    "ast_hash": "1fc7372a9387ed6b428fba0123de7e8e",
+    "mtime": 1795191704.2853463,
+    "seen": 1795192044.1714802,
+    "ast_hash": "31c8cdcd85b7749fd8c786c647600365",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchDockChips.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795191443.3260949,
-    "seen": 1795191464.870624,
-    "ast_hash": "e8976bfba1ab16ced4983d7df41002a9",
+    "mtime": 1795192020.529334,
+    "seen": 1795192044.172308,
+    "ast_hash": "52987fe73e076342121e3ce567c3494a",
     "semantic_hash": ""
   },
   "README.md": {
