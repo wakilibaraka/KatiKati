@@ -26,6 +26,7 @@ extension SettingsTab {
         case .commandBar: return "command bar hints script commands"
         case .controlCenter: return "panel tiles toggles anchor width"
         case .shortcuts: return "hotkey keyboard keys record hyper caps lock snap"
+        case .mouseGestures: return "trackpad gesture swipe pinch tap multitouch conflict mission control"
         case .radialDial: return "pie menu wheel theme"
         case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
         case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
@@ -93,7 +94,7 @@ struct SettingsSidebar: View {
         .system([.general, .menuBar, .appearance, .dockItems]),
         .surfaces([.drawer, .shelf, .widgets, .desktop, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
-        .productivity([.shortcuts, .radialDial, .aiTracking, .downloads, .clipboard, .tools]),
+        .productivity([.shortcuts, .mouseGestures, .radialDial, .aiTracking, .downloads, .clipboard, .tools]),
         .advanced([.advanced])
     ]
 

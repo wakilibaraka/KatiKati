@@ -22,6 +22,7 @@ enum SettingsTab: String, CaseIterable {
     case commandBar
     case controlCenter
     case shortcuts
+    case mouseGestures
     case radialDial
     case aiTracking
     case downloads
@@ -49,6 +50,7 @@ enum SettingsTab: String, CaseIterable {
         case "commandBar": self = .commandBar
         case "controlCenter": self = .controlCenter
         case "shortcuts": self = .shortcuts
+        case "mouseGestures": self = .mouseGestures
         case "radialDial": self = .radialDial
         case "aiTracking": self = .aiTracking
         case "downloads": self = .downloads
@@ -80,6 +82,7 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return String(localized: "Command Bar")
         case .controlCenter: return String(localized: "Control Center")
         case .shortcuts: return String(localized: "Shortcuts")
+        case .mouseGestures: return String(localized: "Mouse & Gestures")
         case .radialDial: return String(localized: "Radial Dial")
         case .aiTracking: return String(localized: "AI Tracking")
         case .downloads: return String(localized: "Downloads")
@@ -111,6 +114,7 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return String(localized: "Command hints and the command bar.")
         case .controlCenter: return String(localized: "Tiles, quick settings, and placement.")
         case .shortcuts: return String(localized: "Keyboard shortcuts, snap zones, and input.")
+        case .mouseGestures: return String(localized: "Trackpad gestures, tap, and the live preview.")
         case .radialDial: return String(localized: "The pie menu: actions, theme, and triggers.")
         case .aiTracking: return String(localized: "Claude Code hooks, tool approvals, token limits, and telemetry.")
         case .downloads: return String(localized: "Torrents: speed, schedule, and quiet hours.")
@@ -140,6 +144,7 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return "terminal"
         case .controlCenter: return "switch.2"
         case .shortcuts: return "command"
+        case .mouseGestures: return "hand.draw"
         case .radialDial: return "circle.hexagongrid"
         case .aiTracking: return "brain.head.profile"
         case .downloads: return "arrow.down.circle"
@@ -170,6 +175,7 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return (0.85, 0.35, 0.35)
         case .controlCenter: return (1.00, 0.55, 0.15)
         case .shortcuts: return (0.98, 0.72, 0.10)
+        case .mouseGestures: return (0.36, 0.62, 0.92)
         case .radialDial: return (0.92, 0.36, 0.78)
         case .aiTracking: return (0.64, 0.28, 0.92)
         case .downloads: return (0.12, 0.72, 0.88)

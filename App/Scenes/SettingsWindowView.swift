@@ -129,6 +129,7 @@ struct SettingsWindowContent: View {
             case .commandBar: commandBarPane
             case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
+            case .mouseGestures: SettingsLayoutPane(store: store, mode: .gestures)
             case .radialDial:
                 SettingsLayoutPane(store: store, mode: .radialDial)
                     .background(SettingsPageHeightProbe(tab: .radialDial))

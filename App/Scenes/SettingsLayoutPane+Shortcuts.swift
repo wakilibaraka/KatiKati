@@ -6,19 +6,11 @@ extension SettingsLayoutPane {
     /// The Shortcuts page (Phase 12 A4). Every key assignment lives in the first card — a find
     /// field, the feature actions, then the fifteen snap zones; the keyboard behaviours that change
     /// how typing reaches apps are the second; the dial is the third. Three sections is the page's
-    /// budget (`Docs/SETTINGS.md` rule 5) and the long first one is why it carries a filter: 26
+    /// budget (`Docs/SETTINGS.md` rule 5) and the long first one is why it carries a find field: 26
     /// assignment rows is more than a reader should have to scroll through to find one.
     @ViewBuilder
     var shortcutSections: some View {
         let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
-        Picker("Shortcuts", selection: $shortcutsSectionFilter) {
-            Text("Keyboard").tag(ShortcutsSectionFilter.keyboard)
-            Text("Mouse & Gestures").tag(ShortcutsSectionFilter.mouseAndGestures)
-        }
-        .pickerStyle(.segmented)
-        .labelsHidden()
-
-        if shortcutsSectionFilter == .keyboard {
         SettingsCard(
             // Headerless: the two disclosure groups below carry the names (the page's toolbar tab
             // already says "Shortcuts"), so no new string was needed for the grouping.
@@ -311,7 +303,11 @@ extension SettingsLayoutPane {
                 SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
             }
         }
-        } else {
+    }
+
+    /// Mouse & Gestures has its own page: the input toggles, the mapping rows, and the live preview.
+    @ViewBuilder
+    var gestureSections: some View {
         SettingsCard(Text("Mouse & Gestures")) {
             SettingsToggleRow(
                 Text("Open Launcher with Pinch"),
@@ -333,7 +329,6 @@ extension SettingsLayoutPane {
             SettingsButtonRow(Text("Open Trackpad Settings")) {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.trackpad") { NSWorkspace.shared.open(url) }
             }
-        }
         }
     }
 
@@ -1057,6 +1052,8 @@ private struct QuitLifecycleOptionsView: View {
 
 private struct MultitouchGesturesSection: View {
     @ObservedObject var dispatcher = GestureDispatcher.shared
+    /// The mapping is the point of this page, so it opens expanded; the disclosure still collapses it.
+    @State private var showsMapping = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -1066,7 +1063,7 @@ private struct MultitouchGesturesSection: View {
                 info: String(localized: "Map 2, 3, and 4-finger trackpad swipes, pinches, and taps to KatiKati actions.")
             )
             SettingsDivider()
-            DisclosureGroup("Gesture Mapping & Live Visualizer") {
+            DisclosureGroup(isExpanded: $showsMapping) {
                 GesturePreviewStage(dispatcher: dispatcher)
                 SettingsDivider()
                 SettingsSliderRow(
@@ -1096,6 +1093,8 @@ private struct MultitouchGesturesSection: View {
                     SettingsDivider()
                     GestureBindingRow(dispatcher: dispatcher, kind: kind)
                 }
+            } label: {
+                Text("Gesture Mapping & Live Visualizer")
             }
         }
         // The clash badges are advisory: read the live settings when the page opens, never poll.
