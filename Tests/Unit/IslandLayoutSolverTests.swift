@@ -489,3 +489,63 @@ final class IslandLayoutSolverTests: XCTestCase {
         XCTAssertEqual(weather!.frame.width, 40 + 40 + 2 * IslandChrome.railContentInset + IslandChrome.dividerGap, accuracy: 0.001)
     }
 }
+
+/// Slice DP-3: Wide spends its spare width as capped, equal gaps plus a symmetric margin, so a
+/// short row cannot turn into one dead void (the two elastic dividers Wide used before).
+final class WideGapPlanTests: XCTestCase {
+    private let cap = WideGapPlan.gapCap
+
+    func testNoSpareAddsNothing() {
+        let plan = WideGapPlan.resolve(spare: 0, interiorGaps: 11)
+        XCTAssertEqual(plan.gap, 0)
+        XCTAssertEqual(plan.endPadding, 0)
+        XCTAssertEqual(WideGapPlan.resolve(spare: -40, interiorGaps: 3), plan, "a negative spare is clamped")
+    }
+
+    func testGapsAreCappedAndTheRestGoesToBothEnds() {
+        let plan = WideGapPlan.resolve(spare: 600, interiorGaps: 12)
+        XCTAssertEqual(plan.gap, cap, "a large spare may only grow one gap to the cap")
+        XCTAssertEqual(plan.endPadding, (600 - cap * 12) / 2, accuracy: 0.001,
+                       "the remainder is split evenly, not poured into one end")
+        XCTAssertEqual(plan.gap * 12 + plan.endPadding * 2, 600, accuracy: 0.001)
+    }
+
+    func testSmallSpareIsSharedThenCapped() {
+        let plan = WideGapPlan.resolve(spare: 100, interiorGaps: 12)
+        XCTAssertEqual(plan.gap, 100.0 / 14.0, accuracy: 0.001, "the ends take their share of a short surplus")
+        XCTAssertLessThanOrEqual(plan.gap, cap)
+        XCTAssertEqual(plan.gap * 12 + plan.endPadding * 2, 100, accuracy: 0.001)
+    }
+
+    func testEveryInputAccountsForEveryPoint() {
+        for gaps in [0, 1, 2, 7, 12, 20] {
+            for spare in stride(from: 0.0, through: 1000.0, by: 37.0) {
+                let plan = WideGapPlan.resolve(spare: spare, interiorGaps: gaps)
+                XCTAssertLessThanOrEqual(plan.gap, cap + 0.001)
+                XCTAssertGreaterThanOrEqual(plan.endPadding, 0)
+                XCTAssertEqual(plan.gap * CGFloat(gaps) + plan.endPadding * 2, spare, accuracy: 0.001,
+                               "gaps \(gaps), spare \(spare)")
+            }
+        }
+        // A single entry has no interior gap at all: the spare is only margin.
+        let single = WideGapPlan.resolve(spare: 120, interiorGaps: 0)
+        XCTAssertEqual(single.gap, 0)
+        XCTAssertEqual(single.endPadding, 60, accuracy: 0.001)
+    }
+
+    /// The one-window case from the plan: content plus gaps plus both margins must equal the plate,
+    /// and no single gap may be wider than the cap.
+    func testOneWindowRowFillsThePlateWithoutAVoid() {
+        let plate: CGFloat = 1684
+        let baseSpacing: CGFloat = 2
+        let content: CGFloat = 34 + 150 + 215 + 160 + 112   // launcher, weather, media, clock, utilities
+        let entries = 5
+        let gaps = entries - 1
+        let spare = plate - content - baseSpacing * CGFloat(gaps)
+        let plan = WideGapPlan.resolve(spare: spare, interiorGaps: gaps)
+        let filled = content + (baseSpacing + plan.gap) * CGFloat(gaps) + plan.endPadding * 2
+        XCTAssertEqual(filled, plate, accuracy: 0.001)
+        XCTAssertLessThanOrEqual(baseSpacing + plan.gap, cap + baseSpacing)
+        XCTAssertEqual(plan.endPadding, (spare - plan.gap * CGFloat(gaps)) / 2, accuracy: 0.001)
+    }
+}

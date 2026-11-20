@@ -268,7 +268,11 @@ struct DockStripView: View {
             // Phase 18c: one stack, two axes — a side rail stacks the same entries top to bottom.
             ScrollView(isRail ? .vertical : .horizontal, showsIndicators: false) {
                 StripAxisStack(vertical: isRail,
-                               spacing: (isRail ? Style.railChipSpacing : Style.chipSpacing) * dockScale) {
+                               spacing: (isRail ? Style.railChipSpacing : Style.chipSpacing) * dockScale,
+                               // DP-3: only Wide has spare width to spend; every other mode keeps
+                               // measuring its natural width.
+                               wideGapCap: (!isRail && settingsStore.barLayoutMode == .windows)
+                                   ? WideGapPlan.gapCap * dockScale : nil) {
                     ForEach(projection.entries) { entry in
                         chipWithReorder(entry, projection: projection)
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
@@ -1597,10 +1601,8 @@ struct DockStripView: View {
                                                                   frame: geo.frame(in: .named("strip"))))
                 }
             )
-        case let .divider(id) where fullWidthContentWidth != nil && fullWidthFlexibleDividerIDs.contains(id):
-            // Full Width: the gaps either side of the apps zone stretch, pinning the leading widgets
-            // to the left end and the trailing ones to the right end (Appendix A, Phase 11b).
-            Spacer(minLength: StripContextMenuZone.dividerGapWidth * dockScale)
+        // Phase 11b's two elastic dividers retired in DP-3: Wide spreads its surplus through
+        // `WideGapPlan` inside `StripAxisStack`, so a divider is just a divider in every mode.
         case .divider where isRail:
             // Phase 40d: `dividerSidePadding` is derived from the bottom bar's divider gap
             // (`StripContextMenuZone.dividerGapWidth`, 9 pt since Phase 41c); on a rail that opened a hole
@@ -1994,16 +1996,6 @@ extension DockStripView {
         }
     }
 
-    /// The layout dividers bordering the apps zone (`makeProjection` ids).
-    var fullWidthFlexibleDividerIDs: Set<String> {
-        let order = settingsStore.dockSectionOrder
-        var ids: Set<String> = ["layout-divider-pre-apps"]
-        if let apps = order.firstIndex(of: .apps), apps + 1 < order.count {
-            ids.insert("layout-divider-\(order[apps + 1].rawValue)")
-        }
-        return ids
-    }
-
     /// Width of the screen this strip sits on (for widget auto-degrade); main screen until geometry reports.
     var stripScreenWidth: CGFloat {
         let rect = frames.stripRootScreenRect
@@ -2280,13 +2272,53 @@ extension DockStripView {
 private struct StripAxisStack<Content: View>: View {
     let vertical: Bool
     let spacing: CGFloat
+    /// DP-3: non-nil on a Wide bottom bar — the spare width is spread by `WideGapPlan` instead of
+    /// by two elastic dividers. `nil` keeps the natural-width stack every other mode measures.
+    var wideGapCap: CGFloat? = nil
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         if vertical {
             VStack(alignment: .center, spacing: spacing, content: content)
+        } else if let wideGapCap {
+            WideStripFillLayout(baseSpacing: spacing, gapCap: wideGapCap) { content() }
         } else {
             HStack(alignment: .center, spacing: spacing, content: content)
+        }
+    }
+}
+
+/// Wide's horizontal stack (DP-3): fills the plate, then spends the leftover through
+/// `WideGapPlan` — each interior gap grows by at most the cap and the rest is shared equally by
+/// both ends. Placement is by hand because only a `Layout` sees the true spare width and the real
+/// subview widths in the same pass; a pair of `Spacer`s could only pour everything into one hole.
+private struct WideStripFillLayout: Layout {
+    let baseSpacing: CGFloat
+    let gapCap: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let natural = sizes.reduce(0) { $0 + $1.width }
+            + baseSpacing * CGFloat(max(0, sizes.count - 1))
+        let width = max(natural, proposal.width ?? natural)
+        return CGSize(width: width, height: proposal.height ?? (sizes.map(\.height).max() ?? 0))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        guard !sizes.isEmpty else { return }
+        let gaps = max(0, sizes.count - 1)
+        let contentWidth = sizes.reduce(0) { $0 + $1.width }
+        let spare = max(0, bounds.width - contentWidth - baseSpacing * CGFloat(gaps))
+        let plan = WideGapPlan.resolve(spare: spare, interiorGaps: gaps, cap: gapCap)
+        var x = bounds.minX + plan.endPadding
+        for (index, size) in sizes.enumerated() {
+            subviews[index].place(
+                at: CGPoint(x: x, y: bounds.midY - size.height / 2),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(size)
+            )
+            x += size.width + baseSpacing + (index < gaps ? plan.gap : 0)
         }
     }
 }

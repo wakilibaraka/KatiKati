@@ -294,6 +294,45 @@ enum IslandLayoutSolver {
     }
 }
 
+/// How Wide (`.windows`) spends the width its plate has but its content does not (slice DP-3).
+///
+/// Wide forces the strip to the plate's width, and until DP-3 two dividers absorbed every spare
+/// point with a bare `Spacer(minLength: 9)` — one widget pinned hard left, the tail pinned hard
+/// right, and two dead voids wherever the windows row was short. The rule here is one small, equal
+/// step instead: each boundary grows by at most `gapCap`, and whatever is left over is split evenly
+/// between the two ends, so the bar reads as balanced rather than as two holes.
+///
+/// Pure and total so the strip's custom layout and the tests share one arithmetic:
+/// `gap · interiorGaps + 2 · endPadding == spare` exactly, for every input.
+enum WideGapPlan {
+    /// The most one boundary may grow by. The bar's own chip spacing is 2 pt and its divider gap 9 pt,
+    /// so 24 keeps Wide visibly airier than Compact without turning a short row into a scatter.
+    static let gapCap: CGFloat = 24
+
+    struct Plan: Equatable, Sendable {
+        /// Extra points added to every **interior** gap, on top of `baseSpacing`.
+        let gap: CGFloat
+        /// Points added at each end, equal on both sides.
+        let endPadding: CGFloat
+    }
+
+    /// - Parameters:
+    ///   - spare: width left after the content and the bar's own spacing.
+    ///   - interiorGaps: number of gaps between the n subviews (`n - 1`).
+    ///   - cap: most any one gap may grow by.
+    static func resolve(spare: CGFloat, interiorGaps: Int, cap: CGFloat = gapCap) -> Plan {
+        let gaps = max(0, interiorGaps)
+        let budget = max(0, spare)
+        guard budget > 0, gaps > 0 else { return Plan(gap: 0, endPadding: budget / 2) }
+        // Share the spare across the interior gaps **and** the two ends, so a capped gap leaves a
+        // symmetric margin instead of a single void.
+        let share = budget / CGFloat(gaps + 2)
+        let gap = min(cap, share)
+        let remainder = max(0, budget - gap * CGFloat(gaps))
+        return Plan(gap: gap, endPadding: remainder / 2)
+    }
+}
+
 /// Chrome `DockStripView` draws around and between a fixed island's sections: the horizontal
 /// content inset at both ends and a divider gap between neighbouring sections, both scaled with
 /// the bar height. The solver sizes fixed islands with it so a frame never clips its own content
