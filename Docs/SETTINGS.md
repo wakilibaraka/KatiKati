@@ -169,3 +169,24 @@ Until the decision is recorded in the tracker:
    on all ten. A number you touch must move toward the grid, not away from it.
 4. Screenshot the page before and after. A UI slice without its shots is unfinished
    (`STANDING_RULES.md` §6.5).
+
+## Tiling layout names
+
+Settings › Tiling shows one tile per layout: the solver's own thumbnail, a badge, and the name. Under
+the grid the selected layout is spelled out with the same shape in AeroSpace and Amethyst, for people
+arriving from either.
+
+| Badge | Name | AeroSpace | Amethyst |
+| --- | --- | --- | --- |
+| BSP | Binary Space Partitioning | tiles (nested) | Binary Space Partitioning |
+| M+S | Main + Stack (Master–Stack) | — | Tall / Tall-Right |
+| MONO | Monocle (Accordion) | accordion | Fullscreen |
+| GRID | Grid | tiles (grid) | 4-Pane / 3-Pane |
+| SPIR | Spiral (Dwindle) | — | — |
+| COLS | Columns | h_tiles | Column |
+| ROWS | Rows | v_tiles | Row |
+| CTM | Centered Main (Centered Master) | — | — |
+| RIB | Ribbon (Scrolling Strip) | — | — |
+
+The badges and the spelled-out names are technical terms and stay in English in every locale, the way
+`h_tiles` and `Tall` do; only the layout titles and the explanations are translated.

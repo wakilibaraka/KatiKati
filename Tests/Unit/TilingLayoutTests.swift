@@ -389,4 +389,30 @@ final class TilingLayoutTests: XCTestCase {
         let center = WindowFit.cocoaCenter(ofQuartzFrame: quartz, primaryMaxY: 900)
         XCTAssertEqual(center, CGPoint(x: 150, y: 700))
     }
+
+    // MARK: - Industry names (AeroSpace / Amethyst)
+
+    /// Every preset has to be sayable: a badge the picker can print and a name spelled out, so no
+    /// layout is only a code word.
+    func testEveryPresetHasABadgeAndAFullName() {
+        for preset in TilingLayoutPreset.allCases {
+            XCTAssertFalse(preset.alias.abbreviation.isEmpty, "\(preset) has no badge")
+            XCTAssertLessThanOrEqual(preset.alias.abbreviation.count, 4, "\(preset)'s badge is too long")
+            XCTAssertFalse(preset.alias.fullName.isEmpty, "\(preset) has no full name")
+            XCTAssertTrue(preset.describedName.contains(preset.alias.abbreviation))
+            XCTAssertTrue(preset.describedName.contains(preset.alias.fullName))
+        }
+    }
+
+    /// The mapping people arriving from other tiling managers rely on.
+    func testPresetsNameTheirEquivalentInOtherWindowManagers() {
+        XCTAssertEqual(TilingLayoutPreset.bsp.alias.fullName, "Binary Space Partitioning")
+        XCTAssertEqual(TilingLayoutPreset.bsp.describedName, "BSP · Binary Space Partitioning")
+        XCTAssertEqual(TilingLayoutPreset.columns.standardNames, "AeroSpace h_tiles · Amethyst Column")
+        XCTAssertEqual(TilingLayoutPreset.rows.standardNames, "AeroSpace v_tiles · Amethyst Row")
+        XCTAssertEqual(TilingLayoutPreset.monocle.standardNames, "AeroSpace accordion · Amethyst Fullscreen")
+        XCTAssertEqual(TilingLayoutPreset.mainStack.standardNames, "Amethyst Tall / Tall-Right")
+        XCTAssertNil(TilingLayoutPreset.ribbon.standardNames, "the strip has no equivalent to name")
+        XCTAssertNil(TilingLayoutPreset.spiral.standardNames)
+    }
 }

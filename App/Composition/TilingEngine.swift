@@ -692,6 +692,14 @@ final class TilingEngine: ObservableObject {
                 for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
                     tree.remove(id)
                     overflow += 1
+                    // The window is leaving the tiling set, so park nothing: put it back where tiling
+                    // found it. Leaving it at the edge a scrolling strip parked it against means an
+                    // off-screen window that no preset can reach again.
+                    if let record = snapshot.windows[id], let cg = record.cgWindowID,
+                       let original = preTilingFrames[cg] {
+                        writeFrame(original, pid: record.pid, cgWindowID: cg)
+                        lastAppliedFrames.removeValue(forKey: cg)
+                    }
                     targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
                 }
             }
@@ -907,6 +915,21 @@ final class TilingEngine: ObservableObject {
 
     private func activeScreenKey() -> String? {
         activeScreen().map(screenKey(for:))
+    }
+
+    /// Writes one Quartz frame to one window. Used when a window leaves the tiling set and has to go
+    /// back to the frame tiling found it in.
+    private func writeFrame(_ quartz: CGRect, pid: pid_t, cgWindowID: CGWindowID) {
+        guard let element = AXElementCache.shared.element(pid: pid, cgWindowID: cgWindowID)
+                ?? axElement(for: pid, cgWindowID: cgWindowID) else { return }
+        var origin = quartz.origin
+        var size = quartz.size
+        guard let point = AXValueCreate(.cgPoint, &origin),
+              let sizeValue = AXValueCreate(.cgSize, &size) else { return }
+        // Size first, then position: the other order clamps a tall window against the bottom edge.
+        AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeValue)
+        AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, point)
+        AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeValue)
     }
 
     private func axElement(for pid: pid_t, cgWindowID: CGWindowID) -> AXUIElement? {

@@ -43,12 +43,21 @@ struct SettingsTilingPane: View {
 
             if engine.isEnabled {
                 SettingsDivider()
-                SettingsPickerRow(
-                    Text("Preset"),
-                    selection: Binding(get: { engine.preset }, set: { engine.setPreset($0) })
-                ) {
+                Text("Layout")
+                    .font(.subheadline)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
                     ForEach(TilingLayoutPreset.allCases, id: \.self) { preset in
-                        Text(preset.localizedTitleKey).tag(preset)
+                        layoutTile(preset)
+                    }
+                }
+                SettingsDivider()
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(verbatim: engine.preset.describedName)
+                        .font(.callout.weight(.semibold))
+                    if let standard = engine.preset.standardNames {
+                        Text(verbatim: standard)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 SettingsNote(presetNote)
@@ -220,6 +229,44 @@ struct SettingsTilingPane: View {
 
     private var axTrusted: Bool { AXIsProcessTrusted() }
 
+    /// One picker tile: the solver's own picture, the badge, and the layout's name. The badge and the
+    /// spelled-out name are technical terms, so they stay verbatim rather than going through translation.
+    private func layoutTile(_ preset: TilingLayoutPreset) -> some View {
+        let selected = engine.preset == preset
+        return Button { engine.setPreset(preset) } label: {
+            VStack(spacing: 4) {
+                TilingLayoutThumbnail(preset: preset)
+                    .frame(height: 38)
+                HStack(spacing: 4) {
+                    if !preset.localizedTitleKey.hasPrefix(preset.alias.abbreviation) {
+                        Text(verbatim: preset.alias.abbreviation)
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(Color.secondary.opacity(0.15)))
+                    }
+                    Text(preset.localizedTitleKey)
+                        .font(.caption2)
+                        .lineLimit(1)
+                }
+            }
+            .padding(6)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(selected ? Color.accentColor.opacity(0.12) : Color.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(selected ? Color.accentColor : Color.secondary.opacity(0.22),
+                                  lineWidth: selected ? 1.5 : 0.75)
+            )
+        }
+        .buttonStyle(.plain)
+        .help(Text(verbatim: preset.describedName))
+        .accessibilityLabel(Text(verbatim: preset.describedName))
+    }
+
     private var presetNote: Text {
         switch engine.preset {
         case .bsp: return Text("BSP: each new window takes half of the space left, so four windows form a grid.")
@@ -241,4 +288,29 @@ struct SettingsTilingPane: View {
     }
 
     private static func glyphs(_ trigger: ShortcutTrigger) -> String? { trigger.displayGlyphs }
+}
+
+/// A layout's shape, drawn by the tiling solver itself so the thumbnail cannot describe something the
+/// engine does not do.
+private struct TilingLayoutThumbnail: View {
+    let preset: TilingLayoutPreset
+
+    var body: some View {
+        GeometryReader { geo in
+            let area = CGRect(origin: .zero, size: geo.size).insetBy(dx: 3, dy: 3)
+            let rects = TilingPreview.rects(preset: preset, area: area, gap: 2)
+            ZStack(alignment: .topLeading) {
+                ForEach(Array(rects.enumerated()), id: \.offset) { _, rect in
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(Color.secondary.opacity(0.30))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                                .strokeBorder(Color.secondary.opacity(0.45), lineWidth: 0.5)
+                        )
+                        .frame(width: max(2, rect.width), height: max(2, rect.height))
+                        .offset(x: rect.minX, y: rect.minY)
+                }
+            }
+        }
+    }
 }

@@ -22,6 +22,51 @@ enum TilingLayoutPreset: String, CaseIterable, Sendable, Codable {
     /// Ribbon: a horizontal strip of columns that scrolls to keep the focused one in view.
     case ribbon
 
+    /// Short badge + spelled-out name + the same shape in window managers people arrive from.
+    var alias: TilingLayoutAlias {
+        switch self {
+        case .bsp:
+            return TilingLayoutAlias(abbreviation: "BSP", fullName: "Binary Space Partitioning",
+                                     aeroSpaceName: "tiles (nested)", amethystName: "Binary Space Partitioning")
+        case .mainStack:
+            return TilingLayoutAlias(abbreviation: "M+S", fullName: "Main + Stack (Master–Stack)",
+                                     aeroSpaceName: nil, amethystName: "Tall / Tall-Right")
+        case .monocle:
+            return TilingLayoutAlias(abbreviation: "MONO", fullName: "Monocle (Accordion)",
+                                     aeroSpaceName: "accordion", amethystName: "Fullscreen")
+        case .grid:
+            return TilingLayoutAlias(abbreviation: "GRID", fullName: "Grid",
+                                     aeroSpaceName: "tiles (grid)", amethystName: "4-Pane / 3-Pane")
+        case .spiral:
+            return TilingLayoutAlias(abbreviation: "SPIR", fullName: "Spiral (Dwindle)",
+                                     aeroSpaceName: nil, amethystName: nil)
+        case .columns:
+            return TilingLayoutAlias(abbreviation: "COLS", fullName: "Columns",
+                                     aeroSpaceName: "h_tiles", amethystName: "Column")
+        case .rows:
+            return TilingLayoutAlias(abbreviation: "ROWS", fullName: "Rows",
+                                     aeroSpaceName: "v_tiles", amethystName: "Row")
+        case .centeredMain:
+            return TilingLayoutAlias(abbreviation: "CTM", fullName: "Centered Main (Centered Master)",
+                                     aeroSpaceName: nil, amethystName: nil)
+        case .ribbon:
+            return TilingLayoutAlias(abbreviation: "RIB", fullName: "Ribbon (Scrolling Strip)",
+                                     aeroSpaceName: nil, amethystName: nil)
+        }
+    }
+
+    /// "BSP · Binary Space Partitioning" — the badge and the name spelled out together.
+    var describedName: String { "\(alias.abbreviation) · \(alias.fullName)" }
+
+    /// The same shape elsewhere, for people switching from AeroSpace or Amethyst. Nil when those
+    /// apps have no equivalent.
+    var standardNames: String? {
+        var parts: [String] = []
+        if let aeroSpace = alias.aeroSpaceName { parts.append("AeroSpace \(aeroSpace)") }
+        if let amethyst = alias.amethystName { parts.append("Amethyst \(amethyst)") }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
     var localizedTitleKey: String {
         switch self {
         case .bsp: return "BSP"
@@ -35,6 +80,19 @@ enum TilingLayoutPreset: String, CaseIterable, Sendable, Codable {
         case .ribbon: return "Ribbon"
         }
     }
+}
+
+/// One layout's name in the terms other tiling window managers use. Kept in Core so the Settings
+/// picker, the flyout and the docs describe the same shape with the same words.
+struct TilingLayoutAlias: Equatable, Sendable {
+    /// Two-to-four letter badge printed on the picker tile.
+    let abbreviation: String
+    /// The name spelled out, e.g. "Binary Space Partitioning".
+    let fullName: String
+    /// AeroSpace's command name for the same shape, when it has one.
+    let aeroSpaceName: String?
+    /// Amethyst's layout name for the same shape, when it has one.
+    let amethystName: String?
 }
 
 /// User tuning for layouts with a main window (Main + Stack, Centered Main).
