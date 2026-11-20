@@ -969,10 +969,16 @@ final class GestureTilingPreviewTests: XCTestCase {
         .stripSwapNext, .stripSwapPrevious, .quickLayoutPicker
     ]
 
-    func testEveryTilingActionDrawsTheSolverStage() {
-        for action in tilingActions {
-            XCTAssertEqual(GesturePreviewPlan.art(for: action), .tiling, "\(action)")
-        }
+    func testEveryTilingActionDrawsTheStageItsMutationProduces() {
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripNext), .strip(.plain))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripPrevious), .strip(.plain))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripCycleWidth), .strip(.cycleWidth))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripStack), .strip(.stack))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripTabs), .strip(.tabs))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripSwapNext), .strip(.swapNext))
+        XCTAssertEqual(GesturePreviewPlan.art(for: .stripSwapPrevious), .strip(.swapPrevious))
+        // The quick-layout picker applies a preset, so it keeps the preset solver's picture.
+        XCTAssertEqual(GesturePreviewPlan.art(for: .quickLayoutPicker), .tiling)
     }
 
     func testWindowActionsDrawTheirSnapOrSymbol() {
@@ -1005,7 +1011,7 @@ final class GestureTilingPreviewTests: XCTestCase {
         let off = GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: false))
         let on = GestureRouter.target(for: rule, context: GestureContext(tilingEnabled: true))
         XCTAssertEqual(GesturePreviewPlan.art(for: off), .snap(.maximize))
-        XCTAssertEqual(GesturePreviewPlan.art(for: on), .tiling)
+        XCTAssertEqual(GesturePreviewPlan.art(for: on), .strip(.stack))
     }
 
     func testEveryResolvedActionHasAStageAndOnlyTheTilingFamilyUsesTheSolver() {
@@ -1013,9 +1019,62 @@ final class GestureTilingPreviewTests: XCTestCase {
             let art = GesturePreviewPlan.art(for: action)
             XCTAssertNotEqual(art, .symbol("questionmark"), "\(action) has no stage")
             if tilingActions.contains(action) {
-                XCTAssertEqual(art, .tiling, "\(action)")
+                XCTAssertTrue(art != .tiling || action == .quickLayoutPicker, "\(action)")
             } else {
                 XCTAssertNotEqual(art, .tiling, "\(action) is not a tiling action")
+            }
+        }
+    }
+}
+
+/// TG-4: the four strip mutations preview their own result. The probe feeds a synthetic strip through
+/// the engine's mutation methods and its own ribbon solver, so the picture is the layout the strip
+/// would really produce rather than an approximation of it.
+final class StripPreviewMutationTests: XCTestCase {
+    private let area = CGRect(x: 0, y: 0, width: 600, height: 300)
+    private let gap: CGFloat = 4
+
+    private func widths(_ mutation: StripPreviewMutation) -> [CGFloat] {
+        TilingPreview.stripRects(for: mutation, area: area, gap: gap).map { $0.width }
+    }
+
+    func testTheSeedIsAThreeColumnStripFocusedInTheMiddle() {
+        let rects = TilingPreview.stripRects(for: .plain, area: area, gap: gap)
+        XCTAssertEqual(rects.map(\.width), [150, 300, 150])
+        XCTAssertEqual(rects.map(\.minX), [0, 154, 458])
+    }
+
+    func testCyclingWidthWidensTheFocusedColumn() {
+        XCTAssertEqual(StripPreviewMutation.cycleWidth.resultingWidth, .twoThirds)
+        XCTAssertEqual(widths(.cycleWidth), [150, 400, 150])
+        XCTAssertGreaterThan(widths(.cycleWidth)[1], widths(.plain)[1])
+    }
+
+    func testStackingMergesTheFocusedColumnIntoItsLeftNeighbour() {
+        XCTAssertEqual(widths(.stack), [300, 150])
+    }
+
+    func testTogglingTabsSplitsTheTabbedColumnBackIntoColumns() {
+        // A tabbed column shows one frame; toggling it off gives each window a column of its own.
+        XCTAssertEqual(widths(.tabs), [300, 300, 150])
+        XCTAssertNotEqual(widths(.tabs), widths(.plain))
+    }
+
+    func testSwappingNeighboursReordersTheColumns() {
+        XCTAssertEqual(widths(.swapNext), [150, 150, 300])
+        XCTAssertEqual(widths(.swapPrevious), [300, 150, 150])
+        XCTAssertNotEqual(widths(.swapNext), widths(.swapPrevious))
+    }
+
+    func testEveryMutationDrawsOnlyPositiveRectsThatStayInOrder() {
+        for mutation in StripPreviewMutation.allCases {
+            let rects = TilingPreview.stripRects(for: mutation, area: area, gap: gap)
+            XCTAssertFalse(rects.isEmpty, "\(mutation)")
+            XCTAssertEqual(rects.map(\.minX), rects.map(\.minX).sorted(), "\(mutation) is left-to-right")
+            for rect in rects {
+                XCTAssertGreaterThan(rect.width, 1, "\(mutation)")
+                XCTAssertEqual(rect.height, area.height, "\(mutation)")
+                XCTAssertEqual(rect.minY, area.minY, "\(mutation)")
             }
         }
     }

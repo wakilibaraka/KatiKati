@@ -588,13 +588,38 @@ enum TilingPreview {
     }
 }
 
+extension TilingPreview {
+    /// The strip's own solver over a synthetic strip, mutated the way the gesture mutates it, so the
+    /// preview shows the result a real ribbon would end up with.
+    static func stripRects(for mutation: StripPreviewMutation, area: CGRect, gap: CGFloat) -> [CGRect] {
+        var state = StripPreviewMutation.seededStrip()
+        mutation.apply(to: &state)
+        let content = CGRect(origin: .zero, size: area.size)
+        let frames = TilingLayout.resolveRibbon(state: state, in: content, gap: gap, camera: 0)
+        var drawn: [CGRect] = []
+        for column in state.columns {
+            guard let id = column.activeID, let frame = frames.frames[id] else { continue }
+            // Every window of a tabbed column shares one frame; draw it once.
+            guard !drawn.contains(where: { $0.equalTo(frame) }) else { continue }
+            drawn.append(frame)
+        }
+        return drawn.map {
+            CGRect(x: area.minX + $0.minX, y: area.minY + $0.minY,
+                   width: max(1, $0.width), height: max(1, $0.height))
+        }
+    }
+}
+
 private extension Comparable {
     func clamped(to range: ClosedRange<Self>) -> Self { min(max(self, range.lowerBound), range.upperBound) }
 }
 
 /// What the gesture preview's right-hand pane draws for one resolved action.
 enum GesturePreviewArt: Equatable, Sendable {
+    /// The preset solver's layout, for the quick-layout picker.
     case tiling
+    /// The strip solver over the mutation the action performs.
+    case strip(StripPreviewMutation)
     case snap(SnapPosition)
     case symbol(String)
 }
@@ -615,9 +640,19 @@ enum GesturePreviewPlan {
             return .snap(.maximize)
         case .some(.centerRestore):
             return .snap(.center)
-        case .some(.stripNext), .some(.stripPrevious), .some(.stripCycleWidth),
-             .some(.stripStack), .some(.stripTabs), .some(.stripSwapNext),
-             .some(.stripSwapPrevious), .some(.quickLayoutPicker):
+        case .some(.stripNext), .some(.stripPrevious):
+            return .strip(.plain)
+        case .some(.stripCycleWidth):
+            return .strip(.cycleWidth)
+        case .some(.stripStack):
+            return .strip(.stack)
+        case .some(.stripTabs):
+            return .strip(.tabs)
+        case .some(.stripSwapNext):
+            return .strip(.swapNext)
+        case .some(.stripSwapPrevious):
+            return .strip(.swapPrevious)
+        case .some(.quickLayoutPicker):
             return .tiling
         case .some(.toggleTiling):
             return .symbol("square.grid.2x2")
@@ -634,5 +669,42 @@ enum GesturePreviewPlan {
         case .some(.spaceLeft), .some(.spaceRight):
             return .symbol("rectangle.split.2x1")
         }
+    }
+}
+
+/// The strip mutation a gesture performs, as the preview replays it.
+enum StripPreviewMutation: String, CaseIterable, Sendable {
+    case plain, stack, cycleWidth, tabs, swapNext, swapPrevious
+
+    /// Applies the engine's own mutation to a strip state, so the preview cannot describe a layout the
+    /// engine would not produce. Tabs and stacking share one frame on purpose: tabbing changes how many
+    /// windows sit behind a frame, not where the frame is.
+    func apply(to state: inout ScrollingStripState) {
+        switch self {
+        case .plain: break
+        case .stack: state.stackLeft()
+        case .cycleWidth: state.cycleWidth()
+        case .tabs: state.stackLeft(); state.focusColumn(-1); state.toggleTabs()
+        case .swapNext: state.swapFocused(1)
+        case .swapPrevious: state.swapFocused(-1)
+        }
+    }
+
+    /// A three-column strip with uneven widths, focused in the middle, so a cycle or a swap is visible.
+    static func seededStrip() -> ScrollingStripState {
+        let ids = (0..<3).map { WindowID(rawValue: "preview\($0)") }
+        var state = ScrollingStripState(windowIDs: ids)
+        state.setWidth(.quarter)
+        state.focusColumn(1); state.setWidth(.half)
+        state.focusColumn(1); state.setWidth(.quarter)
+        state.focusColumn(-1)
+        return state
+    }
+
+    /// The focused column's width after the mutation, for callers that want to name the result.
+    var resultingWidth: ColumnWidthPreset {
+        var state = Self.seededStrip()
+        apply(to: &state)
+        return state.focusedColumn?.width ?? state.width
     }
 }

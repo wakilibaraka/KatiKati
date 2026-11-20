@@ -1343,6 +1343,8 @@ private struct GesturePreviewStage: View {
         switch GesturePreviewPlan.art(for: resolved) {
         case .tiling:
             tilingArt(in: area)
+        case let .strip(mutation):
+            stripArt(mutation, in: area)
         case let .snap(position):
             snapArt(position, in: area)
         case let .symbol(name):
@@ -1356,6 +1358,20 @@ private struct GesturePreviewStage: View {
     /// The engine's own solver, so the preview cannot drift from what tiling does.
     private func tilingArt(in area: CGRect) -> some View {
         let rects = TilingPreview.rects(preset: engine.preset, area: area, gap: engine.gaps.inner * 0.25)
+        return ZStack {
+            ForEach(Array(rects.enumerated()), id: \.offset) { _, r in
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
+                    .frame(width: max(2, r.width), height: max(2, r.height))
+                    .position(x: r.midX, y: r.midY)
+            }
+        }
+    }
+
+    /// The strip's own solver over the mutation this gesture performs.
+    private func stripArt(_ mutation: StripPreviewMutation, in area: CGRect) -> some View {
+        let rects = TilingPreview.stripRects(for: mutation, area: area, gap: max(2, engine.gaps.inner * 0.25))
         return ZStack {
             ForEach(Array(rects.enumerated()), id: \.offset) { _, r in
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
