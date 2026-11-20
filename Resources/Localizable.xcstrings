@@ -126905,79 +126905,79 @@
         }
       }
     },
-    "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati.": {
+    "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati."
+            "value": "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati."
           }
         }
       }

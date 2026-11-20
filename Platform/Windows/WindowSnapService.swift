@@ -103,7 +103,7 @@ enum WindowSnapService {
         guard let pointValue = AXValueCreate(.cgPoint, &point), let sizeValue = AXValueCreate(.cgSize, &size) else { return nil }
 
         // "Enhanced user interface" (VoiceOver, some launchers) makes the first frame change land wrong; switch it
-        // off while laying out and restore it (the approach Hop's snapper uses).
+        // off while laying out and restore it (the snapper cited in NOTICE §9).
         var pid: pid_t = 0
         AXUIElementGetPid(window, &pid)
         let appElement = AXUIElementCreateApplication(pid)

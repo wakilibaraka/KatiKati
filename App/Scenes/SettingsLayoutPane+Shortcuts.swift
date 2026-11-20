@@ -136,7 +136,7 @@ extension SettingsLayoutPane {
                             get: { store.hyperkeyForwardToSystem },
                             set: { store.setHyperkeyForwardToSystem($0) }
                         ),
-                        info: String(localized: "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps (Raycast, VS Code, window managers) for keys not bound in KatiKati.")
+                        info: String(localized: "Sends ⌃⌥⇧⌘ or ⌃⌥⌘ to other apps for keys not bound in KatiKati.")
                     )
                     SettingsDivider()
                     SettingsRow(Text("Excluded Apps"), note: Text("Comma-separated bundle IDs (e.g. com.apple.Terminal).")) {

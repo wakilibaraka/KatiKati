@@ -152,7 +152,7 @@ enum CommandBarResult: Equatable, Sendable, Identifiable {
     }
 }
 
-// MARK: - Raycast ⌘K Action System (Slice 1.2)
+// MARK: - Command Bar ⌘K Action System (Slice 1.2)
 
 enum CommandBarActionKind: String, CaseIterable, Sendable {
     case open

@@ -29,7 +29,7 @@ enum ClipboardRetention {
 }
 
 /// Clipboard history rules. Normalisation, case-insensitive-prefix "growing dictation" merge and the one-line
-/// preview follow Hop's clipboard module (MIT, NOTICE §9).
+/// preview follow the clipboard module cited in NOTICE §9 (MIT).
 struct ClipboardHistory: Equatable, Sendable {
     static let maxLength = 20_000
     static let maxUnpinned = 50

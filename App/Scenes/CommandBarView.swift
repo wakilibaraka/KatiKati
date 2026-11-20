@@ -623,7 +623,7 @@ struct CommandBarView: View {
     }
 }
 
-/// Raycast-style ⌘K Action Panel popover (Slice 1.3).
+/// ⌘K action panel popover for the Command Bar (Slice 1.3).
 struct CommandBarActionPanelView: View {
     let actions: [CommandBarActionItem]
     let selection: Int

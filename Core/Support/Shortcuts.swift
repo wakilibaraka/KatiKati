@@ -6,7 +6,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case launcher, pinboard, quickSettings, keepAwake
     /// Phase 9d: the drawer, the notch's Tools tab, and the Weather / Clock widgets on their own.
     case drawer, notchTools, weather, clock
-    /// Phase 27: the command bar (a Raycast/Sol-style palette over the same index). Default
+    /// Phase 27: the command bar (a ⌘K palette over the same index). Default
     /// ⌥Space, **not** ⌘Space: Spotlight owns ⌘Space, and even though Carbon registers the
     /// combination without error, macOS hands the key to Spotlight first — the bar never opened.
     case commandBar
