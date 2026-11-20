@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795184534.6126163,
-    "seen": 1795187356.741583,
-    "ast_hash": "f18bf2f683081e36af55273cdb16dc01",
+    "mtime": 1795187641.5209348,
+    "seen": 1795188067.1146429,
+    "ast_hash": "a14e35281566393c3e9ab38580916bf3",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -2328,9 +2328,9 @@
     "semantic_hash": "fc8e8614eb1f458dca9dc2c1119a9c1b"
   },
   "Core/Support/StripPlacement.swift": {
-    "mtime": 1795182360.691783,
-    "seen": 1795182478.094456,
-    "ast_hash": "6e1494b2e097be2c861ec3bf18322989",
+    "mtime": 1795187640.8073118,
+    "seen": 1795188067.114958,
+    "ast_hash": "f8bcbf526e396bf20c4c0cef65fc1339",
     "semantic_hash": ""
   },
   "Core/Support/StripPointerBox.swift": {
@@ -4128,9 +4128,9 @@
     "semantic_hash": "47925ddc2c3390a045b8a7f5be216151"
   },
   "Tests/Unit/StripPlacementTests.swift": {
-    "mtime": 1795182361.219402,
-    "seen": 1795182478.094773,
-    "ast_hash": "3711ca0cd4e9fda1921ae5986ab12500",
+    "mtime": 1795187649.010328,
+    "seen": 1795188067.115284,
+    "ast_hash": "924e4583a43e16914d48aaf98fcf6791",
     "semantic_hash": ""
   },
   "Tests/Unit/StripPointerBoxTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795187337.4982738,
-    "seen": 1795187356.742451,
-    "ast_hash": "afd58074addf30db0e382b20487088ff",
+    "mtime": 1795188046.3939264,
+    "seen": 1795188067.115448,
+    "ast_hash": "fa72144bc9b040a641921b47d1f88d0c",
     "semantic_hash": ""
   },
   "README.md": {
