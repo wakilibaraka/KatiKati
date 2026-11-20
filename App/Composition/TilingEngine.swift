@@ -13,18 +13,12 @@ final class TilingEngine: ObservableObject {
     /// The solid dock's frame on a screen (nil when hidden/auto-hiding); windows keep clear of it.
     var dockFrame: (NSScreen) -> CGRect? = { _ in nil }
 
-    private func workArea(of screen: NSScreen) -> CGRect {
-        var visible = screen.visibleFrame
-        let strip: CGFloat = UserDefaults.standard.bool(forKey: WindowStripReserve.enabledKey)
-            && screen == NSScreen.screens.first ? WindowStripReserve.width : 0
-        visible.origin.x += strip; visible.size.width -= strip
-        return DockReserve.workArea(visible: visible, screen: screen.frame, dock: dockFrame(screen))
-    }
-
-    /// Re-tiles after something else changed the work area (the window strip turning on or off).
-    func reapplyForWorkAreaChange() {
-        guard isEnabled else { return }
-        reapplyLayout()
+    /// The area tiling lays windows out in: the screen's visible frame less a solid dock. The desktop
+    /// window box is drawn **underneath** every window and reserves nothing (WM revamp §4), so the
+    /// old 56 pt edge-rail trim is gone and this no longer depends on the strip setting. Shared with
+    /// the layout-restore path, so a restored frame lands where a fresh tile would.
+    func workArea(of screen: NSScreen) -> CGRect {
+        DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
     }
 
     // MARK: - UserDefaults Keys

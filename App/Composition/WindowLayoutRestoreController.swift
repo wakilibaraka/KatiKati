@@ -96,13 +96,34 @@ final class WindowLayoutRestoreController {
         guard force || isEnabled else { return }
         let moves = memory.plan(topology: topologyKey, current: layoutWindows(runtime.snapshot))
         guard !moves.isEmpty else { return }
-        log.info("restoring \(moves.count, privacy: .public) window(s)")
+        // WM revamp §4: a remembered frame must land in the work area tiling would use today — the
+        // layout may have been saved on a bigger display or behind a Dock that has since grown.
+        let clamped = moves.map(fitToWorkArea)
+        log.info("restoring \(clamped.count, privacy: .public) window(s)")
         DispatchQueue.global(qos: .userInitiated).async {
             let reader = AXWindowReader()
-            for move in moves {
+            for move in clamped {
                 guard let handle = reader.captureHandle(forPID: move.pid, cgWindowID: move.cgWindowID, messagingTimeout: 0.2) else { continue }
                 _ = reader.setFrame(move.frame, for: handle.element, messagingTimeout: 0.2, verificationTolerance: 8)
             }
         }
+    }
+
+    /// Fits a remembered frame into the work area tiling computes for the screen it belongs to.
+    /// Remembered frames are Quartz (top-left origin), so the Cocoa work area is converted first;
+    /// a frame whose screen is gone is left alone rather than guessed onto another display.
+    private func fitToWorkArea(_ move: WindowLayoutMemory.Move) -> WindowLayoutMemory.Move {
+        let screens = NSScreen.screens
+        guard let primary = screens.first else { return move }
+        let center = WindowFit.cocoaCenter(ofQuartzFrame: move.frame, primaryMaxY: primary.frame.maxY)
+        guard let screen = screens.first(where: { $0.frame.contains(center) }) else { return move }
+        let area = TilingEngine.shared.workArea(of: screen)
+        let quartzArea = CGRect(
+            origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primary.frame.maxY),
+            size: area.size
+        )
+        let fitted = WindowFit.fitted(move.frame, into: quartzArea)
+        guard fitted != move.frame else { return move }
+        return WindowLayoutMemory.Move(pid: move.pid, cgWindowID: move.cgWindowID, frame: fitted)
     }
 }

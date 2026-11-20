@@ -8,7 +8,8 @@ import SwiftUI
 // shortcut: primary display, left edge only; other edges/displays when someone asks.
 @MainActor
 final class WindowStripController: ObservableObject {
-    static let enabledKey = WindowStripReserve.enabledKey
+    /// The box is a desktop card drawn under every window; it reserves no work area (WM revamp §4).
+    static let enabledKey = "com.katikati.strip.enabled"
 
     struct Item: Identifiable, Equatable {
         let id: String
@@ -100,7 +101,6 @@ final class WindowStripController: ObservableObject {
         if !on {
             guard panel != nil else { return }
             panel?.orderOut(nil); panel = nil
-            TilingEngine.shared.reapplyForWorkAreaChange()
             return
         }
         guard let screen = NSScreen.screens.first else { return }
@@ -120,7 +120,6 @@ final class WindowStripController: ObservableObject {
         panel.contentView = NSHostingView(rootView: WindowBoxView(controller: self))
         panel.orderFrontRegardless()
         self.panel = panel
-        TilingEngine.shared.reapplyForWorkAreaChange()
     }
 
     private func frame(on screen: NSScreen) -> NSRect {

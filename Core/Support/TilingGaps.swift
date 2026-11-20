@@ -21,12 +21,6 @@ struct TilingGaps: Equatable, Sendable, Codable {
 
 /// Trims a screen's work area so windows stay clear of a solid KatiKati dock, the way the system Dock
 /// shrinks `visibleFrame`. Cocoa (bottom-left) coordinates throughout.
-/// Space the always-visible window strip takes from the primary display's left edge.
-enum WindowStripReserve {
-    static let enabledKey = "com.katikati.strip.enabled"
-    static let width: CGFloat = 56
-}
-
 enum DockReserve {
     /// Cuts `visible` on the screen edge nearest `dock`, up to the dock's inner edge. A dock that does not
     /// touch the work area (or nil) leaves it unchanged.
@@ -73,6 +67,18 @@ enum WindowFit {
 
     static func allUsable(_ frames: [CGRect]) -> Bool {
         frames.allSatisfy { $0.width >= usableTile.width - 0.5 && $0.height >= usableTile.height - 0.5 }
+    }
+
+    /// Fits a frame into `area`: shrink it when the area is smaller, then shift it inside, so the
+    /// result is fully visible instead of merely pinned at its leading edge. Restored layouts carry
+    /// frames from the display they were saved on — a smaller screen, a bigger Dock or a retired
+    /// work-area reserve can leave them hanging off an edge.
+    static func fitted(_ frame: CGRect, into area: CGRect) -> CGRect {
+        guard area.width > 0, area.height > 0 else { return frame }
+        var f = frame
+        f.size.width = min(f.width, area.width)
+        f.size.height = min(f.height, area.height)
+        return shifted(f, into: area)
     }
 
     /// True when two frames in the same coordinate space match within `tolerance` on origin and size.

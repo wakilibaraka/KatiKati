@@ -156,6 +156,19 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertEqual(WindowFit.shifted(CGRect(x: -50, y: 10, width: 1200, height: 100), into: area).minX, 0)
     }
 
+    /// A layout-restore frame must fit the area tiling uses today: same size area is a no-op, an
+    /// oversize frame shrinks, and one hanging off an edge shifts fully inside.
+    func testFittedFitsRestoredFrameIntoWorkArea() {
+        let area = CGRect(x: 0, y: 88, width: 1000, height: 692)
+        XCTAssertEqual(WindowFit.fitted(area, into: area), area)
+        XCTAssertEqual(WindowFit.fitted(CGRect(x: 900, y: 700, width: 400, height: 300), into: area),
+                       CGRect(x: 600, y: 480, width: 400, height: 300))
+        XCTAssertEqual(WindowFit.fitted(CGRect(x: -120, y: 0, width: 1400, height: 1000), into: area),
+                       CGRect(x: 0, y: 88, width: 1000, height: 692))
+        XCTAssertEqual(WindowFit.fitted(CGRect(x: 100, y: 200, width: 300, height: 200), into: area),
+                       CGRect(x: 100, y: 200, width: 300, height: 200))
+    }
+
     func testAllUsableRejectsTinyTiles() {
         XCTAssertTrue(WindowFit.allUsable([CGRect(x: 0, y: 0, width: 400, height: 300)]))
         XCTAssertFalse(WindowFit.allUsable([CGRect(x: 0, y: 0, width: 400, height: 110)]))
