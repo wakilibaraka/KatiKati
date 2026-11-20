@@ -324,9 +324,9 @@
     "semantic_hash": "71cdf813bed51793cb8d0ffa97694299"
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795184274.3701744,
-    "seen": 1795184428.8342001,
-    "ast_hash": "e07305ed79affbbcf41d01ea916d328c",
+    "mtime": 1795184533.443381,
+    "seen": 1795187356.741483,
+    "ast_hash": "98db00fab4c76d98e8499c220d44b9d2",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795182614.2391808,
-    "seen": 1795183176.5225952,
-    "ast_hash": "aa34d48507cca1e0f55169620cbd13cf",
+    "mtime": 1795184534.6126163,
+    "seen": 1795187356.741583,
+    "ast_hash": "f18bf2f683081e36af55273cdb16dc01",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -3966,9 +3966,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/RailGeometryTests.swift": {
-    "mtime": 1795027617.0766969,
-    "seen": 1795027789.386855,
-    "ast_hash": "b16f620025d6b6c89a54d4555a7b650c",
+    "mtime": 1795184667.4460323,
+    "seen": 1795187356.7422268,
+    "ast_hash": "4f5f08b65d86523a835e091bac6b0218",
     "semantic_hash": ""
   },
   "Tests/Unit/RecentlyClosedListTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795184403.2331574,
-    "seen": 1795184428.835298,
-    "ast_hash": "de767d22c7b6e757ec7f491d478efeb9",
+    "mtime": 1795187337.4982738,
+    "seen": 1795187356.742451,
+    "ast_hash": "afd58074addf30db0e382b20487088ff",
     "semantic_hash": ""
   },
   "README.md": {
