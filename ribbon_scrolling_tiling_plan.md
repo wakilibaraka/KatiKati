@@ -196,11 +196,21 @@ the same staged prefs, restored afterwards.
 - **Idle CPU.** `top -l 5 -pid` on the running app: ribbon on `4.0–4.8 %`, tiling off `2.7–5.2 %`.
   The strip adds nothing measurable; the plan's "expect ~0.0–0.3 %" was a guess about the whole
   process, and neither state matches it.
-- **Disable restore** is the pre-existing toggle path (`setEnabled(false)` → `restorePreTilingFrames`),
-  unchanged by this work and not driven live here; the quit path is the one measured above.
-- **Column Width row.** Added to Settings › Tiling (shown only while a display draws the ribbon); it
-  writes the focused column and the new-column default through `setStripColumnWidth`. Not inspected
-  on screen — the build and the settings catalog are the evidence for that row.
+- **Disable restore**, driven live this pass: switching Enable Auto-Tiling off put the strip's
+  windows back and collapsed the panel to the enable / focus-follow / snap-zone rows. (Measured on
+  the same window as the width change below, which went from `855, 46, 847, 1010` to
+  `8, 46, 1694, 1010` and back to its pre-session frame.)
+- **Column Width row, seen on screen** (Settings › Tiling, 1080 × 700 window): it renders under the
+  picture grid with the current width as a glyph (`½` first) and the parking-peek note directly
+  below. Choosing `1` from the picker widened the focused column from `855, 46, 847, 1010` to
+  `8, 46, 1694, 1010` — a measured 847 → 1694 pt. A TextEdit document created afterwards started as
+  a full-width column at `8, 46, 1694, 1010`, so the chosen width is the new-column default. With
+  Enable Auto-Tiling off the row and its note disappear while the enable, focus-follow and snap-zone
+  rows stay — the ribbon-only gating works.
+- **Full suite with the display unlocked:** 3423 tests, 2 skipped, 4 failures, all in the two
+  pre-existing classes (`DesktopRevealPolicyTests`, `SideDeckLogicTests`). `KeyGuardSharedTests`
+  passes; its failures in the earlier run came from the locked session and appear only while
+  `CGSSessionScreenIsLocked` is 1.
 
 ## Deferred
 
@@ -210,7 +220,7 @@ the same staged prefs, restored afterwards.
   rather than shipping a control that fights the app it is used over.
 - **Live rebuild of a multi-display ribbon.** This machine has one display; the neighbour-display
   parking path is unit-tested (`StripParking.side(forEdge:neighbourOnEdge:)`) but has no on-screen
-  witness here.
+  witness here. This is the only item above that was not demonstrated on screen.
 - **A peek control.** `StripParking` asks for the 1 pt sliver and the WindowServer grants ~45 pt, so
   the peek belongs to macOS and the Settings row is a note rather than a slider: there is no number
   of ours to tune (finding 2).
