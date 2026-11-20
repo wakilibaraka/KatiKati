@@ -629,7 +629,27 @@ enum PanelGeometry {
                                        tileStride: railPlan.pitch,
                                        contentInset: IslandChrome.railContentInset,
                                        enforceMinimumWidgetWidths: false)
-        return railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics, topReserve: wingPlan.topReserve)
+        let mapped = railWindowFrame(solved, on: screen, placement: stripPlacement, metrics: metrics, topReserve: wingPlan.topReserve)
+        // DP-5: the rail's plate is `tile + 2·inset`, not the bar's height. The virtual solve runs on
+        // the bar's metrics (they carry the chip scale), so only the cross-axis size is rewritten here,
+        // anchored to the screen edge the rail hugs.
+        return railThicknessFrame(mapped,
+                                  thickness: RailPitchPlan.thickness(barHeight: metrics.panelHeight),
+                                  placement: stripPlacement,
+                                  metrics: metrics)
+    }
+
+    /// Resizes a mapped rail window to the rail's own thickness on the cross axis, keeping the plate
+    /// flush with the screen edge it hugs.
+    static func railThicknessFrame(_ window: CGRect, thickness: CGFloat,
+                                   placement: StripPlacement, metrics: PanelLayoutMetrics) -> CGRect {
+        guard placement.isVertical else { return window }
+        let plate = window.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        guard abs(plate.width - thickness) > 0.001 else { return window }
+        var resized = plate
+        resized.size.width = thickness
+        if placement == .right { resized.origin.x = plate.maxX - thickness }
+        return resized.insetBy(dx: -metrics.shadowPadding, dy: -metrics.shadowPadding)
     }
 
     /// Length a rail's **apps** island fills: `0` (Phase 49, owner: "Hug content with balanced insets").

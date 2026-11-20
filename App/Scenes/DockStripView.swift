@@ -282,7 +282,11 @@ struct DockStripView: View {
                        minHeight: isRail ? fullWidthContentWidth : nil,
                        alignment: isRail ? .top : .leading)
                 .padding(isRail ? .vertical : .horizontal, (isRail ? Style.railContentInset : Style.chipContentInset) * dockScale)
-                .frame(width: isRail ? metrics.panelHeight : nil, height: isRail ? nil : metrics.panelHeight)
+                // DP-5: a rail's plate is `tile + 2·inset` thick, not the bar's height. The panel
+                // window is solved to the same thickness in `PanelGeometry.stripTargetFrame`, so the
+                // strip and its plate cannot disagree.
+                .frame(width: isRail ? RailPitchPlan.thickness(barHeight: metrics.panelHeight) : nil,
+                       height: isRail ? nil : metrics.panelHeight)
                 .animation(frames.renderedCollapsed != dragController.stripSlotCollapsed
                                ? .easeInOut(duration: DrawerAnimation.duration)          // 合拢 / 重开：跟面板走
                                : .spring(response: 0.28, dampingFraction: 0.82),         // 让位：签收过的弹簧
