@@ -15,7 +15,7 @@ import SwiftUI
 // MARK: - 0. Private SkyLight / CoreGraphics Fallback Declarations (@_silgen_name)
 
 /// Private WindowServer symbols located in SkyLight.framework / ApplicationServices.
-/// Used by SketchyBar, AltTab, and yabai as a direct WindowServer fallback when AppKit
+/// Used by window managers in the wild as a direct WindowServer fallback when AppKit
 /// caches or restricts `NSWindow.level` transitions.
 public typealias CGSConnectionID = UInt32
 public typealias CGSWindowOrderingMode = Int32

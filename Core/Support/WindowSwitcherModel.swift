@@ -2,7 +2,7 @@ import Foundation
 
 /// Phase 20c — pure ordering and selection rules for the Option+Tab window switcher.
 /// Windows are listed most-recently-used first; the first press selects the *previous* window (index 1),
-/// as AltTab / the system app switcher do, so a quick Option+Tab flips between the last two windows.
+/// as the system app switcher does, so a quick Option+Tab flips between the last two windows.
 enum WindowSwitcherModel {
     static let mruLimit = 64
 
@@ -57,7 +57,7 @@ enum WindowSwitcherModel {
     }
 }
 
-// MARK: - Numbered Window Switcher Model (Slice 3.1: SC-AltTabNumbered)
+// MARK: - Numbered Window Switcher Model (Slice 3.1: SC-NumberedWindowSwitcher)
 
 /// Pure digit-based direct navigation and shortcut actions for Window Switcher.
 enum NumberedWindowSwitcherModel {
@@ -93,7 +93,7 @@ enum NumberedWindowSwitcherModel {
 
 // MARK: - Window Management revamp — pure switcher models
 
-/// The five AltTabby-style presentations plus an explicit off state. Pure: the App layer maps this
+/// The five Window Switcher presentations plus an explicit off state. Pure: the App layer maps this
 /// to SwiftUI and the controller maps it to panel/capture behaviour.
 enum WindowSwitcherStyle: String, CaseIterable, Codable, Sendable, Identifiable {
     case thumbnail

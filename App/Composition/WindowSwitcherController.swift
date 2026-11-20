@@ -4,8 +4,8 @@ import Combine
 import OSLog
 import SwiftUI
 
-/// Phase 20c — Option+Tab window switcher with live thumbnails (inspired by AltTab; written from the behaviour,
-/// not copied). Idle cost is a Combine subscription on the snapshot (MRU bookkeeping) and two Carbon hot keys;
+/// Phase 20c — Option+Tab window switcher with live thumbnails, written from the behaviour rather than a
+/// third-party codebase. Idle cost is a Combine subscription on the snapshot (MRU bookkeeping) and two Carbon hot keys;
 /// the 50 ms modifier timer exists only while the panel is on screen. No global event monitor, no new permission
 /// beyond the Screen Recording grant already used by hover previews (without it tiles show the app icon).
 @MainActor
