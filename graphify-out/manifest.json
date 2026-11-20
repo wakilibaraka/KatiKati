@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1794870114.8533769,
-    "seen": 1794870218.277292,
-    "ast_hash": "48f11a1469b82d74911fe87404f1d4d0",
+    "mtime": 1795195385.0764968,
+    "seen": 1795195547.876568,
+    "ast_hash": "23112e36bb2bf978ce2441fc4bf5a66e",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -468,9 +468,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowLayoutRestoreController.swift": {
-    "mtime": 1794840021.6790886,
-    "seen": 1794840433.4099069,
-    "ast_hash": "6a9c93bcf7177c30193b8ca516bb80aa",
+    "mtime": 1795195427.513242,
+    "seen": 1795195547.876576,
+    "ast_hash": "97a74fdec051c7aec600e04c7c682d5e",
     "semantic_hash": ""
   },
   "App/Composition/WindowLiftAvoidanceController.swift": {
@@ -2406,9 +2406,9 @@
     "semantic_hash": "d8709440a1e4e2f3de8ce0caae7ee1f3"
   },
   "Core/Support/TilingGaps.swift": {
-    "mtime": 1794870049.422129,
-    "seen": 1794870218.27767,
-    "ast_hash": "018342bf02f0aca3be9a32589144c836",
+    "mtime": 1795195382.6610286,
+    "seen": 1795195547.876982,
+    "ast_hash": "25fa1cc6e3c446d7d815cc88371f66f3",
     "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
@@ -4230,9 +4230,9 @@
     "semantic_hash": "afffa1afc3e79b6011f58862e979ac29"
   },
   "Tests/Unit/TilingLayoutTests.swift": {
-    "mtime": 1794870152.498554,
-    "seen": 1794870218.2780259,
-    "ast_hash": "9a1bbb1aa3877050b263f5e702738265",
+    "mtime": 1795195405.0421295,
+    "seen": 1795195547.87732,
+    "ast_hash": "b66dae45dc14d065534a566e359ba4e9",
     "semantic_hash": ""
   },
   "Tests/Unit/TilingTreeTests.swift": {
@@ -7092,9 +7092,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
-    "mtime": 1795176043.4562824,
-    "seen": 1795176222.465483,
-    "ast_hash": "0debe0f93a3912932db3be6301fa902a",
+    "mtime": 1795195385.6513674,
+    "seen": 1795195547.876578,
+    "ast_hash": "df3129c95066e46b1d61011704634332",
     "semantic_hash": ""
   },
   "App/Composition/PeekController.swift": {
