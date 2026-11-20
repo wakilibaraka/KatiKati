@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
-    "mtime": 1794924194.4629645,
-    "seen": 1794924305.044091,
-    "ast_hash": "c1e606a376af6e3421f8d939808a7ad5",
+    "mtime": 1795217765.445446,
+    "seen": 1795217889.460444,
+    "ast_hash": "3f0a9c1b350ad43e07b550595f996a31",
     "semantic_hash": ""
   },
   "App/Scenes/ContentView.swift": {
@@ -1614,9 +1614,9 @@
     "semantic_hash": ""
   },
   "Core/Support/ClipboardHistory.swift": {
-    "mtime": 1794881787.5194747,
-    "seen": 1794882008.833822,
-    "ast_hash": "bef177887a3d2f11c2a5e453cc1d4521",
+    "mtime": 1795217778.9642107,
+    "seen": 1795217889.460657,
+    "ast_hash": "df83780ee8cb4fe890eaf30a6b76f8fc",
     "semantic_hash": ""
   },
   "Core/Support/ClipboardPlus.swift": {
@@ -1638,9 +1638,9 @@
     "semantic_hash": "bdfcd13a0641436281c4eb25360e5f04"
   },
   "Core/Support/CommandBar.swift": {
-    "mtime": 1794923341.5838852,
-    "seen": 1794923603.602848,
-    "ast_hash": "40cb2e48fde6a83cb2fc50c862a91f68",
+    "mtime": 1795217993.4266014,
+    "seen": 1795218020.55002,
+    "ast_hash": "cdc05d119118d47fea84ba8d354da89c",
     "semantic_hash": ""
   },
   "Core/Support/CommandBarKeywords.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1795205561.0222795,
-    "seen": 1795205787.524961,
-    "ast_hash": "aa8aa1a6ac9ff0aca3b8ea610565fa85",
+    "mtime": 1795217990.3340776,
+    "seen": 1795218020.550161,
+    "ast_hash": "299f4fc92ce97558dd69dce7a41c7583",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -2370,9 +2370,9 @@
     "semantic_hash": ""
   },
   "Core/Support/TaskList.swift": {
-    "mtime": 1792546311.1516356,
-    "seen": 1792546547.937685,
-    "ast_hash": "15b7f69e67a362791f61b71ff93ecd11",
+    "mtime": 1795217771.831374,
+    "seen": 1795217889.4608252,
+    "ast_hash": "9f2445987ff035e4223b57d502ed08b2",
     "semantic_hash": ""
   },
   "Core/Support/TaskbarDisplaySet.swift": {
@@ -2574,9 +2574,9 @@
     "semantic_hash": "d3d06fcee7f66f95d1a7efd64c4820e9"
   },
   "Core/Support/WindowSnap.swift": {
-    "mtime": 1795214752.681456,
-    "seen": 1795214933.241434,
-    "ast_hash": "b3d61da1c3af25e73898d8f8a0ddec74",
+    "mtime": 1795217844.9916003,
+    "seen": 1795217889.460861,
+    "ast_hash": "7e747908db03489b118ab11f5094cdba",
     "semantic_hash": ""
   },
   "Core/Support/WindowSwitcherModel.swift": {
@@ -2970,9 +2970,9 @@
     "semantic_hash": "ff91fe3d118e3cb16a04b0c1664b293c"
   },
   "Platform/Windows/WindowSnapService.swift": {
-    "mtime": 1795214752.7315762,
-    "seen": 1795214933.24151,
-    "ast_hash": "17f15f24648050266b8e5e8bfaeb6ce6",
+    "mtime": 1795217769.1026921,
+    "seen": 1795217889.460941,
+    "ast_hash": "d500aa1f09091b5fbf03bec4a1a4341f",
     "semantic_hash": ""
   },
   "Resources/AppIcon.icon/icon.json": {
@@ -4230,9 +4230,9 @@
     "semantic_hash": "afffa1afc3e79b6011f58862e979ac29"
   },
   "Tests/Unit/TilingLayoutTests.swift": {
-    "mtime": 1795213946.5181823,
-    "seen": 1795214458.196855,
-    "ast_hash": "66d48cd0d9ff76bf267db9f1a31a1042",
+    "mtime": 1795217599.413449,
+    "seen": 1795217889.46117,
+    "ast_hash": "66baf04fe5192c7886adeff351388880",
     "semantic_hash": ""
   },
   "Tests/Unit/TilingTreeTests.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1795217086.639855,
-    "seen": 1795217233.396904,
-    "ast_hash": "233451373bd0e061392fb3c1cf430f31",
+    "mtime": 1795217762.1682892,
+    "seen": 1795217889.4605691,
+    "ast_hash": "f541e74c3f7d995bb85022034b821ee3",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795214193.7816586,
-    "seen": 1795214458.196912,
-    "ast_hash": "5544226b71bcfcccec2edbad4a56f9c3",
+    "mtime": 1795217838.736842,
+    "seen": 1795217889.46122,
+    "ast_hash": "b3a57a630364458d4e477008ef677a2e",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5448,9 +5448,9 @@
     "semantic_hash": ""
   },
   "Docs/SETTINGS.md": {
-    "mtime": 1795214193.7810671,
-    "seen": 1795214458.197027,
-    "ast_hash": "afc85be3dc9241cbe41423acc50ef6d3",
+    "mtime": 1795217837.1229677,
+    "seen": 1795217889.461319,
+    "ast_hash": "6f367064f468234ec385ff76e504ad72",
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
