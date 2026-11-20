@@ -518,6 +518,14 @@ enum MultitouchGestureKind: String, CaseIterable, Identifiable, Codable, Sendabl
     case pinchIn
     case pinchOut
     case fourFingerTap
+    // TG-1: the directions the brief calls for. Raw values persist, so existing mappings keep decoding.
+    case threeFingerSwipeUp
+    case threeFingerSwipeDown
+    case fourFingerSwipeUp
+    case fourFingerSwipeDown
+    case twoFingerRightEdgeSwipeLeft
+    case threeFingerTipTapLeft
+    case threeFingerTipTapRight
     var id: String { rawValue }
 }
 
@@ -532,6 +540,15 @@ enum GestureActionTarget: String, CaseIterable, Identifiable, Codable, Sendable 
     case snapRight
     /// Ribbon: step focus along the active display's strip (RT-6).
     case stripNext, stripPrevious
+    // TG-1: the approved 6 window-management + 6 tiling set. Every case maps onto something the app
+    // already does; the gesture layer only decides *when* it fires.
+    case snapCycleLeft, snapCycleRight
+    case maximize, centerRestore
+    case windowSwitcher
+    case nextDisplay, previousDisplay
+    case toggleTiling
+    case stripCycleWidth, stripStack, stripTabs, stripSwapNext, stripSwapPrevious
+    case quickLayoutPicker
     var id: String { rawValue }
 }
 
@@ -568,19 +585,27 @@ struct GestureClassificationReducer: Equatable, Sendable {
         at now: Date = Date(),
         config: GestureClassificationConfig = GestureClassificationConfig()
     ) -> MultitouchGestureKind? {
-        guard !points.isEmpty else {
+                guard !points.isEmpty else {
             defer { resetTouch() }
             guard !firedInCurrentTouch,
-                  maxFingerCount == 4,
+                  maxFingerCount == 3 || maxFingerCount == 4,
                   let start = startTime,
                   now.timeIntervalSince(start) <= config.tapMaxDuration,
                   now.timeIntervalSince(lastTriggeredAt) >= config.debounceInterval else {
                 return nil
             }
+
             let travel = hypot(lastCentroid.x - startCentroid.x, lastCentroid.y - startCentroid.y)
             guard travel <= config.tapMaxTravel else { return nil }
+            if maxFingerCount == 4 {
+                lastTriggeredAt = now
+                return .fourFingerTap
+            }
+            // A plain three-finger tap is macOS Look Up, so only a directional one fires here.
+            let dx = lastCentroid.x - startCentroid.x
+            guard abs(dx) >= 0.012 else { return nil }
             lastTriggeredAt = now
-            return .fourFingerTap
+            return dx > 0 ? .threeFingerTipTapRight : .threeFingerTipTapLeft
         }
 
         let centroid = Self.centroid(of: points)
@@ -620,6 +645,29 @@ struct GestureClassificationReducer: Equatable, Sendable {
             }
         }
 
+        if points.count == 3 || points.count == 4 {
+            let avgVy = points.reduce(0.0) { $0 + $1.vy } / Double(points.count)
+            let isFlickY = abs(avgVy) >= config.flickVelocityThreshold && abs(dy) >= config.swipeThreshold * 0.45
+            let isTravelY = abs(dy) >= config.swipeThreshold
+            if (isFlickY || isTravelY), abs(dy) > abs(dx) * 1.3 {
+                firedInCurrentTouch = true
+                lastTriggeredAt = now
+                if points.count == 3 {
+                    return dy > 0 ? .threeFingerSwipeUp : .threeFingerSwipeDown
+                }
+                return dy > 0 ? .fourFingerSwipeUp : .fourFingerSwipeDown
+            }
+        }
+
+        // Notification Center's edge swipe: two fingers starting in the right-edge band and moving
+        // left. Two-finger travel anywhere else is page scrolling and stays untouched.
+        if points.count == 2, startCentroid.x >= 0.88,
+           dx <= -config.swipeThreshold * 0.6, abs(dx) > abs(dy) * 1.2 {
+            firedInCurrentTouch = true
+            lastTriggeredAt = now
+            return .twoFingerRightEdgeSwipeLeft
+        }
+
         if startSpread > 0.02 {
             let ratio = (spread - startSpread) / startSpread
             if ratio <= -config.pinchRatioThreshold {
@@ -653,5 +701,203 @@ struct GestureClassificationReducer: Equatable, Sendable {
 
     private static func spread(of points: [MultitouchPoint], centroid: (x: Double, y: Double)) -> Double {
         points.reduce(0.0) { $0 + hypot($1.x - centroid.x, $1.y - centroid.y) } / Double(points.count)
+    }
+}
+
+// MARK: - Slice TG-1: trackpad bindings, context routing and macOS clash detection
+
+/// Which macOS feature a gesture belongs to. `MultitouchSupport` is a listener, so KatiKati can
+/// never stop the OS acting on a gesture — the best it can do is tell the user which slots are taken.
+enum MacOSGestureOwner: String, CaseIterable, Sendable {
+    case swipeBetweenPages, spaces, missionControl, appExpose
+    case notificationCenter, appsPinch, showDesktop, lookUp
+}
+
+/// Three states, never two: the per-trackpad keys are undocumented and can disagree with what
+/// System Settings shows, so "we could not verify" must not render as "clear".
+enum GestureConflict: Equatable, Sendable {
+    case clear
+    case clash(MacOSGestureOwner)
+    case unverifiable
+
+    var isClash: Bool { if case .clash = self { return true }; return false }
+}
+
+/// What the trackpad preferences say, read once when Settings opens and otherwise untouched.
+/// `nil` means the key was absent — not false.
+struct TrackpadSettingsSnapshot: Equatable, Sendable {
+    var threeFingerHorizSwipe: Bool?
+    var threeFingerVertSwipe: Bool?
+    var fourFingerHorizSwipe: Bool?
+    var fourFingerVertSwipe: Bool?
+    var fourFingerPinch: Bool?
+    var fiveFingerPinch: Bool?
+    var threeFingerTap: Bool?
+    var twoFingerRightEdgeSwipe: Bool?
+    /// `com.apple.dock`, which is where the modern toggles actually live.
+    var missionControlGestureEnabled: Bool?
+    var appExposeGestureEnabled: Bool?
+
+    init(
+        threeFingerHorizSwipe: Bool? = nil,
+        threeFingerVertSwipe: Bool? = nil,
+        fourFingerHorizSwipe: Bool? = nil,
+        fourFingerVertSwipe: Bool? = nil,
+        fourFingerPinch: Bool? = nil,
+        fiveFingerPinch: Bool? = nil,
+        threeFingerTap: Bool? = nil,
+        twoFingerRightEdgeSwipe: Bool? = nil,
+        missionControlGestureEnabled: Bool? = nil,
+        appExposeGestureEnabled: Bool? = nil
+    ) {
+        self.threeFingerHorizSwipe = threeFingerHorizSwipe
+        self.threeFingerVertSwipe = threeFingerVertSwipe
+        self.fourFingerHorizSwipe = fourFingerHorizSwipe
+        self.fourFingerVertSwipe = fourFingerVertSwipe
+        self.fourFingerPinch = fourFingerPinch
+        self.fiveFingerPinch = fiveFingerPinch
+        self.threeFingerTap = threeFingerTap
+        self.twoFingerRightEdgeSwipe = twoFingerRightEdgeSwipe
+        self.missionControlGestureEnabled = missionControlGestureEnabled
+        self.appExposeGestureEnabled = appExposeGestureEnabled
+    }
+}
+
+/// Pure evaluator: a snapshot in, a badge out. The dock's enable flags win where they exist, because
+/// they describe what the UI shows; the per-trackpad keys only say which finger count a feature uses.
+enum TrackpadConflictDetector {
+    static func conflict(for kind: MultitouchGestureKind, settings: TrackpadSettingsSnapshot) -> GestureConflict {
+        switch kind {
+        case .threeFingerSwipeLeft, .threeFingerSwipeRight:
+            return decide(settings.threeFingerHorizSwipe, owner: .swipeBetweenPages)
+        case .fourFingerSwipeLeft, .fourFingerSwipeRight:
+            return decide(settings.fourFingerHorizSwipe, owner: .spaces)
+        case .threeFingerSwipeUp:
+            return dockGated(enabled: settings.missionControlGestureEnabled,
+                             trackpad: settings.threeFingerVertSwipe, owner: .missionControl)
+        case .threeFingerSwipeDown, .fourFingerSwipeUp, .fourFingerSwipeDown:
+            return dockGated(enabled: settings.appExposeGestureEnabled,
+                             trackpad: kind == .threeFingerSwipeDown ? settings.threeFingerVertSwipe : settings.fourFingerVertSwipe,
+                             owner: .appExpose)
+        case .pinchIn, .pinchOut:
+            // No dock gate exists for these, so the two pinch keys are the only evidence — and when
+            // both read on there is no way to say which toggle each one encodes.
+            let appsKey = settings.fourFingerPinch
+            let desktopKey = settings.fiveFingerPinch
+            if appsKey == nil, desktopKey == nil { return .unverifiable }
+            if appsKey == true, desktopKey == true { return .unverifiable }
+            let ownKey = kind == .pinchIn ? appsKey : desktopKey
+            switch ownKey {
+            case .some(true): return .clash(kind == .pinchIn ? .appsPinch : .showDesktop)
+            case .some(false): return .clear
+            case .none: return .unverifiable
+            }
+        case .twoFingerRightEdgeSwipeLeft:
+            return decide(settings.twoFingerRightEdgeSwipe, owner: .notificationCenter)
+        case .threeFingerTipTapLeft, .threeFingerTipTapRight:
+            return decide(settings.threeFingerTap, owner: .lookUp)
+        case .fourFingerTap:
+            // Nothing in macOS uses a four-finger tap.
+            return .clear
+        }
+    }
+
+    private static func decide(_ value: Bool?, owner: MacOSGestureOwner) -> GestureConflict {
+        switch value {
+        case .some(true): return .clash(owner)
+        case .some(false): return .clear
+        case .none: return .unverifiable
+        }
+    }
+
+    private static func dockGated(enabled: Bool?, trackpad: Bool?, owner: MacOSGestureOwner) -> GestureConflict {
+        if let enabled { return enabled ? .clash(owner) : .clear }
+        return decide(trackpad, owner: owner)
+    }
+}
+
+/// One gesture's binding: what it does with tiling off, and optionally what it does instead with
+/// tiling on. `nil` tiling action means the window action applies in both contexts.
+struct GestureBindingRule: Equatable, Sendable, Codable {
+    var windowAction: GestureActionTarget = .none
+    var tilingAction: GestureActionTarget?
+    var enabled = true
+
+    static let off = GestureBindingRule(windowAction: .none, tilingAction: nil, enabled: false)
+}
+
+struct GestureContext: Equatable, Sendable {
+    var tilingEnabled: Bool
+}
+
+enum GestureRouter {
+    /// The action a gesture should fire, or nil when it should do nothing.
+    static func target(for rule: GestureBindingRule, context: GestureContext) -> GestureActionTarget? {
+        guard rule.enabled else { return nil }
+        let action = (context.tilingEnabled ? rule.tilingAction : nil) ?? rule.windowAction
+        return action == .none ? nil : action
+    }
+}
+
+/// ½ → ⅓ → ⅔ → ½, only while the same edge is repeated inside `window`.
+enum SnapWidthCycle: Int, CaseIterable, Sendable {
+    case half, third, twoThirds
+
+    var next: SnapWidthCycle {
+        let all = Self.allCases
+        return all[(rawValue + 1) % all.count]
+    }
+}
+
+enum SnapSide: String, Sendable { case left, right }
+
+/// Remembers which edge was snapped and how far the cycle got, so a repeated swipe of the same edge
+/// narrows the window instead of re-applying the half every time.
+struct SnapCycleState: Equatable, Sendable {
+    private(set) var side: SnapSide?
+    private(set) var step: SnapWidthCycle = .half
+    private(set) var at: Date = .distantPast
+    var window: TimeInterval = 1.2
+
+    mutating func next(side newSide: SnapSide, at now: Date) -> SnapPosition {
+        let continuing = side == newSide && now.timeIntervalSince(at) <= window
+        step = continuing ? step.next : .half
+        side = newSide
+        at = now
+        return Self.position(side: newSide, step: step)
+    }
+
+    static func position(side: SnapSide, step: SnapWidthCycle) -> SnapPosition {
+        switch (side, step) {
+        case (.left, .half): return .leftHalf
+        case (.left, .third): return .leftThird
+        case (.left, .twoThirds): return .leftTwoThirds
+        case (.right, .half): return .rightHalf
+        case (.right, .third): return .rightThird
+        case (.right, .twoThirds): return .rightTwoThirds
+        }
+    }
+}
+
+enum TrackpadGesturePreset {
+    /// Clash-free for a 4-finger Spaces / 3-finger Mission Control setup. Gestures macOS owns
+    /// (3-finger up, 4-finger left/right, spread) are deliberately absent rather than remapped.
+    static let clashFree: [MultitouchGestureKind: GestureBindingRule] = [
+        .threeFingerSwipeLeft: GestureBindingRule(windowAction: .snapCycleLeft, tilingAction: .stripPrevious),
+        .threeFingerSwipeRight: GestureBindingRule(windowAction: .snapCycleRight, tilingAction: .stripNext),
+        .threeFingerSwipeDown: GestureBindingRule(windowAction: .windowSwitcher, tilingAction: .stripStack),
+        .fourFingerSwipeUp: GestureBindingRule(windowAction: .maximize, tilingAction: .stripCycleWidth),
+        .fourFingerSwipeDown: GestureBindingRule(windowAction: .centerRestore, tilingAction: .quickLayoutPicker),
+        .pinchIn: GestureBindingRule(windowAction: .toggleTiling, tilingAction: .toggleTiling),
+        .twoFingerRightEdgeSwipeLeft: GestureBindingRule(windowAction: .commandBar, tilingAction: .nextDisplay),
+        .threeFingerTipTapLeft: GestureBindingRule(windowAction: .previousDisplay, tilingAction: .stripSwapPrevious),
+        .threeFingerTipTapRight: GestureBindingRule(windowAction: .nextDisplay, tilingAction: .stripSwapNext),
+    ]
+
+    /// The preset with anything the current macOS settings already own removed.
+    static func applicable(to settings: TrackpadSettingsSnapshot) -> [MultitouchGestureKind: GestureBindingRule] {
+        clashFree.filter { kind, _ in
+            !TrackpadConflictDetector.conflict(for: kind, settings: settings).isClash
+        }
     }
 }

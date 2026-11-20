@@ -1223,6 +1223,11 @@ final class GestureDispatcher: ObservableObject {
         case .spaceLeft: postSpaceSwitch(left: true)
         case .spaceRight: postSpaceSwitch(left: false)
         case .toggleNotch, .commandBar, .launcher: onAction?(target)
+        case .snapCycleLeft, .snapCycleRight, .maximize, .centerRestore, .windowSwitcher,
+             .nextDisplay, .previousDisplay, .toggleTiling, .stripCycleWidth, .stripStack,
+             .stripTabs, .stripSwapNext, .stripSwapPrevious, .quickLayoutPicker:
+            // TG-2 routes these; nothing binds them before the rules store lands.
+            break
         case .none: break
         }
     }

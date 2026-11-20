@@ -1109,6 +1109,9 @@ private struct MultitouchGesturesSection: View {
         case .pinchIn: return String(localized: "Pinch In")
         case .pinchOut: return String(localized: "Pinch Out")
         case .fourFingerTap: return String(localized: "4-Finger Tap")
+        default:
+            // TG-4 adds the localized titles for the swipe-up/down, edge and tip-tap triggers.
+            return kind.rawValue
         }
     }
 
@@ -1124,6 +1127,9 @@ private struct MultitouchGesturesSection: View {
         case .snapRight: return String(localized: "Snap Right Half")
         case .stripNext: return String(localized: "Focus Next Column")
         case .stripPrevious: return String(localized: "Focus Previous Column")
+        default:
+            // TG-4 replaces this with the localized labels for the window-management and tiling set.
+            return action.rawValue
         }
     }
 }

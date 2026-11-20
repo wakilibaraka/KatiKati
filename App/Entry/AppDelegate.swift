@@ -577,7 +577,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .toggleNotch: self.notchPanel.toggleTools()
                 case .commandBar: self.toggleCommandBar()
                 case .launcher: self.launcherPanel.toggle()
-                case .none, .spaceLeft, .spaceRight, .snapLeft, .snapRight, .stripNext, .stripPrevious: break
+                case .none, .spaceLeft, .spaceRight, .snapLeft, .snapRight, .stripNext, .stripPrevious,
+                     .snapCycleLeft, .snapCycleRight, .maximize, .centerRestore, .windowSwitcher,
+                     .nextDisplay, .previousDisplay, .toggleTiling, .stripCycleWidth, .stripStack,
+                     .stripTabs, .stripSwapNext, .stripSwapPrevious, .quickLayoutPicker: break
                 }
             }
             GestureDispatcher.shared.syncMonitor()
