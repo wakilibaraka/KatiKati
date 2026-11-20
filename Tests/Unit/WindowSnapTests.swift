@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 @testable import KatiKati
 
@@ -35,6 +36,61 @@ final class WindowSnapTests: XCTestCase {
             XCTAssertLessThanOrEqual(u.maxX, 1.000001); XCTAssertLessThanOrEqual(u.maxY, 1.000001)
         }
         XCTAssertEqual(SnapPosition.allCases.count, 15)
+    }
+
+    func testSnapZonePlannerResolvesEdgesAndCornersOnly() {
+        let area = CGRect(x: 0, y: 0, width: 1_000, height: 800)
+        let margin: CGFloat = 20
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 5, y: 400), in: area, edgeMargin: margin), .leftHalf)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 995, y: 400), in: area, edgeMargin: margin), .rightHalf)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 500, y: 795), in: area, edgeMargin: margin), .topHalf)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 500, y: 5), in: area, edgeMargin: margin), .bottomHalf)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 5, y: 795), in: area, edgeMargin: margin), .topLeft)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 995, y: 795), in: area, edgeMargin: margin), .topRight)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 5, y: 5), in: area, edgeMargin: margin), .bottomLeft)
+        XCTAssertEqual(SnapZonePlanner.edgeZone(at: CGPoint(x: 995, y: 5), in: area, edgeMargin: margin), .bottomRight)
+        XCTAssertNil(SnapZonePlanner.edgeZone(at: CGPoint(x: 500, y: 400), in: area, edgeMargin: margin))
+        XCTAssertNil(SnapZonePlanner.edgeZone(at: CGPoint(x: 40, y: 400), in: area, edgeMargin: margin))
+        XCTAssertNil(SnapZonePlanner.edgeZone(at: .zero, in: .zero))
+    }
+
+    func testSnapZonePlannerExposesThirdsCenterAndMaximizePreviews() {
+        let area = CGRect(x: 100, y: 50, width: 900, height: 600)
+        XCTAssertEqual(SnapZonePlanner.zones(in: area, layout: .edgesAndCorners).count, 8)
+        XCTAssertEqual(SnapZonePlanner.zones(in: area, layout: .thirds).count, 5)
+        XCTAssertEqual(SnapZonePlanner.zones(in: area, layout: .centerAndMaximize).count, 2)
+        for zone in SnapZonePlanner.zones(in: area, layout: .thirds) {
+            XCTAssertTrue(area.contains(zone.frame))
+            XCTAssertEqual(zone.frame, zone.position.frame(in: area))
+        }
+        XCTAssertEqual(SnapZonePlanner.previewFrame(for: .maximize, in: area), area)
+        XCTAssertEqual(SnapZonePlanner.previewFrame(for: .center, in: area), SnapPosition.center.frame(in: area))
+    }
+
+    func testGreenButtonBehaviorDefaultsAndRoundTrip() throws {
+        XCTAssertEqual(GreenButtonBehavior.allCases.count, 2)
+        XCTAssertEqual(GreenButtonBehavior.defaultValue, .nativeFullscreen)
+        XCTAssertTrue(GreenButtonBehavior.nativeFullscreen.usesNativeFullscreen)
+        XCTAssertFalse(GreenButtonBehavior.maximizeInCurrentSpace.usesNativeFullscreen)
+        let decoded = try JSONDecoder().decode(GreenButtonBehavior.self,
+                                               from: JSONEncoder().encode(GreenButtonBehavior.maximizeInCurrentSpace))
+        XCTAssertEqual(decoded, .maximizeInCurrentSpace)
+    }
+
+    func testSnapZonePlannerResolvesEveryPointerLayout() {
+        let area = CGRect(x: 100, y: 50, width: 900, height: 600)
+        let left = SnapZonePlanner.resolve(at: CGPoint(x: 105, y: 350), in: area)
+        XCTAssertEqual(left?.position, .leftHalf)
+        XCTAssertEqual(left?.frame, SnapPosition.leftHalf.frame(in: area))
+
+        XCTAssertEqual(SnapZonePlanner.resolve(at: CGPoint(x: 200, y: 350), in: area, layout: .thirds)?.position, .leftThird)
+        XCTAssertEqual(SnapZonePlanner.resolve(at: CGPoint(x: 550, y: 350), in: area, layout: .thirds)?.position, .centerThird)
+        XCTAssertEqual(SnapZonePlanner.resolve(at: CGPoint(x: 950, y: 350), in: area, layout: .thirds)?.position, .rightThird)
+
+        XCTAssertEqual(SnapZonePlanner.resolve(at: CGPoint(x: 550, y: 350), in: area, layout: .centerAndMaximize)?.position, .center)
+        XCTAssertEqual(SnapZonePlanner.resolve(at: CGPoint(x: 110, y: 60), in: area, layout: .centerAndMaximize)?.position, .maximize)
+        XCTAssertNil(SnapZonePlanner.resolve(at: CGPoint(x: 0, y: 0), in: area, layout: .thirds))
+        XCTAssertNil(SnapZonePlanner.resolve(at: CGPoint(x: 550, y: 350), in: .zero))
     }
 }
 

@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 @testable import KatiKati
 
@@ -336,5 +337,25 @@ final class DockFocusModelTests: XCTestCase {
         let raw = defaults.string(forKey: "com.katikati.shortcut.dockFocus")
         XCTAssertEqual(ShortcutTrigger.parse(raw), .key(ShortcutKey(keyCode: 2, modifiers: ShortcutKey.control | ShortcutKey.option)))
         XCTAssertEqual(AppSettingsStore(defaults: defaults).shortcutBindings[.dockFocus]?.serialized, raw)
+    }
+}
+
+final class PinnedAppHotkeyTests: XCTestCase {
+    func testValidationTrimsDropsInvalidAndDeduplicates() throws {
+        let commandA = ShortcutKey(keyCode: 0, modifiers: ShortcutKey.command)
+        let commandS = ShortcutKey(keyCode: 1, modifiers: ShortcutKey.command)
+        let first = PinnedAppHotkey(bundleID: " com.example.app ", key: commandA)
+        let invalidBareLetter = PinnedAppHotkey(bundleID: "com.example.invalid", key: ShortcutKey(keyCode: 2, modifiers: 0))
+        let duplicateBundle = PinnedAppHotkey(bundleID: "com.example.app", key: commandS)
+        let duplicateKey = PinnedAppHotkey(bundleID: "com.example.other", key: commandA)
+        let second = PinnedAppHotkey(bundleID: "com.example.second", key: commandS)
+
+        let validated = PinnedAppHotkeyValidation.validated([first, invalidBareLetter, duplicateBundle, duplicateKey, second])
+        XCTAssertEqual(validated.map(\.bundleID), ["com.example.app", "com.example.second"])
+        XCTAssertEqual(validated.first?.key, commandA)
+
+        let decoded = try JSONDecoder().decode(PinnedAppHotkey.self,
+                                               from: JSONEncoder().encode(first))
+        XCTAssertEqual(decoded, first)
     }
 }

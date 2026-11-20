@@ -66,3 +66,85 @@ final class WindowSwitcherModelTests: XCTestCase {
         XCTAssertNil(NumberedWindowSwitcherModel.digit(fromKeyCode: 49)) // Space
     }
 }
+
+final class WindowSwitcherStyleModelTests: XCTestCase {
+    func testStyleConfigRoundTripsAndNormalizes() throws {
+        let accent = WindowSwitcherAccentColor(red: 2, green: -1, blue: 0.4, alpha: 2)
+        let config = WindowSwitcherStyleConfig(iconSize: 200, spacing: -4, rows: 12, columns: -2,
+                                               opacity: 3, accentColor: accent, animationSpeed: 0.01,
+                                               keepOpenOnRelease: true)
+        let normalized = config.normalized()
+        XCTAssertEqual(normalized.iconSize, 128)
+        XCTAssertEqual(normalized.spacing, 0)
+        XCTAssertEqual(normalized.rows, 8)
+        XCTAssertEqual(normalized.columns, 0)
+        XCTAssertEqual(normalized.opacity, 1)
+        XCTAssertEqual(normalized.animationSpeed, 0.1)
+        XCTAssertEqual(normalized.accentColor, WindowSwitcherAccentColor(red: 1, green: 0, blue: 0.4, alpha: 1))
+        XCTAssertTrue(normalized.keepOpenOnRelease)
+
+        let decoded = try JSONDecoder().decode(WindowSwitcherStyleConfig.self,
+                                               from: JSONEncoder().encode(config))
+        XCTAssertEqual(decoded, config)
+        XCTAssertEqual(WindowSwitcherStyle.allCases.count, 6)
+        XCTAssertTrue(WindowSwitcherStyle.thumbnail.usesLiveThumbnails)
+        XCTAssertFalse(WindowSwitcherStyle.list.usesLiveThumbnails)
+    }
+
+    func testPredictiveRankerBlendsRecencyAndFrequencyAndResets() {
+        let old = WindowPredictiveRanker.key(bundleID: "com.example.old", title: "Old")
+        let recent = WindowPredictiveRanker.key(bundleID: "com.example.recent", title: "Recent")
+        var ranker = WindowPredictiveRanker(halfLife: 1_800)
+        for _ in 0..<10 { ranker.record(old, at: 0) }
+        ranker.record(recent, at: 100)
+
+        XCTAssertEqual(ranker.order(candidates: [old, recent], at: 100), [recent, old])
+        XCTAssertEqual(ranker.score(bundleID: "com.example.recent", title: "Recent", at: 100),
+                       ranker.score(for: recent, at: 100))
+        XCTAssertGreaterThan(ranker.score(for: recent, at: 100), ranker.score(for: recent, at: 1_900))
+        XCTAssertEqual(ranker.score(for: "missing", at: 100), 0)
+
+        ranker.resetLearnedData()
+        XCTAssertEqual(ranker.score(for: recent, at: 100), 0)
+    }
+
+    func testFilterPolicyHonoursDisplaySpaceAndVisibilityToggles() {
+        let displayA = "display-a"
+        let displayB = "display-b"
+        func window(_ id: String,
+                    bundle: String = "com.example.app",
+                    display: String?,
+                    status: WindowStatus) -> WindowRecord {
+            WindowRecord(id: WindowID(rawValue: id), appID: AppID(rawValue: "app"), pid: 1,
+                         bundleIdentifier: bundle, title: id, bounds: .zero, status: status,
+                         displayUUID: display)
+        }
+
+        let activeA = window("a", display: displayA, status: .active)
+        let activeB = window("b", display: displayB, status: .inactive)
+        let unknownDisplay = window("c", display: nil, status: .inactive)
+        let minimized = window("d", display: displayA, status: .minimized)
+        let hidden = window("e", display: displayA, status: .hidden)
+        let ignored = window("f", bundle: "com.example.ignore", display: displayA, status: .active)
+
+        var policy = WindowFilterPolicy(currentDisplayOnly: true, ignoredBundleIDs: [" com.example.ignore "])
+        let context = WindowFilterContext(currentDisplayUUID: displayA, currentSpaceWindowIDs: ["a", "c"])
+        XCTAssertTrue(policy.allows(activeA, context: context))
+        XCTAssertFalse(policy.allows(activeB, context: context))
+        XCTAssertTrue(policy.allows(unknownDisplay, context: context), "unknown display is not evidence of another display")
+        XCTAssertFalse(policy.allows(ignored, context: context))
+
+        policy.showMinimized = false
+        policy.showHidden = false
+        XCTAssertFalse(policy.allows(minimized, context: context))
+        XCTAssertFalse(policy.allows(hidden, context: context))
+
+        policy.currentSpaceOnly = true
+        let spaceContext = WindowFilterContext(currentDisplayUUID: displayA, currentSpaceWindowIDs: ["a"])
+        XCTAssertTrue(policy.allows(activeA, context: spaceContext))
+        XCTAssertFalse(policy.allows(unknownDisplay, context: spaceContext))
+        XCTAssertTrue(policy.allows(activeA, context: WindowFilterContext(currentDisplayUUID: displayA)),
+                      "nil Space membership means unknown, so the filter is a no-op")
+        XCTAssertEqual(policy.normalized().ignoredBundleIDs, ["com.example.ignore"])
+    }
+}

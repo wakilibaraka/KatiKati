@@ -20,6 +20,7 @@ extension PanelCoordinator {
         controller.previewEnabled = { [weak self] in self?.settingsStore.chipPreviewEnabled ?? false }
         controller.openDelay = { [weak self] in TimeInterval(self?.settingsStore.chipPreviewDelayMs ?? 350) / 1000 }
         controller.thumbnailWidth = { [weak self] in CGFloat(self?.settingsStore.chipPreviewThumbWidth ?? 180) }
+        controller.previewPreset = { [weak self] in self?.settingsStore.chipPreviewPreset ?? .standard }
         controller.usesLiquidGlass = { [weak self] in self?.usesLiquidGlass ?? false }
         controller.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }
         controller.themeTuning = { [weak self] in self?.settingsStore.themeTuning ?? .identity }
@@ -32,6 +33,13 @@ extension PanelCoordinator {
         controller.onPanelShown = { [weak self] panel in self?.pinOverlappingPanelIfNeeded(panel) }
         controller.runActivate = { [weak self] id in self?.runtime.activate(windowID: id) }
         controller.runCloseWindow = { [weak self] id in self?.runtime.close(windowID: id) }
+        controller.runMinimizeWindow = { [weak self] id in self?.runtime.minimize(windowID: id) }
+        controller.runMaximizeWindow = { [weak self] id in
+            self?.runtime.activate(windowID: id)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                WindowSnapService.apply(.maximize)
+            }
+        }
         controller.runOpenRecent = { recent in
             if let bid = recent.bundleID {
                 let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bid)

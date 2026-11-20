@@ -315,9 +315,8 @@ struct SettingsWindowContent: View {
     /// 「窗口管理」页: window chips and the two window behaviours (tiling has its own page now).
     @ViewBuilder
     private var windowManagementPane: some View {
-        SettingsLayoutPane(store: store, mode: .chips)
-        DockLayeringSettingsBlock(store: store)
-        WindowBehaviourSettingsBlock()
+        WindowManagementSettingsPane(store: store)
+            .background(SettingsPageHeightProbe(tab: .windowManagement))
     }
 
     /// 「天气」页: the weather widget's units, layout and warning thresholds.

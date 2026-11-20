@@ -59,8 +59,15 @@ final class ChipPanelModel: ObservableObject {
     @Published var thumbnails: [String: NSImage] = [:]
     @Published var optionHeld = false
     @Published var thumbWidth: CGFloat = 180
+    @Published var preset = DockHoverPreviewPreset.standard
 
     var thumbSize: CGSize { CGSize(width: thumbWidth, height: (thumbWidth * 0.62).rounded()) }
+    var cardCornerRadius: CGFloat { CGFloat(preset.cornerRadius) }
+
+    func apply(preset: DockHoverPreviewPreset) {
+        self.preset = preset
+        thumbWidth = CGFloat(preset.thumbWidth)
+    }
 
     var previewWindows: [ChipPanelWindow] {
         guard let content else { return [] }
@@ -90,6 +97,8 @@ final class ChipPanelModel: ObservableObject {
     // Actions, set by the controller.
     var activateWindow: (String) -> Void = { _ in }
     var closeWindow: (String) -> Void = { _ in }
+    var minimizeWindow: (String) -> Void = { _ in }
+    var maximizeWindow: (String) -> Void = { _ in }
     var openRecent: (ChipPanelRecent) -> Void = { _ in }
     var runAction: (ChipPanelAction) -> Void = { _ in }
 }

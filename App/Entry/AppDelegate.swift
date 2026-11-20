@@ -95,7 +95,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// DiskView's menu-bar item: drives with their capacity bars (off until the Settings › Advanced
     /// Menu Bar row turns it on).
     private lazy var driveMenuBar = DriveMenuBarItem()
-    private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime)
+    private lazy var windowSwitcher = WindowSwitcherController(runtime: runtime, settings: settingsStore)
     private let peek = PeekController()
     private lazy var windowStrip = WindowStripController(runtime: runtime)
     private lazy var windowBorder = WindowBorderController()

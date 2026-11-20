@@ -493,7 +493,7 @@ final class AppSettingsStoreTests: XCTestCase {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
 
-        XCTAssertEqual(store.switcherStyle, .thumbnail)
+        XCTAssertEqual(store.switcherStyle, .list)
         XCTAssertEqual(store.switcherStyleConfig, .standard)
         XCTAssertNil(store.secondarySwitcherKey)
         XCTAssertFalse(store.predictiveRankingEnabled)
@@ -2157,6 +2157,51 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(promoted.trailingCapsule, .controlCenter,
                        "the flag says capsule, so the layout must host it there")
         XCTAssertEqual(promoted.items.count, onStrip.items.count - 1)
+    }
+
+    func testTrashAndDrawerSwitchesDriveTheirSlotsAndBack() {
+        // Live check 2026-11-20: the Trash and Drawer rows in the slot list wrote only the slot,
+        // while the strip still read "com.katikati.showTrash" / "showDrawer" — the rows did nothing.
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.showsTrashSlot)
+        XCTAssertTrue(store.showsDrawerSlot)
+
+        store.setDockSlotItem(.trash, hidden: true)
+        XCTAssertFalse(store.showsTrashSlot, "the slot row hides the Trash chip")
+        XCTAssertFalse(store.showTrash, "and the legacy key follows it")
+
+        store.setDockSlotItem(.drawer, hidden: true)
+        XCTAssertFalse(store.showsDrawerSlot)
+        XCTAssertFalse(store.showDrawer)
+
+        store.setShowTrash(true)
+        XCTAssertTrue(store.showsTrashSlot, "the old switch still writes the one truth")
+        store.setShowDrawer(true)
+        XCTAssertTrue(store.showsDrawerSlot)
+
+        store.setShowTrash(false)
+        XCTAssertFalse(store.showsTrashSlot)
+        let reloaded = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(reloaded.showsTrashSlot, "and it persists")
+        XCTAssertFalse(reloaded.showTrash)
+        store.setShowTrash(true)
+    }
+
+    func testSlotRowsKeepTheShelfAndBackgroundAppsKeysInStep() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+
+        store.setDockSlotItem(.shelf, hidden: true)
+        XCTAssertFalse(store.showShelf)
+        XCTAssertFalse(store.showsShelfSlot)
+        store.setDockSlotItem(.shelf, hidden: false)
+        XCTAssertTrue(store.showShelf)
+
+        store.setDockSlotItem(.backgroundApps, hidden: true)
+        XCTAssertFalse(store.showBackgroundApps)
+        store.setDockSlotItem(.backgroundApps, hidden: false)
+        XCTAssertTrue(store.showBackgroundApps)
     }
 
     func testShelfAndBackgroundAppsSwitchesDriveTheirSlots() {

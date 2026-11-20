@@ -18,6 +18,7 @@ final class ChipPanelController {
     var previewEnabled: () -> Bool = { true }
     var openDelay: () -> TimeInterval = { 0.35 }
     var thumbnailWidth: () -> CGFloat = { 180 }
+    var previewPreset: () -> DockHoverPreviewPreset = { .standard }
     var usesLiquidGlass: () -> Bool = { false }
     var themeStyle: () -> DockThemeStyle = { .auto }
     /// Phase 12: the Appearance page's plate knobs, injected beside the style (identity default).
@@ -66,6 +67,8 @@ final class ChipPanelController {
     init() {
         model.activateWindow = { [weak self] id in self?.perform { $0.runActivate(id) } }
         model.closeWindow = { [weak self] id in self?.closeWindowRow(id) }
+        model.minimizeWindow = { [weak self] id in self?.perform { $0.runMinimizeWindow(id) } }
+        model.maximizeWindow = { [weak self] id in self?.perform { $0.runMaximizeWindow(id) } }
     }
 
     deinit {
@@ -92,6 +95,8 @@ final class ChipPanelController {
     // Actions that need the runtime are provided through these hooks.
     var runActivate: (String) -> Void = { _ in }
     var runCloseWindow: (String) -> Void = { _ in }
+    var runMinimizeWindow: (String) -> Void = { _ in }
+    var runMaximizeWindow: (String) -> Void = { _ in }
     var runOpenRecent: (ChipPanelRecent) -> Void = { _ in }
 
     private func perform(_ body: (ChipPanelController) -> Void) {
@@ -234,7 +239,8 @@ final class ChipPanelController {
 
     private func show() {
         onWillOpen()
-        model.thumbWidth = thumbnailWidth()
+        model.apply(preset: previewPreset())
+        if model.preset == .standard { model.thumbWidth = thumbnailWidth() }
         let panel = ensurePanel()
         reposition()
         let wasVisible = panel.isVisible

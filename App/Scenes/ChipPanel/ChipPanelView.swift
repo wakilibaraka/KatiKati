@@ -25,7 +25,7 @@ struct ChipPanelView: View {
             .frame(width: plate.width, height: plate.height, alignment: .top)
         }
         .frame(width: plate.width, height: plate.height, alignment: .top)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: max(10, model.cardCornerRadius + 10), style: .continuous))
         .background {
             StackPopupBackdrop(plateSize: plate,
                                arrowCenterX: arrow.isHidden ? nil : plate.width / 2 + arrow.offsetFromCenter,
@@ -214,30 +214,55 @@ private struct ChipPanelThumbCard: View {
         let size = model.thumbSize
         VStack(spacing: 4) {
             ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.white.opacity(0.08))
+                RoundedRectangle(cornerRadius: model.cardCornerRadius, style: .continuous).fill(Color.white.opacity(0.08))
                 if let image = model.thumbnails[window.id] {
                     Image(nsImage: image).resizable().aspectRatio(contentMode: .fit)
                         .frame(width: size.width, height: size.height)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: model.cardCornerRadius, style: .continuous))
                 } else if let icon = model.content?.icon {
                     Image(nsImage: icon).resizable().frame(width: 44, height: 44)
                         .frame(width: size.width, height: size.height)
                         .opacity(window.marker == .minimized ? 0.5 : 0.9)
                 }
-                if hovered {
-                    Button { model.closeWindow(window.id) } label: {
-                        Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
-                            .frame(width: 18, height: 18)
-                            .background(Circle().fill(Color.black.opacity(0.55)))
+                if hovered, model.preset.showsQuickActions {
+                    HStack(spacing: 4) {
+                        if model.preset.showsMinimizeQuickAction {
+                            Button { model.minimizeWindow(window.id) } label: {
+                                Image(systemName: "minus").font(.system(size: 9, weight: .bold))
+                                    .frame(width: 18, height: 18)
+                                    .background(Circle().fill(Color.black.opacity(0.55)))
+                            }.buttonStyle(.plain).help(Text("Minimize Window"))
+                        }
+                        if model.preset.showsMaximizeQuickAction {
+                            Button { model.maximizeWindow(window.id) } label: {
+                                Image(systemName: "plus").font(.system(size: 9, weight: .bold))
+                                    .frame(width: 18, height: 18)
+                                    .background(Circle().fill(Color.black.opacity(0.55)))
+                            }.buttonStyle(.plain).help(Text("Maximize Window"))
+                        }
+                        Button { model.closeWindow(window.id) } label: {
+                            Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
+                                .frame(width: 18, height: 18)
+                                .background(Circle().fill(Color.black.opacity(0.55)))
+                        }
+                        .buttonStyle(.plain).help(Text("Close Window"))
                     }
-                    .buttonStyle(.plain)
                     .padding(5)
-                    .help(Text("Close Window"))
                 }
             }
             .frame(width: size.width, height: size.height)
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .clipShape(RoundedRectangle(cornerRadius: model.cardCornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: model.cardCornerRadius, style: .continuous)
                 .stroke(hovered ? Color.accentColor : Color.white.opacity(0.14), lineWidth: hovered ? 2 : 1))
+            .background {
+                if model.preset.tint == .darkObsidian {
+                    RoundedRectangle(cornerRadius: model.cardCornerRadius, style: .continuous)
+                        .fill(Color.black.opacity(0.28))
+                } else if model.preset.tint == .appAccent {
+                    RoundedRectangle(cornerRadius: model.cardCornerRadius, style: .continuous)
+                        .fill(Color.accentColor.opacity(0.10))
+                }
+            }
             HStack(spacing: 4) {
                 if window.marker == .minimized { Image(systemName: "diamond").font(.system(size: 8)) }
                 Text(verbatim: window.title).font(.system(size: 11)).lineLimit(1).truncationMode(.tail)

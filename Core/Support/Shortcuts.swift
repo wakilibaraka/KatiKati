@@ -258,6 +258,43 @@ struct ShortcutKey: Equatable, Hashable, Sendable {
     }
 }
 
+/// One app pinned to a direct switcher hotkey. Raw key fields keep the record Codable while the
+/// computed `key` reuses the existing validation/glyph rules.
+struct PinnedAppHotkey: Codable, Equatable, Hashable, Sendable, Identifiable {
+    var bundleID: String
+    var keyCode: UInt16
+    var modifiers: UInt8
+
+    var id: String { bundleID }
+
+    var key: ShortcutKey {
+        ShortcutKey(keyCode: keyCode, modifiers: modifiers)
+    }
+
+    init(bundleID: String, key: ShortcutKey) {
+        self.bundleID = bundleID
+        self.keyCode = key.keyCode
+        self.modifiers = key.modifiers
+    }
+}
+
+enum PinnedAppHotkeyValidation {
+    /// Trims bundle IDs, drops invalid keys, and keeps the first entry for each bundle ID and each
+    /// physical key so a duplicate can never register two Carbon hotkeys for one gesture.
+    static func validated(_ hotkeys: [PinnedAppHotkey]) -> [PinnedAppHotkey] {
+        var seenBundleIDs: Set<String> = []
+        var seenKeys: Set<ShortcutKey> = []
+        return hotkeys.compactMap { hotkey in
+            var next = hotkey
+            next.bundleID = next.bundleID.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !next.bundleID.isEmpty, next.key.isValid else { return nil }
+            guard seenBundleIDs.insert(next.bundleID).inserted,
+                  seenKeys.insert(next.key).inserted else { return nil }
+            return next
+        }
+    }
+}
+
 enum ShortcutKeyNames {
     private static let table: [UInt16: String] = [
         0: "A", 1: "S", 2: "D", 3: "F", 4: "H", 5: "G", 6: "Z", 7: "X", 8: "C", 9: "V", 11: "B", 12: "Q", 13: "W",

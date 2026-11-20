@@ -165,6 +165,31 @@ private final class FullscreenIntentAtomicState {
     }
 }
 
+/// G1 — the one narrow green-button hook. The existing session tap stays the only tap; this box
+/// lets the App layer opt a plain green click into consume-and-maximize without the event thread
+/// touching Accessibility or AppKit. `nil` preserves the original native-fullscreen path.
+final class FullscreenGreenButtonOverride: @unchecked Sendable {
+    static let shared = FullscreenGreenButtonOverride()
+    private var lock = os_unfair_lock_s()
+    private var handler: (() -> Bool)?
+
+    private init() {}
+
+    func set(_ handler: (() -> Bool)?) {
+        os_unfair_lock_lock(&lock)
+        self.handler = handler
+        os_unfair_lock_unlock(&lock)
+    }
+
+    /// Called on the event-tap thread. The handler may only enqueue work and return true.
+    func consume() -> Bool {
+        os_unfair_lock_lock(&lock)
+        let handler = self.handler
+        os_unfair_lock_unlock(&lock)
+        return handler?() ?? false
+    }
+}
+
 private final class FullscreenIntentEventBridge {
     private static let handoffTimeout: DispatchTimeInterval = .milliseconds(150)
 
@@ -215,7 +240,8 @@ private final class FullscreenIntentEventBridge {
         self.onGestureSample = onGestureSample
     }
 
-    func handle(type: CGEventType, event: CGEvent) {
+    /// Returns true only when the event was consumed by the opt-in green-button override.
+    func handle(type: CGEventType, event: CGEvent) -> Bool {
         let request: FullscreenIntentRequest?
         switch type {
         case .leftMouseDown:
@@ -236,7 +262,7 @@ private final class FullscreenIntentEventBridge {
                    isRepeat: isRepeat
                ) {
                 handleSpaceSwitch(direction: direction, label: "arrow")
-                return
+                return false
             }
             request = FullscreenIntentDecision.shortcutRequest(
                 keyCode: keyCode,
@@ -250,10 +276,14 @@ private final class FullscreenIntentEventBridge {
             }
             request = nil
         }
-        guard let request else { return }
+        guard let request else { return false }
+        if request.source == .greenButton, FullscreenGreenButtonOverride.shared.consume() {
+            return true
+        }
         performHandoff(label: request.source.rawValue, pid: request.pid) { [weak self] in
             self?.onIntent(request)
         }
+        return false
     }
 
     /// 三指水平滑动只做两件事：提前退出，以及把事件**异步**丢给主线程。
@@ -341,6 +371,7 @@ private final class FullscreenIntentEventTapThread {
     private let logger: Logger
     private let bridge: FullscreenIntentEventBridge
     private let atomicState: FullscreenIntentAtomicState
+    private let consumesGreenButton: Bool
     private var lifecycleLock = os_unfair_lock_s()
     private var recoveryLock = os_unfair_lock_s()
     private var recoveryPolicy = FullscreenEventTapRecoveryPolicy()
@@ -353,11 +384,13 @@ private final class FullscreenIntentEventTapThread {
     init(
         logger: Logger,
         bridge: FullscreenIntentEventBridge,
-        atomicState: FullscreenIntentAtomicState
+        atomicState: FullscreenIntentAtomicState,
+        consumesGreenButton: Bool
     ) {
         self.logger = logger
         self.bridge = bridge
         self.atomicState = atomicState
+        self.consumesGreenButton = consumesGreenButton
     }
 
     func start() {
@@ -408,7 +441,9 @@ private final class FullscreenIntentEventTapThread {
             guard let tap = CGEvent.tapCreate(
                 tap: .cgSessionEventTap,
                 place: .headInsertEventTap,
-                options: .listenOnly,   // observes only; a listen-only tap can never stall system input
+                // G1: consume the one green click only when the App opts into that behavior.
+                // Otherwise stay listen-only, which can never stall input.
+                options: consumesGreenButton ? .defaultTap : .listenOnly,
                 eventsOfInterest: mask,
                 callback: Self.callback,
                 userInfo: Unmanaged.passUnretained(self).toOpaque()
@@ -445,8 +480,8 @@ private final class FullscreenIntentEventTapThread {
         let owner = Unmanaged<FullscreenIntentEventTapThread>.fromOpaque(userInfo).takeUnretainedValue()
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             owner.handleDisabled(type: type)
-        } else {
-            owner.bridge.handle(type: type, event: event)
+        } else if owner.bridge.handle(type: type, event: event) {
+            return nil
         }
         return Unmanaged.passUnretained(event)
     }
@@ -509,6 +544,7 @@ final class FullscreenIntentMonitor {
     private let onSpaceSwitchIntent: (SpaceSwitchDirection, _ displayUUID: String) -> Void
     private let onContextChange: (ContextChange) -> Void
     private let spaceSwitchEnabled: Bool
+    private let consumesGreenButton: Bool
     private lazy var bridge = FullscreenIntentEventBridge(
         state: atomicState,
         logger: logger,
@@ -528,7 +564,8 @@ final class FullscreenIntentMonitor {
     private lazy var tapThread = FullscreenIntentEventTapThread(
         logger: logger,
         bridge: bridge,
-        atomicState: atomicState
+        atomicState: atomicState,
+        consumesGreenButton: consumesGreenButton
     )
 
     private var workspaceActivationObserver: NSObjectProtocol?
@@ -561,11 +598,13 @@ final class FullscreenIntentMonitor {
 
     init(
         spaceSwitchEnabled: Bool = DebugSwitch.spaceIntent.isEnabled(in: ProcessInfo.processInfo.environment),
+        consumesGreenButton: Bool = false,
         onIntent: @escaping (FullscreenIntentRequest) -> Void,
         onSpaceSwitchIntent: @escaping (SpaceSwitchDirection, _ displayUUID: String) -> Void,
         onContextChange: @escaping (ContextChange) -> Void
     ) {
         self.spaceSwitchEnabled = spaceSwitchEnabled
+        self.consumesGreenButton = consumesGreenButton
         self.onIntent = onIntent
         self.onSpaceSwitchIntent = onSpaceSwitchIntent
         self.onContextChange = onContextChange

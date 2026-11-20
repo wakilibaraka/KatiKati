@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 @testable import KatiKati
 
@@ -305,6 +306,32 @@ final class DockThemeStyleTokensTests: XCTestCase {
     func testDockCompanionAutoHidingPolicy() {
         XCTAssertTrue(NotchDockCompanionPolicy.shouldHideDockCapsule(notchExpanded: true))
         XCTAssertFalse(NotchDockCompanionPolicy.shouldHideDockCapsule(notchExpanded: false))
+    }
+}
+
+final class DockHoverPreviewPresetTests: XCTestCase {
+    func testPresetGeometryAndRoundTrip() throws {
+        XCTAssertEqual(DockHoverPreviewPreset.Size.compact.thumbWidth, 140)
+        XCTAssertEqual(DockHoverPreviewPreset.Size.standard.thumbWidth, 180)
+        XCTAssertEqual(DockHoverPreviewPreset.Size.large.thumbWidth, 240)
+        XCTAssertEqual(DockHoverPreviewPreset.Shape.roundedCard.cornerRadius, 8)
+        XCTAssertEqual(DockHoverPreviewPreset.Shape.squircle.cornerRadius, 18)
+        XCTAssertEqual(DockHoverPreviewPreset.Shape.borderlessGlass.cornerRadius, 0)
+        XCTAssertFalse(DockHoverPreviewPreset.Shape.borderlessGlass.hasBorder)
+
+        let preset = DockHoverPreviewPreset(size: .large, shape: .squircle,
+                                            tint: .appAccent, showsQuickActions: false,
+                                            showsMinimizeQuickAction: false)
+        XCTAssertEqual(preset.thumbWidth, 240)
+        XCTAssertEqual(preset.cornerRadius, 18)
+        XCTAssertFalse(preset.showsQuickActions)
+        XCTAssertFalse(preset.showsMinimizeQuickAction)
+        XCTAssertTrue(preset.showsMaximizeQuickAction)
+        let decoded = try JSONDecoder().decode(DockHoverPreviewPreset.self,
+                                               from: JSONEncoder().encode(preset))
+        XCTAssertEqual(decoded, preset)
+        XCTAssertEqual(DockHoverPreviewPreset.standard,
+                       DockHoverPreviewPreset(size: .standard, shape: .roundedCard, tint: .liquidGlass))
     }
 }
 

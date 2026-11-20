@@ -192,7 +192,21 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var chipPreviewEnabled: Bool
     @Published private(set) var chipPreviewDelayMs: Int
     @Published private(set) var chipPreviewThumbWidth: Int
+    @Published private(set) var chipPreviewPreset: DockHoverPreviewPreset = .standard
     @Published private(set) var chipClassicMenu: Bool
+    /// Window Management revamp: the switcher's presentation and its pure style knobs. The list is
+    /// the default presentation: it reads fastest and needs no window capture.
+    @Published private(set) var switcherStyle: WindowSwitcherStyle = .list
+    @Published private(set) var switcherStyleConfig: WindowSwitcherStyleConfig = .standard
+    /// Optional second hold-to-switch chord beside the primary Option-Tab binding.
+    @Published private(set) var secondarySwitcherKey: ShortcutKey?
+    @Published private(set) var predictiveRankingEnabled = false
+    @Published private(set) var switcherFilterPolicy = WindowFilterPolicy()
+    @Published private(set) var pinnedAppHotkeys: [PinnedAppHotkey] = []
+    @Published private(set) var greenButtonBehavior = GreenButtonBehavior.defaultValue
+    @Published private(set) var snapDragEnabled = false
+    @Published private(set) var snapPreviewStyle = SnapPreviewStyle.outline
+    @Published private(set) var snapEdgeMargin = 12.0
     /// Phase 9e: Caps Lock as Hyper/Super. Off by default; needs Input Monitoring.
     @Published private(set) var hyperkeyEnabled: Bool
     @Published private(set) var hyperkeyModifierMode: HyperkeyModifierMode
@@ -521,7 +535,32 @@ final class AppSettingsStore: ObservableObject {
         chipPreviewEnabled = defaults.bool(forKey: Keys.chipPreviewEnabled)
         chipPreviewDelayMs = Self.chipPreviewDelayChoices.contains(defaults.integer(forKey: Keys.chipPreviewDelayMs)) ? defaults.integer(forKey: Keys.chipPreviewDelayMs) : 350
         chipPreviewThumbWidth = Self.chipPreviewSizeChoices.contains(defaults.integer(forKey: Keys.chipPreviewThumbWidth)) ? defaults.integer(forKey: Keys.chipPreviewThumbWidth) : 180
+        chipPreviewPreset = Self.decoded(DockHoverPreviewPreset.self, forKey: Keys.chipPreviewPreset, defaults: defaults) ?? .standard
         chipClassicMenu = defaults.bool(forKey: Keys.chipClassicMenu)
+        let storedSwitcherStyle = defaults.string(forKey: Keys.switcherStyle)
+        if let storedSwitcherStyle, let style = WindowSwitcherStyle(rawValue: storedSwitcherStyle) {
+            switcherStyle = style
+        } else {
+            // Fresh installs (and the old grid/sidebar pair) start on the list; an explicit choice
+            // above always wins, so nobody's pick is reset here.
+            switcherStyle = .list
+        }
+        switcherStyleConfig = Self.decoded(WindowSwitcherStyleConfig.self, forKey: Keys.switcherStyleConfig, defaults: defaults) ?? .standard
+        if let raw = defaults.string(forKey: Keys.secondarySwitcherKey),
+           case .key(let key)? = ShortcutTrigger.parse(raw), key.isValid {
+            secondarySwitcherKey = key
+        } else {
+            secondarySwitcherKey = nil
+        }
+        predictiveRankingEnabled = defaults.object(forKey: Keys.predictiveRankingEnabled) as? Bool ?? false
+        switcherFilterPolicy = Self.decoded(WindowFilterPolicy.self, forKey: Keys.switcherFilterPolicy, defaults: defaults) ?? WindowFilterPolicy()
+        pinnedAppHotkeys = PinnedAppHotkeyValidation.validated(
+            Self.decoded([PinnedAppHotkey].self, forKey: Keys.pinnedAppHotkeys, defaults: defaults) ?? [])
+        greenButtonBehavior = GreenButtonBehavior(rawValue: defaults.string(forKey: Keys.greenButtonBehavior) ?? "") ?? .defaultValue
+        snapDragEnabled = defaults.bool(forKey: Keys.snapDragEnabled)
+        snapPreviewStyle = SnapPreviewStyle(rawValue: defaults.string(forKey: Keys.snapPreviewStyle) ?? "") ?? .outline
+        let storedSnapMargin = defaults.double(forKey: Keys.snapEdgeMargin)
+        snapEdgeMargin = storedSnapMargin > 0 ? min(max(storedSnapMargin, 4), 40) : 12
         hyperkeyEnabled = defaults.bool(forKey: Keys.hyperkeyEnabled)
         hyperkeyModifierMode = HyperkeyModifierMode(rawValue: defaults.string(forKey: Keys.hyperkeyModifierMode) ?? "") ?? .hyper
         hyperkeySourceKey = HyperkeySourceKey(rawValue: defaults.string(forKey: Keys.hyperkeySourceKey) ?? "") ?? .capsLock
@@ -1327,6 +1366,98 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.chipPreviewThumbWidth)
     }
 
+    func setChipPreviewPreset(_ preset: DockHoverPreviewPreset) {
+        guard preset != chipPreviewPreset else { return }
+        chipPreviewPreset = preset
+        chipPreviewThumbWidth = preset.thumbWidth
+        Self.store(preset, forKey: Keys.chipPreviewPreset, defaults: defaults)
+        defaults.set(preset.thumbWidth, forKey: Keys.chipPreviewThumbWidth)
+    }
+
+    func setSwitcherStyle(_ style: WindowSwitcherStyle) {
+        guard style != switcherStyle else { return }
+        switcherStyle = style
+        defaults.set(style.rawValue, forKey: Keys.switcherStyle)
+    }
+
+    func setSwitcherStyleConfig(_ config: WindowSwitcherStyleConfig) {
+        let normalized = config.normalized()
+        guard normalized != switcherStyleConfig else { return }
+        switcherStyleConfig = normalized
+        Self.store(normalized, forKey: Keys.switcherStyleConfig, defaults: defaults)
+    }
+
+    func setSecondarySwitcherKey(_ key: ShortcutKey?) {
+        let validated = key?.isValid == true ? key : nil
+        guard validated != secondarySwitcherKey else { return }
+        secondarySwitcherKey = validated
+        if let validated {
+            defaults.set(ShortcutTrigger.key(validated).serialized, forKey: Keys.secondarySwitcherKey)
+        } else {
+            defaults.removeObject(forKey: Keys.secondarySwitcherKey)
+        }
+    }
+
+    func setPredictiveRankingEnabled(_ value: Bool) {
+        guard predictiveRankingEnabled != value else { return }
+        predictiveRankingEnabled = value
+        defaults.set(value, forKey: Keys.predictiveRankingEnabled)
+    }
+
+    func setSwitcherFilterPolicy(_ policy: WindowFilterPolicy) {
+        let normalized = policy.normalized()
+        guard normalized != switcherFilterPolicy else { return }
+        switcherFilterPolicy = normalized
+        Self.store(normalized, forKey: Keys.switcherFilterPolicy, defaults: defaults)
+    }
+
+    func setPinnedAppHotkeys(_ hotkeys: [PinnedAppHotkey]) {
+        let validated = PinnedAppHotkeyValidation.validated(hotkeys)
+        guard validated != pinnedAppHotkeys else { return }
+        pinnedAppHotkeys = validated
+        Self.store(validated, forKey: Keys.pinnedAppHotkeys, defaults: defaults)
+    }
+
+    func setGreenButtonBehavior(_ behavior: GreenButtonBehavior) {
+        guard greenButtonBehavior != behavior else { return }
+        greenButtonBehavior = behavior
+        defaults.set(behavior.rawValue, forKey: Keys.greenButtonBehavior)
+    }
+
+    func setSnapDragEnabled(_ value: Bool) {
+        guard snapDragEnabled != value else { return }
+        snapDragEnabled = value
+        defaults.set(value, forKey: Keys.snapDragEnabled)
+    }
+
+    func setSnapPreviewStyle(_ style: SnapPreviewStyle) {
+        guard snapPreviewStyle != style else { return }
+        snapPreviewStyle = style
+        defaults.set(style.rawValue, forKey: Keys.snapPreviewStyle)
+    }
+
+    func setSnapEdgeMargin(_ value: Double) {
+        let clamped = min(max(value, 4), 40)
+        guard abs(snapEdgeMargin - clamped) > 0.001 else { return }
+        snapEdgeMargin = clamped
+        defaults.set(clamped, forKey: Keys.snapEdgeMargin)
+    }
+
+    /// Drops only the learned predictive counters; the user's window history is rebuilt as they work.
+    func clearWindowSwitcherLearning() {
+        defaults.removeObject(forKey: "com.katikati.switcher.learning")
+    }
+
+    private static func decoded<T: Decodable>(_ type: T.Type, forKey key: String, defaults: UserDefaults) -> T? {
+        guard let data = defaults.data(forKey: key) else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
+    }
+
+    private static func store<T: Encodable>(_ value: T, forKey key: String, defaults: UserDefaults) {
+        guard let data = try? JSONEncoder().encode(value) else { return }
+        defaults.set(data, forKey: key)
+    }
+
     func setShowAllRunningApps(_ value: Bool) {
         guard showAllRunningApps != value else { return }
         showAllRunningApps = value
@@ -1505,12 +1636,16 @@ final class AppSettingsStore: ObservableObject {
         guard showTrash != value else { return }
         showTrash = value
         defaults.set(value, forKey: Keys.showTrash)
+        // The strip reads the `trash` slot (2026-11-20): this key is only mirrored into it.
+        setDockSlotItem(.trash, hidden: !value)
     }
 
     func setShowDrawer(_ value: Bool) {
         guard showDrawer != value else { return }
         showDrawer = value
         defaults.set(value, forKey: Keys.showDrawer)
+        // The strip reads the `drawer` slot; the legacy key only feeds older callers.
+        setDockSlotItem(.drawer, hidden: !value)
     }
 
     /// Slice DI-1: the modules' own eye toggles write the layout; these two names stay for callers and
@@ -1879,6 +2014,17 @@ final class AppSettingsStore: ObservableObject {
         dockSlotLayout.visibleItems.contains(.shelf)
     }
 
+    /// The Trash chip is `trash`'s slot. The strip drew it from "com.katikati.showTrash" while the
+    /// slot list also offered a Trash row, so that row did nothing (2026-11-20).
+    var showsTrashSlot: Bool {
+        dockSlotLayout.visibleItems.contains(.trash)
+    }
+
+    /// The drawer pop is `drawer`'s slot, same rule as Trash.
+    var showsDrawerSlot: Bool {
+        dockSlotLayout.visibleItems.contains(.drawer)
+    }
+
     /// The section order the strip and every island solve read: the slot layout owns what it can,
     /// and widgets it has no slot for keep their user position (slice MD-3a).
     var dockSectionOrder: [BarSection] {
@@ -1915,6 +2061,31 @@ final class AppSettingsStore: ObservableObject {
             trailingCapsule: dockSlotLayout.trailingCapsule,
             groupAdjacentUtilities: dockSlotLayout.groupAdjacentUtilities
         ))
+        mirrorSlotVisibilityIntoLegacyKeys()
+    }
+
+    /// The four legacy visibility keys predate the slot model and still feed pre-slot callers (the
+    /// trash state, the strip's change handlers, the widget catalog). Writing a slot row used to
+    /// leave them stale, so the Dock Items switch and the slot row could describe different bars
+    /// (2026-11-20). They follow the layout now, never the other way round.
+    private func mirrorSlotVisibilityIntoLegacyKeys() {
+        let visible = Set(dockSlotLayout.visibleItems)
+        if showShelf != visible.contains(.shelf) {
+            showShelf = visible.contains(.shelf)
+            defaults.set(showShelf, forKey: Keys.showShelf)
+        }
+        if showBackgroundApps != visible.contains(.backgroundApps) {
+            showBackgroundApps = visible.contains(.backgroundApps)
+            defaults.set(showBackgroundApps, forKey: Keys.showBackgroundApps)
+        }
+        if showTrash != visible.contains(.trash) {
+            showTrash = visible.contains(.trash)
+            defaults.set(showTrash, forKey: Keys.showTrash)
+        }
+        if showDrawer != visible.contains(.drawer) {
+            showDrawer = visible.contains(.drawer)
+            defaults.set(showDrawer, forKey: Keys.showDrawer)
+        }
     }
 
     // MARK: Dock II Wings
@@ -2082,6 +2253,17 @@ private enum Keys {
     static let chipPreviewEnabled = "com.katikati.chips.previewEnabled"
     static let chipPreviewDelayMs = "com.katikati.chips.previewDelayMs"
     static let chipPreviewThumbWidth = "com.katikati.chips.previewThumbWidth"
+    static let chipPreviewPreset = "com.katikati.chips.previewPreset"
+    static let switcherStyle = "com.katikati.switcher.style"
+    static let switcherStyleConfig = "com.katikati.switcher.styleConfig"
+    static let secondarySwitcherKey = "com.katikati.switcher.secondaryKey"
+    static let predictiveRankingEnabled = "com.katikati.switcher.predictiveRanking"
+    static let switcherFilterPolicy = "com.katikati.switcher.filterPolicy"
+    static let pinnedAppHotkeys = "com.katikati.switcher.pinnedAppHotkeys"
+    static let greenButtonBehavior = "com.katikati.greenButton.behavior"
+    static let snapDragEnabled = "com.katikati.snap.dragEnabled"
+    static let snapPreviewStyle = "com.katikati.snap.previewStyle"
+    static let snapEdgeMargin = "com.katikati.snap.edgeMargin"
     static let showAllRunningApps = "com.katikati.strip.showAllRunningApps"
     static let hyperkeyEnabled = "com.katikati.hyperkey.enabled"
     static let hyperkeyModifierMode = "com.katikati.hyperkey.modifierMode"

@@ -67,8 +67,12 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var barLayoutModeSubscription: AnyCancellable?
     private var stripPlacementSubscription: AnyCancellable?
     private var fullscreenIntentEnabledSubscription: AnyCancellable?
+    private var greenButtonSubscription: AnyCancellable?
+    private var snapSettingsSubscription: AnyCancellable?
     private var fullscreenIntentMonitor: FullscreenIntentMonitor?
+    private var fullscreenTapConsumesGreenButton = false
     private var perDisplaySeedController: TaskbarPerDisplaySeedController?
+    private let snapDragMonitor = SnapDragMonitor()
 
     // MARK: 鼠标移动监视器（从 PanelCoordinator 抬上来，逐字保留语义）
     private var hoverLocalMouseMonitor: Any?
@@ -239,6 +243,18 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.reconcileFullscreenIntentMonitor() }
+        greenButtonSubscription = settingsStore.$greenButtonBehavior
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.reconcileFullscreenIntentMonitor() }
+        snapSettingsSubscription = Publishers.CombineLatest3(settingsStore.$snapDragEnabled,
+                                                            settingsStore.$snapPreviewStyle,
+                                                            settingsStore.$snapEdgeMargin)
+            .removeDuplicates { $0 == $1 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] enabled, style, margin in
+                self?.snapDragMonitor.setEnabled(enabled, style: style, edgeMargin: margin)
+            }
         notesSyncSubscription = settingsStore.$notesSyncEnabled
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -272,6 +288,9 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         stopMenuTrackingPoll()
         fullscreenIntentMonitor?.stop()
         fullscreenIntentMonitor = nil
+        fullscreenTapConsumesGreenButton = false
+        FullscreenGreenButtonOverride.shared.set(nil)
+        snapDragMonitor.setEnabled(false, style: .off, edgeMargin: 12)
         for unit in units {
             unit.coordinator.setFullscreenIntentRouting(enabled: false)
             unit.coordinator.tearDown()
@@ -288,6 +307,8 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         barLayoutModeSubscription = nil
         stripPlacementSubscription = nil
         fullscreenIntentEnabledSubscription = nil
+        greenButtonSubscription = nil
+        snapSettingsSubscription = nil
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -733,18 +754,34 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     // MARK: - 全屏意图 tap（全进程唯一）
 
     private func reconcileFullscreenIntentMonitor() {
+        let greenButtonOverride = settingsStore.greenButtonBehavior == .maximizeInCurrentSpace && !isSuspended
+        FullscreenGreenButtonOverride.shared.set(greenButtonOverride ? {
+            // Event-thread safe: only hop to main; the AX write happens after the click is consumed.
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated { WindowSnapService.apply(.maximize) }
+            }
+            return true
+        } : nil)
         let enabled = FullscreenIntentDecision.isEnabled(
             settingEnabled: settingsStore.fullscreenIntentEnabled,
             environment: ProcessInfo.processInfo.environment
-        )
+        ) || greenButtonOverride
         guard enabled, !isSuspended else {
             fullscreenIntentMonitor?.stop()
             fullscreenIntentMonitor = nil
+            fullscreenTapConsumesGreenButton = false
             units.forEach { $0.coordinator.setFullscreenIntentRouting(enabled: false) }
             return
         }
+        if fullscreenIntentMonitor != nil, fullscreenTapConsumesGreenButton != greenButtonOverride {
+            fullscreenIntentMonitor?.stop()
+            fullscreenIntentMonitor = nil
+            fullscreenTapConsumesGreenButton = false
+        }
         guard fullscreenIntentMonitor == nil else { return }
+        fullscreenTapConsumesGreenButton = greenButtonOverride
         let monitor = FullscreenIntentMonitor(
+            consumesGreenButton: greenButtonOverride,
             // 广播：每个单元用自己的 screenCGFrame 守卫决定动不动手——一块屏进全屏只藏那块屏的条。
             onIntent: { [weak self] request in
                 self?.units.forEach { $0.coordinator.beginFullscreenIntent(request) }

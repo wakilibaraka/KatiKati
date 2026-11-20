@@ -147,4 +147,136 @@ enum WindowSnapService {
         let center = CGPoint(x: f.midX, y: primaryMaxY - f.midY)
         return NSScreen.screens.first { $0.frame.contains(center) }
     }
+
+    /// The focused window's AppKit (bottom-left origin) frame, for drag tracking only.
+    static func frontmostWindowFrameCocoa() -> CGRect? {
+        guard AXIsProcessTrusted(),
+              let app = NSWorkspace.shared.frontmostApplication,
+              app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return nil }
+        var ref: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(AXUIElementCreateApplication(app.processIdentifier),
+                                            kAXFocusedWindowAttribute as CFString, &ref) == .success,
+              let ref, CFGetTypeID(ref) == AXUIElementGetTypeID(),
+              let primary = NSScreen.screens.first?.frame.maxY,
+              let quartz = frame(of: ref as! AXUIElement) else { return nil }
+        return CGRect(x: quartz.minX, y: primary - quartz.maxY, width: quartz.width, height: quartz.height)
+    }
+}
+
+/// Non-intercepting drag-to-edge monitor (G3). It observes mouse drags only while the setting is
+/// on, draws a ghost of the planned zone, and applies it after release. `DragController` is untouched.
+@MainActor
+final class SnapDragMonitor {
+    private var monitors: [Any] = []
+    private var activeZone: SnapZonePlanner.Zone?
+    private var tracking = false
+    private var style = SnapPreviewStyle.outline
+    private var edgeMargin: CGFloat = 12
+    private var preview: NSPanel?
+
+    func setEnabled(_ enabled: Bool, style: SnapPreviewStyle, edgeMargin: CGFloat = 12) {
+        self.style = style
+        self.edgeMargin = edgeMargin
+        if enabled { start() } else { stop() }
+    }
+
+    private func start() {
+        guard monitors.isEmpty else { return }
+        monitors.append(NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged]) { [weak self] _ in
+            MainActor.assumeIsolated { self?.dragged() }
+        })
+        monitors.append(NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] _ in
+            MainActor.assumeIsolated { self?.released() }
+        })
+    }
+
+    private func stop() {
+        for monitor in monitors { NSEvent.removeMonitor(monitor) }
+        monitors.removeAll()
+        tracking = false
+        activeZone = nil
+        preview?.orderOut(nil)
+        preview = nil
+    }
+
+    private func dragged() {
+        let mouse = NSEvent.mouseLocation
+        if !tracking {
+            guard let frame = WindowSnapService.frontmostWindowFrameCocoa(),
+                  frame.insetBy(dx: -2, dy: -2).contains(mouse) else { return }
+            tracking = true
+        }
+        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(mouse) }) else {
+            activeZone = nil
+            preview?.orderOut(nil)
+            return
+        }
+        let area = DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame,
+                                        dock: WindowSnapService.dockFrame(screen))
+        let previous = activeZone.flatMap {
+            $0.frame.insetBy(dx: -8, dy: -8).contains(mouse) ? $0 : nil
+        }
+        guard let zone = previous ?? SnapZonePlanner.resolve(at: mouse, in: area, edgeMargin: edgeMargin) else {
+            activeZone = nil
+            preview?.orderOut(nil)
+            return
+        }
+        activeZone = zone
+        show(zone)
+    }
+
+    private func released() {
+        defer {
+            tracking = false
+            activeZone = nil
+            preview?.orderOut(nil)
+        }
+        guard let zone = activeZone else { return }
+        WindowSnapService.apply(zone.position)
+    }
+
+    private func show(_ zone: SnapZonePlanner.Zone) {
+        guard style.drawsPreview else {
+            preview?.orderOut(nil)
+            return
+        }
+        let panel: NSPanel
+        if let preview {
+            panel = preview
+        } else {
+            let created = NSPanel(contentRect: zone.frame, styleMask: [.borderless, .nonactivatingPanel],
+                                  backing: .buffered, defer: false)
+            created.level = .floating
+            created.isOpaque = false
+            created.backgroundColor = .clear
+            created.hasShadow = false
+            created.ignoresMouseEvents = true
+            created.isReleasedWhenClosed = false
+            created.contentView = SnapPreviewView(style: style)
+            preview = created
+            panel = created
+        }
+        (panel.contentView as? SnapPreviewView)?.apply(style)
+        panel.setFrame(zone.frame, display: true)
+        panel.orderFrontRegardless()
+    }
+}
+
+private final class SnapPreviewView: NSView {
+    init(style: SnapPreviewStyle) {
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.cornerRadius = 10
+        layer?.borderWidth = 2
+        layer?.borderColor = NSColor.controlAccentColor.cgColor
+        apply(style)
+    }
+    required init?(coder: NSCoder) { nil }
+
+    func apply(_ style: SnapPreviewStyle) {
+        layer?.backgroundColor = style == .filled
+            ? NSColor.controlAccentColor.withAlphaComponent(0.16).cgColor : NSColor.clear.cgColor
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
 }

@@ -489,6 +489,78 @@ enum DockPressAnimationStyle: String, CaseIterable, Identifiable, Codable, Senda
     var id: String { rawValue }
 }
 
+/// Size/shape/tint preset for the Dock window hover preview. Pure data: the panel maps these
+/// values to its thumbnail width, corner radius, border and backdrop treatment.
+struct DockHoverPreviewPreset: Codable, Equatable, Sendable {
+    enum Size: String, CaseIterable, Identifiable, Codable, Sendable {
+        case compact
+        case standard
+        case large
+
+        var id: String { rawValue }
+
+        var thumbWidth: Int {
+            switch self {
+            case .compact: return 140
+            case .standard: return 180
+            case .large: return 240
+            }
+        }
+    }
+
+    enum Shape: String, CaseIterable, Identifiable, Codable, Sendable {
+        case roundedCard
+        case squircle
+        case borderlessGlass
+
+        var id: String { rawValue }
+
+        var cornerRadius: Double {
+            switch self {
+            case .roundedCard: return 8
+            case .squircle: return 18
+            case .borderlessGlass: return 0
+            }
+        }
+
+        var hasBorder: Bool { self != .borderlessGlass }
+    }
+
+    enum Tint: String, CaseIterable, Identifiable, Codable, Sendable {
+        case liquidGlass
+        case darkObsidian
+        case appAccent
+
+        var id: String { rawValue }
+    }
+
+    var size: Size
+    var shape: Shape
+    var tint: Tint
+    var showsQuickActions: Bool
+    var showsMinimizeQuickAction: Bool
+    var showsMaximizeQuickAction: Bool
+
+    init(size: Size = .standard,
+         shape: Shape = .roundedCard,
+         tint: Tint = .liquidGlass,
+         showsQuickActions: Bool = true,
+         showsMinimizeQuickAction: Bool = true,
+         showsMaximizeQuickAction: Bool = true) {
+        self.size = size
+        self.shape = shape
+        self.tint = tint
+        self.showsQuickActions = showsQuickActions
+        self.showsMinimizeQuickAction = showsMinimizeQuickAction
+        self.showsMaximizeQuickAction = showsMaximizeQuickAction
+    }
+
+    static let standard = DockHoverPreviewPreset()
+
+    var thumbWidth: Int { size.thumbWidth }
+    var cornerRadius: Double { shape.cornerRadius }
+}
+
 /// How a running app is marked under its icon — the three shapes the port covers.
 enum DockRunningIndicatorStyle: String, CaseIterable, Identifiable, Codable, Sendable {
     /// macOS' own 4 pt circle.
