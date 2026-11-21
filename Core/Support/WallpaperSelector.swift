@@ -236,6 +236,24 @@ enum WallpaperCache {
         return true
     }
 
+    /// The pre-DW-2 render names — `night-clear-3420x2224-d600c2af[-gN].png`, phase and sky spelled out
+    /// without the `terrain-` prefix. Also ours, and only ever cleaned from the legacy folder: the generated
+    /// cache itself is judged by `isOwnRender` alone, so a copy there is never swept up by the older rule.
+    static func isLegacyRender(named name: String) -> Bool {
+        guard name.hasSuffix(".png") else { return false }
+        let parts = name.dropLast(4).split(separator: "-", omittingEmptySubsequences: false)
+        guard parts.count == 4 || parts.count == 5,
+              SolarPhase(rawValue: String(parts[0])) != nil,
+              WallpaperSky(rawValue: String(parts[1])) != nil else { return false }
+        let size = parts[2].split(separator: "x", omittingEmptySubsequences: false)
+        guard size.count == 2, size.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return false }
+        guard !parts[3].isEmpty, parts[3].allSatisfy(\.isHexDigit) else { return false }
+        if parts.count == 5 {
+            guard parts[4].first == "g", parts[4].count > 1, parts[4].dropFirst().allSatisfy(\.isNumber) else { return false }
+        }
+        return true
+    }
+
     /// The picture a file belongs to, generation copies and the base frame sharing one name.
     static func baseName(of name: String) -> String? {
         guard isOwnRender(named: name) else { return nil }
@@ -270,13 +288,13 @@ enum WallpaperCache {
         return removed
     }
 
-    /// Deletes only the renderer's own leftovers from the pre-DW-7 folder. Its Sky-pack sibling, custom
-    /// files and anything else there are left exactly as found.
+    /// Deletes only the renderer's own leftovers from the pre-DW-7 folder — both the current name shape and
+    /// the older phase-sky shape. Its Sky-pack sibling, custom files and anything else there are left alone.
     @discardableResult
     static func removeLegacyRenders(in legacyDirectory: URL, fileManager: FileManager = .default) -> [URL] {
         guard let names = try? fileManager.contentsOfDirectory(atPath: legacyDirectory.path) else { return [] }
         var removed: [URL] = []
-        for name in names where isOwnRender(named: name) {
+        for name in names where isOwnRender(named: name) || isLegacyRender(named: name) {
             let url = legacyDirectory.appendingPathComponent(name)
             if (try? fileManager.removeItem(at: url)) != nil { removed.append(url) }
         }

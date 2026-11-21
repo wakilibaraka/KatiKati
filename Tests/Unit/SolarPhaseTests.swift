@@ -391,6 +391,20 @@ final class WallpaperCacheTests: XCTestCase {
         XCTAssertTrue(fileManager.fileExists(atPath: sky.path))
     }
 
+    func testLegacyCleanupAlsoRetiresTheOlderRenderNames() throws {
+        let legacy = WallpaperCache.legacyDirectory(in: base)
+        let older = try write("night-clear-3420x2224-d600c2af.png", in: legacy)
+        let olderGeneration = try write("night-clear-3420x2224-d600c2af-g2.png", in: legacy)
+        let foreign = try write("holiday-2026-3420x2224-d600c2af.png", in: legacy)
+        XCTAssertTrue(WallpaperCache.isLegacyRender(named: "night-clear-3420x2224-d600c2af.png"))
+        XCTAssertFalse(WallpaperCache.isLegacyRender(named: "dusk-rain.png"))
+        XCTAssertFalse(WallpaperCache.isLegacyRender(named: "holiday-2026-3420x2224-d600c2af.png"))
+        let removed = WallpaperCache.removeLegacyRenders(in: legacy)
+        XCTAssertEqual(Set(removed.map(\.lastPathComponent)),
+                       Set([older.lastPathComponent, olderGeneration.lastPathComponent]))
+        XCTAssertTrue(fileManager.fileExists(atPath: foreign.path))
+    }
+
     func testPruningTheGeneratedCacheLeavesTheSkyPackAlone() throws {
         let sky = try write("dawn-rain.png", in: WallpaperCache.skyPackDirectory(in: base))
         _ = try write(own(), in: WallpaperCache.generatedDirectory(in: base))
