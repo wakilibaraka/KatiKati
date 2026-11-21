@@ -1,6 +1,7 @@
 # Changelog
 
 All notable changes to KatiKati are documented in this file.
+- **Mission Control:** A dedicated **Settings › Window & Workspace › Mission Control** section draws custom overlays over the Dock’s overview: persistent **Space names** keyed to each Space’s ID, high-contrast **app/title badges** and type-to-filter dimming, **focus, hover, group and per-state borders**, **bundle-ID and category colour rules** (category colours assigned automatically, every rule editable), thumbnail tint and Space-title accents, plus OpenMissionControl-style **hover buttons, hover shortcuts and right/middle-click actions** (Close/Minimize/Zoom/Hide/Quit through the window’s own Accessibility buttons). Detection is event-driven (Dock AX observer plus Space changes) and every panel, monitor and observer is torn down when the overview closes, so idle CPU stays at zero; Accessibility and Screen Recording are reported explicitly, and an unobservable Dock says “unavailable on this macOS” rather than failing silently. The section includes a live stage preview.
 
 ## [Unreleased]
 

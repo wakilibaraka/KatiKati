@@ -316,3 +316,488 @@ private struct TilingLayoutThumbnail: View {
         }
     }
 }
+
+// MARK: - Mission Control (MC-4)
+
+/// Settings › Mission Control: the naming, framing, colouring and action rules the overlay reads,
+/// plus a readiness panel that names a missing permission instead of failing silently. Every edit is
+/// written immediately, so the stage beside the page redraws from the same stored configuration.
+struct SettingsMissionControlPane: View {
+    @State private var configuration = MissionControlSettings.load()
+    @AppStorage(MissionControlSettings.enabledKey) private var enabled = false
+    @State private var readiness = MissionControlReadiness.unknown
+    /// Supplied by the App-only caller (the test target compiles this pane but not `ManagedSpaceLayoutReader`).
+    var spaces: [(id: String, index: Int)] = []
+    @State private var newBundleID = ""
+    @State private var newRuleColor = MissionControlColor.orange
+
+    var body: some View {
+        SettingsPane {
+            statusCard
+            namingCard
+            framingCard
+            colouringCard
+            actionsCard
+        }
+        .onAppear {
+            configuration = MissionControlSettings.load()
+            refreshReadiness()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            refreshReadiness()
+        }
+    }
+
+    // MARK: Status
+
+    private var statusCard: some View {
+        SettingsCard(Text("Mission Control")) {
+            SettingsToggleRow(
+                Text("Show overlays in Mission Control"),
+                isOn: Binding(
+                    get: { enabled },
+                    set: {
+                        enabled = $0
+                        MissionControlSettings.setEnabled($0)
+                        NotificationCenter.default.post(name: MissionControlSettings.changedNotification, object: nil)
+                    }
+                ),
+                note: Text("Names, borders, colours and hover actions are drawn only while the overview is open. Detection is event-driven, so nothing polls or uses CPU while Mission Control is closed.")
+            )
+            SettingsDivider()
+            statusRow(
+                Text("Accessibility"),
+                state: readiness.accessibility,
+                note: Text("Close, minimize, zoom, hide and quit act on the hovered window through its own Accessibility buttons.")
+            )
+            SettingsDivider()
+            statusRow(
+                Text("Screen Recording"),
+                state: readiness.screenRecording,
+                note: Text("Optional: only the thumbnail tint wash needs it. Borders, badges and actions work without it.")
+            )
+            SettingsDivider()
+            statusRow(
+                Text("Dock observation"),
+                state: readiness.detection,
+                note: Text("macOS exposes no Mission Control API. KatiKati watches the Dock's overview window; when this macOS shows nothing to observe, the overlay reports unavailable instead of pretending to work.")
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func statusRow(_ label: Text, state: MissionControlPermission, note: Text) -> some View {
+        SettingsRow(label, note: note) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(colour(for: state))
+                    .frame(width: 7, height: 7)
+                Text(verbatim: statusText(for: state))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if state == .denied {
+                    Button("Open Settings") { openPrivacyPane(for: label) }
+                        .buttonStyle(.link)
+                }
+            }
+        }
+    }
+
+    private func colour(for state: MissionControlPermission) -> Color {
+        switch state {
+        case .granted: return .green
+        case .denied: return .orange
+        case .unsupported: return .red
+        case .unknown: return .secondary
+        }
+    }
+
+    private func statusText(for state: MissionControlPermission) -> String {
+        switch state {
+        case .granted: return String(localized: "Granted")
+        case .denied: return String(localized: "Not granted")
+        case .unsupported: return String(localized: "Unavailable on this macOS")
+        case .unknown: return String(localized: "Not checked")
+        }
+    }
+
+    private func openPrivacyPane(for label: Text) {
+        let anchor = label.searchableTitle?.contains("Accessibility") == true
+            ? "Privacy_Accessibility" : "Privacy_ScreenCapture"
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(anchor)") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    // MARK: Naming
+
+    private var namingCard: some View {
+        SettingsCard(Text("Naming")) {
+            SettingsToggleRow(Text("Space titles"), isOn: bind(\.naming.showsSpaceTitles),
+                              note: Text("A pill at the top of the overview with this Space's name and its position."))
+            SettingsDivider()
+            SettingsRowPair {
+                SettingsToggleRow(Text("Window badges"), isOn: bind(\.naming.showsWindowBadges))
+            } right: {
+                SettingsToggleRow(Text("Filter while typing"), isOn: bind(\.naming.filterEnabled))
+            }
+            SettingsDivider()
+            SettingsRowPair {
+                SettingsToggleRow(Text("App name in badge"), isOn: bind(\.naming.showsAppIcon))
+            } right: {
+                SettingsToggleRow(Text("Document title in badge"), isOn: bind(\.naming.showsWindowTitle))
+            }
+            SettingsDivider()
+            if spaces.isEmpty {
+                SettingsNote(Text("Space names appear once a display layout is readable. Each name is stored against the Space's own ID, so it survives a restart and reordering."))
+                SettingsDivider()
+                spaceLabelRow(id: "1", index: 1)
+            } else {
+                ForEach(spaces, id: \.id) { space in
+                    SettingsDivider()
+                    spaceLabelRow(id: space.id, index: space.index)
+                }
+            }
+        }
+    }
+
+    private func spaceLabelRow(id: String, index: Int) -> some View {
+        SettingsRow(Text(verbatim: String(format: String(localized: "Space %lld"), index))) {
+            TextField(
+                "Name this Space",
+                text: Binding(
+                    get: { configuration.naming.spaceLabels[id] ?? "" },
+                    set: {
+                        configuration.naming.spaceLabels[id] = $0
+                        save()
+                    }
+                )
+            )
+            .textFieldStyle(.roundedBorder)
+            .frame(width: 190)
+        }
+    }
+
+    // MARK: Framing
+
+    private var framingCard: some View {
+        SettingsCard(Text("Framing")) {
+            SettingsToggleRow(Text("Focus and hover frames"), isOn: bind(\.framing.isEnabled),
+                              note: Text("The keyboard-targeted window takes the focus border; the window under the pointer takes the hover border."))
+            if configuration.framing.isEnabled {
+                SettingsDivider()
+                SettingsRowPair {
+                    SettingsPickerRow(Text("Focus border"), selection: bind(\.framing.focusStyle)) {
+                        ForEach(MissionControlBorderStyle.allCases, id: \.self) {
+                            Text(verbatim: $0.rawValue.capitalized).tag($0)
+                        }
+                    }
+                } right: {
+                    SettingsPickerRow(Text("Hover border"), selection: bind(\.framing.hoverStyle)) {
+                        ForEach(MissionControlBorderStyle.allCases, id: \.self) {
+                            Text(verbatim: $0.rawValue.capitalized).tag($0)
+                        }
+                    }
+                }
+                SettingsDivider()
+                SettingsToggleRow(Text("Group frame around windows of one app"), isOn: bind(\.framing.showsGroupFrame))
+                if configuration.framing.showsGroupFrame {
+                    SettingsPickerRow(Text("Group border"), selection: bind(\.framing.groupStyle)) {
+                        ForEach(MissionControlBorderStyle.allCases, id: \.self) {
+                            Text(verbatim: $0.rawValue.capitalized).tag($0)
+                        }
+                    }
+                }
+                SettingsDivider()
+                Text("Window state borders")
+                    .font(.subheadline)
+                ForEach(MissionControlWindowState.allCases, id: \.self) { state in
+                    SettingsPickerRow(
+                        Text(verbatim: state.rawValue.capitalized),
+                        selection: Binding(
+                            get: { configuration.framing.stateStyles[state] ?? .none },
+                            set: {
+                                configuration.framing.stateStyles[state] = $0
+                                save()
+                            }
+                        )
+                    ) {
+                        ForEach(MissionControlBorderStyle.allCases, id: \.self) {
+                            Text(verbatim: $0.rawValue.capitalized).tag($0)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Colouring
+
+    private var colouringCard: some View {
+        SettingsCard(Text("Colouring")) {
+            SettingsToggleRow(Text("Colour borders by app"), isOn: bind(\.colouring.isEnabled),
+                              note: Text("Custom bundle-ID rules beat category colours, which beat the neutral default."))
+            if configuration.colouring.isEnabled {
+                SettingsDivider()
+                SettingsToggleRow(Text("Assign colours by app category"), isOn: bind(\.colouring.autoAssignCategories),
+                                  note: Text("On by default: browsers, code editors and terminals, comms, notes and media each start with their own colour. Change any category below, or add a bundle-ID rule that wins over it."))
+                SettingsDivider()
+                Text("Categories")
+                    .font(.subheadline)
+                ForEach(MissionControlAppCategory.allCases, id: \.self) { category in
+                    SettingsRow(Text(verbatim: category.rawValue.capitalized)) {
+                        ColorPicker(
+                            selection: Binding(
+                                get: { Color(mission: colour(for: category)) },
+                                set: {
+                                    setCategoryColour($0.missionColor, for: category)
+                                }
+                            ),
+                            supportsOpacity: false
+                        ) {
+                            Text(verbatim: category.rawValue.capitalized)
+                        }
+                        .labelsHidden()
+                    }
+                }
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Thumbnail tint"),
+                    value: configuration.colouring.tintOpacity * 100,
+                    range: 0...50,
+                    step: 1,
+                    valueText: "\(Int((configuration.colouring.tintOpacity * 100).rounded()))%",
+                    note: Text("A low-opacity wash over each thumbnail. It needs Screen Recording; without it, borders and badges still draw."),
+                    set: {
+                        configuration.colouring.tintOpacity = $0 / 100
+                        save()
+                    }
+                )
+                SettingsDivider()
+                Text("Custom bundle-ID rules")
+                    .font(.subheadline)
+                ForEach(configuration.colouring.rules) { rule in
+                    SettingsRow(Text(verbatim: ruleLabel(rule))) {
+                        HStack(spacing: 8) {
+                            ColorPicker(
+                                selection: Binding(
+                                    get: { Color(mission: rule.color) },
+                                    set: {
+                                        guard let index = configuration.colouring.rules.firstIndex(where: { $0.id == rule.id })
+                                        else { return }
+                                        configuration.colouring.rules[index].color = $0.missionColor
+                                        save()
+                                    }
+                                ),
+                                supportsOpacity: false
+                            ) {
+                                Text(verbatim: ruleLabel(rule))
+                            }
+                            .labelsHidden()
+                            Button {
+                                configuration.colouring.rules.removeAll { $0.id == rule.id }
+                                save()
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(Text("Remove rule"))
+                        }
+                    }
+                }
+                SettingsDivider()
+                SettingsRow(Text("Add a bundle-ID rule")) {
+                    HStack(spacing: 8) {
+                        TextField("com.example.app", text: $newBundleID)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 180)
+                        ColorPicker("Rule colour", selection: Binding(
+                            get: { Color(mission: newRuleColor) },
+                            set: { newRuleColor = $0.missionColor }
+                        ), supportsOpacity: false)
+                        .labelsHidden()
+                        .accessibilityLabel(Text("Rule colour"))
+                        Button("Add") {
+                            let id = newBundleID.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !id.isEmpty else { return }
+                            configuration.colouring.rules.append(
+                                MissionControlColorRule(match: .bundleID(id), color: newRuleColor)
+                            )
+                            newBundleID = ""
+                            save()
+                        }
+                        .buttonStyle(SettingsGelButtonStyle())
+                        .disabled(newBundleID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+                SettingsDivider()
+                SettingsToggleRow(Text("Colour the Space title pill"), isOn: bind(\.colouring.showsSpaceAccents))
+            }
+        }
+    }
+
+    private func colour(for category: MissionControlAppCategory) -> MissionControlColor {
+        configuration.colouring.rules.first {
+            if case .category(let wanted) = $0.match { return wanted == category }
+            return false
+        }?.color ?? category.defaultColor
+    }
+
+    private func setCategoryColour(_ colour: MissionControlColor, for category: MissionControlAppCategory) {
+        if let index = configuration.colouring.rules.firstIndex(where: {
+            if case .category(let wanted) = $0.match { return wanted == category }
+            return false
+        }) {
+            configuration.colouring.rules[index].color = colour
+        } else {
+            configuration.colouring.rules.append(
+                MissionControlColorRule(match: .category(category), color: colour)
+            )
+        }
+        save()
+    }
+
+    private func ruleLabel(_ rule: MissionControlColorRule) -> String {
+        switch rule.match {
+        case .bundleID(let id): return id
+        case .category(let category): return category.rawValue.capitalized
+        }
+    }
+
+    // MARK: Actions
+
+    private var actionsCard: some View {
+        SettingsCard(Text("Actions, Keys & Mouse")) {
+            Text("Hover buttons")
+                .font(.subheadline)
+            ForEach(MissionControlWindowAction.allCases, id: \.self) { action in
+                SettingsCheckboxRow(
+                    Text(verbatim: actionLabel(action)),
+                    isOn: Binding(
+                        get: { configuration.actions.buttons.isVisible(action) },
+                        set: {
+                            configuration.actions.buttons.visible[action] = $0
+                            save()
+                        }
+                    )
+                )
+            }
+            SettingsDivider()
+            SettingsToggleRow(Text("Show the cluster only while hovering"), isOn: bind(\.actions.buttons.showsOnHover))
+            SettingsDivider()
+            SettingsToggleRow(Text("Hover keyboard shortcuts"), isOn: bind(\.actions.hoverKeys.isEnabled),
+                              note: Text("The keys act on the window under the pointer without leaving the overview. A shortcut is taken only with exactly these modifiers, so the app's own ⌘⇧ shortcuts still work."))
+            if configuration.actions.hoverKeys.isEnabled {
+                SettingsDivider()
+                Text("Modifiers")
+                    .font(.subheadline)
+                HStack(spacing: 14) {
+                    ForEach(MissionControlModifier.allCases, id: \.self) { modifier in
+                        Toggle(isOn: Binding(
+                            get: { configuration.actions.hoverKeys.modifiers.contains(modifier) },
+                            set: { on in
+                                if on { configuration.actions.hoverKeys.modifiers.insert(modifier) }
+                                else { configuration.actions.hoverKeys.modifiers.remove(modifier) }
+                                save()
+                            }
+                        )) {
+                            Text(verbatim: modifier.rawValue.capitalized)
+                        }
+                        .toggleStyle(.checkbox)
+                    }
+                }
+                ForEach(MissionControlWindowAction.allCases, id: \.self) { action in
+                    SettingsRow(Text(verbatim: actionLabel(action))) {
+                        TextField(
+                            "Key",
+                            text: Binding(
+                                get: { configuration.actions.hoverKeys.keys[action] ?? action.defaultKey },
+                                set: {
+                                    configuration.actions.hoverKeys.keys[action] =
+                                        String($0.suffix(1)).lowercased()
+                                    save()
+                                }
+                            )
+                        )
+                        .textFieldStyle(.roundedBorder)
+                        .multilineTextAlignment(.center)
+                        .frame(width: 44)
+                    }
+                }
+            }
+            SettingsDivider()
+            SettingsRowPair {
+                SettingsPickerRow(Text("Right-click action"), selection: bind(\.actions.mouse.rightClick)) {
+                    ForEach(MissionControlMouseBindings.Binding.allCases, id: \.self) {
+                        Text(verbatim: $0.rawValue.capitalized).tag($0)
+                    }
+                }
+            } right: {
+                SettingsPickerRow(Text("Middle-click action"), selection: bind(\.actions.mouse.middleClick)) {
+                    ForEach(MissionControlMouseBindings.Binding.allCases, id: \.self) {
+                        Text(verbatim: $0.rawValue.capitalized).tag($0)
+                    }
+                }
+            }
+            SettingsDivider()
+            SettingsButtonRow(Text("Reset Mission Control Settings")) {
+                configuration = MissionControlConfiguration()
+                save()
+            }
+        }
+    }
+
+    private func actionLabel(_ action: MissionControlWindowAction) -> String {
+        switch action {
+        case .close: return String(localized: "Close")
+        case .minimize: return String(localized: "Minimize")
+        case .zoom: return String(localized: "Zoom")
+        case .hide: return String(localized: "Hide")
+        case .quit: return String(localized: "Quit")
+        }
+    }
+
+    // MARK: Plumbing
+
+    private func bind<Value>(_ keyPath: WritableKeyPath<MissionControlConfiguration, Value>) -> Binding<Value> {
+        Binding(
+            get: { configuration[keyPath: keyPath] },
+            set: {
+                configuration[keyPath: keyPath] = $0
+                save()
+            }
+        )
+    }
+
+    private func save() {
+        MissionControlSettings.save(configuration)
+    }
+
+    private func refreshReadiness() {
+        let probe = MissionControlDockProbe.probe()
+        readiness = MissionControlReadiness(
+            accessibility: AXIsProcessTrusted() ? .granted : .denied,
+            screenRecording: CGPreflightScreenCaptureAccess() ? .granted : .denied,
+            detection: probe.dockReadable ? .granted : .unsupported
+        )
+    }
+
+}
+
+private extension Color {
+    init(mission: MissionControlColor) {
+        self.init(.sRGB, red: mission.red, green: mission.green, blue: mission.blue, opacity: mission.alpha)
+    }
+}
+
+private extension Color {
+    var missionColor: MissionControlColor {
+        let resolved = NSColor(self).usingColorSpace(.sRGB) ?? .systemOrange
+        return MissionControlColor(
+            red: Double(resolved.redComponent),
+            green: Double(resolved.greenComponent),
+            blue: Double(resolved.blueComponent),
+            alpha: Double(resolved.alphaComponent)
+        )
+    }
+}

@@ -20,6 +20,7 @@ enum SettingsTab: String, CaseIterable {
     case edgeBars
     case tiling
     case windowManagement
+    case missionControl
     case launcher
     case commandBar
     case controlCenter
@@ -53,6 +54,7 @@ enum SettingsTab: String, CaseIterable {
         case "edgeBars": self = .edgeBars
         case "tiling": self = .tiling
         case "windowManagement": self = .windowManagement
+        case "missionControl", "mission-control": self = .missionControl
         case "launcher": self = .launcher
         case "commandBar": self = .commandBar
         case "controlCenter": self = .controlCenter
@@ -90,6 +92,7 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return String(localized: "Edge Bars")
         case .tiling: return String(localized: "Tiling")
         case .windowManagement: return String(localized: "Window Management")
+        case .missionControl: return String(localized: "Mission Control")
         case .launcher: return String(localized: "Launcher")
         case .commandBar: return String(localized: "Command Bar")
         case .controlCenter: return String(localized: "Control Center")
@@ -127,6 +130,7 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return String(localized: "Side bars: preset, placement, widgets, and size.")
         case .tiling: return String(localized: "Auto-tiling, presets, gaps, and floating apps.")
         case .windowManagement: return String(localized: "Window chips and window behaviors.")
+        case .missionControl: return String(localized: "Space names, focus and state borders, colour rules, and hover actions over the overview.")
         case .launcher: return String(localized: "Search, results, and hidden apps.")
         case .commandBar: return String(localized: "Command hints and the command bar.")
         case .controlCenter: return String(localized: "Tiles, quick settings, and placement.")
@@ -162,6 +166,7 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return "sidebar.right"
         case .tiling: return "rectangle.split.2x2"
         case .windowManagement: return "macwindow"
+        case .missionControl: return "rectangle.3.group"
         case .launcher: return "magnifyingglass"
         case .commandBar: return "terminal"
         case .controlCenter: return "switch.2"
@@ -198,6 +203,7 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return (0.10, 0.70, 0.66)
         case .tiling: return (0.20, 0.52, 0.98)
         case .windowManagement: return (0.25, 0.35, 0.65)
+        case .missionControl: return (0.56, 0.42, 0.96)
         case .launcher: return (0.38, 0.36, 0.90)
         case .commandBar: return (0.85, 0.35, 0.35)
         case .controlCenter: return (1.00, 0.55, 0.15)

@@ -23,6 +23,7 @@ extension SettingsTab {
         case .edgeBars: return "dock side bar auto hide edge"
         case .tiling: return "tiling snap gaps preset layout bsp monocle"
         case .windowManagement: return "window chips floating apps behaviour"
+        case .missionControl: return "mission control overview spaces names labels badges borders colours colors tint wash hover close minimize zoom hide quit actions keys mouse filter"
         case .launcher: return "search apps files spotlight"
         case .commandBar: return "command bar hints script commands"
         case .controlCenter: return "panel tiles toggles anchor width"
@@ -102,7 +103,7 @@ struct SettingsSidebar: View {
     private static let sections: [SidebarSection] = [
         .system([.general, .menuBar, .appearance, .wallpaper, .dockItems]),
         .surfaces([.drawer, .shelf, .widgets, .desktop, .weather, .notch, .notifications, .edgeBars]),
-        .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
+        .workspace([.tiling, .windowManagement, .missionControl, .launcher, .commandBar, .controlCenter]),
         .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
         .productivity([.aiTracking, .downloads, .clipboard, .tools]),
         .advanced([.advanced])

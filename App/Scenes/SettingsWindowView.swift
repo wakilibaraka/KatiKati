@@ -129,6 +129,7 @@ struct SettingsWindowContent: View {
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .tiling: SettingsTilingPane(store: store)
             case .windowManagement: windowManagementPane
+            case .missionControl: SettingsMissionControlPane(spaces: Self.missionControlSpaces())
             case .launcher: launcherPane
             case .commandBar: commandBarPane
             case .controlCenter: controlCenterPane
@@ -987,5 +988,19 @@ struct WeatherSettingsBlock: View {
     private func persistCarouselConfig() {
         UserDefaults.standard.set(carouselConfig.encoded(), forKey: WeatherCarouselConfig.defaultsKey)
         NotificationCenter.default.post(name: .weatherCarouselConfigDidChange, object: nil)
+    }
+}
+
+
+extension SettingsWindowContent {
+    /// Mission Control's Space rows: the desktop-only Spaces of the main display, in Mission Control
+    /// order, keyed by the Space ID the layout reader reports. Empty when the layout is unreadable;
+    /// the pane then offers Space 1 as a naming entry.
+    static func missionControlSpaces() -> [(id: String, index: Int)] {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first,
+              let uuid = DisplayIdentity.uuidString(for: screen),
+              let layout = ManagedSpaceLayoutReader.layout(forDisplayUUID: uuid) else { return [] }
+        let ordered = layout.orderedSpaceIDs.filter { !layout.fullscreenSpaceIDs.contains($0) }
+        return ordered.enumerated().map { (String($0.element), $0.offset + 1) }
     }
 }
