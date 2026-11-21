@@ -301,3 +301,167 @@ enum WallpaperCache {
         return removed
     }
 }
+
+// MARK: - DW-8 · celestial + atmospheric model
+
+/// Where a body sits, in degrees: altitude −90…90 (negative = below the horizon), azimuth 0…<360 from north.
+struct CelestialPosition: Equatable, Sendable {
+    var altitude: Double
+    var azimuth: Double
+}
+
+/// Shared astronomy maths: absolute instants and an east-positive longitude only, so no calendar, time zone or
+/// DST value can enter and the same `Date` gives the same sky wherever the Mac thinks it is.
+enum CelestialMath {
+    static let day = 86_400.0
+
+    static func julianDay(_ date: Date) -> Double { date.timeIntervalSince1970 / day + 2_440_587.5 }
+    static func radians(_ degrees: Double) -> Double { degrees * .pi / 180 }
+    static func degrees(_ radians: Double) -> Double { radians * 180 / .pi }
+    static func normalizedDegrees(_ degrees: Double) -> Double {
+        let wrapped = degrees.truncatingRemainder(dividingBy: 360)
+        return wrapped < 0 ? wrapped + 360 : wrapped
+    }
+
+    /// Right ascension / declination → altitude / azimuth (standard equatorial-to-horizontal transform).
+    static func horizontal(rightAscension: Double, declination: Double, date: Date,
+                           latitude: Double, longitude: Double) -> CelestialPosition {
+        let daysSinceJ2000 = julianDay(date) - 2_451_545.0
+        let greenwich = normalizedDegrees(280.460_618_37 + 360.985_647_366_29 * daysSinceJ2000)
+        let hourAngle = radians(greenwich + longitude) - rightAscension
+        let phi = radians(latitude)
+        let altitude = asin(sin(phi) * sin(declination) + cos(phi) * cos(declination) * cos(hourAngle))
+        let azimuth = atan2(sin(hourAngle), cos(hourAngle) * sin(phi) - tan(declination) * cos(phi)) + .pi
+        return CelestialPosition(altitude: degrees(altitude), azimuth: normalizedDegrees(degrees(azimuth)))
+    }
+}
+
+/// The sun's place for an instant and a location (low-precision solar ephemeris; good to ~0.01° for a century).
+enum SolarPosition {
+    static func at(_ date: Date, latitude: Double, longitude: Double) -> CelestialPosition {
+        let n = CelestialMath.julianDay(date) - 2_451_545.0
+        let meanLongitude = CelestialMath.normalizedDegrees(280.460 + 0.985_647_4 * n)
+        let meanAnomaly = CelestialMath.radians(CelestialMath.normalizedDegrees(357.528 + 0.985_600_3 * n))
+        let ecliptic = CelestialMath.radians(meanLongitude + 1.915 * sin(meanAnomaly) + 0.020 * sin(2 * meanAnomaly))
+        let obliquity = CelestialMath.radians(23.439 - 0.000_000_4 * n)
+        let rightAscension = atan2(cos(obliquity) * sin(ecliptic), cos(ecliptic))
+        let declination = asin(sin(obliquity) * sin(ecliptic))
+        return CelestialMath.horizontal(rightAscension: rightAscension, declination: declination,
+                                        date: date, latitude: latitude, longitude: longitude)
+    }
+}
+
+/// The moon's place for an instant and a location (abbreviated lunar ephemeris: mean longitude, anomaly and
+/// argument of latitude, plus the main 6.3° evection term). Phase and illumination come from the existing
+/// `MoonPhase` the weather panel already uses, so the wallpaper and the panel can never disagree.
+enum LunarPosition {
+    static func at(_ date: Date, latitude: Double, longitude: Double) -> CelestialPosition {
+        let n = CelestialMath.julianDay(date) - 2_451_545.0
+        let meanLongitude = CelestialMath.radians(CelestialMath.normalizedDegrees(218.316 + 13.176_396 * n))
+        let meanAnomaly = CelestialMath.radians(CelestialMath.normalizedDegrees(134.963 + 13.064_993 * n))
+        let argumentOfLatitude = CelestialMath.radians(CelestialMath.normalizedDegrees(93.272 + 13.229_350 * n))
+        let ecliptic = meanLongitude + CelestialMath.radians(6.289) * sin(meanAnomaly)
+        let latitudeEcliptic = CelestialMath.radians(5.128) * sin(argumentOfLatitude)
+        let obliquity = CelestialMath.radians(23.439)
+        let rightAscension = atan2(sin(ecliptic) * cos(obliquity) - tan(latitudeEcliptic) * sin(obliquity), cos(ecliptic))
+        let declination = asin(sin(latitudeEcliptic) * cos(obliquity)
+                               + cos(latitudeEcliptic) * sin(obliquity) * sin(ecliptic))
+        return CelestialMath.horizontal(rightAscension: rightAscension, declination: declination,
+                                        date: date, latitude: latitude, longitude: longitude)
+    }
+}
+
+enum CloudFamily: String, CaseIterable, Sendable { case cirrus, wisp, bank }
+
+struct CloudBand: Equatable, Sendable {
+    var family: CloudFamily
+    var coverage: Double
+    var opacity: Double
+    var thickness: Double
+    var drift: Double
+    var speed: Double
+}
+
+enum Meteor: String, CaseIterable, Sendable { case none, faint, bright }
+
+struct MoonAppearance: Equatable, Sendable {
+    var visibility: Double
+    var halo: Double
+    var haze: Double
+    /// 0 = new … 0.5 = full: which terminator the renderer draws.
+    var fraction: Double
+    var illumination: Double
+    var waxing: Bool
+    var altitude: Double
+    var azimuth: Double
+}
+
+/// Everything DW-9's renderer needs to paint a sky, decided once and purely. `plan` reads no clock and touches
+/// no files: the phase, the weather, the instant and the seed are all inputs.
+struct SkyAtmosphere: Equatable, Sendable {
+    var starOpacity: Double
+    var starCount: Int
+    var twinkleDepth: Double
+    var meteor: Meteor
+    var moon: MoonAppearance
+    var clouds: [CloudBand]
+    var horizonGlow: Double
+}
+
+extension SkyAtmosphere {
+    private static let starBase: [SolarPhase: Double] = [.night: 1, .dusk: 0.55, .golden: 0.15, .dawn: 0.1, .day: 0]
+    private static let skyStarCut: [WallpaperSky: Double] = [.clear: 1, .cloudy: 0.7, .fog: 0.4, .snow: 0.35, .rain: 0.2, .storm: 0.05]
+    private static let moonBase: [SolarPhase: Double] = [.night: 1, .dusk: 0.55, .golden: 0.25, .dawn: 0.2, .day: 0]
+    private static let skyHaze: [WallpaperSky: Double] = [.clear: 0.05, .cloudy: 0.35, .snow: 0.4, .rain: 0.6, .fog: 0.8, .storm: 0.9]
+    private static let glowBase: [SolarPhase: Double] = [.night: 0.05, .dawn: 0.7, .day: 0.35, .golden: 0.9, .dusk: 0.5]
+    private static let glowDim: [WallpaperSky: Double] = [.clear: 1, .cloudy: 0.7, .snow: 0.5, .fog: 0.6, .rain: 0.35, .storm: 0.15]
+
+    /// `latitude`/`longitude` are optional only so the stage preview (which has no weather location) can still ask
+    /// for a plan; with them the moon's altitude and azimuth are real, without them they are a plainer ladder value.
+    static func plan(phase: SolarPhase, sky: WallpaperSky, date: Date, seed: UInt64,
+                     latitude: Double? = nil, longitude: Double? = nil) -> SkyAtmosphere {
+        let clamp: (Double) -> Double = { min(max($0, 0), 1) }
+        let stars = clamp((starBase[phase] ?? 0) * (skyStarCut[sky] ?? 1))
+        let haze = skyHaze[sky] ?? 0
+        let moonVisibility = clamp((moonBase[phase] ?? 0) * (1 - haze * 0.7))
+        let lunar: CelestialPosition? = if let latitude, let longitude {
+            LunarPosition.at(date, latitude: latitude, longitude: longitude)
+        } else {
+            nil
+        }
+        let fraction = MoonPhase.fraction(at: date)
+        let roll = Int((seed &+ UInt64(abs(Int(date.timeIntervalSince1970 / CelestialMath.day)))) % 8)
+        let meteor: Meteor = stars >= 0.5 && (sky == .clear || sky == .cloudy || sky == .snow)
+            ? (roll == 0 ? .bright : (roll < 3 ? .faint : .none)) : .none
+        return SkyAtmosphere(
+            starOpacity: stars,
+            starCount: Int((stars * 120).rounded()),
+            twinkleDepth: stars * 0.25,
+            meteor: meteor,
+            moon: MoonAppearance(visibility: moonVisibility,
+                                 halo: moonVisibility * (1 - haze),
+                                 haze: haze,
+                                 fraction: fraction,
+                                 illumination: MoonPhase.illumination(at: date),
+                                 waxing: fraction < 0.5,
+                                 altitude: lunar?.altitude ?? (moonVisibility * 45),
+                                 azimuth: lunar?.azimuth ?? 0),
+            clouds: cloudBands(for: sky),
+            horizonGlow: clamp((glowBase[phase] ?? 0) * (glowDim[sky] ?? 1))
+        )
+    }
+
+    /// family, coverage, opacity, thickness, drift, speed — one row per weather the wallpaper already draws.
+    private static func cloudBands(for sky: WallpaperSky) -> [CloudBand] {
+        let table: [WallpaperSky: [(CloudFamily, Double, Double, Double, Double, Double)]] = [
+            .clear: [(.wisp, 0.12, 0.25, 0.18, 0.10, 0.20)],
+            .cloudy: [(.cirrus, 0.35, 0.40, 0.16, 0.25, 0.30), (.wisp, 0.50, 0.35, 0.28, 0.30, 0.35)],
+            .rain: [(.bank, 0.75, 0.60, 0.42, 0.55, 0.45), (.bank, 0.65, 0.50, 0.34, 0.65, 0.50), (.wisp, 0.50, 0.40, 0.22, 0.80, 0.60)],
+            .storm: [(.bank, 0.90, 0.80, 0.50, 0.95, 0.80), (.bank, 0.85, 0.70, 0.44, 1.10, 0.85), (.bank, 0.80, 0.60, 0.36, 1.25, 0.90), (.cirrus, 0.60, 0.50, 0.20, 1.40, 1.00)],
+            .snow: [(.wisp, 0.45, 0.35, 0.26, 0.30, 0.25), (.bank, 0.40, 0.30, 0.30, 0.40, 0.30)],
+            .fog: [(.bank, 0.70, 0.20, 0.10, 0.20, 0.10), (.bank, 0.60, 0.15, 0.08, 0.30, 0.12)],
+        ]
+        return (table[sky] ?? []).map { CloudBand(family: $0.0, coverage: $0.1, opacity: $0.2,
+                                                  thickness: $0.3, drift: $0.4, speed: $0.5) }
+    }
+}
