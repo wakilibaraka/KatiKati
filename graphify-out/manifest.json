@@ -4080,8 +4080,8 @@
     "semantic_hash": "23ee01802ca8483d8b31acaa69dd65cd"
   },
   "Tests/Unit/SolarPhaseTests.swift": {
-    "mtime": 1795287593.688366,
-    "seen": 1795288343.020407,
+    "mtime": 1795289938.402559,
+    "seen": 1795290015.4427688,
     "ast_hash": "4b1a052eb942b0b2cf5145a6650b1bd1",
     "semantic_hash": ""
   },
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795289660.7215462,
-    "seen": 1795289793.151155,
-    "ast_hash": "05327ac5a7db9685da85a9c5369b1643",
+    "mtime": 1795289976.1166813,
+    "seen": 1795290015.443128,
+    "ast_hash": "29f7461806a64643c67b6a83f2bf0b7d",
     "semantic_hash": ""
   },
   "README.md": {
