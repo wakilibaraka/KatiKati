@@ -137,35 +137,144 @@ struct StageTiling: View {
 }
 
 /// Shortcuts: keycaps for the feature shortcuts the user has bound. Reads the store only; no key monitor.
+/// Which action the stage describes. Hovering a row, or picking a chip, sets it; nothing polls.
+final class ShortcutStageFocus: ObservableObject {
+    static let shared = ShortcutStageFocus()
+    @Published var action: ShortcutAction?
+}
+
+/// Shortcuts: a mini keyboard that lights the focused binding, and what that binding will do.
+/// Reads the store and the focus model only — no key monitor, no timers, no idle work.
 struct StageShortcuts: View {
     @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var focus = ShortcutStageFocus.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private static let features: [ShortcutAction] = [.launcher, .pinboard, .commandBar, .quickSettings, .drawer, .keepAwake, .translate]
+    private static let letters: [[String]] = [
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+        ["Z", "X", "C", "V", "B", "N", "M"]
+    ]
+    private static let modifierCaps = ["⌃", "⌥", "⇧", "⌘", "✦", "fn"]
+    private static let arrows = ["←", "↓", "↑", "→"]
 
-    private func glyphs(_ trigger: ShortcutTrigger) -> String? { trigger.displayGlyphs }
+    private var action: ShortcutAction {
+        focus.action ?? Self.boundFeatureActions(in: store).first ?? .launcher
+    }
+    private var trigger: ShortcutTrigger { store.shortcutBindings[action] ?? action.defaultTrigger }
+    private var keyboard: MiniKeyboardState { MiniKeyboardState.from(trigger) }
+    private var conflict: ShortcutConflict {
+        ShortcutConflictDetector.conflict(for: action, trigger: trigger, among: store.shortcutBindings)
+    }
+
+    /// Bound actions in the Core band: short enough to read as chips, and the ones people bind first.
+    private static func boundFeatureActions(in store: AppSettingsStore) -> [ShortcutAction] {
+        ShortcutAction.allCases.filter { $0.category == .core && (store.shortcutBindings[$0] ?? .off) != .off }
+    }
 
     var body: some View {
-        let bound = Self.features.compactMap { action in
-            store.shortcutBindings[action].flatMap(glyphs).map { (action, $0) }
+        HStack(alignment: .center, spacing: 20) {
+            keyboardMap
+            inspector
         }
-        VStack(spacing: 6) {
-            ForEach(bound, id: \.0) { action, keys in
-                HStack(spacing: 8) {
-                    Text(verbatim: SettingsLayoutPane.shortcutActionName(action))
-                        .font(.system(size: 9, weight: .medium)).foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                    Text(verbatim: keys)
-                        .font(.system(size: 10, weight: .semibold, design: .rounded)).foregroundStyle(.primary)
-                        .padding(.horizontal, 7).padding(.vertical, 3)
-                        .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(.ultraThinMaterial))
-                        .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
-                        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.18), value: keyboard)
+    }
+
+    private var keyboardMap: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 3) {
+                keycap("esc", lit: false)
+                ForEach(["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"], id: \.self) { keycap($0, lit: false) }
+            }
+            ForEach(Self.letters, id: \.self) { row in
+                HStack(spacing: 3) {
+                    ForEach(row, id: \.self) { keycap($0, lit: isMain($0)) }
                 }
             }
+            HStack(spacing: 3) {
+                ForEach(Self.modifierCaps, id: \.self) { keycap($0, lit: keyboard.litModifiers.contains($0)) }
+                keycap("Space", lit: keyboard.mainKey == "Space", wide: true)
+                ForEach(Self.arrows, id: \.self) { keycap($0, lit: isMain($0)) }
+            }
         }
-        .padding(.horizontal, 16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .animation(.easeOut(duration: 0.2), value: bound.map(\.1))
+    }
+
+    private func isMain(_ label: String) -> Bool {
+        keyboard.mainKey.map { $0.caseInsensitiveCompare(label) == .orderedSame } ?? false
+    }
+
+    private func keycap(_ label: String, lit: Bool, wide: Bool = false) -> some View {
+        Text(verbatim: label)
+            .font(.system(size: 9, weight: .medium, design: .rounded))
+            .foregroundStyle(lit ? .white : Color.primary.opacity(0.72))
+            .frame(width: wide ? 70 : 21, height: 19)
+            .background(
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(lit ? Color.accentColor.opacity(0.78) : Color.white.opacity(0.10))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .strokeBorder(Color.white.opacity(lit ? 0.55 : 0.16), lineWidth: 1)
+            )
+            .overlay(
+                // Double-tap and Hold keep a static ring: it reads as "timing" without animating.
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .strokeBorder(Color.white.opacity(keyboard.pulses && lit ? 0.5 : 0), lineWidth: 2)
+            )
+    }
+
+    private var inspector: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(verbatim: SettingsLayoutPane.shortcutActionName(action))
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+            Text(verbatim: trigger.displayGlyphs ?? String(localized: "Off"))
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .padding(.horizontal, 7).padding(.vertical, 3)
+                .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(.ultraThinMaterial))
+                .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous).strokeBorder(.white.opacity(0.5), lineWidth: 1))
+                .fixedSize()
+            statusLine
+            chips
+        }
+        .frame(width: 196, alignment: .leading)
+    }
+
+    @ViewBuilder private var statusLine: some View {
+        switch conflict {
+        case .clear:
+            Label { Text("Clear") } icon: { Image(systemName: "checkmark.circle") }
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary)
+        case .internalDuplicate(let other):
+            Label { Text("Another action uses the same shortcut") } icon: { Image(systemName: "exclamationmark.triangle.fill") }
+                .font(.system(size: 9))
+                .foregroundStyle(.orange)
+                .help(Text(verbatim: SettingsLayoutPane.shortcutActionName(other)))
+        case .systemClash(let reason):
+            Label { Text("Used by macOS") } icon: { Image(systemName: "exclamationmark.triangle.fill") }
+                .font(.system(size: 9))
+                .foregroundStyle(.orange)
+                .help(Text(verbatim: reason))
+        }
+    }
+
+    private var chips: some View {
+        HStack(spacing: 4) {
+            ForEach(Array(Self.boundFeatureActions(in: store).prefix(4)), id: \.self) { candidate in
+                Button { ShortcutStageFocus.shared.action = candidate } label: {
+                    Text(verbatim: SettingsLayoutPane.shortcutActionName(candidate))
+                        .font(.system(size: 8, weight: .medium))
+                        .lineLimit(1)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Capsule().fill(Color.white.opacity(action == candidate ? 0.24 : 0.08)))
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 
