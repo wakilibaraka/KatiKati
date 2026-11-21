@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795286563.058307,
-    "seen": 1795287349.4884632,
-    "ast_hash": "5e129b1fd6a62d95ebf9becbb25b2e07",
+    "mtime": 1795287628.8119237,
+    "seen": 1795288343.019579,
+    "ast_hash": "106451607cea2fcef92505f32bd10a80",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -456,9 +456,9 @@
     "semantic_hash": "257c404d0125274cc9f11ed78385e0f2"
   },
   "App/Composition/WallpaperEngine.swift": {
-    "mtime": 1795287251.719847,
-    "seen": 1795287349.4885492,
-    "ast_hash": "7672536eea7228af7de2417752c1ceee",
+    "mtime": 1795287762.957691,
+    "seen": 1795288343.0196748,
+    "ast_hash": "221dd7eddc640b3b2b4c4f815d8dc31a",
     "semantic_hash": ""
   },
   "App/Composition/WeatherService.swift": {
@@ -720,9 +720,9 @@
     "semantic_hash": "12cd1551b6e625ea172af6c8a788e53d"
   },
   "App/Scenes/ChipView.swift": {
-    "mtime": 1792690889.421303,
-    "seen": 1792691659.886645,
-    "ast_hash": "3da84d8f77ede28d8a2cdb8894eb6ae5",
+    "mtime": 1795287705.281287,
+    "seen": 1795288343.0197241,
+    "ast_hash": "6e0e6c63ebd055f1fb4ec73c9c8e572a",
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
@@ -792,15 +792,15 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795187641.5209348,
-    "seen": 1795188067.1146429,
-    "ast_hash": "a14e35281566393c3e9ab38580916bf3",
+    "mtime": 1795287674.227046,
+    "seen": 1795288343.019752,
+    "ast_hash": "7f9587edc23b9d74c862c29d74b186fd",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
-    "mtime": 1793029023.0136547,
-    "seen": 1793030321.2978969,
-    "ast_hash": "5b2d8396857ac91e575d62ee1998f97d",
+    "mtime": 1795287664.3592389,
+    "seen": 1795288343.019753,
+    "ast_hash": "9c284291cc1999ce1b74fd222ca160e1",
     "semantic_hash": ""
   },
   "App/Scenes/DockVisualEffectView.swift": {
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LauncherChip.swift": {
-    "mtime": 1795096430.2711706,
-    "seen": 1795096712.6511219,
-    "ast_hash": "45d30192701aaa3f88ceb0f8d8ffc671",
+    "mtime": 1795287721.377031,
+    "seen": 1795288343.019788,
+    "ast_hash": "0c0bda1054fbd306081d324078269e09",
     "semantic_hash": ""
   },
   "App/Scenes/LauncherFABView.swift": {
@@ -1080,9 +1080,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PhaseSurfaceTint.swift": {
-    "mtime": 1795286579.5759535,
-    "seen": 1795287349.4887009,
-    "ast_hash": "818a9ae613e203868c6482a4b98dd104",
+    "mtime": 1795288123.476803,
+    "seen": 1795288343.019825,
+    "ast_hash": "2fb7b151aaff1a53d4ff629eff956a7b",
     "semantic_hash": ""
   },
   "App/Scenes/PinnedFolderChip.swift": {
@@ -1134,15 +1134,15 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1795286890.7679195,
-    "seen": 1795287349.488713,
-    "ast_hash": "74c0a16da1b1a1ae9c0d2bbecc8bc230",
+    "mtime": 1795288122.9310768,
+    "seen": 1795288343.019837,
+    "ast_hash": "83cfe384acab3ec0dfd73299886c2488",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
-    "mtime": 1795028734.530911,
-    "seen": 1795028897.700642,
-    "ast_hash": "954a04342f1fc3a0d481891ee22ebd1b",
+    "mtime": 1795287721.9755545,
+    "seen": 1795288343.0198379,
+    "ast_hash": "6cc764409d9c2a03e4a58f51a138c68f",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795286705.656164,
-    "seen": 1795287349.488723,
-    "ast_hash": "405f240b0c66015824a4d620c2bad8ed",
+    "mtime": 1795287680.7433999,
+    "seen": 1795288343.019847,
+    "ast_hash": "21e4fc689f2b2e1a39899e99ecbc3488",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1734,9 +1734,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
-    "mtime": 1795286416.6825492,
-    "seen": 1795286492.574071,
-    "ast_hash": "c78fe5e805fb1867d261fcfb4dfbb403",
+    "mtime": 1795287612.816811,
+    "seen": 1795288343.019961,
+    "ast_hash": "09c27e6626a19639032f45b14399f788",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeTokens.swift": {
@@ -2442,9 +2442,9 @@
     "semantic_hash": "cd97cac05cd3a7f28f954a13e46f8f4c"
   },
   "Core/Support/WallpaperSelector.swift": {
-    "mtime": 1795286221.7747817,
-    "seen": 1795286492.574205,
-    "ast_hash": "764889e6b9fcdd62fd06630d70c474e7",
+    "mtime": 1795287555.0970767,
+    "seen": 1795288343.020097,
+    "ast_hash": "5f124289a497ad4e6740262c0056943b",
     "semantic_hash": ""
   },
   "Core/Support/WeatherCache.swift": {
@@ -3378,9 +3378,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeStyleTokensTests.swift": {
-    "mtime": 1795286191.9421115,
-    "seen": 1795286492.574383,
-    "ast_hash": "facd5d933070321f6d63561c6d72b87c",
+    "mtime": 1795287594.3975677,
+    "seen": 1795288343.020284,
+    "ast_hash": "21c27cac54da2832eb2a64abcfb9afe6",
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeTests.swift": {
@@ -4080,9 +4080,9 @@
     "semantic_hash": "23ee01802ca8483d8b31acaa69dd65cd"
   },
   "Tests/Unit/SolarPhaseTests.swift": {
-    "mtime": 1795286288.018477,
-    "seen": 1795286492.574504,
-    "ast_hash": "67ec346bfb7e19640093fa69b2885ef7",
+    "mtime": 1795287593.688366,
+    "seen": 1795288343.020407,
+    "ast_hash": "4b1a052eb942b0b2cf5145a6650b1bd1",
     "semantic_hash": ""
   },
   "Tests/Unit/StackAndContextTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795287264.4450533,
-    "seen": 1795287349.489352,
-    "ast_hash": "4c10f51802f74c05eea207491945e011",
+    "mtime": 1795288312.1942692,
+    "seen": 1795288343.020483,
+    "ast_hash": "0a8f75cc1964946ed968cb261dfc53e3",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795287276.802153,
-    "seen": 1795287349.4894562,
-    "ast_hash": "455ea178d611014df35e01bb92905dfc",
+    "mtime": 1795288312.795422,
+    "seen": 1795288343.0205839,
+    "ast_hash": "afd5304a219ad3475176fc9e2df2ad1f",
     "semantic_hash": ""
   },
   "README.md": {
