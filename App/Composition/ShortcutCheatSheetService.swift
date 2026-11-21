@@ -123,8 +123,10 @@ final class ShortcutCheatSheetService: ObservableObject {
 
     private func currentKatiKatiItems() -> [ShortcutCheatSheetItem] {
         return ShortcutAction.allCases.compactMap { action -> ShortcutCheatSheetItem? in
-            guard let trigger = katikatiBindings[action],
-                  let glyphs = Self.displayGlyphs(for: trigger) else { return nil }
+            // The live binding when the store has one, the shipped default otherwise — the sheet
+            // must never hide a shortcut the Settings pane would still show.
+            let trigger = katikatiBindings[action] ?? action.defaultTrigger
+            guard let glyphs = trigger.displayGlyphs else { return nil }
             return ShortcutCheatSheetItem(
                 id: "katikati.\(action.rawValue)",
                 title: SettingsLayoutPane.shortcutActionName(action),
@@ -134,17 +136,6 @@ final class ShortcutCheatSheetService: ObservableObject {
                 category: "KatiKati",
                 path: []
             )
-        }
-    }
-
-    private static func displayGlyphs(for trigger: ShortcutTrigger) -> String? {
-        switch trigger {
-        case .off: return nil
-        case .chord(let c): return c.glyphs
-        case .key(let k): return k.glyphs
-        case .doubleTap(let k): return "2× \(k.glyph)"
-        case .hold(let k): return "Hold \(k.glyph)"
-        case .hyper(let code): return "Hyper+\(ShortcutKeyNames.name(for: code) ?? "?")"
         }
     }
 

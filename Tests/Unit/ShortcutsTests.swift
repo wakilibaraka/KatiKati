@@ -441,78 +441,9 @@ final class ShortcutRedesignCoreTests: XCTestCase {
     }
 }
 
-/// SCU-4: the cheat sheet's grouping, its source of truth, and every way it closes.
-final class ShortcutCheatSheetModelTests: XCTestCase {
-    func testBandsFollowCategoryOrderAndSkipEmptyOnes() {
-        let sections = ShortcutCheatSheet.sections(bindings: [:])
-        XCTAssertFalse(sections.isEmpty)
-        let order = sections.map(\.category)
-        XCTAssertEqual(order, ShortcutCategory.allCases.filter { order.contains($0) })
-        for section in sections {
-            XCTAssertFalse(section.rows.isEmpty, "\(section.category) came through empty")
-            for row in section.rows { XCTAssertEqual(row.action.category, section.category) }
-        }
-    }
-
-    func testEveryRowIsTheShippedDefaultAndTheDefaultSetIsNotLost() {
-        let rows = ShortcutCheatSheet.rows(bindings: [:])
-        let shipped = ShortcutAction.allCases.filter { $0 != .showCheatSheet && $0.defaultTrigger != .off }
-        XCTAssertEqual(Set(rows.map(\.action)), Set(shipped))
-        for row in rows { XCTAssertEqual(row.trigger, row.action.defaultTrigger) }
-        // The three defaults people actually see on a fresh install.
-        XCTAssertTrue(rows.contains { $0.action == .commandBar && $0.trigger == .chord(.optionSpace) })
-        XCTAssertTrue(rows.contains { $0.action == .launcher && $0.trigger == .chord(.optionShiftSpace) })
-        XCTAssertTrue(rows.contains { $0.action == .snapMaximize })
-    }
-
-    func testLiveBindingsWinAndTurnedOffRowsDisappear() {
-        let key = ShortcutKey(keyCode: 0, modifiers: ShortcutKey.control | ShortcutKey.option)
-        let bindings: [ShortcutAction: ShortcutTrigger] = [
-            .snapMaximize: .key(key),
-            .commandBar: .off
-        ]
-        let rows = ShortcutCheatSheet.rows(bindings: bindings)
-        XCTAssertEqual(rows.first { $0.action == .snapMaximize }?.trigger, .key(key))
-        XCTAssertNil(rows.first { $0.action == .commandBar }, "an action the user turned off must not be listed")
-        // A default-off action the user bound shows up in its band.
-        let bound = ShortcutCheatSheet.sections(bindings: [.toggleTiling: .hyper(17)])
-        XCTAssertTrue(bound.contains { $0.category == .tiling && $0.rows.contains { $0.action == .toggleTiling } })
-    }
-
-    func testTheSheetNeverListsItselfAndItsActionDefaultsOff() {
-        XCTAssertEqual(ShortcutAction.showCheatSheet.defaultTrigger, .off)
-        XCTAssertEqual(ShortcutAction.showCheatSheet.category, .tools)
-        XCTAssertFalse(ShortcutCheatSheet.rows(bindings: [.showCheatSheet: .key(ShortcutKey(keyCode: 1, modifiers: ShortcutKey.control | ShortcutKey.option))])
-            .contains { $0.action == .showCheatSheet })
-    }
-
-    func testPresenceTogglesAndEveryDismissPathCloses() {
-        var presence = ShortcutCheatSheetPresence()
-        XCTAssertFalse(presence.isVisible)
-        presence.toggle()
-        XCTAssertTrue(presence.isVisible)
-        presence.toggle()                       // the same shortcut again
-        XCTAssertFalse(presence.isVisible)
-        presence.toggle()
-        presence.dismiss()                      // Esc
-        XCTAssertFalse(presence.isVisible)
-        presence.toggle()
-        presence.dismiss()                      // click-away
-        XCTAssertFalse(presence.isVisible)
-        presence.dismiss()                      // idempotent
-        XCTAssertFalse(presence.isVisible)
-    }
-
-    func testEveryShippedShortcutCanBeReachedThroughItsBand() {
-        let listed = Set(ShortcutCheatSheet.rows(bindings: [:]).map(\.action))
-        for action in ShortcutAction.allCases where action != .showCheatSheet && action.defaultTrigger != .off {
-            XCTAssertTrue(listed.contains(action), "\(action) is missing from the sheet")
-        }
-    }
-}
-
-/// The frontmost app's menu shortcuts, grouped, filtered and exported. Moved here from
-/// `ShortcutCheatSheetTests.swift` so the suite stays in the existing files.
+/// The one cheat sheet: the frontmost app's menu shortcuts, with KatiKati's own live bindings as
+/// their own category, grouped, filtered and exported. Moved here from `ShortcutCheatSheetTests.swift`
+/// so the suite stays in the existing files.
 final class ShortcutCheatSheetTests: XCTestCase {
     func testBuildsGroupedCategoriesAndFiltersByQueryAndModifiers() {
         let entries = [
@@ -538,5 +469,31 @@ final class ShortcutCheatSheetTests: XCTestCase {
         let md = ShortcutCheatSheetBuilder.exportMarkdown(appName: "Finder", categories: categories)
         XCTAssertTrue(md.contains("# Finder Keyboard Shortcuts"))
         XCTAssertTrue(md.contains("| Export › PDF… | `⇧⌘E` |"))
+    }
+
+    /// `showCheatSheet` is what opens this one sheet, so it must stay bindable and reachable.
+    func testShowCheatSheetActionDefaultsOffAndSitsInTools() {
+        XCTAssertEqual(ShortcutAction.showCheatSheet.defaultTrigger, .off)
+        XCTAssertEqual(ShortcutAction.showCheatSheet.category, .tools)
+        XCTAssertTrue(ShortcutAction.allCases.contains(.showCheatSheet))
+    }
+
+    /// KatiKati's own shortcuts share the sheet with the frontmost app's, in a category of their own.
+    func testKatiKatiBindingsBecomeTheirOwnCategory() {
+        let entries = [MenuSearchEntry(path: ["File", "New Window"], commandKey: "n", modifiers: 0, isEnabled: true)]
+        let items = [
+            ShortcutCheatSheetItem(id: "katikati.commandBar", title: "Command Bar", subtitle: "KatiKati",
+                                   shortcut: "⌥Space", modifiers: [.option], category: "KatiKati", path: []),
+            ShortcutCheatSheetItem(id: "katikati.launcher", title: "Launcher", subtitle: "KatiKati",
+                                   shortcut: "⌥⇧Space", modifiers: [.option, .shift], category: "KatiKati", path: [])
+        ]
+
+        let categories = ShortcutCheatSheetBuilder.build(entries: entries, katikatiItems: items)
+        XCTAssertEqual(categories.map(\.title), ["File", "KatiKati"])
+        XCTAssertEqual(categories.last?.items.map(\.title), ["Command Bar", "Launcher"])
+
+        let filtered = ShortcutCheatSheetBuilder.filter(categories: categories, query: "launcher", requiredModifiers: [])
+        XCTAssertEqual(filtered.map(\.title), ["KatiKati"])
+        XCTAssertEqual(filtered.first?.items.map(\.title), ["Launcher"])
     }
 }
