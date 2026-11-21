@@ -27,6 +27,7 @@ extension SettingsTab {
         case .controlCenter: return "panel tiles toggles anchor width"
         case .shortcuts: return "hotkey keyboard keys record snap tiling hold time"
         case .keyboard: return "hyper super caps lock caps protect finder keys pause cleaning visualizer input monitoring"
+        case .keyVisualizer: return "key visualizer overlay typed keystrokes recording filter style linger font position mouse clicks"
         case .mouse: return "pointer focus follows mouse scroll direction clicks wheel"
         case .mouseGestures: return "trackpad gesture swipe pinch tap multitouch conflict mission control"
         case .quitApps: return "quit close confirmation hold command q idle apps rules"
@@ -101,7 +102,7 @@ struct SettingsSidebar: View {
         .system([.general, .menuBar, .appearance, .dockItems]),
         .surfaces([.drawer, .shelf, .widgets, .desktop, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
-        .input([.shortcuts, .keyboard, .mouse, .mouseGestures, .radialDial, .quitApps]),
+        .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
         .productivity([.aiTracking, .downloads, .clipboard, .tools]),
         .advanced([.advanced])
     ]

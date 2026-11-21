@@ -169,11 +169,11 @@ extension SettingsLayoutPane {
     }
 
     /// Keyboard page (2026-11 split from Shortcuts): what a key press means before an app sees it —
-    /// the Hyper/Super remap and the two key protections — and the key visualizer, whose options
-    /// used to sit on Tools while its switch sat on Shortcuts.
+    /// the Hyper/Super remap, Caps Lock protection, Finder keys, pause and cleaning. The key
+    /// visualizer that used to share this card has its own page since the second split.
     @ViewBuilder
     var keyboardSections: some View {
-        SettingsCard(Text("Keyboard")) {
+        SettingsCard(Text("Keys & Protection")) {
             SettingsToggleRow(
                 Text("Super / Hyper Key"),
                 isOn: Binding(
@@ -312,8 +312,14 @@ extension SettingsLayoutPane {
                     .buttonStyle(SettingsGelButtonStyle())
             }
         }
+    }
 
-        SettingsCard(Text("Key Visualizer")) {
+    /// Key Visualizer page (2026-11 split from Keyboard): the overlay that draws what you type.
+    /// Its switch, filter, style, size, linger, position and mouse-click options are one subject,
+    /// so they share one page instead of trailing a card of key remapping.
+    @ViewBuilder
+    var visualizerSections: some View {
+        SettingsCard(Text("Overlay")) {
             SettingsToggleRow(
                 Text("Show Keys You Type"),
                 isOn: Binding(
@@ -394,8 +400,7 @@ extension SettingsLayoutPane {
                     info: String(localized: "Draws each click and scroll on the key overlay, so a recording shows what the pointer did. It never records where you clicked.")
                 )
             }
-            if (keyGuard.isCapsProtectionEnabled || keyGuard.isFinderKeysEnabled || keyGuard.isVisualizerEnabled),
-               !KeyGuardService.hasPermission {
+            if keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
                 SettingsDivider()
                 SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
             }

@@ -9,9 +9,9 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsTwentyEightTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 28, "twenty-eight sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 28,
+    func testTheSidebarIsTwentyNineTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 29, "twenty-nine sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 29,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -38,6 +38,8 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab(rawValue: "shortcuts"), .shortcuts,
                        "a stored identifier must keep resolving after the split")
         XCTAssertEqual(SettingsTab(rawValue: "keyboard"), .keyboard)
+        // 2026-11 second split: the key visualizer left the crowded Keyboard page for its own.
+        XCTAssertEqual(SettingsTab(rawValue: "keyVisualizer"), .keyVisualizer)
         XCTAssertEqual(SettingsTab(rawValue: "mouse"), .mouse)
         XCTAssertEqual(SettingsTab(rawValue: "mouseGestures"), .mouseGestures)
         XCTAssertEqual(SettingsTab(rawValue: "quitApps"), .quitApps)
@@ -65,7 +67,8 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab.mouse.title, "Mouse")
         XCTAssertEqual(SettingsTab.mouseGestures.title, "Trackpad Gestures")
         XCTAssertEqual(SettingsTab.quitApps.title, "Quit & Close")
-        for tab in [SettingsTab.shortcuts, .keyboard, .mouse, .mouseGestures, .quitApps] {
+        XCTAssertEqual(SettingsTab.keyVisualizer.title, "Key Visualizer")
+        for tab in [SettingsTab.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .quitApps] {
             XCTAssertFalse(tab.subtitle.isEmpty, "\(tab.rawValue) needs a subtitle like every other page")
         }
     }

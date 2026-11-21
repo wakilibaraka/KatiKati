@@ -1,8 +1,8 @@
 import Combine
 import Foundation
 
-/// 设置窗口的二十八个标签页（2026-11：Shortcuts 按输入设备拆成键盘快捷键 / 键盘 / 鼠标 /
-/// 触控板手势四页，退出保护单独成页）。
+/// 设置窗口的二十九个标签页（2026-11：Shortcuts 按输入设备拆成键盘快捷键 / 键盘 /
+/// 按键浮层 / 鼠标 / 触控板手势五页，退出保护单独成页）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
     case general
@@ -24,6 +24,7 @@ enum SettingsTab: String, CaseIterable {
     case controlCenter
     case shortcuts
     case keyboard
+    case keyVisualizer
     case mouse
     case mouseGestures
     case quitApps
@@ -55,6 +56,7 @@ enum SettingsTab: String, CaseIterable {
         case "controlCenter": self = .controlCenter
         case "shortcuts": self = .shortcuts
         case "keyboard": self = .keyboard
+        case "keyVisualizer": self = .keyVisualizer
         case "mouse": self = .mouse
         case "mouseGestures": self = .mouseGestures
         case "quitApps", "quit": self = .quitApps
@@ -90,6 +92,7 @@ enum SettingsTab: String, CaseIterable {
         case .controlCenter: return String(localized: "Control Center")
         case .shortcuts: return String(localized: "Keyboard Shortcuts")
         case .keyboard: return String(localized: "Keyboard")
+        case .keyVisualizer: return String(localized: "Key Visualizer")
         case .mouse: return String(localized: "Mouse")
         case .mouseGestures: return String(localized: "Trackpad Gestures")
         case .quitApps: return String(localized: "Quit & Close")
@@ -124,7 +127,8 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return String(localized: "Command hints and the command bar.")
         case .controlCenter: return String(localized: "Tiles, quick settings, and placement.")
         case .shortcuts: return String(localized: "Every key combination: features, snap zones, tiling, and hold timing.")
-        case .keyboard: return String(localized: "Super/Hyper, Caps Lock, Finder keys, and the key visualizer.")
+        case .keyboard: return String(localized: "Super/Hyper, Caps Lock, Finder keys, pause, and cleaning.")
+        case .keyVisualizer: return String(localized: "The key overlay: what it shows, how it looks, and where it sits.")
         case .mouse: return String(localized: "Focus follows the pointer, scroll direction, and click feedback.")
         case .mouseGestures: return String(localized: "Multitouch swipes, pinches, taps, and the live visualizer.")
         case .quitApps: return String(localized: "Quit protection, quit-on-close, and idle apps.")
@@ -158,6 +162,7 @@ enum SettingsTab: String, CaseIterable {
         case .controlCenter: return "switch.2"
         case .shortcuts: return "command"
         case .keyboard: return "keyboard"
+        case .keyVisualizer: return "captions.bubble"
         case .mouse: return "computermouse"
         case .mouseGestures: return "hand.draw"
         case .quitApps: return "power"
@@ -192,6 +197,7 @@ enum SettingsTab: String, CaseIterable {
         case .controlCenter: return (1.00, 0.55, 0.15)
         case .shortcuts: return (0.98, 0.72, 0.10)
         case .keyboard: return (0.30, 0.78, 0.48)
+        case .keyVisualizer: return (0.62, 0.86, 0.34)
         case .mouse: return (0.44, 0.58, 0.72)
         case .mouseGestures: return (0.36, 0.62, 0.92)
         case .quitApps: return (0.80, 0.24, 0.36)

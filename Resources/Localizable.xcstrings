@@ -73555,6 +73555,314 @@
         }
       }
     },
+    "Keys & Protection": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasten & Schutz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keys & Protection"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teclas y protección"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teclas y protección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touches et protection"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasti e protezione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーと保護"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키 및 보호"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teclas e proteção"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teclas e proteção"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按键与保护"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按鍵與保護"
+          }
+        }
+      }
+    },
+    "The key overlay: what it shows, how it looks, and where it sits.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Tasten-Overlay: Anzeige, Aussehen und Position."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key overlay: what it shows, how it looks, and where it sits."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La superposición de teclas: qué muestra, cómo se ve y dónde está."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La superposición de teclas: qué muestra, cómo se ve y dónde se ubica."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La superposition des touches : contenu, apparence et position."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sovrapposizione dei tasti: cosa mostra, che aspetto ha e dove si trova."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キーオーバーレイ：表示内容、見た目、表示位置。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키 오버레이: 표시 내용, 모양, 위치."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sobreposição de teclas: o que mostra, como aparece e onde fica."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sobreposição de teclas: o que mostra, o aspeto e a posição."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按键浮层：显示什么、外观如何、停在何处。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按鍵浮層：顯示什麼、外觀如何、停在何處。"
+          }
+        }
+      }
+    },
+    "Super/Hyper, Caps Lock, Finder keys, pause, and cleaning.": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Caps Lock, Finder-Tasten, Pause und Reinigung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Caps Lock, Finder keys, pause, and cleaning."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Bloq Mayús, teclas del Finder, pausa y limpieza."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Bloq Mayús, teclas de Finder, pausa y limpieza."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Verr. maj., touches Finder, pause et nettoyage."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Blocco maiuscole, tasti del Finder, pausa e pulizia."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper、Caps Lock、Finder のキー、一時停止、クリーニング。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Caps Lock, Finder 키, 일시 정지, 키보드 청소."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Caps Lock, teclas do Finder, pausa e limpeza."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper, Caps Lock, teclas do Finder, pausa e limpeza."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper、Caps Lock、Finder 按键、暂停与清洁。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Super/Hyper、Caps Lock、Finder 按鍵、暫停與清潔。"
+          }
+        }
+      }
+    },
+    "Overlay": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overlay"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overlay"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superposición"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superposición"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superposition"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sovrapposizione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오버레이"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobreposição"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobreposição"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浮层"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浮層"
+          }
+        }
+      }
+    },
     "Key Visualizer": {
       "extractionState": "manual",
       "localizations": {
@@ -167757,83 +168065,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "所有按鍵組合：功能、貼齊區域、並排視窗與長按時間。"
-          }
-        }
-      }
-    },
-    "Super/Hyper, Caps Lock, Finder keys, and the key visualizer.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Feststelltaste, Finder-Tasten und die Tastenanzeige."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Caps Lock, Finder keys, and the key visualizer."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Bloq Mayús, teclas del Finder y el visualizador de teclas."
-          }
-        },
-        "es-419": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Súper/Hyper, Bloq Mayús, teclas del Finder y el visualizador de teclas."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Verr. maj., touches du Finder et visualiseur de touches."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Bloc Maiusc, tasti del Finder e visualizzatore dei tasti."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper、Caps Lock、Finder キー、キー表示。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Caps Lock, Finder 키, 키 표시기."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Caps Lock, teclas do Finder e o visualizador de teclas."
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper, Caps Lock, teclas do Finder e o visualizador de teclas."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper、大写锁定、访达按键与按键显示器。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Super/Hyper、大寫鎖定、Finder 按鍵與按鍵顯示器。"
           }
         }
       }

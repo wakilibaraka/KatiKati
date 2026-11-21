@@ -130,6 +130,7 @@ struct SettingsWindowContent: View {
             case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
             case .keyboard: SettingsLayoutPane(store: store, mode: .keyboard)
+            case .keyVisualizer: SettingsLayoutPane(store: store, mode: .visualizer)
             case .mouse: SettingsLayoutPane(store: store, mode: .mouse)
             case .mouseGestures: SettingsLayoutPane(store: store, mode: .gestures)
             case .quitApps: SettingsLayoutPane(store: store, mode: .quitApps)

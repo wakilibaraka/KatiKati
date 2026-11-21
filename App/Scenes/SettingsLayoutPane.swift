@@ -80,13 +80,12 @@ struct SettingsLayoutPane: View {
     /// One mode per Settings page: the input pages (keyboard shortcuts, keyboard, mouse, gestures,
     /// quit & close) share this pane, so a row is written once and the sidebar splits the audience.
     enum Mode {
-        case radialDial, shortcuts, keyboard, mouse, gestures, quitApps
+        case radialDial, shortcuts, keyboard, visualizer, mouse, gestures, quitApps
         case widgets, edgeBars, geometry, chips, launcher, controlCenter, notifications
     }
     var mode: Mode = .shortcuts
 
     var body: some View {
-        let inputs = store.layoutThumbnailInputs
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             if mode == .widgets {
                 widgetSections
@@ -106,6 +105,8 @@ struct SettingsLayoutPane: View {
                 gestureSections
             } else if mode == .keyboard {
                 keyboardSections
+            } else if mode == .visualizer {
+                visualizerSections
             } else if mode == .mouse {
                 mouseSections
             } else if mode == .quitApps {
