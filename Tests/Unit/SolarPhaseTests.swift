@@ -289,3 +289,117 @@ final class TerrainMimicCatalogTests: XCTestCase {
         XCTAssertLessThan(night.layers[2].r, clear.layers[2].r, "the nearest ridge reads darker at night")
     }
 }
+
+// MARK: - DW-7 · generated frames live in their own cache, and pruning only touches KatiKati's own renders
+
+final class WallpaperCacheTests: XCTestCase {
+    private var base: URL!
+    private let fileManager = FileManager.default
+
+    override func setUpWithError() throws {
+        base = fileManager.temporaryDirectory
+            .appendingPathComponent("WallpaperCacheTests-\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: base, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? fileManager.removeItem(at: base)
+    }
+
+    private func write(_ name: String, in directory: URL, age: TimeInterval = 0) throws -> URL {
+        try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+        let url = directory.appendingPathComponent(name)
+        try Data("frame".utf8).write(to: url)
+        if age != 0 {
+            try fileManager.setAttributes([.modificationDate: Date().addingTimeInterval(-age)], ofItemAtPath: url.path)
+        }
+        return url
+    }
+
+    private func own(_ scene: String = "countryside", _ phase: String = "night", _ sky: String = "clear",
+                     size: String = "3420x2224", digest: String = "d600c2af", generation: Int? = nil) -> String {
+        "terrain-\(scene)-\(phase)-\(sky)-\(size)-\(digest)" + (generation.map { "-g\($0)" } ?? "") + ".png"
+    }
+
+    func testGeneratedFramesLiveInTheirOwnCache() {
+        let generated = WallpaperCache.generatedDirectory(in: base)
+        XCTAssertTrue(generated.path.hasSuffix("/KatiKati/DynamicWallpapers/Generated"), generated.path)
+        XCTAssertNotEqual(generated, WallpaperCache.legacyDirectory(in: base))
+        XCTAssertNotEqual(generated, WallpaperCache.skyPackDirectory(in: base))
+        XCTAssertTrue(WallpaperCache.skyPackDirectory(in: base).path.hasSuffix("/KatiKati/Wallpapers/sky"))
+        XCTAssertTrue(WallpaperCache.legacyDirectory(in: base).path.hasSuffix("/KatiKati/Wallpapers/terrain"))
+    }
+
+    func testOnlyTheRenderersOwnNamesCount() {
+        for name in [own(), own(generation: 3),
+                     own("alpine", "golden", "rain", size: "5120x2880", digest: "0f3a91")] {
+            XCTAssertTrue(WallpaperCache.isOwnRender(named: name), name)
+        }
+        for name in ["default.heic", "dusk-rain.png", "terrain-note.txt",
+                     "terrain-countryside-night-clear-3420x2224.png",
+                     "terrain-countryside-night-clear-3420x2224-d600c2af.jpg",
+                     "terrain-Countryside-night-clear-3420x2224-d600c2af.png",
+                     "terrain-countryside-night-clear-3420-2224-d600c2af.png",
+                     "terrain-countryside-night-clear-3420x2224-d600c2af-gX.png",
+                     "terrain-countryside-night-clear-3420x2224-d600c2af-g.png"] {
+            XCTAssertFalse(WallpaperCache.isOwnRender(named: name), name)
+        }
+    }
+
+    func testGenerationCopiesShareOneBaseName() {
+        XCTAssertEqual(WallpaperCache.baseName(of: own(generation: 7)), WallpaperCache.baseName(of: own()))
+        XCTAssertEqual(WallpaperCache.baseName(of: own(generation: 7)), own().replacingOccurrences(of: ".png", with: ""))
+        XCTAssertNil(WallpaperCache.baseName(of: "default.heic"))
+    }
+
+    func testPruneDeletesOnlyOurOwnStaleFrames() throws {
+        let directory = WallpaperCache.generatedDirectory(in: base)
+        let stale = try write(own("city", "dusk", "rain"), in: directory, age: 20 * 86_400)
+        let fresh = try write(own(), in: directory)
+        let foreign = [try write("default.heic", in: directory),
+                       try write("dusk-rain.png", in: directory),
+                       try write("terrain-note.txt", in: directory),
+                       try write("holiday.png", in: directory)]
+        let removed = WallpaperCache.prune(in: directory)
+        XCTAssertEqual(Set(removed.map(\.lastPathComponent)), Set([stale.lastPathComponent]))
+        for url in [fresh] + foreign {
+            XCTAssertTrue(fileManager.fileExists(atPath: url.path), url.lastPathComponent)
+        }
+    }
+
+    func testPruneKeepsTheTwoNewestGenerationsPerPicture() throws {
+        let directory = WallpaperCache.generatedDirectory(in: base)
+        let original = try write(own(), in: directory, age: 300)
+        let first = try write(own(generation: 1), in: directory, age: 200)
+        let second = try write(own(generation: 2), in: directory, age: 100)
+        let third = try write(own(generation: 3), in: directory, age: 50)
+        XCTAssertEqual(WallpaperCache.prune(in: directory).count, 2)
+        XCTAssertFalse(fileManager.fileExists(atPath: original.path))
+        XCTAssertFalse(fileManager.fileExists(atPath: first.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: second.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: third.path))
+    }
+
+    func testLegacyCleanupNeverTouchesTheSkyPackOrForeignFiles() throws {
+        let legacy = WallpaperCache.legacyDirectory(in: base)
+        let leftover = try write(own(generation: 2), in: legacy)
+        let note = try write("terrain-note.txt", in: legacy)
+        let sky = try write("dusk-rain.png", in: WallpaperCache.skyPackDirectory(in: base))
+        let removed = WallpaperCache.removeLegacyRenders(in: legacy)
+        XCTAssertEqual(Set(removed.map(\.lastPathComponent)), Set([leftover.lastPathComponent]))
+        XCTAssertTrue(fileManager.fileExists(atPath: note.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: sky.path))
+    }
+
+    func testPruningTheGeneratedCacheLeavesTheSkyPackAlone() throws {
+        let sky = try write("dawn-rain.png", in: WallpaperCache.skyPackDirectory(in: base))
+        _ = try write(own(), in: WallpaperCache.generatedDirectory(in: base))
+        WallpaperCache.prune(in: WallpaperCache.generatedDirectory(in: base))
+        XCTAssertTrue(fileManager.fileExists(atPath: sky.path))
+    }
+
+    func testMissingFoldersAreNotAnError() {
+        XCTAssertEqual(WallpaperCache.prune(in: base.appendingPathComponent("missing")), [])
+        XCTAssertEqual(WallpaperCache.removeLegacyRenders(in: base.appendingPathComponent("missing")), [])
+    }
+}

@@ -205,3 +205,81 @@ enum WallpaperDebugOverride {
         return (phase, nil)
     }
 }
+
+/// DW-7 — every path the generated frames may use, and the only files pruning is allowed to remove.
+///
+/// The dynamic wallpaper is additive: it writes into its own cache and may only delete files it named itself.
+/// The built-in Sky pack (`Wallpapers/sky`, the pre-DW simple wallpapers), a custom folder and the owner's
+/// captured original are never listed, moved or removed from here.
+enum WallpaperCache {
+    static let generatedPath = "KatiKati/DynamicWallpapers/Generated"
+    static let legacyPath = "KatiKati/Wallpapers/terrain"
+    static let skyPackPath = "KatiKati/Wallpapers/sky"
+
+    static func generatedDirectory(in base: URL) -> URL { base.appendingPathComponent(generatedPath, isDirectory: true) }
+    static func legacyDirectory(in base: URL) -> URL { base.appendingPathComponent(legacyPath, isDirectory: true) }
+    static func skyPackDirectory(in base: URL) -> URL { base.appendingPathComponent(skyPackPath, isDirectory: true) }
+
+    /// The renderer's own file-name shape: `terrain-<scene>-<phase>-<sky>-<WxH>-<digest>[-gN].png`.
+    /// Anything else — a user's `default.heic`, a Sky-pack copy, a note — is not ours to delete.
+    static func isOwnRender(named name: String) -> Bool {
+        guard name.hasSuffix(".png") else { return false }
+        let parts = name.dropLast(4).split(separator: "-", omittingEmptySubsequences: false)
+        guard parts.count == 6 || parts.count == 7, parts[0] == "terrain" else { return false }
+        guard parts[1...3].allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isLowercase) }) else { return false }
+        let size = parts[4].split(separator: "x", omittingEmptySubsequences: false)
+        guard size.count == 2, size.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return false }
+        guard !parts[5].isEmpty, parts[5].allSatisfy(\.isHexDigit) else { return false }
+        if parts.count == 7 {
+            guard parts[6].first == "g", parts[6].count > 1, parts[6].dropFirst().allSatisfy(\.isNumber) else { return false }
+        }
+        return true
+    }
+
+    /// The picture a file belongs to, generation copies and the base frame sharing one name.
+    static func baseName(of name: String) -> String? {
+        guard isOwnRender(named: name) else { return nil }
+        let stem = String(name.dropLast(4))
+        guard let range = stem.range(of: "-g", options: .backwards),
+              !stem[range.upperBound...].isEmpty,
+              stem[range.upperBound...].allSatisfy(\.isNumber) else { return stem }
+        return String(stem[..<range.lowerBound])
+    }
+
+    /// Drops expired renders and keeps at most `keepGenerations` files per picture, touching only our own.
+    @discardableResult
+    static func prune(in directory: URL, now: Date = Date(), maximumAge: TimeInterval = 14 * 86_400,
+                      keepGenerations: Int = 2, fileManager: FileManager = .default) -> [URL] {
+        guard let names = try? fileManager.contentsOfDirectory(atPath: directory.path) else { return [] }
+        var removed: [URL] = []
+        var generations: [String: [(url: URL, date: Date)]] = [:]
+        for name in names where isOwnRender(named: name) {
+            let url = directory.appendingPathComponent(name)
+            let date = (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+            if now.timeIntervalSince(date) > maximumAge {
+                if (try? fileManager.removeItem(at: url)) != nil { removed.append(url) }
+                continue
+            }
+            generations[baseName(of: name) ?? name, default: []].append((url, date))
+        }
+        for list in generations.values where list.count > keepGenerations {
+            for stale in list.sorted(by: { $0.date > $1.date }).dropFirst(keepGenerations) {
+                if (try? fileManager.removeItem(at: stale.url)) != nil { removed.append(stale.url) }
+            }
+        }
+        return removed
+    }
+
+    /// Deletes only the renderer's own leftovers from the pre-DW-7 folder. Its Sky-pack sibling, custom
+    /// files and anything else there are left exactly as found.
+    @discardableResult
+    static func removeLegacyRenders(in legacyDirectory: URL, fileManager: FileManager = .default) -> [URL] {
+        guard let names = try? fileManager.contentsOfDirectory(atPath: legacyDirectory.path) else { return [] }
+        var removed: [URL] = []
+        for name in names where isOwnRender(named: name) {
+            let url = legacyDirectory.appendingPathComponent(name)
+            if (try? fileManager.removeItem(at: url)) != nil { removed.append(url) }
+        }
+        return removed
+    }
+}

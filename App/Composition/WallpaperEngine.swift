@@ -262,9 +262,11 @@ final class WallpaperEngine: ObservableObject {
 /// Files are content-addressed (`key`, size and a palette signature in the name), so a palette change produces a
 /// new file instead of macOS ignoring a URL it already shows, and `prune()` keeps disk use bounded.
 enum TerrainWallpaperRenderer {
+    /// DW-7: frames are generated files, so they live in their own cache — never beside the Sky pack
+    /// (the simple wallpapers) and never in a folder the user or a custom pack owns.
     static func directory() -> URL? {
         guard let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
-        let dir = base.appendingPathComponent("KatiKati/Wallpapers/terrain", isDirectory: true)
+        let dir = WallpaperCache.generatedDirectory(in: base)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
@@ -283,6 +285,7 @@ enum TerrainWallpaperRenderer {
             CGImageDestinationAddImage(dest, image, nil)
             guard CGImageDestinationFinalize(dest) else { return nil }
         }
+        cleanLegacyOnce()
         guard generation > 0 else { return source }
         let copy = dir.appendingPathComponent("\(base)-g\(generation).png")
         if !FileManager.default.fileExists(atPath: copy.path) {
@@ -293,27 +296,22 @@ enum TerrainWallpaperRenderer {
     }
 
     /// Drops yesterday's pictures and keeps at most two generations per picture: the cache cannot grow without
-    /// bound while Space switches keep asking for fresh URLs.
+    /// bound while Space switches keep asking for fresh URLs. Only KatiKati's own render names are candidates
+    /// (DW-7) — a file the user dropped into the folder survives.
     static func prune(now: Date = Date()) {
-        guard let dir = directory(),
-              let files = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.contentModificationDateKey])
+        guard let dir = directory() else { return }
+        WallpaperCache.prune(in: dir, now: now)
+    }
+
+    /// The pre-DW-7 renders are retired once, after a frame exists in the new cache, and only when they carry
+    /// this renderer's own names — the Sky pack beside them is the user's simple wallpapers.
+    private static var didCleanLegacy = false
+    private static func cleanLegacyOnce() {
+        guard !didCleanLegacy,
+              let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
         else { return }
-        var generations: [String: [(url: URL, date: Date)]] = [:]
-        for file in files where file.pathExtension.lowercased() == "png" {
-            let date = (try? file.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
-            if now.timeIntervalSince(date) > 14 * 86_400 {
-                try? FileManager.default.removeItem(at: file)
-                continue
-            }
-            let name = file.deletingPathExtension().lastPathComponent
-            let base = name.range(of: "-g", options: .backwards).map { String(name[..<$0.lowerBound]) } ?? name
-            generations[base, default: []].append((file, date))
-        }
-        for list in generations.values where list.count > 2 {
-            for stale in list.sorted(by: { $0.date > $1.date }).dropFirst(2) {
-                try? FileManager.default.removeItem(at: stale.url)
-            }
-        }
+        didCleanLegacy = true
+        WallpaperCache.removeLegacyRenders(in: WallpaperCache.legacyDirectory(in: base))
     }
 
     /// A short, stable digest of the colours that make the picture, so a palette change is a new file.
