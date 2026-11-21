@@ -4026,9 +4026,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1795286706.284911,
-    "seen": 1795287349.489269,
-    "ast_hash": "cafe253dc98fb545326234024ff0bb99",
+    "mtime": 1795299343.0651343,
+    "seen": 1795299420.124953,
+    "ast_hash": "73ec45fdad162f0d84451099b4ca276b",
     "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
