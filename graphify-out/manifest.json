@@ -1146,15 +1146,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1795220415.2968652,
-    "seen": 1795220751.662694,
-    "ast_hash": "fa74cd3f3a8d61ceafd1bc18645de64d",
+    "mtime": 1795280572.8096318,
+    "seen": 1795280587.228661,
+    "ast_hash": "32e32ad9e116d545f415e4a20828fd9e",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
-    "mtime": 1795219435.6335132,
-    "seen": 1795219694.862344,
-    "ast_hash": "25117b29de039c8b3600d60935bd11ba",
+    "mtime": 1795280569.6751776,
+    "seen": 1795280587.2286642,
+    "ast_hash": "b64f1748bc5870274fe8489cc7f21255",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795218907.3996859,
-    "seen": 1795219318.658418,
-    "ast_hash": "ceaa6c527e42f77ab90de3a843a3d259",
+    "mtime": 1795280573.5261414,
+    "seen": 1795280587.228665,
+    "ast_hash": "47678db0b5e01e00599b0aa4b343fddf",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -4056,9 +4056,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1795220585.8506815,
-    "seen": 1795220751.663351,
-    "ast_hash": "328d3d3d59bb99bd61b1c8b320155e8e",
+    "mtime": 1795280485.2887635,
+    "seen": 1795280587.2292328,
+    "ast_hash": "c8753c86790044e6f0ed04e8ed57461b",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -4590,9 +4590,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1795218760.2698917,
-    "seen": 1795219318.658402,
-    "ast_hash": "ddabe9ab37291dba11dc5005ede385a5",
+    "mtime": 1795280572.1632414,
+    "seen": 1795280587.228651,
+    "ast_hash": "4a0c7ff9ddffba18d868df874330d360",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1795220032.1979382,
-    "seen": 1795220209.567371,
-    "ast_hash": "71c263c98b7a406166ef736d555cdb20",
+    "mtime": 1795280583.66798,
+    "seen": 1795280587.228659,
+    "ast_hash": "42bf8f940d9ed16804e3fdeb45aaa315",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -7323,12 +7323,6 @@
     "mtime": 1795220696.6317668,
     "seen": 1795220751.662987,
     "ast_hash": "d9164e338b05976090ec1e0418b94d95",
-    "semantic_hash": ""
-  },
-  "Tests/Unit/ShortcutCheatSheetTests.swift": {
-    "mtime": 1794871759.6212378,
-    "seen": 1794872112.139313,
-    "ast_hash": "5f2b284b4eeadc055a59a25b38a36f93",
     "semantic_hash": ""
   },
   "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.1.md": {
