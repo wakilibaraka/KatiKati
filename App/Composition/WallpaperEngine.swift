@@ -160,6 +160,9 @@ final class WallpaperEngine: ObservableObject {
         let scene = TerrainMimicCatalog.resolve(settings.wallpaperTerrainValue,
                                                 latitude: state.latitude, cityName: state.cityName)
         let environment = TerrainMimicCatalog.environment(scene: scene, phase: phase, sky: sky)
+        // DW-9: the sky's own model decides the stars, the moon, the clouds and the meteor; the renderer only draws it.
+        let atmosphere = SkyAtmosphere.plan(phase: phase, sky: sky, date: now, seed: Self.meteorSeed(scene: scene),
+                                            latitude: state.latitude, longitude: state.longitude)
         accentHexes = environment.accent.map { DockAccentColor(r: CGFloat($0.r), g: CGFloat($0.g), b: CGFloat($0.b)).hex }
 
         // A custom folder is the only source that answers with its own files; without one the built-in scenes are
@@ -185,7 +188,7 @@ final class WallpaperEngine: ObservableObject {
             let size = CGSize(width: min(screen.frame.width * scale, 5120),
                               height: min(screen.frame.height * scale, 2880))
             let url = custom[key]?()
-                ?? TerrainWallpaperRenderer.materialize(environment: environment, key: key,
+                ?? TerrainWallpaperRenderer.materialize(environment: environment, atmosphere: atmosphere, key: key,
                                                         size: size, generation: useGeneration)
             guard let url else { continue }
             do {
@@ -238,6 +241,17 @@ final class WallpaperEngine: ObservableObject {
         defaults.removeObject(forKey: Self.savedKey)
     }
 
+    /// A fixed per-scene seed: the meteor is the only seeded part of the plan, and it must not change between two
+    /// renders of the same night (the cache key would churn every refresh).
+    private static func meteorSeed(scene: WallpaperScene) -> UInt64 {
+        switch scene {
+        case .city: return 0x51D3
+        case .countryside: return 0x2A11
+        case .alpine: return 0x7E57
+        case .coast: return 0x0CE4
+        }
+    }
+
     private static func screenKey(_ screen: NSScreen) -> String {
         (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.stringValue ?? screen.localizedName
     }
@@ -273,13 +287,14 @@ enum TerrainWallpaperRenderer {
 
     /// The URL for the picture, rendering it when missing. `generation > 0` yields a *copy* under a different
     /// name: same pixels, new URL, so a forced re-apply is not silently ignored.
-    static func materialize(environment: WallpaperEnvironment, key: String, size: CGSize, generation: Int) -> URL? {
+    static func materialize(environment: WallpaperEnvironment, atmosphere: SkyAtmosphere, key: String,
+                            size: CGSize, generation: Int) -> URL? {
         guard let dir = directory() else { return nil }
         let width = Int(size.width.rounded()), height = Int(size.height.rounded())
-        let base = "\(key)-\(width)x\(height)-\(signature(environment))"
+        let base = "\(key)-\(width)x\(height)-\(signature(environment, atmosphere))"
         let source = dir.appendingPathComponent("\(base).png")
         if !FileManager.default.fileExists(atPath: source.path) {
-            guard let image = render(environment: environment, width: width, height: height),
+            guard let image = render(environment: environment, atmosphere: atmosphere, width: width, height: height),
                   let dest = CGImageDestinationCreateWithURL(source as CFURL, UTType.png.identifier as CFString, 1, nil)
             else { return nil }
             CGImageDestinationAddImage(dest, image, nil)
@@ -314,17 +329,31 @@ enum TerrainWallpaperRenderer {
         WallpaperCache.removeLegacyRenders(in: WallpaperCache.legacyDirectory(in: base))
     }
 
-    /// A short, stable digest of the colours that make the picture, so a palette change is a new file.
-    private static func signature(_ environment: WallpaperEnvironment) -> String {
+    /// DW-9: bump when the drawing code changes, so an old picture is never reused for a new renderer.
+    static let rendererVersion = 2
+
+    /// A short, stable digest of everything that makes the picture — the colours, the atmosphere's numbers and the
+    /// renderer version — so a palette, weather or code change is a new file instead of macOS re-showing the old one.
+    static func signature(_ environment: WallpaperEnvironment, _ atmosphere: SkyAtmosphere,
+                          version: Int = rendererVersion) -> String {
         func part(_ c: SkyRGB) -> String { "\(Int((c.r * 255).rounded()))-\(Int((c.g * 255).rounded()))-\(Int((c.b * 255).rounded()))" }
-        var value: UInt32 = 2_166_136_261
-        for c in [environment.skyTop, environment.skyBottom, environment.glow] + environment.layers {
-            for scalar in part(c).unicodeScalars { value = (value ^ scalar.value) &* 16_777_619 }
+        func q(_ v: Double) -> String { String(Int((v * 1_000).rounded())) }
+        var parts = ["\(version)", environment.scene.rawValue, String(environment.layers.count), q(environment.glowStrength),
+                     q(atmosphere.starOpacity), String(atmosphere.starCount), q(atmosphere.twinkleDepth),
+                     atmosphere.meteor.rawValue, q(atmosphere.horizonGlow), q(atmosphere.moon.visibility),
+                     q(atmosphere.moon.halo), q(atmosphere.moon.haze), q(atmosphere.moon.illumination),
+                     atmosphere.moon.waxing ? "w" : "n", q(atmosphere.moon.altitude), q(atmosphere.moon.azimuth)]
+        parts += [environment.skyTop, environment.skyBottom, environment.glow].map(part) + environment.layers.map(part)
+        for band in atmosphere.clouds {
+            parts += [band.family.rawValue, q(band.coverage), q(band.opacity), q(band.thickness), q(band.drift), q(band.speed)]
         }
-        return String(value, radix: 16)
+        var value: UInt32 = 2_166_136_261
+        for character in parts.joined(separator: "|").unicodeScalars { value = (value ^ character.value) &* 16_777_619 }
+        return "\(version)" + String(value, radix: 16)
     }
 
-    static func render(environment: WallpaperEnvironment, width: Int, height: Int) -> CGImage? {
+    static func render(environment: WallpaperEnvironment, atmosphere: SkyAtmosphere,
+                       width: Int, height: Int) -> CGImage? {
         let space = CGColorSpaceCreateDeviceRGB()
         guard width > 0, height > 0,
               let ctx = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
@@ -337,10 +366,13 @@ enum TerrainWallpaperRenderer {
                                 locations: [0, 1]) {
             ctx.drawLinearGradient(sky, start: CGPoint(x: 0, y: h), end: .zero, options: [])
         }
-        // Stars before the land, so a night sky keeps them and a ridge can cover them.
-        if environment.glowStrength > 0, environment.skyTop.r + environment.skyTop.g + environment.skyTop.b < 0.5 {
-            drawStars(ctx, width: w, height: h, color: color(environment.glow, 0.6))
-        }
+        // Stars before the land, so a night sky keeps them and a ridge can cover them. The atmosphere decides how
+        // many and how bright; twinkle is baked into each star's static alpha, so a still frame never shimmers.
+        drawStars(ctx, atmosphere: atmosphere, width: w, height: h, color: color(environment.glow))
+        drawMeteor(ctx, meteor: atmosphere.meteor, width: w, height: h)
+        // The moon sits in the glow band, before the land: its azimuth places it across the sky, its altitude
+        // lifts it, and its phase decides which side stays dark.
+        drawMoon(ctx, moon: atmosphere.moon, width: w, height: h, color: color(environment.glow))
         // Sun / moon glow above the horizon.
         if environment.glowStrength > 0,
            let glow = CGGradient(colorsSpace: space,
@@ -357,17 +389,80 @@ enum TerrainWallpaperRenderer {
         return ctx.makeImage()
     }
 
-    private static func drawStars(_ ctx: CGContext, width: CGFloat, height: CGFloat, color: CGColor) {
-        ctx.setFillColor(color)
-        var seed: UInt64 = 0x5EED_1234
-        for _ in 0..<90 {
-            seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
-            let x = CGFloat((seed >> 33) % 1_000) / 1_000 * width
-            seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
-            let y = height * (0.55 + CGFloat((seed >> 33) % 450) / 1_000)
-            seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
-            let r = 0.6 + CGFloat((seed >> 40) % 14) / 10
+    /// DW-9 commit A: `starCount` stars at deterministic positions (index-seeded, not per-frame), each one's alpha
+    /// `starOpacity` faded by its own share of `twinkleDepth` — static in the file, so no shimmer on a still frame.
+    private static func drawStars(_ ctx: CGContext, atmosphere: SkyAtmosphere, width: CGFloat, height: CGFloat, color: CGColor) {
+        guard atmosphere.starOpacity > 0, atmosphere.starCount > 0 else { return }
+        let rgb = color.components ?? [1, 1, 1, 1]
+        for index in 0..<atmosphere.starCount {
+            var seed = UInt64(index) &* 0x9E37_79B9_7F4A_7C15 &+ 0x5EED_1234
+            func next() -> UInt64 {
+                seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+                return seed
+            }
+            let x = CGFloat((next() >> 33) % 1_000) / 1_000 * width
+            let y = height * (0.50 + CGFloat((next() >> 33) % 480) / 1_000)
+            let r = 0.6 + CGFloat((next() >> 40) % 15) / 10
+            let share = Double((next() >> 20) % 1_000) / 1_000
+            let alpha = atmosphere.starOpacity * (1 - atmosphere.twinkleDepth * (0.35 + 0.65 * share))
+            ctx.setFillColor(CGColor(red: rgb[0], green: rgb[1], blue: rgb[2], alpha: CGFloat(max(alpha, 0))))
             ctx.fillEllipse(in: CGRect(x: x, y: y, width: r, height: r))
+        }
+    }
+
+    /// One seeded streak for the night, never by day (`SkyAtmosphere` already returns `.none` then).
+    private static func drawMeteor(_ ctx: CGContext, meteor: Meteor, width: CGFloat, height: CGFloat) {
+        guard meteor != .none else { return }
+        let bright = meteor == .bright
+        let head = CGPoint(x: width * 0.27, y: height * 0.79)
+        let tail = CGPoint(x: width * 0.19, y: height * 0.87)
+        ctx.saveGState()
+        ctx.setLineCap(.round)
+        ctx.setStrokeColor(CGColor(red: 1, green: 1, blue: 1, alpha: bright ? 0.85 : 0.45))
+        ctx.setLineWidth(bright ? 2.4 : 1.2)
+        ctx.move(to: tail); ctx.addLine(to: head)
+        ctx.strokePath()
+        ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: bright ? 0.95 : 0.55))
+        ctx.fillEllipse(in: CGRect(x: head.x - 1.5, y: head.y - 1.5, width: 3, height: 3))
+        ctx.restoreGState()
+    }
+
+    /// Two-circle phase: a faint full disc, the lit limb, then a lit core once the moon is more than half full.
+    /// Halo and haze come straight from the plan, and the moon is skipped when it is below the horizon.
+    private static func drawMoon(_ ctx: CGContext, moon: MoonAppearance, width: CGFloat, height: CGFloat, color: CGColor) {
+        guard moon.visibility > 0.01 else { return }
+        let radius = min(width, height) * 0.022
+        let center = CGPoint(x: width * CGFloat(moon.azimuth / 360),
+                             y: height * (0.62 + 0.26 * CGFloat(max(min(moon.altitude, 90), -10) / 90)))
+        let disc = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        let rgb = color.components ?? [1, 1, 1, 1]
+        func fill(_ alpha: Double) -> CGColor { CGColor(red: rgb[0], green: rgb[1], blue: rgb[2], alpha: CGFloat(alpha)) }
+
+        if moon.halo > 0.01, let halo = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                                  colors: [fill(moon.halo * 0.28), fill(0)] as CFArray, locations: [0, 1]) {
+            ctx.drawRadialGradient(halo, startCenter: center, startRadius: radius, endCenter: center,
+                                   endRadius: radius * (2.4 + moon.haze * 1.6), options: [])
+        }
+        ctx.setFillColor(fill(moon.visibility * 0.18))
+        ctx.fillEllipse(in: disc)
+        ctx.saveGState()
+        ctx.addEllipse(in: disc)
+        ctx.clip()
+        let waxing = moon.waxing
+        let litHalf = CGRect(x: waxing ? center.x : center.x - radius, y: center.y - radius,
+                             width: radius, height: radius * 2)
+        ctx.clip(to: litHalf)
+        ctx.setFillColor(fill(moon.visibility))
+        ctx.fill(disc)
+        ctx.restoreGState()
+        if moon.illumination > 0.5 {
+            let core = radius * 2 * CGFloat(2 * moon.illumination - 1)
+            ctx.saveGState()
+            ctx.addEllipse(in: disc)
+            ctx.clip()
+            ctx.setFillColor(fill(moon.visibility))
+            ctx.fillEllipse(in: CGRect(x: center.x - core / 2, y: center.y - radius, width: core, height: radius * 2))
+            ctx.restoreGState()
         }
     }
 
