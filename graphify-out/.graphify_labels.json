@@ -8,7 +8,6 @@
   "50": "PanelVisibilityState",
   "65": "LiveSurfaceRouting",
   "95": "ScanAdmissionDecisionTests",
-  "100": "check_localization",
   "114": "DragConversionPlanTests",
   "156": "WindowInventoryAnomalyLogTests",
   "161": "StatusTrioView",
