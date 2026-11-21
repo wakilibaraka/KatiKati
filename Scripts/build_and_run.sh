@@ -67,6 +67,12 @@ open_app() {
   /usr/bin/open "$APP_BUNDLE"
 }
 
+# Portable file mtime. `stat -f` is BSD-only and `stat -c` GNU-only, while `date -r <file>` reads the
+# reference file's timestamp on both (the same portability trick graphify_autocommit.sh uses).
+file_time() {
+  date -r "$1" '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo unknown
+}
+
 wait_for_app() {
   local attempt
   for attempt in $(seq 1 20); do
@@ -143,6 +149,9 @@ case "$MODE" in
     #   Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/WallpaperMoodTests
     pkill -x "$APP_NAME" >/dev/null 2>&1 || true
     test_log="${KATIKATI_TEST_LOG:-/tmp/katikati-test.log}"
+    # Read the build time *before* xcodebuild relinks the product: afterwards every timestamp on disk belongs
+    # to the untested build, and the stale process's own executable image is no longer readable.
+    pre_run_build="$(file_time "$APP_EXECUTABLE")"
     test_status=0
     xcodebuild -project "$PROJECT_PATH" -scheme "$APP_NAME" -destination 'platform=macOS' \
       -skipPackagePluginValidation -derivedDataPath "$DERIVED_DATA_DIR" CODE_SIGNING_ALLOWED=NO \
@@ -167,6 +176,26 @@ case "$MODE" in
     if [[ "$test_status" -eq 0 ]]; then
       open_app
       if wait_for_app; then echo "signing: relaunched the app on the re-signed build"; fi
+    else
+      # A red run re-signs the product but never launches it, so anything on screen is the build from before
+      # this run — exactly the thing a live pass would measure believing it is the new code. Name it (pid,
+      # start time, executable path and its build time, next to the on-disk build time it differs from), then
+      # quit it, so the trap cannot be read past.
+      if stale_pid="$(pgrep -x "$APP_NAME" | head -1)"; then
+        stale_exe="$(ps -o comm= -p "$stale_pid" | sed 's/^ *//')"
+        stale_started="$(ps -o lstart= -p "$stale_pid" | sed 's/^ *//; s/ *$//')"
+        echo "live: ⚠️  $APP_NAME (pid $stale_pid) is still on screen: started $stale_started, running $stale_exe" >&2
+        echo "live: its build was $pre_run_build (the executable's time before the tests); this red run rebuilt it at $(file_time "$APP_EXECUTABLE") and never launched that build" >&2
+        pkill -x "$APP_NAME" >/dev/null 2>&1 || true
+        wait_for_exit
+        if pgrep -x "$APP_NAME" >/dev/null 2>&1; then
+          echo "live: ❌ $APP_NAME is still running after the quit — do not live-check it, it is the pre-run build" >&2
+        else
+          echo "live: quit the stale instance — nothing is left on screen to mistake for the failed build" >&2
+        fi
+      else
+        echo "live: no $APP_NAME is running — a failed run never launches the re-signed build, so there is nothing stale on screen" >&2
+      fi
     fi
     exit "$test_status"
     ;;
