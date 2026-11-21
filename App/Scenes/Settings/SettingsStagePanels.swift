@@ -700,7 +700,7 @@ struct MissionControlSurface: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             if let groupStyle = framing.groupBorder() {
-                ForEach(MissionControlGrouping.groups(for: frames, padding: presentation.groupPadding), id: \.appName) { group in
+                ForEach(MissionControlGrouping.groups(for: frames, padding: presentation.groupPadding)) { group in
                     RoundedRectangle(cornerRadius: presentation.cornerRadius + 6, style: .continuous)
                         .stroke(
                             colouring.borderColor(
@@ -742,49 +742,44 @@ struct MissionControlSurface: View {
         return ZStack(alignment: .topLeading) {
             shape.fill(colour.color.opacity(tint))
             border(style, colour: colour, shape: shape)
-            VStack(alignment: .leading, spacing: 4) {
-                if presentation.badgePlacement == .bottom || presentation.badgePlacement == .trailing {
-                    Spacer(minLength: 0)
-                }
-                if let badge = naming.badgeTitle(app: frame.appName, title: frame.title) {
-                    HStack(spacing: 5) {
-                        if naming.showsAppIcon {
-                            Image(systemName: "app.fill")
-                                .font(.system(size: 9, weight: .semibold))
-                        }
-                        Text(verbatim: badge)
-                            .font(.system(size: 9.5, weight: .semibold))
-                            .lineLimit(1)
+            if let badge = naming.badgeTitle(app: frame.appName, title: frame.title) {
+                HStack(spacing: 5) {
+                    if naming.showsAppIcon {
+                        Image(systemName: "app.fill")
+                            .font(.system(size: 9, weight: .semibold))
                     }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3.5)
-                    .background(Capsule().fill(.black.opacity(presentation.badgeOpacity)))
-                    .overlay(Capsule().stroke(.white.opacity(0.28), lineWidth: 0.75))
+                    Text(verbatim: badge)
+                        .font(.system(size: 9.5, weight: .semibold))
+                        .lineLimit(1)
                 }
-                if presentation.badgePlacement == .top || presentation.badgePlacement == .leading {
-                    Spacer(minLength: 0)
-                }
-                if hovered, showsButtons, let onAction {
-                    HStack(spacing: 5) {
-                        ForEach(configuration.actions.buttons.shownActions, id: \.self) { action in
-                            Button { onAction(action) } label: {
-                                Image(systemName: Self.symbol(for: action))
-                                    .font(.system(size: 9.5, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .frame(width: 22, height: 22)
-                                    .background(Circle().fill(.black.opacity(0.66)))
-                                    .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.75))
-                            }
-                            .buttonStyle(.plain)
-                            .help(Text(verbatim: action.rawValue.capitalized))
-                        }
-                    }
-                    .padding(6)
-                    .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.black.opacity(0.35)))
-                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 3.5)
+                .background(Capsule().fill(.black.opacity(presentation.badgeOpacity)))
+                .overlay(Capsule().stroke(.white.opacity(0.28), lineWidth: 0.75))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.badgePlacement))
+                .padding(8)
             }
-            .padding(8)
+            if hovered, showsButtons, let onAction {
+                HStack(spacing: 5) {
+                    ForEach(configuration.actions.buttons.shownActions, id: \.self) { action in
+                        Button { onAction(action) } label: {
+                            Image(systemName: Self.symbol(for: action))
+                                .font(.system(size: 9.5, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 22, height: 22)
+                                .background(Circle().fill(.black.opacity(0.66)))
+                                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.75))
+                        }
+                        .buttonStyle(.plain)
+                        .help(Text(verbatim: action.rawValue.capitalized))
+                    }
+                }
+                .padding(6)
+                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.black.opacity(0.35)))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .padding(8)
+            }
         }
         .frame(width: max(1, frame.frame.width), height: max(1, frame.frame.height))
         .opacity(opacity)
@@ -811,7 +806,6 @@ struct MissionControlSurface: View {
 
     private func spacePill(_ title: String) -> some View {
         let accent = (spaceAccent ?? presentation.accentFallback).color
-        let bottom = presentation.spaceTitlePlacement == .bottom
         return HStack(spacing: 6) {
             Circle().fill(accent).frame(width: 7, height: 7)
             Text(verbatim: title)
@@ -822,8 +816,8 @@ struct MissionControlSurface: View {
         .padding(.vertical, 5)
         .background(Capsule().fill(.black.opacity(0.55)))
         .overlay(Capsule().stroke(accent.opacity(0.85), lineWidth: 1))
-        .frame(maxWidth: .infinity, alignment: bottom ? .bottom : .top)
-        .padding(bottom ? .bottom : .top, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.spaceTitlePlacement))
+        .padding(10)
         .allowsHitTesting(false)
     }
 
@@ -843,9 +837,18 @@ struct MissionControlSurface: View {
         .padding(.vertical, 4)
         .background(Capsule().fill(.black.opacity(0.6)))
         .overlay(Capsule().stroke(.white.opacity(0.25), lineWidth: 0.75))
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: presentation.spaceTitlePlacement == .bottom ? .top : .bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.spaceTitlePlacement.opposite))
         .padding(12)
         .allowsHitTesting(false)
+    }
+
+    static func alignment(for placement: MissionControlPlacement) -> Alignment {
+        switch placement {
+        case .top: return .top
+        case .bottom: return .bottom
+        case .leading: return .leading
+        case .trailing: return .trailing
+        }
     }
 
     static func symbol(for action: MissionControlWindowAction) -> String {
@@ -861,6 +864,19 @@ struct MissionControlSurface: View {
 
 private extension MissionControlColor {
     var color: Color { Color(.sRGB, red: red, green: green, blue: blue, opacity: alpha) }
+}
+
+extension MissionControlPlacement {
+    /// Corner/edge directly across the surface, used so the filter readout never sits under the
+    /// Space pill.
+    var opposite: MissionControlPlacement {
+        switch self {
+        case .top: return .bottom
+        case .bottom: return .top
+        case .leading: return .trailing
+        case .trailing: return .leading
+        }
+    }
 }
 
 /// MC-3: the stage's Mission Control preview. It draws the same `MissionControlSurface` the live

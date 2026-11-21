@@ -391,6 +391,7 @@ final class MissionControlPresentationTests: XCTestCase {
         let groups = MissionControlGrouping.groups(for: windows, padding: 8)
         XCTAssertEqual(groups.count, 1)
         XCTAssertEqual(groups[0].appName, "Safari")
+        XCTAssertEqual(groups[0].id, "com.apple.Safari")
         XCTAssertEqual(groups[0].windowIDs, [1, 2])
         XCTAssertEqual(groups[0].frame, CGRect(x: -8, y: -8, width: 316, height: 166))
         XCTAssertTrue(MissionControlGrouping.groups(for: windows, padding: 0).count == 1)
@@ -404,6 +405,7 @@ final class MissionControlPresentationTests: XCTestCase {
         )
         XCTAssertEqual(groups.count, 1)
         XCTAssertEqual(groups[0].windowIDs, [1, 2])
+        XCTAssertEqual(groups[0].id, "name:notes")
     }
 
     func testConfigurationRoundTripsPresentationAndDecodesOldFourBlobJSON() throws {

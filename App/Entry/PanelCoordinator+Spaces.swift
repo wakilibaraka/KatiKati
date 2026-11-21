@@ -110,6 +110,9 @@ final class MissionControlSession {
     private var frames: [MissionControlWindowFrame] = []
     private var hoveredID: MissionControlWindowFrame.ID?
     private var focusedID: MissionControlWindowFrame.ID?
+    /// Set when the overlay is dismissed on purpose (Return raised a window), so the Dock-closing
+    /// animation cannot immediately re-open it from an AX notification.
+    private var suspendedUntil: Date?
     private var configuration = MissionControlConfiguration()
     private var query = ""
     private var isActive = false
@@ -186,6 +189,7 @@ final class MissionControlSession {
         focusedID = nil
         query = ""
         isActive = false
+        suspendedUntil = Date().addingTimeInterval(0.6)
     }
 
     private static let observerCallback: AXObserverCallback = { _, _, _, refcon in
@@ -197,19 +201,25 @@ final class MissionControlSession {
     }
 
     private func refresh() {
+        if let suspendedUntil, Date() < suspendedUntil { return }
         guard isEnabled, MissionControlSettings.isEnabled() else {
             stop()
             return
         }
         let probe = MissionControlDockProbe.probe()
         guard probe.isActive, !probe.frames.isEmpty else {
-            if isActive { hidePanels(); frames = []; hoveredID = nil; isActive = false }
+            if isActive { dismiss() }
             return
         }
+        let wasActive = isActive
         configuration = MissionControlSettings.load()
         frames = probe.frames
-        query = ""
-        focusedID = probe.frames.first?.id
+        // A refresh comes from any AX or Space notification, including title changes while the user
+        // is typing a filter; keep the query and target so the overview does not reset under them.
+        if !wasActive { query = "" }
+        if focusedID == nil || !probe.frames.contains(where: { $0.id == focusedID }) {
+            focusedID = probe.frames.first?.id
+        }
         isActive = true
         showPanels()
         updateHover(at: Self.pointerLocation())
@@ -305,8 +315,9 @@ final class MissionControlSession {
                 updateRender()
                 return
             }
-            if event.keyCode == 36, let frame = frames.first(where: { $0.id == focusedID }) {
+            if event.keyCode == 36, let frame = Self.target(focusedID: focusedID, hoveredID: hoveredID, frames: frames) {
                 _ = WindowActionExecutor.raise(frame)
+                dismiss()
                 return
             }
         }
@@ -327,7 +338,34 @@ final class MissionControlSession {
         } else {
             return
         }
+        focusedID = Self.firstVisible(in: frames, query: query)?.id
         updateRender()
+    }
+
+    /// Hides the overlay without tearing down monitors: the session stays subscribed, and the next
+    /// Dock activation reuses it. Used when Return raises a window (the overview is done at that
+    /// point) and when the Dock leaves overview mode.
+    private func dismiss() {
+        hidePanels()
+        frames = []
+        hoveredID = nil
+        focusedID = nil
+        query = ""
+        isActive = false
+    }
+
+    private static func firstVisible(in frames: [MissionControlWindowFrame], query: String) -> MissionControlWindowFrame? {
+        frames.first { MissionControlFilter.matches(query: query, title: $0.title, app: $0.appName) }
+    }
+
+    /// The window a keyboard action applies to: the explicit target first, the hovered window as a
+    /// fallback for pointer-first use.
+    private static func target(
+        focusedID: MissionControlWindowFrame.ID?,
+        hoveredID: MissionControlWindowFrame.ID?,
+        frames: [MissionControlWindowFrame]
+    ) -> MissionControlWindowFrame? {
+        frames.first { $0.id == focusedID } ?? frames.first { $0.id == hoveredID }
     }
 
     /// Rebuilds the render panel's root view from the current frames, configuration and live session
@@ -377,7 +415,7 @@ final class MissionControlSession {
     }
 
     private func perform(_ action: MissionControlWindowAction) {
-        guard let frame = frames.first(where: { $0.id == hoveredID }) else { return }
+        guard let frame = Self.target(focusedID: focusedID, hoveredID: hoveredID, frames: frames) else { return }
         _ = WindowActionExecutor.perform(action, on: frame)
         refresh()
     }

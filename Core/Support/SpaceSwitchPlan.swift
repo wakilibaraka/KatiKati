@@ -528,11 +528,15 @@ struct MissionControlPresentation: Codable, Equatable, Sendable {
 
 /// The bounding box of the windows that belong to one app, so a group frame can be drawn around
 /// them. Only apps with at least two visible windows produce a group.
-struct MissionControlGroup: Equatable, Sendable {
+struct MissionControlGroup: Identifiable, Equatable, Sendable {
     let bundleID: String?
     let appName: String
     let frame: CGRect
     let windowIDs: [MissionControlWindowFrame.ID]
+
+    /// Bundle ID when there is one, so two apps that share a display name never collide in a
+    /// `ForEach`; the name is only the fallback for bundle-less windows.
+    var id: String { bundleID ?? "name:\(appName.lowercased())" }
 }
 
 enum MissionControlGrouping {
