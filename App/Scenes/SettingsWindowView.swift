@@ -62,6 +62,9 @@ struct SettingsWindowView: View {
             .ignoresSafeArea(edges: .top)
         }
         .environment(\.dockThemeStyle, store.themeMaterial)
+        // DW-6: slider tracks and previews inside Settings fill from the same resolved accent stops as the bar.
+        .environment(\.dockAccent, DockAccentEnvironment.resolve(spec: store.dockAccent,
+                                                                 wallpaperAccent: WallpaperEngine.shared.accentHexes))
         .environment(\.importDockPins, onImportDockPins)
         .frame(minWidth: SettingsMetrics.minWindowWidth, minHeight: SettingsMetrics.minWindowHeight)
     }

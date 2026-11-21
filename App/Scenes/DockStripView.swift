@@ -596,6 +596,10 @@ struct DockStripView: View {
         // the environment. Injected here — not at the NSHostingView — because this body re-runs on
         // every `themeMaterial` change, so a theme switch repaints the whole strip immediately.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+        // DW-6: the strip's own surfaces (pills, running dots) fill from the resolved accent stops. Rebuilt whenever
+        // the store publishes a new spec or the wallpaper engine repaints with a new sampled palette.
+        .environment(\.dockAccent, DockAccentEnvironment.resolve(spec: settingsStore.dockAccent,
+                                                                 wallpaperAccent: WallpaperEngine.shared.accentHexes))
         .environment(\.themeTuning, settingsStore.themeTuning)
         .environment(\.iconSet, settingsStore.iconSet)
         .environment(\.runningDotEdge, RunningDotEdge(placement: stripPlacement))

@@ -88,6 +88,8 @@ struct LauncherChip: View {
     @Environment(\.isDragCarrierSnapshot) private var isDragCarrierSnapshot
     /// Phase 18c: on a side rail the dot hugs the inner edge (live check: it sat under the icon).
     @Environment(\.runningDotEdge) private var runningDotEdge
+    /// DW-6: the resolved accent stops the running indicator fills from (empty = keep the token look).
+    @Environment(\.dockAccent) private var dockAccent
 
     /// `.selfTracked` 时才用得上（抽屉）。任务条走 `.resolved(…)`，这份状态原地不动。
     @State private var selfHovering = false
@@ -243,7 +245,7 @@ struct LauncherChip: View {
             switch runningIndicatorStyle {
             case .macDot:
                 Circle()
-                    .fill(theme.runningDot.color)
+                    .fill(dockAccent.isActive ? AnyShapeStyle(dockAccent.primary) : AnyShapeStyle(theme.runningDot.color))
                     .frame(width: diameter, height: diameter)
                     .padding(edge.paddingEdge, 2)
             case .windowsPill, .latteBrandLine:
@@ -259,7 +261,7 @@ struct LauncherChip: View {
                             .shadow(color: DockDominantColor.color(for: bundleID).opacity(0.7), radius: 4)
                     } else {
                         ForEach(0..<state.pipCount, id: \.self) { _ in
-                            Capsule().fill(theme.runningDot.color)
+                            Capsule().fill(dockAccent.isActive ? AnyShapeStyle(dockAccent.primary) : AnyShapeStyle(theme.runningDot.color))
                                 .frame(width: max(2, state.width / CGFloat(state.pipCount)), height: 3)
                         }
                     }

@@ -335,6 +335,57 @@ final class DockHoverPreviewPresetTests: XCTestCase {
     }
 }
 
+// DW-6: the stop→fill mapping the pills, running dots and sliders are drawn from, still without a view.
+final class DockAccentFillTests: XCTestCase {
+    func testDisabledAccentLeavesEverySurfaceOnItsSignedOffLook() {
+        let fill = DockAccentFill.stops(spec: .wallpaperSampled, wallpaperAccent: ["#FF0000", "#00FF00"], enabled: false)
+        XCTAssertFalse(fill.isActive)
+        XCTAssertNil(fill.primary)
+    }
+
+    func testASolidAccentIsOneColourAndNotAGradient() {
+        let spec = DockAccentSpec(style: .solid, hexStops: ["#3366FF"])
+        let fill = DockAccentFill.stops(spec: spec, wallpaperAccent: [], enabled: true)
+        XCTAssertEqual(fill.colors.map(\.hex), ["#3366FF"])
+        XCTAssertFalse(fill.isGradient, "a single stop must keep the flat pill the signed-off look uses")
+        XCTAssertEqual(fill.primary?.hex, "#3366FF")
+    }
+
+    func testAMultiStopGradientKeepsItsOrderAndAngle() {
+        let spec = DockAccentSpec(style: .linearGradient, hexStops: ["#FF0000", "#00FF00", "#0000FF"], angleDegrees: 45)
+        let fill = DockAccentFill.stops(spec: spec, wallpaperAccent: ["#FFFFFF"], enabled: true)
+        XCTAssertEqual(fill.colors.map(\.hex), ["#FF0000", "#00FF00", "#0000FF"])
+        XCTAssertTrue(fill.isGradient)
+        XCTAssertEqual(fill.angleDegrees, 45)
+    }
+
+    func testWallpaperAdaptiveSamplesThreeStopsAndIsAGradient() {
+        let fill = DockAccentFill.stops(spec: .wallpaperSampled,
+                                        wallpaperAccent: ["#123456", "#ABCDEF", "#00FF00"], enabled: true)
+        XCTAssertEqual(fill.colors.map(\.hex), ["#123456", "#ABCDEF", "#00FF00"])
+        XCTAssertTrue(fill.isGradient)
+        XCTAssertEqual(fill.angleDegrees, 90, "the default accent runs top to bottom")
+    }
+
+    func testAGradientThatLostItsStopsFallsBackToASingleWallpaperHue() {
+        let fill = DockAccentFill.stops(spec: DockAccentSpec(style: .mesh, hexStops: ["#FF0000"]),
+                                        wallpaperAccent: [], enabled: true)
+        XCTAssertEqual(fill.colors.count, 1, "one stop cannot be drawn as a gradient")
+        XCTAssertFalse(fill.isGradient)
+    }
+
+    func testAngleBecomesTheSameUnitPointsTheViewsUse() {
+        let horizontal = DockAccentFill.unitPoints(angleDegrees: 0)
+        XCTAssertEqual(horizontal.start.x, 0, accuracy: 0.0001)
+        XCTAssertEqual(horizontal.start.y, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(horizontal.end.x, 1, accuracy: 0.0001)
+        let vertical = DockAccentFill.unitPoints(angleDegrees: 90)
+        XCTAssertEqual(vertical.start.y, 0, accuracy: 0.0001)
+        XCTAssertEqual(vertical.end.y, 1, accuracy: 0.0001)
+        XCTAssertEqual(vertical.end.x, 0.5, accuracy: 0.0001)
+    }
+}
+
 // DW-1: the multicolour / gradient accent model — parsing, repair and wallpaper sampling, no views.
 final class DockAccentSpecTests: XCTestCase {
     func testHexParsingAcceptsTheThreeDocumentedFormsAndRejectsTypedGarbage() {

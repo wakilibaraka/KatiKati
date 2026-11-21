@@ -138,6 +138,37 @@ struct DockAccentSpec: Codable, Equatable, Sendable {
     func encoded() -> Data? { try? JSONEncoder().encode(normalized) }
 }
 
+/// DW-6 — how a spec lands on the dock's own surfaces (selected / active pill, running-app dot, slider fill).
+/// Pure on purpose: the mapping "which stops, gradient or not, which direction" is tested without a window, and the
+/// views only turn the result into a `LinearGradient` or a single `Color`.
+enum DockAccentFill {
+    struct Stops: Equatable, Sendable {
+        var colors: [DockAccentColor]
+        var isGradient: Bool
+        var angleDegrees: Double
+
+        /// No accent configured: the caller keeps the signed-off token look untouched.
+        var isActive: Bool { !colors.isEmpty }
+        var primary: DockAccentColor? { colors.first }
+    }
+
+    /// Resolve the stops for a surface. `enabled` is the feature gate (the dock keeps its own look while the feature
+    /// is off); a spec that resolves to nothing falls back to the sampled wallpaper, then to the neutral highlight.
+    static func stops(spec: DockAccentSpec, wallpaperAccent: [String], enabled: Bool) -> Stops {
+        guard enabled else { return Stops(colors: [], isGradient: false, angleDegrees: spec.angleDegrees) }
+        let resolved = spec.resolved(wallpaperAccent: wallpaperAccent)
+        let gradient = spec.style != .solid && resolved.count > 1
+        return Stops(colors: resolved, isGradient: gradient, angleDegrees: spec.angleDegrees)
+    }
+
+    /// 0° runs left→right, 90° top→bottom — the same convention the stage preview and the accent slider show.
+    static func unitPoints(angleDegrees: Double) -> (start: (x: Double, y: Double), end: (x: Double, y: Double)) {
+        let radians = angleDegrees * .pi / 180
+        let dx = cos(radians) / 2, dy = sin(radians) / 2
+        return ((0.5 - dx, 0.5 - dy), (0.5 + dx, 0.5 + dy))
+    }
+}
+
 struct DockThemeStyleTokens: Equatable {
     let baseTint: DockRGBA
     let gradientSheen: DockRGBA

@@ -51,6 +51,48 @@ enum WallpaperSelector {
     }
 }
 
+// MARK: - DW-6 · the weather mood (Auto vs a locked atmosphere)
+
+/// What the picture's sky follows. `auto` uses the forecast the app already has; every other case pins both a sky
+/// and a time of day, so a chosen atmosphere survives the next weather update until the user picks Auto again.
+enum WallpaperMood: String, CaseIterable, Codable, Sendable {
+    case auto
+    case rainyEvening
+    case goldenEvening
+    case snowyDay
+    case stormNight
+    case clearNight
+
+    /// The sky this mood paints, or nil for `auto` (follow the forecast).
+    var lockedSky: WallpaperSky? {
+        switch self {
+        case .auto: return nil
+        case .rainyEvening: return .rain
+        case .goldenEvening: return .clear
+        case .snowyDay: return .snow
+        case .stormNight: return .storm
+        case .clearNight: return .clear
+        }
+    }
+
+    /// The time of day this mood paints, or nil for `auto` (follow the clock).
+    var lockedSolarPhase: SolarPhase? {
+        switch self {
+        case .auto: return nil
+        case .rainyEvening, .goldenEvening: return .golden
+        case .snowyDay: return .day
+        case .stormNight, .clearNight: return .night
+        }
+    }
+
+    /// Resolve the picture's sky and phase. `auto` passes the live weather and clock through untouched; an override
+    /// ignores both, which is the whole point of locking a mood.
+    func resolve(weather: WallpaperSky, phase: SolarPhase) -> (sky: WallpaperSky, phase: SolarPhase) {
+        guard let sky = lockedSky, let locked = lockedSolarPhase else { return (weather, phase) }
+        return (sky, locked)
+    }
+}
+
 // MARK: - DW-1 · environment mimicry (City · Countryside · Terrain)
 
 /// What the user pinned. `auto` lets `TerrainMimicCatalog` pick from the weather location's own name and

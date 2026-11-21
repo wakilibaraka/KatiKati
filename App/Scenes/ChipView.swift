@@ -50,6 +50,9 @@ struct ChipView: View {
     @Environment(\.chipMenuPresenter) private var chipMenuPresenter
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
+    /// DW-6: the resolved accent stops the pill and the running dot fill from (empty = keep the token look).
+    @Environment(\.dockAccent) private var dockAccent
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     let item: StripItem
     /// Phase 9b: when set, right-click opens the floating jump list instead of an `NSMenu`.
@@ -237,7 +240,7 @@ struct ChipView: View {
         .overlay(alignment: runningDotEdge.alignment) {
             if showRunningDot && !isDragCarrierSnapshot {
                 Circle()
-                    .fill(theme.runningDot.color)
+                    .fill(dockAccent.isActive ? AnyShapeStyle(dockAccent.primary) : AnyShapeStyle(theme.runningDot.color))
                     .frame(width: 4, height: 4)
                     .padding(runningDotEdge.paddingEdge, 2)
             }
@@ -322,6 +325,18 @@ struct ChipView: View {
                     .glassEffect(.regular.tint(glass.tint.color).interactive(false), in: shape)
                     .overlay(shape.fill(DockTint(base: glass.hoverLift.base,
                                                  opacity: glass.hoverLift.opacity * Double(progress)).color))
+            } else if dockAccent.isActive {
+                // DW-6: an accent is configured. The fill is the resolved stops (one colour, or a multi-stop gradient
+                // along the accent's angle); the rim and the hover opacity curve stay the signed-off ones, so only the
+                // pill's hue moves and the token look is untouched while no accent is set.
+                shape
+                    .fill(accentPillStyle(progress: Double(progress)))
+                    .overlay(
+                        shape.strokeBorder(
+                            theme.chipPillRimStyle(emphasisProgress: Double(progress)),
+                            lineWidth: 0.5
+                        )
+                    )
             } else {
                 shape
                     .fill(theme.effectiveChipPillFill.color(emphasisProgress: Double(progress)))
@@ -333,7 +348,15 @@ struct ChipView: View {
                     )
             }
         }
-        .animation(.easeInOut(duration: 0.18), value: showsHover)
+        // Reduce Motion drops the cross-fade; the pill still reaches its hover value, it just does not animate there.
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.18), value: showsHover)
+    }
+
+    /// The pill's fill at a hover progress: the token pair's own opacity curve applied to the accent's stops.
+    private func accentPillStyle(progress: Double) -> AnyShapeStyle {
+        let pair = theme.effectiveChipPillFill
+        let opacity = pair.normal.opacity + (pair.emphasized.opacity - pair.normal.opacity) * progress
+        return dockAccent.style(opacity: opacity)
     }
 
     private var multiWindowChip: some View {

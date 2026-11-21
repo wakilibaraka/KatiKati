@@ -44,13 +44,19 @@ final class WallpaperEngine: ObservableObject {
         guard self.settings == nil else { return }
         self.settings = settings
         self.weather = weather
+        // Every switch that changes the picture restarts it: on/off, the mode, the folder, the environment, and the
+        // mood (Auto vs a lock). A mood change must repaint immediately, not wait for the next weather update.
         Publishers.CombineLatest4(settings.$wallpaperEnabled, settings.$wallpaperMode,
                                   settings.$wallpaperFolder, settings.$wallpaperTerrain)
-            .removeDuplicates { $0 == $1 }
+            .combineLatest(settings.$wallpaperMood)
+            .removeDuplicates { lhs, rhs in
+                lhs.0.0 == rhs.0.0 && lhs.0.1 == rhs.0.1 && lhs.0.2 == rhs.0.2
+                    && lhs.0.3 == rhs.0.3 && lhs.1 == rhs.1
+            }
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] enabled, _, _, _ in
+            .sink { [weak self] combined, _ in
                 guard let self else { return }
-                if enabled { self.start() } else { self.stop() }
+                if combined.0 { self.start() } else { self.stop() }
             }
             .store(in: &cancellables)
     }
@@ -141,10 +147,14 @@ final class WallpaperEngine: ObservableObject {
         let state = weather?.currentState ?? .empty
         let times = state.sunTimes(on: now) ?? SunTimes(sunrise: nil, sunset: nil, polar: state.isNight ? .night : .day)
         let forced = WallpaperDebugOverride.parse(DebugSwitch.wallpaperPhase.value())
-        let daylight = SolarDaylightEvaluator.sample(at: forced.map { _ in now } ?? now, times: times)
-        let phase = forced?.phase ?? daylight.phase.solarPhase
-        let sky = forced?.sky ?? WallpaperSky(state.conditionFamily)
+        let daylight = SolarDaylightEvaluator.sample(at: now, times: times)
         let mode = WallpaperMode(rawValue: settings.wallpaperMode) ?? .both
+        // Live Time off means the sky is painted as if the weather did not move; Live Weather off means the clock's
+        // sky is kept. The mood then either follows that pair (Auto) or locks its own, ignoring both.
+        let liveSky = mode == .time ? WallpaperSky.clear : WallpaperSky(state.conditionFamily)
+        let locked = settings.wallpaperMoodValue.resolve(weather: liveSky, phase: daylight.phase.solarPhase)
+        let phase = forced?.phase ?? locked.phase
+        let sky = forced?.sky ?? locked.sky
         armTimer(after: now, times: times)
 
         let scene = TerrainMimicCatalog.resolve(settings.wallpaperTerrainValue,

@@ -22,10 +22,13 @@ struct PhaseSurfaceTint: View {
         let state = weatherService.currentState
         let times = state.sunTimes(on: date) ?? SunTimes(sunrise: nil, sunset: nil, polar: state.isNight ? .night : .day)
         let sample = SolarDaylightEvaluator.sample(at: date, times: times)
-        let sky = WallpaperSky(state.conditionFamily)
+        // A locked weather mood paints the bar with the same atmosphere as the wallpaper, not the live forecast.
+        let mood = WallpaperMood(rawValue: UserDefaults.standard.string(forKey: Self.moodKey) ?? "") ?? .auto
+        let resolved = mood.resolve(weather: WallpaperSky(state.conditionFamily), phase: sample.phase.solarPhase)
+        let sky = resolved.sky
         let terrain = WallpaperTerrain(rawValue: UserDefaults.standard.string(forKey: Self.terrainKey) ?? "") ?? .auto
         let scene = TerrainMimicCatalog.resolve(terrain, latitude: state.latitude, cityName: state.cityName)
-        let environment = TerrainMimicCatalog.environment(scene: scene, phase: sample.phase.solarPhase, sky: sky)
+        let environment = TerrainMimicCatalog.environment(scene: scene, phase: resolved.phase, sky: sky)
         let accent = DockAccentSpec.decode(UserDefaults.standard.data(forKey: DockAccentSpec.defaultsKey))
         let stops = accent.resolved(wallpaperAccent: wallpaper.accentHexes)
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -70,4 +73,5 @@ struct PhaseSurfaceTint: View {
     }
 
     private static let terrainKey = "com.katikati.wallpaper.terrain"
+    private static let moodKey = "com.katikati.wallpaper.mood"
 }

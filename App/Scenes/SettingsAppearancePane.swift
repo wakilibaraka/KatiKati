@@ -294,6 +294,23 @@ struct SettingsWallpaperPane: View {
                 isOn: Binding(get: { mode != .time }, set: { on in setMode(time: mode != .weather, weather: on) })
             )
             SettingsDivider()
+            // DW-6: Auto follows the forecast; a locked mood paints its own sky + time of day until Auto is chosen again.
+            SettingsRow(
+                Text("Weather Mood"),
+                note: store.wallpaperMoodValue == .auto
+                    ? Text("Auto follows the live forecast and the clock.")
+                    : Text("Locked: this atmosphere stays until you choose Auto.")
+            ) {
+                Picker("Weather Mood", selection: Binding(get: { store.wallpaperMoodValue }, set: store.setWallpaperMood)) {
+                    ForEach(WallpaperMood.allCases, id: \.self) { mood in
+                        Text(Self.moodTitle(mood)).tag(mood)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .fixedSize()
+            }
+            SettingsDivider()
             SettingsSegmentedRow(
                 Text("Environment"),
                 selection: Binding(get: { store.wallpaperTerrainValue }, set: store.setWallpaperTerrain)
@@ -417,9 +434,12 @@ struct SettingsWallpaperPane: View {
     /// real clock or the scrubber, run through the same evaluator the engine uses.
     private var previewEnvironment: WallpaperEnvironment {
         let hour = followLiveTime ? liveHour : previewHour
-        let phase = Self.phase(forHour: hour, on: Date()).solarPhase
+        let live = Self.phase(forHour: hour, on: Date()).solarPhase
+        // The stage obeys the same mood resolution the engine does, so a locked atmosphere is what the page shows —
+        // not the clock's sky with a label saying otherwise.
+        let resolved = store.wallpaperMoodValue.resolve(weather: previewSky, phase: live)
         let scene = TerrainMimicCatalog.resolve(store.wallpaperTerrainValue, latitude: nil, cityName: "")
-        return TerrainMimicCatalog.environment(scene: scene, phase: phase, sky: previewSky)
+        return TerrainMimicCatalog.environment(scene: scene, phase: resolved.phase, sky: resolved.sky)
     }
 
     private var accentPreviewColors: [Color] {
@@ -457,6 +477,17 @@ struct SettingsWallpaperPane: View {
         let whole = Int(hour) % 24
         let minutes = Int(((hour - floor(hour)) * 60).rounded())
         return String(format: "%02d:%02d", whole, minutes == 60 ? 0 : minutes)
+    }
+
+    static func moodTitle(_ mood: WallpaperMood) -> String {
+        switch mood {
+        case .auto: return String(localized: "Auto")
+        case .rainyEvening: return String(localized: "Rainy Evening")
+        case .goldenEvening: return String(localized: "Golden Evening")
+        case .snowyDay: return String(localized: "Snowy Day")
+        case .stormNight: return String(localized: "Storm Night")
+        case .clearNight: return String(localized: "Clear Night")
+        }
     }
 
     private func skyTitle(_ sky: WallpaperSky) -> String {

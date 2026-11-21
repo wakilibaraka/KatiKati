@@ -20,6 +20,45 @@ struct DockThemeStyleKey: EnvironmentKey {
     static let defaultValue: DockThemeStyle = .auto
 }
 
+// DW-6 — the accent the dock's *own* surfaces fill from (selected/active pill, running-app dot, slider track).
+// The pure stop→fill mapping lives in `DockAccentFill` (Core, tested); this is only the Color bridge plus the two
+// shorthands the views need. Empty stops means "no accent configured", and every surface keeps the signed-off token
+// look exactly as it was.
+struct DockAccentEnvironment: Equatable {
+    var stops: [Color] = []
+    var isGradient = false
+    var angleDegrees = 90.0
+
+    static let inactive = DockAccentEnvironment()
+
+    var isActive: Bool { !stops.isEmpty }
+    var primary: Color { stops.first ?? .clear }
+
+    /// A single `Color` for a solid accent, or a multi-stop `LinearGradient` running along the accent's angle.
+    func style(opacity: Double) -> AnyShapeStyle {
+        guard isGradient, stops.count > 1 else { return AnyShapeStyle(primary.opacity(opacity)) }
+        let points = DockAccentFill.unitPoints(angleDegrees: angleDegrees)
+        return AnyShapeStyle(LinearGradient(colors: stops.map { $0.opacity(opacity) },
+                                            startPoint: UnitPoint(x: points.start.x, y: points.start.y),
+                                            endPoint: UnitPoint(x: points.end.x, y: points.end.y)))
+    }
+
+    /// Built from the stored spec and the wallpaper's sampled hues; `enabled` is false only while the dock should keep
+    /// its own look (no accent configured at all).
+    static func resolve(spec: DockAccentSpec, wallpaperAccent: [String]) -> DockAccentEnvironment {
+        let fill = DockAccentFill.stops(spec: spec, wallpaperAccent: wallpaperAccent, enabled: true)
+        return DockAccentEnvironment(
+            stops: fill.colors.map { Color(red: $0.red, green: $0.green, blue: $0.blue) },
+            isGradient: fill.isGradient,
+            angleDegrees: fill.angleDegrees
+        )
+    }
+}
+
+struct DockAccentKey: EnvironmentKey {
+    static let defaultValue = DockAccentEnvironment.inactive
+}
+
 struct IconSetKey: EnvironmentKey {
     static let defaultValue: IconSet = .default
 }
@@ -37,6 +76,11 @@ extension EnvironmentValues {
     var dockThemeStyle: DockThemeStyle {
         get { self[DockThemeStyleKey.self] }
         set { self[DockThemeStyleKey.self] = newValue }
+    }
+
+    var dockAccent: DockAccentEnvironment {
+        get { self[DockAccentKey.self] }
+        set { self[DockAccentKey.self] = newValue }
     }
 
     /// The Appearance page's two plate knobs (`ThemeTuning`), injected beside `dockThemeStyle` at

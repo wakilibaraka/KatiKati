@@ -203,6 +203,52 @@ final class DaylightPhaseTests: XCTestCase {
     }
 }
 
+// DW-6: the weather mood — Auto follows the forecast, an override ignores it and survives the next update.
+final class WallpaperMoodTests: XCTestCase {
+    func testAutoPassesTheLiveWeatherAndClockThrough() {
+        for weather in WallpaperSky.allCases {
+            for phase in SolarPhase.allCases {
+                let resolved = WallpaperMood.auto.resolve(weather: weather, phase: phase)
+                XCTAssertEqual(resolved.sky, weather)
+                XCTAssertEqual(resolved.phase, phase)
+            }
+        }
+        XCTAssertNil(WallpaperMood.auto.lockedSky)
+        XCTAssertNil(WallpaperMood.auto.lockedSolarPhase)
+    }
+
+    func testEachOverrideLocksBothItsSkyAndItsPhase() {
+        let expected: [WallpaperMood: (WallpaperSky, SolarPhase)] = [
+            .rainyEvening: (.rain, .golden),
+            .goldenEvening: (.clear, .golden),
+            .snowyDay: (.snow, .day),
+            .stormNight: (.storm, .night),
+            .clearNight: (.clear, .night)
+        ]
+        for (mood, pair) in expected {
+            XCTAssertEqual(mood.lockedSky, pair.0, "\(mood.rawValue) sky")
+            XCTAssertEqual(mood.lockedSolarPhase, pair.1, "\(mood.rawValue) phase")
+            // The override must survive every possible forecast, not just the one that was live when it was picked.
+            for weather in WallpaperSky.allCases {
+                for phase in SolarPhase.allCases {
+                    let resolved = mood.resolve(weather: weather, phase: phase)
+                    XCTAssertEqual(resolved.sky, pair.0)
+                    XCTAssertEqual(resolved.phase, pair.1)
+                }
+            }
+        }
+        XCTAssertEqual(WallpaperMood.allCases.count, expected.count + 1, "only Auto is not an override")
+    }
+
+    func testMoodRawValuesStayStableForPersistence() {
+        // The value is stored in `com.katikati.wallpaper.mood`; a rename would silently reset a user's lock to Auto.
+        XCTAssertEqual(WallpaperMood.allCases.map(\.rawValue),
+                       ["auto", "rainyEvening", "goldenEvening", "snowyDay", "stormNight", "clearNight"])
+        let data = try? JSONEncoder().encode(WallpaperMood.rainyEvening)
+        XCTAssertEqual(data.flatMap { try? JSONDecoder().decode(WallpaperMood.self, from: $0) }, .rainyEvening)
+    }
+}
+
 // DW-1: environment mimicry — which scene a pin resolves to, and what its layers/accents look like.
 final class TerrainMimicCatalogTests: XCTestCase {
     func testPinsResolveToTheirOwnScene() {

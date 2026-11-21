@@ -681,6 +681,7 @@ struct SettingsSegmentedRow<Value: Hashable, Options: View>: View {
 /// A slider row: its label takes the shared column so every track starts on the same x, the track
 /// fills the rest, the value trails. (`valueText` is optional; the default prints points.)
 struct SettingsSliderRow<Value: BinaryFloatingPoint>: View where Value.Stride: BinaryFloatingPoint {
+    @Environment(\.dockAccent) private var dockAccent
     private let label: Text
     private let note: Text?
     private let valueText: String?
@@ -712,12 +713,42 @@ struct SettingsSliderRow<Value: BinaryFloatingPoint>: View where Value.Stride: B
         return value.rounded() == value ? "\(Int(value)) pt" : String(format: "%.1f pt", Double(value))
     }
 
+    /// DW-6: an accent configured for the dock also fills the slider track. The system Slider's tint is cleared so its
+    /// own fill does not sit on top of the gradient; the track underneath is drawn at the same knob insets.
+    private var slider: some View {
+        let binding = Binding(get: { value }, set: set)
+        return Slider(value: binding, in: range, step: step)
+            .accessibilityLabel(label)
+    }
+
+    private var fraction: Double {
+        let span = Double(range.upperBound) - Double(range.lowerBound)
+        guard span > 0 else { return 0 }
+        return min(max((Double(value) - Double(range.lowerBound)) / span, 0), 1)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.rowNoteSpacing) {
             HStack(spacing: SettingsMetrics.controlSpacing) {
                 label.frame(width: SettingsMetrics.labelColumnWidth, alignment: .leading)
-                Slider(value: Binding(get: { value }, set: set), in: range, step: step)
-                    .accessibilityLabel(label)
+                Group {
+                    if dockAccent.isActive {
+                        slider
+                            .tint(.clear)
+                            .background(alignment: .leading) {
+                                GeometryReader { proxy in
+                                    let inset: CGFloat = 8
+                                    Capsule()
+                                        .fill(dockAccent.style(opacity: 1))
+                                        .frame(width: max(0, (proxy.size.width - inset * 2) * fraction + inset),
+                                               height: 4)
+                                        .frame(maxHeight: .infinity, alignment: .center)
+                                }
+                            }
+                    } else {
+                        slider
+                    }
+                }
                 Text(verbatim: resolvedValueText)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)

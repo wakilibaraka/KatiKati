@@ -280,8 +280,11 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var wallpaperReapplyOnSpaceChange: Bool
     @Published private(set) var wallpaperRespectLowPower: Bool
     @Published private(set) var dockAccent: DockAccentSpec
+    /// DW-6: Auto follows the forecast; every other value locks a sky + time of day until set back to Auto.
+    @Published private(set) var wallpaperMood: String
 
     var wallpaperTerrainValue: WallpaperTerrain { WallpaperTerrain(rawValue: wallpaperTerrain) ?? .auto }
+    var wallpaperMoodValue: WallpaperMood { WallpaperMood(rawValue: wallpaperMood) ?? .auto }
     /// 10b: tint the dock surface from the current sun phase (off by default).
     @Published private(set) var tintSurfacesByPhase: Bool
     /// 10a-7: schedule-driven widget presets (off by default); preset ids per window, "" = none.
@@ -490,6 +493,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.wallpaperTerrain: WallpaperTerrain.auto.rawValue,
             Keys.wallpaperReapplyOnSpaceChange: true,
             Keys.wallpaperRespectLowPower: true,
+            Keys.wallpaperMood: WallpaperMood.auto.rawValue,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
@@ -595,6 +599,8 @@ final class AppSettingsStore: ObservableObject {
             ?? WallpaperTerrain.auto.rawValue
         wallpaperReapplyOnSpaceChange = defaults.bool(forKey: Keys.wallpaperReapplyOnSpaceChange)
         wallpaperRespectLowPower = defaults.bool(forKey: Keys.wallpaperRespectLowPower)
+        wallpaperMood = WallpaperMood(rawValue: defaults.string(forKey: Keys.wallpaperMood) ?? "")?.rawValue
+            ?? WallpaperMood.auto.rawValue
         dockAccent = DockAccentSpec.decode(defaults.data(forKey: Keys.dockAccent))
         tintSurfacesByPhase = defaults.bool(forKey: Keys.tintByPhase)
         contextPresetsEnabled = defaults.bool(forKey: ContextPresetRules.enabledKey)
@@ -1672,6 +1678,12 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.wallpaperRespectLowPower)
     }
 
+    func setWallpaperMood(_ value: WallpaperMood) {
+        guard wallpaperMood != value.rawValue else { return }
+        wallpaperMood = value.rawValue
+        defaults.set(value.rawValue, forKey: Keys.wallpaperMood)
+    }
+
     /// Stores the repaired spec: a gradient that lost a stop falls back to wallpaper-adaptive rather than
     /// painting one arbitrary colour.
     func setDockAccent(_ spec: DockAccentSpec) {
@@ -2365,6 +2377,7 @@ private enum Keys {
     static let wallpaperTerrain = "com.katikati.wallpaper.terrain"
     static let wallpaperReapplyOnSpaceChange = "com.katikati.wallpaper.reapplyOnSpaceChange"
     static let wallpaperRespectLowPower = "com.katikati.wallpaper.respectLowPower"
+    static let wallpaperMood = "com.katikati.wallpaper.mood"
     static let dockAccent = "com.katikati.dock.accent.v1"
     static let tintByPhase = "com.katikati.theme.tintByPhase"
     static let contextWorkPreset = "com.katikati.widgets.contextPresets.work"
