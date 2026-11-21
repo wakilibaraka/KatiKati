@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795213908.5544248,
-    "seen": 1795214458.1959481,
-    "ast_hash": "a58ed323a31a567363522bda395c2668",
+    "mtime": 1795282308.7671275,
+    "seen": 1795282657.951465,
+    "ast_hash": "e9934979add467fc465548a49a4d999c",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795282053.2383351,
-    "seen": 1795282245.997801,
-    "ast_hash": "6ce0bf300abff0b60d6fe655d2ff1199",
+    "mtime": 1795282544.2090855,
+    "seen": 1795282657.951479,
+    "ast_hash": "a84fbed7557e642676416f60b38c5539",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1674,9 +1674,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1795038744.3707318,
-    "seen": 1795039003.168617,
-    "ast_hash": "62da623521e6f0167dde4025cdfa6930",
+    "mtime": 1795282521.359036,
+    "seen": 1795282657.951722,
+    "ast_hash": "6c18d46a25268a4c723366a4130017c8",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
@@ -2256,9 +2256,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1795282053.238698,
-    "seen": 1795282245.998176,
-    "ast_hash": "4d71786abb858d8e7f911df127a5aeb2",
+    "mtime": 1795282516.1122382,
+    "seen": 1795282657.951851,
+    "ast_hash": "8def841a612e777d1d9a0d93376edb77",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -4056,9 +4056,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1795282053.2389412,
-    "seen": 1795282245.998507,
-    "ast_hash": "b583e4d8d60872d5191ba1eec54c3041",
+    "mtime": 1795282544.9602258,
+    "seen": 1795282657.9521768,
+    "ast_hash": "7b10a1142742d06ef0d33556768ede27",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795280641.027155,
-    "seen": 1795280970.2436328,
-    "ast_hash": "03d8e6bdcd09b05f559db18c768c1cfa",
+    "mtime": 1795282603.6483207,
+    "seen": 1795282657.952257,
+    "ast_hash": "db6ecd36066bc940e0249c685091f0e6",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -7308,15 +7308,15 @@
     "semantic_hash": ""
   },
   "App/Composition/ShortcutCheatSheetService.swift": {
-    "mtime": 1795282053.2376924,
-    "seen": 1795282245.99778,
-    "ast_hash": "ae20e92bc6ab924881eb448106a3787c",
+    "mtime": 1795282518.7361555,
+    "seen": 1795282657.951454,
+    "ast_hash": "08bc02cdf33e707526a51a5457d27337",
     "semantic_hash": ""
   },
   "App/Scenes/ShortcutCheatSheetOverlay.swift": {
-    "mtime": 1795220672.3928344,
-    "seen": 1795220751.6627011,
-    "ast_hash": "f4e8c15d03f9c58ff7c3f680b20d6372",
+    "mtime": 1795282519.441789,
+    "seen": 1795282657.951639,
+    "ast_hash": "af1d35b1cef86ef2b7e0a85a5ec4d208",
     "semantic_hash": ""
   },
   "Core/Support/ShortcutCheatSheetModel.swift": {
