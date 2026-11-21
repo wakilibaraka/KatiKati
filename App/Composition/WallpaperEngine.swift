@@ -4,11 +4,13 @@ import CoreGraphics
 import ImageIO
 import UniformTypeIdentifiers
 
-/// Phase 10b-2 — sets the real desktop wallpaper from the sun phase and the weather. Off by default; nothing
-/// runs (no timer, no observers) until `com.katikati.wallpaper.enabled` is on. The user's original wallpaper
-/// (per screen) is captured before the first change, persisted, and restored on disable / quit.
+/// Phase 10b-2 / DW-2 — paints the real desktop from the sun phase, the weather and the environment pin.
+/// The user's original wallpaper (per screen) is captured before the first change, persisted, and restored on
+/// disable / quit. On by default since DW-2: the wallpaper follows the clock and the local forecast with no
+/// location prompt, no extra network call (it reads `WeatherService`'s state) and no idle CPU spin — one timer
+/// armed for the next phase boundary, plus debounced re-applies on Space change, wake and display topology.
 @MainActor
-final class WallpaperEngine {
+final class WallpaperEngine: ObservableObject {
     static let shared = WallpaperEngine()
 
     private struct Saved: Codable {
@@ -23,10 +25,18 @@ final class WallpaperEngine {
     private var settings: AppSettingsStore?
     private weak var weather: WeatherService?
     private var cancellables = Set<AnyCancellable>()
+    private var stateCancellables = Set<AnyCancellable>()
     private var observers: [NSObjectProtocol] = []
     private var boundaryTimer: Timer?
+    private var pendingRefresh: DispatchWorkItem?
     private var lastApplied: [String: String] = [:]
+    /// Bumped whenever a *forced* re-apply has to hand macOS a different file URL for the same picture.
+    private var generation = 0
     private(set) var isRunning = false
+
+    /// The three accent hues of the picture currently on screen, as hex — what the dock accent samples when
+    /// the user chooses Wallpaper-Adaptive. Published so the strip repaints when the wallpaper moves on.
+    @Published private(set) var accentHexes: [String] = []
 
     private init() {}
 
@@ -34,10 +44,11 @@ final class WallpaperEngine {
         guard self.settings == nil else { return }
         self.settings = settings
         self.weather = weather
-        Publishers.CombineLatest3(settings.$wallpaperEnabled, settings.$wallpaperMode, settings.$wallpaperFolder)
+        Publishers.CombineLatest4(settings.$wallpaperEnabled, settings.$wallpaperMode,
+                                  settings.$wallpaperFolder, settings.$wallpaperTerrain)
             .removeDuplicates { $0 == $1 }
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] enabled, _, _ in
+            .sink { [weak self] enabled, _, _, _ in
                 guard let self else { return }
                 if enabled { self.start() } else { self.stop() }
             }
@@ -51,11 +62,24 @@ final class WallpaperEngine {
             isRunning = true
             captureOriginalIfNeeded()
             let center = NSWorkspace.shared.notificationCenter
+            // Space switches, sleep/wake and display changes all drop a Space's desktop picture on macOS; each
+            // is re-applied after a short debounce so a burst (dock → display → wake) paints once, not three times.
+            // The Space switch is the only one the user can opt out of (its own settings row); wake and topology
+            // changes always re-apply, because a display that came back has no picture at all until they do.
             observers.append(center.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.refresh(force: true) }
+                Task { @MainActor in
+                    guard self?.settings?.wallpaperReapplyOnSpaceChange != false else { return }
+                    self?.scheduleRefresh()
+                }
             })
-            observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.refresh(force: true) }
+            for name in [NSWorkspace.didWakeNotification, NSWorkspace.screensDidSleepNotification] {
+                observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                    Task { @MainActor in self?.scheduleRefresh() }
+                })
+            }
+            observers.append(NotificationCenter.default.addObserver(
+                forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.scheduleRefresh() }
             })
             weather?.$currentState
                 .map { $0.conditionFamily }
@@ -69,14 +93,13 @@ final class WallpaperEngine {
         refresh(force: true)
     }
 
-    private var stateCancellables = Set<AnyCancellable>()
-
     /// Disable: put the original wallpaper back and stop everything.
     private func stop() {
         guard isRunning else { return }
         isRunning = false
         teardown()
         restoreOriginal()
+        accentHexes = []
     }
 
     /// App quit: restore, but leave the setting on so the next launch resumes.
@@ -94,9 +117,20 @@ final class WallpaperEngine {
 
     private func teardown() {
         boundaryTimer?.invalidate(); boundaryTimer = nil
+        pendingRefresh?.cancel(); pendingRefresh = nil
         observers.forEach { NSWorkspace.shared.notificationCenter.removeObserver($0); NotificationCenter.default.removeObserver($0) }
         observers = []
         stateCancellables = []
+    }
+
+    /// Coalesces the burst of notifications a single Space switch or wake produces into one paint.
+    private func scheduleRefresh() {
+        pendingRefresh?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            Task { @MainActor in self?.refresh(force: true) }
+        }
+        pendingRefresh = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: work)
     }
 
     // MARK: - Apply
@@ -107,17 +141,43 @@ final class WallpaperEngine {
         let state = weather?.currentState ?? .empty
         let times = state.sunTimes(on: now) ?? SunTimes(sunrise: nil, sunset: nil, polar: state.isNight ? .night : .day)
         let forced = WallpaperDebugOverride.parse(DebugSwitch.wallpaperPhase.value())
-        let phase = forced?.phase ?? SolarPhaseResolver.phase(at: now, times: times)
+        let daylight = SolarDaylightEvaluator.sample(at: forced.map { _ in now } ?? now, times: times)
+        let phase = forced?.phase ?? daylight.phase.solarPhase
         let sky = forced?.sky ?? WallpaperSky(state.conditionFamily)
         let mode = WallpaperMode(rawValue: settings.wallpaperMode) ?? .both
         armTimer(after: now, times: times)
 
-        let pack = Self.pack(folder: settings.wallpaperFolder)
-        guard let key = WallpaperSelector.pick(phase: phase, sky: sky, mode: mode, available: Set(pack.keys)),
-              let url = pack[key]?() else { return }
+        let scene = TerrainMimicCatalog.resolve(settings.wallpaperTerrainValue,
+                                                latitude: state.latitude, cityName: state.cityName)
+        let environment = TerrainMimicCatalog.environment(scene: scene, phase: phase, sky: sky)
+        accentHexes = environment.accent.map { DockAccentColor(r: CGFloat($0.r), g: CGFloat($0.g), b: CGFloat($0.b)).hex }
+
+        // A custom folder is the only source that answers with its own files; without one the built-in scenes are
+        // painted, and their key names them so a cached file can never be confused with a pack file.
+        let custom = Self.pack(folder: settings.wallpaperFolder)
+        let terrainKey = "terrain-\(scene.rawValue)-\(phase.rawValue)-\(sky.rawValue)"
+        let key = custom.isEmpty ? terrainKey
+            : (WallpaperSelector.pick(phase: phase, sky: sky, mode: mode, available: Set(custom.keys)) ?? terrainKey)
+
+        // A forced re-apply (Space switch, wake, display change) asks macOS for the *same* picture again, and
+        // `setDesktopImageURL` ignores a URL it is already showing. Hand it a fresh generation of the same file.
+        var useGeneration = 0
+        if force, lastApplied.values.contains(key) {
+            let lowPower = settings.wallpaperRespectLowPower && ProcessInfo.processInfo.isLowPowerModeEnabled
+            useGeneration = lowPower ? generation : generation &+ 1
+            generation = useGeneration
+        }
+
         for screen in NSScreen.screens {
             let id = Self.screenKey(screen)
             if !force, lastApplied[id] == key { continue }
+            let scale = max(screen.backingScaleFactor, 1)
+            let size = CGSize(width: min(screen.frame.width * scale, 5120),
+                              height: min(screen.frame.height * scale, 2880))
+            let url = custom[key]?()
+                ?? TerrainWallpaperRenderer.materialize(environment: environment, key: key,
+                                                        size: size, generation: useGeneration)
+            guard let url else { continue }
             do {
                 try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
                 lastApplied[id] = key
@@ -125,6 +185,7 @@ final class WallpaperEngine {
                 NSLog("WallpaperEngine: setDesktopImageURL failed: \(error)")
             }
         }
+        TerrainWallpaperRenderer.prune()
     }
 
     /// One timer for the next sun-phase boundary; re-armed on every refresh. Not created when stopped.
@@ -173,60 +234,171 @@ final class WallpaperEngine {
 
     // MARK: - Packs
 
-    /// key → lazily produced file URL. Custom folder when set and readable, otherwise the rendered Sky pack.
+    /// key → lazily produced file URL, from a custom folder only. Empty when no folder is set (then the built-in
+    /// scenes are painted by `TerrainWallpaperRenderer`), so a missing folder can never shadow the built-in look.
     private static func pack(folder: String) -> [String: () -> URL?] {
-        if !folder.isEmpty, let files = try? FileManager.default.contentsOfDirectory(atPath: folder) {
-            var result: [String: () -> URL?] = [:]
-            for file in files where ["jpg", "jpeg", "png", "heic"].contains((file as NSString).pathExtension.lowercased()) {
-                let key = ((file as NSString).deletingPathExtension).lowercased()
-                result[key] = { URL(fileURLWithPath: folder).appendingPathComponent(file) }
-            }
-            if !result.isEmpty { return result }
+        guard !folder.isEmpty,
+              let files = try? FileManager.default.contentsOfDirectory(atPath: folder) else { return [:] }
+        var result: [String: () -> URL?] = [:]
+        for file in files where ["jpg", "jpeg", "png", "heic"].contains((file as NSString).pathExtension.lowercased()) {
+            let key = ((file as NSString).deletingPathExtension).lowercased()
+            result[key] = { URL(fileURLWithPath: folder).appendingPathComponent(file) }
         }
-        var sky: [String: () -> URL?] = Dictionary(uniqueKeysWithValues: WallpaperSelector.allSkyKeys.map { key in (key, { SkyPackRenderer.fileURL(for: key) }) })
-        for (alias, base) in WallpaperSelector.skyPackAliases { sky[alias] = { SkyPackRenderer.fileURL(for: base) } }
-        return sky
+        return result
     }
 }
 
-/// Renders the procedural Sky pack once per key into Application Support (PNG, vertical gradient + soft glow).
-enum SkyPackRenderer {
+/// DW-2 — paints one scene into a PNG per display resolution and hands macOS a stable URL for it.
+/// Files are content-addressed (`key`, size and a palette signature in the name), so a palette change produces a
+/// new file instead of macOS ignoring a URL it already shows, and `prune()` keeps disk use bounded.
+enum TerrainWallpaperRenderer {
     static func directory() -> URL? {
         guard let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
-        let dir = base.appendingPathComponent("KatiKati/Wallpapers/sky", isDirectory: true)
+        let dir = base.appendingPathComponent("KatiKati/Wallpapers/terrain", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
 
-    static func fileURL(for key: String) -> URL? {
+    /// The URL for the picture, rendering it when missing. `generation > 0` yields a *copy* under a different
+    /// name: same pixels, new URL, so a forced re-apply is not silently ignored.
+    static func materialize(environment: WallpaperEnvironment, key: String, size: CGSize, generation: Int) -> URL? {
         guard let dir = directory() else { return nil }
-        let url = dir.appendingPathComponent("\(key).png")
-        if FileManager.default.fileExists(atPath: url.path) { return url }
-        let parts = key.split(separator: "-").map(String.init)
-        guard parts.count == 2, let phase = SolarPhase(rawValue: parts[0]), let sky = WallpaperSky(rawValue: parts[1]),
-              let image = render(phase: phase, sky: sky),
-              let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil) else { return nil }
-        CGImageDestinationAddImage(dest, image, nil)
-        return CGImageDestinationFinalize(dest) ? url : nil
+        let width = Int(size.width.rounded()), height = Int(size.height.rounded())
+        let base = "\(key)-\(width)x\(height)-\(signature(environment))"
+        let source = dir.appendingPathComponent("\(base).png")
+        if !FileManager.default.fileExists(atPath: source.path) {
+            guard let image = render(environment: environment, width: width, height: height),
+                  let dest = CGImageDestinationCreateWithURL(source as CFURL, UTType.png.identifier as CFString, 1, nil)
+            else { return nil }
+            CGImageDestinationAddImage(dest, image, nil)
+            guard CGImageDestinationFinalize(dest) else { return nil }
+        }
+        guard generation > 0 else { return source }
+        let copy = dir.appendingPathComponent("\(base)-g\(generation).png")
+        if !FileManager.default.fileExists(atPath: copy.path) {
+            try? FileManager.default.removeItem(at: copy)
+            try? FileManager.default.copyItem(at: source, to: copy)
+        }
+        return copy
     }
 
-    static func render(phase: SolarPhase, sky: WallpaperSky, width: Int = 2560, height: Int = 1440) -> CGImage? {
-        let space = CGColorSpaceCreateDeviceRGB()
-        guard let ctx = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
-                                  bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return nil }
-        let stops = SkyPalette.stops(phase: phase, sky: sky)
-        func color(_ c: SkyRGB) -> CGColor { CGColor(red: c.r, green: c.g, blue: c.b, alpha: 1) }
-        guard let gradient = CGGradient(colorsSpace: space, colors: [color(stops.top), color(stops.bottom)] as CFArray, locations: [0, 1]) else { return nil }
-        // CoreGraphics origin is bottom-left: start at the top edge, end at the bottom.
-        ctx.drawLinearGradient(gradient, start: CGPoint(x: 0, y: height), end: .zero, options: [])
-        if sky == .clear || sky == .cloudy {
-            // Soft sun/moon glow near the horizon-side upper third.
-            let glowColor = phase == .night ? CGColor(red: 0.85, green: 0.88, blue: 1, alpha: 0.28) : CGColor(red: 1, green: 0.95, blue: 0.8, alpha: sky == .clear ? 0.4 : 0.2)
-            if let glow = CGGradient(colorsSpace: space, colors: [glowColor, glowColor.copy(alpha: 0)!] as CFArray, locations: [0, 1]) {
-                let center = CGPoint(x: Double(width) * 0.72, y: Double(height) * (phase == .golden || phase == .dusk || phase == .dawn ? 0.35 : 0.7))
-                ctx.drawRadialGradient(glow, startCenter: center, startRadius: 0, endCenter: center, endRadius: Double(height) * 0.45, options: [])
+    /// Drops yesterday's pictures and keeps at most two generations per picture: the cache cannot grow without
+    /// bound while Space switches keep asking for fresh URLs.
+    static func prune(now: Date = Date()) {
+        guard let dir = directory(),
+              let files = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.contentModificationDateKey])
+        else { return }
+        var generations: [String: [(url: URL, date: Date)]] = [:]
+        for file in files where file.pathExtension.lowercased() == "png" {
+            let date = (try? file.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+            if now.timeIntervalSince(date) > 14 * 86_400 {
+                try? FileManager.default.removeItem(at: file)
+                continue
+            }
+            let name = file.deletingPathExtension().lastPathComponent
+            let base = name.range(of: "-g", options: .backwards).map { String(name[..<$0.lowerBound]) } ?? name
+            generations[base, default: []].append((file, date))
+        }
+        for list in generations.values where list.count > 2 {
+            for stale in list.sorted(by: { $0.date > $1.date }).dropFirst(2) {
+                try? FileManager.default.removeItem(at: stale.url)
             }
         }
+    }
+
+    /// A short, stable digest of the colours that make the picture, so a palette change is a new file.
+    private static func signature(_ environment: WallpaperEnvironment) -> String {
+        func part(_ c: SkyRGB) -> String { "\(Int((c.r * 255).rounded()))-\(Int((c.g * 255).rounded()))-\(Int((c.b * 255).rounded()))" }
+        var value: UInt32 = 2_166_136_261
+        for c in [environment.skyTop, environment.skyBottom, environment.glow] + environment.layers {
+            for scalar in part(c).unicodeScalars { value = (value ^ scalar.value) &* 16_777_619 }
+        }
+        return String(value, radix: 16)
+    }
+
+    static func render(environment: WallpaperEnvironment, width: Int, height: Int) -> CGImage? {
+        let space = CGColorSpaceCreateDeviceRGB()
+        guard width > 0, height > 0,
+              let ctx = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                                  bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return nil }
+        let w = CGFloat(width), h = CGFloat(height)
+        func color(_ c: SkyRGB, _ alpha: CGFloat = 1) -> CGColor { CGColor(red: c.r, green: c.g, blue: c.b, alpha: alpha) }
+
+        // Sky. CoreGraphics origin is bottom-left: the top stop is drawn at y = height.
+        if let sky = CGGradient(colorsSpace: space, colors: [color(environment.skyTop), color(environment.skyBottom)] as CFArray,
+                                locations: [0, 1]) {
+            ctx.drawLinearGradient(sky, start: CGPoint(x: 0, y: h), end: .zero, options: [])
+        }
+        // Stars before the land, so a night sky keeps them and a ridge can cover them.
+        if environment.glowStrength > 0, environment.skyTop.r + environment.skyTop.g + environment.skyTop.b < 0.5 {
+            drawStars(ctx, width: w, height: h, color: color(environment.glow, 0.6))
+        }
+        // Sun / moon glow above the horizon.
+        if environment.glowStrength > 0,
+           let glow = CGGradient(colorsSpace: space,
+                                 colors: [color(environment.glow, CGFloat(environment.glowStrength)),
+                                          color(environment.glow, 0)] as CFArray, locations: [0, 1]) {
+            let center = CGPoint(x: w * 0.72, y: h * 0.66)
+            ctx.drawRadialGradient(glow, startCenter: center, startRadius: 0, endCenter: center, endRadius: h * 0.45, options: [])
+        }
+        // Silhouette bands, farthest first.
+        for (index, layer) in environment.layers.enumerated() {
+            drawLayer(ctx, scene: environment.scene, index: index, of: environment.layers.count,
+                      color: color(layer), width: w, height: h)
+        }
         return ctx.makeImage()
+    }
+
+    private static func drawStars(_ ctx: CGContext, width: CGFloat, height: CGFloat, color: CGColor) {
+        ctx.setFillColor(color)
+        var seed: UInt64 = 0x5EED_1234
+        for _ in 0..<90 {
+            seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+            let x = CGFloat((seed >> 33) % 1_000) / 1_000 * width
+            seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+            let y = height * (0.55 + CGFloat((seed >> 33) % 450) / 1_000)
+            seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+            let r = 0.6 + CGFloat((seed >> 40) % 14) / 10
+            ctx.fillEllipse(in: CGRect(x: x, y: y, width: r, height: r))
+        }
+    }
+
+    /// Each scene draws the same three bands differently: skyline steps, rolling hills, jagged peaks, a cliff and
+    /// the water below it.
+    private static func drawLayer(_ ctx: CGContext, scene: WallpaperScene, index: Int, of count: Int,
+                                  color: CGColor, width: CGFloat, height: CGFloat) {
+        let base = height * (0.10 + 0.08 * CGFloat(count - index - 1))
+        ctx.setFillColor(color)
+        let path = CGMutablePath()
+        switch scene {
+        case .city:
+            // Pseudo-random skyline: block widths and heights derived, never random per frame.
+            let blocks = 14
+            var x: CGFloat = 0
+            for i in 0..<blocks {
+                let seed = (i &* 73 &+ index &* 31) & 97
+                let bw = width / CGFloat(blocks) * (0.7 + CGFloat(seed % 6) / 10)
+                let bh = height * (0.10 + CGFloat(seed % 9) / 100) + base
+                path.addRect(CGRect(x: x, y: 0, width: min(bw, width - x), height: bh))
+                x += bw
+                if x >= width { break }
+            }
+        default:
+            path.move(to: CGPoint(x: 0, y: 0))
+            let steps = 96
+            for step in 0...steps {
+                let t = CGFloat(step) / CGFloat(steps)
+                let ridge = SceneGeometry.ridge(x: Double(t), layer: index, peakX: scene == .coast ? 0.28 : 0.5)
+                // Coast: the nearest band is the sea, kept low and flat so the cliff reads above it.
+                let amplitude: CGFloat = scene == .alpine ? 0.55 : scene == .countryside ? 0.28 : 0.42
+                let sea = scene == .coast && index == count - 1
+                let y = sea ? height * (0.06 + 0.02 * CGFloat(index)) : base + height * amplitude * CGFloat(ridge)
+                path.addLine(to: CGPoint(x: t * width, y: y))
+            }
+            path.addLine(to: CGPoint(x: width, y: 0))
+            path.closeSubpath()
+        }
+        ctx.addPath(path)
+        ctx.fillPath()
     }
 }

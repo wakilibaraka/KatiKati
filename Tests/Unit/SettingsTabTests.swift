@@ -9,9 +9,9 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsTwentyNineTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 29, "twenty-nine sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 29,
+    func testTheSidebarIsThirtyTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 30, "thirty sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 30,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -26,6 +26,9 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
         XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
+        // DW-4: Wallpaper became a page of its own next to Appearance.
+        XCTAssertEqual(SettingsTab(rawValue: "wallpaper"), .wallpaper)
+        XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .appearance)! + 1], .wallpaper)
         // 2026-11 reorganization: Menu Bar, Drawer, Shelf, AI Tracking elevated to dedicated tabs
         XCTAssertEqual(SettingsTab(rawValue: "menuBar"), .menuBar)
         XCTAssertEqual(SettingsTab(rawValue: "drawer"), .drawer)

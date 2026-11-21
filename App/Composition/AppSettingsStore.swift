@@ -270,10 +270,18 @@ final class AppSettingsStore: ObservableObject {
     }
     /// Phase 18: which edge the strip sits on, globally and per display (default bottom).
     @Published private(set) var stripPlacementMap: StripPlacementMap
-    /// 10b: weather/time reactive desktop wallpaper (off by default), its mode (`WallpaperMode` raw) and optional custom folder.
+    /// 10b: weather/time reactive desktop wallpaper (DW-2: on by default), its mode (`WallpaperMode` raw) and optional custom folder.
     @Published private(set) var wallpaperEnabled: Bool
     @Published private(set) var wallpaperMode: String
     @Published private(set) var wallpaperFolder: String
+    /// DW-2: the environment pin (`WallpaperTerrain` raw), the Space/wake re-apply and low-power switches, and the
+    /// dock accent (solid / gradient / mesh / wallpaper-adaptive) written by the Wallpaper page.
+    @Published private(set) var wallpaperTerrain: String
+    @Published private(set) var wallpaperReapplyOnSpaceChange: Bool
+    @Published private(set) var wallpaperRespectLowPower: Bool
+    @Published private(set) var dockAccent: DockAccentSpec
+
+    var wallpaperTerrainValue: WallpaperTerrain { WallpaperTerrain(rawValue: wallpaperTerrain) ?? .auto }
     /// 10b: tint the dock surface from the current sun phase (off by default).
     @Published private(set) var tintSurfacesByPhase: Bool
     /// 10a-7: schedule-driven widget presets (off by default); preset ids per window, "" = none.
@@ -477,8 +485,11 @@ final class AppSettingsStore: ObservableObject {
             Keys.hyperkeyExcludedApps: "",
             Keys.showAllRunningApps: false,
             Keys.linkCleanerEnabled: false,
-            Keys.wallpaperEnabled: false,
+            Keys.wallpaperEnabled: true,
             Keys.wallpaperMode: WallpaperMode.both.rawValue,
+            Keys.wallpaperTerrain: WallpaperTerrain.auto.rawValue,
+            Keys.wallpaperReapplyOnSpaceChange: true,
+            Keys.wallpaperRespectLowPower: true,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
             Keys.launcherScroll: LauncherScrollDirection.default.rawValue,
@@ -580,6 +591,11 @@ final class AppSettingsStore: ObservableObject {
         wallpaperEnabled = defaults.bool(forKey: Keys.wallpaperEnabled)
         wallpaperMode = WallpaperMode(rawValue: defaults.string(forKey: Keys.wallpaperMode) ?? "")?.rawValue ?? WallpaperMode.both.rawValue
         wallpaperFolder = defaults.string(forKey: Keys.wallpaperFolder) ?? ""
+        wallpaperTerrain = WallpaperTerrain(rawValue: defaults.string(forKey: Keys.wallpaperTerrain) ?? "")?.rawValue
+            ?? WallpaperTerrain.auto.rawValue
+        wallpaperReapplyOnSpaceChange = defaults.bool(forKey: Keys.wallpaperReapplyOnSpaceChange)
+        wallpaperRespectLowPower = defaults.bool(forKey: Keys.wallpaperRespectLowPower)
+        dockAccent = DockAccentSpec.decode(defaults.data(forKey: Keys.dockAccent))
         tintSurfacesByPhase = defaults.bool(forKey: Keys.tintByPhase)
         contextPresetsEnabled = defaults.bool(forKey: ContextPresetRules.enabledKey)
         contextWorkPresetID = defaults.string(forKey: Keys.contextWorkPreset) ?? ""
@@ -1638,6 +1654,33 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(path, forKey: Keys.wallpaperFolder)
     }
 
+    func setWallpaperTerrain(_ value: WallpaperTerrain) {
+        guard wallpaperTerrain != value.rawValue else { return }
+        wallpaperTerrain = value.rawValue
+        defaults.set(value.rawValue, forKey: Keys.wallpaperTerrain)
+    }
+
+    func setWallpaperReapplyOnSpaceChange(_ value: Bool) {
+        guard wallpaperReapplyOnSpaceChange != value else { return }
+        wallpaperReapplyOnSpaceChange = value
+        defaults.set(value, forKey: Keys.wallpaperReapplyOnSpaceChange)
+    }
+
+    func setWallpaperRespectLowPower(_ value: Bool) {
+        guard wallpaperRespectLowPower != value else { return }
+        wallpaperRespectLowPower = value
+        defaults.set(value, forKey: Keys.wallpaperRespectLowPower)
+    }
+
+    /// Stores the repaired spec: a gradient that lost a stop falls back to wallpaper-adaptive rather than
+    /// painting one arbitrary colour.
+    func setDockAccent(_ spec: DockAccentSpec) {
+        let normalized = spec.normalized
+        guard dockAccent != normalized else { return }
+        dockAccent = normalized
+        defaults.set(normalized.encoded(), forKey: Keys.dockAccent)
+    }
+
     func setLinkCleanerEnabled(_ value: Bool) {
         guard linkCleanerEnabled != value else { return }
         linkCleanerEnabled = value
@@ -2319,6 +2362,10 @@ private enum Keys {
     static let wallpaperEnabled = "com.katikati.wallpaper.enabled"
     static let wallpaperMode = "com.katikati.wallpaper.mode"
     static let wallpaperFolder = "com.katikati.wallpaper.folder"
+    static let wallpaperTerrain = "com.katikati.wallpaper.terrain"
+    static let wallpaperReapplyOnSpaceChange = "com.katikati.wallpaper.reapplyOnSpaceChange"
+    static let wallpaperRespectLowPower = "com.katikati.wallpaper.respectLowPower"
+    static let dockAccent = "com.katikati.dock.accent.v1"
     static let tintByPhase = "com.katikati.theme.tintByPhase"
     static let contextWorkPreset = "com.katikati.widgets.contextPresets.work"
     static let contextEveningPreset = "com.katikati.widgets.contextPresets.evening"

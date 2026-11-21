@@ -8,6 +8,7 @@ enum SettingsTab: String, CaseIterable {
     case general
     case menuBar
     case appearance
+    case wallpaper
     case dockItems
     case drawer
     case shelf
@@ -40,6 +41,7 @@ enum SettingsTab: String, CaseIterable {
         case "general": self = .general
         case "menuBar": self = .menuBar
         case "appearance": self = .appearance
+        case "wallpaper": self = .wallpaper
         case "dockItems": self = .dockItems
         case "drawer": self = .drawer
         case "shelf", "drawerShelf": self = .shelf
@@ -76,6 +78,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return String(localized: "General")
         case .menuBar: return String(localized: "Menu Bar")
         case .appearance: return String(localized: "Appearance")
+        case .wallpaper: return String(localized: "Wallpaper")
         case .dockItems: return String(localized: "Dock Items")
         case .drawer: return String(localized: "Drawer")
         case .shelf: return String(localized: "Shelf")
@@ -111,7 +114,8 @@ enum SettingsTab: String, CaseIterable {
         switch self {
         case .general: return String(localized: "Language, startup, permissions, and about.")
         case .menuBar: return String(localized: "System metrics, drive capacity, and status items.")
-        case .appearance: return String(localized: "Themes, icons, and wallpaper.")
+        case .appearance: return String(localized: "Themes, icons, and bar layout.")
+        case .wallpaper: return String(localized: "Dynamic scenes, daylight and weather, and the dock accent.")
         case .dockItems: return String(localized: "Dock widgets: order, size, presets, and motion.")
         case .drawer: return String(localized: "Background-app capsule and edge placement.")
         case .shelf: return String(localized: "Floating card stack, shake-to-shelf, Notch File Tray, and space pinning.")
@@ -146,6 +150,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return "gearshape"
         case .menuBar: return "menubar.rectangle"
         case .appearance: return "paintpalette"
+        case .wallpaper: return "sparkles.rectangle.stack"
         case .dockItems: return "square.grid.2x2"
         case .drawer: return "sidebar.squares.trailing"
         case .shelf: return "tray.and.arrow.down"
@@ -181,6 +186,7 @@ enum SettingsTab: String, CaseIterable {
         case .general: return (0.56, 0.56, 0.58)
         case .menuBar: return (0.15, 0.65, 0.95)
         case .appearance: return (0.96, 0.33, 0.50)
+        case .wallpaper: return (0.34, 0.50, 0.86)
         case .dockItems: return (0.72, 0.52, 0.20)
         case .drawer: return (0.92, 0.48, 0.15)
         case .shelf: return (0.48, 0.36, 0.88)

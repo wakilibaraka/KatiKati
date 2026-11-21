@@ -90,7 +90,7 @@ struct SettingsAppearancePane: View {
                 }
             }
 
-            wallpaperSection
+            // DW-4: the wallpaper controls moved to their own page (Settings › Wallpaper).
 
             spaceSwitchingCard
         }
@@ -125,92 +125,6 @@ struct SettingsAppearancePane: View {
                 set: { spaceDuration = $0 }
             )
         }
-    }
-
-    // MARK: - Wallpaper (Phase 10b-3)
-
-    private var wallpaperSection: some View {
-        SettingsCard {
-            // The switch and the mode it governs, one line (`Docs/SETTINGS.md` rule 5).
-            SettingsToggleRow(
-                Text("Dynamic Wallpaper"),
-                isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
-            )
-        
-            SettingsDivider()
-            SettingsSegmentedRow(
-                Text("Mode"),
-                selection: Binding(
-                    get: { WallpaperMode(rawValue: store.wallpaperMode) ?? .both },
-                    set: store.setWallpaperMode
-                )
-            ) {
-                Text("Time").tag(WallpaperMode.time)
-                Text("Weather").tag(WallpaperMode.weather)
-                Text("Both").tag(WallpaperMode.both)
-            }
-        
-            // The row's label is the source in use; the buttons change it.
-            SettingsRow(
-                store.wallpaperFolder.isEmpty
-                    ? Text("Built-in Sky")
-                    : Text(verbatim: (store.wallpaperFolder as NSString).lastPathComponent)
-            ) {
-                HStack(spacing: 8) {
-                    if !store.wallpaperFolder.isEmpty {
-                        Button("Built-in Sky") { store.setWallpaperFolder("") }
-                            .buttonStyle(SettingsGelButtonStyle())
-                    }
-                    Button("Choose Folder…") { chooseWallpaperFolder() }
-                        .buttonStyle(SettingsGelButtonStyle())
-                }
-            }
-            skyPreviewGrid
-            // Two narrow rows, one line (rule 5): the switch and the button were two lines.
-            SettingsToggleRow(
-                Text("Tint Dock by Time of Day"),
-                isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
-            )
-        
-            SettingsDivider()
-            // Rule 7: disabled with no reason on the row before this.
-            SettingsButtonRow(
-                Text("Restore Wallpaper"),
-                note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
-            ) { WallpaperEngine.shared.restoreNow() }
-                .disabled(!store.wallpaperEnabled)
-        
-        }
-    }
-
-    /// 5 phases (rows) × 6 skies (columns) of the built-in pack, straight from `SkyPalette`. The
-    /// swatches are 14 pt tall, not 22 (2026-10-15): this preview alone was 122 pt of a page that
-    /// has to fit the window, and the same 30 palettes are still here.
-    private var skyPreviewGrid: some View {
-        VStack(spacing: 2) {
-            ForEach(SolarPhase.allCases, id: \.self) { phase in
-                HStack(spacing: 2) {
-                    ForEach(WallpaperSky.allCases, id: \.self) { sky in
-                        let stops = SkyPalette.stops(phase: phase, sky: sky)
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(LinearGradient(colors: [color(stops.top), color(stops.bottom)], startPoint: .top, endPoint: .bottom))
-                            .frame(height: 10)
-                            .help(Text(verbatim: "\(phase.rawValue) · \(sky.rawValue)"))
-                    }
-                }
-            }
-        }
-        .accessibilityHidden(true)
-    }
-
-    private func color(_ c: SkyRGB) -> Color { Color(red: c.r, green: c.g, blue: c.b) }
-
-    private func chooseWallpaperFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK, let url = panel.url { store.setWallpaperFolder(url.path) }
     }
 
     // MARK: - Theme cards
@@ -298,4 +212,377 @@ private struct ThemeName: View {
     var body: some View {
         Text(style.menuTitle)
     }
+}
+
+
+// The dedicated page the dynamic wallpaper grew into: one stage that shows the actual scene model, the three
+// pillars (time/solar, weather, environment) and the dock accent studio. Everything it previews is computed by
+// the pure Core types (`SolarDaylightEvaluator`, `TerrainMimicCatalog`, `DockAccentSpec`) — the page draws the
+// same values the engine paints with, so the preview cannot drift from the desktop.
+struct SettingsWallpaperPane: View {
+    @ObservedObject var store: AppSettingsStore
+    @Environment(\.colorScheme) private var colorScheme
+
+    @State private var followLiveTime = true
+    @State private var previewHour = 12.0
+    @State private var previewSky: WallpaperSky = .clear
+    @State private var draftStops: [String] = []
+    @State private var draftAngle = 90.0
+
+    private var mode: WallpaperMode { WallpaperMode(rawValue: store.wallpaperMode) ?? .both }
+
+    var body: some View {
+        Group {
+            previewCard
+            dynamicCard
+            accentCard
+            restoreCard
+        }
+        .onAppear(perform: loadDraft)
+    }
+
+    // MARK: Stage
+
+    private var previewCard: some View {
+        SettingsCard(
+            Text("Live Preview"),
+            note: Text("Scrub the day and the sky to see the scene. The desktop follows your own clock and forecast; until the weather service reports sun times this preview uses a 06:30–19:30 day.")
+        ) {
+            WallpaperStageView(environment: previewEnvironment, accent: accentPreviewColors)
+                .frame(height: 168)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(.white.opacity(0.18)))
+                .accessibilityHidden(true)
+            SettingsToggleRow(Text("Follow Live Time"), isOn: $followLiveTime)
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Time of Day"),
+                value: followLiveTime ? liveHour : previewHour,
+                range: 0...24,
+                step: 0.25,
+                valueText: hourLabel(followLiveTime ? liveHour : previewHour),
+                set: { previewHour = $0; followLiveTime = false }
+            )
+            SettingsDivider()
+            SettingsSegmentedRow(Text("Sky"), selection: $previewSky) {
+                ForEach(WallpaperSky.allCases, id: \.self) { sky in
+                    Text(skyTitle(sky)).tag(sky)
+                }
+            }
+        }
+    }
+
+    // MARK: Pillars
+
+    private var dynamicCard: some View {
+        SettingsCard(
+            Text("Dynamic Wallpaper"),
+            note: Text("Painted locally from the clock and the forecast already in the app — no downloads and no extra location prompt.")
+        ) {
+            SettingsToggleRow(
+                Text("Dynamic Wallpaper"),
+                isOn: Binding(get: { store.wallpaperEnabled }, set: store.setWallpaperEnabled)
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Live Time & Solar"),
+                isOn: Binding(get: { mode != .weather }, set: { on in setMode(time: on, weather: mode != .time) })
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Live Weather"),
+                isOn: Binding(get: { mode != .time }, set: { on in setMode(time: mode != .weather, weather: on) })
+            )
+            SettingsDivider()
+            SettingsSegmentedRow(
+                Text("Environment"),
+                selection: Binding(get: { store.wallpaperTerrainValue }, set: store.setWallpaperTerrain)
+            ) {
+                Text("Auto").tag(WallpaperTerrain.auto)
+                Text("City").tag(WallpaperTerrain.city)
+                Text("Countryside").tag(WallpaperTerrain.countryside)
+                Text("Terrain").tag(WallpaperTerrain.terrain)
+            }
+            SettingsDivider()
+            // Rule 7: the source in use is the label; the buttons change it.
+            SettingsRow(
+                store.wallpaperFolder.isEmpty
+                    ? Text("Built-in Scenes")
+                    : Text(verbatim: (store.wallpaperFolder as NSString).lastPathComponent)
+            ) {
+                HStack(spacing: 8) {
+                    if !store.wallpaperFolder.isEmpty {
+                        Button("Built-in Scenes") { store.setWallpaperFolder("") }
+                            .buttonStyle(SettingsGelButtonStyle())
+                    }
+                    Button("Choose Folder…") { chooseWallpaperFolder() }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
+            }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Reapply on Space Change"),
+                isOn: Binding(get: { store.wallpaperReapplyOnSpaceChange }, set: store.setWallpaperReapplyOnSpaceChange)
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Respect Low Power Mode"),
+                isOn: Binding(get: { store.wallpaperRespectLowPower }, set: store.setWallpaperRespectLowPower)
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Tint Dock by Time of Day"),
+                isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
+            )
+        }
+    }
+
+    // MARK: Dock accent
+
+    private var accentCard: some View {
+        SettingsCard(
+            Text("Dock Accent"),
+            note: Text("One colour, a gradient of up to four, or the wallpaper's own sampled palette.")
+        ) {
+            SettingsSegmentedRow(
+                Text("Style"),
+                selection: Binding(get: { store.dockAccent.style }, set: { style in
+                    var spec = store.dockAccent
+                    spec.style = style
+                    if style != .solid, spec.hexStops.isEmpty { spec.hexStops = draftStops.filter { !$0.isEmpty } }
+                    store.setDockAccent(spec)
+                    draftStops = padded(store.dockAccent.hexStops)
+                })
+            ) {
+                Text("Solid").tag(DockAccentStyle.solid)
+                Text("Gradient").tag(DockAccentStyle.linearGradient)
+                Text("Mesh").tag(DockAccentStyle.mesh)
+                Text("Wallpaper").tag(DockAccentStyle.wallpaperAdaptive)
+            }
+            SettingsDivider()
+            HStack(spacing: 10) {
+                ForEach(0..<3, id: \.self) { index in
+                    TextField(Self.hexPlaceholder, text: Binding(
+                        get: { index < draftStops.count ? draftStops[index] : "" },
+                        set: { new in
+                            var stops = padded(draftStops)
+                            stops[index] = new
+                            draftStops = stops
+                        }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(.caption, design: .monospaced))
+                    .frame(width: 88)
+                }
+                Spacer(minLength: 0)
+                Button("Apply Accent") { applyAccent() }
+                    .buttonStyle(SettingsGelButtonStyle())
+            }
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Angle"),
+                value: store.dockAccent.angleDegrees,
+                range: 0...359,
+                step: 1,
+                valueText: "\(Int(store.dockAccent.angleDegrees.rounded()))°",
+                set: { angle in
+                    var spec = store.dockAccent
+                    spec.angleDegrees = angle
+                    store.setDockAccent(spec)
+                }
+            )
+            SettingsDivider()
+            SettingsRow(Text("Accent Preview")) {
+                LinearGradient(colors: accentPreviewColors, startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 180, height: 18)
+                    .clipShape(Capsule())
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+
+    private var restoreCard: some View {
+        SettingsCard {
+            SettingsButtonRow(
+                Text("Restore Wallpaper"),
+                note: store.wallpaperEnabled ? nil : Text("Turn Dynamic Wallpaper on to restore it.")
+            ) { WallpaperEngine.shared.restoreNow() }
+                .disabled(!store.wallpaperEnabled)
+        }
+    }
+
+    // MARK: Model
+
+    /// The scene drawn on the stage: the pinned environment (or Auto's fallback), the previewed sky and either the
+    /// real clock or the scrubber, run through the same evaluator the engine uses.
+    private var previewEnvironment: WallpaperEnvironment {
+        let hour = followLiveTime ? liveHour : previewHour
+        let phase = Self.phase(forHour: hour, on: Date()).solarPhase
+        let scene = TerrainMimicCatalog.resolve(store.wallpaperTerrainValue, latitude: nil, cityName: "")
+        return TerrainMimicCatalog.environment(scene: scene, phase: phase, sky: previewSky)
+    }
+
+    private var accentPreviewColors: [Color] {
+        let environment = previewEnvironment
+        let sampled = environment.accent.map {
+            DockAccentColor(r: CGFloat($0.r), g: CGFloat($0.g), b: CGFloat($0.b)).hex
+        }
+        let stops = store.dockAccent.resolved(wallpaperAccent: sampled)
+        return stops.map { Color(red: $0.red, green: $0.green, blue: $0.blue) }
+    }
+
+    /// A synthetic 06:30–19:30 day on `date`'s calendar day: the preview cannot read the weather service's sun times
+    /// (the Settings window has no weather environment), and a fixed day is honest about it.
+    static func times(on date: Date) -> SunTimes {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        return SunTimes(sunrise: calendar.date(byAdding: .minute, value: 390, to: start),
+                        sunset: calendar.date(byAdding: .minute, value: 1170, to: start))
+    }
+
+    static func phase(forHour hour: Double, on date: Date) -> DaylightPhase {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        let at = start.addingTimeInterval(min(max(hour, 0), 24) * 3600)
+        return SolarDaylightEvaluator.sample(at: at, times: times(on: date)).phase
+    }
+
+    private var liveHour: Double {
+        let calendar = Calendar.current
+        let now = Date()
+        return Double(calendar.component(.hour, from: now)) + Double(calendar.component(.minute, from: now)) / 60
+    }
+
+    private func hourLabel(_ hour: Double) -> String {
+        let whole = Int(hour) % 24
+        let minutes = Int(((hour - floor(hour)) * 60).rounded())
+        return String(format: "%02d:%02d", whole, minutes == 60 ? 0 : minutes)
+    }
+
+    private func skyTitle(_ sky: WallpaperSky) -> String {
+        switch sky {
+        case .clear: return String(localized: "Clear")
+        case .cloudy: return String(localized: "Cloudy")
+        case .rain: return String(localized: "Rain")
+        case .snow: return String(localized: "Snow")
+        case .storm: return String(localized: "Storm")
+        case .fog: return String(localized: "Fog")
+        }
+    }
+
+    private func setMode(time: Bool, weather: Bool) {
+        switch (time, weather) {
+        case (true, true): store.setWallpaperMode(.both)
+        case (true, false): store.setWallpaperMode(.time)
+        case (false, true): store.setWallpaperMode(.weather)
+        case (false, false): store.setWallpaperMode(.time)   // neither is not a mode; keep the clock
+        }
+    }
+
+    private func loadDraft() {
+        draftStops = padded(store.dockAccent.hexStops)
+        draftAngle = store.dockAccent.angleDegrees
+    }
+
+    private func padded(_ stops: [String]) -> [String] {
+        var result = Array(stops.prefix(3))
+        while result.count < 3 { result.append("") }
+        return result
+    }
+
+    /// Applies the entered stops as one edit: empty fields are dropped, invalid hexes are refused by the model (a
+    /// gradient short of its minimum falls back to wallpaper-adaptive rather than painting one arbitrary colour).
+    private func applyAccent() {
+        var spec = store.dockAccent
+        let entered = draftStops.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        if !entered.isEmpty { spec.hexStops = entered }
+        spec.angleDegrees = draftAngle
+        store.setDockAccent(spec)
+        draftStops = padded(store.dockAccent.hexStops)
+    }
+
+    /// Not a localized string: the format hint for a hex field reads the same in every language, and declaring it
+    /// as a `String` keeps `TextField` on its verbatim initializer instead of making the catalog carry it.
+    private static let hexPlaceholder = "#RRGGBB"
+
+    private func chooseWallpaperFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        if panel.runModal() == .OK, let url = panel.url { store.setWallpaperFolder(url.path) }
+    }
+}
+
+/// The stage: sky gradient, sun/moon glow and the three silhouette bands of the resolved scene, plus a capsule in
+/// the current accent stops so the dock's own colours are visible next to the picture they were sampled from.
+struct WallpaperStageView: View {
+    let environment: WallpaperEnvironment
+    let accent: [Color]
+
+    var body: some View {
+        Canvas { context, size in
+            let sky = Gradient(colors: [color(environment.skyTop), color(environment.skyBottom)])
+            context.fill(Path(CGRect(origin: .zero, size: size)),
+                         with: .linearGradient(sky, startPoint: .zero, endPoint: CGPoint(x: 0, y: size.height)))
+            if environment.glowStrength > 0 {
+                let center = CGPoint(x: size.width * 0.72, y: size.height * 0.34)
+                let radius = size.height * 0.45
+                context.fill(Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius,
+                                                    width: radius * 2, height: radius * 2)),
+                             with: .radialGradient(Gradient(colors: [color(environment.glow).opacity(environment.glowStrength), .clear]),
+                                                   center: center, startRadius: 0, endRadius: radius))
+            }
+            for (index, layer) in environment.layers.enumerated() {
+                context.fill(band(index: index, of: environment.layers.count, size: size), with: .color(color(layer)))
+            }
+            let capsule = CGRect(x: size.width * 0.25, y: size.height - 34, width: size.width * 0.5, height: 18)
+            context.fill(Path(roundedRect: capsule, cornerRadius: 9),
+                         with: .linearGradient(Gradient(colors: accent.map { $0.opacity(0.9) }),
+                                               startPoint: CGPoint(x: capsule.minX, y: 0),
+                                               endPoint: CGPoint(x: capsule.maxX, y: 0)))
+        }
+    }
+
+    /// The same band geometry the PNG renderer paints, in SwiftUI coordinates (origin top-left).
+    private func band(index: Int, of count: Int, size: CGSize) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: 0, y: size.height))
+        let depth = CGFloat(count - index - 1)
+        let base = size.height * (0.90 - 0.08 * depth)
+        switch environment.scene {
+        case .city:
+            return cityPath(index: index, base: base, size: size)
+        default:
+            let steps = 96
+            let amplitude: CGFloat = environment.scene == .alpine ? 0.30 : environment.scene == .countryside ? 0.16 : 0.24
+            let sea = environment.scene == .coast && index == count - 1
+            for step in 0...steps {
+                let t = CGFloat(step) / CGFloat(steps)
+                let ridge = CGFloat(SceneGeometry.ridge(x: Double(t), layer: index, peakX: environment.scene == .coast ? 0.28 : 0.5))
+                let y = sea ? size.height * 0.94 : base - size.height * amplitude * ridge
+                path.addLine(to: CGPoint(x: t * size.width, y: y))
+            }
+        }
+        path.addLine(to: CGPoint(x: size.width, y: size.height))
+        path.closeSubpath()
+        return path
+    }
+
+    private func cityPath(index: Int, base: CGFloat, size: CGSize) -> Path {
+        var path = Path()
+        let blocks = 14
+        var x: CGFloat = 0
+        for i in 0..<blocks {
+            let seed = (i &* 73 &+ index &* 31) & 97
+            let width = size.width / CGFloat(blocks) * (0.7 + CGFloat(seed % 6) / 10)
+            let height = size.height * (0.10 + CGFloat(seed % 9) / 100)
+            path.addRect(CGRect(x: x, y: base - height, width: min(width, size.width - x), height: height + (size.height - base)))
+            x += width
+            if x >= size.width { break }
+        }
+        return path
+    }
+
+    private func color(_ c: SkyRGB) -> Color { Color(red: c.r, green: c.g, blue: c.b) }
 }

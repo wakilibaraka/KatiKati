@@ -11,6 +11,7 @@ extension SettingsTab {
         case .general: return "launch login language updates about permissions reset"
         case .menuBar: return "menu bar cpu memory gpu storage battery network disk drives"
         case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
+        case .wallpaper: return "wallpaper dynamic time solar daylight weather terrain city countryside mountains coast gradient mesh accent scene"
         case .dockItems: return "dock widgets chips order size presets motion reorder"
         case .drawer: return "drawer capsule left right background apps flank position"
         case .shelf: return "shelf file tray notch card stack shake storage expire unpinned system dock spaces"
@@ -99,7 +100,7 @@ struct SettingsSidebar: View {
     @State private var hoveredTab: SettingsTab?
 
     private static let sections: [SidebarSection] = [
-        .system([.general, .menuBar, .appearance, .dockItems]),
+        .system([.general, .menuBar, .appearance, .wallpaper, .dockItems]),
         .surfaces([.drawer, .shelf, .widgets, .desktop, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
         .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
