@@ -1134,9 +1134,9 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1795294211.5343554,
-    "seen": 1795294374.7516959,
-    "ast_hash": "e56f23a0269cf665c8c08b17cf3aba55",
+    "mtime": 1795295805.7198982,
+    "seen": 1795296207.413829,
+    "ast_hash": "f62ed623de179ef93eee3340a4c50a0b",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
