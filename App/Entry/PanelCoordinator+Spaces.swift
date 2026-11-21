@@ -99,6 +99,7 @@ extension PanelCoordinator {
 @MainActor
 final class MissionControlSession {
     static let shared = MissionControlSession()
+    private let logger = Logger(subsystem: "com.katikati.app", category: "mission-control")
 
     private var observer: AXObserver?
     private var dockPID: pid_t?
@@ -107,15 +108,22 @@ final class MissionControlSession {
     private var keyMonitor: Any?
     private var renderPanel: NSPanel?
     private var controlPanel: NSPanel?
-    private var frames: [MissionControlWindowFrame] = []
-    private var hoveredID: MissionControlWindowFrame.ID?
-    private var focusedID: MissionControlWindowFrame.ID?
+    /// The overview's filter, hover and keyboard target; all transition rules live in Core so they
+    /// are covered by `MissionControlInteractionTests` instead of only by the live session.
+    private var interaction = MissionControlInteraction()
     /// Set when the overlay is dismissed on purpose (Return raised a window), so the Dock-closing
     /// animation cannot immediately re-open it from an AX notification.
     private var suspendedUntil: Date?
+    /// Throttles the on-demand activation probe; Mission Control publishes no readable Dock AX
+    /// notification on macOS 26, so entry is recognised from the gesture/click/key that opens it.
+    private var nextActivationProbe = Date.distantPast
     private var configuration = MissionControlConfiguration()
-    private var query = ""
     private var isActive = false
+
+    private var frames: [MissionControlWindowFrame] { interaction.frames }
+    private var hoveredID: MissionControlWindowFrame.ID? { interaction.hoveredID }
+    private var focusedID: MissionControlWindowFrame.ID? { interaction.focusedID }
+    private var query: String { interaction.query }
     private var isEnabled = false
 
     /// The pane calls this when its switch changes; app launch calls `start()` when the stored switch
@@ -128,6 +136,7 @@ final class MissionControlSession {
     func start() {
         guard MissionControlSettings.isEnabled(), !isActive else { return }
         isEnabled = true
+        logger.info("[mission-control] start enabled=\(self.isEnabled, privacy: .public) axTrusted=\(AXIsProcessTrusted(), privacy: .public)")
         configuration = MissionControlSettings.load()
         guard AXIsProcessTrusted() else { return }
         guard let dock = NSWorkspace.shared.runningApplications.first(where: {
@@ -156,7 +165,9 @@ final class MissionControlSession {
         }
 
         if mouseMonitor == nil {
-            mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .rightMouseDown, .otherMouseDown]) { [weak self] event in
+            mouseMonitor = NSEvent.addGlobalMonitorForEvents(
+            matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
+        ) { [weak self] event in
                 MainActor.assumeIsolated { self?.handleMouse(event) }
             }
         }
@@ -184,10 +195,7 @@ final class MissionControlSession {
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         hidePanels()
-        frames = []
-        hoveredID = nil
-        focusedID = nil
-        query = ""
+        interaction.close()
         isActive = false
         suspendedUntil = Date().addingTimeInterval(0.6)
     }
@@ -207,18 +215,20 @@ final class MissionControlSession {
             return
         }
         let probe = MissionControlDockProbe.probe()
+        logger.debug("[mission-control] probe active=\(probe.isActive, privacy: .public) readable=\(probe.dockReadable, privacy: .public) frames=\(probe.frames.count, privacy: .public)")
         guard probe.isActive, !probe.frames.isEmpty else {
             if isActive { dismiss() }
             return
         }
         let wasActive = isActive
         configuration = MissionControlSettings.load()
-        frames = probe.frames
         // A refresh comes from any AX or Space notification, including title changes while the user
-        // is typing a filter; keep the query and target so the overview does not reset under them.
-        if !wasActive { query = "" }
-        if focusedID == nil || !probe.frames.contains(where: { $0.id == focusedID }) {
-            focusedID = probe.frames.first?.id
+        // is typing a filter; `update` keeps the query and target so the overview cannot reset
+        // under them, while `open` starts a genuinely new appearance clean.
+        if wasActive {
+            interaction.update(frames: probe.frames)
+        } else {
+            interaction.open(with: probe.frames)
         }
         isActive = true
         showPanels()
@@ -231,6 +241,7 @@ final class MissionControlSession {
         guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
         let local = frames.map { Self.local($0, on: screen) }
 
+        logger.info("[mission-control] show panels frames=\(self.frames.count, privacy: .public)")
         let render = renderPanel ?? makePanel(clickThrough: true, level: .screenSaver)
         render.setFrame(screen.frame, display: true)
         renderPanel = render
@@ -272,24 +283,35 @@ final class MissionControlSession {
     // MARK: Pointer and keys
 
     private func handleMouse(_ event: NSEvent) {
-        guard isActive else { return }
+        guard isActive else {
+            switch event.type {
+            case .mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel:
+                scheduleActivationProbe()
+            default:
+                break
+            }
+            return
+        }
         switch event.type {
         case .mouseMoved:
             updateHover(at: Self.axLocation(of: event))
         case .rightMouseDown:
             guard let action = configuration.actions.mouse.action(for: .right) else { return }
-            perform(action)
+            perform(action, source: .pointer)
         case .otherMouseDown:
             guard event.buttonNumber == 2,
                   let action = configuration.actions.mouse.action(for: .middle) else { return }
-            perform(action)
+            perform(action, source: .pointer)
         default:
             break
         }
     }
 
     private func handleKey(_ event: NSEvent) {
-        guard isActive else { return }
+        guard isActive else {
+            if Self.opensOverview(event) { scheduleActivationProbe() }
+            return
+        }
         let modifiers = Self.modifiers(of: event.modifierFlags)
         let characters = event.charactersIgnoringModifiers ?? ""
 
@@ -305,41 +327,81 @@ final class MissionControlSession {
                 }
             }()
             if let step {
-                let activeQuery = query
-                let visible = { (frame: MissionControlWindowFrame) in
-                    MissionControlFilter.matches(query: activeQuery, title: frame.title, app: frame.appName)
-                }
-                focusedID = MissionControlTargetRanker.next(
-                    after: focusedID, step: step, in: frames, visible: visible
-                )?.id
-                updateRender()
+                apply(interaction.handle(.moveFocus(step: step)))
                 return
             }
-            if event.keyCode == 36, let frame = Self.target(focusedID: focusedID, hoveredID: hoveredID, frames: frames) {
-                _ = WindowActionExecutor.raise(frame)
-                dismiss()
+            if event.keyCode == 36 {
+                apply(interaction.handle(.raise))
                 return
             }
         }
         if modifiers == configuration.actions.hoverKeys.modifiers,
            let action = configuration.actions.hoverKeys.action(forKey: characters, modifiers: modifiers) {
-            perform(action)
+            perform(action, source: .keyboard)
             return
         }
         guard configuration.naming.filterEnabled, modifiers.isEmpty else { return }
         if event.keyCode == 53 {
-            query = ""
-            focusedID = frames.first?.id
-        } else if event.keyCode == 51 {
-            if !query.isEmpty { query.removeLast() }
-        } else if characters.count == 1, let scalar = characters.unicodeScalars.first,
-                  CharacterSet.alphanumerics.contains(scalar) {
-            query.append(Character(scalar))
-        } else {
+            apply(interaction.handle(.escape))
             return
         }
-        focusedID = Self.firstVisible(in: frames, query: query)?.id
-        updateRender()
+        if event.keyCode == 51 {
+            apply(interaction.handle(.deleteBackward))
+            return
+        }
+        if characters.count == 1, let scalar = characters.unicodeScalars.first,
+           CharacterSet.alphanumerics.contains(scalar) || "-_. '".unicodeScalars.contains(scalar) {
+            apply(interaction.handle(.text(characters)))
+        }
+    }
+
+    /// Mission Control's opening gesture is not observable through the Dock on this macOS, so entry is
+    /// probed once shortly after the key, click, swipe or hot-corner that can open it. Probe calls are
+    /// throttled and there is no timer while the overview is closed.
+    private func scheduleActivationProbe() {
+        guard Date() >= nextActivationProbe else { return }
+        logger.info("[mission-control] activation probe scheduled")
+        nextActivationProbe = Date().addingTimeInterval(0.9)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+            guard let self, !self.isActive else { return }
+            guard let suspendedUntil = self.suspendedUntil, Date() < suspendedUntil else {
+                self.refresh()
+                return
+            }
+            // A Raise dismiss suspends re-entry for 0.6 s; retry once after it instead of dropping the
+            // user's genuine re-open because it landed inside that window.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let self, !self.isActive else { return }
+                self.refresh()
+            }
+        }
+    }
+
+    private static func opensOverview(_ event: NSEvent) -> Bool {
+        let modifiers = modifiers(of: event.modifierFlags)
+        switch event.keyCode {
+        case 99, 160: return true                                  // F3 / Mission Control key
+        case 126: return modifiers == [.control]                   // ⌃↑
+        default: return false
+        }
+    }
+
+    /// Runs the pure interaction's answer: redraw from the new state, raise a window through AX and
+    /// leave the overview, or dismiss it outright (Escape with no filter).
+    private func apply(_ effects: [MissionControlInteraction.Effect]) {
+        for effect in effects {
+            switch effect {
+            case .render:
+                updateRender()
+            case .dismiss:
+                dismiss()
+            case .raise(let id):
+                if let frame = frames.first(where: { $0.id == id }) {
+                    _ = WindowActionExecutor.raise(frame)
+                }
+                dismiss()
+            }
+        }
     }
 
     /// Hides the overlay without tearing down monitors: the session stays subscribed, and the next
@@ -347,25 +409,9 @@ final class MissionControlSession {
     /// point) and when the Dock leaves overview mode.
     private func dismiss() {
         hidePanels()
-        frames = []
-        hoveredID = nil
-        focusedID = nil
-        query = ""
+        interaction.close()
         isActive = false
-    }
-
-    private static func firstVisible(in frames: [MissionControlWindowFrame], query: String) -> MissionControlWindowFrame? {
-        frames.first { MissionControlFilter.matches(query: query, title: $0.title, app: $0.appName) }
-    }
-
-    /// The window a keyboard action applies to: the explicit target first, the hovered window as a
-    /// fallback for pointer-first use.
-    private static func target(
-        focusedID: MissionControlWindowFrame.ID?,
-        hoveredID: MissionControlWindowFrame.ID?,
-        frames: [MissionControlWindowFrame]
-    ) -> MissionControlWindowFrame? {
-        frames.first { $0.id == focusedID } ?? frames.first { $0.id == hoveredID }
+        suspendedUntil = Date().addingTimeInterval(0.6)
     }
 
     /// Rebuilds the render panel's root view from the current frames, configuration and live session
@@ -389,7 +435,7 @@ final class MissionControlSession {
     private func updateHover(at point: CGPoint) {
         let target = MissionControlTargetRanker.target(at: point, in: frames)
         guard target?.id != hoveredID else { return }
-        hoveredID = target?.id
+        interaction.hover(target?.id)
         updateRender()
         controlPanel?.orderFrontRegardless()
         placeControls()
@@ -414,8 +460,8 @@ final class MissionControlSession {
         panel.setFrame(CGRect(origin: origin, size: CGSize(width: width, height: 34)), display: true)
     }
 
-    private func perform(_ action: MissionControlWindowAction) {
-        guard let frame = Self.target(focusedID: focusedID, hoveredID: hoveredID, frames: frames) else { return }
+    private func perform(_ action: MissionControlWindowAction, source: MissionControlInteraction.Source = .pointer) {
+        guard let frame = interaction.target(for: source) else { return }
         _ = WindowActionExecutor.perform(action, on: frame)
         refresh()
     }
@@ -439,12 +485,13 @@ final class MissionControlSession {
 
     // MARK: Geometry
 
-    /// AX screen coordinates are top-left origin; the overlay panel's SwiftUI space starts at the
-    /// screen's top-left too, so the conversion is a translation plus a vertical flip.
+    /// Both AX windows and the CGWindow fallback report top-left-origin screen coordinates, and the
+    /// overlay panel's SwiftUI space also starts at the screen's top-left. The conversion is a
+    /// translation only; flipping here would mirror every card away from its Mission Control thumbnail.
     private static func local(_ frame: MissionControlWindowFrame, on screen: NSScreen) -> MissionControlWindowFrame {
         let rect = CGRect(
             x: frame.frame.minX - screen.frame.minX,
-            y: screen.frame.maxY - frame.frame.maxY,
+            y: frame.frame.minY - screen.frame.minY,
             width: frame.frame.width,
             height: frame.frame.height
         )

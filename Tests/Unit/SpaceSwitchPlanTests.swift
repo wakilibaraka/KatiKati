@@ -434,3 +434,183 @@ final class MissionControlPresentationTests: XCTestCase {
         XCTAssertEqual(decoded.presentation, MissionControlPresentation())
     }
 }
+
+/// The Mission Control overview's interaction rules, extracted from the AppKit session so a filter,
+/// Tab navigation, Return, Escape and pointer commands are proven without the Dock or AX.
+final class MissionControlInteractionTests: XCTestCase {
+    private func window(
+        _ id: MissionControlWindowFrame.ID,
+        app: String = "App",
+        title: String,
+        bundle: String? = nil
+    ) -> MissionControlWindowFrame {
+        MissionControlWindowFrame(
+            id: id,
+            bundleID: bundle,
+            appName: app,
+            title: title,
+            frame: CGRect(x: CGFloat(id) * 40, y: 0, width: 100, height: 100),
+            state: .standard,
+            isFocused: false
+        )
+    }
+
+    private func windows() -> [MissionControlWindowFrame] {
+        [
+            window(1, app: "Safari", title: "Release notes", bundle: "com.apple.Safari"),
+            window(2, app: "Xcode", title: "KatiKati", bundle: "com.apple.dt.Xcode"),
+            window(3, app: "Terminal", title: "swift test", bundle: "com.apple.Terminal")
+        ]
+    }
+
+    func testOpeningTargetsTheFirstWindowAndReturnRaisesIt() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        XCTAssertEqual(interaction.focusedID, 1)
+        XCTAssertEqual(interaction.handle(.raise), [.raise(1)])
+    }
+
+    func testTabAndArrowNavigationCycleAndClampToVisibleWindows() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        XCTAssertEqual(interaction.handle(.moveFocus(step: 1)), [.render])
+        XCTAssertEqual(interaction.focusedID, 2)
+        XCTAssertEqual(interaction.handle(.moveFocus(step: 1)), [.render])
+        XCTAssertEqual(interaction.focusedID, 3)
+        XCTAssertEqual(interaction.handle(.moveFocus(step: 1)), [.render])
+        XCTAssertEqual(interaction.focusedID, 1, "forward wraps")
+        XCTAssertEqual(interaction.handle(.moveFocus(step: -1)), [.render])
+        XCTAssertEqual(interaction.focusedID, 3, "backward wraps")
+    }
+
+    func testFilterRetargetsAndNavigationSkipsDimmedWindows() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        XCTAssertEqual(interaction.handle(.text("term")), [.render])
+        XCTAssertEqual(interaction.focusedID, 3, "Terminal / swift test matches, others do not")
+
+        // Navigating from a match stays on the only match instead of jumping to a dimmed window.
+        XCTAssertEqual(interaction.handle(.moveFocus(step: 1)), [])
+        XCTAssertEqual(interaction.focusedID, 3)
+        XCTAssertEqual(interaction.handle(.raise), [.raise(3)])
+    }
+
+    func testSpaceAndPunctuationTypeIntoTheFilter() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        _ = interaction.handle(.text("kati"))
+        _ = interaction.handle(.text(" "))
+        _ = interaction.handle(.text("kati"))
+        XCTAssertEqual(interaction.query, "kati kati")
+        XCTAssertEqual(interaction.visibleWindows.map(\.id), [2])
+        XCTAssertEqual(interaction.focusedID, 2)
+    }
+
+    func testEscapeClearsTheFilterThenDismisses() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        _ = interaction.handle(.text("saf"))
+        XCTAssertEqual(interaction.focusedID, 1)
+        XCTAssertEqual(interaction.handle(.escape), [.render])
+        XCTAssertTrue(interaction.query.isEmpty)
+        XCTAssertEqual(interaction.focusedID, 1)
+        XCTAssertEqual(interaction.handle(.escape), [.dismiss])
+    }
+
+    func testBackspaceWidensTheFilterAndEmptyBackspaceIsANoOp() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        _ = interaction.handle(.text("ka"))
+        XCTAssertEqual(interaction.visibleWindows.map(\.id), [2])
+        XCTAssertEqual(interaction.handle(.deleteBackward), [.render])
+        XCTAssertEqual(interaction.query, "k")
+        XCTAssertEqual(interaction.visibleWindows.map(\.id), [2])
+        _ = interaction.handle(.deleteBackward)
+        XCTAssertEqual(interaction.query, "")
+        XCTAssertEqual(interaction.visibleWindows.map(\.id), [1, 2, 3])
+        XCTAssertEqual(interaction.handle(.deleteBackward), [])
+    }
+
+    func testKeyboardAndPointerResolveDifferentTargets() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        interaction.hover(2)
+        // Tab moves the keyboard target; the pointer still rests on window 2.
+        _ = interaction.handle(.moveFocus(step: 1))
+        XCTAssertEqual(interaction.focusedID, 2)
+        XCTAssertEqual(interaction.target(for: .keyboard)?.id, 2)
+        XCTAssertEqual(interaction.target(for: .pointer)?.id, 2)
+        _ = interaction.handle(.moveFocus(step: 1))
+        XCTAssertEqual(interaction.focusedID, 3)
+        XCTAssertEqual(interaction.target(for: .keyboard)?.id, 3)
+        XCTAssertEqual(interaction.target(for: .pointer)?.id, 2, "a right-click acts under the cursor")
+        XCTAssertEqual(interaction.handle(.raise), [.raise(3)], "Return acts on the keyboard target")
+    }
+
+    func testKeyboardFallsBackToHoveredAndPointerFallsBackToFocused() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        interaction.hover(2)
+        XCTAssertEqual(interaction.target(for: .keyboard)?.id, 1, "keyboard target wins")
+        interaction.hover(nil)
+        XCTAssertEqual(interaction.target(for: .pointer)?.id, 1, "focus is the pointer fallback")
+
+        interaction.close()
+        interaction.open(with: [])
+        XCTAssertNil(interaction.handle(.raise).first)
+        XCTAssertNil(interaction.target(for: .keyboard))
+    }
+
+    func testRefreshKeepsFilterAndTargetAndReplacesClosedWindows() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        _ = interaction.handle(.text("ka"))
+        XCTAssertEqual(interaction.focusedID, 2)
+
+        // The matching window is still there: nothing about the filter or target changes.
+        interaction.update(frames: windows())
+        XCTAssertEqual(interaction.query, "ka")
+        XCTAssertEqual(interaction.focusedID, 2)
+
+        // Its window closed: the target moves to the first remaining match, and no match empties it.
+        let remaining = [windows()[0], windows()[2]]
+        interaction.update(frames: remaining)
+        XCTAssertEqual(interaction.query, "ka")
+        XCTAssertNil(interaction.focusedID)
+        XCTAssertNil(interaction.handle(.raise).first)
+    }
+
+    func testHoverClearsWhenTheWindowDisappears() {
+        var interaction = MissionControlInteraction()
+        interaction.open(with: windows())
+        interaction.hover(3)
+        interaction.update(frames: [windows()[0]])
+        XCTAssertNil(interaction.hoveredID)
+        interaction.hover(1)
+        interaction.update(frames: windows())
+        XCTAssertEqual(interaction.hoveredID, 1)
+    }
+
+    func testKeyboardReadinessTracksInputMonitoringWithoutBlockingTheOverlay() {
+        let ready = MissionControlReadiness(
+            accessibility: .granted, screenRecording: .denied, detection: .granted, inputMonitoring: .granted
+        )
+        XCTAssertTrue(ready.isReady)
+        XCTAssertTrue(ready.keyboardReady)
+
+        let noKeyboard = MissionControlReadiness(
+            accessibility: .granted, screenRecording: .denied, detection: .granted, inputMonitoring: .denied
+        )
+        XCTAssertTrue(noKeyboard.isReady, "mouse overlay and AX actions work without Input Monitoring")
+        XCTAssertFalse(noKeyboard.keyboardReady)
+
+        XCTAssertFalse(MissionControlReadiness.unknown.keyboardReady)
+    }
+
+    func testPlacementOppositesKeepTheFilterReadoutAwayFromThePill() {
+        XCTAssertEqual(MissionControlPlacement.top.opposite, .bottom)
+        XCTAssertEqual(MissionControlPlacement.bottom.opposite, .top)
+        XCTAssertEqual(MissionControlPlacement.leading.opposite, .trailing)
+        XCTAssertEqual(MissionControlPlacement.trailing.opposite, .leading)
+    }
+}

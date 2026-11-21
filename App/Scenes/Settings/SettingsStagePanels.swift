@@ -866,19 +866,6 @@ private extension MissionControlColor {
     var color: Color { Color(.sRGB, red: red, green: green, blue: blue, opacity: alpha) }
 }
 
-extension MissionControlPlacement {
-    /// Corner/edge directly across the surface, used so the filter readout never sits under the
-    /// Space pill.
-    var opposite: MissionControlPlacement {
-        switch self {
-        case .top: return .bottom
-        case .bottom: return .top
-        case .leading: return .trailing
-        case .trailing: return .leading
-        }
-    }
-}
-
 /// MC-3: the stage's Mission Control preview. It draws the same `MissionControlSurface` the live
 /// overlay uses, over four symbolic thumbnails, and reloads whenever the section writes a setting —
 /// so Naming, Framing, Colouring and the hover cluster are visible before Mission Control opens.

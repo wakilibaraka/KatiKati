@@ -493,6 +493,17 @@ struct MissionControlMouseBindings: Codable, Equatable, Sendable {
 /// is the visual half the renderer reads; nothing here decides *what* is drawn, only how.
 enum MissionControlPlacement: String, Codable, CaseIterable, Sendable {
     case top, bottom, leading, trailing
+
+    /// Corner/edge directly across the surface, used so the filter readout never sits under the
+    /// Space pill.
+    var opposite: MissionControlPlacement {
+        switch self {
+        case .top: return .bottom
+        case .bottom: return .top
+        case .leading: return .trailing
+        case .trailing: return .leading
+        }
+    }
 }
 
 struct MissionControlPresentation: Codable, Equatable, Sendable {
@@ -591,9 +602,25 @@ struct MissionControlReadiness: Codable, Equatable, Sendable {
     var accessibility: MissionControlPermission
     var screenRecording: MissionControlPermission
     var detection: MissionControlPermission
+    /// Global key monitoring (Tab, Return, Escape, filter typing and hover shortcuts) is an Input
+    /// Monitoring grant on modern macOS, separate from Accessibility. The overlay and mouse work
+    /// without it, so it is reported and never blocks the feature.
+    var inputMonitoring: MissionControlPermission
+
+    init(
+        accessibility: MissionControlPermission,
+        screenRecording: MissionControlPermission,
+        detection: MissionControlPermission,
+        inputMonitoring: MissionControlPermission = .unknown
+    ) {
+        self.accessibility = accessibility
+        self.screenRecording = screenRecording
+        self.detection = detection
+        self.inputMonitoring = inputMonitoring
+    }
 
     static let unknown = MissionControlReadiness(
-        accessibility: .unknown, screenRecording: .unknown, detection: .unknown
+        accessibility: .unknown, screenRecording: .unknown, detection: .unknown, inputMonitoring: .unknown
     )
 
     /// Only what an action needs blocks: labels, borders and AX actions work without Screen
@@ -605,6 +632,9 @@ struct MissionControlReadiness: Codable, Equatable, Sendable {
     }
 
     var canTintThumbnails: Bool { screenRecording == .granted }
+
+    /// Keyboard navigation, filtering and configured hover keys need Input Monitoring.
+    var keyboardReady: Bool { inputMonitoring == .granted }
 
     var isReady: Bool { blocker == nil && accessibility == .granted && detection == .granted }
 }
@@ -644,6 +674,141 @@ enum MissionControlTargetRanker {
         let count = candidates.count
         let offset = ((index + step) % count + count) % count
         return candidates[offset]
+    }
+}
+
+/// The Mission Control overview's interaction state machine, kept out of the AppKit session so every
+/// keyboard/mouse path is deterministically testable: frames, the typed filter, the keyboard target
+/// and the hovered window live here, and `handle(_:)` answers with effects the session executes
+/// (redraw, AX raise, dismiss). No timers, no AX calls, no UI.
+struct MissionControlInteraction: Equatable, Sendable {
+    enum Source: Equatable, Sendable {
+        /// Keyboard commands (Return, configured hover keys).
+        case keyboard
+        /// Pointer commands (hover buttons, right/middle click).
+        case pointer
+    }
+
+    enum Input: Equatable, Sendable {
+        case moveFocus(step: Int)
+        case raise
+        case escape
+        case deleteBackward
+        case text(String)
+    }
+
+    enum Effect: Equatable, Sendable {
+        case render
+        case raise(MissionControlWindowFrame.ID)
+        case dismiss
+    }
+
+    private(set) var frames: [MissionControlWindowFrame] = []
+    private(set) var query = ""
+    private(set) var focusedID: MissionControlWindowFrame.ID?
+    private(set) var hoveredID: MissionControlWindowFrame.ID?
+
+    /// A fresh overview: no filter, the first window targeted so Return always has an answer, and
+    /// no stale hover from the previous appearance.
+    mutating func open(with windows: [MissionControlWindowFrame]) {
+        frames = windows
+        query = ""
+        hoveredID = nil
+        focusedID = visibleWindows.first?.id
+    }
+
+    /// An AX/Space notification while the overview stays open. The typed filter and keyboard target
+    /// survive because a title change must not reset what the user is doing; only a target that no
+    /// longer exists (closed window) or no longer matches the filter is replaced.
+    mutating func update(frames windows: [MissionControlWindowFrame]) {
+        frames = windows
+        if let currentHover = hoveredID, !windows.contains(where: { $0.id == currentHover }) {
+            hoveredID = nil
+        }
+        clampFocus()
+    }
+
+    mutating func close() {
+        frames = []
+        query = ""
+        focusedID = nil
+        hoveredID = nil
+    }
+
+    mutating func hover(_ id: MissionControlWindowFrame.ID?) {
+        hoveredID = id
+    }
+
+    var isFiltering: Bool { !query.isEmpty }
+
+    var visibleWindows: [MissionControlWindowFrame] {
+        frames.filter { MissionControlFilter.matches(query: query, title: $0.title, app: $0.appName) }
+    }
+
+    /// Which window a command applies to. Keyboard commands prefer the keyboard target and fall back
+    /// to the hovered window; pointer commands do the reverse, so a right-click always acts on what
+    /// is under the cursor even when Tab targeted something else.
+    func target(for source: Source) -> MissionControlWindowFrame? {
+        func find(_ id: MissionControlWindowFrame.ID?) -> MissionControlWindowFrame? {
+            guard let id else { return nil }
+            return frames.first { $0.id == id }
+        }
+        switch source {
+        case .keyboard:
+            return find(focusedID) ?? find(hoveredID)
+        case .pointer:
+            return find(hoveredID) ?? find(focusedID)
+        }
+    }
+
+    mutating func handle(_ input: Input) -> [Effect] {
+        switch input {
+        case .moveFocus(let step):
+            let next = MissionControlTargetRanker.next(
+                after: focusedID, step: step, in: frames, visible: matchesFilter
+            )?.id
+            guard next != focusedID else { return [] }
+            focusedID = next
+            return [.render]
+
+        case .raise:
+            guard let target = target(for: .keyboard) else { return [] }
+            return [.raise(target.id)]
+
+        case .escape:
+            guard isFiltering else { return [.dismiss] }
+            query = ""
+            clampFocus()
+            return [.render]
+
+        case .deleteBackward:
+            guard !query.isEmpty else { return [] }
+            query.removeLast()
+            clampFocus()
+            return [.render]
+
+        case .text(let text):
+            guard !text.isEmpty else { return [] }
+            query.append(contentsOf: text)
+            clampFocus()
+            return [.render]
+        }
+    }
+
+    private func matchesFilter(_ frame: MissionControlWindowFrame) -> Bool {
+        MissionControlFilter.matches(query: query, title: frame.title, app: frame.appName)
+    }
+
+    private mutating func clampFocus() {
+        if let focusedID, frames.contains(where: { $0.id == focusedID }), matchesFilterById(focusedID) {
+            return
+        }
+        focusedID = visibleWindows.first?.id
+    }
+
+    private func matchesFilterById(_ id: MissionControlWindowFrame.ID) -> Bool {
+        guard let frame = frames.first(where: { $0.id == id }) else { return false }
+        return matchesFilter(frame)
     }
 }
 

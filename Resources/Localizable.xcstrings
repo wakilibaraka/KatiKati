@@ -177608,6 +177608,83 @@
           }
         }
       }
+    },
+    "Tab, the arrow keys, Return, Escape, type-to-filter and the hover key shortcuts listen to the keyboard globally, which macOS guards behind Input Monitoring. The overlay and its mouse actions still work without it." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, Pfeiltasten, Return, Escape, Tipp-Filter und die Tastenkürzel beim Überfahren hören global auf die Tastatur – dafür verlangt macOS Eingabeüberwachung. Overlay und Mausaktionen funktionieren auch ohne."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, the arrow keys, Return, Escape, type-to-filter and the hover key shortcuts listen to the keyboard globally, which macOS guards behind Input Monitoring. The overlay and its mouse actions still work without it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, las flechas, Return, Escape, el filtro al escribir y los atajos al pasar el cursor escuchan el teclado globalmente, y macOS lo protege con Monitorización de entrada. La superposición y las acciones del ratón funcionan sin ella."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, las flechas, Return, Escape, el filtro al escribir y los atajos al pasar el cursor escuchan el teclado globalmente, y macOS lo protege con Monitorización de entrada. La superposición y las acciones del ratón funcionan sin ella."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, les flèches, Return, Échap, le filtre à la saisie et les raccourcis au survol écoutent le clavier globalement, ce que macOS protège par la Surveillance de la saisie. La surcouche et ses actions à la souris fonctionnent sans elle."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, le frecce, Return, Esc, il filtro digitato e le scorciatoie al passaggio del mouse ascoltano la tastiera globalmente, protetto da Monitoraggio input. L’overlay e le azioni del mouse funzionano anche senza."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab、矢印キー、Return、Escape、入力フィルター、ホバー時のショートカットはキーボードをグローバルに監視するため、macOS の「入力監視」が必要です。オーバーレイとマウス操作は許可なしでも動作します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, 화살표 키, Return, Escape, 입력 필터, 호버 단축키는 키보드를 전역에서 감시하므로 macOS의 '입력 모니터링' 권한이 필요합니다. 오버레이와 마우스 동작은 권한 없이도 작동합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, as setas, Return, Escape, o filtro ao digitar e os atalhos ao passar o mouse escutam o teclado globalmente, e o macOS protege isso com Monitoramento de entrada. A sobreposição e as ações do mouse funcionam sem ele."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab, as setas, Return, Escape, o filtro ao escrever e os atalhos ao passar o rato escutam o teclado globalmente, e o macOS protege isso com Monitorização de entrada. A sobreposição e as ações do rato funcionam sem ela."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab、方向键、Return、Escape、输入筛选和悬停快捷键都需要全局监听键盘，macOS 为此要求“输入监控”。没有该权限时叠加层和鼠标操作仍可正常使用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab、方向鍵、Return、Escape、輸入篩選和懸停快速鍵都需要全域監聽鍵盤，macOS 為此要求「輸入監控」。沒有該權限時疊加層和滑鼠操作仍可正常使用。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

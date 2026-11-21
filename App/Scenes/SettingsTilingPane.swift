@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import IOKit.hid
 import SwiftUI
 
 /// Settings pane for auto-tiling, layout presets, gaps, floating exclusions, and tiling shortcuts (Phase 26b).
@@ -373,6 +374,12 @@ struct SettingsMissionControlPane: View {
             )
             SettingsDivider()
             statusRow(
+                Text("Input Monitoring"),
+                state: readiness.inputMonitoring,
+                note: Text("Tab, the arrow keys, Return, Escape, type-to-filter and the hover key shortcuts listen to the keyboard globally, which macOS guards behind Input Monitoring. The overlay and its mouse actions still work without it.")
+            )
+            SettingsDivider()
+            statusRow(
                 Text("Screen Recording"),
                 state: readiness.screenRecording,
                 note: Text("Optional: only the thumbnail tint wash needs it. Borders, badges and actions work without it.")
@@ -423,8 +430,15 @@ struct SettingsMissionControlPane: View {
     }
 
     private func openPrivacyPane(for label: Text) {
-        let anchor = label.searchableTitle?.contains("Accessibility") == true
-            ? "Privacy_Accessibility" : "Privacy_ScreenCapture"
+        let title = label.searchableTitle ?? ""
+        let anchor: String
+        if title.contains("Accessibility") {
+            anchor = "Privacy_Accessibility"
+        } else if title.contains("Input Monitoring") {
+            anchor = "Privacy_ListenEvent"
+        } else {
+            anchor = "Privacy_ScreenCapture"
+        }
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(anchor)") {
             NSWorkspace.shared.open(url)
         }
@@ -895,10 +909,18 @@ struct SettingsMissionControlPane: View {
 
     private func refreshReadiness() {
         let probe = MissionControlDockProbe.probe()
+        let listenAccess = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
         readiness = MissionControlReadiness(
             accessibility: AXIsProcessTrusted() ? .granted : .denied,
             screenRecording: CGPreflightScreenCaptureAccess() ? .granted : .denied,
-            detection: probe.dockReadable ? .granted : .unsupported
+            detection: probe.dockReadable ? .granted : .unsupported,
+            inputMonitoring: {
+                switch listenAccess {
+                case kIOHIDAccessTypeGranted: return .granted
+                case kIOHIDAccessTypeDenied: return .denied
+                default: return .unknown
+                }
+            }()
         )
     }
 

@@ -963,10 +963,61 @@ enum MissionControlDockProbe {
             return NSScreen.screens.contains { coverage(of: bounds, in: $0.frame) > 0.5 }
         }
         guard let overview, let overviewBounds = overview.bounds else {
-            return Probe(isActive: false, frames: [], dockReadable: readable)
+            // macOS 26 exposes the Mission Control backdrop as a Dock-owned CGWindow but publishes no
+            // Dock AX windows at all. The same snapshot the WindowServer shows is available through
+            // CGWindowList, where every app's thumbnail is a layer-0 window with its scaled frame.
+            return cgOverviewProbe()
         }
         let thumbs = thumbnails(in: overview.element, within: overviewBounds)
         return Probe(isActive: true, frames: thumbs, dockReadable: true)
+    }
+
+    /// Geometry fallback for macOS releases whose Dock hides its AX windows. The overview backdrop is
+    /// the only Dock window covering most of a display; while it is up, every app window is listed at
+    /// layer 0 with the scaled frame Mission Control is drawing. Returns inactive when that backdrop
+    /// is absent, so a normal desktop never reads as an overview.
+    private static func cgOverviewProbe() -> Probe {
+        guard let raw = CGWindowListCopyWindowInfo(
+            [.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID
+        ) as? [[String: Any]] else { return Probe(isActive: false, frames: [], dockReadable: false) }
+        let screens = NSScreen.screens.map(\.frame)
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        var overview = false
+        var frames: [MissionControlWindowFrame] = []
+        for info in raw {
+            guard let layer = info[kCGWindowLayer as String] as? Int,
+                  let ownerPID = info[kCGWindowOwnerPID as String] as? pid_t,
+                  let boundsDict = info[kCGWindowBounds as String] as? [String: CGFloat] else { continue }
+            let bounds = CGRect(
+                x: boundsDict["X"] ?? 0, y: boundsDict["Y"] ?? 0,
+                width: boundsDict["Width"] ?? 0, height: boundsDict["Height"] ?? 0
+            )
+            guard bounds.width > 200, bounds.height > 200 else { continue }
+            let coverage = screens.map { coverage(of: bounds, in: $0) }.max() ?? 0
+            if layer == 20, coverage > 0.5,
+               (info[kCGWindowOwnerName as String] as? String) == "Dock" {
+                overview = true
+                continue
+            }
+            guard layer == 0, ownerPID != ownPID, coverage < 0.9,
+                  bounds.width >= 80, bounds.height >= 50,
+                  let app = NSRunningApplication(processIdentifier: ownerPID),
+                  app.bundleIdentifier != "com.apple.WindowManager" else { continue }
+            let title = (info[kCGWindowName as String] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            frames.append(
+                MissionControlWindowFrame(
+                    id: info[kCGWindowNumber as String] as? UInt32 ?? UInt32(frames.count + 1),
+                    bundleID: app.bundleIdentifier,
+                    appName: app.localizedName ?? "Window",
+                    title: title?.isEmpty == false ? title : nil,
+                    frame: bounds,
+                    state: .standard,
+                    isFocused: false
+                )
+            )
+        }
+        return Probe(isActive: overview && !frames.isEmpty, frames: frames, dockReadable: overview)
     }
 
     /// Thumbnails are one or two AX levels below the overview window. A candidate is a rect at least
