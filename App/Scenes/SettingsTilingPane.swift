@@ -336,6 +336,7 @@ struct SettingsMissionControlPane: View {
             statusCard
             namingCard
             framingCard
+            presentationCard
             colouringCard
             actionsCard
         }
@@ -463,18 +464,121 @@ struct SettingsMissionControlPane: View {
 
     private func spaceLabelRow(id: String, index: Int) -> some View {
         SettingsRow(Text(verbatim: String(format: String(localized: "Space %lld"), index))) {
-            TextField(
-                "Name this Space",
-                text: Binding(
-                    get: { configuration.naming.spaceLabels[id] ?? "" },
+            HStack(spacing: 8) {
+                TextField(
+                    "Name this Space",
+                    text: Binding(
+                        get: { configuration.naming.spaceLabels[id] ?? "" },
+                        set: {
+                            configuration.naming.spaceLabels[id] = $0
+                            save()
+                        }
+                    )
+                )
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 170)
+                ColorPicker(selection: Binding(
+                    get: {
+                        Color(mission: configuration.colouring.spaceAccents[id] ?? configuration.presentation.accentFallback)
+                    },
                     set: {
-                        configuration.naming.spaceLabels[id] = $0
+                        configuration.colouring.spaceAccents[id] = $0.missionColor
                         save()
                     }
-                )
+                ), supportsOpacity: false) {
+                    Text("Space colour")
+                }
+                .labelsHidden()
+                .frame(width: 44)
+                .accessibilityLabel(Text("Space colour"))
+            }
+        }
+    }
+
+    // MARK: Look
+
+    private var presentationCard: some View {
+        SettingsCard(Text("Look & Layout")) {
+            SettingsSliderRow(
+                Text("Border width"),
+                value: configuration.presentation.borderWidth,
+                range: 1...6,
+                step: 0.5,
+                valueText: String(format: "%.1f pt", configuration.presentation.borderWidth),
+                set: {
+                    configuration.presentation.borderWidth = $0
+                    save()
+                }
             )
-            .textFieldStyle(.roundedBorder)
-            .frame(width: 190)
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Corner radius"),
+                value: configuration.presentation.cornerRadius,
+                range: 0...28,
+                step: 1,
+                valueText: "\(Int(configuration.presentation.cornerRadius)) pt",
+                set: {
+                    configuration.presentation.cornerRadius = $0
+                    save()
+                }
+            )
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Badge opacity"),
+                value: configuration.presentation.badgeOpacity * 100,
+                range: 20...100,
+                step: 5,
+                valueText: "\(Int((configuration.presentation.badgeOpacity * 100).rounded()))%",
+                set: {
+                    configuration.presentation.badgeOpacity = $0 / 100
+                    save()
+                }
+            )
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Group padding"),
+                value: configuration.presentation.groupPadding,
+                range: 0...32,
+                step: 2,
+                valueText: "\(Int(configuration.presentation.groupPadding)) pt",
+                set: {
+                    configuration.presentation.groupPadding = $0
+                    save()
+                }
+            )
+            SettingsDivider()
+            SettingsRowPair {
+                SettingsPickerRow(Text("Space title position"), selection: bind(\.presentation.spaceTitlePlacement)) {
+                    ForEach(MissionControlPlacement.allCases, id: \.self) {
+                        Text(verbatim: $0.rawValue.capitalized).tag($0)
+                    }
+                }
+            } right: {
+                SettingsPickerRow(Text("Badge position"), selection: bind(\.presentation.badgePlacement)) {
+                    ForEach(MissionControlPlacement.allCases, id: \.self) {
+                        Text(verbatim: $0.rawValue.capitalized).tag($0)
+                    }
+                }
+            }
+            SettingsDivider()
+            SettingsRowPair {
+                SettingsToggleRow(Text("Filter readout"), isOn: bind(\.presentation.showsFilterChip),
+                                  note: Text("Shows the query and how many windows match while you type."))
+            } right: {
+                SettingsRow(Text("Accent colour")) {
+                    ColorPicker(selection: Binding(
+                        get: { Color(mission: configuration.presentation.accentFallback) },
+                        set: {
+                            configuration.presentation.accentFallback = $0.missionColor
+                            save()
+                        }
+                    ), supportsOpacity: false) {
+                        Text("Accent colour")
+                    }
+                    .labelsHidden()
+                    .frame(width: 44)
+                }
+            }
         }
     }
 
@@ -512,18 +616,34 @@ struct SettingsMissionControlPane: View {
                 Text("Window state borders")
                     .font(.subheadline)
                 ForEach(MissionControlWindowState.allCases, id: \.self) { state in
-                    SettingsPickerRow(
-                        Text(verbatim: state.rawValue.capitalized),
-                        selection: Binding(
-                            get: { configuration.framing.stateStyles[state] ?? .none },
-                            set: {
-                                configuration.framing.stateStyles[state] = $0
-                                save()
+                    SettingsRow(Text(verbatim: state.rawValue.capitalized)) {
+                        HStack(spacing: 8) {
+                            Picker(selection: Binding(
+                                get: { configuration.framing.stateStyles[state] ?? .none },
+                                set: {
+                                    configuration.framing.stateStyles[state] = $0
+                                    save()
+                                }
+                            )) {
+                                ForEach(MissionControlBorderStyle.allCases, id: \.self) {
+                                    Text(verbatim: $0.rawValue.capitalized).tag($0)
+                                }
+                            } label: {
+                                Text(verbatim: state.rawValue.capitalized)
                             }
-                        )
-                    ) {
-                        ForEach(MissionControlBorderStyle.allCases, id: \.self) {
-                            Text(verbatim: $0.rawValue.capitalized).tag($0)
+                            .labelsHidden()
+                            .pickerStyle(.menu)
+                            ColorPicker(selection: Binding(
+                                get: { Color(mission: configuration.colouring.stateColors[state] ?? configuration.colouring.defaultColor) },
+                                set: {
+                                    configuration.colouring.stateColors[state] = $0.missionColor
+                                    save()
+                                }
+                            ), supportsOpacity: false) {
+                                Text(verbatim: state.rawValue.capitalized)
+                            }
+                            .labelsHidden()
+                            .frame(width: 44)
                         }
                     }
                 }
