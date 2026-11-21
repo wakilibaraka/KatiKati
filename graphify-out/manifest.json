@@ -1134,9 +1134,9 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1795288122.9310768,
-    "seen": 1795288343.019837,
-    "ast_hash": "83cfe384acab3ec0dfd73299886c2488",
+    "mtime": 1795288562.2050555,
+    "seen": 1795289362.65521,
+    "ast_hash": "1133cbb76bf46c795ae61fcb2c8e67cd",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
@@ -1734,9 +1734,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
-    "mtime": 1795287612.816811,
-    "seen": 1795288343.019961,
-    "ast_hash": "09c27e6626a19639032f45b14399f788",
+    "mtime": 1795288717.2406318,
+    "seen": 1795289362.655333,
+    "ast_hash": "e551ee58f49f24720bcf39c720f8b059",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeTokens.swift": {
@@ -3378,9 +3378,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeStyleTokensTests.swift": {
-    "mtime": 1795287594.3975677,
-    "seen": 1795288343.020284,
-    "ast_hash": "21c27cac54da2832eb2a64abcfb9afe6",
+    "mtime": 1795288718.552933,
+    "seen": 1795289362.655647,
+    "ast_hash": "ba551bc0e157adff44fd0f06cf805c08",
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795288312.1942692,
-    "seen": 1795288343.020483,
-    "ast_hash": "0a8f75cc1964946ed968cb261dfc53e3",
+    "mtime": 1795289276.6852622,
+    "seen": 1795289362.655848,
+    "ast_hash": "47d4903efdf82b3dc6507c15a97329c8",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795288312.795422,
-    "seen": 1795288343.0205839,
-    "ast_hash": "afd5304a219ad3475176fc9e2df2ad1f",
+    "mtime": 1795289277.2676492,
+    "seen": 1795289362.655949,
+    "ast_hash": "0ea8780ba19139b7d2582ac721abe413",
     "semantic_hash": ""
   },
   "README.md": {
