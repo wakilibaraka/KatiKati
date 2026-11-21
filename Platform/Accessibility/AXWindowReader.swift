@@ -864,3 +864,164 @@ private enum AXWindowIDBridge {
         return nil
     }
 }
+
+// MARK: - Mission Control (MC-2: AX actions and the Dock's overview probe)
+
+/// The five actions the Mission Control overlay performs. Close, minimize and zoom press the window's
+/// own AX buttons, so the app runs its own animation, save sheet and close veto; hide and quit go
+/// through `NSRunningApplication` rather than forging a menu click. Nothing here posts events.
+enum WindowActionExecutor {
+    enum Outcome: Equatable {
+        case performed
+        case unsupported
+        case failed(AXError)
+    }
+
+    /// Acts on the app window the frame describes. Titles are matched first and the app's frontmost
+    /// window is the fallback, so a retitled document still closes rather than doing nothing.
+    static func perform(_ action: MissionControlWindowAction, on frame: MissionControlWindowFrame) -> Outcome {
+        guard let target = locate(frame) else { return .unsupported }
+        switch action {
+        case .close:
+            return press(kAXCloseButtonAttribute, of: target.element)
+        case .minimize:
+            return press(kAXMinimizeButtonAttribute, of: target.element)
+        case .zoom:
+            return press(kAXZoomButtonAttribute, of: target.element)
+        case .hide:
+            guard let app = NSRunningApplication(processIdentifier: target.pid) else { return .unsupported }
+            return app.hide() ? .performed : .failed(.cannotComplete)
+        case .quit:
+            guard let app = NSRunningApplication(processIdentifier: target.pid) else { return .unsupported }
+            return app.terminate() ? .performed : .failed(.cannotComplete)
+        }
+    }
+
+    /// The app's real AX window. A 0.4 s messaging timeout keeps one hung app from stalling the
+    /// overlay; a window that cannot be read is reported unsupported, never guessed at.
+    static func locate(_ frame: MissionControlWindowFrame) -> (element: AXUIElement, pid: Int32)? {
+        let candidates = NSWorkspace.shared.runningApplications.filter {
+            $0.activationPolicy == .regular
+                && ($0.localizedName == frame.appName
+                    || (frame.bundleID != nil && $0.bundleIdentifier == frame.bundleID))
+        }
+        let reader = AXWindowReader()
+        for app in candidates {
+            let windows = reader.inventoryWindows(forPID: app.processIdentifier, messagingTimeout: 0.4).windowsOrEmpty
+            let wanted = frame.title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let match = wanted.isEmpty
+                ? windows.first
+                : windows.first { ($0.title ?? "").caseInsensitiveCompare(wanted) == .orderedSame } ?? windows.first
+            if let match { return (match.element, app.processIdentifier) }
+        }
+        return nil
+    }
+
+    private static func press(_ attribute: String, of element: AXUIElement) -> Outcome {
+        var raw: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(element, attribute as CFString, &raw)
+        guard result == .success, let raw, CFGetTypeID(raw) == AXUIElementGetTypeID() else {
+            return result == .success ? .unsupported : .failed(result)
+        }
+        let button = raw as! AXUIElement
+        let press = AXUIElementPerformAction(button, kAXPressAction as CFString)
+        return press == .success ? .performed : .failed(press)
+    }
+}
+
+/// Reads the Dock's Mission Control surface: one window covering most of a display, with thumbnail
+/// children. macOS has no public Mission Control API, so this is deliberately geometry-driven and
+/// best-effort — an empty result means "unavailable on this macOS", never a fabricated layout.
+enum MissionControlDockProbe {
+    struct Probe: Equatable {
+        let isActive: Bool
+        let frames: [MissionControlWindowFrame]
+        /// The Dock answered Accessibility reads at all. False means this macOS exposes nothing to
+        /// observe, which the settings page reports as "unavailable", never as "off".
+        let dockReadable: Bool
+    }
+
+    static func probe() -> Probe {
+        guard let dock = NSWorkspace.shared.runningApplications.first(where: {
+            $0.bundleIdentifier == "com.apple.dock"
+        }) else { return Probe(isActive: false, frames: [], dockReadable: false) }
+
+        let reader = AXWindowReader()
+        let snapshots = reader.windows(forPID: dock.processIdentifier)
+        let readable = !snapshots.isEmpty
+        let overview = snapshots.first { snapshot in
+            guard let bounds = snapshot.bounds, bounds.width > 200, bounds.height > 200 else { return false }
+            return NSScreen.screens.contains { coverage(of: bounds, in: $0.frame) > 0.5 }
+        }
+        guard let overview, let overviewBounds = overview.bounds else {
+            return Probe(isActive: false, frames: [], dockReadable: readable)
+        }
+        let thumbs = thumbnails(in: overview.element, within: overviewBounds)
+        return Probe(isActive: true, frames: thumbs, dockReadable: true)
+    }
+
+    /// Thumbnails are one or two AX levels below the overview window. A candidate is a rect at least
+    /// 80×50 inside the overview and no wider than 80 % of it (the backdrop itself is excluded).
+    private static func thumbnails(in element: AXUIElement, within bounds: CGRect, depth: Int = 0) -> [MissionControlWindowFrame] {
+        guard depth < 3 else { return [] }
+        var raw: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &raw) == .success,
+              let children = raw as? [AXUIElement] else { return [] }
+
+        var frames: [MissionControlWindowFrame] = []
+        for child in children {
+            guard let rect = frame(of: child), rect.width >= 80, rect.height >= 50,
+                  bounds.contains(rect.insetBy(dx: 4, dy: 4)),
+                  rect.width <= bounds.width * 0.8, rect.height <= bounds.height * 0.8 else {
+                frames.append(contentsOf: thumbnails(in: child, within: bounds, depth: depth + 1))
+                continue
+            }
+            let title = stringAttribute(kAXTitleAttribute as CFString, of: child)
+            let description = stringAttribute(kAXDescriptionAttribute as CFString, of: child)
+            let app = stringAttribute(kAXSubroleAttribute as CFString, of: child)
+            frames.append(
+                MissionControlWindowFrame(
+                    id: UInt32(frames.count + 1 + depth * 100),
+                    bundleID: nil,
+                    appName: description ?? app ?? "Window",
+                    title: title,
+                    frame: rect,
+                    state: .standard,
+                    isFocused: false
+                )
+            )
+        }
+        return frames
+    }
+
+    private static func frame(of element: AXUIElement) -> CGRect? {
+        var positionRaw: CFTypeRef?
+        var sizeRaw: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &positionRaw) == .success,
+              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeRaw) == .success,
+              let positionRaw, let sizeRaw,
+              CFGetTypeID(positionRaw) == AXValueGetTypeID(),
+              CFGetTypeID(sizeRaw) == AXValueGetTypeID() else { return nil }
+        var point = CGPoint.zero
+        var size = CGSize.zero
+        guard AXValueGetValue(positionRaw as! AXValue, .cgPoint, &point),
+              AXValueGetValue(sizeRaw as! AXValue, .cgSize, &size) else { return nil }
+        return CGRect(origin: point, size: size)
+    }
+
+    private static func stringAttribute(_ attribute: CFString, of element: AXUIElement) -> String? {
+        var raw: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, attribute, &raw) == .success,
+              let text = raw as? String else { return nil }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    /// The share of `screen` a window covers. Mission Control's backdrop spans the whole display; an
+    /// ordinary Dock window (the Dock strip) is a fraction of its height.
+    static func coverage(of rect: CGRect, in screen: CGRect) -> Double {
+        let overlap = rect.intersection(screen)
+        guard !overlap.isNull, screen.width > 0, screen.height > 0 else { return 0 }
+        return Double((overlap.width * overlap.height) / (screen.width * screen.height))
+    }
+}

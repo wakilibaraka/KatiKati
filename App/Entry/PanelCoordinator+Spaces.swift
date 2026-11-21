@@ -89,3 +89,321 @@ extension PanelCoordinator {
         }
     }
 }
+
+// MARK: - Mission Control session (MC-2)
+
+/// Watches the Dock's overview and drives the MC-3 surface while it is open. Detection is
+/// event-driven: an AX observer on the Dock plus the Space-change notification. There is no timer, no
+/// poll and no run-loop spin, so a closed Mission Control costs nothing. Every monitor and panel this
+/// type creates is torn down in `stop()`, and the whole session is off unless the section is enabled.
+@MainActor
+final class MissionControlSession {
+    static let shared = MissionControlSession()
+
+    private var observer: AXObserver?
+    private var dockPID: pid_t?
+    private var workspaceObserver: NSObjectProtocol?
+    private var mouseMonitor: Any?
+    private var keyMonitor: Any?
+    private var renderPanel: NSPanel?
+    private var controlPanel: NSPanel?
+    private var frames: [MissionControlWindowFrame] = []
+    private var hoveredID: MissionControlWindowFrame.ID?
+    private var configuration = MissionControlConfiguration()
+    private var query = ""
+    private var isActive = false
+    private var isEnabled = false
+
+    /// The pane calls this when its switch changes; app launch calls `start()` when the stored switch
+    /// is already on, so a relaunch keeps working without opening Settings.
+    func applyEnabled(_ enabled: Bool) {
+        isEnabled = enabled
+        if enabled { start() } else { stop() }
+    }
+
+    func start() {
+        guard MissionControlSettings.isEnabled(), !isActive else { return }
+        isEnabled = true
+        configuration = MissionControlSettings.load()
+        guard AXIsProcessTrusted() else { return }
+        guard let dock = NSWorkspace.shared.runningApplications.first(where: {
+            $0.bundleIdentifier == "com.apple.dock"
+        }) else { return }
+
+        if observer == nil {
+            dockPID = dock.processIdentifier
+            var created: AXObserver?
+            guard AXObserverCreate(dock.processIdentifier, Self.observerCallback, &created) == .success,
+                  let created else { return }
+            observer = created
+            let dockElement = AXUIElementCreateApplication(dock.processIdentifier)
+            for note in [kAXWindowCreatedNotification, kAXUIElementDestroyedNotification, kAXTitleChangedNotification] {
+                AXObserverAddNotification(created, dockElement, note as CFString, Unmanaged.passUnretained(self).toOpaque())
+            }
+            CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(created), .commonModes)
+        }
+
+        if workspaceObserver == nil {
+            workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.refresh() }
+            }
+        }
+
+        if mouseMonitor == nil {
+            mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .rightMouseDown, .otherMouseDown]) { [weak self] event in
+                MainActor.assumeIsolated { self?.handleMouse(event) }
+            }
+        }
+        if keyMonitor == nil {
+            keyMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] event in
+                MainActor.assumeIsolated { self?.handleKey(event) }
+            }
+        }
+
+        refresh()
+    }
+
+    func stop() {
+        if let observer {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .commonModes)
+        }
+        observer = nil
+        dockPID = nil
+        if let workspaceObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver)
+        }
+        workspaceObserver = nil
+        if let mouseMonitor { NSEvent.removeMonitor(mouseMonitor) }
+        mouseMonitor = nil
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        keyMonitor = nil
+        hidePanels()
+        frames = []
+        hoveredID = nil
+        query = ""
+        isActive = false
+    }
+
+    private static let observerCallback: AXObserverCallback = { _, _, _, refcon in
+        guard let refcon else { return }
+        let session = Unmanaged<MissionControlSession>.fromOpaque(refcon).takeUnretainedValue()
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated { session.refresh() }
+        }
+    }
+
+    private func refresh() {
+        guard isEnabled, MissionControlSettings.isEnabled() else {
+            stop()
+            return
+        }
+        let probe = MissionControlDockProbe.probe()
+        guard probe.isActive, !probe.frames.isEmpty else {
+            if isActive { hidePanels(); frames = []; hoveredID = nil; isActive = false }
+            return
+        }
+        configuration = MissionControlSettings.load()
+        frames = probe.frames
+        query = ""
+        isActive = true
+        showPanels()
+        updateHover(at: Self.pointerLocation())
+    }
+
+    // MARK: Panels
+
+    private func showPanels() {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
+        let local = frames.map { Self.local($0, on: screen) }
+
+        let render = renderPanel ?? makePanel(clickThrough: true, level: .screenSaver)
+        render.setFrame(screen.frame, display: true)
+        render.contentView = NSHostingView(rootView: MissionControlSurface(
+            frames: local,
+            configuration: configuration,
+            hoveredID: hoveredID,
+            query: query,
+            spaceTitle: spaceTitle(),
+            spaceAccent: spaceAccent(),
+            showsButtons: false
+        ))
+        render.orderFrontRegardless()
+        renderPanel = render
+
+        let controls = controlPanel ?? makePanel(clickThrough: false, level: .screenSaver)
+        controls.contentView = NSHostingView(rootView: MissionControlControlCluster(
+            actions: configuration.actions.buttons.shownActions,
+            onAction: { [weak self] action in self?.perform(action) }
+        ))
+        controls.orderFrontRegardless()
+        controlPanel = controls
+        placeControls()
+    }
+
+    private func makePanel(clickThrough: Bool, level: NSWindow.Level) -> NSPanel {
+        let panel = NSPanel(
+            contentRect: .zero,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.level = level
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+        panel.ignoresMouseEvents = clickThrough
+        panel.isReleasedWhenClosed = false
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+        return panel
+    }
+
+    private func hidePanels() {
+        renderPanel?.orderOut(nil)
+        controlPanel?.orderOut(nil)
+    }
+
+    // MARK: Pointer and keys
+
+    private func handleMouse(_ event: NSEvent) {
+        guard isActive else { return }
+        switch event.type {
+        case .mouseMoved:
+            updateHover(at: Self.axLocation(of: event))
+        case .rightMouseDown:
+            guard let action = configuration.actions.mouse.action(for: .right) else { return }
+            perform(action)
+        case .otherMouseDown:
+            guard event.buttonNumber == 2,
+                  let action = configuration.actions.mouse.action(for: .middle) else { return }
+            perform(action)
+        default:
+            break
+        }
+    }
+
+    private func handleKey(_ event: NSEvent) {
+        guard isActive else { return }
+        let modifiers = Self.modifiers(of: event.modifierFlags)
+        let characters = event.charactersIgnoringModifiers ?? ""
+        if modifiers == configuration.actions.hoverKeys.modifiers,
+           let action = configuration.actions.hoverKeys.action(forKey: characters, modifiers: modifiers) {
+            perform(action)
+            return
+        }
+        guard configuration.naming.filterEnabled, modifiers.isEmpty else { return }
+        if event.keyCode == 53 {
+            query = ""
+        } else if event.keyCode == 51 {
+            if !query.isEmpty { query.removeLast() }
+        } else if characters.count == 1, let scalar = characters.unicodeScalars.first,
+                  CharacterSet.alphanumerics.contains(scalar) {
+            query.append(Character(scalar))
+        } else {
+            return
+        }
+        if let screen = NSScreen.main ?? NSScreen.screens.first {
+            let local = frames.map { Self.local($0, on: screen) }
+            (renderPanel?.contentView as? NSHostingView<MissionControlSurface>)?.rootView = MissionControlSurface(
+                frames: local, configuration: configuration, hoveredID: hoveredID, query: query,
+                spaceTitle: spaceTitle(), spaceAccent: spaceAccent(), showsButtons: false
+            )
+        }
+    }
+
+    private func updateHover(at point: CGPoint) {
+        let target = MissionControlTargetRanker.target(at: point, in: frames)
+        guard target?.id != hoveredID else { return }
+        hoveredID = target?.id
+        if let screen = NSScreen.main ?? NSScreen.screens.first {
+            let local = frames.map { Self.local($0, on: screen) }
+            (renderPanel?.contentView as? NSHostingView<MissionControlSurface>)?.rootView = MissionControlSurface(
+                frames: local, configuration: configuration, hoveredID: hoveredID, query: query,
+                spaceTitle: spaceTitle(), spaceAccent: spaceAccent(), showsButtons: false
+            )
+        }
+        controlPanel?.orderFrontRegardless()
+        placeControls()
+    }
+
+    private func placeControls() {
+        guard let panel = controlPanel else { return }
+        guard configuration.actions.buttons.showsOnHover else {
+            panel.setFrame(CGRect(x: -10_000, y: -10_000, width: 80, height: 30), display: false)
+            return
+        }
+        guard let hoveredID, let frame = frames.first(where: { $0.id == hoveredID }),
+              let screen = NSScreen.main ?? NSScreen.screens.first else {
+            panel.setFrame(CGRect(x: -10_000, y: -10_000, width: 80, height: 30), display: false)
+            return
+        }
+        let local = Self.local(frame, on: screen)
+        let width: CGFloat = CGFloat(configuration.actions.buttons.shownActions.count) * 27 + 12
+        let clampedX: CGFloat = min(screen.frame.maxX - width - 8, screen.frame.minX + local.frame.maxX - width - 8)
+        let clampedY: CGFloat = max(screen.frame.minY + 8, screen.frame.maxY - local.frame.minY - 40)
+        let origin = CGPoint(x: clampedX, y: clampedY)
+        panel.setFrame(CGRect(origin: origin, size: CGSize(width: width, height: 34)), display: true)
+    }
+
+    private func perform(_ action: MissionControlWindowAction) {
+        guard let frame = frames.first(where: { $0.id == hoveredID }) else { return }
+        _ = WindowActionExecutor.perform(action, on: frame)
+        refresh()
+    }
+
+    private func spaceTitle() -> String? {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first,
+              let uuid = DisplayIdentity.uuidString(for: screen),
+              let layout = ManagedSpaceLayoutReader.layout(forDisplayUUID: uuid),
+              let index = layout.orderedSpaceIDs.firstIndex(of: layout.currentSpaceID) else {
+            return configuration.naming.spaceTitle(forSpaceID: "", index: 1)
+        }
+        return configuration.naming.spaceTitle(forSpaceID: String(layout.currentSpaceID), index: index + 1)
+    }
+
+    private func spaceAccent() -> MissionControlColor? {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first,
+              let uuid = DisplayIdentity.uuidString(for: screen),
+              let layout = ManagedSpaceLayoutReader.layout(forDisplayUUID: uuid) else { return nil }
+        return configuration.colouring.accent(forSpaceID: String(layout.currentSpaceID))
+    }
+
+    // MARK: Geometry
+
+    /// AX screen coordinates are top-left origin; the overlay panel's SwiftUI space starts at the
+    /// screen's top-left too, so the conversion is a translation plus a vertical flip.
+    private static func local(_ frame: MissionControlWindowFrame, on screen: NSScreen) -> MissionControlWindowFrame {
+        let rect = CGRect(
+            x: frame.frame.minX - screen.frame.minX,
+            y: screen.frame.maxY - frame.frame.maxY,
+            width: frame.frame.width,
+            height: frame.frame.height
+        )
+        return MissionControlWindowFrame(
+            id: frame.id, bundleID: frame.bundleID, appName: frame.appName, title: frame.title,
+            frame: rect, state: frame.state, isFocused: frame.isFocused
+        )
+    }
+
+    private static func pointerLocation() -> CGPoint {
+        let cocoa = NSEvent.mouseLocation
+        let height = NSScreen.screens.first?.frame.maxY ?? 0
+        return CGPoint(x: cocoa.x, y: height - cocoa.y)
+    }
+
+    private static func axLocation(of event: NSEvent) -> CGPoint {
+        let cocoa = NSEvent.mouseLocation
+        let height = NSScreen.screens.first?.frame.maxY ?? 0
+        return CGPoint(x: cocoa.x, y: height - cocoa.y)
+    }
+
+    private static func modifiers(of flags: NSEvent.ModifierFlags) -> Set<MissionControlModifier> {
+        var result: Set<MissionControlModifier> = []
+        if flags.contains(.command) { result.insert(.command) }
+        if flags.contains(.option) { result.insert(.option) }
+        if flags.contains(.control) { result.insert(.control) }
+        if flags.contains(.shift) { result.insert(.shift) }
+        return result
+    }
+}

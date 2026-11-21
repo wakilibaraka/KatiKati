@@ -344,6 +344,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installTerminationSignalHandlers()
         ClaudeApprovalService.shared.startIfEnabled()
         KeepAwakeService.shared.start()
+        // MC-2: only when the section is on; the session installs its Dock observer and panels then,
+        // and tears every one of them down when the overview closes or the switch flips off.
+        MissionControlSession.shared.applyEnabled(MissionControlSettings.isEnabled())
+        NotificationCenter.default.addObserver(
+            forName: MissionControlSettings.changedNotification, object: nil, queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                MissionControlSession.shared.applyEnabled(MissionControlSettings.isEnabled())
+            }
+        }
         _ = DesktopPerformanceStore.shared
         WebDAVBackupService.shared.startScheduler()
 
