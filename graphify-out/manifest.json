@@ -594,9 +594,9 @@
     "semantic_hash": "331de2347f3f5d542a6d77e7374d07d0"
   },
   "App/Entry/PanelCoordinator+Spaces.swift": {
-    "mtime": 1795300205.6408036,
-    "seen": 1795300390.139644,
-    "ast_hash": "7b084c8718f4affe9bcdbc7cad1bde48",
+    "mtime": 1795300536.4355674,
+    "seen": 1795300911.917162,
+    "ast_hash": "e71cd8af54186c212bd5362b0f63152f",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Tooltip.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
-    "mtime": 1795299811.3869793,
-    "seen": 1795300390.139814,
-    "ast_hash": "f6661c3972912d57b0629cd8002c4b3a",
+    "mtime": 1795300509.2831278,
+    "seen": 1795300911.917291,
+    "ast_hash": "cd517952274873cf4c10b9b73fc7245c",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Appearance.swift": {
@@ -6810,9 +6810,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SpaceSwitchPlan.swift": {
-    "mtime": 1795300314.0905943,
-    "seen": 1795300390.140183,
-    "ast_hash": "6b644c80e2cd52ca7abb0fa0b539d87b",
+    "mtime": 1795300509.2823768,
+    "seen": 1795300911.91753,
+    "ast_hash": "b18895ac8ece95e319ba236c20eb77b7",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/DockSwipeEventPoster.swift": {
@@ -6822,9 +6822,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SpaceSwitchPlanTests.swift": {
-    "mtime": 1795300176.7308836,
-    "seen": 1795300390.140971,
-    "ast_hash": "9690360c477153afa4a908d5620bb66a",
+    "mtime": 1795300560.0190938,
+    "seen": 1795300911.917859,
+    "ast_hash": "fe29a0070ced1046fe88a4fb28089a8b",
     "semantic_hash": ""
   },
   "App/Composition/DriveMenuBarItem.swift": {
