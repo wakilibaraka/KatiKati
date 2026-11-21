@@ -6798,9 +6798,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1795181462.3701456,
-    "seen": 1795181685.417941,
-    "ast_hash": "06d20516d1ea83fc2627625d053a9918",
+    "mtime": 1795296716.9512758,
+    "seen": 1795296848.4026701,
+    "ast_hash": "d7f463d6bd83f51df34d1acdf7419c23",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -7536,9 +7536,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopBoxModel.swift": {
-    "mtime": 1795084994.376851,
-    "seen": 1795085183.402615,
-    "ast_hash": "9ecebd9ebd188251266a79c02054dd41",
+    "mtime": 1795296569.5338364,
+    "seen": 1795296848.40222,
+    "ast_hash": "f9a6c356499f09c16609e0f9fa4870ab",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFolderOrdering.swift": {
@@ -7566,9 +7566,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DesktopRevealPolicyTests.swift": {
-    "mtime": 1795038770.486593,
-    "seen": 1795039003.168905,
-    "ast_hash": "949f40538d57e6f957d7d3eda7b66747",
+    "mtime": 1795296569.5334673,
+    "seen": 1795296848.402653,
+    "ast_hash": "c017995ce862b78229408b4a11a5f1e8",
     "semantic_hash": ""
   },
   "Platform/Desktop/DesktopBoxStore.swift": {
