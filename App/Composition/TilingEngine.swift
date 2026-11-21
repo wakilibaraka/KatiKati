@@ -705,8 +705,11 @@ final class TilingEngine: ObservableObject {
             }
             trees[key] = tree
 
-            // Apply frames via AX
-            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea, parked: parked)
+            // Apply frames via AX. The strip is the one layout whose columns legitimately sit past
+            // the viewport edge (the next column's peek), so its writes skip the work-area clamp.
+            let isStrip = layout(for: screen) == nil && preset(for: screen) == .ribbon
+            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea,
+                        parked: parked, unclamped: isStrip)
         }
     }
 
@@ -725,7 +728,8 @@ final class TilingEngine: ObservableObject {
             // screen while the camera had already scrolled to its column.
             if preset(for: screen) == .ribbon {
                 let ribbon = ribbonFrames(tree, on: screen, workArea: workArea, activeID: nil)
-                applyFrames(ribbon.frames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea, parked: ribbon.parked)
+                applyFrames(ribbon.frames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea,
+                            parked: ribbon.parked, unclamped: true)
                 continue
             }
             let targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
@@ -791,7 +795,11 @@ final class TilingEngine: ObservableObject {
         records: [WindowID: WindowRecord],
         primaryMaxY: CGFloat,
         area: CGRect,
-        parked: [WindowID: StripParking.Side] = [:]
+        parked: [WindowID: StripParking.Side] = [:],
+        /// The strip draws columns past the viewport edge on purpose. Clamping one into the work
+        /// area pulls it back on screen by its overflow and overlaps the column before it, so a
+        /// strip write is never clamped — macOS keeps the slice off screen as asked.
+        unclamped: Bool = false
     ) {
         guard !targetFrames.isEmpty else { return }
         // Never move windows while a button is held: a drag must not be fought frame by frame. The
@@ -832,8 +840,9 @@ final class TilingEngine: ObservableObject {
             // in the same space or the window reads as hand-moved. Parked windows are written without
             // the work-area clamp, or the clamp would pull them straight back on screen.
             lastRequestedFrames[cg] = quartz
+            let clamp: CGRect? = (parked[winID] != nil || unclamped) ? nil : quartzArea
             lastAppliedFrames[cg] = WindowSnapService.place(
-                element, quartzFrame: quartz, within: parked[winID] == nil ? quartzArea : nil
+                element, quartzFrame: quartz, within: clamp
             ) ?? quartz
         }
     }

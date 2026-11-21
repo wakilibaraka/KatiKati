@@ -95,6 +95,7 @@ space-switch transitions and the Drives widget; see `Docs/Releases/RELEASE_NOTES
   column of that table now. Finder, the Dock and KatiKati itself are not offered that column; the row says why.
 
 ### Fixed
+- **Ribbon columns no longer overlap when one straddles the screen edge.** Every tile was written back inside the work area, so a column the strip deliberately hangs past the viewport edge was pulled on screen by its overflow and sat on top of the column before it (measured live: a 10 pt overlap with four ¼ columns on a 1710 pt display). Strip writes now skip that clamp, so the straddling column keeps its off-screen slice and the gap to its neighbour survives; macOS still keeps that slice on screen as asked. The other eight presets are untouched — their frames never exceed the work area.
 - **A pop's plate takes the theme's tint.** Choosing a theme re-tinted the drawer chip but left the pop's own
   plate exactly as it was, so two presets looked identical on the surface the setting is named after. The plate now
   takes the same tint the dock plate takes, through the same helper, arrows included.
