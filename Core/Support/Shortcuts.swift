@@ -475,13 +475,9 @@ enum ShortcutValidator {
         if let other = bindings.first(where: { $0.key != action && $0.value != .off && $0.value.overlapKey == key })?.key {
             return .warn("Already used by \(other.rawValue).")
         }
+        // One table for "macOS answers first", shared with the row badge below.
+        if case .key(let k) = key, let reason = MacOSShortcutOwnership.reason(for: k) { return .warn(reason) }
         switch key {
-        case .key(let k) where k.keyCode == 49 && k.modifiers == ShortcutKey.command,
-             .key(let k) where k.keyCode == 49 && k.modifiers == ShortcutKey.control,
-             .key(let k) where k.keyCode == 49 && k.modifiers == ShortcutKey.command | ShortcutKey.option:
-            return .warn("macOS already uses this (Spotlight, input sources or Finder search). Turn it off in System Settings › Keyboard › Shortcuts first.")
-        case .key(let k) where k.keyCode == 48 && k.modifiers == ShortcutKey.command:
-            return .warn("This is the system app switcher. Turn on ⌘Tab for the Window Switcher to replace it.")
         case .doubleTap(.fn), .hold(.fn):
             return .warn("macOS may use fn / Globe for dictation or emoji. Set 'Press 🌐 key to' Do Nothing in System Settings › Keyboard.")
         default:
@@ -632,5 +628,214 @@ struct DockFocusModel: Equatable, Sendable {
             end()
             return .ended
         }
+    }
+}
+
+// MARK: - SCU-1: categories, conflicts, presets, and the keycap map
+
+/// Which band of the bindings list an action belongs to. Order is the order the chips read in.
+enum ShortcutCategory: String, CaseIterable, Sendable {
+    case core, windowAndSnap, tiling, desktopAndNotch, tools
+
+    var titleKey: String {
+        switch self {
+        case .core: return "Core"
+        case .windowAndSnap: return "Window & Snap"
+        case .tiling: return "Tiling"
+        case .desktopAndNotch: return "Desktop & Notch"
+        case .tools: return "Tools"
+        }
+    }
+}
+
+extension ShortcutAction {
+    /// The band this action lives in. Unlisted actions fall back to Tools rather than vanishing
+    /// from every chip, so a new action is never silently unreachable in the list.
+    var category: ShortcutCategory {
+        switch self {
+        case .launcher, .pinboard, .quickSettings, .keepAwake, .commandBar, .translate,
+             .peek, .openDictionary, .toggleTerminal, .dictate:
+            return .core
+        case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
+             .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
+             .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
+             .snapCenter, .snapMaximize, .snapNextDisplay,
+             .windowSwitcher, .windowDrawer, .spaceNext, .spacePrevious, .dockFocus:
+            return .windowAndSnap
+        case .toggleTiling, .cycleTilingLayout, .tilingFocusNext, .tilingFocusPrevious,
+             .tilingSwapNext, .tilingSwapPrevious, .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain,
+             .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
+             .stripCycleWidth, .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious,
+             .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,
+             .ribbonThirds, .ribbonQuarters, .ribbonFive, .ribbonSix:
+            return .tiling
+        case .drawer, .notchTools, .weather, .clock, .notchPageNext, .notchPagePrevious,
+             .desktopQuickReveal, .desktopToggleHidden,
+             .radialDial, .radialDialSnap, .radialDialTools:
+            return .desktopAndNotch
+        default:
+            return .tools
+        }
+    }
+}
+
+/// The shortcuts macOS acts on before a Carbon hot key hears about them — one table, so the
+/// recorder's verdict and the row badge can never disagree.
+enum MacOSShortcutOwnership {
+    static func reason(for key: ShortcutKey) -> String? {
+        if key.keyCode == 49 {
+            if key.modifiers == ShortcutKey.command { return "macOS already uses ⌘Space for Spotlight. Turn it off in System Settings › Keyboard › Shortcuts first." }
+            if key.modifiers == ShortcutKey.control { return "macOS already uses ⌃Space to switch input sources. Turn it off in System Settings › Keyboard › Shortcuts first." }
+            if key.modifiers == ShortcutKey.command | ShortcutKey.option { return "macOS already uses ⌘⌥Space for Finder search. Turn it off in System Settings › Keyboard › Shortcuts first." }
+        }
+        if key.keyCode == 48, key.modifiers == ShortcutKey.command {
+            return "This is the system app switcher. Turn on ⌘Tab for the Window Switcher to replace it."
+        }
+        if key.modifiers == ShortcutKey.command | ShortcutKey.shift, [20, 21, 23].contains(key.keyCode) {
+            return "⌘⇧3, ⌘⇧4 and ⌘⇧5 are the macOS screenshot shortcuts. Rebind them in System Settings › Keyboard › Shortcuts to use these."
+        }
+        return nil
+    }
+}
+
+/// What a row says about its shortcut: nothing in the way, a duplicate, or macOS answers first.
+enum ShortcutConflict: Equatable, Sendable {
+    case clear
+    case internalDuplicate(ShortcutAction)
+    case systemClash(String)
+
+    var isClear: Bool { self == .clear }
+}
+
+enum ShortcutConflictDetector {
+    static func conflict(for action: ShortcutAction,
+                         trigger: ShortcutTrigger,
+                         among bindings: [ShortcutAction: ShortcutTrigger]) -> ShortcutConflict {
+        guard trigger != .off else { return .clear }
+        if case .key(let key) = trigger.overlapKey, let reason = MacOSShortcutOwnership.reason(for: key) {
+            return .systemClash(reason)
+        }
+        let other = bindings.first { pair in
+            pair.key != action && pair.value != .off && pair.value.overlapKey == trigger.overlapKey
+        }
+        return other.map { .internalDuplicate($0.key) } ?? .clear
+    }
+
+    /// Every action that is not clear, in one pass — what the `Conflicts (N)` chip counts.
+    static func conflicted(_ bindings: [ShortcutAction: ShortcutTrigger]) -> [ShortcutAction: ShortcutConflict] {
+        var result: [ShortcutAction: ShortcutConflict] = [:]
+        for (action, trigger) in bindings {
+            let conflict = conflict(for: action, trigger: trigger, among: bindings)
+            if !conflict.isClear { result[action] = conflict }
+        }
+        return result
+    }
+}
+
+/// Ready-made bindings. Every pack starts from the shipped defaults, so applying one never leaves an
+/// action unreachable that the defaults would have kept alive.
+enum ShortcutPresetPack: String, CaseIterable, Sendable {
+    case standard, hyperKeyPack, minimalConflictFree, resetDefaults
+
+    var titleKey: String {
+        switch self {
+        case .standard: return "Standard"
+        case .hyperKeyPack: return "Hyper Key Pack"
+        case .minimalConflictFree: return "Minimal Conflict-Free"
+        case .resetDefaults: return "Reset to Defaults"
+        }
+    }
+
+    private static let hyperBindings: [ShortcutAction: UInt16] = [
+        .snapLeftHalf: 0,      // A
+        .snapRightHalf: 2,     // D
+        .snapMaximize: 46,     // M
+        .snapNextDisplay: 37,  // L
+        .windowSwitcher: 13,   // W
+        .toggleTiling: 17      // T
+    ]
+
+    func bindings(replacing current: [ShortcutAction: ShortcutTrigger]) -> [ShortcutAction: ShortcutTrigger] {
+        var next: [ShortcutAction: ShortcutTrigger] = [:]
+        for action in ShortcutAction.allCases { next[action] = action.defaultTrigger }
+        switch self {
+        case .standard, .resetDefaults:
+            return next
+        case .hyperKeyPack:
+            for (action, code) in Self.hyperBindings { next[action] = .hyper(code) }
+            return next
+        case .minimalConflictFree:
+            // Keep the defaults, drop anything the one table calls a clash (macOS answers first).
+            let conflicted = ShortcutConflictDetector.conflicted(next)
+            for (action, conflict) in conflicted {
+                if case .systemClash = conflict { next[action] = .off }
+            }
+            return next
+        }
+    }
+}
+
+/// What the stage's keyboard lights up for a trigger: modifier caps, one main key, and whether the
+/// gesture is a timing one (double-tap / hold) that should pulse.
+struct MiniKeyboardState: Equatable, Sendable {
+    var litModifiers: Set<String>
+    var mainKey: String?
+    var pulses: Bool
+
+    static let idle = MiniKeyboardState(litModifiers: [], mainKey: nil, pulses: false)
+
+    static func from(_ trigger: ShortcutTrigger) -> MiniKeyboardState {
+        switch trigger {
+        case .off:
+            return .idle
+        case .chord(let chord):
+            return MiniKeyboardState(litModifiers: Set(chord.modifierGlyphs), mainKey: "Space", pulses: false)
+        case .key(let key):
+            return MiniKeyboardState(litModifiers: Set(key.modifierGlyphs), mainKey: ShortcutKeyNames.name(for: key.keyCode), pulses: false)
+        case .hyper(let code):
+            return MiniKeyboardState(litModifiers: ["✦"], mainKey: ShortcutKeyNames.name(for: code), pulses: false)
+        case .doubleTap(let tap):
+            return MiniKeyboardState(litModifiers: [], mainKey: tap.glyph, pulses: true)
+        case .hold(let tap):
+            return MiniKeyboardState(litModifiers: [], mainKey: tap.glyph, pulses: true)
+        }
+    }
+}
+
+/// The bindings list's two ways in: a typed query, or the keys themselves.
+enum ShortcutFilter {
+    static func matches(name: String, action: ShortcutAction, trigger: ShortcutTrigger, query: String) -> Bool {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return true }
+        if name.localizedCaseInsensitiveContains(trimmed) || action.rawValue.localizedCaseInsensitiveContains(trimmed) { return true }
+        if let glyphs = trigger.displayGlyphs, glyphs.localizedCaseInsensitiveContains(trimmed) { return true }
+        return false
+    }
+    static func matches(trigger: ShortcutTrigger, key: ShortcutKey) -> Bool {
+        guard case .key(let own) = trigger.overlapKey else { return false }
+        return own.keyCode == key.keyCode && own.modifiers == key.modifiers
+    }
+}
+
+extension ShortcutChord {
+    /// The modifier caps this chord lights on the stage's keyboard, in ⌃⌥⇧⌘ order.
+    var modifierGlyphs: [String] {
+        var caps: [String] = []
+        if usesControl { caps.append("⌃") }
+        if usesOption { caps.append("⌥") }
+        if usesShift { caps.append("⇧") }
+        if usesCommand { caps.append("⌘") }
+        return caps
+    }
+}
+
+extension ShortcutKey {
+    var modifierGlyphs: [String] {
+        var caps: [String] = []
+        if modifiers & Self.control != 0 { caps.append("⌃") }
+        if modifiers & Self.option != 0 { caps.append("⌥") }
+        if modifiers & Self.shift != 0 { caps.append("⇧") }
+        if modifiers & Self.command != 0 { caps.append("⌘") }
+        return caps
     }
 }

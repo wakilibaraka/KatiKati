@@ -359,3 +359,84 @@ final class PinnedAppHotkeyTests: XCTestCase {
         XCTAssertEqual(decoded, first)
     }
 }
+
+/// SCU-1: categories, one ownership table, the three-state conflict, preset packs, the keycap map,
+/// and the two ways into the bindings list.
+final class ShortcutRedesignCoreTests: XCTestCase {
+    func testEachBandTakesTheActionsItShould() {
+        XCTAssertEqual(ShortcutAction.launcher.category, .core)
+        XCTAssertEqual(ShortcutAction.commandBar.category, .core)
+        XCTAssertEqual(ShortcutAction.snapLeftHalf.category, .windowAndSnap)
+        XCTAssertEqual(ShortcutAction.windowSwitcher.category, .windowAndSnap)
+        XCTAssertEqual(ShortcutAction.stripCycleWidth.category, .tiling)
+        XCTAssertEqual(ShortcutAction.radialDial.category, .desktopAndNotch)
+        XCTAssertEqual(ShortcutAction.captureArea.category, .tools)
+        // Every action lands in exactly one band — the chips must never lose a row.
+        for action in ShortcutAction.allCases { _ = action.category }
+    }
+
+    func testSystemOwnedCombinationsAreClashesAndTheValidatorAgrees() {
+        let spotlight = ShortcutKey(keyCode: 49, modifiers: ShortcutKey.command)
+        let reason = MacOSShortcutOwnership.reason(for: spotlight)
+        XCTAssertNotNil(reason)
+        XCTAssertEqual(ShortcutConflictDetector.conflict(for: .commandBar, trigger: .key(spotlight), among: [:]),
+                       .systemClash(reason!))
+        if case .warn(let why) = ShortcutValidator.check(.key(spotlight), for: .commandBar, among: [:]) {
+            XCTAssertEqual(why, reason, "the recorder and the badge must read the same table")
+        } else {
+            XCTFail("⌘Space should warn, never pass silently")
+        }
+        // KatiKati's own defaults stay clear — ⌥Space, ⌥⇧Space and ⌃⌥M are not macOS shortcuts.
+        XCTAssertNil(MacOSShortcutOwnership.reason(for: ShortcutKey(keyCode: 49, modifiers: ShortcutKey.option)))
+        XCTAssertNil(MacOSShortcutOwnership.reason(for: ShortcutKey(keyCode: 46, modifiers: ShortcutKey.control | ShortcutKey.option)))
+        XCTAssertEqual(ShortcutConflictDetector.conflict(for: .commandBar, trigger: .chord(.optionSpace), among: [:]), .clear)
+    }
+
+    func testDuplicatesAreNamedAndOffIsNeverAConflict() {
+        let key = ShortcutKey(keyCode: 46, modifiers: ShortcutKey.control | ShortcutKey.option)
+        let bindings: [ShortcutAction: ShortcutTrigger] = [.snapMaximize: .key(key), .snapCenter: .key(key)]
+        XCTAssertEqual(ShortcutConflictDetector.conflict(for: .snapMaximize, trigger: .key(key), among: bindings),
+                       .internalDuplicate(.snapCenter))
+        XCTAssertEqual(ShortcutConflictDetector.conflict(for: .translate, trigger: .off, among: bindings), .clear)
+        XCTAssertEqual(ShortcutConflictDetector.conflicted(bindings).count, 2)
+    }
+
+    func testHyperPackBindsTheSixWindowActionsAndKeepsEverythingElse() {
+        let pack = ShortcutPresetPack.hyperKeyPack.bindings(replacing: [:])
+        for action in [ShortcutAction.snapLeftHalf, .snapRightHalf, .snapMaximize,
+                       .snapNextDisplay, .windowSwitcher, .toggleTiling] {
+            guard case .hyper = pack[action] else { return XCTFail("\(action) should be a Hyper binding") }
+        }
+        XCTAssertEqual(pack[.launcher], ShortcutAction.launcher.defaultTrigger)
+        XCTAssertEqual(pack[.commandBar], ShortcutAction.commandBar.defaultTrigger)
+    }
+
+    func testMinimalPackDropsOnlyTheSystemClashes() {
+        let pack = ShortcutPresetPack.minimalConflictFree.bindings(replacing: [:])
+        for (action, trigger) in pack {
+            guard case .key(let key) = trigger.overlapKey else { continue }
+            XCTAssertNil(MacOSShortcutOwnership.reason(for: key), "\(action) still clashes with macOS")
+        }
+        XCTAssertEqual(pack[.snapMaximize], ShortcutAction.snapMaximize.defaultTrigger, "⌃⌥M must survive")
+    }
+
+    func testMiniKeyboardLightsCapsAndPulsesTimingGestures() {
+        let chord = MiniKeyboardState.from(.chord(.optionShiftSpace))
+        XCTAssertEqual(chord.litModifiers, ["⌥", "⇧"])
+        XCTAssertEqual(chord.mainKey, "Space")
+        XCTAssertFalse(chord.pulses)
+        XCTAssertEqual(MiniKeyboardState.from(.hyper(0)).litModifiers, ["✦"])
+        let tap = MiniKeyboardState.from(.doubleTap(.leftCommand))
+        XCTAssertTrue(tap.pulses)
+        XCTAssertEqual(tap.mainKey, "⌘")
+        XCTAssertEqual(MiniKeyboardState.from(.off), .idle)
+    }
+
+    func testFilterFindsByNameGlyphsAndExactKeys() {
+        XCTAssertTrue(ShortcutFilter.matches(name: "Launcher", action: .launcher, trigger: .off, query: "laun"))
+        XCTAssertTrue(ShortcutFilter.matches(name: "Command Bar", action: .commandBar, trigger: .chord(.optionSpace), query: "⌥Space"))
+        XCTAssertFalse(ShortcutFilter.matches(name: "Launcher", action: .launcher, trigger: .off, query: "snap"))
+        XCTAssertTrue(ShortcutFilter.matches(trigger: .chord(.optionSpace), key: ShortcutKey(keyCode: 49, modifiers: ShortcutKey.option)))
+        XCTAssertFalse(ShortcutFilter.matches(trigger: .chord(.optionSpace), key: ShortcutKey(keyCode: 49, modifiers: ShortcutKey.command)))
+    }
+}
