@@ -1,9 +1,18 @@
 # Changelog
 
 All notable changes to KatiKati are documented in this file.
+## [0.18.0 beta 2] — 2026-11-22
+
+Mission Control: Dock overviews with names, borders, colours, filtering and window actions; see `Docs/Releases/RELEASE_NOTES_v0.18.0-beta.2.md`.
+
+### Added
 - **Mission Control:** A dedicated **Settings › Window & Workspace › Mission Control** section draws custom overlays over the Dock’s overview: persistent **Space names** keyed to each Space’s ID, high-contrast **app/title badges** and type-to-filter dimming, **focus, hover, group and per-state borders**, **bundle-ID and category colour rules** (category colours assigned automatically, every rule editable), thumbnail tint and Space-title accents, plus OpenMissionControl-style **hover buttons, hover shortcuts and right/middle-click actions** (Close/Minimize/Zoom/Hide/Quit through the window’s own Accessibility buttons). Detection is event-driven (Dock AX observer plus Space changes) and every panel, monitor and observer is torn down when the overview closes, so idle CPU stays at zero; Accessibility and Screen Recording are reported explicitly, and an unobservable Dock says “unavailable on this macOS” rather than failing silently. The section includes a live stage preview. Also in this pass: a **Look & Layout** card (border width, corner radius, badge opacity, group padding, Space-title and badge placement, filter readout, accent fallback), **per-state border colours**, **per-Space accent colours** in the Naming card, **app group frames** drawn around the windows of one app, a live **filter readout** chip, and **keyboard navigation** of the overview (Tab/arrows move the target, Return raises it) alongside the hover actions.
+- **Input Monitoring is reported separately:** the Mission Control readiness card now checks the Input Monitoring grant that global key
+  monitoring requires, with its own row and Open Settings link. The overlay, hover and mouse actions still work without it, and the card no
+  longer implies that keyboard navigation works when macOS is silently dropping the events.
 
 ## [Unreleased]
+
 
 ### Changed
 - **`Scripts/build_and_run.sh --test …` re-signs on its way out, so an ad-hoc build can't sit on disk:** `xcodebuild test` relinks the product and signs it ad-hoc, silently discarding the Accessibility grant, and every live pass afterwards measured nothing. The new mode runs the tests (all extra arguments pass through, so `-only-testing:` filters work unchanged), prints the test verdict, then re-signs with the local identity, prints that it did, and relaunches the app. It exits 3 when no identity is available, so the ad-hoc state can never be left behind quietly. `--check-signing` also stopped reporting a failure (exit 1) when no instance was running, which made gates read "not running" as "wrong signature".

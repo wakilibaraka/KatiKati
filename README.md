@@ -53,6 +53,17 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 - **Auto-hide.** Always visible by default; it can also hide and wake from the bottom edge. `⌥⇧⌘D` toggles it.
 - **Blink-free full screen.** The bar steps out of the way before a native full-screen transition (see [Privacy](#privacy)).
 
+### Mission Control
+
+- **Your overview, annotated.** Turn on **Settings > Window & Workspace > Mission Control** and the Dock's overview gains
+  high-contrast app/title badges, borders for the focused, hovered and full-screen windows, app group frames, a Space pill and a live
+  type-to-filter readout. Nothing is drawn while Mission Control is closed, and detection is event-driven — no timers.
+- **Make it yours.** Space names keyed to each Space, automatic app-category colours with bundle-ID and category rules, per-window-state
+  border styles and colours, thumbnail tint and Space accents, border width, corner radius, badge opacity, group padding, and top/bottom/leading/
+  trailing placement for the badge, Space pill and filter readout.
+- **Keyboard and pointer.** Tab and the arrow keys move the target, Return raises it, Escape clears the filter; hover buttons, configurable hover
+  keys and right/middle-click actions close, minimize, zoom, hide or quit the window through its own Accessibility buttons.
+
 ### Clipboard
 
 Clipboard history is opt-in and lives in memory only — nothing is written to disk. It now has its own page in Settings.
@@ -121,6 +132,10 @@ Trackpad > More Gestures before using it. `⌃Space` may also clash with the mac
 KatiKati starts even before you grant Accessibility. In this *limited mode* the bar, edge decks, launcher, Control Center and shortcuts work; what needs
 Accessibility is reading and managing other apps' windows (the per-window cards). The status menu shows **Grant Accessibility for Full
 Functionality...**; when you grant it, KatiKati relaunches itself into full mode.
+
+Mission Control's overlay, mouse actions and Space names need Accessibility only. Keyboard navigation, type-to-filter and hover key
+shortcuts listen to the keyboard globally, which macOS gates behind **Input Monitoring**; the Settings page reports that grant separately
+and the overlay keeps working without it.
 
 ### Languages
 
