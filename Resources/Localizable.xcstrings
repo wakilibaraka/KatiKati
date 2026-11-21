@@ -168915,6 +168915,671 @@
           }
         }
       }
+    },
+    "Core": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Core"
+          }
+        }
+      }
+    },
+    "Window & Snap": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Window & Snap"
+          }
+        }
+      }
+    },
+    "Desktop & Notch": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Desktop & Notch"
+          }
+        }
+      }
+    },
+    "Conflicts": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Conflicts"
+          }
+        }
+      }
+    },
+    "Hyper Key Pack": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Hyper Key Pack"
+          }
+        }
+      }
+    },
+    "Minimal Conflict-Free": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Minimal Conflict-Free"
+          }
+        }
+      }
+    },
+    "Reset to Defaults": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Reset to Defaults"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -19,13 +19,29 @@ extension SettingsLayoutPane {
             shortcutSearchBar
             shortcutCategoryChips
             SettingsDivider()
+            SettingsRow(
+                Text("Hold Time"),
+                info: String(localized: "How long a Hold shortcut (such as hold fn) must be held before it fires.")
+            ) {
+                Stepper(value: $holdSeconds, in: ShortcutHold.range, step: 0.1) {
+                    Text(verbatim: String(format: "%.1f s", holdSeconds))
+                }
+                .fixedSize()
+            }
+            SettingsDivider()
             shortcutGroupTitle(Text("Shortcuts"), shown: filteredFeatureShortcuts.count)
             ForEach(filteredFeatureShortcuts, id: \.self) { action in
                 shortcutRow(action, duplicated: duplicated)
                 SettingsDivider()
             }
             if hasVisibleSnapHotkeys {
-                shortcutGroupTitle(Text("Snap Hotkeys"), shown: nil)
+                HStack(spacing: 6) {
+                Text("Snap Hotkeys").font(.headline)
+                SettingsInfoButton(text: String(localized: "Snap hotkeys default to Off, except Maximize (⌃⌥M). Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."))
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 10)
+            .padding(.bottom, 2)
                 snapHotkeyGroup(title: Text("Halves"), actions: Self.snapHotkeyGroups[0], duplicated: duplicated)
                 snapHotkeyGroup(title: Text("Quarters"), actions: Self.snapHotkeyGroups[1], duplicated: duplicated)
                 snapHotkeyGroup(title: Text("Thirds"), actions: Self.snapHotkeyGroups[2], duplicated: duplicated)
@@ -54,6 +70,7 @@ extension SettingsLayoutPane {
             TextField("Search Shortcuts", text: $shortcutFilter)
                 .textFieldStyle(.plain)
                 .accessibilityLabel(Text("Search Shortcuts"))
+            SettingsInfoButton(text: String(localized: "Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."))
             shortcutPresetMenu
         }
         .padding(.vertical, 7)
@@ -62,7 +79,7 @@ extension SettingsLayoutPane {
     var shortcutPresetMenu: some View {
         Menu {
             ForEach(ShortcutPresetPack.allCases, id: \.self) { pack in
-                Button(LocalizedStringKey(pack.titleKey)) { applyShortcutPreset(pack) }
+                Button { applyShortcutPreset(pack) } label: { shortcutPresetTitle(pack) }
             }
         } label: {
             Label("Preset", systemImage: "square.stack.3d.up")
@@ -90,7 +107,7 @@ extension SettingsLayoutPane {
                     showsOnlyConflicts = false
                 }
                 ForEach(ShortcutCategory.allCases, id: \.self) { category in
-                    shortcutChip(Text(LocalizedStringKey(category.titleKey)),
+                    shortcutChip(shortcutCategoryTitle(category),
                                  active: shortcutCategoryFilter == category && !showsOnlyConflicts) {
                         shortcutCategoryFilter = category
                         showsOnlyConflicts = false
@@ -104,6 +121,27 @@ extension SettingsLayoutPane {
                 }
             }
             .padding(.bottom, 8)
+        }
+    }
+
+    /// The band names, written out so every one is a literal key the localization scan can see.
+    func shortcutCategoryTitle(_ category: ShortcutCategory) -> Text {
+        switch category {
+        case .core: return Text("Core")
+        case .windowAndSnap: return Text("Window & Snap")
+        case .tiling: return Text("Tiling")
+        case .desktopAndNotch: return Text("Desktop & Notch")
+        case .tools: return Text("Tools")
+        }
+    }
+
+    /// Same for the preset menu's names.
+    func shortcutPresetTitle(_ pack: ShortcutPresetPack) -> Text {
+        switch pack {
+        case .standard: return Text("Standard")
+        case .hyperKeyPack: return Text("Hyper Key Pack")
+        case .minimalConflictFree: return Text("Minimal Conflict-Free")
+        case .resetDefaults: return Text("Reset to Defaults")
         }
     }
 
