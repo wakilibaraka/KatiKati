@@ -41,6 +41,10 @@ struct SettingsLayoutPane: View {
     @State var showsFeatureShortcuts = false
     @State var showsSnapHotkeys = false
     @State var showsTilingShortcuts = false
+
+    /// SCU-3: the bindings list's band chips and preset menu.
+    @State var shortcutCategoryFilter: ShortcutCategory?
+    @State var showsOnlyConflicts = false
     /// The Edge Bars page's Custom item list (one row per item). Collapsed by default — see its card.
     @State var showsEdgeItems = false
     /// Control Center edge; the panel reads it at each open (Phase 16n). The literal duplicates
@@ -73,7 +77,12 @@ struct SettingsLayoutPane: View {
 
     /// Phase 12e — one pane, several tabs: Appearance embeds the dock geometry, Widgets takes
     /// the widget list, presets and styles.
-    enum Mode { case radialDial, shortcuts, gestures, widgets, edgeBars, geometry, chips, launcher, controlCenter, notifications }
+    /// One mode per Settings page: the input pages (keyboard shortcuts, keyboard, mouse, gestures,
+    /// quit & close) share this pane, so a row is written once and the sidebar splits the audience.
+    enum Mode {
+        case radialDial, shortcuts, keyboard, mouse, gestures, quitApps
+        case widgets, edgeBars, geometry, chips, launcher, controlCenter, notifications
+    }
     var mode: Mode = .shortcuts
 
     var body: some View {
@@ -95,6 +104,12 @@ struct SettingsLayoutPane: View {
                 notificationSections
             } else if mode == .gestures {
                 gestureSections
+            } else if mode == .keyboard {
+                keyboardSections
+            } else if mode == .mouse {
+                mouseSections
+            } else if mode == .quitApps {
+                quitSections
             } else if mode == .radialDial {
                 radialDialSections
             } else {

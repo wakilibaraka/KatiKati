@@ -9,9 +9,9 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsTwentyFourTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 24, "twenty-four sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 24,
+    func testTheSidebarIsTwentyEightTabsWithOneIdentityEach() {
+        XCTAssertEqual(SettingsTab.allCases.count, 28, "twenty-eight sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 28,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -33,6 +33,15 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab(rawValue: "drawerShelf"), .shelf)
         XCTAssertEqual(SettingsTab(rawValue: "aiTracking"), .aiTracking)
         XCTAssertEqual(SettingsTab(rawValue: "info"), .general, "Info maps back to General for compatibility")
+        // 2026-11 input split: Shortcuts became Keyboard Shortcuts, and Keyboard, Mouse and
+        // Quit & Close are pages of their own. The old identifier keeps opening the assignments page.
+        XCTAssertEqual(SettingsTab(rawValue: "shortcuts"), .shortcuts,
+                       "a stored identifier must keep resolving after the split")
+        XCTAssertEqual(SettingsTab(rawValue: "keyboard"), .keyboard)
+        XCTAssertEqual(SettingsTab(rawValue: "mouse"), .mouse)
+        XCTAssertEqual(SettingsTab(rawValue: "mouseGestures"), .mouseGestures)
+        XCTAssertEqual(SettingsTab(rawValue: "quitApps"), .quitApps)
+        XCTAssertEqual(SettingsTab(rawValue: "quit"), .quitApps, "the short alias resolves to the page")
     }
 
     /// The rename that moved the tools off the launcher's page: the old identifier and the removed
@@ -46,6 +55,19 @@ final class SettingsTabTests: XCTestCase {
     func testEachSectionHasItsOwnHue() {
         let hues = SettingsTab.allCases.map { "\($0.hue.red),\($0.hue.green),\($0.hue.blue)" }
         XCTAssertEqual(Set(hues).count, hues.count, "two sections share a hue")
+    }
+
+    /// The four input pages answer "keyboard, mouse, gestures, or hybrid?" in the sidebar; a rename
+    /// that put two of them back under one name would make the split invisible.
+    func testTheInputPagesNameTheirOwnDevice() {
+        XCTAssertEqual(SettingsTab.shortcuts.title, "Keyboard Shortcuts")
+        XCTAssertEqual(SettingsTab.keyboard.title, "Keyboard")
+        XCTAssertEqual(SettingsTab.mouse.title, "Mouse")
+        XCTAssertEqual(SettingsTab.mouseGestures.title, "Trackpad Gestures")
+        XCTAssertEqual(SettingsTab.quitApps.title, "Quit & Close")
+        for tab in [SettingsTab.shortcuts, .keyboard, .mouse, .mouseGestures, .quitApps] {
+            XCTAssertFalse(tab.subtitle.isEmpty, "\(tab.rawValue) needs a subtitle like every other page")
+        }
     }
 
     func testEveryTabCanBeDrawn() {

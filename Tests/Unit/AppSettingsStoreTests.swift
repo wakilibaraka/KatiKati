@@ -494,6 +494,29 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(store.windowLiftEnabled)
     }
 
+    /// Drag-to-edge snapping is seeded on for a fresh install (2026-11) and nowhere else: snapping
+    /// moves windows the user dragged, so an upgrade never turns it on behind their back.
+    @MainActor
+    func testSnapDragSeedOnlyAppliesToAFreshInstall() {
+        let fresh = makeDefaults()
+        let store = AppSettingsStore(defaults: fresh)
+        XCTAssertFalse(store.snapDragEnabled, "a store read without the seed stays off")
+        store.seedSnapDragEnabledForFreshInstall(lineage: .pristine)
+        XCTAssertTrue(store.snapDragEnabled, "全新安装播种为开")
+        XCTAssertTrue(AppSettingsStore(defaults: fresh).snapDragEnabled, "要落盘")
+
+        // An upgrading user is never seeded, even with the key absent.
+        let upgraded = makeDefaults()
+        let existing = AppSettingsStore(defaults: upgraded)
+        existing.seedSnapDragEnabledForFreshInstall(lineage: .priorUse)
+        XCTAssertFalse(existing.snapDragEnabled)
+
+        // An explicit Off survives a second seed call.
+        store.setSnapDragEnabled(false)
+        store.seedSnapDragEnabledForFreshInstall(lineage: .pristine)
+        XCTAssertFalse(store.snapDragEnabled, "键已存在 = 用户拨过，尊重")
+    }
+
     @MainActor
     func testWindowManagementRevampDefaultsNormalizeAndPersist() {
         let defaults = makeDefaults()

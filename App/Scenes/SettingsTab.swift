@@ -1,7 +1,8 @@
 import Combine
 import Foundation
 
-/// 设置窗口的二十二个标签页（2026-11 优化：菜单栏、抽屉暂存架、AI 追踪独立成页，关于页整合入通用页）。
+/// 设置窗口的二十八个标签页（2026-11：Shortcuts 按输入设备拆成键盘快捷键 / 键盘 / 鼠标 /
+/// 触控板手势四页，退出保护单独成页）。
 /// 纯 Foundation/Combine——测试 target 也编译它，别引 AppKit。
 enum SettingsTab: String, CaseIterable {
     case general
@@ -22,7 +23,10 @@ enum SettingsTab: String, CaseIterable {
     case commandBar
     case controlCenter
     case shortcuts
+    case keyboard
+    case mouse
     case mouseGestures
+    case quitApps
     case radialDial
     case aiTracking
     case downloads
@@ -50,7 +54,10 @@ enum SettingsTab: String, CaseIterable {
         case "commandBar": self = .commandBar
         case "controlCenter": self = .controlCenter
         case "shortcuts": self = .shortcuts
+        case "keyboard": self = .keyboard
+        case "mouse": self = .mouse
         case "mouseGestures": self = .mouseGestures
+        case "quitApps", "quit": self = .quitApps
         case "radialDial": self = .radialDial
         case "aiTracking": self = .aiTracking
         case "downloads": self = .downloads
@@ -81,8 +88,11 @@ enum SettingsTab: String, CaseIterable {
         case .launcher: return String(localized: "Launcher")
         case .commandBar: return String(localized: "Command Bar")
         case .controlCenter: return String(localized: "Control Center")
-        case .shortcuts: return String(localized: "Shortcuts")
-        case .mouseGestures: return String(localized: "Mouse & Gestures")
+        case .shortcuts: return String(localized: "Keyboard Shortcuts")
+        case .keyboard: return String(localized: "Keyboard")
+        case .mouse: return String(localized: "Mouse")
+        case .mouseGestures: return String(localized: "Trackpad Gestures")
+        case .quitApps: return String(localized: "Quit & Close")
         case .radialDial: return String(localized: "Radial Dial")
         case .aiTracking: return String(localized: "AI Tracking")
         case .downloads: return String(localized: "Downloads")
@@ -113,13 +123,16 @@ enum SettingsTab: String, CaseIterable {
         case .launcher: return String(localized: "Search, results, and hidden apps.")
         case .commandBar: return String(localized: "Command hints and the command bar.")
         case .controlCenter: return String(localized: "Tiles, quick settings, and placement.")
-        case .shortcuts: return String(localized: "Keyboard shortcuts, snap zones, and input.")
-        case .mouseGestures: return String(localized: "Trackpad gestures, tap, and the live preview.")
+        case .shortcuts: return String(localized: "Every key combination: features, snap zones, tiling, and hold timing.")
+        case .keyboard: return String(localized: "Super/Hyper, Caps Lock, Finder keys, and the key visualizer.")
+        case .mouse: return String(localized: "Focus follows the pointer, scroll direction, and click feedback.")
+        case .mouseGestures: return String(localized: "Multitouch swipes, pinches, taps, and the live visualizer.")
+        case .quitApps: return String(localized: "Quit protection, quit-on-close, and idle apps.")
         case .radialDial: return String(localized: "The pie menu: actions, theme, and triggers.")
         case .aiTracking: return String(localized: "Claude Code hooks, tool approvals, token limits, and telemetry.")
         case .downloads: return String(localized: "Torrents: speed, schedule, and quiet hours.")
         case .clipboard: return String(localized: "History, privacy, storage, and the popup.")
-        case .tools: return String(localized: "Commands, snippets, key visualizer, and cheat sheet.")
+        case .tools: return String(localized: "Commands, snippets, and the shortcut cheat sheet.")
         case .advanced: return String(localized: "Rarely touched switches that need extra powers.")
         }
     }
@@ -144,7 +157,10 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return "terminal"
         case .controlCenter: return "switch.2"
         case .shortcuts: return "command"
+        case .keyboard: return "keyboard"
+        case .mouse: return "computermouse"
         case .mouseGestures: return "hand.draw"
+        case .quitApps: return "power"
         case .radialDial: return "circle.hexagongrid"
         case .aiTracking: return "brain.head.profile"
         case .downloads: return "arrow.down.circle"
@@ -175,7 +191,10 @@ enum SettingsTab: String, CaseIterable {
         case .commandBar: return (0.85, 0.35, 0.35)
         case .controlCenter: return (1.00, 0.55, 0.15)
         case .shortcuts: return (0.98, 0.72, 0.10)
+        case .keyboard: return (0.30, 0.78, 0.48)
+        case .mouse: return (0.44, 0.58, 0.72)
         case .mouseGestures: return (0.36, 0.62, 0.92)
+        case .quitApps: return (0.80, 0.24, 0.36)
         case .radialDial: return (0.92, 0.36, 0.78)
         case .aiTracking: return (0.64, 0.28, 0.92)
         case .downloads: return (0.12, 0.72, 0.88)

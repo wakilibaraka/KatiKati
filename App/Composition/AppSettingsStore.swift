@@ -1744,6 +1744,15 @@ final class AppSettingsStore: ObservableObject {
         setWindowLiftEnabled(true)
     }
 
+    /// A fresh install can drag a window to an edge and have it snap: the feature a window manager
+    /// is bought for, and one macOS now ships itself. An existing user keeps whatever the key says,
+    /// because snapping changes where their windows land and that is theirs to choose.
+    func seedSnapDragEnabledForFreshInstall(lineage: InstallLineage) {
+        guard lineage == .pristine else { return }
+        guard defaults.object(forKey: Keys.snapDragEnabled) == nil else { return }
+        setSnapDragEnabled(true)
+    }
+
     func setDockLayeringMode(_ mode: DockLayeringMode) {
         guard mode != dockLayeringMode else { return }
         dockLayeringMode = mode

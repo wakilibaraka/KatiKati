@@ -1,83 +1,140 @@
 import AppKit
 import SwiftUI
 
-// The Shortcuts mode of `SettingsLayoutPane`; state lives in the main file.
+// The input modes of `SettingsLayoutPane` (Keyboard Shortcuts, Keyboard, Mouse, Trackpad Gestures,
+// Quit & Close, Radial Dial); state lives in the main file.
 extension SettingsLayoutPane {
-    /// The Shortcuts page (Phase 12 A4). Every key assignment lives in the first card — a find
-    /// field, the feature actions, then the fifteen snap zones; the keyboard behaviours that change
-    /// how typing reaches apps are the second; the dial is the third. Three sections is the page's
-    /// budget (`Docs/SETTINGS.md` rule 5) and the long first one is why it carries a find field: 26
-    /// assignment rows is more than a reader should have to scroll through to find one.
+    /// The Keyboard Shortcuts page (Phase 12 A4; split from "Shortcuts" 2026-11). Every key
+    /// assignment lives in its one card — a find field, the feature actions, the fifteen snap zones,
+    /// then the tiling actions — and nothing else: the behaviours that change what a key does before
+    /// an app sees it are on the Keyboard page, and the quit rules on Quit & Close. The card is long,
+    /// which is why it carries a find field: 26+ assignment rows is more than a reader should scroll
+    /// through to find one.
     @ViewBuilder
     var shortcutSections: some View {
         let duplicated = ShortcutConflicts.duplicated(store.shortcutBindings)
         SettingsCard(
-            // Headerless: the two disclosure groups below carry the names (the page's toolbar tab
-            // already says "Shortcuts"), so no new string was needed for the grouping.
             note: Text("Double-tap shortcuts need the Accessibility permission. ⌃Space may also switch input sources.")
         ) {
-            SettingsRow(
-                Text("Search Shortcuts"),
-                info: String(localized: "Pick a shortcut from the list, or press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘.")
-            ) {
-                TextField("Search Shortcuts", text: $shortcutFilter)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 220)
-                    .accessibilityLabel(Text("Search Shortcuts"))
-            }
+            shortcutSearchBar
+            shortcutCategoryChips
             SettingsDivider()
-            SettingsRow(
-                Text("Hold Time"),
-                info: String(localized: "How long a Hold shortcut (such as hold fn) must be held before it fires.")
-            ) {
-                Stepper(value: $holdSeconds, in: ShortcutHold.range, step: 0.1) {
-                    Text(verbatim: String(format: "%.1f s", holdSeconds))
-                }
-                .fixedSize()
-            }
-            SettingsDivider()
-            // One assignment per line (an assignment is a name, a menu and a Record button, and a
-            // half of the card cannot hold three controls — measured live 2026-10-15), and the run
-            // starts collapsed so the page fits the window.
-            DisclosureGroup(isExpanded: expandedWhileFiltering($showsFeatureShortcuts)) {
-                ForEach(filteredFeatureShortcuts, id: \.self) { action in
-                    shortcutRow(action, duplicated: duplicated)
-                    SettingsDivider()
-                }
-            } label: {
-                Text("Shortcuts").font(.headline)
+            shortcutGroupTitle(Text("Shortcuts"), shown: filteredFeatureShortcuts.count)
+            ForEach(filteredFeatureShortcuts, id: \.self) { action in
+                shortcutRow(action, duplicated: duplicated)
+                SettingsDivider()
             }
             if hasVisibleSnapHotkeys {
-                SettingsDivider()
-                DisclosureGroup(isExpanded: expandedWhileFiltering($showsSnapHotkeys)) {
-                    snapHotkeyGroup(title: Text("Halves"), actions: Self.snapHotkeyGroups[0], duplicated: duplicated)
-                    snapHotkeyGroup(title: Text("Quarters"), actions: Self.snapHotkeyGroups[1], duplicated: duplicated)
-                    snapHotkeyGroup(title: Text("Thirds"), actions: Self.snapHotkeyGroups[2], duplicated: duplicated)
-                    snapHotkeyGroup(title: Text("Full"), actions: Self.snapHotkeyGroups[3], duplicated: duplicated)
-                } label: {
-                    // The group's own name, and its explanation stays behind the ⓘ where it was.
-                    HStack(spacing: 6) {
-                        Text("Snap Hotkeys").font(.headline)
-                        SettingsInfoButton(text: String(localized: "Snap hotkeys default to Off, except Maximize (⌃⌥M). Press Record and type a key combination with ⌃, ⌥, ⇧ or ⌘."))
-                    }
-                }
+                shortcutGroupTitle(Text("Snap Hotkeys"), shown: nil)
+                snapHotkeyGroup(title: Text("Halves"), actions: Self.snapHotkeyGroups[0], duplicated: duplicated)
+                snapHotkeyGroup(title: Text("Quarters"), actions: Self.snapHotkeyGroups[1], duplicated: duplicated)
+                snapHotkeyGroup(title: Text("Thirds"), actions: Self.snapHotkeyGroups[2], duplicated: duplicated)
+                snapHotkeyGroup(title: Text("Full"), actions: Self.snapHotkeyGroups[3], duplicated: duplicated)
             }
             if !filteredTilingShortcuts.isEmpty {
-                SettingsDivider()
-                DisclosureGroup(isExpanded: expandedWhileFiltering($showsTilingShortcuts)) {
-                    ForEach(filteredTilingShortcuts, id: \.self) { action in
-                        shortcutRow(action, duplicated: duplicated)
-                        SettingsDivider()
-                    }
-                } label: {
-                    Text("Tiling Shortcuts").font(.headline)
+                shortcutGroupTitle(Text("Tiling Shortcuts"), shown: filteredTilingShortcuts.count)
+                ForEach(filteredTilingShortcuts, id: \.self) { action in
+                    shortcutRow(action, duplicated: duplicated)
+                    SettingsDivider()
                 }
             }
             if filteredFeatureShortcuts.isEmpty, !hasVisibleSnapHotkeys, filteredTilingShortcuts.isEmpty {
                 SettingsNote(Text("No shortcuts match."))
             }
         }
+    }
 
+    /// The find field is this row now — it used to repeat its own label across a mostly empty row —
+    /// with the preset menu beside it so the list can be reshaped without leaving the field.
+    var shortcutSearchBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+            TextField("Search Shortcuts", text: $shortcutFilter)
+                .textFieldStyle(.plain)
+                .accessibilityLabel(Text("Search Shortcuts"))
+            shortcutPresetMenu
+        }
+        .padding(.vertical, 7)
+    }
+
+    var shortcutPresetMenu: some View {
+        Menu {
+            ForEach(ShortcutPresetPack.allCases, id: \.self) { pack in
+                Button(LocalizedStringKey(pack.titleKey)) { applyShortcutPreset(pack) }
+            }
+        } label: {
+            Label("Preset", systemImage: "square.stack.3d.up")
+                .font(.system(size: 10, weight: .medium))
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+    }
+
+    func applyShortcutPreset(_ pack: ShortcutPresetPack) {
+        let next = pack.bindings(replacing: store.shortcutBindings)
+        for action in ShortcutAction.allCases {
+            let trigger = next[action] ?? action.defaultTrigger
+            if trigger != (store.shortcutBindings[action] ?? .off) { store.setShortcut(action, trigger) }
+        }
+    }
+
+    /// The chips are the list's table of contents: every band, then the conflicts when any exist.
+    var shortcutCategoryChips: some View {
+        let conflicted = ShortcutConflictDetector.conflicted(store.shortcutBindings).count
+        return ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 5) {
+                shortcutChip(Text("All"), active: shortcutCategoryFilter == nil && !showsOnlyConflicts) {
+                    shortcutCategoryFilter = nil
+                    showsOnlyConflicts = false
+                }
+                ForEach(ShortcutCategory.allCases, id: \.self) { category in
+                    shortcutChip(Text(LocalizedStringKey(category.titleKey)),
+                                 active: shortcutCategoryFilter == category && !showsOnlyConflicts) {
+                        shortcutCategoryFilter = category
+                        showsOnlyConflicts = false
+                    }
+                }
+                if conflicted > 0 {
+                    shortcutChip(Text("Conflicts") + Text(verbatim: " (\(conflicted))"), active: showsOnlyConflicts) {
+                        showsOnlyConflicts = true
+                        shortcutCategoryFilter = nil
+                    }
+                }
+            }
+            .padding(.bottom, 8)
+        }
+    }
+
+    func shortcutChip(_ title: Text, active: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            title
+                .font(.system(size: 10, weight: .medium))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Capsule().fill(active ? Color.accentColor.opacity(0.85) : Color.primary.opacity(0.07)))
+                .foregroundStyle(active ? Color.white : Color.primary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// A band's name where a disclosure used to be — the list is flat now, so nothing folds away.
+    func shortcutGroupTitle(_ title: Text, shown: Int?) -> some View {
+        HStack(spacing: 6) {
+            title.font(.headline)
+            if let shown { Text(verbatim: "\(shown)").font(.caption).foregroundStyle(.secondary) }
+            Spacer(minLength: 0)
+        }
+        .padding(.top, 10)
+        .padding(.bottom, 2)
+    }
+
+    /// Keyboard page (2026-11 split from Shortcuts): what a key press means before an app sees it —
+    /// the Hyper/Super remap and the two key protections — and the key visualizer, whose options
+    /// used to sit on Tools while its switch sat on Shortcuts.
+    @ViewBuilder
+    var keyboardSections: some View {
         SettingsCard(Text("Keyboard")) {
             SettingsToggleRow(
                 Text("Super / Hyper Key"),
@@ -216,7 +273,128 @@ extension SettingsLayoutPane {
                 Button("Lock for 60 Seconds") { KeyGuardService.shared.startCleaningLock() }
                     .buttonStyle(SettingsGelButtonStyle())
             }
+        }
+
+        SettingsCard(Text("Key Visualizer")) {
+            SettingsToggleRow(
+                Text("Show Keys You Type"),
+                isOn: Binding(
+                    get: { keyGuard.isVisualizerEnabled },
+                    set: { on in
+                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
+                        keyGuard.setVisualizer(on)
+                    }
+                ),
+                info: String(localized: "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
+            )
+            if keyGuard.isVisualizerEnabled {
+                SettingsDivider()
+                SettingsPickerRow(
+                    Text("Filter Keys"),
+                    selection: Binding(
+                        get: { keyGuard.visualizerFilter },
+                        set: { keyGuard.setVisualizerFilter($0) }
+                    )
+                ) {
+                    Text("All Keys").tag(KeyVisualizerFilter.allKeys)
+                    Text("Modified Keys").tag(KeyVisualizerFilter.modifiedKeys)
+                    Text("Command Keys Only").tag(KeyVisualizerFilter.commandKeysOnly)
+                }
+                SettingsDivider()
+                SettingsPickerRow(
+                    Text("Overlay Style"),
+                    selection: Binding(
+                        get: { keyGuard.visualizerStyle },
+                        set: { keyGuard.setVisualizerStyle($0) }
+                    )
+                ) {
+                    Text("Glass Capsule").tag(KeyVisualizerStyle.glassCapsule)
+                    Text("Svelte Compact").tag(KeyVisualizerStyle.svelte)
+                    Text("Dark Bezel").tag(KeyVisualizerStyle.darkBezel)
+                }
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Linger Duration"),
+                    value: keyGuard.visualizerLinger,
+                    range: 0.5...4.0,
+                    step: 0.25,
+                    valueText: String(format: "%.2f s", keyGuard.visualizerLinger),
+                    set: { keyGuard.setVisualizerLinger($0) }
+                )
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Font Size"),
+                    value: keyGuard.visualizerFontSize,
+                    range: 12...28,
+                    step: 1,
+                    valueText: "\(Int(keyGuard.visualizerFontSize)) pt",
+                    set: { keyGuard.setVisualizerFontSize($0) }
+                )
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Unlock Position to Drag"),
+                    isOn: Binding(
+                        get: { keyGuard.visualizerPositionUnlocked },
+                        set: { keyGuard.setVisualizerPositionUnlocked($0) }
+                    ),
+                    info: String(localized: "Drag the floating key strip anywhere on screen, then lock it back when done.")
+                )
+                SettingsDivider()
+                SettingsRow(Text("Overlay Position")) {
+                    Button("Reset Position") { keyGuard.resetVisualizerPosition() }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
+                SettingsDivider()
+                // 2026-11: the key was stored but no page ever wrote it, so a recording could never
+                // show the pointer. It sits with the visualizer it draws on, not on Mouse.
+                SettingsToggleRow(
+                    Text("Show Mouse Clicks"),
+                    isOn: Binding(
+                        get: { keyGuard.visualizerMouseClicks },
+                        set: { keyGuard.setVisualizerMouseClicks($0) }
+                    ),
+                    info: String(localized: "Draws each click and scroll on the key overlay, so a recording shows what the pointer did. It never records where you clicked.")
+                )
+            }
+            if (keyGuard.isCapsProtectionEnabled || keyGuard.isFinderKeysEnabled || keyGuard.isVisualizerEnabled),
+               !KeyGuardService.hasPermission {
+                SettingsDivider()
+                SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
+            }
+        }
+    }
+
+    /// Mouse page (2026-11 split): the pointer's own behaviours. Trackpad gestures, which need the
+    /// multitouch stream rather than the mouse, keep their own page; the dial keeps its hybrid one.
+    @ViewBuilder
+    var mouseSections: some View {
+        SettingsCard(Text("Pointer")) {
+            SettingsToggleRow(
+                Text("Focus Follows the Mouse"),
+                isOn: Binding(
+                    get: { FocusFollowService.shared.isEnabled },
+                    set: { FocusFollowService.shared.setEnabled($0) }
+                ),
+                info: String(localized: "Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default.")
+            )
             SettingsDivider()
+            SettingsToggleRow(
+                Text("Reverse mouse scroll direction"),
+                isOn: Binding(get: { store.scrollReverserEnabled }, set: { store.setScrollReverserEnabled($0) }),
+                info: String(localized: "Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. KatiKati only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one.")
+            )
+            SettingsDivider()
+            SettingsButtonRow(Text("Open Mouse Settings")) {
+                if let url = URL(string: "x-apple.systempreferences:com.apple.Mouse-Settings.extension") { NSWorkspace.shared.open(url) }
+            }
+        }
+    }
+
+    /// Quit & Close page (2026-11 split): the hold protection, then who quits when their last window
+    /// closes or they sit idle. It shares the QuitAppRules table with no other page.
+    @ViewBuilder
+    var quitSections: some View {
+        SettingsCard(Text("Quit Protection")) {
             SettingsToggleRow(
                 Text("Hold ⌘Q to Quit"),
                 isOn: Binding(
@@ -277,51 +455,27 @@ extension SettingsLayoutPane {
                     }
                 }
             }
+        }
+
+        SettingsCard(Text("Quit on Close & Idle Apps")) {
+            QuitLifecycleOptionsView()
             SettingsDivider()
-            DisclosureGroup("Quit on Close & Idle Apps") {
-                QuitLifecycleOptionsView()
-            }
             // 24c, 53d and 53i used to be four comma-separated fields on two pages; they are one
             // table now, and it stays visible whether or not the hold is on, because the
             // quit-on-close column does not depend on it.
-            SettingsDivider()
             QuitAppRulesTable()
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("Show Keys You Type"),
-                isOn: Binding(
-                    get: { keyGuard.isVisualizerEnabled },
-                    set: { on in
-                        if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
-                        keyGuard.setVisualizer(on)
-                    }
-                ),
-                info: String(localized: "Shows the keys you press in a small overlay. It displays what you type — treat it as a screen-sharing risk. Nothing is logged or saved, and it hides itself a moment after you stop typing.")
-            )
-            if keyGuard.isPaused || keyGuard.isSlowQuitEnabled || keyGuard.isVisualizerEnabled
-                || keyGuard.isCapsProtectionEnabled || keyGuard.isFinderKeysEnabled, !KeyGuardService.hasPermission {
-                SettingsButtonRow(Text("Open Input Monitoring Settings")) { openInputMonitoringSettings() }
-            }
         }
     }
 
-    /// Mouse & Gestures has its own page: the input toggles, the mapping rows, and the live preview.
+    /// Trackpad Gestures page (2026-11 split): the multitouch stream and its live preview. Mouse
+    /// pointer behaviour moved to its own page, and the dial keeps its hybrid triggers.
     @ViewBuilder
     var gestureSections: some View {
-        SettingsCard(Text("Mouse & Gestures")) {
+        SettingsCard(Text("Trackpad")) {
             SettingsToggleRow(
                 Text("Open Launcher with Pinch"),
                 isOn: Binding(get: { store.launcherPinch }, set: { store.setLauncherPinch($0) }),
                 info: String(localized: "Pinch four or more fingers together on the trackpad. Turn off Launchpad under System Settings > Trackpad > More Gestures, or macOS opens its own app list too.")
-            )
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("Focus Follows the Mouse"),
-                isOn: Binding(
-                    get: { FocusFollowService.shared.isEnabled },
-                    set: { FocusFollowService.shared.setEnabled($0) }
-                ),
-                info: String(localized: "Raises the window under the pointer, at most once every 120 ms. It never acts while you drag, while a KatiKati panel has the keyboard, or for the app already in front. Needs Accessibility; off by default.")
             )
             SettingsDivider()
             MultitouchGesturesSection()
@@ -452,7 +606,13 @@ extension SettingsLayoutPane {
     }
 
     func matchesFilter(_ action: ShortcutAction) -> Bool {
-        Self.shortcutMatches(Self.shortcutActionName(action), query: shortcutFilter)
+        let trigger = store.shortcutBindings[action] ?? .off
+        if let category = shortcutCategoryFilter, action.category != category { return false }
+        if showsOnlyConflicts {
+            let conflict = ShortcutConflictDetector.conflict(for: action, trigger: trigger, among: store.shortcutBindings)
+            if conflict.isClear { return false }
+        }
+        return ShortcutFilter.matches(name: Self.shortcutActionName(action), action: action, trigger: trigger, query: shortcutFilter)
     }
 
     /// A collapsed group opens as soon as the find field has a query, so the filter still reaches

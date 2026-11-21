@@ -129,7 +129,10 @@ struct SettingsWindowContent: View {
             case .commandBar: commandBarPane
             case .controlCenter: controlCenterPane
             case .shortcuts: SettingsLayoutPane(store: store, mode: .shortcuts)
+            case .keyboard: SettingsLayoutPane(store: store, mode: .keyboard)
+            case .mouse: SettingsLayoutPane(store: store, mode: .mouse)
             case .mouseGestures: SettingsLayoutPane(store: store, mode: .gestures)
+            case .quitApps: SettingsLayoutPane(store: store, mode: .quitApps)
             case .radialDial:
                 SettingsLayoutPane(store: store, mode: .radialDial)
                     .background(SettingsPageHeightProbe(tab: .radialDial))
@@ -221,8 +224,6 @@ struct SettingsWindowContent: View {
             SettingsRow(Text("Show/hide taskbar shortcut")) {
                 hotKeyControls
             }
-            SettingsDivider()
-            scrollReverserToggle
             SettingsDivider()
             SettingsButtonRow(Text("Reset All Settings"), note: Text("Restores every default and restarts KatiKati.")) {
                 presentedAlert = SettingsAlert(
@@ -506,18 +507,6 @@ struct SettingsWindowContent: View {
     /// 说明必须写清「只改写方向值、不记录不发送」——这是全项目唯一改写别人输入事件的功能。
     /// It sits behind the row’s ⓘ rather than under the toggle: this page shows no notes, and
     /// a hover tooltip is not reachable enough (it needs a still pointer and an active window).
-    private var scrollReverserToggle: some View {
-        SettingsToggleRow(
-            Text("Reverse mouse scroll direction"),
-            isOn: binding(get: { store.scrollReverserEnabled }, set: store.setScrollReverserEnabled),
-            info: scrollReverserHelp
-        )
-    }
-
-    private var scrollReverserHelp: String {
-        String(localized: "Flips mouse-wheel scrolling system-wide, like Scroll Reverser. Trackpads and Magic Mouse are not affected. KatiKati only inverts the direction values of scroll-wheel events; nothing is recorded or sent anywhere. If Scroll Reverser or Mos is also running, the two cancel out — keep only one.")
-    }
-
     /// 重开首次引导（那扇写系统 Dock 推荐设置的窗）。2026-09-01 从状态栏菜单搬来
     /// （owner 拍板）：它是"打开另一个界面"的入口，不是随手切的开关。
     /// 放「通用」页分组框下面——框里是设置，它是入口。

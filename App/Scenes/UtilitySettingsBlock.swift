@@ -165,99 +165,27 @@ struct UtilitySettingsBlock: View {
                     )
                 }
             }
-            SettingsBentoSplit {
-                SettingsCard(Text("Key Visualizer")) {
-                    SettingsToggleRow(
-                        Text("Show Keys You Type"),
-                        isOn: Binding(
-                            get: { keyGuard.isVisualizerEnabled },
-                            set: { on in
-                                if on, !KeyGuardService.hasPermission { KeyGuardService.requestPermission() }
-                                keyGuard.setVisualizer(on)
-                            }
-                        ),
-                        info: String(localized: "KeyCastr-style floating keystroke overlay for screen recordings and demos. Never logs or saves keystrokes, and hides automatically in password fields.")
-                    )
-                    SettingsDivider()
-                    SettingsPickerRow(
-                        Text("Filter Keys"),
-                        selection: Binding(
-                            get: { keyGuard.visualizerFilter },
-                            set: { keyGuard.setVisualizerFilter($0) }
-                        )
-                    ) {
-                        Text("All Keys").tag(KeyVisualizerFilter.allKeys)
-                        Text("Modified Keys").tag(KeyVisualizerFilter.modifiedKeys)
-                        Text("Command Keys Only").tag(KeyVisualizerFilter.commandKeysOnly)
-                    }
-                    SettingsDivider()
-                    SettingsPickerRow(
-                        Text("Overlay Style"),
-                        selection: Binding(
-                            get: { keyGuard.visualizerStyle },
-                            set: { keyGuard.setVisualizerStyle($0) }
-                        )
-                    ) {
-                        Text("Glass Capsule").tag(KeyVisualizerStyle.glassCapsule)
-                        Text("Svelte Compact").tag(KeyVisualizerStyle.svelte)
-                        Text("Dark Bezel").tag(KeyVisualizerStyle.darkBezel)
-                    }
-                    SettingsDivider()
-                    SettingsSliderRow(
-                        Text("Linger Duration"),
-                        value: keyGuard.visualizerLinger,
-                        range: 0.5...4.0,
-                        step: 0.25,
-                        valueText: String(format: "%.2f s", keyGuard.visualizerLinger),
-                        set: { keyGuard.setVisualizerLinger($0) }
-                    )
-                    SettingsDivider()
-                    SettingsSliderRow(
-                        Text("Font Size"),
-                        value: keyGuard.visualizerFontSize,
-                        range: 12...28,
-                        step: 1,
-                        valueText: "\(Int(keyGuard.visualizerFontSize)) pt",
-                        set: { keyGuard.setVisualizerFontSize($0) }
-                    )
-                    SettingsDivider()
-                    SettingsToggleRow(
-                        Text("Unlock Position to Drag"),
-                        isOn: Binding(
-                            get: { keyGuard.visualizerPositionUnlocked },
-                            set: { keyGuard.setVisualizerPositionUnlocked($0) }
-                        ),
-                        info: String(localized: "Drag the floating key strip anywhere on screen, then lock it back when done.")
-                    )
-                    SettingsDivider()
-                    SettingsRow(Text("Overlay Position")) {
-                        Button("Reset Position") { keyGuard.resetVisualizerPosition() }
-                            .buttonStyle(SettingsGelButtonStyle())
-                    }
+            SettingsCard(Text("Shortcut Cheat Sheet")) {
+                SettingsPickerRow(
+                    Text("Quick Trigger"),
+                    selection: Binding(
+                        get: { cheatSheet.trigger },
+                        set: { cheatSheet.setTrigger($0) }
+                    ),
+                    note: Text("KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.")
+                ) {
+                    Text("Off").tag(ShortcutCheatSheetTrigger.off)
+                    Text("Double-tap & Hold ⌘").tag(ShortcutCheatSheetTrigger.doubleTapCommand)
+                    Text("Hold ⌘").tag(ShortcutCheatSheetTrigger.holdCommand)
                 }
-            } trailing: {
-                SettingsCard(Text("Shortcut Cheat Sheet")) {
-                    SettingsPickerRow(
-                        Text("Quick Trigger"),
-                        selection: Binding(
-                            get: { cheatSheet.trigger },
-                            set: { cheatSheet.setTrigger($0) }
-                        ),
-                        note: Text("KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.")
-                    ) {
-                        Text("Off").tag(ShortcutCheatSheetTrigger.off)
-                        Text("Double-tap & Hold ⌘").tag(ShortcutCheatSheetTrigger.doubleTapCommand)
-                        Text("Hold ⌘").tag(ShortcutCheatSheetTrigger.holdCommand)
-                    }
+                SettingsDivider()
+                SettingsRow(Text("Cheat Sheet Overlay"), note: Text("Inspect, search, or export the frontmost app's shortcuts as Markdown.")) {
+                    Button("Open Cheat Sheet") { cheatSheet.toggle(pinned: true) }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
+                if !AXIsProcessTrusted() {
                     SettingsDivider()
-                    SettingsRow(Text("Cheat Sheet Overlay"), note: Text("Inspect, search, or export the frontmost app's shortcuts as Markdown.")) {
-                        Button("Open Cheat Sheet") { cheatSheet.toggle(pinned: true) }
-                            .buttonStyle(SettingsGelButtonStyle())
-                    }
-                    if !AXIsProcessTrusted() {
-                        SettingsDivider()
-                        SettingsNote(Text("Accessibility permission is required to read menu bar shortcuts from other apps."))
-                    }
+                    SettingsNote(Text("Accessibility permission is required to read menu bar shortcuts from other apps."))
                 }
             }
         }

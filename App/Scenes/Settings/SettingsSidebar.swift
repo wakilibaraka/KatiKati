@@ -25,8 +25,11 @@ extension SettingsTab {
         case .launcher: return "search apps files spotlight"
         case .commandBar: return "command bar hints script commands"
         case .controlCenter: return "panel tiles toggles anchor width"
-        case .shortcuts: return "hotkey keyboard keys record hyper caps lock snap"
+        case .shortcuts: return "hotkey keyboard keys record snap tiling hold time"
+        case .keyboard: return "hyper super caps lock caps protect finder keys pause cleaning visualizer input monitoring"
+        case .mouse: return "pointer focus follows mouse scroll direction clicks wheel"
         case .mouseGestures: return "trackpad gesture swipe pinch tap multitouch conflict mission control"
+        case .quitApps: return "quit close confirmation hold command q idle apps rules"
         case .radialDial: return "pie menu wheel theme"
         case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
         case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
@@ -41,6 +44,7 @@ private enum SidebarSection: Identifiable {
     case system([SettingsTab])
     case surfaces([SettingsTab])
     case workspace([SettingsTab])
+    case input([SettingsTab])
     case productivity([SettingsTab])
     case advanced([SettingsTab])
 
@@ -49,6 +53,7 @@ private enum SidebarSection: Identifiable {
         case .system: return "system"
         case .surfaces: return "surfaces"
         case .workspace: return "workspace"
+        case .input: return "input"
         case .productivity: return "productivity"
         case .advanced: return "advanced"
         }
@@ -59,6 +64,7 @@ private enum SidebarSection: Identifiable {
         case .system(let tabs),
              .surfaces(let tabs),
              .workspace(let tabs),
+             .input(let tabs),
              .productivity(let tabs),
              .advanced(let tabs):
             return tabs
@@ -70,6 +76,7 @@ private enum SidebarSection: Identifiable {
         case .system: return Text("System & Bars")
         case .surfaces: return Text("Surfaces & Shelves")
         case .workspace: return Text("Window & Workspace")
+        case .input: return Text("Input & Shortcuts")
         case .productivity: return Text("Productivity & AI")
         case .advanced: return Text("Advanced")
         }
@@ -94,7 +101,8 @@ struct SettingsSidebar: View {
         .system([.general, .menuBar, .appearance, .dockItems]),
         .surfaces([.drawer, .shelf, .widgets, .desktop, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
-        .productivity([.shortcuts, .mouseGestures, .radialDial, .aiTracking, .downloads, .clipboard, .tools]),
+        .input([.shortcuts, .keyboard, .mouse, .mouseGestures, .radialDial, .quitApps]),
+        .productivity([.aiTracking, .downloads, .clipboard, .tools]),
         .advanced([.advanced])
     ]
 
