@@ -3,8 +3,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Phase 12 + Slice CS-2 — the Tools page's rows: Clipboard (with tag pills), structured Commands &
-/// Snippets (with JSON import/export and variable chips), Key Visualizer (KeyCastr), and Shortcut
-/// Cheat Sheet (KeyClu). Bounded inner scroll lists keep total page height ≤ 1074 pt.
+/// Snippets (with JSON import/export and variable chips), Key Visualizer, and Shortcut
+/// Cheat Sheet. Bounded inner scroll lists keep total page height ≤ 1074 pt.
 struct UtilitySettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var keyGuard = KeyGuardService.shared
@@ -172,7 +172,7 @@ struct UtilitySettingsBlock: View {
                         get: { cheatSheet.trigger },
                         set: { cheatSheet.setTrigger($0) }
                     ),
-                    note: Text("KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.")
+                    note: Text("Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.")
                 ) {
                     Text("Off").tag(ShortcutCheatSheetTrigger.off)
                     Text("Double-tap & Hold ⌘").tag(ShortcutCheatSheetTrigger.doubleTapCommand)

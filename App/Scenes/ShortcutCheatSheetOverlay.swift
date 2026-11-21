@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// KeyClu-style floating Shortcut Cheat Sheet panel. Non-activating so it never steals focus from
+/// The floating Shortcut Cheat Sheet panel. Non-activating so it never steals focus from
 /// the target app while reading its menu bar shortcuts; supports search, live modifier highlighting,
 /// pinning, and Markdown export.
 @MainActor

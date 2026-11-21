@@ -59,6 +59,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case stripMoveNext, stripMovePrevious
     case stripCycleWidth, stripStackLeft, stripToggleTabs
     case stripTabNext, stripTabPrevious
+    /// SCU-4: the floating cheat sheet. Default `.off` — the user picks a shortcut for it.
+    case showCheatSheet
+
     /// The ribbon's eight pictures, ⌘⌃1–8 in visual order (1 = Chain).
     case ribbonChain, ribbonHalves, ribbonTwoPlusOne, ribbonOnePlusTwo
     case ribbonThirds, ribbonQuarters, ribbonFive, ribbonSix
@@ -66,6 +69,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     /// Carbon hot key id (signature is shared with the other hot keys; 1 = edge auto-hide).
     var hotKeyID: UInt32 {
         switch self {
+        case .showCheatSheet: return 73
         case .launcher: return 2
         case .pinboard: return 3
         case .quickSettings: return 4
@@ -148,6 +152,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .launcher: return .chord(.optionShiftSpace)
         case .pinboard: return .chord(.controlOptionSpace)
         case .commandBar: return .chord(.optionSpace)
+        case .showCheatSheet: return .off
         case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock, .translate: return .off
         // All snap zones default to off — user assigns via Settings › Shortcuts › Snap Hotkeys.
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
@@ -669,6 +674,8 @@ extension ShortcutAction {
              .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,
              .ribbonThirds, .ribbonQuarters, .ribbonFive, .ribbonSix:
             return .tiling
+        case .showCheatSheet:
+            return .tools
         case .drawer, .notchTools, .weather, .clock, .notchPageNext, .notchPagePrevious,
              .desktopQuickReveal, .desktopToggleHidden,
              .radialDial, .radialDialSnap, .radialDialTools:
@@ -838,4 +845,45 @@ extension ShortcutKey {
         if modifiers & Self.command != 0 { caps.append("⌘") }
         return caps
     }
+}
+
+// MARK: - SCU-4: the cheat sheet
+
+/// One line of the cheat sheet: what it is and the keys it takes.
+struct ShortcutCheatSheetRow: Equatable, Identifiable, Sendable {
+    var action: ShortcutAction
+    var trigger: ShortcutTrigger
+    var id: ShortcutAction { action }
+}
+
+/// The sheet reads the same bindings the settings pane writes, with the shipped default behind every
+/// action the store has not answered for — so it can never show a combination the pane would not.
+enum ShortcutCheatSheet {
+    static func rows(bindings: [ShortcutAction: ShortcutTrigger]) -> [ShortcutCheatSheetRow] {
+        ShortcutAction.allCases.compactMap { action in
+            // The sheet never lists itself: one shortcut opens it, the sheet is not a reference entry.
+            guard action != .showCheatSheet else { return nil }
+            let trigger = bindings[action] ?? action.defaultTrigger
+            guard trigger != .off else { return nil }
+            return ShortcutCheatSheetRow(action: action, trigger: trigger)
+        }
+    }
+
+    /// Groups in `ShortcutCategory.allCases` order; an empty band is left out entirely.
+    static func sections(bindings: [ShortcutAction: ShortcutTrigger]) -> [(category: ShortcutCategory, rows: [ShortcutCheatSheetRow])] {
+        let all = rows(bindings: bindings)
+        return ShortcutCategory.allCases.compactMap { category in
+            let rows = all.filter { $0.action.category == category }
+            return rows.isEmpty ? nil : (category, rows)
+        }
+    }
+}
+
+/// Open or closed. Pure so Esc, a click outside and the same shortcut again are all testable without
+/// an AppKit window: every way of closing calls `dismiss`, and reopening goes through `toggle`.
+struct ShortcutCheatSheetPresence: Equatable, Sendable {
+    private(set) var isVisible = false
+
+    mutating func toggle() { isVisible.toggle() }
+    mutating func dismiss() { isVisible = false }
 }

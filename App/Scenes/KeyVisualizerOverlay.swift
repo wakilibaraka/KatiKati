@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Phase 24d + KeyCastr-style upgrade: floating key visualizer overlay. Off by default, needs Input
+/// Phase 24d: upgraded floating key visualizer overlay. Off by default, needs Input
 /// Monitoring, and never logs or persists keystrokes — only holds the last few keycaps in memory and
 /// clears itself after `lingerDuration`. Supports Glass Capsule, Svelte, and Dark Bezel styles plus
 /// unlock-to-drag positioning.

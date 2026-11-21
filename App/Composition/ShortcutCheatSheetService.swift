@@ -2,7 +2,7 @@ import AppKit
 import Combine
 import Foundation
 
-/// KeyClu-style Shortcut Cheat Sheet coordinator: reads the frontmost app's menu bar shortcuts
+/// The Shortcut Cheat Sheet coordinator: reads the frontmost app's menu bar shortcuts
 /// off the main thread via `AppMenuSearchReader`, merges KatiKati's active global shortcuts, and
 /// drives `ShortcutCheatSheetOverlayController`.
 @MainActor

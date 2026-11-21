@@ -1,6 +1,6 @@
 import Foundation
 
-/// KeyClu-style trigger mode for the Shortcut Cheat Sheet overlay.
+/// Trigger mode for the Shortcut Cheat Sheet overlay.
 enum ShortcutCheatSheetTrigger: String, CaseIterable, Identifiable, Sendable {
     case off
     case doubleTapCommand

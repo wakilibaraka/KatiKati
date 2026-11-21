@@ -73632,79 +73632,79 @@
         }
       }
     },
-    "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.": {
+    "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "es-419": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "KeyClu-style overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
+            "value": "Floating overlay showing all menu shortcuts for the active app plus your KatiKati shortcuts. Release ⌘ to dismiss, or pin it open."
           }
         }
       }
@@ -169577,6 +169577,101 @@
           "stringUnit": {
             "state": "new",
             "value": "Reset to Defaults"
+          }
+        }
+      }
+    },
+    "Show Shortcuts Cheat Sheet": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Show Shortcuts Cheat Sheet"
           }
         }
       }
