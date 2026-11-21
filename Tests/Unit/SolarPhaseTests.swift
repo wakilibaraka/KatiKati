@@ -574,3 +574,32 @@ final class SkyAtmosphereTests: XCTestCase {
         XCTAssertEqual(withLocation.moon.waxing, MoonPhase.fraction(at: night) < 0.5)
     }
 }
+
+final class SignatureTests: XCTestCase {
+    private let day = Date(timeIntervalSince1970: 1_735_689_600)
+
+    private func signature(_ phase: SolarPhase = .night, _ sky: WallpaperSky = .clear,
+                           version: Int = WallpaperFrameSignature.version) -> String {
+        let environment = TerrainMimicCatalog.environment(scene: .alpine, phase: phase, sky: sky)
+        let atmosphere = SkyAtmosphere.plan(phase: phase, sky: sky, date: day, seed: 42,
+                                            latitude: 51.5, longitude: -0.1)
+        return WallpaperFrameSignature.of(environment, atmosphere, version: version)
+    }
+
+    func testSignatureIsStableForTheSameEnvironmentAndAtmosphere() {
+        XCTAssertEqual(signature(), signature())
+        XCTAssertTrue(signature().hasPrefix("\(WallpaperFrameSignature.version)"))
+    }
+
+    func testASkyOrPhaseChangeIsANewFile() {
+        XCTAssertNotEqual(signature(.night, .clear), signature(.night, .storm))
+        XCTAssertNotEqual(signature(.night, .clear), signature(.day, .clear))
+        XCTAssertNotEqual(signature(.dusk, .rain), signature(.night, .rain))
+    }
+
+    func testARendererVersionBumpIsANewFile() {
+        let current = WallpaperFrameSignature.version
+        XCTAssertNotEqual(signature(version: current), signature(version: current + 1))
+        XCTAssertTrue(signature(version: current + 1).hasPrefix("\(current + 1)"))
+    }
+}

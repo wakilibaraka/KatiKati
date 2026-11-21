@@ -291,7 +291,7 @@ enum TerrainWallpaperRenderer {
                             size: CGSize, generation: Int) -> URL? {
         guard let dir = directory() else { return nil }
         let width = Int(size.width.rounded()), height = Int(size.height.rounded())
-        let base = "\(key)-\(width)x\(height)-\(signature(environment, atmosphere))"
+        let base = "\(key)-\(width)x\(height)-\(WallpaperFrameSignature.of(environment, atmosphere))"
         let source = dir.appendingPathComponent("\(base).png")
         if !FileManager.default.fileExists(atPath: source.path) {
             guard let image = render(environment: environment, atmosphere: atmosphere, width: width, height: height),
@@ -329,29 +329,6 @@ enum TerrainWallpaperRenderer {
         WallpaperCache.removeLegacyRenders(in: WallpaperCache.legacyDirectory(in: base))
     }
 
-    /// DW-9: bump when the drawing code changes, so an old picture is never reused for a new renderer.
-    static let rendererVersion = 2
-
-    /// A short, stable digest of everything that makes the picture — the colours, the atmosphere's numbers and the
-    /// renderer version — so a palette, weather or code change is a new file instead of macOS re-showing the old one.
-    static func signature(_ environment: WallpaperEnvironment, _ atmosphere: SkyAtmosphere,
-                          version: Int = rendererVersion) -> String {
-        func part(_ c: SkyRGB) -> String { "\(Int((c.r * 255).rounded()))-\(Int((c.g * 255).rounded()))-\(Int((c.b * 255).rounded()))" }
-        func q(_ v: Double) -> String { String(Int((v * 1_000).rounded())) }
-        var parts = ["\(version)", environment.scene.rawValue, String(environment.layers.count), q(environment.glowStrength),
-                     q(atmosphere.starOpacity), String(atmosphere.starCount), q(atmosphere.twinkleDepth),
-                     atmosphere.meteor.rawValue, q(atmosphere.horizonGlow), q(atmosphere.moon.visibility),
-                     q(atmosphere.moon.halo), q(atmosphere.moon.haze), q(atmosphere.moon.illumination),
-                     atmosphere.moon.waxing ? "w" : "n", q(atmosphere.moon.altitude), q(atmosphere.moon.azimuth)]
-        parts += [environment.skyTop, environment.skyBottom, environment.glow].map(part) + environment.layers.map(part)
-        for band in atmosphere.clouds {
-            parts += [band.family.rawValue, q(band.coverage), q(band.opacity), q(band.thickness), q(band.drift), q(band.speed)]
-        }
-        var value: UInt32 = 2_166_136_261
-        for character in parts.joined(separator: "|").unicodeScalars { value = (value ^ character.value) &* 16_777_619 }
-        return "\(version)" + String(value, radix: 16)
-    }
-
     static func render(environment: WallpaperEnvironment, atmosphere: SkyAtmosphere,
                        width: Int, height: Int) -> CGImage? {
         let space = CGColorSpaceCreateDeviceRGB()
@@ -381,6 +358,9 @@ enum TerrainWallpaperRenderer {
             let center = CGPoint(x: w * 0.72, y: h * 0.66)
             ctx.drawRadialGradient(glow, startCenter: center, startRadius: 0, endCenter: center, endRadius: h * 0.45, options: [])
         }
+        // DW-9 commit B: cloud bands sit above the horizon glow and behind the silhouettes, so a ridge can cover
+        // the bottom of a bank exactly as it covers the stars.
+        drawClouds(ctx, atmosphere: atmosphere, width: w, height: h, color: color(environment.glow))
         // Silhouette bands, farthest first.
         for (index, layer) in environment.layers.enumerated() {
             drawLayer(ctx, scene: environment.scene, index: index, of: environment.layers.count,
@@ -463,6 +443,51 @@ enum TerrainWallpaperRenderer {
             ctx.setFillColor(fill(moon.visibility))
             ctx.fillEllipse(in: CGRect(x: center.x - core / 2, y: center.y - radius, width: core, height: radius * 2))
             ctx.restoreGState()
+        }
+    }
+
+    /// DW-9 commit B: one band per plan entry — `cirrus` thin stretched blobs, `wisp` soft ellipses, `bank` stacked
+    /// heavy ellipses — at the band's own opacity, drifting from `CloudBand.drift`. A four-bank storm adds a dark
+    /// veil; fog's flattened bands already sit low and faint.
+    private static func drawClouds(_ ctx: CGContext, atmosphere: SkyAtmosphere, width: CGFloat, height: CGFloat, color: CGColor) {
+        guard !atmosphere.clouds.isEmpty else { return }
+        let rgb = color.components ?? [1, 1, 1, 1]
+        if atmosphere.clouds.count >= 4 {
+            ctx.setFillColor(CGColor(red: 0.04, green: 0.05, blue: 0.08, alpha: 0.22))
+            ctx.fill(CGRect(x: 0, y: height * 0.30, width: width, height: height * 0.70))
+        }
+        for (index, band) in atmosphere.clouds.enumerated() {
+            let span = width * CGFloat(0.45 + 0.55 * band.coverage)
+            let centerX = width * CGFloat(band.drift) + (index.isMultiple(of: 2) ? 0.18 : 0.62) * width
+            let baseY = height * (0.44 + 0.05 * CGFloat(index) + 0.05 * CGFloat(band.thickness))
+            let heightScale = height * CGFloat(0.010 + 0.030 * band.thickness)
+            let alpha = CGFloat(band.opacity * 0.5)
+            let tint = CGColor(red: min(rgb[0] * 1.1 + 0.08, 1), green: min(rgb[1] * 1.1 + 0.08, 1),
+                               blue: min(rgb[2] * 1.1 + 0.08, 1), alpha: 1)
+            ctx.setFillColor(tint.copy(alpha: alpha) ?? tint)
+            switch band.family {
+            case .cirrus:
+                for lobe in 0..<3 {
+                    let w = span * (0.75 - 0.16 * CGFloat(lobe))
+                    let x = centerX - w / 2 + CGFloat(lobe) * width * 0.05
+                    ctx.fillEllipse(in: CGRect(x: x, y: baseY + CGFloat(lobe) * heightScale * 0.35,
+                                               width: w, height: heightScale * 0.55))
+                }
+            case .wisp:
+                for lobe in 0..<3 {
+                    let w = span * (0.30 + 0.10 * CGFloat(lobe % 2))
+                    let x = centerX - span * 0.25 + CGFloat(lobe) * span * 0.22
+                    ctx.fillEllipse(in: CGRect(x: x, y: baseY + CGFloat(lobe % 2) * heightScale * 0.4,
+                                               width: w, height: heightScale))
+                }
+            case .bank:
+                for lobe in 0..<5 {
+                    let w = span * (0.55 - 0.06 * CGFloat(lobe % 3))
+                    let x = centerX - span * 0.36 + CGFloat(lobe) * span * 0.17
+                    ctx.fillEllipse(in: CGRect(x: x, y: baseY + CGFloat(lobe % 2) * heightScale * 0.5,
+                                               width: w, height: heightScale * 1.5))
+                }
+            }
         }
     }
 

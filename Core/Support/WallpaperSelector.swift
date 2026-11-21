@@ -371,6 +371,32 @@ enum LunarPosition {
     }
 }
 
+/// DW-9 — the cache key: a short, stable digest of everything that changes the pixels (the colours, the
+/// atmosphere's numbers) plus the renderer version, so a palette, weather or code change is a new file instead of
+/// macOS re-showing the old one. Pure and in Core, so the signature itself is unit-tested.
+enum WallpaperFrameSignature {
+    /// Bump when the drawing code changes; `version` is part of the digest and its own file-name prefix.
+    static let version = 2
+
+    static func of(_ environment: WallpaperEnvironment, _ atmosphere: SkyAtmosphere,
+                   version: Int = version) -> String {
+        func part(_ c: SkyRGB) -> String { "\(Int((c.r * 255).rounded()))-\(Int((c.g * 255).rounded()))-\(Int((c.b * 255).rounded()))" }
+        func q(_ v: Double) -> String { String(Int((v * 1_000).rounded())) }
+        var parts = ["\(version)", environment.scene.rawValue, String(environment.layers.count), q(environment.glowStrength),
+                     q(atmosphere.starOpacity), String(atmosphere.starCount), q(atmosphere.twinkleDepth),
+                     atmosphere.meteor.rawValue, q(atmosphere.horizonGlow), q(atmosphere.moon.visibility),
+                     q(atmosphere.moon.halo), q(atmosphere.moon.haze), q(atmosphere.moon.illumination),
+                     atmosphere.moon.waxing ? "w" : "n", q(atmosphere.moon.altitude), q(atmosphere.moon.azimuth)]
+        parts += [environment.skyTop, environment.skyBottom, environment.glow].map(part) + environment.layers.map(part)
+        for band in atmosphere.clouds {
+            parts += [band.family.rawValue, q(band.coverage), q(band.opacity), q(band.thickness), q(band.drift), q(band.speed)]
+        }
+        var value: UInt32 = 2_166_136_261
+        for character in parts.joined(separator: "|").unicodeScalars { value = (value ^ character.value) &* 16_777_619 }
+        return "\(version)" + String(value, radix: 16)
+    }
+}
+
 enum CloudFamily: String, CaseIterable, Sendable { case cirrus, wisp, bank }
 
 struct CloudBand: Equatable, Sendable {
