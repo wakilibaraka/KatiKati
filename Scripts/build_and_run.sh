@@ -134,6 +134,42 @@ case "$MODE" in
     open_app
     wait_for_app
     ;;
+  --test|test)
+    # A gate you cannot forget: `xcodebuild test` relinks the product and signs it ad-hoc, which
+    # silently drops the Accessibility grant, so the next live pass measures nothing (or, worse,
+    # reads a still-running instance). This runs the tests and puts the local identity straight back
+    # on, printing the verdict for both. Extra arguments pass through, so -only-testing filters and
+    # other xcodebuild flags work unchanged:
+    #   Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/WallpaperMoodTests
+    pkill -x "$APP_NAME" >/dev/null 2>&1 || true
+    test_log="${KATIKATI_TEST_LOG:-/tmp/katikati-test.log}"
+    test_status=0
+    xcodebuild -project "$PROJECT_PATH" -scheme "$APP_NAME" -destination 'platform=macOS' \
+      -skipPackagePluginValidation -derivedDataPath "$DERIVED_DATA_DIR" CODE_SIGNING_ALLOWED=NO \
+      test "${@:2}" >"$test_log" 2>&1 || test_status=$?
+    if [[ "$test_status" -eq 0 ]]; then
+      echo "test: ✅ TEST SUCCEEDED"
+    else
+      echo "test: ❌ TEST FAILED (xcodebuild exit $test_status)"
+    fi
+    grep -E "Executed [0-9]+ tests|error: -\[" "$test_log" | tail -4 || true
+    echo "test: full log at $test_log"
+    # Re-sign unconditionally: the product on disk is ad-hoc whether the tests passed, failed or
+    # never built, and that is exactly the state that has to be impossible to leave behind unnoticed.
+    identity="$(katikati_signing_identity)"
+    if [[ -z "$identity" ]]; then
+      echo "signing: ❌ no KatiKati signing identity in this keychain — the test build was left ad-hoc" >&2
+      exit 3
+    fi
+    katikati_sign_bundle "$APP_BUNDLE" "$identity"
+    echo "signing: re-signed $APP_NAME.app with \"$identity\" after the test run"
+    katikati_report_signing "$APP_BUNDLE" || exit 3
+    if [[ "$test_status" -eq 0 ]]; then
+      open_app
+      if wait_for_app; then echo "signing: relaunched the app on the re-signed build"; fi
+    fi
+    exit "$test_status"
+    ;;
   --check-signing|check-signing)
     # Read-only gate for a live pass: no build, no re-sign, no launch. Exit 3 when this bundle's
     # signature no longer matches the Accessibility grant, so a harness stops here instead of
@@ -144,7 +180,11 @@ case "$MODE" in
       echo "signing: ⚠️  the running instance is $running, not the bundle just checked" >&2
       exit 3
     fi
-    [[ -n "$running" ]] && echo "signing: running instance is this bundle (pid $(pgrep -x "$APP_NAME" | head -1))"
+    # 写成 if 而不是 `[[ … ]] && echo`：没有实例在跑时那个复合命令返回 1，脚本会带着 1 退出，
+    # 调用方（例如 Scripts/live_check_tiling_presets.py）就会把「没在跑」读成「签名不对」而拒绝开工。
+    if [[ -n "$running" ]]; then
+      echo "signing: running instance is this bundle (pid $(pgrep -x "$APP_NAME" | head -1))"
+    fi
     ;;
   --lab|lab)
     run_cli "${@:2}"
@@ -165,7 +205,7 @@ case "$MODE" in
     run_cli transitionReplay "${2:-focused-active-replay}"
     ;;
   *)
-    echo "usage: $0 [run|--debug|--logs|--telemetry|--launch-trace|--verify|--resign|--check-signing|--lab|--lab-minimize|--lab-close|--lab-replay [scenario-name]|--lab-placement [scenario-name]|--lab-transition [scenario-name]]" >&2
+    echo "usage: $0 [run|--debug|--logs|--telemetry|--launch-trace|--verify|--resign|--check-signing|--test [xcodebuild test args…]|--lab|--lab-minimize|--lab-close|--lab-replay [scenario-name]|--lab-placement [scenario-name]|--lab-transition [scenario-name]]" >&2
     exit 2
     ;;
 esac
