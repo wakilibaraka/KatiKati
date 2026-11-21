@@ -675,3 +675,229 @@ struct StageShelf: View {
         }
     }
 }
+
+// MARK: - Mission Control (MC-3)
+
+/// The Mission Control surface, shared by the live overlay and the stage preview so the two cannot
+/// disagree: every border, tint, badge and dim comes from the same `MissionControl*` resolution.
+/// `frames` are already in this view's coordinate space (top-left origin, like Mission Control).
+struct MissionControlSurface: View {
+    var frames: [MissionControlWindowFrame]
+    var configuration: MissionControlConfiguration
+    var hoveredID: MissionControlWindowFrame.ID?
+    var query: String = ""
+    var spaceTitle: String?
+    var spaceAccent: MissionControlColor?
+    var showsButtons = false
+    var onAction: ((MissionControlWindowAction) -> Void)?
+
+    private var colouring: MissionControlColouring { configuration.colouring }
+    private var naming: MissionControlNaming { configuration.naming }
+    private var framing: MissionControlFraming { configuration.framing }
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(frames) { frame in
+                window(frame)
+            }
+            if let spaceTitle {
+                spacePill(spaceTitle)
+            }
+        }
+        .animation(.spring(response: 0.24, dampingFraction: 0.85), value: hoveredID)
+        .animation(.easeInOut(duration: 0.18), value: query)
+    }
+
+    private func window(_ frame: MissionControlWindowFrame) -> some View {
+        let hovered = frame.id == hoveredID
+        let style = framing.style(isFocused: frame.isFocused, isHovered: hovered, state: frame.state)
+        let colour = colouring.color(forBundleID: frame.bundleID, category: frame.category)
+        let tint = colouring.tint(forBundleID: frame.bundleID, category: frame.category)
+        let opacity = MissionControlFilter.opacity(query: query, title: frame.title, app: frame.appName)
+        let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
+        return ZStack(alignment: .topLeading) {
+            shape.fill(colour.color.opacity(tint))
+            border(style, colour: colour, shape: shape)
+            VStack(alignment: .leading, spacing: 4) {
+                if let badge = naming.badgeTitle(app: frame.appName, title: frame.title) {
+                    HStack(spacing: 5) {
+                        if naming.showsAppIcon {
+                            Image(systemName: "app.fill")
+                                .font(.system(size: 9, weight: .semibold))
+                        }
+                        Text(verbatim: badge)
+                            .font(.system(size: 9.5, weight: .semibold))
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3.5)
+                    .background(Capsule().fill(.black.opacity(0.62)))
+                    .overlay(Capsule().stroke(.white.opacity(0.28), lineWidth: 0.75))
+                }
+                Spacer(minLength: 0)
+                if hovered, showsButtons, let onAction {
+                    HStack(spacing: 5) {
+                        ForEach(configuration.actions.buttons.shownActions, id: \.self) { action in
+                            Button { onAction(action) } label: {
+                                Image(systemName: Self.symbol(for: action))
+                                    .font(.system(size: 9.5, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 22, height: 22)
+                                    .background(Circle().fill(.black.opacity(0.66)))
+                                    .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.75))
+                            }
+                            .buttonStyle(.plain)
+                            .help(Text(verbatim: action.rawValue.capitalized))
+                        }
+                    }
+                    .padding(6)
+                    .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.black.opacity(0.35)))
+                }
+            }
+            .padding(8)
+        }
+        .frame(width: max(1, frame.frame.width), height: max(1, frame.frame.height))
+        .opacity(opacity)
+        .position(x: frame.frame.midX, y: frame.frame.midY)
+        .accessibilityLabel(Text(verbatim: naming.badgeTitle(app: frame.appName, title: frame.title) ?? frame.appName))
+    }
+
+    @ViewBuilder
+    private func border(_ style: MissionControlBorderStyle, colour: MissionControlColor, shape: RoundedRectangle) -> some View {
+        switch style {
+        case .none:
+            EmptyView()
+        case .hairline:
+            shape.stroke(colour.color, lineWidth: 1)
+        case .solid:
+            shape.stroke(colour.color, lineWidth: 2.5)
+        case .dashed:
+            shape.stroke(colour.color, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+        case .glow:
+            shape.stroke(colour.color, lineWidth: 2)
+                .shadow(color: colour.color.opacity(0.85), radius: 9)
+        }
+    }
+
+    private func spacePill(_ title: String) -> some View {
+        let accent = (spaceAccent ?? .blue).color
+        return HStack(spacing: 6) {
+            Circle().fill(accent).frame(width: 7, height: 7)
+            Text(verbatim: title)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Capsule().fill(.black.opacity(0.55)))
+        .overlay(Capsule().stroke(accent.opacity(0.85), lineWidth: 1))
+        .frame(maxWidth: .infinity, alignment: .top)
+        .padding(.top, 8)
+        .allowsHitTesting(false)
+    }
+
+    static func symbol(for action: MissionControlWindowAction) -> String {
+        switch action {
+        case .close: return "xmark"
+        case .minimize: return "minus"
+        case .zoom: return "arrow.up.left.and.arrow.down.right"
+        case .hide: return "eye.slash"
+        case .quit: return "power"
+        }
+    }
+}
+
+private extension MissionControlColor {
+    var color: Color { Color(.sRGB, red: red, green: green, blue: blue, opacity: alpha) }
+}
+
+/// MC-3: the stage's Mission Control preview. It draws the same `MissionControlSurface` the live
+/// overlay uses, over four symbolic thumbnails, and reloads whenever the section writes a setting —
+/// so Naming, Framing, Colouring and the hover cluster are visible before Mission Control opens.
+struct StageMissionControl: View {
+    var store: AppSettingsStore
+    @State private var configuration = MissionControlSettings.load()
+    @State private var hoveredID: MissionControlWindowFrame.ID? = 2
+
+    private var frames: [MissionControlWindowFrame] {
+        [
+            frame(1, app: "Safari", title: "Release notes", x: 0.06, y: 0.16, w: 0.40, h: 0.34, focused: true,
+                  bundle: "com.apple.Safari"),
+            frame(2, app: "Xcode", title: "KatiKati", x: 0.54, y: 0.10, w: 0.38, h: 0.36,
+                  bundle: "com.apple.dt.Xcode"),
+            frame(3, app: "Terminal", title: "swift test", x: 0.10, y: 0.58, w: 0.36, h: 0.30,
+                  bundle: "com.apple.Terminal"),
+            frame(4, app: "Slack", title: "Design", x: 0.52, y: 0.54, w: 0.34, h: 0.32, state: .minimized,
+                  bundle: "com.tinyspeck.slackmacgap")
+        ]
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            MissionControlSurface(
+                frames: frames.map { offset($0, in: proxy.size) },
+                configuration: configuration,
+                hoveredID: hoveredID,
+                spaceTitle: configuration.naming.spaceTitle(forSpaceID: "2", index: 2),
+                spaceAccent: configuration.colouring.accent(forSpaceID: "2"),
+                showsButtons: true,
+                onAction: { _ in }
+            )
+            .padding(.horizontal, 10)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            configuration = MissionControlSettings.load()
+        }
+    }
+
+    private func frame(
+        _ id: UInt32, app: String, title: String,
+        x: Double, y: Double, w: Double, h: Double,
+        state: MissionControlWindowState = .standard, focused: Bool = false, bundle: String?
+    ) -> MissionControlWindowFrame {
+        MissionControlWindowFrame(
+            id: id, bundleID: bundle, appName: app, title: title,
+            frame: CGRect(x: x, y: y, width: w, height: h),
+            state: state, isFocused: focused
+        )
+    }
+
+    private func offset(_ frame: MissionControlWindowFrame, in size: CGSize) -> MissionControlWindowFrame {
+        MissionControlWindowFrame(
+            id: frame.id, bundleID: frame.bundleID, appName: frame.appName, title: frame.title,
+            frame: CGRect(
+                x: frame.frame.minX * size.width, y: frame.frame.minY * size.height,
+                width: frame.frame.width * size.width, height: frame.frame.height * size.height
+            ),
+            state: frame.state, isFocused: frame.isFocused
+        )
+    }
+}
+
+/// MC-2: the hover control cluster in its own small, click-accepting panel. Keeping it separate from
+/// the full-screen surface is what lets the surface ignore the mouse and leave Mission Control's own
+/// navigation untouched.
+struct MissionControlControlCluster: View {
+    var actions: [MissionControlWindowAction]
+    var onAction: (MissionControlWindowAction) -> Void
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(actions, id: \.self) { action in
+                Button { onAction(action) } label: {
+                    Image(systemName: MissionControlSurface.symbol(for: action))
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 24, height: 24)
+                        .background(Circle().fill(.black.opacity(0.72)))
+                        .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 0.75))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: action.rawValue.capitalized))
+            }
+        }
+        .padding(4)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.black.opacity(0.35)))
+    }
+}
