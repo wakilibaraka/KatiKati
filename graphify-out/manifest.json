@@ -456,9 +456,9 @@
     "semantic_hash": "257c404d0125274cc9f11ed78385e0f2"
   },
   "App/Composition/WallpaperEngine.swift": {
-    "mtime": 1795287762.957691,
-    "seen": 1795288343.0196748,
-    "ast_hash": "221dd7eddc640b3b2b4c4f815d8dc31a",
+    "mtime": 1795290899.8625176,
+    "seen": 1795291116.4792562,
+    "ast_hash": "231ab00cd8b7c939a3d2a385de56742b",
     "semantic_hash": ""
   },
   "App/Composition/WeatherService.swift": {
@@ -2442,9 +2442,9 @@
     "semantic_hash": "cd97cac05cd3a7f28f954a13e46f8f4c"
   },
   "Core/Support/WallpaperSelector.swift": {
-    "mtime": 1795287555.0970767,
-    "seen": 1795288343.020097,
-    "ast_hash": "5f124289a497ad4e6740262c0056943b",
+    "mtime": 1795290898.1603081,
+    "seen": 1795291116.479667,
+    "ast_hash": "52bd0619989cb311569ede6ea7f754c5",
     "semantic_hash": ""
   },
   "Core/Support/WeatherCache.swift": {
@@ -4080,9 +4080,9 @@
     "semantic_hash": "23ee01802ca8483d8b31acaa69dd65cd"
   },
   "Tests/Unit/SolarPhaseTests.swift": {
-    "mtime": 1795290620.9429445,
-    "seen": 1795290707.8914719,
-    "ast_hash": "4b1a052eb942b0b2cf5145a6650b1bd1",
+    "mtime": 1795290956.364765,
+    "seen": 1795291116.4799669,
+    "ast_hash": "6a4afa247409e9a3e8c14d4f1b64c7df",
     "semantic_hash": ""
   },
   "Tests/Unit/StackAndContextTests.swift": {
