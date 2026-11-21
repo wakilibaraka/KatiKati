@@ -2442,9 +2442,9 @@
     "semantic_hash": "cd97cac05cd3a7f28f954a13e46f8f4c"
   },
   "Core/Support/WallpaperSelector.swift": {
-    "mtime": 1795290898.1603081,
-    "seen": 1795291116.479667,
-    "ast_hash": "52bd0619989cb311569ede6ea7f754c5",
+    "mtime": 1795291569.6455786,
+    "seen": 1795291724.755463,
+    "ast_hash": "1b1adbea0b5374c407100f12b8bce07f",
     "semantic_hash": ""
   },
   "Core/Support/WeatherCache.swift": {
@@ -4080,9 +4080,9 @@
     "semantic_hash": "23ee01802ca8483d8b31acaa69dd65cd"
   },
   "Tests/Unit/SolarPhaseTests.swift": {
-    "mtime": 1795290956.364765,
-    "seen": 1795291116.4799669,
-    "ast_hash": "6a4afa247409e9a3e8c14d4f1b64c7df",
+    "mtime": 1795291438.5057576,
+    "seen": 1795291724.755767,
+    "ast_hash": "ef64a7a380958fc3c4e2e33c6073a0dc",
     "semantic_hash": ""
   },
   "Tests/Unit/StackAndContextTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795289659.888166,
-    "seen": 1795289793.15105,
-    "ast_hash": "b6fcd496672efc8872750cf3ea26eb55",
+    "mtime": 1795291393.0819829,
+    "seen": 1795291724.755842,
+    "ast_hash": "cb9e34d800b47e3da67e98723708c57c",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
