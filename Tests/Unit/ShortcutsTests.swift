@@ -478,6 +478,26 @@ final class ShortcutCheatSheetTests: XCTestCase {
         XCTAssertTrue(ShortcutAction.allCases.contains(.showCheatSheet))
     }
 
+    /// The modifier filter needs each trigger's real modifiers, or held-modifier filtering is a lie.
+    func testTriggerModifiersFeedTheModifierFilter() {
+        XCTAssertEqual(ShortcutTrigger.chord(.optionSpace).modifiers, [.option])
+        XCTAssertEqual(ShortcutTrigger.chord(.optionShiftSpace).modifiers, [.option, .shift])
+        let controlOption = ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option)
+        XCTAssertEqual(ShortcutTrigger.key(controlOption).modifiers, [.control, .option])
+        XCTAssertEqual(ShortcutTrigger.hyper(17).modifiers, [.control, .option, .shift, .command])
+        XCTAssertEqual(ShortcutTrigger.doubleTap(.leftCommand).modifiers, [])
+        XCTAssertEqual(ShortcutTrigger.hold(.rightCommand).modifiers, [])
+        XCTAssertEqual(ShortcutTrigger.off.modifiers, [])
+
+        // A KatiKati row carrying its trigger's modifiers obeys the filter like a menu row does.
+        let optionRow = ShortcutCheatSheetItem(id: "katikati.commandBar", title: "Command Bar", subtitle: "KatiKati",
+                                               shortcut: "⌥Space", modifiers: ShortcutTrigger.chord(.optionSpace).modifiers,
+                                               category: "KatiKati", path: [])
+        let categories = [ShortcutCheatSheetCategory(title: "KatiKati", items: [optionRow])]
+        XCTAssertEqual(ShortcutCheatSheetBuilder.filter(categories: categories, query: "", requiredModifiers: [.option]).count, 1)
+        XCTAssertTrue(ShortcutCheatSheetBuilder.filter(categories: categories, query: "", requiredModifiers: [.command]).isEmpty)
+    }
+
     /// KatiKati's own shortcuts share the sheet with the frontmost app's, in a category of their own.
     func testKatiKatiBindingsBecomeTheirOwnCategory() {
         let entries = [MenuSearchEntry(path: ["File", "New Window"], commandKey: "n", modifiers: 0, isEnabled: true)]

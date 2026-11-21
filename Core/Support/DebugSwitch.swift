@@ -207,6 +207,11 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Unset in normal use. Needs `DOCK_DEV_SKIP_PERMISSIONS=1` on this unsigned build.
     case openSettings = "DOCK_OPEN_SETTINGS"
 
+    /// A file path: the shortcut cheat sheet's live check (`DOCK_CHEAT_SHEET_CHECK`) runs the three
+    /// entry points (`.showCheatSheet`, the Commands settings button, the notch Tools button), writes
+    /// what the one overlay did there, and quits. Unset in normal use.
+    case cheatSheetCheck = "DOCK_CHEAT_SHEET_CHECK"
+
     /// Slice DI-2 live-check aid: `DOCK_SETTINGS_PAGE_HEIGHT=<file>` writes the dock settings page's
     /// measured content height (`dockItems <pt>`) so the 1074 pt clamp is a number, not an eyeball.
     /// Unset in normal use.
@@ -247,7 +252,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
              .chipFramesOut, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
-             .powerNotificationDemo, .settingsPageHeight:
+             .powerNotificationDemo, .settingsPageHeight, .cheatSheetCheck:
             return .value
         }
     }

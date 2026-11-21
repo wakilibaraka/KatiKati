@@ -23,6 +23,13 @@ final class ShortcutCheatSheetOverlayController {
         panel?.orderOut(nil)
     }
 
+    /// Live-check read-out: whether the panel is on screen and which window it is.
+    var isPanelVisible: Bool { panel?.isVisible ?? false }
+    var panelWindowNumber: Int? {
+        guard let number = panel?.windowNumber, number > 0 else { return nil }
+        return number
+    }
+
     private func makePanel() -> NSPanel {
         let panel = KeyableCheatSheetPanel(
             contentRect: NSRect(x: 0, y: 0, width: 820, height: 520),

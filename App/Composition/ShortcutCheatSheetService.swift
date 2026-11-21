@@ -32,6 +32,11 @@ final class ShortcutCheatSheetService: ObservableObject {
     private var cmdIsDown = false
     private var overlay: ShortcutCheatSheetOverlayController?
 
+    /// Whether the panel the service drives is actually on screen, and which window it is — the same
+    /// number across entry points is what proves they all share one panel. Read by the live check.
+    var isOverlayOnScreen: Bool { overlay?.isPanelVisible ?? false }
+    var overlayWindowNumber: Int? { overlay?.panelWindowNumber }
+
     private init() {
         updateMonitor()
     }
@@ -132,7 +137,7 @@ final class ShortcutCheatSheetService: ObservableObject {
                 title: SettingsLayoutPane.shortcutActionName(action),
                 subtitle: "KatiKati",
                 shortcut: glyphs,
-                modifiers: [],
+                modifiers: trigger.modifiers,
                 category: "KatiKati",
                 path: []
             )

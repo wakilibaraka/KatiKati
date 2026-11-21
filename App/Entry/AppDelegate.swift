@@ -1251,6 +1251,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 用户得先看见任务条长什么样，那句「它俩都在屏幕底边会互相遮挡」才有所指。
         applyDockIconPreference()
         presentWelcomeGuideIfNeeded()
+        runCheatSheetLiveCheckIfRequested()
         nativeDockPreferencesService.reapplyDesiredIfNeeded()
         syncDesktopCanvasState()
         desktopDefaultsObserver = NotificationCenter.default.addObserver(
@@ -1263,6 +1264,106 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 探针结论（2026-07-06,阶段0探针3）：访达窗口 AX 属性表虽列有 AXDocument 但恒无值
         // （kAXErrorNoValue），AXProxy/AXTitleUIElement 也只有文件夹名无路径——「拖任务条访达
         // 窗口图标固定文件夹」不可行,已按预案砍掉,拖入固定区只走真实文件 URL（系统拖放）。
+    }
+
+    // MARK: - Cheat sheet live check
+
+    /// Live-check aid (`DOCK_CHEAT_SHEET_CHECK=<file>`): exercises the three entry points the product
+    /// offers — `.showCheatSheet` through `ShortcutService.onAction`, the Commands settings card's
+    /// button, and the notch Tools button — records what the one overlay did, then quits. The two
+    /// buttons call the same `toggle(pinned:)` the card and the notch call. Unset in normal use.
+    private func runCheatSheetLiveCheckIfRequested() {
+        guard let path = DebugSwitch.cheatSheetCheck.value(), !path.isEmpty else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+            guard let self else { return }
+            let report = self.cheatSheetLiveCheckReport()
+            try? report.write(toFile: path, atomically: true, encoding: .utf8)
+            NSApp.terminate(nil)
+        }
+    }
+
+    private func cheatSheetLiveCheckReport() -> String {
+        let service = ShortcutCheatSheetService.shared
+        var lines = ["# shortcut cheat sheet live check", ""]
+        var windows: [Int] = []
+        var failures: [String] = []
+
+        func observe(_ entry: String) {
+            let items = service.categories.flatMap(\.items)
+            let katikati = service.categories.first { $0.title == "KatiKati" }?.items ?? []
+            if let number = service.overlayWindowNumber { windows.append(number) }
+            lines.append("""
+            [\(entry)]
+              visible=\(service.isVisible) pinned=\(service.isPinned) onScreen=\(service.isOverlayOnScreen) window=\(service.overlayWindowNumber.map(String.init) ?? "none")
+              app=\(service.appName.isEmpty ? "(none)" : service.appName)
+              categories=\(service.categories.map(\.title).joined(separator: " | "))
+              items=\(items.count) katikati=\(katikati.count)
+              katikatiIds=\(katikati.map(\.id).joined(separator: ","))
+            """)
+            if !service.isVisible { failures.append("\(entry): overlay not visible") }
+            if !service.isOverlayOnScreen { failures.append("\(entry): no panel on screen") }
+            if !service.isPinned { failures.append("\(entry): overlay not pinned") }
+            if katikati.isEmpty { failures.append("\(entry): no KatiKati bindings listed") }
+        }
+
+        let expected = Set(settingsStore.shortcutBindings.filter { $0.value != .off }.keys.map { "katikati.\($0.rawValue)" })
+        lines.append("storeBindings=\(expected.count)")
+
+        // A. the shortcut: the exact closure Carbon invokes for `.showCheatSheet`.
+        service.hide()
+        shortcutService.onAction(.showCheatSheet)
+        observe("shortcut(.showCheatSheet)")
+
+        // Repeating it closes that panel instead of stacking a second one.
+        shortcutService.onAction(.showCheatSheet)
+        lines.append("")
+        lines.append("[shortcut again] visible=\(service.isVisible) onScreen=\(service.isOverlayOnScreen)")
+        if service.isVisible { failures.append("the shortcut twice did not close the overlay") }
+
+        // B. Commands settings card: the button's action.
+        service.hide()
+        ShortcutCheatSheetService.shared.toggle(pinned: true)
+        observe("settingsButton")
+
+        // C. notch Tools: literally the same call.
+        service.hide()
+        ShortcutCheatSheetService.shared.toggle(pinned: true)
+        observe("notchToolsButton")
+
+        let katikati = service.categories.first { $0.title == "KatiKati" }?.items ?? []
+        let listed = Set(katikati.map(\.id))
+        lines.append("")
+        lines.append("bindingsMatchStore=\(listed == expected)")
+        if listed != expected { failures.append("KatiKati category \(listed.count) rows does not match the \(expected.count) live bindings") }
+
+        if let commandBar = katikati.first(where: { $0.id == "katikati.commandBar" }) {
+            service.searchQuery = commandBar.title
+            let byName = ShortcutCheatSheetBuilder.filter(categories: service.categories, query: service.searchQuery, requiredModifiers: [])
+            let names = byName.flatMap(\.items).map(\.id)
+            lines.append("[filter name=\(commandBar.title)] categories=\(byName.map(\.title).joined(separator: " | ")) ids=\(names.joined(separator: ","))")
+            if !names.contains(commandBar.id) { failures.append("a KatiKati row did not survive its own name filter") }
+
+            let optionOnly = ShortcutCheatSheetBuilder.filter(categories: service.categories, query: "", requiredModifiers: [.option])
+                .flatMap(\.items).map(\.id)
+            let commandOnly = ShortcutCheatSheetBuilder.filter(categories: service.categories, query: "", requiredModifiers: [.command])
+                .flatMap(\.items).map(\.id)
+            lines.append("[filter ⌥] ids=\(optionOnly.joined(separator: ","))")
+            lines.append("[filter ⌘] ids=\(commandOnly.joined(separator: ","))")
+            if !optionOnly.contains(commandBar.id) { failures.append("the ⌥ filter dropped the ⌥Space binding") }
+            if commandOnly.contains(commandBar.id) { failures.append("the ⌘ filter kept the ⌥Space binding") }
+        } else {
+            failures.append("no live KatiKati binding for commandBar")
+        }
+        service.searchQuery = ""
+
+        if Set(windows).count != 1 {
+            failures.append("entry points used \(Set(windows).count) overlay windows: \(windows)")
+        }
+        lines.append("overlayWindows=\(windows)")
+        lines.append("")
+        lines.append(failures.isEmpty ? "RESULT: PASS" : "RESULT: FAIL")
+        lines.append(contentsOf: failures.map { " - \($0)" })
+        return lines.joined(separator: "\n") + "\n"
     }
 
     func syncDesktopCanvasState() {

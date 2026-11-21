@@ -447,6 +447,31 @@ extension ShortcutTrigger {
         }
     }
 
+    /// The modifiers a trigger holds down, for the cheat sheet's modifier filter. A timing gesture
+    /// (double-tap / hold) holds nothing; Hyper is all four by definition.
+    var modifiers: KeyModifiers {
+        switch self {
+        case .off, .doubleTap, .hold:
+            return []
+        case .chord(let chord):
+            var mods: KeyModifiers = []
+            if chord.usesControl { mods.insert(.control) }
+            if chord.usesOption { mods.insert(.option) }
+            if chord.usesShift { mods.insert(.shift) }
+            if chord.usesCommand { mods.insert(.command) }
+            return mods
+        case .key(let key):
+            var mods: KeyModifiers = []
+            if key.modifiers & ShortcutKey.control != 0 { mods.insert(.control) }
+            if key.modifiers & ShortcutKey.option != 0 { mods.insert(.option) }
+            if key.modifiers & ShortcutKey.shift != 0 { mods.insert(.shift) }
+            if key.modifiers & ShortcutKey.command != 0 { mods.insert(.command) }
+            return mods
+        case .hyper:
+            return [.control, .option, .shift, .command]
+        }
+    }
+
     /// The same physical gesture always maps to the same value: a Space chord becomes its `.key` form.
     var overlapKey: ShortcutTrigger {
         if case .chord = self, let k = switcherKey { return .key(k) }
