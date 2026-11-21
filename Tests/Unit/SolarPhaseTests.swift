@@ -132,3 +132,114 @@ extension WallpaperSelectorTests {
         XCTAssertNotNil(t?.sunset)
     }
 }
+
+// DW-1: the dynamic wallpaper's ladder — boundaries, progress and the sun-height model, all from `times`.
+final class DaylightPhaseTests: XCTestCase {
+    private let rise = Date(timeIntervalSince1970: 1_000_000)
+    private var set: Date { rise.addingTimeInterval(12 * 3600) }
+    private var noon: Date { rise.addingTimeInterval(6 * 3600) }
+    private var times: SunTimes { SunTimes(sunrise: rise, sunset: set) }
+
+    private func sample(_ offset: TimeInterval, from base: Date) -> DaylightSample {
+        SolarDaylightEvaluator.sample(at: base.addingTimeInterval(offset), times: times)
+    }
+
+    func testTheLadderStepsAtTheDocumentedBoundaries() {
+        XCTAssertEqual(sample(-31 * 60, from: rise).phase, .night)
+        XCTAssertEqual(sample(-30 * 60, from: rise).phase, .dawn)
+        XCTAssertEqual(sample(29 * 60, from: rise).phase, .dawn)
+        XCTAssertEqual(sample(30 * 60, from: rise).phase, .morning)
+        XCTAssertEqual(sample(-31 * 60, from: noon).phase, .morning)
+        XCTAssertEqual(sample(-30 * 60, from: noon).phase, .noon)
+        XCTAssertEqual(sample(1, from: noon).phase, .noon, "the afternoon rides the noon plateau")
+        XCTAssertEqual(sample(-61 * 60, from: set).phase, .noon)
+        XCTAssertEqual(sample(-60 * 60, from: set).phase, .goldenHour)
+        XCTAssertEqual(sample(0, from: set).phase, .dusk)
+        XCTAssertEqual(sample(29 * 60, from: set).phase, .dusk)
+        XCTAssertEqual(sample(30 * 60, from: set).phase, .night)
+    }
+
+    func testProgressRunsZeroToOneThroughEachStep() {
+        XCTAssertEqual(sample(-30 * 60, from: rise).progress, 0, accuracy: 0.0001)
+        XCTAssertEqual(sample(0, from: rise).progress, 0.5, accuracy: 0.0001, "dawn is centred on sunrise")
+        XCTAssertEqual(sample(29 * 60, from: rise).progress, 59.0 / 60, accuracy: 0.0001)
+        XCTAssertEqual(sample(0, from: set).progress, 0, accuracy: 0.0001)
+        XCTAssertEqual(sample(15 * 60, from: set).progress, 0.5, accuracy: 0.0001)
+        for offset in stride(from: Double(-600), through: 600, by: 37) {
+            let p = sample(offset * 60, from: noon).progress
+            XCTAssertTrue((0...1).contains(p), "progress \(p) escaped 0…1 at \(offset) min")
+        }
+    }
+
+    func testSunHeightPeaksAtSolarNoonAndGoesNegativeAfterDusk() {
+        XCTAssertEqual(sample(0, from: rise).altitude, 0, accuracy: 0.02, "the sun sits on the horizon at sunrise")
+        XCTAssertEqual(sample(0, from: noon).altitude, 1, accuracy: 0.02)
+        XCTAssertLessThan(sample(6 * 3600, from: set).altitude, -0.5, "well past dusk the sun is below the horizon")
+    }
+
+    func testPolarAndMissingTimesStayDefined() {
+        let polarDay = SolarDaylightEvaluator.sample(at: rise, times: SunTimes(sunrise: nil, sunset: nil, polar: .day))
+        XCTAssertEqual(polarDay.phase, .noon)
+        XCTAssertEqual(polarDay.altitude, 0.85, accuracy: 0.0001)
+        let polarNight = SolarDaylightEvaluator.sample(at: rise, times: SunTimes(sunrise: nil, sunset: nil, polar: .night))
+        XCTAssertEqual(polarNight.phase, .night)
+        XCTAssertLessThan(polarNight.luminance, 0.2)
+        let missing = SolarDaylightEvaluator.sample(at: rise, times: SunTimes(sunrise: nil, sunset: nil))
+        XCTAssertEqual(missing.phase, .noon, "no times and no polar flag reads as a bright, neutral day")
+    }
+
+    func testShortWinterDaysFallBackInsteadOfInvertingTheWindows() {
+        // Three hours of daylight: a 30-minute dawn, a 30-minute noon window and a one-hour golden hour
+        // cannot all fit, so the ladder must fall back to the coarse pack phase — never a night-morning.
+        let short = SunTimes(sunrise: rise, sunset: rise.addingTimeInterval(3 * 3600))
+        let s = SolarDaylightEvaluator.sample(at: rise.addingTimeInterval(2 * 3600), times: short)
+        XCTAssertTrue(DaylightPhase.allCases.contains(s.phase))
+        XCTAssertTrue((0...1).contains(s.progress))
+    }
+
+    func testNightIsDarkerThanNoonOnTheLadder() {
+        XCTAssertLessThan(SolarDaylightEvaluator.luminance(of: .night), SolarDaylightEvaluator.luminance(of: .noon))
+        XCTAssertLessThan(SolarDaylightEvaluator.luminance(of: .dusk), SolarDaylightEvaluator.luminance(of: .morning))
+    }
+}
+
+// DW-1: environment mimicry — which scene a pin resolves to, and what its layers/accents look like.
+final class TerrainMimicCatalogTests: XCTestCase {
+    func testPinsResolveToTheirOwnScene() {
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.city, latitude: 0, cityName: "Viterbo"), .city)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.countryside, latitude: 60, cityName: "Oslo"), .countryside)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.terrain, latitude: 46, cityName: "Chamonix"), .alpine)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.terrain, latitude: 38, cityName: "Porto"), .coast)
+    }
+
+    func testAutoPicksFromThePlaceNameFirst() {
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.auto, latitude: 40, cityName: "New York"), .city)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.auto, latitude: 45, cityName: "Monterey Bay"), .coast)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.auto, latitude: 42, cityName: "Somerset Valley"), .countryside)
+    }
+
+    func testAutoFallsBackToLatitudeThenCountryside() {
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.auto, latitude: 62, cityName: "Reykjavik"), .alpine)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.auto, latitude: 12, cityName: "Viterbo"), .countryside)
+        XCTAssertEqual(TerrainMimicCatalog.resolve(.auto, latitude: nil, cityName: ""), .countryside)
+    }
+
+    func testEachSceneHasThreeDistinctBandsAndAnAccentTriple() {
+        for scene in WallpaperScene.allCases {
+            let env = TerrainMimicCatalog.environment(scene: scene, phase: .day, sky: .clear)
+            XCTAssertEqual(env.layers.count, 3, "\(scene) needs three silhouette bands")
+            XCTAssertEqual(env.accent.count, 3)
+            XCTAssertEqual(Set(env.layers.map { "\($0.r),\($0.g),\($0.b)" }).count, 3, "\(scene) bands must differ")
+            XCTAssertGreaterThan(env.glowStrength, 0, "a clear day keeps its sun glow")
+        }
+    }
+
+    func testWeatherAndPhaseChangeTheSceneNotJustItsName() {
+        let clear = TerrainMimicCatalog.environment(scene: .alpine, phase: .day, sky: .clear)
+        let storm = TerrainMimicCatalog.environment(scene: .alpine, phase: .day, sky: .storm)
+        XCTAssertNotEqual(clear.skyTop, storm.skyTop)
+        XCTAssertEqual(storm.glowStrength, 0, "an overcast sky has no visible sun")
+        let night = TerrainMimicCatalog.environment(scene: .alpine, phase: .night, sky: .clear)
+        XCTAssertLessThan(night.layers[2].r, clear.layers[2].r, "the nearest ridge reads darker at night")
+    }
+}

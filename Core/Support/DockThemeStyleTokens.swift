@@ -6,6 +6,136 @@ struct DockRGBA: Equatable, Sendable {
     let g: CGFloat
     let b: CGFloat
     let a: CGFloat
+
+    /// Rec. 601 brightness — what decides whether white or near-black content sits on top of this colour.
+    var luminance: CGFloat { 0.299 * r + 0.587 * g + 0.114 * b }
+}
+
+// MARK: - DW-1 · multicolour / gradient dock accent
+
+/// How the dock accent is painted. One flat tint was the whole vocabulary before this; a stop list of one
+/// colour is still a solid, so the simple case stayed the simple case.
+enum DockAccentStyle: String, CaseIterable, Codable, Sendable {
+    case solid, linearGradient, mesh, wallpaperAdaptive
+
+    /// A solid has exactly one stop; every gradient form takes 2–4.
+    var stopRange: ClosedRange<Int> {
+        switch self {
+        case .solid: return 1...1
+        case .linearGradient, .mesh, .wallpaperAdaptive: return 2...DockAccentSpec.maximumStops
+        }
+    }
+
+    var isGradient: Bool { self != .solid }
+}
+
+/// A stop parsed from `#RRGGBB` / `RRGGBB` / `#RGB`. Rejects anything else instead of guessing a colour,
+/// because a typo should leave the previous accent alone rather than paint something random.
+struct DockAccentColor: Equatable, Sendable {
+    let red: CGFloat
+    let green: CGFloat
+    let blue: CGFloat
+
+    init?(hex: String) {
+        var digits = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        if digits.hasPrefix("#") { digits.removeFirst() }
+        if digits.count == 3 { digits = digits.map { "\($0)\($0)" }.joined() }
+        guard digits.count == 6, digits.allSatisfy(\.isHexDigit), let value = UInt32(digits, radix: 16) else { return nil }
+        red = CGFloat((value >> 16) & 0xFF) / 255
+        green = CGFloat((value >> 8) & 0xFF) / 255
+        blue = CGFloat(value & 0xFF) / 255
+    }
+
+    init(r: CGFloat, g: CGFloat, b: CGFloat) {
+        red = min(max(r, 0), 1); green = min(max(g, 0), 1); blue = min(max(b, 0), 1)
+    }
+
+    var rgba: DockRGBA { DockRGBA(r: red, g: green, b: blue, a: 1) }
+
+    var hex: String {
+        let r = Int((red * 255).rounded()), g = Int((green * 255).rounded()), b = Int((blue * 255).rounded())
+        return String(format: "#%02X%02X%02X", r, g, b)
+    }
+
+    func mixed(with other: DockAccentColor, _ t: Double) -> DockAccentColor {
+        let k = CGFloat(min(max(t, 0), 1))
+        return DockAccentColor(r: red + (other.red - red) * k,
+                               g: green + (other.green - green) * k,
+                               b: blue + (other.blue - blue) * k)
+    }
+}
+
+/// The persisted accent choice. Pure so the model is tested rather than only looked at; the views turn
+/// `resolved(wallpaperAccent:)` into a `LinearGradient` (or a soft multi-stop mesh) themselves.
+struct DockAccentSpec: Codable, Equatable, Sendable {
+    static let maximumStops = 4
+    static let defaultsKey = "com.katikati.dock.accent.v1"
+
+    var style: DockAccentStyle
+    var hexStops: [String]
+    /// 0 = left→right, 90 = top→bottom; clamped into 0..<360 when normalized (negative arcs wrap).
+    var angleDegrees: Double
+
+    /// The default: follow the wallpaper, so the bar harmonises with the desktop with no extra choice.
+    static let wallpaperSampled = DockAccentSpec(style: .wallpaperAdaptive, hexStops: [], angleDegrees: 90)
+
+    init(style: DockAccentStyle = .wallpaperAdaptive, hexStops: [String] = [], angleDegrees: Double = 90) {
+        self.style = style
+        self.hexStops = hexStops
+        self.angleDegrees = angleDegrees
+    }
+
+    /// The stops actually entered, invalid hexes dropped (never silently replaced).
+    var colors: [DockAccentColor] { hexStops.compactMap(DockAccentColor.init(hex:)) }
+
+    var isUsable: Bool { style.stopRange.contains(colors.count) }
+
+    /// Repaired for storage: dropped invalid stops, de-duplicated, capped at four, angle wrapped into 0..<360.
+    /// A style that ends up short of its own minimum falls back to wallpaper-adaptive (which needs no input).
+    var normalized: DockAccentSpec {
+        var seen = Set<String>(), stops: [String] = []
+        for color in colors where !seen.contains(color.hex) {
+            seen.insert(color.hex)
+            stops.append(color.hex)
+            if stops.count == Self.maximumStops { break }
+        }
+        let wrapped = angleDegrees.truncatingRemainder(dividingBy: 360)
+        let angle = (wrapped < 0 ? wrapped + 360 : wrapped).rounded()
+        if style == .wallpaperAdaptive { return DockAccentSpec(style: style, hexStops: stops, angleDegrees: angle) }
+        guard style.stopRange.contains(stops.count) else {
+            return DockAccentSpec(style: .wallpaperAdaptive, hexStops: stops, angleDegrees: angle)
+        }
+        return DockAccentSpec(style: style, hexStops: stops, angleDegrees: angle)
+    }
+
+    /// The stops to paint with. Wallpaper-adaptive (or a spec with no usable stops) samples the wallpaper's
+    /// own three accent hues instead, then falls back to the bar's neutral highlight.
+    func resolved(wallpaperAccent: [String]) -> [DockAccentColor] {
+        let own = colors
+        let sampled = wallpaperAccent.compactMap(DockAccentColor.init(hex:))
+        let source: [DockAccentColor]
+        if style == .wallpaperAdaptive || own.isEmpty {
+            source = sampled.isEmpty ? Self.fallbackStops : Array(sampled.prefix(3))
+        } else {
+            source = Array(own.prefix(Self.maximumStops))
+        }
+        return style == .solid ? Array(source.prefix(1)) : source
+    }
+
+    /// The bar's own neutral highlight, used when neither the spec nor the wallpaper has a usable hue.
+    static let fallbackStops: [DockAccentColor] = [
+        DockAccentColor(r: 0.62, g: 0.72, b: 0.92),
+        DockAccentColor(r: 0.86, g: 0.72, b: 0.94)
+    ]
+
+    static func decode(_ data: Data?) -> DockAccentSpec {
+        guard let data, let decoded = try? JSONDecoder().decode(DockAccentSpec.self, from: data) else {
+            return .wallpaperSampled
+        }
+        return decoded.normalized
+    }
+
+    func encoded() -> Data? { try? JSONEncoder().encode(normalized) }
 }
 
 struct DockThemeStyleTokens: Equatable {

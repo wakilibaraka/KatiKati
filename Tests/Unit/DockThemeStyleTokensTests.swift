@@ -335,3 +335,65 @@ final class DockHoverPreviewPresetTests: XCTestCase {
     }
 }
 
+// DW-1: the multicolour / gradient accent model — parsing, repair and wallpaper sampling, no views.
+final class DockAccentSpecTests: XCTestCase {
+    func testHexParsingAcceptsTheThreeDocumentedFormsAndRejectsTypedGarbage() {
+        XCTAssertEqual(DockAccentColor(hex: "#FF8000")?.hex, "#FF8000")
+        XCTAssertEqual(DockAccentColor(hex: "ff8000")?.hex, "#FF8000")
+        XCTAssertEqual(DockAccentColor(hex: "#F80")?.hex, "#FF8800")
+        XCTAssertNil(DockAccentColor(hex: "#GG0000"))
+        XCTAssertNil(DockAccentColor(hex: "#FF80"))
+        XCTAssertNil(DockAccentColor(hex: ""))
+    }
+
+    func testNormalizedDropsInvalidStopsDeduplicatesCapsAtFourAndWrapsTheAngle() {
+        let spec = DockAccentSpec(style: .linearGradient,
+                                  hexStops: ["#FF0000", "nope", "#FF0000", "#00FF00", "#0000FF", "#FFFFFF", "#000000"],
+                                  angleDegrees: -90)
+        let normalized = spec.normalized
+        XCTAssertEqual(normalized.hexStops, ["#FF0000", "#00FF00", "#0000FF", "#FFFFFF"])
+        XCTAssertEqual(normalized.angleDegrees, 270)
+        XCTAssertTrue(normalized.isUsable)
+    }
+
+    func testAStyleThatLostItsStopsFallsBackToWallpaperAdaptive() {
+        XCTAssertEqual(DockAccentSpec(style: .linearGradient, hexStops: ["#FF0000"]).normalized.style, .wallpaperAdaptive)
+        XCTAssertEqual(DockAccentSpec(style: .solid, hexStops: []).normalized.style, .wallpaperAdaptive)
+        XCTAssertEqual(DockAccentSpec(style: .solid, hexStops: ["#FF0000", "#00FF00"]).normalized.style,
+                       .wallpaperAdaptive, "a solid takes exactly one stop")
+        XCTAssertEqual(DockAccentSpec(style: .solid, hexStops: ["#FF0000"]).normalized.style, .solid)
+    }
+
+    func testWallpaperAdaptiveSamplesTheWallpaperAndKeepsThreeStops() {
+        let spec = DockAccentSpec.wallpaperSampled
+        let stops = spec.resolved(wallpaperAccent: ["#123456", "#ABCDEF", "#00FF00", "#FFFFFF"])
+        XCTAssertEqual(stops.map(\.hex), ["#123456", "#ABCDEF", "#00FF00"])
+        XCTAssertEqual(spec.resolved(wallpaperAccent: []).count, DockAccentSpec.fallbackStops.count,
+                       "no wallpaper sample falls back to the bar's own highlight")
+    }
+
+    func testAnExplicitSpecWinsOverTheWallpaperAndSolidKeepsOneStop() {
+        let gradient = DockAccentSpec(style: .mesh, hexStops: ["#FF0000", "#0000FF", "#00FF00"])
+        XCTAssertEqual(gradient.resolved(wallpaperAccent: ["#123456"]).map(\.hex), ["#FF0000", "#0000FF", "#00FF00"])
+        let solid = DockAccentSpec(style: .solid, hexStops: ["#FF0000", "#0000FF"])
+        XCTAssertEqual(solid.resolved(wallpaperAccent: ["#123456"]).map(\.hex), ["#FF0000"])
+    }
+
+    func testCodableRoundTripRepairsOnDecode() throws {
+        let data = DockAccentSpec(style: .linearGradient, hexStops: ["#FF0000"], angleDegrees: 450).encoded()
+        let decoded = DockAccentSpec.decode(data)
+        XCTAssertEqual(decoded.style, .wallpaperAdaptive, "one stop cannot be a gradient")
+        XCTAssertEqual(decoded.angleDegrees, 90)
+        XCTAssertEqual(DockAccentSpec.decode(nil), .wallpaperSampled)
+        let good = DockAccentSpec(style: .mesh, hexStops: ["#FF0000", "#00FF00"], angleDegrees: 45)
+        XCTAssertEqual(DockAccentSpec.decode(good.encoded()), good)
+    }
+
+    func testColourMixingStaysInsideTheGamut() {
+        let a = DockAccentColor(hex: "#000000")!, b = DockAccentColor(hex: "#FFFFFF")!
+        XCTAssertEqual(a.mixed(with: b, 0.5).hex, "#808080")
+        XCTAssertEqual(a.mixed(with: b, -3).hex, "#000000")
+        XCTAssertEqual(a.mixed(with: b, 3).hex, "#FFFFFF")
+    }
+}
+
