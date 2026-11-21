@@ -1734,9 +1734,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockThemeStyleTokens.swift": {
-    "mtime": 1795097868.3195143,
-    "seen": 1795097975.551109,
-    "ast_hash": "261d299ffecc6120c72da0ac9ecc34f9",
+    "mtime": 1795286416.6825492,
+    "seen": 1795286492.574071,
+    "ast_hash": "c78fe5e805fb1867d261fcfb4dfbb403",
     "semantic_hash": ""
   },
   "Core/Support/DockThemeTokens.swift": {
@@ -2280,10 +2280,10 @@
     "semantic_hash": "0b545ce49861bc33fd547ffde078e6d5"
   },
   "Core/Support/SolarPhase.swift": {
-    "mtime": 1791999130.767956,
-    "seen": 1792295707.060603,
-    "ast_hash": "135d17d7fccb8aab0e3d66748fee5056",
-    "semantic_hash": "135d17d7fccb8aab0e3d66748fee5056"
+    "mtime": 1795286084.1325195,
+    "seen": 1795286492.574177,
+    "ast_hash": "0abf806927774114e7a45203033b4748",
+    "semantic_hash": ""
   },
   "Core/Support/StackPopupGeometry.swift": {
     "mtime": 1795019654.2177172,
@@ -2442,10 +2442,10 @@
     "semantic_hash": "cd97cac05cd3a7f28f954a13e46f8f4c"
   },
   "Core/Support/WallpaperSelector.swift": {
-    "mtime": 1791999130.7521248,
-    "seen": 1792295707.06062,
-    "ast_hash": "747ef486346aebc6c9a0fdb8f3c63494",
-    "semantic_hash": "747ef486346aebc6c9a0fdb8f3c63494"
+    "mtime": 1795286221.7747817,
+    "seen": 1795286492.574205,
+    "ast_hash": "764889e6b9fcdd62fd06630d70c474e7",
+    "semantic_hash": ""
   },
   "Core/Support/WeatherCache.swift": {
     "mtime": 1791999130.7671897,
@@ -3378,9 +3378,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeStyleTokensTests.swift": {
-    "mtime": 1795097907.2448182,
-    "seen": 1795097975.551414,
-    "ast_hash": "60f3e93a303725be79882711eb391550",
+    "mtime": 1795286191.9421115,
+    "seen": 1795286492.574383,
+    "ast_hash": "facd5d933070321f6d63561c6d72b87c",
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeTests.swift": {
@@ -4080,10 +4080,10 @@
     "semantic_hash": "23ee01802ca8483d8b31acaa69dd65cd"
   },
   "Tests/Unit/SolarPhaseTests.swift": {
-    "mtime": 1791999130.950173,
-    "seen": 1792295707.060794,
-    "ast_hash": "6624d76e9262d3f0ee9ea53301827918",
-    "semantic_hash": "6624d76e9262d3f0ee9ea53301827918"
+    "mtime": 1795286288.018477,
+    "seen": 1795286492.574504,
+    "ast_hash": "67ec346bfb7e19640093fa69b2885ef7",
+    "semantic_hash": ""
   },
   "Tests/Unit/StackAndContextTests.swift": {
     "mtime": 1791999130.954192,
