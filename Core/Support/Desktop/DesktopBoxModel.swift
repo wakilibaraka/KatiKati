@@ -1,7 +1,8 @@
 import CoreGraphics
 import Foundation
 
-/// Keys and bounded defaults for KatiKati's desktop-layer widget canvas (lazy-gated; off by default).
+/// Keys and bounded defaults for KatiKati's desktop-layer widget canvas. On unless the user turns it off;
+/// `DOCK_DESKTOP_CANVAS=1` forces it on for the live check.
 enum DesktopCanvasConfig {
     static let enabledKey = "com.katikati.desktop.enabled"
     static let snapGapKey = "com.katikati.desktop.snapGap"

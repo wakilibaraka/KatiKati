@@ -58,15 +58,25 @@ final class DesktopRevealPolicyTests: XCTestCase {
         )
     }
 
-    func testDesktopFeatureGateDefaultsOffAndRespectsDebugSwitch() {
+    /// Shipped 2026-11-19: Desktop Boxes are on unless the user turns them off, and the debug switch still forces
+    /// them on over an explicit off (the one-time To-Do/Quick Capture seed respects the explicit off).
+    func testDesktopFeatureGateIsOnByDefaultAndRespectsDebugSwitch() {
         let suite = "katikati.desktop.gate.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
 
+        XCTAssertTrue(DesktopCanvasConfig.isFeatureEnabled(defaults: defaults, environment: [:]))
+        XCTAssertTrue(DesktopCanvasConfig.isEnabledByUser(defaults: defaults))
+
+        defaults.set(false, forKey: DesktopCanvasConfig.enabledKey)
+        XCTAssertFalse(DesktopCanvasConfig.isEnabledByUser(defaults: defaults))
         XCTAssertFalse(DesktopCanvasConfig.isFeatureEnabled(defaults: defaults, environment: [:]))
         XCTAssertTrue(DesktopCanvasConfig.isFeatureEnabled(defaults: defaults, environment: ["DOCK_DESKTOP_CANVAS": "1"]))
+        XCTAssertFalse(DesktopCanvasConfig.shouldSeedDefaults(defaults: defaults, hasExistingItems: false),
+                       "an explicit off is never seeded over")
 
         defaults.set(true, forKey: DesktopCanvasConfig.enabledKey)
         XCTAssertTrue(DesktopCanvasConfig.isFeatureEnabled(defaults: defaults, environment: [:]))
+        XCTAssertTrue(DesktopCanvasConfig.shouldSeedDefaults(defaults: defaults, hasExistingItems: false))
     }
 }

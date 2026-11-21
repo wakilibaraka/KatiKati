@@ -559,11 +559,20 @@ final class SideDeckLogicTests: XCTestCase {
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertFalse(store.showTerminalChip)
+        // Slice DI-1: Dictionary and Terminal live inside the Utilities module and are on by default there; the old
+        // names read that one truth (utilities visible + the tool not hidden), never a flag of their own.
+        XCTAssertTrue(store.showTerminalChip)
+        XCTAssertTrue(store.showDictionaryChip)
+
+        store.setShowTerminalChip(false)
+        XCTAssertFalse(store.showTerminalChip, "the old setter writes the module, not a second flag")
+        XCTAssertTrue(store.showDictionaryChip, "the other tool is untouched")
+        XCTAssertNil(defaults.persistentDomain(forName: suite)?["com.katikati.showTerminalChip"],
+                     "no second stored switch is written")
+
         store.setShowTerminalChip(true)
-        XCTAssertTrue(store.widgetLayout.instance(for: .terminal).isVisible,
-                      "the old setter writes the module, not a second flag")
-        XCTAssertFalse(store.showDictionaryChip, "the other tool is untouched")
+        XCTAssertTrue(store.showTerminalChip)
+        XCTAssertTrue(store.showDictionaryChip, "the other tool stays as it was")
         // A pre-module hide still hides the module when no layout was ever saved.
         let legacySuite = "DockToolDeduplication.legacy.\(UUID().uuidString)"
         let legacy = UserDefaults(suiteName: legacySuite)!
