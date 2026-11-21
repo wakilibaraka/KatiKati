@@ -417,3 +417,160 @@ final class WallpaperCacheTests: XCTestCase {
         XCTAssertEqual(WallpaperCache.removeLegacyRenders(in: base.appendingPathComponent("missing")), [])
     }
 }
+
+final class CelestialModelTests: XCTestCase {
+    /// Fixed UTC instants, written the way the plan states them: every case here is time-zone-free by construction.
+    private let at: (String) -> Date = { ISO8601DateFormatter().date(from: $0 + "Z")! }
+    private func sky(_ date: Date) -> CelestialPosition { SolarPosition.at(date, latitude: 51.5, longitude: 0) }
+    private func circularDistance(_ a: Double, _ b: Double) -> Double {
+        let d = abs(a - b).truncatingRemainder(dividingBy: 1)
+        return min(d, 1 - d)
+    }
+
+    func testSunAtSummerSolsticeNoonInGreenwich() {
+        // 2024-06-20, sunset-side solstice: noon altitude 61.96°, azimuth 179.2° (≈ due south).
+        let sun = SolarPosition.at(at("2024-06-20T12:00:00"), latitude: 51.4779, longitude: -0.0015)
+        XCTAssertEqual(sun.altitude, 61.96, accuracy: 1)
+        XCTAssertEqual(sun.azimuth, 179.2, accuracy: 4)
+    }
+
+    func testSunAtEquinoxNoonOnTheEquator() {
+        XCTAssertEqual(SolarPosition.at(at("2024-03-20T12:07:00"), latitude: 0, longitude: 0).altitude, 89.8, accuracy: 1.5)
+    }
+
+    func testSunAtMidnightIsBelowTheHorizon() {
+        let sun = sky(at("2024-06-20T00:00:00"))
+        XCTAssertLessThan(sun.altitude, -10, "the sun must be well below the horizon at midnight")
+        XCTAssertLessThan(min(sun.azimuth, 360 - sun.azimuth), 10, "and roughly due north (359.6°)")
+    }
+
+    func testSunOverThePolesHasNoDailyCycle() {
+        let midnightSun = SolarPosition.at(at("2024-06-21T00:00:00"), latitude: 78.2, longitude: 15.6)
+        let polarNight = SolarPosition.at(at("2024-12-21T12:00:00"), latitude: 78.2, longitude: 15.6)
+        XCTAssertGreaterThan(midnightSun.altitude, 0)
+        XCTAssertLessThan(polarNight.altitude, 0)
+    }
+
+    func testTheSameInstantIsTheSameSkyAcrossADSTBoundary() {
+        // 2024-03-31 02:30 Europe/London is the first 02:30 of BST, i.e. 01:30Z: the position must not care.
+        var london = Calendar(identifier: .gregorian)
+        london.timeZone = TimeZone(identifier: "Europe/London")!
+        let viaLondon = london.date(from: DateComponents(year: 2024, month: 3, day: 31, hour: 2, minute: 30))!
+        let inUTC = at("2024-03-31T01:30:00")
+        XCTAssertEqual(viaLondon.timeIntervalSince1970, inUTC.timeIntervalSince1970, accuracy: 0.001)
+        XCTAssertEqual(sky(viaLondon), sky(inUTC))
+        // The autumn fall-back, when 01:30 occurs twice: Calendar returns the first one, still BST (00:30Z).
+        let firstFallBack = london.date(from: DateComponents(year: 2024, month: 10, day: 27, hour: 1, minute: 30))!
+        XCTAssertEqual(firstFallBack.timeIntervalSince1970, at("2024-10-27T00:30:00").timeIntervalSince1970, accuracy: 0.001)
+        XCTAssertEqual(sky(firstFallBack), sky(at("2024-10-27T00:30:00")))
+        // The repeated hour is a real hour of sky: 01:30Z is a different instant and a different altitude.
+        XCTAssertNotEqual(sky(firstFallBack), sky(at("2024-10-27T01:30:00")))
+    }
+
+    func testLightingPhaseNamesMatchTheTerrainRenderer() {
+        var utc = Calendar(identifier: .gregorian)
+        utc.timeZone = TimeZone(identifier: "UTC")!
+        let noon = at("2024-06-20T12:00:00")
+        let times = SunCalculator.times(on: noon, latitude: 51.4779, longitude: -0.0015, calendar: utc)
+        func sample(_ date: Date) -> DaylightPhase { SolarDaylightEvaluator.sample(at: date, times: times).phase }
+        XCTAssertEqual(sample(noon), .noon)
+        XCTAssertEqual(sample(noon).solarPhase, .day)
+        XCTAssertEqual(sample(at("2024-06-20T00:30:00")).solarPhase, .night)
+    }
+
+    func testMoonPhaseAtKnownNewAndFullMoons() {
+        let eclipse = at("2024-04-08T18:21:00") // total solar eclipse → new moon
+        let full = at("2024-03-25T07:00:00") // March full moon
+        XCTAssertLessThan(circularDistance(MoonPhase.fraction(at: eclipse), 0), 0.02)
+        XCTAssertLessThan(MoonPhase.illumination(at: eclipse), 0.02)
+        XCTAssertEqual(MoonPhase.symbolName(at: eclipse), "moonphase.new.moon")
+        XCTAssertLessThan(circularDistance(MoonPhase.fraction(at: full), 0.5), 0.02)
+        XCTAssertGreaterThan(MoonPhase.illumination(at: full), 0.98)
+        XCTAssertEqual(MoonPhase.symbolName(at: full), "moonphase.full.moon")
+    }
+
+    func testMoonPhaseProgressesAcrossALunation() {
+        var previous = MoonPhase.fraction(at: at("2024-04-02T00:00:00"))
+        for day in stride(from: 4, through: 22, by: 2) {
+            let date = at("2024-04-\(String(format: "%02d", day))T00:00:00")
+            let phase = MoonPhase.fraction(at: date)
+            let advance = (phase - previous + 1).truncatingRemainder(dividingBy: 1)
+            XCTAssertEqual(advance, 2 / 29.530588853, accuracy: 0.01, "two days of synodic month")
+            XCTAssertEqual(MoonPhase.illumination(at: date), (1 - cos(phase * 2 * .pi)) / 2, accuracy: 0.001)
+            previous = phase
+        }
+        XCTAssertTrue(previous < 0.5, "the sampled fortnight stays in the waxing half")
+    }
+
+    func testMoonPositionStaysInRangeAndIsDeterministic() {
+        for day in stride(from: 1, through: 28, by: 9) {
+            let date = at("2024-02-\(String(format: "%02d", day))T03:00:00")
+            let moon = LunarPosition.at(date, latitude: 35.7, longitude: 139.7)
+            XCTAssertEqual(moon, LunarPosition.at(date, latitude: 35.7, longitude: 139.7))
+            XCTAssertTrue((-90...90).contains(moon.altitude))
+            XCTAssertTrue((0..<360).contains(moon.azimuth))
+        }
+    }
+}
+
+final class SkyAtmosphereTests: XCTestCase {
+    private let night = Date(timeIntervalSince1970: 1_735_689_600) // 2025-01-01 00:00 UTC
+
+    private func plan(_ phase: SolarPhase, _ sky: WallpaperSky, seed: UInt64 = 7,
+                      date: Date? = nil, location: Bool = false) -> SkyAtmosphere {
+        SkyAtmosphere.plan(phase: phase, sky: sky, date: date ?? night, seed: seed,
+                           latitude: location ? 51.5 : nil, longitude: location ? -0.1 : nil)
+    }
+
+    func testNoonClearHasNoStars() {
+        let noon = plan(.day, .clear)
+        XCTAssertEqual(noon.starOpacity, 0)
+        XCTAssertEqual(noon.starCount, 0)
+        XCTAssertEqual(noon.meteor, .none)
+    }
+
+    func testStarsRiseThroughDuskAndAreCutByWeather() {
+        let nightStars = plan(.night, .clear).starOpacity
+        XCTAssertGreaterThan(nightStars, plan(.dusk, .clear).starOpacity)
+        XCTAssertGreaterThan(plan(.dusk, .clear).starOpacity, plan(.golden, .clear).starOpacity)
+        XCTAssertGreaterThan(plan(.golden, .clear).starOpacity, plan(.day, .clear).starOpacity)
+        XCTAssertGreaterThan(nightStars, plan(.night, .cloudy).starOpacity)
+        XCTAssertGreaterThan(plan(.night, .cloudy).starOpacity, plan(.night, .fog).starOpacity)
+        XCTAssertLessThanOrEqual(plan(.night, .storm).starOpacity, 0.05)
+    }
+
+    func testCloudCoverageOrdersByWeatherAndFogStaysFaint() {
+        func coverage(_ sky: WallpaperSky) -> Double { plan(.dusk, sky).clouds.map(\.coverage).max() ?? 0 }
+        XCTAssertLessThan(coverage(.clear), coverage(.cloudy))
+        XCTAssertLessThan(coverage(.cloudy), coverage(.rain))
+        XCTAssertLessThan(coverage(.rain), coverage(.storm))
+        XCTAssertLessThanOrEqual(plan(.dusk, .fog).clouds.map(\.opacity).max() ?? 1, 0.25)
+        XCTAssertGreaterThan(plan(.dusk, .storm).clouds.count, plan(.dusk, .rain).clouds.count)
+    }
+
+    func testMoonVisibilityOrdersAndHazeFadesIt() {
+        XCTAssertLessThan(plan(.golden, .clear).moon.visibility, plan(.dusk, .clear).moon.visibility)
+        XCTAssertLessThan(plan(.dusk, .clear).moon.visibility, plan(.night, .clear).moon.visibility)
+        XCTAssertGreaterThan(plan(.night, .clear).moon.visibility, plan(.night, .storm).moon.visibility)
+        XCTAssertGreaterThan(plan(.night, .storm).moon.haze, plan(.night, .clear).moon.haze)
+        XCTAssertEqual(plan(.day, .clear).moon.visibility, 0)
+    }
+
+    func testSeedOnlyMovesTheMeteorAndThePlanIsDeterministic() {
+        let a = plan(.night, .clear, seed: 3)
+        let b = plan(.night, .clear, seed: 11)
+        XCTAssertEqual(a.starCount, b.starCount)
+        XCTAssertEqual(a.starOpacity, b.starOpacity)
+        XCTAssertEqual(a, plan(.night, .clear, seed: 3))
+        XCTAssertEqual(plan(.day, .clear, seed: 3).meteor, .none)
+    }
+
+    func testPlanUsesTheRealMoonWhenGivenALocation() {
+        let withLocation = plan(.night, .clear, location: true)
+        let moon = LunarPosition.at(night, latitude: 51.5, longitude: -0.1)
+        XCTAssertEqual(withLocation.moon.altitude, moon.altitude, accuracy: 0.001)
+        XCTAssertEqual(withLocation.moon.azimuth, moon.azimuth, accuracy: 0.001)
+        XCTAssertEqual(withLocation.moon.fraction, MoonPhase.fraction(at: night), accuracy: 0.0001)
+        XCTAssertEqual(withLocation.moon.waxing, MoonPhase.fraction(at: night) < 0.5)
+    }
+}
