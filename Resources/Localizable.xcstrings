@@ -172296,6 +172296,237 @@
         }
       }
     },
+    "Small Animation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Kleine Animation"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Small Animation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Animación sutil"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Animación sutil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Animation discrète"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Animazione lieve"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "小さなアニメーション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "작은 애니메이션"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Animação suave"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Animação suave"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "轻微动画"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "輕微動畫"
+          }
+        }
+      }
+    },
+    "Paused to save power" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Angehalten, um Energie zu sparen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paused to save power"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "En pausa para ahorrar energía"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "En pausa para ahorrar energía"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "En pause pour économiser l'énergie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "In pausa per risparmiare energia"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "省エネのため一時停止中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "전력 절약을 위해 일시 정지됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Em pausa para poupar energia"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Em pausa para poupar energia"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "已暂停以节省电量"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "已暫停以節省電力"
+          }
+        }
+      }
+    },
+    "Drifts a few soft clouds across the sky on a separate, click-through layer behind your windows. It is off by default; when on it uses a tiny amount of CPU and GPU (well under one percent of a core in testing), keeps no full-resolution frames in memory, and costs a little battery while the desktop is visible. It pauses on Low Power Mode, with Reduce Motion, when the screen locks or sleeps, and while a full-screen app covers the desktop." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Lässt ein paar weiche Wolken auf einer eigenen, klickdurchlässigen Ebene hinter deinen Fenstern ziehen. Standardmäßig aus; eingeschaltet kostet es sehr wenig CPU und GPU (im Test deutlich unter einem Prozent eines Kerns), hält keine Frames in voller Auflösung im Speicher und verbraucht etwas Akku, solange der Schreibtisch sichtbar ist. Es pausiert im Energiesparmodus, bei „Bewegung reduzieren“, bei gesperrtem oder schlafendem Bildschirm und wenn eine App im Vollbild den Schreibtisch verdeckt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drifts a few soft clouds across the sky on a separate, click-through layer behind your windows. It is off by default; when on it uses a tiny amount of CPU and GPU (well under one percent of a core in testing), keeps no full-resolution frames in memory, and costs a little battery while the desktop is visible. It pauses on Low Power Mode, with Reduce Motion, when the screen locks or sleeps, and while a full-screen app covers the desktop."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Desplaza unas nubes suaves por el cielo en una capa aparte que deja pasar los clics, detrás de tus ventanas. Está desactivado por defecto; al activarlo usa muy poca CPU y GPU (muy por debajo del uno por ciento de un núcleo en las pruebas), no guarda fotogramas a resolución completa en memoria y consume algo de batería mientras el escritorio está visible. Se pausa en el modo de bajo consumo, con Reducir movimiento, cuando la pantalla se bloquea o entra en reposo y mientras una app a pantalla completa cubre el escritorio."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Desplaza unas nubes suaves por el cielo en una capa aparte que deja pasar los clics, detrás de tus ventanas. Está desactivado por defecto; al activarlo usa muy poca CPU y GPU (muy por debajo del uno por ciento de un núcleo en las pruebas), no guarda fotogramas a resolución completa en memoria y consume algo de batería mientras el escritorio está visible. Se pausa en el modo de bajo consumo, con Reducir movimiento, cuando la pantalla se bloquea o entra en reposo y mientras una app a pantalla completa cubre el escritorio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Fait dériver quelques nuages doux sur une couche séparée, transparente aux clics, derrière vos fenêtres. Désactivé par défaut ; activé, il consomme très peu de CPU et de GPU (bien moins d'un pour cent d'un cœur lors des tests), ne garde aucune image pleine résolution en mémoire et use un peu de batterie tant que le bureau est visible. Il se met en pause en mode économie d'énergie, avec Réduire les animations, quand l'écran se verrouille ou dort, et lorsqu'une app en plein écran couvre le bureau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Fa scorrere qualche nuvola morbida su un livello separato, trasparente ai clic, dietro le tue finestre. È disattivato per impostazione predefinita; quando è attivo usa pochissima CPU e GPU (molto meno dell'uno per cento di un core nei test), non tiene in memoria fotogrammi a piena risoluzione e consuma un po' di batteria finché la scrivania è visibile. Si mette in pausa con il risparmio energetico, con Riduci movimento, quando lo schermo si blocca o va in stop e mentre un'app a tutto schermo copre la scrivania."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "クリックを透過する独立したレイヤーで、窓の後ろの空に柔らかな雲をゆっくり流します。初期状態はオフです。オンにすると CPU と GPU をほんの少しだけ使う（テストでは 1 コアの 1 パーセント未満）だけで、フル解像度のフレームをメモリに保持せず、デスクトップが見えている間は少しだけバッテリーを使います。低電力モード、視差効果を減らす設定、画面のロックやスリープ中、フルスクリーンのアプリがデスクトップを覆っている間は一時停止します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "클릭이 통과하는 별도 레이어에서 창 뒤 하늘에 부드러운 구름을 천천히 흘려보냅니다. 기본값은 꺼짐이며, 켜면 CPU와 GPU를 아주 조금(테스트에서 코어 1개의 1퍼센트 미만) 사용하고 전체 해상도 프레임을 메모리에 보관하지 않으며 데스크탑이 보이는 동안 배터리를 약간 소모합니다. 저전력 모드, 동작 줄이기, 화면 잠금 또는 잠자기, 전체 화면 앱이 데스크탑을 가릴 때 일시 정지합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Faz algumas nuvens suaves passarem pelo céu em uma camada separada, que ignora cliques, atrás das suas janelas. Vem desligado; ligado, usa pouquíssima CPU e GPU (bem menos de um por cento de um núcleo nos testes), não mantém quadros em resolução total na memória e gasta um pouco de bateria enquanto a mesa está visível. Ele pausa no modo de baixo consumo, com Reduzir movimento, quando a tela bloqueia ou entra em repouso e enquanto um app em tela cheia cobre a mesa."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Faz algumas nuvens suaves passarem pelo céu numa camada separada, que ignora cliques, atrás das suas janelas. Vem desligado; ligado, usa pouquíssima CPU e GPU (bem menos de um por cento de um núcleo nos testes), não mantém quadros em resolução total na memória e gasta um pouco de bateria enquanto o ambiente de trabalho está visível. Ele pausa no modo de baixo consumo, com Reduzir movimento, quando o ecrã bloqueia ou entra em repouso e enquanto uma app em ecrã inteiro cobre o ambiente de trabalho."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "在一个独立的、点击可穿透的图层上，让几缕柔和的云在窗口后面的天空中缓缓飘过。默认关闭；开启后会占用极少的 CPU 和 GPU（测试中远低于单核的百分之一），不会在内存中保留全分辨率画面，并在桌面可见时消耗少量电量。在低电量模式、减少动态效果、屏幕锁定或睡眠时，以及全屏应用遮住桌面时，它会暂停。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "在一個獨立的、點擊可穿透的圖層上，讓幾縷柔和的雲在視窗後方的天空中緩緩飄過。預設關閉；開啟後會佔用極少的 CPU 與 GPU（測試中遠低於單核的百分之一），不會在記憶體中保留全解析度畫面，並在桌面可見時消耗少量電量。在低電量模式、減少動態效果、螢幕鎖定或睡眠時，以及全螢幕應用程式遮住桌面時，它會暫停。"
+          }
+        }
+      }
+    },
     "Locked: this atmosphere stays until you choose Auto." : {
       "extractionState" : "manual",
       "localizations" : {
