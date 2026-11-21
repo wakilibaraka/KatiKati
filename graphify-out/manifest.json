@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1795280572.8096318,
-    "seen": 1795280587.228661,
-    "ast_hash": "32e32ad9e116d545f415e4a20828fd9e",
+    "mtime": 1795280872.0182557,
+    "seen": 1795280970.242788,
+    "ast_hash": "16c84ad329993c6a97877d671d522cda",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -4026,9 +4026,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1795218931.790797,
-    "seen": 1795219318.663145,
-    "ast_hash": "c575649f5cee5a65758e855f5e187719",
+    "mtime": 1795280630.2107785,
+    "seen": 1795280970.243527,
+    "ast_hash": "0b986414d2f71170b1585d6a4c7b75b6",
     "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1795280583.66798,
-    "seen": 1795280587.228659,
-    "ast_hash": "42bf8f940d9ed16804e3fdeb45aaa315",
+    "mtime": 1795280649.363658,
+    "seen": 1795280970.242785,
+    "ast_hash": "0c7646c3ff1dc044e8e69a4b5a0e7fba",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795219554.5983024,
-    "seen": 1795219694.8641438,
-    "ast_hash": "9bd75879c87f2ed9088e76d1b1fa2ef0",
+    "mtime": 1795280641.027155,
+    "seen": 1795280970.2436328,
+    "ast_hash": "03d8e6bdcd09b05f559db18c768c1cfa",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5448,9 +5448,9 @@
     "semantic_hash": ""
   },
   "Docs/SETTINGS.md": {
-    "mtime": 1795219485.148847,
-    "seen": 1795219694.864425,
-    "ast_hash": "f555864fb3a5ce0818b7a87210232889",
+    "mtime": 1795280639.4041753,
+    "seen": 1795280970.243758,
+    "ast_hash": "ff6ac2447d5acbd6ee9ae6c5ff4ef286",
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
