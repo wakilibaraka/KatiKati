@@ -109,6 +109,7 @@ final class MissionControlSession {
     private var controlPanel: NSPanel?
     private var frames: [MissionControlWindowFrame] = []
     private var hoveredID: MissionControlWindowFrame.ID?
+    private var focusedID: MissionControlWindowFrame.ID?
     private var configuration = MissionControlConfiguration()
     private var query = ""
     private var isActive = false
@@ -182,6 +183,7 @@ final class MissionControlSession {
         hidePanels()
         frames = []
         hoveredID = nil
+        focusedID = nil
         query = ""
         isActive = false
     }
@@ -207,6 +209,7 @@ final class MissionControlSession {
         configuration = MissionControlSettings.load()
         frames = probe.frames
         query = ""
+        focusedID = probe.frames.first?.id
         isActive = true
         showPanels()
         updateHover(at: Self.pointerLocation())
@@ -220,17 +223,9 @@ final class MissionControlSession {
 
         let render = renderPanel ?? makePanel(clickThrough: true, level: .screenSaver)
         render.setFrame(screen.frame, display: true)
-        render.contentView = NSHostingView(rootView: MissionControlSurface(
-            frames: local,
-            configuration: configuration,
-            hoveredID: hoveredID,
-            query: query,
-            spaceTitle: spaceTitle(),
-            spaceAccent: spaceAccent(),
-            showsButtons: false
-        ))
-        render.orderFrontRegardless()
         renderPanel = render
+        updateRender()
+        render.orderFrontRegardless()
 
         let controls = controlPanel ?? makePanel(clickThrough: false, level: .screenSaver)
         controls.contentView = NSHostingView(rootView: MissionControlControlCluster(
@@ -287,6 +282,34 @@ final class MissionControlSession {
         guard isActive else { return }
         let modifiers = Self.modifiers(of: event.modifierFlags)
         let characters = event.charactersIgnoringModifiers ?? ""
+
+        // Overview navigation: Tab / arrows move the keyboard target, Return raises it. These run
+        // before the hover shortcuts so a plain key never triggers a window action by accident.
+        if modifiers.isEmpty || modifiers == [.shift] {
+            let step: Int? = {
+                switch event.keyCode {
+                case 48: return modifiers == [.shift] ? -1 : 1      // Tab / ⇧Tab
+                case 124, 125: return 1                              // → / ↓
+                case 123, 126: return -1                             // ← / ↑
+                default: return nil
+                }
+            }()
+            if let step {
+                let activeQuery = query
+                let visible = { (frame: MissionControlWindowFrame) in
+                    MissionControlFilter.matches(query: activeQuery, title: frame.title, app: frame.appName)
+                }
+                focusedID = MissionControlTargetRanker.next(
+                    after: focusedID, step: step, in: frames, visible: visible
+                )?.id
+                updateRender()
+                return
+            }
+            if event.keyCode == 36, let frame = frames.first(where: { $0.id == focusedID }) {
+                _ = WindowActionExecutor.raise(frame)
+                return
+            }
+        }
         if modifiers == configuration.actions.hoverKeys.modifiers,
            let action = configuration.actions.hoverKeys.action(forKey: characters, modifiers: modifiers) {
             perform(action)
@@ -295,6 +318,7 @@ final class MissionControlSession {
         guard configuration.naming.filterEnabled, modifiers.isEmpty else { return }
         if event.keyCode == 53 {
             query = ""
+            focusedID = frames.first?.id
         } else if event.keyCode == 51 {
             if !query.isEmpty { query.removeLast() }
         } else if characters.count == 1, let scalar = characters.unicodeScalars.first,
@@ -303,26 +327,32 @@ final class MissionControlSession {
         } else {
             return
         }
-        if let screen = NSScreen.main ?? NSScreen.screens.first {
-            let local = frames.map { Self.local($0, on: screen) }
-            (renderPanel?.contentView as? NSHostingView<MissionControlSurface>)?.rootView = MissionControlSurface(
-                frames: local, configuration: configuration, hoveredID: hoveredID, query: query,
-                spaceTitle: spaceTitle(), spaceAccent: spaceAccent(), showsButtons: false
-            )
-        }
+        updateRender()
+    }
+
+    /// Rebuilds the render panel's root view from the current frames, configuration and live session
+    /// state (hover, keyboard target, filter). Called on every state change and never on a timer.
+    private func updateRender() {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first,
+              let render = renderPanel else { return }
+        let local = frames.map { Self.local($0, on: screen) }
+        render.contentView = NSHostingView(rootView: MissionControlSurface(
+            frames: local,
+            configuration: configuration,
+            hoveredID: hoveredID,
+            focusedID: focusedID,
+            query: query,
+            spaceTitle: spaceTitle(),
+            spaceAccent: spaceAccent(),
+            showsButtons: false
+        ))
     }
 
     private func updateHover(at point: CGPoint) {
         let target = MissionControlTargetRanker.target(at: point, in: frames)
         guard target?.id != hoveredID else { return }
         hoveredID = target?.id
-        if let screen = NSScreen.main ?? NSScreen.screens.first {
-            let local = frames.map { Self.local($0, on: screen) }
-            (renderPanel?.contentView as? NSHostingView<MissionControlSurface>)?.rootView = MissionControlSurface(
-                frames: local, configuration: configuration, hoveredID: hoveredID, query: query,
-                spaceTitle: spaceTitle(), spaceAccent: spaceAccent(), showsButtons: false
-            )
-        }
+        updateRender()
         controlPanel?.orderFrontRegardless()
         placeControls()
     }

@@ -897,6 +897,15 @@ enum WindowActionExecutor {
         }
     }
 
+    /// Brings the window to the front and makes its app active, used by the overview's keyboard
+    /// target (Return) without leaving Mission Control's own navigation.
+    static func raise(_ frame: MissionControlWindowFrame) -> Outcome {
+        guard let target = locate(frame) else { return .unsupported }
+        NSRunningApplication(processIdentifier: target.pid)?.activate()
+        let result = AXUIElementPerformAction(target.element, kAXRaiseAction as CFString)
+        return result == .success ? .performed : .failed(result)
+    }
+
     /// The app's real AX window. A 0.4 s messaging timeout keeps one hung app from stalling the
     /// overlay; a window that cannot be read is reported unsupported, never guessed at.
     static func locate(_ frame: MissionControlWindowFrame) -> (element: AXUIElement, pid: Int32)? {

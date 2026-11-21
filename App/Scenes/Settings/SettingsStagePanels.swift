@@ -685,6 +685,7 @@ struct MissionControlSurface: View {
     var frames: [MissionControlWindowFrame]
     var configuration: MissionControlConfiguration
     var hoveredID: MissionControlWindowFrame.ID?
+    var focusedID: MissionControlWindowFrame.ID?
     var query: String = ""
     var spaceTitle: String?
     var spaceAccent: MissionControlColor?
@@ -694,14 +695,34 @@ struct MissionControlSurface: View {
     private var colouring: MissionControlColouring { configuration.colouring }
     private var naming: MissionControlNaming { configuration.naming }
     private var framing: MissionControlFraming { configuration.framing }
+    private var presentation: MissionControlPresentation { configuration.presentation }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
+            if let groupStyle = framing.groupBorder() {
+                ForEach(MissionControlGrouping.groups(for: frames, padding: presentation.groupPadding), id: \.appName) { group in
+                    RoundedRectangle(cornerRadius: presentation.cornerRadius + 6, style: .continuous)
+                        .stroke(
+                            colouring.borderColor(
+                                forBundleID: group.bundleID,
+                                category: .inferred(fromBundleID: group.bundleID),
+                                state: .standard
+                            ).color.opacity(0.55),
+                            style: StrokeStyle(lineWidth: 1.5, dash: groupStyle == .dashed ? [7, 5] : [])
+                        )
+                        .frame(width: group.frame.width, height: group.frame.height)
+                        .position(x: group.frame.midX, y: group.frame.midY)
+                        .allowsHitTesting(false)
+                }
+            }
             ForEach(frames) { frame in
                 window(frame)
             }
             if let spaceTitle {
                 spacePill(spaceTitle)
+            }
+            if presentation.showsFilterChip, !query.isEmpty {
+                filterChip(query)
             }
         }
         .animation(.spring(response: 0.24, dampingFraction: 0.85), value: hoveredID)
@@ -710,15 +731,21 @@ struct MissionControlSurface: View {
 
     private func window(_ frame: MissionControlWindowFrame) -> some View {
         let hovered = frame.id == hoveredID
-        let style = framing.style(isFocused: frame.isFocused, isHovered: hovered, state: frame.state)
-        let colour = colouring.color(forBundleID: frame.bundleID, category: frame.category)
+        let keyboardTargeted = frame.id == focusedID
+        let style = framing.style(isFocused: frame.isFocused || keyboardTargeted, isHovered: hovered, state: frame.state)
+        let colour = colouring.borderColor(
+            forBundleID: frame.bundleID, category: frame.category, state: frame.state
+        )
         let tint = colouring.tint(forBundleID: frame.bundleID, category: frame.category)
         let opacity = MissionControlFilter.opacity(query: query, title: frame.title, app: frame.appName)
-        let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: presentation.cornerRadius, style: .continuous)
         return ZStack(alignment: .topLeading) {
             shape.fill(colour.color.opacity(tint))
             border(style, colour: colour, shape: shape)
             VStack(alignment: .leading, spacing: 4) {
+                if presentation.badgePlacement == .bottom || presentation.badgePlacement == .trailing {
+                    Spacer(minLength: 0)
+                }
                 if let badge = naming.badgeTitle(app: frame.appName, title: frame.title) {
                     HStack(spacing: 5) {
                         if naming.showsAppIcon {
@@ -732,10 +759,12 @@ struct MissionControlSurface: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3.5)
-                    .background(Capsule().fill(.black.opacity(0.62)))
+                    .background(Capsule().fill(.black.opacity(presentation.badgeOpacity)))
                     .overlay(Capsule().stroke(.white.opacity(0.28), lineWidth: 0.75))
                 }
-                Spacer(minLength: 0)
+                if presentation.badgePlacement == .top || presentation.badgePlacement == .leading {
+                    Spacer(minLength: 0)
+                }
                 if hovered, showsButtons, let onAction {
                     HStack(spacing: 5) {
                         ForEach(configuration.actions.buttons.shownActions, id: \.self) { action in
@@ -769,19 +798,20 @@ struct MissionControlSurface: View {
         case .none:
             EmptyView()
         case .hairline:
-            shape.stroke(colour.color, lineWidth: 1)
+            shape.stroke(colour.color, lineWidth: max(1, presentation.borderWidth * 0.4))
         case .solid:
-            shape.stroke(colour.color, lineWidth: 2.5)
+            shape.stroke(colour.color, lineWidth: presentation.borderWidth)
         case .dashed:
-            shape.stroke(colour.color, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+            shape.stroke(colour.color, style: StrokeStyle(lineWidth: max(1, presentation.borderWidth * 0.8), dash: [6, 4]))
         case .glow:
-            shape.stroke(colour.color, lineWidth: 2)
+            shape.stroke(colour.color, lineWidth: max(1, presentation.borderWidth * 0.8))
                 .shadow(color: colour.color.opacity(0.85), radius: 9)
         }
     }
 
     private func spacePill(_ title: String) -> some View {
-        let accent = (spaceAccent ?? .blue).color
+        let accent = (spaceAccent ?? presentation.accentFallback).color
+        let bottom = presentation.spaceTitlePlacement == .bottom
         return HStack(spacing: 6) {
             Circle().fill(accent).frame(width: 7, height: 7)
             Text(verbatim: title)
@@ -792,8 +822,29 @@ struct MissionControlSurface: View {
         .padding(.vertical, 5)
         .background(Capsule().fill(.black.opacity(0.55)))
         .overlay(Capsule().stroke(accent.opacity(0.85), lineWidth: 1))
-        .frame(maxWidth: .infinity, alignment: .top)
-        .padding(.top, 8)
+        .frame(maxWidth: .infinity, alignment: bottom ? .bottom : .top)
+        .padding(bottom ? .bottom : .top, 8)
+        .allowsHitTesting(false)
+    }
+
+    /// The type-to-filter readout: the query, how many windows match, and Escape as the way out.
+    private func filterChip(_ text: String) -> some View {
+        let matches = frames.filter {
+            MissionControlFilter.matches(query: text, title: $0.title, app: $0.appName)
+        }.count
+        return HStack(spacing: 6) {
+            Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                .font(.system(size: 10, weight: .semibold))
+            Text(verbatim: "\(text)  ·  \(matches)/\(frames.count)")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(.black.opacity(0.6)))
+        .overlay(Capsule().stroke(.white.opacity(0.25), lineWidth: 0.75))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: presentation.spaceTitlePlacement == .bottom ? .top : .bottom)
+        .padding(12)
         .allowsHitTesting(false)
     }
 
@@ -839,6 +890,7 @@ struct StageMissionControl: View {
                 frames: frames.map { offset($0, in: proxy.size) },
                 configuration: configuration,
                 hoveredID: hoveredID,
+                focusedID: 1,
                 spaceTitle: configuration.naming.spaceTitle(forSpaceID: "2", index: 2),
                 spaceAccent: configuration.colouring.accent(forSpaceID: "2"),
                 showsButtons: true,
