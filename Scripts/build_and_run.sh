@@ -9,9 +9,9 @@ DERIVED_DATA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/build/Derived
 APP_BUNDLE="$DERIVED_DATA_DIR/Build/Products/Debug/$APP_NAME.app"
 APP_EXECUTABLE="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 # 必须和 install_local_release.sh 用同一张证书：开发构建与已安装包 bundle id 相同，
-# 共用一条辅助功能授权记录，两边身份不一致就会互相作废。
-DEVELOPER_ID="${DEVELOPER_ID_APPLICATION:-}"
-FALLBACK_SIGNING_IDENTITY="KatiKati Local Code Signing"
+# 共用一条辅助功能授权记录，两边身份不一致就会互相作废。证书解析在 lib/sign_app.sh，
+# 那里同时负责判断「这次签名还对不对得上那条授权」。
+source "$(dirname "${BASH_SOURCE[0]}")/lib/sign_app.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/lib/clean_stale_install.sh"
 
 # One KatiKati on disk: other copies share the bundle id and fight over the same permission record.
@@ -31,34 +31,16 @@ build_app() {
 }
 
 sign_app() {
-  local identities identity
-  identities="$(security find-identity -v -p codesigning 2>&1)"
-  if grep -Fq "\"$DEVELOPER_ID\"" <<<"$identities"; then
-    identity="$DEVELOPER_ID"
-  elif grep -Fq "\"$FALLBACK_SIGNING_IDENTITY\"" <<<"$identities"; then
-    identity="$FALLBACK_SIGNING_IDENTITY"
-  else
+  local identity
+  identity="$(katikati_signing_identity)"
+  if [[ -z "$identity" ]]; then
     echo "warning: no signing identity found; keeping Xcode's build signature" >&2
     return 0
   fi
-  # 刻意不加 --options runtime / --entitlements。hardened runtime 会挡住调试器附加
-  # （我们的 entitlements 文件会整个替换掉 Xcode 给 Debug 自动注入的 get-task-allow），
-  # --debug 模式下的 lldb 就废了。TCC 认的是证书链 + bundle id，跟 runtime 标志无关，
-  # 所以只要证书一致，授权就和日常包共用。
-  #
-  # 自 Sparkle 落地起 bundle 里**不再只有一个可执行文件**：Sparkle.framework 里还有
-  # Updater.app 和 Autoupdate。Xcode 在 Debug 构建时用的是项目里配的本地证书，
-  # 这里若只重签外层，框架和外层就会挂着两张不同的证书——Sparkle 会因为更新器与宿主
-  # 签名不一致而拒绝启动它。所以嵌套代码也要跟着重签一遍，顺序同样由内向外。
-  # 依旧不加 --deep：该参数已被苹果废弃，且会把外层的签名选项错误地套到嵌套代码上。
-  local framework="$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
-  if [[ -d "$framework" ]]; then
-    for nested in "$framework/Versions/B/Updater.app" "$framework/Versions/B/Autoupdate"; do
-      [[ -e "$nested" ]] && /usr/bin/codesign --force --sign "$identity" "$nested" >>/tmp/katikati-codesign.log 2>&1
-    done
-    /usr/bin/codesign --force --sign "$identity" "$framework" >>/tmp/katikati-codesign.log 2>&1
-  fi
-  /usr/bin/codesign --force --sign "$identity" "$APP_BUNDLE" >>/tmp/katikati-codesign.log 2>&1
+  katikati_sign_bundle "$APP_BUNDLE" "$identity"
+  # 每次都把签名结论打出来：没有被签名的构建（例如刚跑过 xcodebuild test）会让辅助功能授权
+  # 静默失效，窗口一动不动，实机验收就会把它读成「布局没生效」。
+  katikati_report_signing "$APP_BUNDLE" || true
 }
 
 run_cli() {
@@ -137,6 +119,33 @@ case "$MODE" in
     open_app
     wait_for_app
     ;;
+  --resign|resign)
+    # `xcodebuild test` relinks the product and signs it ad-hoc, which discards the Accessibility
+    # grant. This puts the local identity back on what is already built (no rebuild) and refuses to
+    # leave quietly when the identity is unavailable.
+    identity="$(katikati_signing_identity)"
+    if [[ -z "$identity" ]]; then
+      echo "signing: ❌ no KatiKati signing identity in this keychain — nothing can restore the grant" >&2
+      exit 3
+    fi
+    remove_other_copies
+    katikati_sign_bundle "$APP_BUNDLE" "$identity"
+    katikati_report_signing "$APP_BUNDLE" || exit 3
+    open_app
+    wait_for_app
+    ;;
+  --check-signing|check-signing)
+    # Read-only gate for a live pass: no build, no re-sign, no launch. Exit 3 when this bundle's
+    # signature no longer matches the Accessibility grant, so a harness stops here instead of
+    # reporting windows that never moved because nothing was allowed to move them.
+    katikati_report_signing "$APP_BUNDLE" || exit 3
+    running="$(katikati_running_executable)"
+    if [[ -n "$running" && "$running" != "$APP_EXECUTABLE" ]]; then
+      echo "signing: ⚠️  the running instance is $running, not the bundle just checked" >&2
+      exit 3
+    fi
+    [[ -n "$running" ]] && echo "signing: running instance is this bundle (pid $(pgrep -x "$APP_NAME" | head -1))"
+    ;;
   --lab|lab)
     run_cli "${@:2}"
     ;;
@@ -156,7 +165,7 @@ case "$MODE" in
     run_cli transitionReplay "${2:-focused-active-replay}"
     ;;
   *)
-    echo "usage: $0 [run|--debug|--logs|--telemetry|--launch-trace|--verify|--lab|--lab-minimize|--lab-close|--lab-replay [scenario-name]|--lab-placement [scenario-name]|--lab-transition [scenario-name]]" >&2
+    echo "usage: $0 [run|--debug|--logs|--telemetry|--launch-trace|--verify|--resign|--check-signing|--lab|--lab-minimize|--lab-close|--lab-replay [scenario-name]|--lab-placement [scenario-name]|--lab-transition [scenario-name]]" >&2
     exit 2
     ;;
 esac

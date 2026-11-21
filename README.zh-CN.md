@@ -164,7 +164,11 @@ KatiKati 以 GNU 通用公共许可证 v3.0 或更高版本（`GPL-3.0-or-later`
 ```bash
 ./Scripts/build_and_run.sh          # 日常开发
 ./Scripts/build_and_run.sh --lab    # 窗口实验室诊断命令行
+./Scripts/build_and_run.sh --resign         # 只重签已构建的产物（跑完 xcodebuild test 之后）
+./Scripts/build_and_run.sh --check-signing  # 只读闸门：这条授权还配得上当前签名吗
 ```
+
+每次构建都会打一行签名结论。`xcodebuild test` 会重新链接并把产物签成 ad-hoc，而 ad-hoc 的 designated requirement 是 cdhash，辅助功能授权会静默失效：窗口自动化什么都动不了，实机验收读到的仍是上一轮的窗口位置。`--check-signing` 遇到这种情况以退出码 3 停下并说明原因与修法，`--resign` 不重新构建、直接把本地证书签回去。
 
 **测试**（约 1,900 个 XCTest 用例；CI 每次推送运行同样的命令）：
 

@@ -215,8 +215,14 @@ grant follows the signing identity):
 ```bash
 ./Scripts/build_and_run.sh          # dev loop
 ./Scripts/build_and_run.sh --lab    # window-lab diagnostic CLI
+./Scripts/build_and_run.sh --resign # re-sign what is already built (after `xcodebuild test`)
+./Scripts/build_and_run.sh --check-signing  # read-only gate: does the grant still match?
 ./Scripts/install_local_release.sh  # signed Release into /Applications, then launches it
 ```
+
+Every build prints one signing line. `xcodebuild test` relinks and signs the product ad-hoc, whose designated requirement is a cdhash, so it silently loses the
+Accessibility grant: window automation then does nothing and a live check reads frames where the previous pass left them. `--check-signing` exits 3 in that case
+with the reason and the fix, and `--resign` puts the local identity back without rebuilding.
 
 Only one KatiKati may exist on the Mac. Both scripts delete every other `KatiKati.app` macOS knows about (old build folders, `/Applications`,
 Xcode DerivedData) and unregister copies in the Trash, because copies share the bundle id and fight over the Accessibility grant.
