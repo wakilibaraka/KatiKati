@@ -9,9 +9,10 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsThirtyTabsWithOneIdentityEach() {
-        XCTAssertEqual(SettingsTab.allCases.count, 30, "thirty sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 30,
+    func testTheSidebarIsThirtyOneTabsWithOneIdentityEach() {
+        // 2026-11-21: Mission Control joined Window & Workspace.
+        XCTAssertEqual(SettingsTab.allCases.count, 31, "thirty-one sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 31,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -24,6 +25,9 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab(rawValue: "tiling"), .tiling,
                        "a stored toolbar identifier must keep resolving after a split")
         XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
+        XCTAssertEqual(SettingsTab(rawValue: "missionControl"), .missionControl)
+        XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .windowManagement)! + 1],
+                       .missionControl, "Mission Control sits beside the window pages")
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
         XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
         // DW-4: Wallpaper became a page of its own next to Appearance.
