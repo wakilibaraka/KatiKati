@@ -675,12 +675,14 @@ final class TilingEngine: ObservableObject {
 
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
+            let catalogLayout = layout(for: screen)
+            let isStrip = catalogLayout == nil && preset(for: screen) == .ribbon
             var targetFrames: [WindowID: CGRect]
             var parked: [WindowID: StripParking.Side] = [:]
-            if let catalogLayout = layout(for: screen) {
+            if let catalogLayout {
                 targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
                 overflow += max(0, eligible.count - catalogLayout.slots)
-            } else if preset(for: screen) == .ribbon {
+            } else if isStrip {
                 // A strip never shrinks a column to fit — it scrolls — so the usable-size guard is
                 // deliberately skipped here, otherwise a ¼ column would evict its own windows.
                 let ribbon = ribbonFrames(tree, on: screen, workArea: workArea, activeID: activeIDByScreen[key])
@@ -707,9 +709,8 @@ final class TilingEngine: ObservableObject {
 
             // Apply frames via AX. The strip is the one layout whose columns legitimately sit past
             // the viewport edge (the next column's peek), so its writes skip the work-area clamp.
-            let isStrip = layout(for: screen) == nil && preset(for: screen) == .ribbon
-            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY, area: workArea,
-                        parked: parked, unclamped: isStrip)
+            applyFrames(targetFrames, records: snapshot.windows, primaryMaxY: primaryMaxY,
+                        clampArea: isStrip ? nil : workArea, parked: parked)
         }
     }
 
@@ -728,13 +729,13 @@ final class TilingEngine: ObservableObject {
             // screen while the camera had already scrolled to its column.
             if preset(for: screen) == .ribbon {
                 let ribbon = ribbonFrames(tree, on: screen, workArea: workArea, activeID: nil)
-                applyFrames(ribbon.frames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea,
-                            parked: ribbon.parked, unclamped: true)
+                applyFrames(ribbon.frames, records: lastWindows, primaryMaxY: primaryMaxY,
+                            clampArea: nil, parked: ribbon.parked)
                 continue
             }
             let targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
 
-            applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, area: workArea)
+            applyFrames(targetFrames, records: lastWindows, primaryMaxY: primaryMaxY, clampArea: workArea)
         }
     }
 
@@ -794,12 +795,11 @@ final class TilingEngine: ObservableObject {
         _ targetFrames: [WindowID: CGRect],
         records: [WindowID: WindowRecord],
         primaryMaxY: CGFloat,
-        area: CGRect,
-        parked: [WindowID: StripParking.Side] = [:],
-        /// The strip draws columns past the viewport edge on purpose. Clamping one into the work
-        /// area pulls it back on screen by its overflow and overlaps the column before it, so a
-        /// strip write is never clamped — macOS keeps the slice off screen as asked.
-        unclamped: Bool = false
+        /// Where the app's own edge clamp is corrected, or nil to write frames exactly as solved.
+        /// The strip passes nil: its columns hang past the viewport on purpose, and pulling one
+        /// back on screen by its overflow would overlap the column before it.
+        clampArea: CGRect?,
+        parked: [WindowID: StripParking.Side] = [:]
     ) {
         guard !targetFrames.isEmpty else { return }
         // Never move windows while a button is held: a drag must not be fought frame by frame. The
@@ -834,15 +834,18 @@ final class TilingEngine: ObservableObject {
 
             guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { continue }
 
-            let quartzArea = CGRect(origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primaryMaxY), size: area.size)
+            let quartzClampArea = clampArea.map {
+                CGRect(origin: SnapPosition.accessibilityOrigin(of: $0, primaryMaxY: primaryMaxY), size: $0.size)
+            }
 
             // Snapshot bounds are Quartz (top-left); store what the app really took (it may clamp to a minimum size)
             // in the same space or the window reads as hand-moved. Parked windows are written without
             // the work-area clamp, or the clamp would pull them straight back on screen.
             lastRequestedFrames[cg] = quartz
-            let clamp: CGRect? = (parked[winID] != nil || unclamped) ? nil : quartzArea
+            // Parked columns are also written unclamped: the wedge macOS grants is what the strip wants.
+            let within: CGRect? = parked[winID] != nil ? nil : quartzClampArea
             lastAppliedFrames[cg] = WindowSnapService.place(
-                element, quartzFrame: quartz, within: clamp
+                element, quartzFrame: quartz, within: within
             ) ?? quartz
         }
     }
