@@ -2353,3 +2353,22 @@ private struct ThreadProbeLaunchBackend: LaunchAtLoginBackend {
     func setEnabled(_ enabled: Bool) throws {}
     func openSettings() {}
 }
+
+@MainActor
+final class WallpaperAnimationSettingTests: XCTestCase {
+    func testSmallAnimationDefaultsOffAndOnlyChangesWhenTheUserAsks() {
+        let suite = "katikati.wallpaper.animate.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(store.wallpaperAnimate, "off by default")
+
+        store.setWallpaperAnimate(true)
+        XCTAssertTrue(store.wallpaperAnimate)
+        XCTAssertTrue(defaults.bool(forKey: "com.katikati.wallpaper.animate"))
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).wallpaperAnimate, "persists")
+
+        store.setWallpaperAnimate(false)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).wallpaperAnimate)
+    }
+}

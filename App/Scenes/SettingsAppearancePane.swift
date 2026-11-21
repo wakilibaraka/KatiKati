@@ -293,6 +293,13 @@ struct SettingsWallpaperPane: View {
                 isOn: Binding(get: { mode != .time }, set: { on in setMode(time: mode != .weather, weather: on) })
             )
             SettingsDivider()
+            // DW-10: a separate click-through cloud layer, off by default — the note is permanent, the status short.
+            SettingsToggleRow(
+                Text("Small Animation"),
+                isOn: Binding(get: { store.wallpaperAnimate }, set: store.setWallpaperAnimate),
+                note: animationNote
+            )
+            SettingsDivider()
             // DW-6: Auto follows the forecast; a locked mood paints its own sky + time of day until Auto is chosen again.
             SettingsRow(
                 Text("Weather Mood"),
@@ -351,6 +358,17 @@ struct SettingsWallpaperPane: View {
                 isOn: Binding(get: { store.tintSurfacesByPhase }, set: store.setTintSurfacesByPhase)
             )
         }
+    }
+
+    /// DW-10's permanent note, with the guard's own status when it is currently pausing.
+    private var animationNote: Text {
+        guard store.wallpaperAnimate else {
+            return Text("Off: the picture is still. Turning it on drifts a few soft clouds on a separate, click-through layer behind your windows with a tiny amount of CPU and GPU.")
+        }
+        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion || ProcessInfo.processInfo.isLowPowerModeEnabled {
+            return Text("Paused to save power")
+        }
+        return Text("Drifts a few soft clouds across the sky on a separate, click-through layer behind your windows. It is off by default; when on it uses a tiny amount of CPU and GPU (well under one percent of a core in testing), keeps no full-resolution frames in memory, and costs a little battery while the desktop is visible. It pauses on Low Power Mode, with Reduce Motion, when the screen locks or sleeps, and while a full-screen app covers the desktop.")
     }
 
     // MARK: Dock accent

@@ -279,6 +279,7 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var wallpaperTerrain: String
     @Published private(set) var wallpaperReapplyOnSpaceChange: Bool
     @Published private(set) var wallpaperRespectLowPower: Bool
+    @Published private(set) var wallpaperAnimate: Bool
     @Published private(set) var dockAccent: DockAccentSpec
     /// DW-6: Auto follows the forecast; every other value locks a sky + time of day until set back to Auto.
     @Published private(set) var wallpaperMood: String
@@ -493,6 +494,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.wallpaperTerrain: WallpaperTerrain.auto.rawValue,
             Keys.wallpaperReapplyOnSpaceChange: true,
             Keys.wallpaperRespectLowPower: true,
+            Keys.wallpaperAnimate: false,
             Keys.wallpaperMood: WallpaperMood.auto.rawValue,
             Keys.deckScale: DeckSettingsRules.defaultScale,
             Keys.deckMagnify: true,
@@ -599,6 +601,7 @@ final class AppSettingsStore: ObservableObject {
             ?? WallpaperTerrain.auto.rawValue
         wallpaperReapplyOnSpaceChange = defaults.bool(forKey: Keys.wallpaperReapplyOnSpaceChange)
         wallpaperRespectLowPower = defaults.bool(forKey: Keys.wallpaperRespectLowPower)
+        wallpaperAnimate = defaults.bool(forKey: Keys.wallpaperAnimate)
         wallpaperMood = WallpaperMood(rawValue: defaults.string(forKey: Keys.wallpaperMood) ?? "")?.rawValue
             ?? WallpaperMood.auto.rawValue
         dockAccent = DockAccentSpec.decode(defaults.data(forKey: Keys.dockAccent))
@@ -1678,6 +1681,13 @@ final class AppSettingsStore: ObservableObject {
         defaults.set(value, forKey: Keys.wallpaperRespectLowPower)
     }
 
+    /// DW-10 — Small Animation. Off by default; the overlay itself is only created when this is true.
+    func setWallpaperAnimate(_ value: Bool) {
+        guard wallpaperAnimate != value else { return }
+        wallpaperAnimate = value
+        defaults.set(value, forKey: Keys.wallpaperAnimate)
+    }
+
     func setWallpaperMood(_ value: WallpaperMood) {
         guard wallpaperMood != value.rawValue else { return }
         wallpaperMood = value.rawValue
@@ -2377,6 +2387,7 @@ private enum Keys {
     static let wallpaperTerrain = "com.katikati.wallpaper.terrain"
     static let wallpaperReapplyOnSpaceChange = "com.katikati.wallpaper.reapplyOnSpaceChange"
     static let wallpaperRespectLowPower = "com.katikati.wallpaper.respectLowPower"
+    static let wallpaperAnimate = "com.katikati.wallpaper.animate"
     static let wallpaperMood = "com.katikati.wallpaper.mood"
     static let dockAccent = "com.katikati.dock.accent.v1"
     static let tintByPhase = "com.katikati.theme.tintByPhase"

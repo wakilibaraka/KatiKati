@@ -603,3 +603,30 @@ final class SignatureTests: XCTestCase {
         XCTAssertTrue(signature(version: current + 1).hasPrefix("\(current + 1)"))
     }
 }
+
+final class WallpaperMotionGuardTests: XCTestCase {
+    private func active(enabled: Bool = true, reduceMotion: Bool = false, lowPower: Bool = false,
+                        locked: Bool = false, covered: Bool = false) -> Bool {
+        WallpaperMotionGuard.isActive(isEnabled: enabled, reduceMotion: reduceMotion, lowPower: lowPower,
+                                      screenLocked: locked, desktopCovered: covered)
+    }
+
+    func testOffIsOffAndClearIsOn() {
+        XCTAssertFalse(active(enabled: false))
+        XCTAssertTrue(active())
+    }
+
+    func testEachGuardPausesOnItsOwn() {
+        XCTAssertFalse(active(reduceMotion: true))
+        XCTAssertFalse(active(lowPower: true))
+        XCTAssertFalse(active(locked: true))
+        XCTAssertFalse(active(covered: true))
+    }
+
+    func testReduceMotionBeatsTheToggleAndGuardsStack() {
+        XCTAssertFalse(active(enabled: true, reduceMotion: true))
+        XCTAssertFalse(active(enabled: true, reduceMotion: true, lowPower: true))
+        XCTAssertFalse(active(enabled: true, lowPower: true, locked: true))
+        XCTAssertEqual(WallpaperMotionGuard.coveredFraction, 0.98)
+    }
+}

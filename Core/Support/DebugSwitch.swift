@@ -195,6 +195,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Phase 10b live-check aid: force the wallpaper's sun phase / sky, `phase` or `phase:sky` (e.g. `dusk:rain`).
     /// Value switch; parsed by `WallpaperDebugOverride`. Unset in normal use.
     case wallpaperPhase = "DOCK_WALLPAPER_PHASE"
+    /// Small Animation live check: `pause` forces the overlay off without touching the user setting.
+    case wallpaperAnimate = "DOCK_WALLPAPER_ANIMATE"
 
     /// Phase 32d, packed (owner 2026-10-16): the dock app icons' frame, `circle` or unset for the
     /// squircle every icon wears today. Value switch; read once by `DockIconShape.packed`.
@@ -251,7 +253,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBorderCut, .liquidGlassBorderSpread, .liquidGlassBorderWidth, .liquidGlassBorderInner,
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
-             .chipFramesOut, .dockTheme, .wallpaperPhase, .dockIconFrame, .openSettings,
+             .chipFramesOut, .dockTheme, .wallpaperPhase, .wallpaperAnimate, .dockIconFrame, .openSettings,
              .powerNotificationDemo, .settingsPageHeight, .cheatSheetCheck:
             return .value
         }

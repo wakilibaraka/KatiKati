@@ -302,6 +302,23 @@ enum WallpaperCache {
     }
 }
 
+// MARK: - DW-10 · whether the cloud overlay may exist
+
+/// One decision, five inputs, no clock and no window: may the Small Animation overlay be on screen right now?
+/// Off stays off; Reduce Motion is an accessibility contract, not a preference; Low Power Mode, a locked or sleeping
+/// screen and a desktop covered by another app's window all hide it. Battery power alone does not pause it: the
+/// overlay measured at 0.03 % of one core, and silently stopping a feature the user just enabled would look broken.
+enum WallpaperMotionGuard {
+    /// A window counts as covering the desktop at this fraction of the screen's area.
+    static let coveredFraction = 0.98
+
+    static func isActive(isEnabled: Bool, reduceMotion: Bool, lowPower: Bool,
+                         screenLocked: Bool, desktopCovered: Bool) -> Bool {
+        guard isEnabled, !reduceMotion, !lowPower, !screenLocked, !desktopCovered else { return false }
+        return true
+    }
+}
+
 // MARK: - DW-8 · celestial + atmospheric model
 
 /// Where a body sits, in degrees: altitude −90…90 (negative = below the horizon), azimuth 0…<360 from north.
