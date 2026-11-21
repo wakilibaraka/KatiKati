@@ -3018,9 +3018,9 @@
     "semantic_hash": "01c146f36662d628a2479df9d1465576"
   },
   "Scripts/build_and_run.sh": {
-    "mtime": 1794838418.9945526,
-    "seen": 1794838460.468419,
-    "ast_hash": "037e08ab8d2c2fb5a85e08c3bc913348",
+    "mtime": 1795285510.2265823,
+    "seen": 1795285840.726326,
+    "ast_hash": "dee3f1b249de95b9c078269ba5dbbd83",
     "semantic_hash": ""
   },
   "Scripts/check_availability_warnings.py": {
@@ -5454,21 +5454,21 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795206968.4948304,
-    "seen": 1795207684.325712,
-    "ast_hash": "0411e683dbc34d6fb68add0ef63b95cc",
+    "mtime": 1795285790.6416237,
+    "seen": 1795285840.726691,
+    "ast_hash": "95c4be7ec3995330a83171403264cb75",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1794883060.8481715,
-    "seen": 1794883137.200437,
-    "ast_hash": "7ead0c28bfdb67464d6280fcfe068b23",
+    "mtime": 1795285766.4159884,
+    "seen": 1795285840.7266922,
+    "ast_hash": "65a1ea685330df2a8c989e947b5d55ab",
     "semantic_hash": ""
   },
   "README.zh-CN.md": {
-    "mtime": 1794883121.4886916,
-    "seen": 1794883137.200437,
-    "ast_hash": "e8175f2362e62fe37939c394b847e822",
+    "mtime": 1795285775.2253258,
+    "seen": 1795285840.7266932,
+    "ast_hash": "b06628dff775d6b2e7e5690402e6fde1",
     "semantic_hash": ""
   },
   "STANDING_RULES.md": {
@@ -8025,6 +8025,12 @@
     "mtime": 1795281199.986863,
     "seen": 1795281234.29461,
     "ast_hash": "d4c7476edb012f5dcd6c0375ee08202f",
+    "semantic_hash": ""
+  },
+  "Scripts/lib/sign_app.sh": {
+    "mtime": 1795285479.0362387,
+    "seen": 1795285840.726333,
+    "ast_hash": "aaf0e81dccf39e893f4cd8ef730d87a7",
     "semantic_hash": ""
   }
 }
