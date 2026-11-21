@@ -8020,5 +8020,11 @@
     "seen": 1795211001.891258,
     "ast_hash": "1c103f705c4850ca7cec5e4884c31e4b",
     "semantic_hash": ""
+  },
+  "Scripts/list_pending_translations.py": {
+    "mtime": 1795281199.986863,
+    "seen": 1795281234.29461,
+    "ast_hash": "d4c7476edb012f5dcd6c0375ee08202f",
+    "semantic_hash": ""
   }
 }

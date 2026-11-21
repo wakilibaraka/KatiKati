@@ -10,7 +10,6 @@
   "95": "ScanAdmissionDecisionTests",
   "100": "check_localization",
   "114": "DragConversionPlanTests",
-  "116": "DeckStateMachine",
   "156": "WindowInventoryAnomalyLogTests",
   "161": "StatusTrioView",
   "193": "StripPointerTracker",
