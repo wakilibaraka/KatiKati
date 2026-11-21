@@ -108,6 +108,24 @@ struct DockAccentSpec: Codable, Equatable, Sendable {
         return DockAccentSpec(style: style, hexStops: stops, angleDegrees: angle)
     }
 
+    /// The spec a style switch should produce, so the Style control sticks instead of bouncing straight back to
+    /// Wallpaper: the chosen style is kept, and when the current stops cannot satisfy it the gap is filled from the
+    /// wallpaper's sampled palette and then the neutral fallback (entered stops always come first, never replaced).
+    func switching(to style: DockAccentStyle, wallpaperAccent: [String]) -> DockAccentSpec {
+        var stops = colors.map(\.hex)
+        if stops.count < style.stopRange.lowerBound {
+            var pool = wallpaperAccent.compactMap(DockAccentColor.init(hex:)).map(\.hex)
+            pool.append(contentsOf: Self.fallbackStops.map(\.hex))
+            for hex in pool where !stops.contains(hex) {
+                stops.append(hex)
+                if stops.count >= style.stopRange.lowerBound { break }
+            }
+        }
+        // A solid keeps its first stop only (a solid with three would not survive `normalized` either).
+        stops = Array(stops.prefix(min(style.stopRange.upperBound, Self.maximumStops)))
+        return DockAccentSpec(style: style, hexStops: stops, angleDegrees: angleDegrees)
+    }
+
     /// The stops to paint with. Wallpaper-adaptive (or a spec with no usable stops) samples the wallpaper's
     /// own three accent hues instead, then falls back to the bar's neutral highlight.
     func resolved(wallpaperAccent: [String]) -> [DockAccentColor] {

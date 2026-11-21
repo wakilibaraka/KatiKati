@@ -227,7 +227,6 @@ struct SettingsWallpaperPane: View {
     @State private var previewHour = 12.0
     @State private var previewSky: WallpaperSky = .clear
     @State private var draftStops: [String] = []
-    @State private var draftAngle = 90.0
 
     private var mode: WallpaperMode { WallpaperMode(rawValue: store.wallpaperMode) ?? .both }
 
@@ -364,10 +363,9 @@ struct SettingsWallpaperPane: View {
             SettingsSegmentedRow(
                 Text("Style"),
                 selection: Binding(get: { store.dockAccent.style }, set: { style in
-                    var spec = store.dockAccent
-                    spec.style = style
-                    if style != .solid, spec.hexStops.isEmpty { spec.hexStops = draftStops.filter { !$0.isEmpty } }
-                    store.setDockAccent(spec)
+                    // Pressing Style has to stick: with no stops entered yet a gradient form would normalize back to
+                    // wallpaper-adaptive on the spot, so the switch seeds the stops it needs from the palette first.
+                    store.setDockAccent(store.dockAccent.switching(to: style, wallpaperAccent: sampledAccentHexes))
                     draftStops = padded(store.dockAccent.hexStops)
                 })
             ) {
@@ -443,12 +441,16 @@ struct SettingsWallpaperPane: View {
     }
 
     private var accentPreviewColors: [Color] {
-        let environment = previewEnvironment
-        let sampled = environment.accent.map {
+        store.dockAccent.resolved(wallpaperAccent: sampledAccentHexes).map {
+            Color(red: $0.red, green: $0.green, blue: $0.blue)
+        }
+    }
+
+    /// The wallpaper's own sampled accent as hex, the same palette the dock reads when nothing is entered.
+    private var sampledAccentHexes: [String] {
+        previewEnvironment.accent.map {
             DockAccentColor(r: CGFloat($0.r), g: CGFloat($0.g), b: CGFloat($0.b)).hex
         }
-        let stops = store.dockAccent.resolved(wallpaperAccent: sampled)
-        return stops.map { Color(red: $0.red, green: $0.green, blue: $0.blue) }
     }
 
     /// A synthetic 06:30–19:30 day on `date`'s calendar day: the preview cannot read the weather service's sun times
@@ -512,7 +514,6 @@ struct SettingsWallpaperPane: View {
 
     private func loadDraft() {
         draftStops = padded(store.dockAccent.hexStops)
-        draftAngle = store.dockAccent.angleDegrees
     }
 
     private func padded(_ stops: [String]) -> [String] {
@@ -527,7 +528,7 @@ struct SettingsWallpaperPane: View {
         var spec = store.dockAccent
         let entered = draftStops.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
         if !entered.isEmpty { spec.hexStops = entered }
-        spec.angleDegrees = draftAngle
+        // The Angle slider writes the store live, so Apply must not carry a stale copy over it.
         store.setDockAccent(spec)
         draftStops = padded(store.dockAccent.hexStops)
     }

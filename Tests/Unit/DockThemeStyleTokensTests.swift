@@ -448,3 +448,41 @@ final class DockAccentSpecTests: XCTestCase {
     }
 }
 
+
+// MARK: - DW-6 · the Style control's own commit path
+
+final class DockAccentStyleSwitchTests: XCTestCase {
+
+    /// Pressing Gradient from the default (wallpaper-adaptive, no stops) has to keep Gradient instead of
+    /// normalizing straight back to wallpaper-adaptive — the bug the control had before the fix.
+    func testSwitchingToGradientFromDefaultSticksAndSeedsStops() {
+        let spec = DockAccentSpec.wallpaperSampled.switching(to: .linearGradient, wallpaperAccent: [])
+        XCTAssertEqual(spec.style, .linearGradient)
+        XCTAssertEqual(spec.normalized.style, .linearGradient)
+        XCTAssertGreaterThanOrEqual(spec.colors.count, DockAccentStyle.linearGradient.stopRange.lowerBound)
+    }
+
+    func testSwitchingUsesWallpaperPaletteBeforeTheNeutralFallback() {
+        let spec = DockAccentSpec(style: .wallpaperAdaptive, hexStops: [], angleDegrees: 45)
+            .switching(to: .linearGradient, wallpaperAccent: ["#112233", "#445566"])
+        XCTAssertEqual(spec.hexStops.prefix(2).map { $0.uppercased() }, ["#112233", "#445566"])
+        XCTAssertEqual(spec.angleDegrees, 45)
+    }
+
+    func testSwitchingKeepsEnteredStopsAndSolidKeepsOne() {
+        let entered = DockAccentSpec(style: .linearGradient, hexStops: ["#FF5F6D", "#FFC371", "#8E2DE2"], angleDegrees: 200)
+        XCTAssertEqual(entered.switching(to: .solid, wallpaperAccent: ["#112233"]).hexStops, ["#FF5F6D"])
+        XCTAssertEqual(entered.switching(to: .solid, wallpaperAccent: ["#112233"]).resolved(wallpaperAccent: []).count, 1)
+        XCTAssertEqual(entered.switching(to: .mesh, wallpaperAccent: []).hexStops, ["#FF5F6D", "#FFC371", "#8E2DE2"])
+        XCTAssertEqual(entered.switching(to: .mesh, wallpaperAccent: []).angleDegrees, 200)
+    }
+
+    /// Applying entered stops must not carry a stale angle over one the Angle slider already stored.
+    func testApplyStyleChangeKeepsStoredAngle() {
+        let stored = DockAccentSpec(style: .linearGradient, hexStops: ["#FF5F6D", "#FFC371"], angleDegrees: 12)
+        var spec = stored
+        spec.hexStops = ["#8E2DE2", "#FFC371"]
+        XCTAssertEqual(spec.normalized.angleDegrees, 12)
+        XCTAssertEqual(spec.normalized.style, .linearGradient)
+    }
+}
