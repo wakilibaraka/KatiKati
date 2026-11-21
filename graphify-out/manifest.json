@@ -3018,9 +3018,9 @@
     "semantic_hash": "01c146f36662d628a2479df9d1465576"
   },
   "Scripts/build_and_run.sh": {
-    "mtime": 1795285510.2265823,
-    "seen": 1795285840.726326,
-    "ast_hash": "dee3f1b249de95b9c078269ba5dbbd83",
+    "mtime": 1795289531.7682135,
+    "seen": 1795289793.150761,
+    "ast_hash": "33bb1a6818ca7fd899ff3d3822295c84",
     "semantic_hash": ""
   },
   "Scripts/check_availability_warnings.py": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795289276.6852622,
-    "seen": 1795289362.655848,
-    "ast_hash": "47d4903efdf82b3dc6507c15a97329c8",
+    "mtime": 1795289659.888166,
+    "seen": 1795289793.15105,
+    "ast_hash": "b6fcd496672efc8872750cf3ea26eb55",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795289277.2676492,
-    "seen": 1795289362.655949,
-    "ast_hash": "0ea8780ba19139b7d2582ac721abe413",
+    "mtime": 1795289660.7215462,
+    "seen": 1795289793.151155,
+    "ast_hash": "05327ac5a7db9685da85a9c5369b1643",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8031,6 +8031,12 @@
     "mtime": 1795285479.0362387,
     "seen": 1795285840.726333,
     "ast_hash": "aaf0e81dccf39e893f4cd8ef730d87a7",
+    "semantic_hash": ""
+  },
+  "Scripts/live_check_tiling_presets.py": {
+    "mtime": 1795289627.5246167,
+    "seen": 1795289793.150774,
+    "ast_hash": "76cd564fc62ce0d44b77e43dc43c4ce3",
     "semantic_hash": ""
   }
 }
