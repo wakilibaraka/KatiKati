@@ -185,6 +185,9 @@ struct MissionControlColouring: Codable, Equatable, Sendable {
     var tintOpacity: Double
     var showsSpaceAccents: Bool
     var spaceAccents: [String: MissionControlColor]
+    /// A per-state override (e.g. full-screen windows green, minimized windows grey) that wins over
+    /// the app rule for that state. Empty by default, so the app rule is what you see.
+    var stateColors: [MissionControlWindowState: MissionControlColor]
 
     init(
         isEnabled: Bool = true,
@@ -193,7 +196,8 @@ struct MissionControlColouring: Codable, Equatable, Sendable {
         defaultColor: MissionControlColor = .neutral,
         tintOpacity: Double = 0.08,
         showsSpaceAccents: Bool = true,
-        spaceAccents: [String: MissionControlColor] = [:]
+        spaceAccents: [String: MissionControlColor] = [:],
+        stateColors: [MissionControlWindowState: MissionControlColor] = [:]
     ) {
         self.isEnabled = isEnabled
         self.autoAssignCategories = autoAssignCategories
@@ -202,6 +206,23 @@ struct MissionControlColouring: Codable, Equatable, Sendable {
         self.tintOpacity = min(max(tintOpacity, 0), 0.5)
         self.showsSpaceAccents = showsSpaceAccents
         self.spaceAccents = spaceAccents
+        self.stateColors = stateColors
+    }
+
+    /// Legacy posture: the first four-blob configuration had no `stateColors`, so absent keys fall
+    /// back to empty rather than failing the whole overview's settings.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+        autoAssignCategories = try container.decodeIfPresent(Bool.self, forKey: .autoAssignCategories) ?? true
+        rules = try container.decodeIfPresent([MissionControlColorRule].self, forKey: .rules) ?? []
+        defaultColor = try container.decodeIfPresent(MissionControlColor.self, forKey: .defaultColor) ?? .neutral
+        tintOpacity = min(max(try container.decodeIfPresent(Double.self, forKey: .tintOpacity) ?? 0.08, 0), 0.5)
+        showsSpaceAccents = try container.decodeIfPresent(Bool.self, forKey: .showsSpaceAccents) ?? true
+        spaceAccents = try container.decodeIfPresent([String: MissionControlColor].self, forKey: .spaceAccents) ?? [:]
+        stateColors = try container.decodeIfPresent(
+            [MissionControlWindowState: MissionControlColor].self, forKey: .stateColors
+        ) ?? [:]
     }
 
     /// Custom bundle rules first, then category overrides, then the auto-assigned category colour,
@@ -227,6 +248,16 @@ struct MissionControlColouring: Codable, Equatable, Sendable {
             return autoAssignCategories ? max(tintOpacity, category.defaultTintOpacity) : tintOpacity
         }
         return tintOpacity
+    }
+
+    /// The border colour for a window in a state: a state override wins, otherwise the app rules.
+    func borderColor(
+        forBundleID bundleID: String?,
+        category: MissionControlAppCategory,
+        state: MissionControlWindowState
+    ) -> MissionControlColor {
+        guard isEnabled else { return defaultColor }
+        return stateColors[state] ?? color(forBundleID: bundleID, category: category)
     }
 
     func accent(forSpaceID spaceID: String) -> MissionControlColor? {
@@ -458,6 +489,74 @@ struct MissionControlMouseBindings: Codable, Equatable, Sendable {
     }
 }
 
+/// Where a pill or badge sits on its window, and how thick the borders are. `MissionControlPresentation`
+/// is the visual half the renderer reads; nothing here decides *what* is drawn, only how.
+enum MissionControlPlacement: String, Codable, CaseIterable, Sendable {
+    case top, bottom, leading, trailing
+}
+
+struct MissionControlPresentation: Codable, Equatable, Sendable {
+    var borderWidth: Double
+    var cornerRadius: Double
+    var badgeOpacity: Double
+    var groupPadding: Double
+    var spaceTitlePlacement: MissionControlPlacement
+    var badgePlacement: MissionControlPlacement
+    var showsFilterChip: Bool
+    var accentFallback: MissionControlColor
+
+    init(
+        borderWidth: Double = 2.5,
+        cornerRadius: Double = 12,
+        badgeOpacity: Double = 0.62,
+        groupPadding: Double = 8,
+        spaceTitlePlacement: MissionControlPlacement = .top,
+        badgePlacement: MissionControlPlacement = .top,
+        showsFilterChip: Bool = true,
+        accentFallback: MissionControlColor = .blue
+    ) {
+        self.borderWidth = min(max(borderWidth, 1), 6)
+        self.cornerRadius = min(max(cornerRadius, 0), 28)
+        self.badgeOpacity = min(max(badgeOpacity, 0.2), 1)
+        self.groupPadding = min(max(groupPadding, 0), 32)
+        self.spaceTitlePlacement = spaceTitlePlacement
+        self.badgePlacement = badgePlacement
+        self.showsFilterChip = showsFilterChip
+        self.accentFallback = accentFallback
+    }
+}
+
+/// The bounding box of the windows that belong to one app, so a group frame can be drawn around
+/// them. Only apps with at least two visible windows produce a group.
+struct MissionControlGroup: Equatable, Sendable {
+    let bundleID: String?
+    let appName: String
+    let frame: CGRect
+    let windowIDs: [MissionControlWindowFrame.ID]
+}
+
+enum MissionControlGrouping {
+    static func groups(for windows: [MissionControlWindowFrame], padding: Double) -> [MissionControlGroup] {
+        var order: [String] = []
+        var buckets: [String: [MissionControlWindowFrame]] = [:]
+        for window in windows {
+            let key = window.bundleID?.lowercased() ?? "name:\(window.appName.lowercased())"
+            if buckets[key] == nil { order.append(key) }
+            buckets[key, default: []].append(window)
+        }
+        return order.compactMap { key in
+            guard let members = buckets[key], members.count > 1 else { return nil }
+            let union = members.dropFirst().reduce(members[0].frame) { $0.union($1.frame) }
+            return MissionControlGroup(
+                bundleID: members[0].bundleID,
+                appName: members[0].appName,
+                frame: union.insetBy(dx: -min(max(padding, 0), 32), dy: -min(max(padding, 0), 32)),
+                windowIDs: members.map(\.id)
+            )
+        }
+    }
+}
+
 struct MissionControlActions: Codable, Equatable, Sendable {
     var buttons: MissionControlButtons
     var hoverKeys: MissionControlHoverKeys
@@ -551,17 +650,32 @@ struct MissionControlConfiguration: Codable, Equatable, Sendable {
     var framing: MissionControlFraming
     var colouring: MissionControlColouring
     var actions: MissionControlActions
+    var presentation: MissionControlPresentation
 
     init(
         naming: MissionControlNaming = MissionControlNaming(),
         framing: MissionControlFraming = MissionControlFraming(),
         colouring: MissionControlColouring = MissionControlColouring(),
-        actions: MissionControlActions = MissionControlActions()
+        actions: MissionControlActions = MissionControlActions(),
+        presentation: MissionControlPresentation = MissionControlPresentation()
     ) {
         self.naming = naming
         self.framing = framing
         self.colouring = colouring
         self.actions = actions
+        self.presentation = presentation
+    }
+
+    /// Older builds stored four blobs; a missing `presentation` decodes as the shipped defaults
+    /// instead of failing the whole configuration.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        naming = try container.decode(MissionControlNaming.self, forKey: .naming)
+        framing = try container.decode(MissionControlFraming.self, forKey: .framing)
+        colouring = try container.decode(MissionControlColouring.self, forKey: .colouring)
+        actions = try container.decode(MissionControlActions.self, forKey: .actions)
+        presentation = try container.decodeIfPresent(MissionControlPresentation.self, forKey: .presentation)
+            ?? MissionControlPresentation()
     }
 }
 
@@ -575,6 +689,7 @@ enum MissionControlSettings {
     static let framingKey = "com.katikati.missioncontrol.framing"
     static let colouringKey = "com.katikati.missioncontrol.colouring"
     static let actionsKey = "com.katikati.missioncontrol.actions"
+    static let presentationKey = "com.katikati.missioncontrol.presentation"
 
     /// Off by default: the overlays only exist while the user asks for them, which keeps idle CPU at
     /// zero for every install that never opens the section.
@@ -595,7 +710,8 @@ enum MissionControlSettings {
             naming: decode(MissionControlNaming.self, key: namingKey) ?? MissionControlNaming(),
             framing: decode(MissionControlFraming.self, key: framingKey) ?? MissionControlFraming(),
             colouring: decode(MissionControlColouring.self, key: colouringKey) ?? MissionControlColouring(),
-            actions: decode(MissionControlActions.self, key: actionsKey) ?? MissionControlActions()
+            actions: decode(MissionControlActions.self, key: actionsKey) ?? MissionControlActions(),
+            presentation: decode(MissionControlPresentation.self, key: presentationKey) ?? MissionControlPresentation()
         )
     }
 
@@ -605,5 +721,6 @@ enum MissionControlSettings {
         if let data = try? encoder.encode(configuration.framing) { defaults.set(data, forKey: framingKey) }
         if let data = try? encoder.encode(configuration.colouring) { defaults.set(data, forKey: colouringKey) }
         if let data = try? encoder.encode(configuration.actions) { defaults.set(data, forKey: actionsKey) }
+        if let data = try? encoder.encode(configuration.presentation) { defaults.set(data, forKey: presentationKey) }
     }
 }

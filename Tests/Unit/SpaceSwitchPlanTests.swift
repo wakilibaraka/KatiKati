@@ -337,3 +337,98 @@ final class MissionControlModelTests: XCTestCase {
                        MissionControlWindowAction.allCases)
     }
 }
+
+/// MC-5: the presentation knobs, state colour overrides and app groups the richer renderer reads.
+final class MissionControlPresentationTests: XCTestCase {
+    private func window(
+        _ id: UInt32, bundle: String?, app: String, state: MissionControlWindowState = .standard,
+        rect: CGRect = CGRect(x: 0, y: 0, width: 100, height: 100)
+    ) -> MissionControlWindowFrame {
+        MissionControlWindowFrame(id: id, bundleID: bundle, appName: app, title: nil,
+                                  frame: rect, state: state, isFocused: false)
+    }
+
+    func testPresentationClampsEveryDimension() {
+        let loose = MissionControlPresentation(
+            borderWidth: 99, cornerRadius: -4, badgeOpacity: 0.01, groupPadding: 400
+        )
+        XCTAssertEqual(loose.borderWidth, 6)
+        XCTAssertEqual(loose.cornerRadius, 0)
+        XCTAssertEqual(loose.badgeOpacity, 0.2)
+        XCTAssertEqual(loose.groupPadding, 32)
+        let defaults = MissionControlPresentation()
+        XCTAssertEqual(defaults.borderWidth, 2.5)
+        XCTAssertEqual(defaults.spaceTitlePlacement, .top)
+        XCTAssertTrue(defaults.showsFilterChip)
+    }
+
+    func testStateColourBeatsTheAppRule() {
+        var colouring = MissionControlColouring()
+        colouring.stateColors[.fullscreen] = .green
+        XCTAssertEqual(
+            colouring.borderColor(forBundleID: "com.apple.Safari", category: .browser, state: .fullscreen),
+            .green
+        )
+        XCTAssertEqual(
+            colouring.borderColor(forBundleID: "com.apple.Safari", category: .browser, state: .standard),
+            .blue
+        )
+        colouring.isEnabled = false
+        XCTAssertEqual(
+            colouring.borderColor(forBundleID: "com.apple.Safari", category: .browser, state: .fullscreen),
+            .neutral
+        )
+    }
+
+    func testGroupsOnlyIncludeAppsWithTwoWindowsAndUnionTheirFrames() {
+        let windows = [
+            window(1, bundle: "com.apple.Safari", app: "Safari",
+                   rect: CGRect(x: 0, y: 0, width: 100, height: 100)),
+            window(2, bundle: "com.apple.Safari", app: "Safari",
+                   rect: CGRect(x: 200, y: 50, width: 100, height: 100)),
+            window(3, bundle: "com.apple.Terminal", app: "Terminal")
+        ]
+        let groups = MissionControlGrouping.groups(for: windows, padding: 8)
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups[0].appName, "Safari")
+        XCTAssertEqual(groups[0].windowIDs, [1, 2])
+        XCTAssertEqual(groups[0].frame, CGRect(x: -8, y: -8, width: 316, height: 166))
+        XCTAssertTrue(MissionControlGrouping.groups(for: windows, padding: 0).count == 1)
+        XCTAssertTrue(MissionControlGrouping.groups(for: [windows[2]], padding: 8).isEmpty)
+    }
+
+    func testGroupingFallsBackToAppNameWithoutABundleID() {
+        let groups = MissionControlGrouping.groups(
+            for: [window(1, bundle: nil, app: "Notes"), window(2, bundle: nil, app: "notes")],
+            padding: 0
+        )
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups[0].windowIDs, [1, 2])
+    }
+
+    func testConfigurationRoundTripsPresentationAndDecodesOldFourBlobJSON() throws {
+        var config = MissionControlConfiguration()
+        config.presentation = MissionControlPresentation(
+            borderWidth: 4, cornerRadius: 20, badgeOpacity: 0.9, groupPadding: 14,
+            spaceTitlePlacement: .bottom, badgePlacement: .trailing,
+            showsFilterChip: false, accentFallback: .purple
+        )
+        let data = try JSONEncoder().encode(config)
+        XCTAssertEqual(try JSONDecoder().decode(MissionControlConfiguration.self, from: data), config)
+
+        // A build from before MC-5 wrote four blobs; the missing presentation must decode as defaults.
+        let old = """
+        {"naming":{"spaceLabels":{},"showsSpaceTitles":true,"showsWindowBadges":true,
+        "showsAppIcon":true,"showsWindowTitle":true,"filterEnabled":true},
+        "framing":{"isEnabled":true,"showsFocusFrame":true,"focusStyle":"solid","hoverStyle":"hairline",
+        "showsGroupFrame":false,"groupStyle":"dashed","stateStyles":[]},
+        "colouring":{"isEnabled":true,"autoAssignCategories":true,"rules":[],
+        "defaultColor":{"red":0.6,"green":0.6,"blue":0.6,"alpha":1},"tintOpacity":0.08,
+        "showsSpaceAccents":true,"spaceAccents":{}},
+        "actions":{"buttons":{"visible":[],"showsOnHover":true},"hoverKeys":{"isEnabled":true,
+        "modifiers":["command"],"keys":[]},"mouse":{"rightClick":"none","middleClick":"none"}}}
+        """
+        let decoded = try JSONDecoder().decode(MissionControlConfiguration.self, from: Data(old.utf8))
+        XCTAssertEqual(decoded.presentation, MissionControlPresentation())
+    }
+}
