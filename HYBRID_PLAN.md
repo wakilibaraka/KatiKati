@@ -6496,4 +6496,81 @@ Five slices, no new source files, `project.pbxproj` untouched.
 | PHN-4 | Hydration cadence, goal, Smart Pause and the three pause-category switches move to the Notch page's **Daily Helpers** card, which becomes the single owner; the duplicated Sydedock sliders in `SettingsLayoutPane+EdgeBars.swift` are gone (the card now points there). General gains a **Water Unit** row (ml / oz) that follows the temperature unit until it is set. |
 | PHN-5 | Fifteen new keys translated across all 12 locales in `Resources/Localizable.xcstrings` (hand-appended, draft quality pending a speaker pass); `check_localization.py` and `check_debug_switches.py` green (no new `DOCK_*`), no `project.pbxproj` change. Remaining debt: `HydrationController` still lives in `Core/` with its legacy `NSSound` import — the arithmetic left it, the sound did not; moving it to `App/Composition` is its own slice. |
 
+### PHN live check (2026-11-22)
+
+Launched from `build/DerivedData` (signed Debug) on this Mac (1710×1112 pt) and looked at every surface.
+
+**The wings are unreachable on a full dock — the feature's biggest defect.** `PanelGeometry.wingPanelFrames`
+budgets only the room *outside* the strip plate, so a bar whose widget sections fill the width yields
+`leftAvailable = rightAvailable = 0` and `DockWingLadder` resolves both sides to `.hidden`, at every requested
+size. Confirmed live: no wing panel existed in the window list; both appeared only after hiding
+`weather`/`music`/`clockCalendar` in `com.katikati.dock.slotLayout.v1` (plate 1644 → 1211 pt, wings then at
+x=33–234 and 1476–1666). Fix direction: budget the free span **inside** the plate (or the icon row's slack),
+not the plate's outer edge.
+
+**Small size is a bare glyph.** `size != .small` hides the caption, the Done label and every button, so Pause
+is one unlabelled eye and Hydrate is a `0 %` ring: no affordance, no skip, no numbers.
+
+**Large Hydrate's quick-adds wrap unevenly:** `150 ml` and `250 ml` break onto two lines while `500 ml` stays
+on one, so one row of the same control renders in two different shapes.
+
+**Large Pause's caption wraps early** (“Look 20 feet away for / 20 seconds.”) with 208 pt of plate to spare —
+`lineLimit(2)` plus `fixedSize(vertical:)` forces it.
+
+**The zone grid renders and is wired** (Top Centre selected, This Display → Follow Global, layout note below).
+Cosmetic: the middle-row centre is a dashed cell containing a lone “–” that reads as a broken control, and
+equal-thirds 14 pt rows do not read as “the screen” the slice promised. Clicking a zone and the switch-off
+state were not exercised.
+
+Screenshots: `build/shots/wings-{small,medium,large}.png`, `build/shots/wing-{pause,hydrate}-large.jpg`,
+`build/shots/settings-zone-grid.jpg`.
+
+Fixed in this pass: the old edge-deck hydration card now gates its slosh on Reduce Motion and holds a flat
+waterline while Smart Pause carries (`App/Scenes/Edge/DeckRichCards.swift`, +15 lines).
+
+## WINF — Active Window Resolver (`winfo`), read-only audit (2026-11-22)
+
+Ask: one composite, read-only snapshot of the active window composing **AppKit + Accessibility + Quartz**,
+without touching the frozen internals. **Audit only — no code written, no approval yet.**
+
+### What already exists (reuse, do not rebuild)
+
+| Signal | Today | Where |
+|---|---|---|
+| Frontmost app | `NSWorkspace.shared.frontmostApplication` read ad hoc by ~11 call sites (KeyGuard, TilingEngine, CommandBar, Translate, ShortcutCheatSheet, WindowBorder, Hyperkey, NotchIsland). Two files deliberately avoid it because it goes stale inside this agent app (`PanelCoordinator+Fullscreen`, `AppComposition`) | `App/*` |
+| Focused window | `AXWindowReader` already does the hard part: `applyMessagingTimeout`, `copyAttributeValue` with retry budgets, `focusedWindow(forPID:)`, `captureHandle(forPID:cgWindowID:messagingTimeout:)` with a monotonic deadline, and `AXWindowSnapshot` (classified title read, bounds, role/subrole, minimized, isFocusedWindow, cgWindowID) | `Platform/Accessibility/AXWindowReader.swift` |
+| Focused-window **events** | `FrontmostWindowGeometryObserver` registers AX observers for focused/created/moved/resized/destroyed, reads `kAXFocusedWindowAttribute` with a 0.1 s timeout, and type-checks the CF value before casting (an app returning the wrong CF type would otherwise trap the whole bar) | `App/Composition/FrontmostWindowGeometryObserver.swift` |
+| `CGWindowID` + z-order | `CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements])` in 12 files, incl. `Platform/AppTracking/CGWindowSnapshot.swift` and `Platform/CoreGraphics/CoreGraphicsSource.swift` | `Platform/*` |
+| Display attribution | **Already the requested rule**: `WindowDisplayAttribution.displayUUID(for:table:)` = area-majority else largest overlap, `nil` when it touches nothing, via `WindowLiftAvoidance.owningContextIndex`; the table is keyed by stable `CGDisplayCreateUUIDFromDisplayID` UUIDs (never array index) and rebuilt on topology change by `DisplayTopologyStore` | `Core/Support/WindowDisplayAttribution.swift`, `Platform/CoreGraphics/DisplayIdentity.swift` |
+| Diagnostics | `TaskbarDebugSnapshotExporter` writes a versioned JSON report to `…/T/dock-cc-v2-debug-snapshot-latest.json`; `DOCK_CLICK_TRACE` / `DOCK_DISPLAY_TRACE` / `DOCK_HOVER_TRACE` exist | `App/Composition/TaskbarDebugSnapshot.swift`, `Core/Support/DebugSwitch.swift` |
+
+Nothing new is needed for geometry, attribution or AX timeouts. The missing piece is a **single typed
+snapshot** and **one place that decides which window is active**, instead of eleven.
+
+### Frozen boundaries (verified)
+
+`AccessibilitySource`, `AppTracker`, `DragController`, `WindowLiftAvoidanceController`,
+`FullscreenIntentMonitor` are behaviour-frozen. The resolver reads through `AXWindowReader` and
+`DisplayTopologyStore`, adds no observer to `AppTracker`, and touches no frozen type's mutating path;
+`WindowLiftAvoidance.owningContextIndex` is a pure static helper, so calling it is not a change to the
+controller.
+
+### Slices (each ≤300 lines, ends green)
+
+| Slice | Scope |
+|---|---|
+| WINF-1 | Pure `ActiveWindowSnapshot` (the plan's struct: app, bundle, pid, title, `windowID`, `displayUUID`, Quartz `frame`, `isFullscreen`, `isMinimized`, `documentURLString`) + `ActiveWindowComposer` (app fields + AX fields + CG row + attribution table → snapshot; title precedence, fullscreen/minimized flags, largest-overlap display) with synchronous tests. No I/O, no AppKit. |
+| WINF-2 | `ActiveWindowInspector.snapshot(messagingTimeout: 0.25, table:)`: the single AX + CG read, reusing `AXWindowReader.captureHandle` and the CG snapshot source; `nil` when AX is untrusted or times out; no timer, no observer, no caching of a dead element. |
+| WINF-3 | One consumer + the diagnostic: a `winfo` block in the existing debug snapshot export and a `DOCK_WINFO_TRACE` switch (registered in `DebugSwitch`, `check_debug_switches.py` re-run). |
+| WINF-4 | Only if approved: migrate 2–3 `frontmostApplication` call sites to the resolver, one at a time. |
+
+**Risk:** a new source file costs two hand-appended `project.pbxproj` lines per target (breaking PHN's
+“zero new files” rule); putting the model at the end of `WindowDisplayAttribution.swift` or
+`Core/Model/WindowModels.swift` avoids that entirely. AX reads are cross-process round trips — one snapshot
+per activation event is affordable, per-frame polling is not. `frontmostApplication` is documented as stale
+inside this agent app, so the resolver should prefer the activation notification's app and fall back to
+`NSWorkspace`.
+
+### Mission Control — MC-8
+
 | MC-8 | **Live verification and the macOS 26 fallback.** The Dock publishes no readable AX windows on macOS 26, so `MissionControlDockProbe` falls back to the WindowServer's layer-0 thumbnails and the real scaled frames, while entry is recognised from the key/click/swipe/pointer move that opens the overview (still no timer). The session's filter, keyboard target, Return/Escape and keyboard-vs-pointer target rules moved to `MissionControlInteraction` in Core with 13 deterministic tests; frames no longer flip vertically; pointer actions act on the hovered window. Settings reports the Input Monitoring grant separately. Live on this Mac: overlay panels at window level 1000 over the real Mission Control, badges/borders aligned to every thumbnail, Space pill, hover control cluster, and AX targeting. Synthetic key events are not delivered to a background app's global monitor while Mission Control owns the keyboard, so Tab/Return/filter were proven through the interaction tests, with the live overlay, badges, borders, Space pill and hover cluster verified from screenshots rather than by synthetic keystrokes. |

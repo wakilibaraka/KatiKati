@@ -41,5 +41,16 @@ One line per active slice: `lane | slice | agent | branch | files | hot-file tou
 
 _(OpenTaskbar A and B landed 2026-11-17; E/G/D were never started, so no claim is held. Re-claim before starting them: `Localizable.xcstrings`, `DockWidgetLogicTests.swift`, `SettingsLayoutPane+Widgets.swift` and `DockStripView*` are the hot files.)_
 
+PHN (B+E+C+F) | pause·hydrate·pingplace | Buffy (Freebuff) | main, direct per plan §1.9 | `Core/Support/DailyHelpersRules.swift` · `HydrationController.swift` · `NotificationPlacement.swift` · `DockWingModels.swift` · `App/Composition/DailyHelpersService.swift` · `NotificationMoveService.swift` · `App/Entry/AppDelegate.swift` · `App/Scenes/DockWidgets/DockWidgetKit.swift` · `DockII/DockWingHostView.swift` · `App/Scenes/Notch/NotchAIPageView.swift` · `App/Scenes/Edge/DeckRichCards.swift` · `App/Scenes/SettingsLayoutPane{,+ControlCenter,+EdgeBars}.swift` · `App/Scenes/SettingsWindowView.swift` · `App/Scenes/UtilitySettingsBlock.swift` · `Tests/Unit/{DailyHelpersRulesTests,NotificationPlacementTests}.swift` | **`Resources/Localizable.xcstrings`** (15 PHN keys × 12 locales, hand-appended) · **`HYBRID_PLAN.md`** (PHN section) · **`CHANGELOG.md`** (`## [Unreleased]` → Changed) | 2026-11-22 — landed `3ed09b3b`, hot files already applied by me, integrator can drop this line
+
+MC-12 (C+F) | keyboard control opt-ins | other Freebuff session (finished + committed by Buffy) | main | `Core/Support/SpaceSwitchPlan.swift` · `App/Entry/PanelCoordinator+Spaces.swift` · `App/Scenes/SettingsTilingPane.swift` · `Tests/Unit/SpaceSwitchPlanTests.swift` | none — the slice's `Text(verbatim:)` note was restored to its catalogued localized string, so no new strings to register | 2026-11-22 — landed `428612b2`; `build/mc12` worktree left in place (holds a pre-fix copy)
+
 ## Unknown
 Which lanes Freebuff or another agent is using is not known until they add a line here.
+
+## Live-check notes (2026-11-22)
+Dock II wings on a bottom strip are hidden by `DockWingLadder` whenever the strip plate already spans the
+usable width: `wingPanelFrames` measures only the room outside the plate, so a dock whose widget sections
+fill the bar gets `leftAvailable = rightAvailable = 0` and both sides resolve to `.hidden`. They appear only
+after hiding `weather`/`music`/`clockCalendar` in `com.katikati.dock.slotLayout.v1`. Screenshots at
+small/medium/large: `build/shots/wings-*.png`.

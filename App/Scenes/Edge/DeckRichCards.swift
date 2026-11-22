@@ -308,6 +308,11 @@ struct DeckHydrationCardView: View {
     var onRight: Bool = true
 
     @ObservedObject private var hydro = HydrationController.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The slosh is decoration: Reduce Motion or a Smart Pause holds it flat instead of animating on
+    /// the controller's 1 Hz tick.
+    private var isWaveStill: Bool { reduceMotion || hydro.smartPaused }
 
     var body: some View {
         VStack(spacing: 2) {
@@ -321,7 +326,11 @@ struct DeckHydrationCardView: View {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(Color.black.opacity(0.5))
 
-                HydrationWaveShape(phase: hydro.wavePhase, progress: hydro.intervalProgress)
+                HydrationWaveShape(
+                    phase: isWaveStill ? 0 : hydro.wavePhase,
+                    progress: hydro.intervalProgress,
+                    amplitude: isWaveStill ? 0 : 2
+                )
                     .fill(
                         LinearGradient(
                             colors: [Color(red: 0.1, green: 0.5, blue: 1.0), Color(red: 0.0, green: 0.75, blue: 1.0)],
@@ -351,6 +360,8 @@ struct DeckHydrationCardView: View {
 struct HydrationWaveShape: Shape {
     var phase: Double
     var progress: Double
+    /// Wave height in points; 0 draws a flat waterline (Reduce Motion, or Smart Pause holding).
+    var amplitude: CGFloat = 2
 
     var animatableData: Double {
         get { phase }
@@ -361,7 +372,7 @@ struct HydrationWaveShape: Shape {
         var p = Path()
         let fillHeight = max(2, rect.height * CGFloat(progress))
         let baseY = rect.maxY - fillHeight
-        let waveAmp: CGFloat = 2.0
+        let waveAmp = amplitude
 
         p.move(to: CGPoint(x: rect.minX, y: rect.maxY))
         p.addLine(to: CGPoint(x: rect.minX, y: baseY))
