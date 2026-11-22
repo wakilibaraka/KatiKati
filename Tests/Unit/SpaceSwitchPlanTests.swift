@@ -614,3 +614,118 @@ final class MissionControlInteractionTests: XCTestCase {
         XCTAssertEqual(MissionControlPlacement.trailing.opposite, .leading)
     }
 }
+
+/// Multi-display and Stage Manager geometry: Cocoa screen frames, the WindowServer's top-left window
+/// frames and the panels' local spaces have to agree on every display, at any scale.
+final class MissionControlScreenGeometryTests: XCTestCase {
+    private let main = CGRect(x: 0, y: 0, width: 1440, height: 900)
+    private let above = CGRect(x: 0, y: 900, width: 1440, height: 900)
+    private let left = CGRect(x: -1920, y: 0, width: 1920, height: 1080)
+    private let right = CGRect(x: 1440, y: 0, width: 2560, height: 1440)
+
+    private func frame(_ id: UInt32, _ rect: CGRect) -> MissionControlWindowFrame {
+        MissionControlWindowFrame(
+            id: id, bundleID: "com.example.app", appName: "App", title: "Window",
+            frame: rect, state: .standard, isFocused: false
+        )
+    }
+
+    func testScreenFramesConvertBetweenCocoaAndTopLeftCoordinates() {
+        let screens = [main, above, left, right]
+        let height = MissionControlScreenGeometry.primaryHeight(screens)
+        XCTAssertEqual(height, 900)
+
+        XCTAssertEqual(MissionControlScreenGeometry.cgFrame(of: main, primaryHeight: height),
+                       CGRect(x: 0, y: 0, width: 1440, height: 900))
+        XCTAssertEqual(MissionControlScreenGeometry.cgFrame(of: above, primaryHeight: height),
+                       CGRect(x: 0, y: -900, width: 1440, height: 900))
+        XCTAssertEqual(MissionControlScreenGeometry.cgFrame(of: left, primaryHeight: height),
+                       CGRect(x: -1920, y: -180, width: 1920, height: 1080))
+        XCTAssertEqual(MissionControlScreenGeometry.cgFrame(of: right, primaryHeight: height),
+                       CGRect(x: 1440, y: -540, width: 2560, height: 1440))
+    }
+
+    func testWindowFramesBecomePanelLocalOnEveryDisplay() {
+        let height: CGFloat = 900
+        XCTAssertEqual(
+            MissionControlScreenGeometry.local(CGRect(x: 100, y: 50, width: 300, height: 200),
+                                               on: main, primaryHeight: height),
+            CGRect(x: 100, y: 50, width: 300, height: 200)
+        )
+        // A display above the main one has a negative top-left Y; local coordinates start at 0.
+        XCTAssertEqual(
+            MissionControlScreenGeometry.local(CGRect(x: 100, y: -850, width: 300, height: 200),
+                                               on: above, primaryHeight: height),
+            CGRect(x: 100, y: 50, width: 300, height: 200)
+        )
+        // A display to the left has a negative X, and its top is above the main display's origin.
+        XCTAssertEqual(
+            MissionControlScreenGeometry.local(CGRect(x: -1800, y: -100, width: 300, height: 200),
+                                               on: left, primaryHeight: height),
+            CGRect(x: 120, y: 80, width: 300, height: 200)
+        )
+        // A 2× display uses the same point geometry; the backing scale never changes the numbers.
+        XCTAssertEqual(
+            MissionControlScreenGeometry.local(CGRect(x: 1500, y: -500, width: 400, height: 300),
+                                               on: right, primaryHeight: height),
+            CGRect(x: 60, y: 40, width: 400, height: 300)
+        )
+    }
+
+    func testEachWindowIsAssignedToTheDisplayItMostlyOccupies() throws {
+        let screens = [main, above, left, right]
+        let height = MissionControlScreenGeometry.primaryHeight(screens)
+        let groups = MissionControlScreenGeometry.framesByScreen(
+            [
+                frame(1, CGRect(x: 100, y: 100, width: 300, height: 200)),
+                frame(2, CGRect(x: -1000, y: 100, width: 300, height: 200)),
+                frame(3, CGRect(x: 300, y: -800, width: 300, height: 200)),
+                frame(4, CGRect(x: 1350, y: 100, width: 300, height: 200))
+            ],
+            screens: screens,
+            primaryHeight: height
+        )
+        XCTAssertEqual(groups[0].map(\.id), [1])
+        XCTAssertEqual(groups[1].map(\.id), [3])
+        XCTAssertEqual(groups[2].map(\.id), [2])
+        XCTAssertEqual(groups[3].map(\.id), [4], "a window across the seam goes to the larger share")
+        XCTAssertEqual(groups[3][0].frame.origin.x, -90, "and is local to that display")
+
+        // A window mostly on the main display but crossing into the right one stays on the main one.
+        let seam = MissionControlScreenGeometry.framesByScreen(
+            [frame(5, CGRect(x: 1200, y: 100, width: 300, height: 200))],
+            screens: [main, right], primaryHeight: height
+        )
+        XCTAssertEqual(seam[0].map(\.id), [5])
+        XCTAssertTrue(seam[1].isEmpty)
+    }
+
+    func testStageManagerWindowsOutsideEveryDisplayAreNotThumbnails() {
+        let screens = [main]
+        let height = MissionControlScreenGeometry.primaryHeight(screens)
+        XCTAssertFalse(MissionControlScreenGeometry.isVisibleThumbnail(
+            CGRect(x: -300, y: 100, width: 280, height: 400), screens: screens, primaryHeight: height
+        ), "a parked stage is not drawn")
+        XCTAssertFalse(MissionControlScreenGeometry.isVisibleThumbnail(
+            CGRect(x: -60, y: 100, width: 100, height: 200), screens: screens, primaryHeight: height
+        ), "only 40% visible")
+        XCTAssertTrue(MissionControlScreenGeometry.isVisibleThumbnail(
+            CGRect(x: -50, y: 100, width: 100, height: 200), screens: screens, primaryHeight: height
+        ), "50% visible is a thumbnail")
+        XCTAssertTrue(MissionControlScreenGeometry.isVisibleThumbnail(
+            CGRect(x: 100, y: 100, width: 300, height: 200), screens: screens, primaryHeight: height
+        ))
+    }
+
+    func testScreenAssignmentIgnoresDisplaysThatAreNotThere() {
+        let height = MissionControlScreenGeometry.primaryHeight([main])
+        XCTAssertNil(MissionControlScreenGeometry.screenIndex(
+            containing: CGRect(x: 3000, y: 0, width: 200, height: 200),
+            screens: [main], primaryHeight: height
+        ))
+        XCTAssertEqual(MissionControlScreenGeometry.screenIndex(
+            containing: CGRect(x: -10, y: 0, width: 200, height: 200),
+            screens: [main], primaryHeight: height
+        ), 0)
+    }
+}

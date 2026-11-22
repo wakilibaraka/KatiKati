@@ -812,6 +812,86 @@ struct MissionControlInteraction: Equatable, Sendable {
     }
 }
 
+/// Geometry shared by the CGWindow fallback and the overlay panels. Two coordinate systems meet here:
+/// NSScreen frames are Cocoa (bottom-left origin, global), while AX and CGWindowList report Mission
+/// Control's thumbnails in the WindowServer's top-left space. Everything is in points, so a 1× or 2×
+/// display uses the same numbers; the backing scale is never multiplied in.
+enum MissionControlScreenGeometry {
+    /// The WindowServer's top-left origin sits at the primary display's top edge. `NSScreen.screens`
+    /// is ordered with the primary first, so its `maxY` is the height of the global Cocoa space.
+    static func primaryHeight(_ screens: [CGRect]) -> CGFloat {
+        screens.first?.maxY ?? 0
+    }
+
+    /// A display's Cocoa frame in the top-left global space of AX/CGWindowList.
+    static func cgFrame(of screen: CGRect, primaryHeight: CGFloat) -> CGRect {
+        CGRect(
+            x: screen.minX,
+            y: primaryHeight - screen.maxY,
+            width: screen.width,
+            height: screen.height
+        )
+    }
+
+    /// Converts a top-left global window frame into the local space of the panel that covers `screen`.
+    static func local(_ frame: CGRect, on screen: CGRect, primaryHeight: CGFloat) -> CGRect {
+        let origin = cgFrame(of: screen, primaryHeight: primaryHeight).origin
+        return frame.offsetBy(dx: -origin.x, dy: -origin.y)
+    }
+
+    /// The display a window belongs to: the one whose visible area contains most of it, so a window
+    /// straddling the seam is drawn once, on the display it mostly occupies.
+    static func screenIndex(containing frame: CGRect, screens: [CGRect], primaryHeight: CGFloat) -> Int? {
+        var best: (index: Int, area: CGFloat)?
+        for (index, screen) in screens.enumerated() {
+            let overlap = frame.intersection(cgFrame(of: screen, primaryHeight: primaryHeight))
+            guard !overlap.isNull, overlap.width > 0, overlap.height > 0 else { continue }
+            let area = overlap.width * overlap.height
+            if best == nil || area > best!.area { best = (index, area) }
+        }
+        return best?.index
+    }
+
+    /// Groups the overview's windows by display, already converted to that panel's local space.
+    static func framesByScreen(
+        _ frames: [MissionControlWindowFrame],
+        screens: [CGRect],
+        primaryHeight: CGFloat
+    ) -> [[MissionControlWindowFrame]] {
+        var result = Array(repeating: [MissionControlWindowFrame](), count: screens.count)
+        for frame in frames {
+            guard let index = screenIndex(containing: frame.frame, screens: screens, primaryHeight: primaryHeight)
+            else { continue }
+            let local = local(frame.frame, on: screens[index], primaryHeight: primaryHeight)
+            result[index].append(
+                MissionControlWindowFrame(
+                    id: frame.id, bundleID: frame.bundleID, appName: frame.appName, title: frame.title,
+                    frame: local, state: frame.state, isFocused: frame.isFocused
+                )
+            )
+        }
+        return result
+    }
+
+    /// Stage Manager keeps windows for inactive stages parked outside every display. A real Mission
+    /// Control thumbnail is almost entirely on a screen; a strip preview or an off-screen stage is
+    /// not, and drawing it would put a phantom card over the overlay.
+    static func isVisibleThumbnail(
+        _ frame: CGRect,
+        screens: [CGRect],
+        primaryHeight: CGFloat,
+        minimumFraction: CGFloat = 0.5
+    ) -> Bool {
+        guard frame.width > 0, frame.height > 0 else { return false }
+        let visible = screens.reduce(CGFloat(0)) { total, screen in
+            let overlap = frame.intersection(cgFrame(of: screen, primaryHeight: primaryHeight))
+            guard !overlap.isNull else { return total }
+            return total + max(0, overlap.width * overlap.height)
+        }
+        return visible / (frame.width * frame.height) >= minimumFraction
+    }
+}
+
 /// Everything the Mission Control section owns, persisted as four JSON blobs so a new field never
 /// invalidates the others. Read on demand (session start, pane appearance), never polled.
 struct MissionControlConfiguration: Codable, Equatable, Sendable {
