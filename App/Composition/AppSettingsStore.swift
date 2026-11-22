@@ -231,6 +231,7 @@ final class AppSettingsStore: ObservableObject {
     /// Modular Dock slot layout (slice MD-2). Migrated once from `widgetLayout` + `dockUtilities` at
     /// the end of `init`; the strip renders from `widgetLayout` until MD-3a reads this instead.
     @Published private(set) var dockSlotLayout: DockSlotLayout = .default
+    @Published private(set) var backgroundActivityIconMode: BackgroundActivityIconMode = .default
     /// Modular Mid-Dock Utilities cluster configuration (`Drawer · Screenshots · Clipboard · Dictionary · Terminal · Downloads · Trash`).
     @Published private(set) var dockUtilities: DockUtilitiesConfig
     /// Dock II flanking wing presets + opt-in integration toggles (off by default).
@@ -429,6 +430,15 @@ final class AppSettingsStore: ObservableObject {
             delayKey: Keys.edgeAutoHideDelay
         )
         Self.forceNewLayoutDefaults(defaults: defaults)
+        let explicitLegacySlotOverrides: [(DockSlotItem, Bool)] = [
+            (.shelf, Keys.showShelf),
+            (.trash, Keys.showTrash),
+            (.backgroundApps, Keys.showBackgroundApps),
+            (.drawer, Keys.showDrawer),
+        ].compactMap { slot, key in
+            guard defaults.object(forKey: key) != nil else { return nil }
+            return (slot, defaults.bool(forKey: key))
+        }
         // Phase 4U decision 3: the widget order is hardcoded — no reader, no writer.
         // Decision 8b removed `.tray` (edge-bar scope): canonical order is weather → apps → clock.
         let defaultWidgetOrder: [BarSection] = BarSection.canonicalOrder
@@ -440,11 +450,11 @@ final class AppSettingsStore: ObservableObject {
             Keys.drawerPlacement: DrawerPlacement.right.rawValue,
             Keys.showShelf: true,
             Keys.showTrash: true,
-            Keys.showDrawer: true,
+            Keys.showDrawer: false,
             Keys.showBackgroundApps: true,
             Keys.showDictionaryChip: true,
             Keys.showTerminalChip: true,
-            Keys.controlCentreTrailing: false,
+            Keys.controlCentreTrailing: true,
             Keys.fullscreenIntentEnabled: true,
             Keys.nativeDockAutoHideDelay: Self.defaultNativeDockAutoHideDelay,
             // 首次安装 = 常驻；remembered 的种子仍是有限档，见常量注释。
@@ -843,10 +853,9 @@ final class AppSettingsStore: ObservableObject {
         DockWindowManager.shared.useSkyLightFallbackReinforcement = storedSkyLight
         DockWindowManager.shared.useAppleScriptResizeFallback = storedAppleScript
 
-        // Slice MD-2: one read key, two possible sources. A stored layout is decoded (and repaired)
-        // as-is; only a first run migrates, and it is written straight back so the next launch decodes.
-        // Read last, so migration sees the utilities config and visibility flags this init resolved.
-        // The capsule exists in every layout today, so Control Centre starts there (the MD-1 preset).
+        // Slice MD-2 / DO-2: one read key, three sources — stored layout (repaired/reconciled),
+        // genuine legacy upgrade (only when legacy utility/widget keys exist on disk), or fresh
+        // install (v2 default order with detached Control Center capsule).
         if let savedSlotLayout = DockSlotLayout.decode(defaults.data(forKey: DockSlotLayout.defaultsKey)) {
             let repaired = DockSlotLayout.reconciled(DockModularityValidator.validate(savedSlotLayout),
                                                      controlCentreTrailing: controlCentreTrailing)
@@ -854,7 +863,8 @@ final class AppSettingsStore: ObservableObject {
             if repaired != savedSlotLayout {
                 defaults.set(repaired.encoded(), forKey: DockSlotLayout.defaultsKey)
             }
-        } else {
+        } else if defaults.data(forKey: DockUtilitiesConfig.defaultsKey) != nil
+                    || defaults.data(forKey: WidgetLayout.defaultsKey) != nil {
             let migrated = DockSlotLayout.migrating(
                 utilities: dockUtilities,
                 sectionOrder: widgetLayout.order,
@@ -865,6 +875,17 @@ final class AppSettingsStore: ObservableObject {
             )
             dockSlotLayout = migrated
             defaults.set(migrated.encoded(), forKey: DockSlotLayout.defaultsKey)
+        } else {
+            var initial = DockSlotLayout.reconciled(.default, controlCentreTrailing: controlCentreTrailing)
+            for (slot, visible) in explicitLegacySlotOverrides {
+                initial = DockSlotLayout(
+                    items: initial.items.map { $0.item == slot ? DockSlotEntry(item: slot, isHidden: !visible) : $0 },
+                    trailingCapsule: initial.trailingCapsule,
+                    groupAdjacentUtilities: initial.groupAdjacentUtilities
+                )
+            }
+            dockSlotLayout = initial
+            defaults.set(initial.encoded(), forKey: DockSlotLayout.defaultsKey)
         }
 
         // Slice DP-2: AI Tracking is opt-in. The legacy section shipped visible, so both the migration
@@ -882,6 +903,23 @@ final class AppSettingsStore: ObservableObject {
         if !defaults.bool(forKey: DockAITrackingDefault.migrationKey) {
             defaults.set(true, forKey: DockAITrackingDefault.migrationKey)
         }
+
+        // Slice DO-2: upgrade untouched v1 default layouts once to the new v2 default order.
+        let v2Adjusted = DockSlotLayoutV2Default.applying(
+            dockSlotLayout,
+            alreadyMigrated: defaults.bool(forKey: DockSlotLayoutV2Default.migrationKey)
+        )
+        if v2Adjusted != dockSlotLayout {
+            dockSlotLayout = v2Adjusted
+            defaults.set(v2Adjusted.encoded(), forKey: DockSlotLayout.defaultsKey)
+        }
+        if !defaults.bool(forKey: DockSlotLayoutV2Default.migrationKey) {
+            defaults.set(true, forKey: DockSlotLayoutV2Default.migrationKey)
+        }
+        backgroundActivityIconMode = BackgroundActivityIconMode.parse(
+            defaults.string(forKey: BackgroundActivityIconMode.defaultsKey)
+        )
+        mirrorSlotVisibilityIntoLegacyKeys()
     }
 
     /// Called on every accepted tick of a height drag (the drag decision already dedupes to
@@ -1773,18 +1811,25 @@ final class AppSettingsStore: ObservableObject {
 
     func setControlCentreTrailing(_ value: Bool) {
         guard controlCentreTrailing != value else { return }
-        controlCentreTrailing = value
-        defaults.set(value, forKey: Keys.controlCentreTrailing)
-        // Moving the disc is what the capsule **is**: one write decides both (slice MD-3b). OFF puts
-        // Control Centre back on the strip at its preset position instead of losing it.
-        var items = dockSlotLayout.items.filter { $0.item != .controlCenter }
-        if !value {
-            items.insert(DockSlotEntry(item: .controlCenter, isHidden: false),
-                         at: DockModularityValidator.insertionIndex(for: .controlCenter, in: items))
+        setTrailingCapsule(value ? .controlCenter : nil)
+    }
+
+    /// Assigns `item` (or `nil` for Off) to the detached bottom-right capsule without duplicates.
+    func setTrailingCapsule(_ item: DockSlotItem?) {
+        let updated = dockSlotLayout.settingTrailingCapsule(item)
+        setDockSlotLayout(updated)
+        let isControlCenterCapsule = (dockSlotLayout.trailingCapsule == .controlCenter)
+        if controlCentreTrailing != isControlCenterCapsule {
+            controlCentreTrailing = isControlCenterCapsule
+            defaults.set(isControlCenterCapsule, forKey: Keys.controlCentreTrailing)
         }
-        setDockSlotLayout(DockSlotLayout(items: items,
-                                         trailingCapsule: value ? .controlCenter : nil,
-                                         groupAdjacentUtilities: dockSlotLayout.groupAdjacentUtilities))
+        mirrorSlotVisibilityIntoLegacyKeys()
+    }
+
+    func setBackgroundActivityIconMode(_ mode: BackgroundActivityIconMode) {
+        guard backgroundActivityIconMode != mode else { return }
+        backgroundActivityIconMode = mode
+        defaults.set(mode.rawValue, forKey: BackgroundActivityIconMode.defaultsKey)
     }
 
     /// Seeds "lift maximized windows clear of the taskbar" to on for a fresh install (owner 2026-09-01).

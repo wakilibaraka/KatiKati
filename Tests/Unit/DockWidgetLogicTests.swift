@@ -716,11 +716,13 @@ final class ModularDockCoreTests: XCTestCase {
     func testDefaultPresetIsCompleteAndModular() {
         let preset = DockSlotLayout.default
         XCTAssertEqual(preset.items.map(\.item), [
-            .weather, .drawer, .launcher, .music, .clockCalendar, .shelf, .backgroundApps,
-            .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash, .aiTracking
+            .launcher, .weather, .backgroundApps, .music, .shelf,
+            .screenshots, .clipboard, .dictionary, .terminal, .downloads,
+            .trash, .clockCalendar, .drawer, .aiTracking
         ])
         XCTAssertEqual(preset.trailingCapsule, .controlCenter)
-        XCTAssertEqual(preset.items.filter(\.isHidden).map(\.item), [.aiTracking], "only AI starts hidden")
+        XCTAssertEqual(preset.items.filter(\.isHidden).map(\.item), [.drawer, .aiTracking],
+                       "drawer is folded into launcher and AI starts hidden")
         XCTAssertEqual(Set(preset.items.map(\.item) + [.controlCenter]).count, DockSlotItem.allCases.count,
                        "the preset covers all 15 slots once")
         XCTAssertTrue(DockModularityValidator.isModular(preset))
@@ -759,13 +761,13 @@ final class ModularDockCoreTests: XCTestCase {
     func testMissingItemsAreRestoredAtPresetPositionsAndHiddenFlagsSurvive() {
         let entries = [
             DockSlotEntry(item: .terminal, isHidden: true),
-            DockSlotEntry(item: .launcher, isHidden: false),
+            DockSlotEntry(item: .weather, isHidden: false),
         ]
         let repaired = DockModularityValidator.validate(DockSlotLayout(items: entries))
         XCTAssertEqual(repaired.items.count, DockSlotItem.allCases.count, "no capsule, so all 15 live on the strip")
         XCTAssertEqual(repaired.items.first { $0.item == .terminal }?.isHidden, true)
-        XCTAssertEqual(repaired.items.first { $0.item == .launcher }?.isHidden, false)
-        XCTAssertEqual(repaired.items.first?.item, .weather, "restored items keep preset order")
+        XCTAssertEqual(repaired.items.first { $0.item == .weather }?.isHidden, false)
+        XCTAssertEqual(repaired.items.first?.item, .launcher, "restored items keep preset order")
         XCTAssertEqual(repaired.items.last?.item, .controlCenter, "a layout with no capsule shows Control Center")
         XCTAssertTrue(DockModularityValidator.isModular(repaired))
     }
@@ -777,7 +779,7 @@ final class ModularDockCoreTests: XCTestCase {
             XCTAssertEqual(sections.filter { $0 == .apps }.count, 1, "\(mode)")
         }
         XCTAssertEqual(Array(DockModularityValidator.derivedSections(for: .default).prefix(5)),
-                       [.weather, .utilities, .launcher, .apps, .media])
+                       [.launcher, .weather, .apps, .media, .utilities])
         XCTAssertEqual(DockModularityValidator.derivedSections(for: .default).filter { $0 == .apps }.count, 1)
     }
 
@@ -786,14 +788,14 @@ final class ModularDockCoreTests: XCTestCase {
 
         let windows = DockModularityValidator.clusters(for: preset, mode: .windows)
         XCTAssertEqual(windows.count, 1)
-        XCTAssertEqual(windows[0].items.count, 13, "hidden AI is not a cluster member")
+        XCTAssertEqual(windows[0].items.count, 12, "hidden drawer and AI are not cluster members")
 
         let split3 = DockModularityValidator.clusters(for: preset, mode: .split3)
         XCTAssertEqual(split3.count, 3)
-        XCTAssertEqual(split3[0].items, [.weather, .drawer, .launcher])
+        XCTAssertEqual(split3[0].items, [.launcher, .weather])
         XCTAssertTrue(split3[1].containsApps)
         XCTAssertEqual(split3[1].items, [.music], "split3 keeps media in the apps island")
-        XCTAssertEqual(split3[2].items.first, .clockCalendar)
+        XCTAssertEqual(split3[2].items.first, .backgroundApps)
 
         let split4 = DockModularityValidator.clusters(for: preset, mode: .split4)
         XCTAssertEqual(split4.count, 4)
@@ -801,7 +803,7 @@ final class ModularDockCoreTests: XCTestCase {
         XCTAssertEqual(split4[2].items, [.music])
 
         let split5 = DockModularityValidator.clusters(for: preset, mode: .split5)
-        XCTAssertEqual(split5.count, 13, "3 leading + apps + 9 trailing")
+        XCTAssertEqual(split5.count, 12, "2 leading + apps + 9 trailing")
         XCTAssertEqual(split5.map(\.index), Array(0..<split5.count))
     }
 
@@ -1058,9 +1060,9 @@ final class ModularDockCoreTests: XCTestCase {
     }
 
     func testUtilitiesRailLengthCountsOnlyVisibleUtilitySlots() {
-        // DP-1: the island owns five utilities; dictionary and terminal are their own rail tiles.
+        // DP-1 + DO-2: the island owns four visible utilities by default (drawer starts hidden).
         XCTAssertEqual(DockSlotLayout.default.utilitiesRailLength,
-                       BarSection.utilitiesRailLength(visibleCount: 5), accuracy: 0.001)
+                       BarSection.utilitiesRailLength(visibleCount: 4), accuracy: 0.001)
         let twoHidden = DockSlotLayout(
             items: DockSlotLayout.default.items.map { entry in
                 [.screenshots, .trash].contains(entry.item)
@@ -1068,7 +1070,7 @@ final class ModularDockCoreTests: XCTestCase {
             },
             trailingCapsule: .controlCenter)
         XCTAssertEqual(twoHidden.utilitiesRailLength,
-                       BarSection.utilitiesRailLength(visibleCount: 3), accuracy: 0.001)
+                       BarSection.utilitiesRailLength(visibleCount: 2), accuracy: 0.001)
     }
 
     /// Slice DP-1: each module is drawn by exactly one renderer, so no preset can put two glyphs
@@ -1123,5 +1125,52 @@ final class ModularDockCoreTests: XCTestCase {
         let titles = DockSlotItem.allCases.map(\.title)
         XCTAssertEqual(Set(titles).count, DockSlotItem.allCases.count, "a duplicated label would hide a slot")
         XCTAssertTrue(titles.allSatisfy { !$0.isEmpty })
+    }
+
+    func testAllFiveCapsuleEligibleSlotsSwapWithoutDuplicates() {
+        var current = DockSlotLayout.default
+        for candidate in [DockSlotItem.backgroundApps, .trash, .launcher, .shelf, .controlCenter] {
+            let previous = current.trailingCapsule!
+            current = current.settingTrailingCapsule(candidate)
+            XCTAssertEqual(current.trailingCapsule, candidate)
+            XCTAssertFalse(current.items.contains { $0.item == candidate })
+            XCTAssertTrue(current.visibleItems.contains(previous))
+            XCTAssertTrue(DockModularityValidator.isModular(current))
+        }
+        let none = current.settingTrailingCapsule(nil)
+        XCTAssertNil(none.trailingCapsule)
+        XCTAssertTrue(none.visibleItems.contains(.controlCenter))
+        XCTAssertTrue(DockModularityValidator.isModular(none))
+        XCTAssertEqual(current.settingTrailingCapsule(.weather), current, "ineligible slots are ignored")
+    }
+
+    func testReconcilePreservesNonControlCenterCapsule() {
+        let bgCapsule = DockSlotLayout.default.settingTrailingCapsule(.backgroundApps)
+        XCTAssertEqual(DockSlotLayout.reconciled(bgCapsule, controlCentreTrailing: true), bgCapsule)
+        XCTAssertEqual(DockSlotLayout.reconciled(bgCapsule, controlCentreTrailing: false), bgCapsule)
+    }
+
+    func testV2MigrationUpgradesUntouchedV1DefaultAndPreservesCustomOrder() {
+        let v1Entries = DockSlotLayoutV2Default.legacyV1Order.map {
+            DockSlotEntry(item: $0, isHidden: $0 == .aiTracking)
+        }
+        let v1 = DockSlotLayout(items: v1Entries, trailingCapsule: .controlCenter)
+        let upgraded = DockSlotLayoutV2Default.applying(v1, alreadyMigrated: false)
+        XCTAssertEqual(upgraded, DockSlotLayout.default)
+        XCTAssertEqual(DockSlotLayoutV2Default.applying(v1, alreadyMigrated: true), v1)
+
+        var customEntries = v1Entries
+        customEntries.swapAt(0, 1)
+        let custom = DockSlotLayout(items: customEntries, trailingCapsule: .controlCenter)
+        XCTAssertEqual(DockSlotLayoutV2Default.applying(custom, alreadyMigrated: false), custom)
+    }
+
+    func testBackgroundActivityIconModeParseAndDefault() {
+        XCTAssertEqual(BackgroundActivityIconMode.default, .grid3x3)
+        XCTAssertEqual(BackgroundActivityIconMode.parse(nil), .grid3x3)
+        XCTAssertEqual(BackgroundActivityIconMode.parse("unknown"), .grid3x3)
+        for mode in BackgroundActivityIconMode.allCases {
+            XCTAssertEqual(BackgroundActivityIconMode.parse(mode.rawValue), mode)
+        }
     }
 }

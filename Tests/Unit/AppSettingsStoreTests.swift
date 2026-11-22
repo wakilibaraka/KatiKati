@@ -2045,12 +2045,15 @@ final class AppSettingsStoreTests: XCTestCase {
     func testControlCentreTrailingIsOptInAndOnePlateOnly() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertFalse(store.controlCentreTrailing)
-        XCTAssertFalse(store.controlCentreAtTrailingEnd, "off by default = the stable arrangement")
+        XCTAssertTrue(store.controlCentreTrailing)
+        XCTAssertTrue(store.controlCentreAtTrailingEnd, "on by default in detached capsule (DO-2)")
+
+        store.setControlCentreTrailing(false)
+        XCTAssertFalse(store.controlCentreAtTrailingEnd)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).controlCentreTrailing, "and it persists")
 
         store.setControlCentreTrailing(true)
         XCTAssertTrue(store.controlCentreAtTrailingEnd)
-        XCTAssertTrue(AppSettingsStore(defaults: defaults).controlCentreTrailing, "and it persists")
 
         store.setBarLayoutMode(.split4)
         XCTAssertFalse(store.controlCentreAtTrailingEnd, "split bars keep the old arrangement")
@@ -2107,6 +2110,7 @@ final class AppSettingsStoreTests: XCTestCase {
 
     func testDockSlotLayoutMigratesFromLegacyUtilitiesAndSectionsOnce() {
         let defaults = makeDefaults()
+        defaults.set(false, forKey: "com.katikati.dock.controlCentreTrailing")
         defaults.set(true, forKey: "com.katikati.dock.utilitiesMigrated.v1")
         let utilities = DockUtilitiesConfig(order: [.trash, .drawer, .screenshots, .clipboard, .dictionary, .terminal, .downloads],
                                             hidden: [.clipboard])
@@ -2169,23 +2173,18 @@ final class AppSettingsStoreTests: XCTestCase {
         store.setWidgetVisible(true, for: .system)
         XCTAssertTrue(store.dockSectionOrder.contains(.system),
                       "a widget without a slot still renders where the user put it")
-        XCTAssertEqual(store.dockVisibleUtilityCount, 5, "DP-1: five island utilities; Dictionary/Terminal are own sections")
+        XCTAssertEqual(store.dockVisibleUtilityCount, 4, "DP-1 + DO-2: four visible island utilities (drawer folded into launcher)")
         store.setDockSlotItem(.trash, hidden: true)
-        XCTAssertEqual(store.dockVisibleUtilityCount, 4, "the rail counts island slots, not the legacy config")
+        XCTAssertEqual(store.dockVisibleUtilityCount, 3, "the rail counts island slots, not the legacy config")
     }
 
-    // MARK: Modular Dock capsule (slice MD-3b)
+    // MARK: Modular Dock capsule (slice MD-3b / DO-2)
 
     func testControlCentreSwitchesBetweenCapsuleAndStrip() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertNil(store.dockSlotLayout.trailingCapsule, "the flag is off on a fresh install")
-        XCTAssertTrue(store.dockSlotLayout.visibleItems.contains(.controlCenter))
-
-        store.setControlCentreTrailing(true)
-        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
-        XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter },
-                       "the picker shows Capsule, so the capsule really holds it")
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter, "Control Center defaults to the detached capsule")
+        XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter })
         XCTAssertTrue(store.controlCentreAtTrailingEnd)
 
         store.setControlCentreTrailing(false)
@@ -2199,6 +2198,11 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
         XCTAssertFalse(store.dockSlotLayout.items.contains { $0.item == .controlCenter })
         XCTAssertTrue(store.controlCentreAtTrailingEnd)
+
+        store.setTrailingCapsule(.trash)
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .trash)
+        XCTAssertTrue(store.dockSlotLayout.visibleItems.contains(.controlCenter))
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).dockSlotLayout.trailingCapsule, .trash)
     }
 
     func testStoredLayoutIsReconciledWithTheFlagOnLaunch() {
@@ -2224,16 +2228,18 @@ final class AppSettingsStoreTests: XCTestCase {
     }
 
     func testTrashAndDrawerSwitchesDriveTheirSlotsAndBack() {
-        // Live check 2026-11-20: the Trash and Drawer rows in the slot list wrote only the slot,
-        // while the strip still read "com.katikati.showTrash" / "showDrawer" — the rows did nothing.
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertTrue(store.showsTrashSlot)
-        XCTAssertTrue(store.showsDrawerSlot)
+        XCTAssertFalse(store.showsDrawerSlot, "DO-2: standalone drawer starts hidden by default")
 
         store.setDockSlotItem(.trash, hidden: true)
         XCTAssertFalse(store.showsTrashSlot, "the slot row hides the Trash chip")
         XCTAssertFalse(store.showTrash, "and the legacy key follows it")
+
+        store.setShowDrawer(true)
+        XCTAssertTrue(store.showsDrawerSlot)
+        XCTAssertTrue(store.showDrawer)
 
         store.setDockSlotItem(.drawer, hidden: true)
         XCTAssertFalse(store.showsDrawerSlot)
@@ -2241,8 +2247,6 @@ final class AppSettingsStoreTests: XCTestCase {
 
         store.setShowTrash(true)
         XCTAssertTrue(store.showsTrashSlot, "the old switch still writes the one truth")
-        store.setShowDrawer(true)
-        XCTAssertTrue(store.showsDrawerSlot)
 
         store.setShowTrash(false)
         XCTAssertFalse(store.showsTrashSlot)
@@ -2250,6 +2254,21 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(reloaded.showsTrashSlot, "and it persists")
         XCTAssertFalse(reloaded.showTrash)
         store.setShowTrash(true)
+    }
+
+    func testFreshInstallUsesV2DefaultOrderWithDetachedControlCenter() {
+        let defaults = makeDefaults()
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.dockSlotLayout, DockSlotLayout.default)
+        XCTAssertEqual(store.dockSlotLayout.trailingCapsule, .controlCenter)
+        XCTAssertEqual(store.dockSlotLayout.visibleItems, [
+            .launcher, .weather, .backgroundApps, .music, .shelf,
+            .screenshots, .clipboard, .dictionary, .terminal, .downloads,
+            .trash, .clockCalendar
+        ])
+        XCTAssertEqual(store.backgroundActivityIconMode, .grid3x3)
+        store.setBackgroundActivityIconMode(.ramPressureRing)
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).backgroundActivityIconMode, .ramPressureRing)
     }
 
     func testSlotRowsKeepTheShelfAndBackgroundAppsKeysInStep() {

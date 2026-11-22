@@ -72,9 +72,9 @@ final class StripPlacementTests: XCTestCase {
         // `.utilities` is not one tile: it is the cluster of visible utility slots (DP-1 keeps
         // Dictionary and Terminal out of it), so its length is the sum of those 40 pt tiles.
         let cluster = BarSection.utilities.railTileLength(barHeight: 54)
-        XCTAssertEqual(cluster, BarSection.utilitiesRailLength(visibleCount: 5),
-                       "the fresh cluster is five slots, not the seven legacy utility kinds")
-        XCTAssertLessThanOrEqual(cluster, 54 * 4, "five 40 pt tiles still fit a rail's usable run")
+        XCTAssertEqual(cluster, BarSection.utilitiesRailLength(visibleCount: 4),
+                       "the fresh cluster is four visible slots (drawer folded into launcher)")
+        XCTAssertLessThanOrEqual(cluster, 54 * 4, "four 40 pt tiles fit a rail's usable run")
     }
 
     /// Phase 40b / Phase 49: one size for every rail tile (weather, clock, media, launcher, widgets),
@@ -90,7 +90,7 @@ final class StripPlacementTests: XCTestCase {
         XCTAssertEqual(BarSection.utilitiesRailLength(visibleCount: 1), BarSection.railTileSize,
                        "one utility slot is exactly one app-chip-width tile")
         XCTAssertEqual(BarSection.utilities.railTileLength(barHeight: 54),
-                       BarSection.utilitiesRailLength(visibleCount: 5),
+                       BarSection.utilitiesRailLength(visibleCount: 4),
                        "the cluster is its visible slots, not one tile")
         XCTAssertEqual(BarSection.railTileSize, ChipPillMetrics.cardWidth,
                        "a rail tile must be the width of the app chip it sits beside")

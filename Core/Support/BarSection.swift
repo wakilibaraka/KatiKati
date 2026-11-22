@@ -534,7 +534,12 @@ enum DockSlotItem: String, CaseIterable, Codable, Identifiable, Sendable {
         }
     }
 
-    var isCapsuleEligible: Bool { self == .controlCenter }
+    var isCapsuleEligible: Bool {
+        switch self {
+        case .controlCenter, .backgroundApps, .trash, .launcher, .shelf: return true
+        default: return false
+        }
+    }
 
     /// Settings label. Every name but `Control Centre` already existed as a localized key.
     var title: String {
@@ -602,12 +607,12 @@ struct DockSlotLayout: Codable, Equatable, Sendable {
 
     /// Strip order for every slot, `controlCenter` last so repair can restore it.
     static let defaultPresetOrder: [DockSlotItem] = [
-        .weather, .drawer, .launcher, .music, .clockCalendar, .shelf, .backgroundApps,
-        .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash,
-        .aiTracking, .controlCenter,
+        .launcher, .weather, .backgroundApps, .music, .shelf,
+        .screenshots, .clipboard, .dictionary, .terminal, .downloads,
+        .trash, .clockCalendar, .drawer, .aiTracking, .controlCenter,
     ]
 
-    static let defaultHidden: Set<DockSlotItem> = [.aiTracking]
+    static let defaultHidden: Set<DockSlotItem> = [.drawer, .aiTracking]
 
     static let `default` = DockSlotLayout(
         items: defaultPresetOrder.filter { $0 != .controlCenter }.map {
@@ -615,6 +620,26 @@ struct DockSlotLayout: Codable, Equatable, Sendable {
         },
         trailingCapsule: .controlCenter
     )
+
+    /// Returns a modular copy hosting `next` in the detached capsule (restoring any previous capsule
+    /// slot back into the strip at its preset position). Ineligible candidates leave the layout unchanged.
+    func settingTrailingCapsule(_ next: DockSlotItem?) -> DockSlotLayout {
+        if let next, !next.isCapsuleEligible { return self }
+        guard next != trailingCapsule else { return self }
+        var nextItems = items.filter { entry in
+            guard let next else { return true }
+            return entry.item != next
+        }
+        if let previous = trailingCapsule, !nextItems.contains(where: { $0.item == previous }) {
+            let entry = DockSlotEntry(item: previous, isHidden: false)
+            nextItems.insert(entry, at: DockModularityValidator.insertionIndex(for: previous, in: nextItems))
+        }
+        return DockModularityValidator.validate(
+            DockSlotLayout(items: nextItems,
+                           trailingCapsule: next,
+                           groupAdjacentUtilities: groupAdjacentUtilities)
+        )
+    }
 
     /// Strip-visible slots in order. The capsule is not in `items`, so it never appears here (I4).
     var visibleItems: [DockSlotItem] { items.filter { !$0.isHidden }.map(\.item) }
@@ -861,6 +886,47 @@ enum DockAITrackingDefault {
     }
 }
 
+/// Configurable icon face for the 4-square `Background & Activity` dock tile.
+enum BackgroundActivityIconMode: String, CaseIterable, Codable, Identifiable, Sendable {
+    case grid3x3
+    case ramPercent
+    case cpuPercent
+    case ramPressureRing
+    case appCount
+
+    static let defaultsKey = "com.katikati.dock.backgroundIconMode"
+    static let `default`: BackgroundActivityIconMode = .grid3x3
+    var id: String { rawValue }
+
+    static func parse(_ raw: String?) -> BackgroundActivityIconMode {
+        raw.flatMap(Self.init(rawValue:)) ?? .default
+    }
+}
+
+/// One-time v2 default upgrade for untouched v1 default slot layouts (DO-2); custom layouts stay intact (I2).
+enum DockSlotLayoutV2Default {
+    static let migrationKey = "com.katikati.dock.slotLayout.v2DefaultMigrated"
+    static let legacyV1Order: [DockSlotItem] = [
+        .weather, .drawer, .launcher, .music, .clockCalendar, .shelf, .backgroundApps,
+        .screenshots, .clipboard, .dictionary, .terminal, .downloads, .trash, .aiTracking,
+    ]
+
+    static func applying(_ layout: DockSlotLayout, alreadyMigrated: Bool) -> DockSlotLayout {
+        guard !alreadyMigrated,
+              layout.trailingCapsule == .controlCenter,
+              layout.items.map(\.item) == legacyV1Order else {
+            return layout
+        }
+        let hiddenMap = Dictionary(layout.items.map { ($0.item, $0.isHidden) }, uniquingKeysWith: { first, _ in first })
+        let nextItems = DockSlotLayout.default.items.map { entry in
+            DockSlotEntry(item: entry.item, isHidden: entry.item == .drawer ? true : (hiddenMap[entry.item] ?? entry.isHidden))
+        }
+        return DockSlotLayout(items: nextItems,
+                              trailingCapsule: .controlCenter,
+                              groupAdjacentUtilities: layout.groupAdjacentUtilities)
+    }
+}
+
 // MARK: - Capsule-aware deduplication (additive, slice MD-1)
 
 extension DockToolDeduplication {
@@ -927,12 +993,24 @@ extension DockSlotLayout {
         ]
         for (item, hidden) in promoted where seen.insert(item).inserted {
             entries.insert(DockSlotEntry(item: item, isHidden: hidden),
-                           at: DockModularityValidator.insertionIndex(for: item, in: entries))
+                           at: migrationInsertionIndex(for: item, in: entries))
         }
 
         return DockModularityValidator.validate(
             DockSlotLayout(items: entries, trailingCapsule: capsuleEnabled ? .controlCenter : nil)
         )
+    }
+
+    /// Inserts a promoted block after its last preset predecessor already placed by the user so
+    /// user-reordered leading sections stay at the front of the strip.
+    private static func migrationInsertionIndex(for item: DockSlotItem, in items: [DockSlotEntry]) -> Int {
+        let preset = DockSlotLayout.defaultPresetOrder
+        guard let target = preset.firstIndex(of: item) else { return items.count }
+        let predecessors = Set(preset[..<target])
+        if let lastPred = items.lastIndex(where: { predecessors.contains($0.item) }) {
+            return lastPred + 1
+        }
+        return DockModularityValidator.insertionIndex(for: item, in: items)
     }
 
     /// Makes the capsule agree with the legacy `controlCentreTrailing` flag, which stays the
@@ -943,6 +1021,7 @@ extension DockSlotLayout {
     /// strip's own drawing) said otherwise — Settings showed one placement and the bar rendered the
     /// other. Reconciling in the flag's direction leaves what a user sees untouched.
     static func reconciled(_ layout: DockSlotLayout, controlCentreTrailing: Bool) -> DockSlotLayout {
+        if let active = layout.trailingCapsule, active != .controlCenter { return layout }
         guard (layout.trailingCapsule == .controlCenter) != controlCentreTrailing else { return layout }
         var items = layout.items.filter { $0.item != .controlCenter }
         if !controlCentreTrailing {
