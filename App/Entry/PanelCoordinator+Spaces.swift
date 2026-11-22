@@ -123,6 +123,16 @@ final class MissionControlSession {
     private var nextActivationProbe = Date.distantPast
     private var configuration = MissionControlConfiguration()
     private var isActive = false
+    /// Pure enter/exit rules, so a probe without a backdrop or without thumbnails is a teardown.
+    private var presence = MissionControlPresence()
+    /// Probes only while the overlay is up: Mission Control closes without a readable Dock event, so
+    /// nothing else would ever notice the overview is gone.
+    private var exitWatchdog: Timer?
+    /// Slow entry probe while the overlay is down. The keyboard path cannot depend on the global key
+    /// monitor (Input Monitoring is optional), and gestures/hot corners rarely post anything usable,
+    /// so one cheap CGWindowList read every 1.5 s is what makes entry reliable for every opener.
+    private var idleProbe: Timer?
+    private var activationObserver: NSObjectProtocol?
 
     private var frames: [MissionControlWindowFrame] { interaction.frames }
     private var hoveredID: MissionControlWindowFrame.ID? { interaction.hoveredID }
@@ -182,6 +192,16 @@ final class MissionControlSession {
             }
         }
 
+        if activationObserver == nil {
+            // Returning to a normal app is the clearest exit signal there is; refresh then sees the
+            // Dock backdrop gone and tears the panels down.
+            activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.refresh() }
+            }
+        }
+
         if mouseMonitor == nil {
             mouseMonitor = NSEvent.addGlobalMonitorForEvents(
             matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
@@ -196,9 +216,17 @@ final class MissionControlSession {
         }
 
         refresh()
+        startIdleProbe()
     }
 
     func stop() {
+        stopExitWatchdog()
+        stopIdleProbe()
+        presence.close()
+        if let activationObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(activationObserver)
+        }
+        activationObserver = nil
         if let observer {
             CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .commonModes)
         }
@@ -236,23 +264,61 @@ final class MissionControlSession {
         }
         let probe = MissionControlDockProbe.probe()
         logger.debug("[mission-control] probe active=\(probe.isActive, privacy: .public) readable=\(probe.dockReadable, privacy: .public) frames=\(probe.frames.count, privacy: .public)")
-        guard probe.isActive, !probe.frames.isEmpty else {
-            if isActive { dismiss() }
-            return
-        }
-        let wasActive = isActive
-        configuration = MissionControlSettings.load()
-        // A refresh comes from any AX or Space notification, including title changes while the user
-        // is typing a filter; `update` keeps the query and target so the overview cannot reset
-        // under them, while `open` starts a genuinely new appearance clean.
-        if wasActive {
-            interaction.update(frames: probe.frames)
-        } else {
+        switch presence.observe(backdropVisible: probe.isActive, thumbnailCount: probe.frames.count) {
+        case .enter:
+            stopIdleProbe()
+            configuration = MissionControlSettings.load()
             interaction.open(with: probe.frames)
+            isActive = true
+            showPanels()
+            startExitWatchdog()
+            updateHover(at: Self.pointerLocation())
+        case .none:
+            guard presence.isActive else { return }
+            // A refresh comes from any AX or Space notification, including title changes while the
+            // user is typing a filter; `update` keeps the query and target so the overview cannot
+            // reset under them.
+            configuration = MissionControlSettings.load()
+            interaction.update(frames: probe.frames)
+            updateRender()
+            updateHover(at: Self.pointerLocation())
+        case .exit:
+            dismiss()
         }
-        isActive = true
-        showPanels()
-        updateHover(at: Self.pointerLocation())
+    }
+
+    /// Exit detection: the Dock publishes no readable Mission Control notifications on macOS 26 and
+    /// the activation probe only runs while the overlay is down, so while it is up we probe on a
+    /// short timer. One inactive probe tears everything down; nothing here runs once dismissed.
+    private func startExitWatchdog() {
+        guard exitWatchdog == nil else { return }
+        let timer = Timer(timeInterval: 0.6, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refresh() }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        exitWatchdog = timer
+    }
+
+    private func stopExitWatchdog() {
+        exitWatchdog?.invalidate()
+        exitWatchdog = nil
+    }
+
+    private func startIdleProbe() {
+        guard idleProbe == nil, isEnabled else { return }
+        let timer = Timer(timeInterval: 1.5, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, !self.isActive else { return }
+                self.refresh()
+            }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        idleProbe = timer
+    }
+
+    private func stopIdleProbe() {
+        idleProbe?.invalidate()
+        idleProbe = nil
     }
 
     // MARK: Panels
@@ -339,13 +405,16 @@ final class MissionControlSession {
     }
 
     private func handleKey(_ event: NSEvent) {
-        // Every keyboard path is opt-in. Without it Mission Control keeps its own keyboard handling
-        // and the overlay stays purely visual plus pointer actions.
-        guard configuration.naming.keyboardEnabled else { return }
+        // Entry detection is not a keyboard-control opt-in: F3 / ⌃↑ must arm the probe even for a
+        // user who keeps KatiKati out of Mission Control's own keyboard handling. Otherwise a
+        // keyboard-opened overview was never decorated at all.
         guard isActive else {
             if Self.opensOverview(event) { scheduleActivationProbe() }
             return
         }
+        // Every path *inside* the overlay is opt-in. Without it Mission Control keeps its own
+        // keyboard handling and the overlay stays purely visual plus pointer actions.
+        guard configuration.naming.keyboardEnabled else { return }
         let modifiers = Self.modifiers(of: event.modifierFlags)
         let characters = event.charactersIgnoringModifiers ?? ""
 
@@ -452,10 +521,13 @@ final class MissionControlSession {
     /// Dock activation reuses it. Used when Return raises a window (the overview is done at that
     /// point) and when the Dock leaves overview mode.
     private func dismiss() {
+        stopExitWatchdog()
+        presence.close()
         hidePanels()
         interaction.close()
         isActive = false
         suspendedUntil = Date().addingTimeInterval(0.6)
+        startIdleProbe()
     }
 
     /// Rebuilds every display's render panel from the current frames, configuration and live session

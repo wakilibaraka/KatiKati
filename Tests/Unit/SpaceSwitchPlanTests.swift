@@ -937,3 +937,148 @@ final class MissionControlScreenGeometryTests: XCTestCase {
         ), 0)
     }
 }
+
+/// MC-A/MC-B: the pure enter/exit machine, the strict thumbnail geometry, the per-frame tint budget
+/// and the badge packer. These run synchronously; the live probe is exercised by the session.
+final class MissionControlPresenceTests: XCTestCase {
+    func testEnterNeedsBothTheBackdropAndThumbnails() {
+        var presence = MissionControlPresence()
+        XCTAssertEqual(presence.observe(backdropVisible: false, thumbnailCount: 0), .none)
+        XCTAssertFalse(presence.isActive)
+        // A backdrop with no thumbnails is not an overview.
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 0), .none)
+        XCTAssertFalse(presence.isActive)
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 6), .enter)
+        XCTAssertTrue(presence.isActive)
+    }
+
+    func testRefreshWhileUpNeverReenters() {
+        var presence = MissionControlPresence()
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 3), .enter)
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 3), .none)
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 1), .none)
+        XCTAssertTrue(presence.isActive)
+    }
+
+    func testBackdropDisappearingExitsOnTheFirstProbe() {
+        var presence = MissionControlPresence()
+        _ = presence.observe(backdropVisible: true, thumbnailCount: 4)
+        XCTAssertEqual(presence.observe(backdropVisible: false, thumbnailCount: 0), .exit)
+        XCTAssertFalse(presence.isActive)
+        // Idempotent: a second inactive probe is not another teardown.
+        XCTAssertEqual(presence.observe(backdropVisible: false, thumbnailCount: 0), .none)
+    }
+
+    func testStaleThumbnailsAloneExit() {
+        var presence = MissionControlPresence()
+        _ = presence.observe(backdropVisible: true, thumbnailCount: 4)
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 0), .exit)
+        XCTAssertFalse(presence.isActive)
+    }
+
+    func testReentryAfterExitWorks() {
+        var presence = MissionControlPresence()
+        _ = presence.observe(backdropVisible: true, thumbnailCount: 2)
+        _ = presence.observe(backdropVisible: false, thumbnailCount: 0)
+        XCTAssertEqual(presence.observe(backdropVisible: true, thumbnailCount: 2), .enter)
+        XCTAssertTrue(presence.isActive)
+    }
+
+    func testCloseClearsState() {
+        var presence = MissionControlPresence()
+        _ = presence.observe(backdropVisible: true, thumbnailCount: 2)
+        presence.close()
+        XCTAssertFalse(presence.isActive)
+        XCTAssertEqual(presence.observe(backdropVisible: false, thumbnailCount: 0), .none)
+    }
+
+    func testThumbnailGeometryRejectsFullScreenAndUninsetFrames() {
+        let backdrop = CGRect(x: 0, y: 0, width: 1710, height: 1112)
+        // A normal full-screen window is the backdrop itself.
+        XCTAssertFalse(MissionControlThumbnailGeometry.isThumbnail(backdrop, within: backdrop))
+        // Hugging the edge: not properly inset.
+        XCTAssertFalse(MissionControlThumbnailGeometry.isThumbnail(
+            CGRect(x: 2, y: 2, width: 1700, height: 1100), within: backdrop
+        ))
+        // Inset, but still too much of the backdrop's area.
+        XCTAssertFalse(MissionControlThumbnailGeometry.isThumbnail(
+            CGRect(x: 8, y: 8, width: 1690, height: 1090), within: backdrop
+        ))
+        XCTAssertFalse(MissionControlThumbnailGeometry.isThumbnail(
+            CGRect(x: 40, y: 40, width: 60, height: 40), within: backdrop
+        ))
+        // A real Mission Control thumbnail.
+        XCTAssertTrue(MissionControlThumbnailGeometry.isThumbnail(
+            CGRect(x: 60, y: 70, width: 620, height: 780), within: backdrop
+        ))
+    }
+
+    func testTintBudgetWhispersEverythingButTheTarget() {
+        // The shipped default that produced the wash: 0.3 at trafficLight's 2.0 multiplier.
+        XCTAssertEqual(
+            MissionControlTintBudget.alpha(base: 0.3, tintMultiplier: 2.0, isEmphasised: true),
+            MissionControlTintBudget.emphasisedCap, accuracy: 0.0001
+        )
+        XCTAssertEqual(
+            MissionControlTintBudget.alpha(base: 0.3, tintMultiplier: 2.0, isEmphasised: false),
+            MissionControlTintBudget.whisperCap, accuracy: 0.0001
+        )
+        // Six overlapping thumbnails, one target: legible, nowhere near opaque.
+        let stacked: Double = 1 - pow(1.0 - 0.32, 1.0) * pow(1.0 - 0.05, 5.0)
+        XCTAssertLessThan(stacked, 0.6)
+        // The budget never raises a quieter palette.
+        XCTAssertEqual(
+            MissionControlTintBudget.alpha(base: 0.02, tintMultiplier: 1, isEmphasised: true),
+            0.02, accuracy: 0.0001
+        )
+        XCTAssertEqual(
+            MissionControlTintBudget.alpha(base: 0.02, tintMultiplier: 1, isEmphasised: false),
+            0.02, accuracy: 0.0001
+        )
+        XCTAssertEqual(MissionControlTintBudget.alpha(base: .nan, tintMultiplier: 2, isEmphasised: true), 0)
+        XCTAssertEqual(MissionControlTintBudget.alpha(base: -1, tintMultiplier: 2, isEmphasised: true), 0)
+    }
+
+    func testBadgeLayoutKeepsOnePerAppWithoutOverlap() {
+        let frames = (0..<6).map { index in
+            MissionControlWindowFrame(
+                id: UInt32(index + 1), bundleID: "app\(index)", appName: "App \(index)",
+                title: "Document \(index)",
+                frame: CGRect(x: 30, y: 20, width: 700, height: 900),
+                state: .standard, isFocused: false
+            )
+        }
+        let placements = MissionControlBadgeLayout.placements(
+            frames: frames, bounds: frames[0].frame, widthFor: { _ in 200 }
+        )
+        XCTAssertEqual(placements.count, 6)
+        for (index, placement) in placements.enumerated() {
+            for other in placements[(index + 1)...] {
+                XCTAssertFalse(placement.rect.intersects(other.rect),
+                               "badges \(placement.frameID) and \(other.frameID) collide")
+            }
+        }
+    }
+
+    func testBadgeLayoutPicksTheLargestThumbnailPerApp() {
+        let small = MissionControlWindowFrame(
+            id: 1, bundleID: "com.example.app", appName: "Example", title: "Small",
+            frame: CGRect(x: 40, y: 40, width: 300, height: 300), state: .standard, isFocused: false
+        )
+        let large = MissionControlWindowFrame(
+            id: 2, bundleID: "com.example.app", appName: "Example", title: "Large",
+            frame: CGRect(x: 500, y: 500, width: 600, height: 500), state: .standard, isFocused: false
+        )
+        let other = MissionControlWindowFrame(
+            id: 3, bundleID: "com.example.other", appName: "Other", title: nil,
+            frame: CGRect(x: 100, y: 100, width: 400, height: 400), state: .standard, isFocused: false
+        )
+        let placements = MissionControlBadgeLayout.placements(
+            frames: [small, other, large], bounds: CGRect(x: 0, y: 0, width: 1710, height: 1112),
+            widthFor: { _ in 180 }
+        )
+        XCTAssertEqual(placements.count, 2)
+        XCTAssertTrue(placements.contains(where: { $0.frameID == large.id }))
+        XCTAssertFalse(placements.contains(where: { $0.frameID == small.id }))
+    }
+}

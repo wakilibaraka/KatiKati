@@ -1000,8 +1000,11 @@ enum MissionControlDockProbe {
                 overview = true
                 continue
             }
-            guard layer == 0, ownerPID != ownPID, coverage < 0.9,
-                  bounds.width >= 80, bounds.height >= 50,
+            guard layer == 0, ownerPID != ownPID,
+                  let screen = screens.max(by: {
+                      Self.coverage(of: bounds, in: $0) < Self.coverage(of: bounds, in: $1)
+                  }),
+                  MissionControlThumbnailGeometry.isThumbnail(bounds, within: screen),
                   MissionControlScreenGeometry.isVisibleThumbnail(
                       bounds, screens: screens, primaryHeight: primaryHeight
                   ),
@@ -1024,8 +1027,9 @@ enum MissionControlDockProbe {
         return Probe(isActive: overview && !frames.isEmpty, frames: frames, dockReadable: overview)
     }
 
-    /// Thumbnails are one or two AX levels below the overview window. A candidate is a rect at least
-    /// 80×50 inside the overview and no wider than 80 % of it (the backdrop itself is excluded).
+    /// Thumbnails are one or two AX levels below the overview window. A candidate must pass the same
+    /// strict geometry as the CGWindow path: properly inset and no more than 72 % of the backdrop's
+    /// area, so the backdrop and ordinary full-size windows are never mistaken for thumbnails.
     private static func thumbnails(in element: AXUIElement, within bounds: CGRect, depth: Int = 0) -> [MissionControlWindowFrame] {
         guard depth < 3 else { return [] }
         var raw: CFTypeRef?
@@ -1034,9 +1038,8 @@ enum MissionControlDockProbe {
 
         var frames: [MissionControlWindowFrame] = []
         for child in children {
-            guard let rect = frame(of: child), rect.width >= 80, rect.height >= 50,
-                  bounds.contains(rect.insetBy(dx: 4, dy: 4)),
-                  rect.width <= bounds.width * 0.8, rect.height <= bounds.height * 0.8 else {
+            guard let rect = frame(of: child),
+                  MissionControlThumbnailGeometry.isThumbnail(rect, within: bounds) else {
                 frames.append(contentsOf: thumbnails(in: child, within: bounds, depth: depth + 1))
                 continue
             }

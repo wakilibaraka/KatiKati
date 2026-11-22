@@ -744,6 +744,17 @@ struct MissionControlSurface: View {
             ForEach(frames) { frame in
                 window(frame)
             }
+            if naming.showsWindowBadges, !frames.isEmpty {
+                ForEach(MissionControlBadgeLayout.placements(frames: frames, bounds: badgeBounds)) { placement in
+                    if let frame = frames.first(where: { $0.id == placement.frameID }),
+                       let badge = naming.badge(app: frame.appName, title: frame.title) {
+                        badgeContent(badge, bundleID: frame.bundleID)
+                            .frame(width: placement.rect.width, alignment: .leading)
+                            .position(x: placement.rect.midX, y: placement.rect.midY)
+                            .allowsHitTesting(false)
+                    }
+                }
+            }
             if let spaceTitle {
                 spacePill(spaceTitle)
             }
@@ -762,7 +773,13 @@ struct MissionControlSurface: View {
         let colour = colouring.borderColor(
             forBundleID: frame.bundleID, category: frame.category, state: frame.state
         )
-        let tint = min(0.5, colouring.tint(forBundleID: frame.bundleID, category: frame.category) * appearanceStyle.tintMultiplier)
+        // Only the frame under the pointer (or the keyboard target) gets a strong tint; every other
+        // frame whispers, so overlapping thumbnails can never stack into an opaque sheet.
+        let tint = MissionControlTintBudget.alpha(
+            base: colouring.tint(forBundleID: frame.bundleID, category: frame.category),
+            tintMultiplier: appearanceStyle.tintMultiplier,
+            isEmphasised: hovered || keyboardTargeted
+        )
         let opacity = MissionControlFilter.opacity(query: query, title: frame.title, app: frame.appName)
         let shape = RoundedRectangle(cornerRadius: presentation.cornerRadius, style: .continuous)
         return ZStack(alignment: .topLeading) {
@@ -776,9 +793,6 @@ struct MissionControlSurface: View {
             }
             appearanceBorder(shape: shape, categoryColour: colour)
             border(style, colour: colour, shape: shape)
-            if let badge = naming.badge(app: frame.appName, title: frame.title) {
-                badgeView(badge, bundleID: frame.bundleID)
-            }
             if hovered, showsButtons, let onAction {
                 HStack(spacing: 5) {
                     ForEach(configuration.actions.buttons.shownActions, id: \.self) { action in
@@ -801,9 +815,16 @@ struct MissionControlSurface: View {
         .accessibilityLabel(Text(verbatim: naming.badgeTitle(app: frame.appName, title: frame.title) ?? frame.appName))
     }
 
+    /// The union of every frame, which bounds where packed badges may land.
+    private var badgeBounds: CGRect {
+        guard let first = frames.first else { return .zero }
+        return frames.dropFirst().reduce(first.frame) { $0.union($1.frame) }
+    }
+
     /// The app icon and the two lines that name the window: app name bold, document title under it.
-    /// This is the part the default look leans on, since the border overlay is off.
-    private func badgeView(_ badge: MissionControlBadge, bundleID: String?) -> some View {
+    /// This is the part the default look leans on, since the border overlay is off. Placement is done
+    /// by `MissionControlBadgeLayout` in the surface's own coordinate space, not inside each frame.
+    private func badgeContent(_ badge: MissionControlBadge, bundleID: String?) -> some View {
         HStack(spacing: 5) {
             if naming.showsAppIcon {
                 if let icon = MissionControlAppIcon.image(for: bundleID) {
@@ -833,8 +854,6 @@ struct MissionControlSurface: View {
         .background { badgeBackground() }
         .overlay(Capsule().stroke(badgeStroke, lineWidth: 0.75))
         .frame(maxWidth: 230, alignment: .leading)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.badgePlacement))
-        .padding(8)
     }
 
     @ViewBuilder

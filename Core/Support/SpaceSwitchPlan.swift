@@ -337,6 +337,144 @@ struct MissionControlBadge: Equatable, Sendable {
     let title: String?
 }
 
+// MARK: - MC-A: enter/exit rules and strict thumbnail geometry
+
+/// What a probe means for the overlay. `.none` is the steady state; only a genuine transition asks
+/// the session to build or tear down panels.
+enum MissionControlPresenceAction: Equatable, Sendable {
+    case none, enter, exit
+}
+
+/// The overlay's enter/exit rules, kept free of AppKit so they can be pinned synchronously. Both the
+/// backdrop *and* at least one thumbnail are required to enter, and a single probe without them is an
+/// exit: the Dock posts no readable Mission Control notification on current macOS, so a missed exit
+/// used to leave the overlay painted over a normal desktop.
+struct MissionControlPresence: Equatable, Sendable {
+    private(set) var isActive = false
+
+    init(isActive: Bool = false) {
+        self.isActive = isActive
+    }
+
+    mutating func observe(backdropVisible: Bool, thumbnailCount: Int) -> MissionControlPresenceAction {
+        if backdropVisible, thumbnailCount > 0 {
+            guard !isActive else { return .none }
+            isActive = true
+            return .enter
+        }
+        guard isActive else { return .none }
+        isActive = false
+        return .exit
+    }
+
+    mutating func close() {
+        isActive = false
+    }
+}
+
+/// A Mission Control thumbnail is a scaled window inset inside the overview backdrop. Anything that
+/// fills the backdrop (a normal full-screen window behind the frontmost app) or that hugs its edge is
+/// rejected, so a false positive can never paint the desktop.
+enum MissionControlThumbnailGeometry {
+    static let minimumSize = CGSize(width: 80, height: 50)
+    /// Every thumbnail sits at least this far inside the backdrop.
+    static let backdropInset: CGFloat = 8
+    /// No single thumbnail takes more than this share of the backdrop's area.
+    static let maximumAreaFraction: Double = 0.72
+
+    static func isThumbnail(_ rect: CGRect, within backdrop: CGRect) -> Bool {
+        guard rect.width >= minimumSize.width, rect.height >= minimumSize.height,
+              backdrop.width > 0, backdrop.height > 0 else { return false }
+        guard backdrop.contains(rect.insetBy(dx: -backdropInset, dy: -backdropInset)) else { return false }
+        let area = Double(rect.width * rect.height) / Double(backdrop.width * backdrop.height)
+        return area <= maximumAreaFraction
+    }
+}
+
+// MARK: - MC-B: tint budget and badge packing
+
+/// Per-frame tint allowance. Every frame used to take `min(0.5, tint × multiplier)`, so six
+/// overlapping thumbnails at the default `trafficLight` multiplier stacked to an opaque sheet. Only
+/// the hovered/keyboard-focused frame may be strong; everything else whispers.
+enum MissionControlTintBudget {
+    static let emphasisedCap: Double = 0.32
+    static let whisperCap: Double = 0.05
+
+    static func alpha(base: Double, tintMultiplier: Double, isEmphasised: Bool) -> Double {
+        guard base.isFinite, tintMultiplier.isFinite else { return 0 }
+        let raw = max(0, base) * max(0, tintMultiplier)
+        return min(isEmphasised ? emphasisedCap : whisperCap, raw)
+    }
+}
+
+struct MissionControlBadgePlacement: Equatable, Sendable, Identifiable {
+    let frameID: MissionControlWindowFrame.ID
+    let rect: CGRect
+
+    var id: MissionControlWindowFrame.ID { frameID }
+}
+
+/// One badge per application, packed so no two collide. Badges used to be drawn inside every frame
+/// at its top edge, so full-height thumbnails piled into a single band at the top of the screen.
+enum MissionControlBadgeLayout {
+    static let height: CGFloat = 26
+    static let gap: CGFloat = 4
+    static let padding: CGFloat = 8
+    static let maximumWidth: CGFloat = 230
+
+    static func placements(
+        frames: [MissionControlWindowFrame],
+        bounds: CGRect,
+        widthFor: (MissionControlWindowFrame) -> CGFloat = { $0.title == nil ? 120 : 200 }
+    ) -> [MissionControlBadgePlacement] {
+        var placed: [CGRect] = []
+        var result: [MissionControlBadgePlacement] = []
+        for frame in representativeFrames(frames) {
+            let width = min(maximumWidth, max(96, widthFor(frame)))
+            var rect = CGRect(
+                x: frame.frame.minX + padding, y: frame.frame.minY + padding,
+                width: width, height: height
+            )
+            var attempts = 0
+            while placed.contains(where: { $0.intersects(rect) }), attempts < 24 {
+                rect.origin.y += height + gap
+                if rect.maxY > bounds.maxY - padding {
+                    rect.origin.y = bounds.minY + padding
+                    rect.origin.x += width + gap
+                }
+                attempts += 1
+            }
+            if rect.maxX > bounds.maxX - padding {
+                rect.origin.x = max(bounds.minX + padding, bounds.maxX - padding - width)
+            }
+            if rect.maxY > bounds.maxY - padding {
+                rect.origin.y = max(bounds.minY + padding, bounds.maxY - padding - height)
+            }
+            placed.append(rect)
+            result.append(MissionControlBadgePlacement(frameID: frame.id, rect: rect))
+        }
+        return result
+    }
+
+    /// The app's largest visible thumbnail carries its single badge; the rest only contribute area.
+    static func representativeFrames(_ frames: [MissionControlWindowFrame]) -> [MissionControlWindowFrame] {
+        var best: [String: MissionControlWindowFrame] = [:]
+        for frame in frames {
+            let key = (frame.bundleID ?? "name:\(frame.appName.lowercased())").lowercased()
+            if let current = best[key], area(current) >= area(frame) { continue }
+            best[key] = frame
+        }
+        return best.values.sorted { lhs, rhs in
+            if lhs.frame.minY != rhs.frame.minY { return lhs.frame.minY < rhs.frame.minY }
+            return lhs.frame.minX < rhs.frame.minX
+        }
+    }
+
+    private static func area(_ frame: MissionControlWindowFrame) -> CGFloat {
+        frame.frame.width * frame.frame.height
+    }
+}
+
 struct MissionControlNaming: Codable, Equatable, Sendable {
     var spaceLabels: [String: String]
     var showsSpaceTitles: Bool
