@@ -10,33 +10,29 @@ struct NotchMirrorPageView: View {
     @ObservedObject private var mirror = CameraMirrorService.shared
     @ObservedObject private var toggles = QuickToggleEngine.shared
     @ObservedObject private var agenda = ProductivityServices.shared.calendar
-
-    private var muted: Bool { toggles.states[.muteMic] ?? false }
+    /// The running-app census behind the call-platform chip. Read off the render pass: LaunchServices
+    /// answers slowly enough to hold the page swap while it does.
+    @State private var runningBundleIDs: [String] = []
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
+            // NP-4: the floating mic button over the preview was a second Mute next to the card's own.
             content
                 .aspectRatio(1, contentMode: .fit)
-                .overlay(alignment: .bottomTrailing) {
-                    Button { toggles.perform(.muteMic) } label: {
-                        Image(systemName: muted ? "mic.slash.fill" : "mic.fill")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.white)
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(muted ? Color.red.opacity(0.9) : Color.black.opacity(0.65)))
-                            .overlay(Circle().stroke(Color.white.opacity(0.22), lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
-                    .padding(6)
-                    .help(Text(verbatim: muted ? "Unmute Microphone" : "Mute Microphone"))
-                }
             MeetingControlsCard(mirror: mirror, cameraName: currentName)
             meetingCheckInCard
         }
         .onAppear {
+            // Only the cheap part runs before the first frame: `mirror.start()` hands the camera to its
+            // own lane and returns, so the swap is never waiting on a device opening.
             mirror.start()
             toggles.refresh()
+        }
+        .task {
+            // Everything that talks to EventKit or LaunchServices begins after the frame that carries
+            // the swap; each of those calls blocks the main thread for its own moment.
             agenda.startEvents()
+            runningBundleIDs = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
         }
         .onDisappear { mirror.stop() }
     }
@@ -44,9 +40,7 @@ struct NotchMirrorPageView: View {
     /// Right pane: next calendar event / detected call platform + one-click Join Session or Open Calendar.
     private var meetingCheckInCard: some View {
         let now = Date()
-        let activePlatform = MeetingDetectionPolicy.detectPlatform(
-            fromRunningBundleIDs: NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
-        )
+        let activePlatform = MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: runningBundleIDs)
         let upcomingEvent = agenda.events
             .sorted { $0.start < $1.start }
             .first { $0.end >= now } ?? agenda.events.first
@@ -110,23 +104,17 @@ struct NotchMirrorPageView: View {
                     Text(verbatim: upcomingEvent?.isJoinable == true ? "Join Session" : (upcomingEvent != nil ? "Open Event" : "Open Calendar"))
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                 }
-                .foregroundStyle(.black)
+                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
-                .background(Capsule().fill(Color.white))
+                .background(Capsule().fill(Color.white.opacity(0.14)))
+                .overlay(Capsule().strokeBorder(Color.white.opacity(0.12), lineWidth: 1))
             }
             .buttonStyle(.plain)
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
+        .notchCard()
     }
 
     @ViewBuilder
@@ -135,16 +123,34 @@ struct NotchMirrorPageView: View {
         case .ready:
             CameraMirrorPreview(session: mirror.session)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                // NP-4: the preview wears the same 18 pt radius and rim weight as the two cards beside
+                // it; at 10 pt with a 0.12 rim it read as a different kind of object.
+                .clipShape(RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                        .strokeBorder(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: 1)
                 )
+                // The layer is mounted from the start so frames appear the moment the session runs; the
+                // warm-up pane only covers it until then.
+                .overlay { if mirror.isStarting { opening } }
         case .noCameras:
-            message(Text("No Camera Found"), door: false)
+            // The page swaps first and the camera opens behind it, so the first moment is a warm-up, not a
+            // verdict: "No Camera Found" would be a lie on every visit where there is one.
+            if mirror.isStarting { opening } else { message(Text("No Camera Found"), door: false) }
         case .denied:
             message(Text("Camera Access Is Off"), door: true)
         }
+    }
+
+    /// Warm-up pane for the moment between the page swap and the camera being open.
+    private var opening: some View {
+        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+            .fill(Color.white.opacity(0.06))
+            .overlay(ProgressView().controlSize(.small).tint(.white.opacity(0.45)))
+            .overlay(
+                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+                    .strokeBorder(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: 1)
+            )
     }
 
     private func message(_ text: Text, door: Bool) -> some View {
@@ -212,18 +218,13 @@ private struct MeetingControlsCard: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
-        .onAppear {
-            toggles.refresh()
-            inputs = AudioOutputSwitcher.devices(input: true)
+        .notchCard()
+        .task {
+            // CoreAudio's device list is a synchronous HAL query: it fills in after the swap has drawn.
             brightness = DisplayServicesBrightness.current()
+            inputs = await Task.detached(priority: .userInitiated) {
+                AudioOutputSwitcher.devices(input: true)
+            }.value
         }
     }
 

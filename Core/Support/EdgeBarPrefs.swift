@@ -181,6 +181,34 @@ enum TendederoCaptureMode: String, CaseIterable, Codable, Sendable {
     case screenshotsAndManualClipboard
 }
 
+/// NP-1: what the clothesline may do on its own. A copy, a screenshot or a new link must never take the screen
+/// while the user is working, so both switches ship off and an unset key reads the same as an explicit "off".
+/// The Clipboard page's toggles are the only opt-in. The ids are stored; never rename them.
+enum TendederoPolicy {
+    /// `TendederoCaptureMode`'s raw value.
+    static let captureModeKey = "com.katikati.tendedero.captureMode"
+    /// Whether a new screenshot opens the Side Deck on the Clothesline for a short peek.
+    static let showSidebarOnNewItemKey = "com.katikati.tendedero.showSidebarOnNewItem"
+
+    static let defaultCaptureMode: TendederoCaptureMode = .screenshotsAndManualClipboard
+    static let showSidebarOnNewItemDefault = false
+
+    /// An unset key — or a raw value a future build wrote — reads as the quiet mode.
+    static func captureMode(_ defaults: UserDefaults = .standard) -> TendederoCaptureMode {
+        guard let raw = defaults.string(forKey: captureModeKey),
+              let mode = TendederoCaptureMode(rawValue: raw) else { return defaultCaptureMode }
+        return mode
+    }
+
+    static func showSidebarOnNewItem(_ defaults: UserDefaults = .standard) -> Bool {
+        defaults.object(forKey: showSidebarOnNewItemKey) as? Bool ?? showSidebarOnNewItemDefault
+    }
+
+    static func setShowSidebarOnNewItem(_ on: Bool, defaults: UserDefaults = .standard) {
+        defaults.set(on, forKey: showSidebarOnNewItemKey)
+    }
+}
+
 enum TendederoCapacityMode: Equatable, Codable, Sendable {
     case capped(maxUnpinned: Int, expireAfter: TimeInterval?)
     case unlimited

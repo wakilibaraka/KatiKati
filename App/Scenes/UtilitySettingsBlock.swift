@@ -10,7 +10,7 @@ struct UtilitySettingsBlock: View {
     @ObservedObject private var keyGuard = KeyGuardService.shared
     @ObservedObject private var cheatSheet = ShortcutCheatSheetService.shared
     @AppStorage(ClipboardMonitor.soundsKey) private var clipboardSounds = true
-    @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = true
+    @AppStorage(ClipboardMonitor.notchToastKey) private var clipboardToast = ClipboardToastDefaults.enabledByDefault
     @AppStorage(ClipboardToastBadge.dockTileKey) private var dockClipboardTile = false
     @ObservedObject private var tendedero = TendederoClotheslineController.shared
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var clipboardIgnorePatterns = ""
@@ -840,7 +840,7 @@ struct ClipboardSettingsPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
     @AppStorage(ClipboardMonitor.soundsKey) private var sounds = true
-    @AppStorage(ClipboardMonitor.notchToastKey) private var toast = true
+    @AppStorage(ClipboardMonitor.notchToastKey) private var toast = ClipboardToastDefaults.enabledByDefault
     @AppStorage(ClipboardToastBadge.dockTileKey) private var dockTile = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var patterns = ""
     @AppStorage(ClipboardMonitor.keepDaysKey) private var keepDays = 0
@@ -856,6 +856,7 @@ struct ClipboardSettingsPane: View {
     @AppStorage(ClipboardSettingsKeys.popupPosition) private var popupPosition = ClipboardPopupPosition.atCursor.rawValue
     @AppStorage(ClipboardSettingsKeys.sortBy) private var sortBy = ClipboardSortOrder.lastCopied.rawValue
     @ObservedObject private var tendedero = TendederoClotheslineController.shared
+    @AppStorage(TendederoPolicy.showSidebarOnNewItemKey) private var showSidebarOnNewItem = TendederoPolicy.showSidebarOnNewItemDefault
 
     @State private var showAddPattern = false
     @State private var newPattern = ""
@@ -905,6 +906,8 @@ struct ClipboardSettingsPane: View {
                     set: { tendedero.setCaptureMode($0 ? .screenshotsAndAutoClipboard : .screenshotsAndManualClipboard) }
                 )
             )
+            SettingsDivider()
+            SettingsToggleRow(Text("Show Sidebar for New Items"), isOn: $showSidebarOnNewItem)
             SettingsDivider()
             HStack(spacing: 8) {
                 Button("Ignore Next Copy") { monitor.ignoreNextCopy() }

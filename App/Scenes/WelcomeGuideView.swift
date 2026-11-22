@@ -121,7 +121,7 @@ struct WelcomeGuideLayoutContext {
     /// DP-8 step 3: the two triggers the guide offers.
     var launcherDoubleTap = false
     var onSetLauncherDoubleTap: (Bool) -> Void = { _ in }
-    var clipboardToastEnabled = true
+    var clipboardToastEnabled = ClipboardToastDefaults.enabledByDefault
     var onSetClipboardToast: (Bool) -> Void = { _ in }
 }
 

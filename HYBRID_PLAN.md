@@ -6737,3 +6737,78 @@ first version of the `.centered` capsule allowance leaked 20 pt into wing-less b
 (`testCenteredModeHugsContent` went 389 → 369), so it is gated on `hasAnyActiveWing`; and the wing math
 assumes the capsule the bar really has, so the test builds it with `stripCapsuleTargetFrame` rather than
 passing `.zero`, which had put the right wing 62 pt short of the margin.
+
+## NP — Notch pages: one boring.notch surface, one top bar, a quiet Clothesline (started 2026-11-22)
+
+Plan approved 2026-11-22 in four slices: **NP-1** the Clothesline defaults (below); **NP-2** one shared
+`NotchCardSurface` plus a single top bar that replaces the nine 19 pt icon buttons and the duplicate bottom
+page dots; **NP-3** Music / AI / Calendar content (no truncated pills, no duplicated `Sources:`, no empty
+`No events` cards); **NP-4** Keep Awake fit, Camera, Downloads / Storage and Studio Hub. Card fill stays
+`0.10` — the 0.06 value let desktop text read through the cards (live-checked 2026-10-17) — and the 18 pt
+card radius stays concentric inside the 24–26 pt shell.
+
+### NP-1 — the Clothesline stops taking the screen (landed 2026-11-22)
+
+| Default | Was | Now | Why |
+|---|---|---|---|
+| `TendederoCaptureMode` (`com.katikati.tendedero.captureMode`) | auto-hang when the key was unset | manual | `⌘C` no longer hangs the copy, so nothing can peek the deck on a copy. Clipboard → “Hang Copied Images & Links on Sidebar” is the opt-in. |
+| Side Deck peek at a new screenshot (`com.katikati.tendedero.showSidebarOnNewItem`) | always | off | Screenshots still hang themselves; only the 2.5 s deck peek needs the new “Show Sidebar for New Items” switch beside it. |
+| Notch clipboard toast (`com.katikati.clipboard.notchToast`) | on when unset, and registration-defaulted to `true` | off | The toast was the other thing appearing on every copy. Clipboard → “Copy & Paste Glimpse Notifications” turns it back on. |
+
+All three read through the unset-key idiom (`object(forKey:) as? Bool ?? default`) in `TendederoPolicy` and
+`ClipboardToastDefaults`, so a never-set key and an explicit off behave the same, while a deliberately stored
+`screenshotsAndAutoClipboard` / `true` from an earlier build survives the change. The onboarding guide's
+toast row reads the same default, so a fresh install is offered the switch instead of having it silently on.
+Tests: `TendederoPolicyTests` pins the quiet defaults, the explicit opt-ins and the stale-raw-value fallback
+(`Tests/Unit/EdgeBarPrefsTests.swift`). No `project.pbxproj` change; the one new string ships in all 12
+locales.
+
+### NP-2 — one card surface, one top bar (landed 2026-11-22)
+
+- `NotchCardSurface` + `.notchCard()` live in `NotchHomeView.swift` (no new file): 0.10 white fill, 1 pt
+  0.08 rim, 18 pt continuous radius. Adopted by AI, Music, Calendar, Downloads, Storage, Camera, Keep Awake
+  and Studio Hub, so no page carries a private fill, border or radius.
+- `NotchPageChrome` holds the bar's numbers (22 pt pill, 118 pt title, 150 pt right cluster) and
+  `leftEarWidth`/`fits`; `testPagePillAndRightClusterFitBesideTheCutout` pins them against the 185/212 pt
+  notch widths.
+- Header: the nine 19 pt icon buttons became one capsule naming the active page and opening the same roster;
+  volume, battery and settings stay right. The pill is a fixed 118 pt title frame, so it does not change
+  width as pages change.
+- `NotchIslandView` lost `pageIndicatorDots` and `pageAccent`; the page area keeps the height the dots took.
+
+### NP-3 — Music / AI / Calendar (landed 2026-11-22)
+
+- **AI:** the three header pills (Loadout / cap / Receipt) and the savings badge asked for ~266 pt in a
+  279 pt card and truncated to `Loado…`, `Cap:…`, `Re…`; they are one ellipsis menu now, with savings under
+  the cost. The duplicate `Sources:` footer is gone (Card A names the stores once). The Eyes/Stretch/Hydrate
+  rings are gone from this page, and with them the unused `BreatherRingsMiniView` (its only reference) and
+  the now-dead `Background run` catalog entry.
+- **Music:** the 175 pt companion card squeezed the title into a marquee that was caught mid-scroll in every
+  capture (clipped on both edges) and, when only the output picker filled it, drew an almost-empty card. The
+  page is one full-width card; title/artist are still text with `minimumScaleFactor(0.8)`; the play button is
+  a 0.16 white disc instead of a solid white circle.
+- **Calendar:** the date card wore a dark-red fill and a red rim; it uses the card token and keeps the accent
+  only in the numeral, the day pills and the `TODAY` chip (accent on 0.15 instead of white on solid red). An
+  empty day now shows `No events` plus a `New Event` pill that opens Calendar on the selected date (both keys
+  already existed).
+
+### NP-4 — Keep Awake, Camera, Downloads / Storage, Studio Hub (landed 2026-11-22)
+
+- **Keep Awake:** four stacked rows with a title and a detail line asked for more than the 132 pt body and the
+  floor row was clipped by the panel. Rows are one 28 pt line (detail in `help`), chips are 24 pt, the floor
+  row 26 pt, and the three-row agent list is gone: 118 pt total.
+- **Camera:** the floating mic button over the preview was a second Mute beside the card's own; removed. The
+  white `Open Calendar` CTA is a 0.14 white capsule with a rim, and the preview now uses the cards' 18 pt
+  radius and 0.08 rim.
+- **Downloads:** the solid cyan `Download` capsule is a translucent white capsule; empty states moved from
+  9 pt at 0.25 to 9.5 pt at 0.4; the input placeholder is `Paste magnet or link` so it no longer truncates.
+- **Storage:** cards carry the rim; the cyan 10 pt text links are white 10.5 pt.
+- **Studio Hub:** the shelf cards' 0.28 accent border and accent fill are the card token; the accent survives
+  only in glyphs and pills inside a card.
+
+**Live check (2026-11-22, `build/shots/np-*.png`).** Every page was opened through the new pill on the real
+notch and captured: Downloads, Storage, AI, Music, Calendar, Studio Hub, Teleprompter, Camera, Keep Awake.
+No page clips vertically, no title truncates, one card token on every page and both sides of the bar line up.
+The Camera page needed a ~2.5 s settle after the page change (the capture session starts first), which is why
+an early shot showed the previous page. Clipboard check: with the pointer away from the notch, a `pbcopy` left
+the left edge and the closed notch unchanged after 1 s and after 3 s — no Side Deck, no toast.

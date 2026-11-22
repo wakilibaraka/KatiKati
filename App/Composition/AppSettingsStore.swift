@@ -525,7 +525,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.dockWingTelemetryIOHIDEnabled: false,
             Keys.dockWingFriendsContactsEnabled: false,
             ClipboardSettingsKeys.soundsKey: true,
-            ClipboardSettingsKeys.notchToastKey: true,
+            ClipboardSettingsKeys.notchToastKey: ClipboardToastDefaults.enabledByDefault,
             DroppyShelfConfigStore.hiddenKey: DroppyShelfConfigStore.encodeHidden(DroppyShelfConfigStore.defaultHidden)
         ])
 

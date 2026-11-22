@@ -78,22 +78,23 @@ struct DroppyShelfView: View {
         }
     }
 
+    /// NP-4: the shelf cards wore the accent as a 0.28 blue border and a tinted fill, which is why Studio
+    /// Hub read as a different product from the rest of the notch. They now wear the page's one card token;
+    /// the accent survives only in the small glyphs and pills inside the card.
     private func shelfCard<C: View>(compact: Bool, @ViewBuilder _ content: () -> C) -> some View {
-        let shape = RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
         return content()
-            .padding(compact ? 9 : NotchLayoutSpec.cardPadding)
+            .padding(compact ? 9 : NotchDesignSpec.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background {
                 if glassMaterial == .liquidGlass {
                     shape.fill(.ultraThinMaterial)
-                        .overlay(shape.fill(accentColor.opacity(0.08)))
                 } else {
-                    let opacity = glassMaterial == .dynamicGlass ? 0.11 : 0.06
-                    shape.fill(Color.white.opacity(opacity))
-                        .overlay(shape.fill(accentColor.opacity(glassMaterial == .dynamicGlass ? 0.05 : 0.0)))
+                    shape.fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
                 }
             }
-            .overlay(shape.strokeBorder(accentColor.opacity(glassMaterial == .solidOLED ? 0.14 : 0.28), lineWidth: 1))
+            .overlay(shape.strokeBorder(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity),
+                                        lineWidth: NotchDesignSpec.cardStrokeWidth))
     }
 }
 

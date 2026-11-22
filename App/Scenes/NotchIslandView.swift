@@ -68,7 +68,7 @@ struct NotchIslandView: View {
     @ObservedObject private var feed = LiveActivityFeed.shared
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
-    @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page strip
+    @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page pill's roster
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.dockChips.rawValue
     @AppStorage(NotchBehavior.musicBatteryKey) private var musicBattery = true
@@ -181,17 +181,15 @@ struct NotchIslandView: View {
                     closedContent(activity).padding(.horizontal, 14).transition(Self.closedFade)
                 } else if model.event == nil {
                     // Compact skin: the same pages, laid out at full size and scaled to the smaller panel.
+                    // NP-2: no dot strip under the page — the header's page pill is the only roster control,
+                    // so the cards keep the height the dots used to take.
                     let full = NotchGeometry.openSize
                     let scale = model.openSize.width / full.width
-                    VStack(spacing: 0) {
-                        NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                            .transition(openTransition(style))
-                        Spacer(minLength: 0)
-                        pageIndicatorDots
-                    }
-                    .frame(width: full.width, height: full.height, alignment: .top)
-                    .scaleEffect(scale, anchor: .top)
-                    .frame(width: full.width * scale, height: full.height * scale, alignment: .top)
+                    NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                        .transition(openTransition(style))
+                        .frame(width: full.width, height: full.height, alignment: .top)
+                        .scaleEffect(scale, anchor: .top)
+                        .frame(width: full.width * scale, height: full.height * scale, alignment: .top)
                 } else {
                     openContent(activity).padding(.horizontal, 24).transition(openTransition(style))
                 }
@@ -296,35 +294,6 @@ struct NotchIslandView: View {
             }
         }
         return accepted
-    }
-
-    /// The playing artwork's accent, white when nothing is playing; tints the page dots on every page.
-    private var pageAccent: Color {
-        ArtworkAccentCache.accent(for: feed.nowPlayingState.isPlaying ? feed.nowPlayingState.artworkData : nil)
-            .map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .white
-    }
-
-    private var pageIndicatorDots: some View {
-        HStack(spacing: 6) {
-            ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
-                // A Button, not a capsule with a tap gesture: the gesture shape never surfaced as an
-                // accessibility element, so VoiceOver saw nine nameless dots (live-checked 2026-10-17).
-                Button {
-                    withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response, dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
-                        model.goToPage(page)
-                    }
-                } label: {
-                    Capsule()
-                        .fill(model.activePage == page ? pageAccent.opacity(0.95) : Color.white.opacity(0.25))
-                        .frame(width: model.activePage == page ? 18 : 6, height: 4)
-                }
-                .buttonStyle(.plain)
-                .contentShape(Rectangle().inset(by: -4))
-                .accessibilityLabel(Text(page.title))
-                .help(Text(page.title))
-            }
-        }
-        .padding(.bottom, 6)
     }
 
     // MARK: Closed — glyph left of the notch, value right of it

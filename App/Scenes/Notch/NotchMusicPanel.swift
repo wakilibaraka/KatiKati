@@ -56,8 +56,17 @@ struct NotchMusicPanel: View {
                             }
                             .padding(.horizontal, 6).padding(.vertical, 2)
                             .background(Capsule().fill((state.isPlaying ? accent(state) : Color.orange).opacity(0.16)))
-                            MarqueeText(text: state.title ?? "", font: .system(size: 15, weight: .bold, design: .rounded), nearEnd: (state.progress(at: Date()) ?? 0) > 0.88)
-                            MarqueeText(text: state.artist ?? "", font: .system(size: 12)).foregroundStyle(.white.opacity(0.6))
+                            // NP-3: a still title that shrinks before it truncates. The marquee started
+                            // scrolling after 1.2 s, so every capture clipped the title on both edges.
+                            Text(verbatim: state.title ?? "")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Text(verbatim: state.artist ?? "")
+                                .font(.system(size: 12))
+                                .foregroundStyle(.white.opacity(0.6))
+                                .lineLimit(1)
                         }
                         .opensSourceApp(state.bundleIdentifier)
                         Spacer(minLength: 0)
@@ -151,9 +160,10 @@ struct NotchMusicPanel: View {
             Button { feed.previousTrack() } label: { Image(systemName: "backward.end.fill").font(.system(size: 15)) }
             Button { feed.togglePlayPause() } label: {
                 Image(systemName: state.isPlaying && !isIdle ? "pause.fill" : "play.fill")
-                    .font(.system(size: 15, weight: .bold)).foregroundStyle(.black)
-                    .frame(width: 32, height: 32)
-                    .background(Circle().fill(Color.white))
+                    .font(.system(size: 14, weight: .bold)).foregroundStyle(.white)
+                    .frame(width: 30, height: 30)
+                    .background(Circle().fill(Color.white.opacity(0.16)))
+                    .overlay(Circle().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
             }
             Button { feed.nextTrack() } label: { Image(systemName: "forward.end.fill").font(.system(size: 15)) }
             Button { showQueuePopover.toggle() } label: {
@@ -184,98 +194,16 @@ struct NotchMusicPanel: View {
 /// synchronized LRC lyrics & audio output companion panel.
 struct NotchMusicPageView: View {
     @ObservedObject var feed: LiveActivityFeed
-    @ObservedObject private var lyricsStore = LyricsStore.shared
-    @AppStorage(LyricsTrack.enabledKey) private var showLyrics = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let state = feed.nowPlayingState
         let isIdle = (state.title ?? "").isEmpty
-        HStack(spacing: NotchDesignSpec.cardSpacing) {
-            NotchMusicPanel(feed: feed, isIdle: isIdle)
-                .padding(NotchDesignSpec.cardPadding)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .background(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                                .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                        )
-                )
-
-            if !isIdle {
-                companionCard(state)
-                    .frame(width: 175)
-                    .padding(NotchDesignSpec.cardPadding)
-                    .frame(maxHeight: .infinity, alignment: .topLeading)
-                    .background(
-                        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                            .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                                    .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                            )
-                    )
-            }
-        }
-    }
-
-    private func companionCard(_ state: NowPlayingState) -> some View {
-        let accentColor = ArtworkAccentCache.accent(for: state.artworkData).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? .cyan
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 5) {
-                Image(systemName: showLyrics ? "quote.bubble.fill" : "hifispeaker.fill")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(accentColor)
-                Text(verbatim: showLyrics ? "Lyrics" : "Now Playing")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
-                Spacer(minLength: 0)
-            }
-
-            if showLyrics {
-                TimelineView(.periodic(from: .now, by: 1)) { ctx in
-                    let fraction = state.progress(at: ctx.date) ?? 0
-                    let elapsed = fraction * (state.duration ?? 0)
-                    let lines = lyricsStore.lines(title: state.title, artist: state.artist)
-                    let window = LyricTimelineMatcher.window(in: lines, at: elapsed, windowSize: 4)
-                    if window.isEmpty {
-                        Text(verbatim: "No synced lyrics found")
-                            .font(.system(size: 10.5))
-                            .foregroundStyle(.white.opacity(0.45))
-                            .frame(maxHeight: .infinity)
-                    } else {
-                        VStack(alignment: .leading, spacing: 4) {
-                            ForEach(Array(window.enumerated()), id: \.offset) { _, line in
-                                let active = (line.text == LyricsTrack.activeLine(in: lines, at: elapsed))
-                                Text(verbatim: line.text)
-                                    .font(.system(size: active ? 11.5 : 10, weight: active ? .bold : .regular, design: .rounded))
-                                    .foregroundStyle(active ? .white : .white.opacity(0.45))
-                                    .lineLimit(2)
-                            }
-                        }
-                    }
-                }
-            } else {
-                Spacer(minLength: 0)
-                MusicEqualizerBars(isActive: state.isPlaying && !reduceMotion, tint: accentColor)
-                    .frame(height: 36)
-                    .frame(maxWidth: .infinity)
-                Spacer(minLength: 0)
-                AudioOutputMenu {
-                    HStack(spacing: 4) {
-                        Image(systemName: "airplayaudio").font(.system(size: 10, weight: .semibold))
-                        Text(verbatim: "Output").font(.system(size: 10, weight: .semibold))
-                        Spacer(minLength: 0)
-                        Image(systemName: "chevron.up.chevron.down").font(.system(size: 8))
-                    }
-                    .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(Capsule().fill(Color.white.opacity(0.12)))
-                    .foregroundStyle(.white.opacity(0.85))
-                }
-            }
-        }
+        // NP-3: one full-width player. The 175 pt companion squeezed the title and, when only the
+        // output picker filled it, drew an almost-empty card; the output menu already lives in transport.
+        NotchMusicPanel(feed: feed, isIdle: isIdle)
+            .padding(NotchDesignSpec.cardPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .notchCard()
     }
 }
 

@@ -661,12 +661,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
             ProductivityServices.shared.clipboard.onRecorded = { [weak self] text in
-                let toastOn = UserDefaults.standard.object(forKey: ClipboardMonitor.notchToastKey) as? Bool ?? true
+                let toastOn = ClipboardToastDefaults.isEnabled()
                 guard toastOn, ClipboardToastPolicy.shouldToast(text) else { return }
                 self?.liveEventCenter.deliver(.clipboardCopied(preview: ClipboardHistory.previewLine(text)), now: Date())
             }
             ProductivityServices.shared.clipboard.onPasted = { [weak self] text in
-                let toastOn = UserDefaults.standard.object(forKey: ClipboardMonitor.notchToastKey) as? Bool ?? true
+                let toastOn = ClipboardToastDefaults.isEnabled()
                 guard toastOn, ClipboardToastPolicy.shouldToast(text) else { return }
                 self?.liveEventCenter.deliver(.clipboardPasted(preview: ClipboardHistory.previewLine(text)), now: Date())
             }
@@ -931,7 +931,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     .launcher,
                     on ? .doubleTap(.leftCommand) : ShortcutAction.launcher.defaultTrigger)
             },
-            clipboardToastEnabled: UserDefaults.standard.object(forKey: ClipboardMonitor.notchToastKey) as? Bool ?? true,
+            clipboardToastEnabled: ClipboardToastDefaults.isEnabled(),
             onSetClipboardToast: { on in UserDefaults.standard.set(on, forKey: ClipboardMonitor.notchToastKey) }
         )
         let content = WelcomeGuideWindowContent(

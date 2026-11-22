@@ -56,6 +56,8 @@ final class WindowDrawerController: ObservableObject {
         }
         applyEdgeHover()
         TendederoClotheslineController.shared.onNewScreenshot = { [weak self] in
+            // NP-1: the screenshot still hangs itself; only the deck peek needs the owner's opt-in.
+            guard TendederoPolicy.showSidebarOnNewItem() else { return }
             self?.peekTendedero()
         }
         TendederoClotheslineController.shared.start()

@@ -22,6 +22,19 @@ final class NotchLayoutSpecTests: XCTestCase {
         XCTAssertEqual(NotchLayoutSpec.openPanelSize(screenWidth: 100, closedWidth: 185).width, 185, "never narrower than the notch")
     }
 
+    // NP-2: the page pill replaced nine icons; it has to fit the ear the header leaves beside the camera.
+    func testPagePillAndRightClusterFitBesideTheCutout() {
+        for closed in [CGFloat(185), 212] {
+            XCTAssertTrue(NotchPageChrome.fits(openWidth: 640, closedWidth: closed), "closed \(closed)")
+            XCTAssertGreaterThanOrEqual(NotchPageChrome.leftEarWidth(openWidth: 640, closedWidth: closed),
+                                        NotchPageChrome.pillWidth())
+        }
+        XCTAssertEqual(NotchPageChrome.leftEarWidth(openWidth: 100, closedWidth: 185), 0)
+        XCTAssertEqual(NotchPageChrome.leftEarWidth(openWidth: 640, closedWidth: 185),
+                       (640 - 185) / 2 - 4, accuracy: 0.001)
+        XCTAssertGreaterThan(NotchPageChrome.pillHeight, 0)
+    }
+
     func testHeaderHeightFollowsNotchButFitsButtons() {
         XCTAssertEqual(NotchLayoutSpec.headerHeight(closedHeight: 32), 32)
         XCTAssertEqual(NotchLayoutSpec.headerHeight(closedHeight: 10), NotchLayoutSpec.headerButtonSize)

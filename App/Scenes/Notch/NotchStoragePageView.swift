@@ -51,10 +51,7 @@ struct NotchStoragePageView: View {
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-        )
+        .notchCard()
     }
 
     private func rows(_ items: [StorageItem]) -> some View {
@@ -88,8 +85,8 @@ struct NotchStoragePageView: View {
             cleaner.isScanning ? Text("Scanning…") : Text("Review Caches…")
         }
             .buttonStyle(.plain)
-            .font(.system(size: 10, weight: .semibold, design: .rounded))
-            .foregroundStyle(.cyan)
+            .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white.opacity(0.85))
             .disabled(cleaner.isScanning)
     }
 
@@ -108,8 +105,8 @@ struct NotchStoragePageView: View {
             Text(verbatim: "Leftovers…")
         }
         .buttonStyle(.plain)
-        .font(.system(size: 10, weight: .semibold, design: .rounded))
-        .foregroundStyle(.cyan)
+        .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+        .foregroundStyle(.white.opacity(0.85))
     }
 
     private func reviewCachesTapped() {
@@ -157,7 +154,7 @@ struct NotchStoragePageView: View {
             }
         }
         .buttonStyle(.plain)
-        .font(.system(size: 10, weight: .semibold, design: .rounded))
-        .foregroundStyle(.cyan)
+        .font(.system(size: 10.5, weight: .semibold, design: .rounded))
+        .foregroundStyle(.white.opacity(0.85))
     }
 }

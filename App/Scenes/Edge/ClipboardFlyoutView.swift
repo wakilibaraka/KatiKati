@@ -251,15 +251,13 @@ struct ClipboardFlyoutView: View {
 @MainActor
 final class TendederoClotheslineController: NSObject, ObservableObject, QLPreviewPanelDataSource {
     static let shared = TendederoClotheslineController()
-    static let captureModeKey = "com.katikati.tendedero.captureMode"
     static let unlimitedKey = "com.katikati.tendedero.unlimited"
 
     @Published private(set) var store = TendederoStore()
     @Published var selectedID: UUID?
     @Published var copiedID: UUID?
-    @Published var captureMode: TendederoCaptureMode = {
-        TendederoCaptureMode(rawValue: UserDefaults.standard.string(forKey: TendederoClotheslineController.captureModeKey) ?? "") ?? .screenshotsAndAutoClipboard
-    }()
+    /// NP-1: manual unless the owner opted into auto-hanging, so a copy never takes the screen on its own.
+    @Published var captureMode: TendederoCaptureMode = TendederoPolicy.captureMode()
     @Published var unlimitedCapacity: Bool = UserDefaults.standard.bool(forKey: TendederoClotheslineController.unlimitedKey)
 
     var onNewScreenshot: (() -> Void)?
@@ -282,7 +280,7 @@ final class TendederoClotheslineController: NSObject, ObservableObject, QLPrevie
 
     func setCaptureMode(_ mode: TendederoCaptureMode) {
         captureMode = mode
-        UserDefaults.standard.set(mode.rawValue, forKey: Self.captureModeKey)
+        UserDefaults.standard.set(mode.rawValue, forKey: TendederoPolicy.captureModeKey)
     }
 
     func setUnlimitedCapacity(_ unlimited: Bool) {

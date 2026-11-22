@@ -177,6 +177,17 @@ enum ClipboardSettingsKeys {
     static let notchToastKey = "com.katikati.clipboard.notchToast"
 }
 
+/// NP-1: the notch toast for a recorded copy is off unless the user asks for it (Clipboard → Behaviour →
+/// "Copy & Paste Glimpse Notifications"). One reader for the three delivery sites and the settings row, so an
+/// unset key, an explicit off and the registration default can never disagree.
+enum ClipboardToastDefaults {
+    static let enabledByDefault = false
+
+    static func isEnabled(_ defaults: UserDefaults = .standard) -> Bool {
+        defaults.object(forKey: ClipboardSettingsKeys.notchToastKey) as? Bool ?? enabledByDefault
+    }
+}
+
 /// Slice MC-1 — how the history list is ordered.
 enum ClipboardSortOrder: String, CaseIterable, Identifiable {
     case lastCopied, firstCopied, mostUsed

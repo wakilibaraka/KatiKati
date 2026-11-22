@@ -145,6 +145,38 @@ enum NotchLayoutSpec {
     }
 }
 
+/// NP-2: the one top bar the open notch wears. The old header drew nine 19 pt buttons with 10 pt glyphs
+/// left of the cutout; the replacement is a single capsule that names the page it is on and opens the
+/// same roster. The numbers live here so "does the pill still fit beside the camera?" is a test.
+enum NotchPageChrome {
+    static let pillHeight: CGFloat = 22
+    static let pillHorizontalPadding: CGFloat = 9
+    static let pillSpacing: CGFloat = 5
+    static let pillIcon: CGFloat = 10
+    static let pillChevron: CGFloat = 7
+    static let pillTitleSize: CGFloat = 10.5
+    /// A title never takes the whole ear; the volume, battery and settings still need the other side.
+    static let pillMaxTitleWidth: CGFloat = 118
+    /// Volume (65) + battery chip (≈50) + gear (22) + two 6 pt gaps, rounded up.
+    static let rightClusterWidth: CGFloat = 150
+
+    /// The room left of the camera cutout in the open panel, minus the panel's own 4 pt inset.
+    static func leftEarWidth(openWidth: CGFloat, closedWidth: CGFloat) -> CGFloat {
+        max(0, (openWidth - closedWidth) / 2 - 4)
+    }
+
+    /// The pill at its widest title.
+    static func pillWidth(titleWidth: CGFloat = pillMaxTitleWidth) -> CGFloat {
+        2 * pillHorizontalPadding + pillIcon + pillChevron + 2 * pillSpacing + titleWidth
+    }
+
+    /// Both sides fit beside the cutout without touching it.
+    static func fits(openWidth: CGFloat, closedWidth: CGFloat) -> Bool {
+        let ear = leftEarWidth(openWidth: openWidth, closedWidth: closedWidth)
+        return pillWidth() <= ear && rightClusterWidth <= ear
+    }
+}
+
 /// Row budget of the Productivity page's two cards (48a). Named constants rather than literals inside the
 /// view, so "does it still fit?" is a unit test instead of an eyeball on a notched display.
 enum NotchProductivityLayout {

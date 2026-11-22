@@ -56,3 +56,26 @@ struct NotchHomeView: View {
         .padding(.bottom, NotchDesignSpec.gridPadding.bottom)
     }
 }
+
+/// NP-2: the open notch's one card. Every page wears the same 0.10 white fill, 1 pt 0.08 rim and 18 pt
+/// continuous radius, so no page can invent its own tint, border or radius. 0.10 is deliberate: 0.06 let
+/// desktop text read through the cards (live-checked 2026-10-17).
+struct NotchCardSurface: ViewModifier {
+    var fillOpacity: Double = NotchDesignSpec.cardFillOpacity
+    var strokeOpacity: Double = NotchDesignSpec.cardStrokeOpacity
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
+        return content
+            .background(
+                shape.fill(Color.white.opacity(fillOpacity))
+                    .overlay(shape.strokeBorder(Color.white.opacity(strokeOpacity),
+                                                lineWidth: NotchDesignSpec.cardStrokeWidth))
+            )
+    }
+}
+
+extension View {
+    /// The one card surface every notch page draws.
+    func notchCard() -> some View { modifier(NotchCardSurface()) }
+}

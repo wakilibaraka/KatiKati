@@ -66,10 +66,10 @@ struct NotchDownloadsPageView: View {
                     Spacer(minLength: 0)
                     Text(verbatim: "No Active Browser Downloads")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(.white.opacity(0.55))
                     Text(verbatim: "Downloads from Safari or Chrome appear here live")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.25))
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(.white.opacity(0.4))
                     Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -85,14 +85,7 @@ struct NotchDownloadsPageView: View {
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
+        .notchCard()
     }
 
     private func browserItemRow(_ item: DownloadItem) -> some View {
@@ -248,12 +241,12 @@ struct NotchDownloadsPageView: View {
                     Spacer(minLength: 0)
                     Text(verbatim: "No Active Torrents")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(.white.opacity(0.55))
                     Text(verbatim: TorrentEngine.shared.isAvailable
                          ? "Paste a magnet link or .torrent URL above"
                          : "Install aria2 to download magnet links")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.25))
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(.white.opacity(0.4))
                     Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -269,14 +262,7 @@ struct NotchDownloadsPageView: View {
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
+        .notchCard()
     }
 
     private func torrentItemRow(_ item: DownloadItem) -> some View {
@@ -411,7 +397,7 @@ struct NotchDownloadsPageView: View {
                 TextField(
                     String(""),
                     text: $inputURLText,
-                    prompt: Text(verbatim: "Paste a magnet, .torrent or https:// link")
+                    prompt: Text(verbatim: "Paste magnet or link")
                 )
                 .textFieldStyle(.plain)
                 .font(.system(size: 10, design: .monospaced))
@@ -453,10 +439,11 @@ struct NotchDownloadsPageView: View {
             } label: {
                 Text(verbatim: "Download")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Capsule().fill(Color.cyan))
+                    .background(Capsule().fill(Color.white.opacity(0.16)))
+                    .overlay(Capsule().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
             }
             .buttonStyle(.plain)
         }

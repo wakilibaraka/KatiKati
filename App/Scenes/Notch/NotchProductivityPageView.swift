@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 // Phase 33e — Page 4: Productivity & Calendar (Bento Card A: Calendar, Card B: Focus).
@@ -61,14 +62,9 @@ struct NotchProductivityPageView: View {
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color(red: 0.08, green: 0.06, blue: 0.07))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(accent.opacity(0.25), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
+        // NP-3: the date card used a dark-red fill and a red rim of its own. The accent now lives only in
+        // the numeral and the day pills; the surface is the page's one card token.
+        .notchCard()
     }
 
     // MARK: - Right Card: Full Agenda List
@@ -86,9 +82,9 @@ struct NotchProductivityPageView: View {
                     } label: {
                         Text(verbatim: "TODAY")
                             .font(.system(size: 8, weight: .heavy))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(todayAccent)
                             .padding(.horizontal, 6).padding(.vertical, 2)
-                            .background(Capsule().fill(todayAccent))
+                            .background(Capsule().fill(todayAccent.opacity(0.15)))
                     }
                     .buttonStyle(.plain)
                 }
@@ -99,14 +95,7 @@ struct NotchProductivityPageView: View {
         }
         .padding(NotchDesignSpec.cardPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(
-            RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                .overlay(
-                    RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                        .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                )
-        )
+        .notchCard()
     }
 
     private var calendarHeader: some View {
@@ -202,10 +191,29 @@ struct NotchProductivityPageView: View {
                 .foregroundStyle(accent)
                 .frame(height: agendaListHeight, alignment: .top)
         } else if agenda.events.isEmpty {
-            Text("No events")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.white.opacity(0.4))
-                .frame(height: agendaListHeight, alignment: .top)
+            // NP-3: a lone grey "No events" read as a broken card. The empty day now says what it means
+            // and offers the one action it can take: open Calendar on this date to add something.
+            VStack(alignment: .leading, spacing: 5) {
+                Text("No events")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.55))
+                Button {
+                    if let url = AgendaEventAction.calendarURL(for: agenda.selectedDate) {
+                        NSWorkspace.shared.open(url)
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "plus.circle.fill").font(.system(size: 9, weight: .bold))
+                        Text("New Event").font(.system(size: 9, weight: .semibold))
+                    }
+                    .foregroundStyle(.white.opacity(0.9))
+                    .padding(.horizontal, 7).padding(.vertical, 3)
+                    .background(Capsule().fill(Color.white.opacity(0.10)))
+                }
+                .buttonStyle(.plain)
+            }
+            .frame(height: agendaListHeight, alignment: .topLeading)
+            .frame(maxWidth: .infinity, alignment: .leading)
         } else {
             let rows = Array(agenda.events.prefix(NotchProductivityLayout.agendaRowCount))
             ForEach(rows) { event in

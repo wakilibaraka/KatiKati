@@ -31,7 +31,7 @@ struct NotchKeepAwakePageView: View {
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
             hero.frame(width: 190)
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 chips
                 lidRow
                 agentsRow
@@ -84,8 +84,7 @@ struct NotchKeepAwakePageView: View {
                     .lineLimit(2)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                .fill(Color.white.opacity(brewing ? 0.12 : 0.08)))
+            .notchCard()
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text("Keep Awake"))
@@ -102,10 +101,10 @@ struct NotchKeepAwakePageView: View {
                     service.setManual(true, duration: p.duration)
                 } label: {
                     Text(verbatim: p.label)
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .font(.system(size: 11.5, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, minHeight: 26)
-                        .background(Capsule().fill(selected(p) ? Color.orange.opacity(0.85) : Color.white.opacity(0.08)))
+                        .frame(maxWidth: .infinity, minHeight: 24)
+                        .background(Capsule().fill(selected(p) ? Color.orange.opacity(0.75) : Color.white.opacity(0.08)))
                 }
                 .buttonStyle(.plain)
             }
@@ -126,66 +125,54 @@ struct NotchKeepAwakePageView: View {
 
     private func selected(_ p: StayAwakePreset) -> Bool { service.manualOn && p == preset }
 
+    private var lidDetail: String {
+        lidNeedsAdmin ? String(localized: "Admin approval was not given")
+            : String(localized: "Keep running with the lid shut")
+    }
+
     private var lidRow: some View {
-        row(icon: "laptopcomputer", title: String(localized: "Lid closed"),
-            detail: lidNeedsAdmin ? String(localized: "Admin approval was not given")
-                : String(localized: "Keep running with the lid shut"),
-            isOn: Binding(get: { service.lidClosedEnabled }, set: { on in
-                Task { lidNeedsAdmin = !(await service.setLidClosed(on)) }
-            }))
+        toggleRow(icon: "laptopcomputer", title: String(localized: "Lid closed"), detail: lidDetail,
+                  isOn: Binding(get: { service.lidClosedEnabled }, set: { on in
+                      Task { lidNeedsAdmin = !(await service.setLidClosed(on)) }
+                  }))
     }
 
     private var agentsRow: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            row(icon: "sparkles", title: String(localized: "AI agents"),
-                detail: String(localized: "Stay awake while they work"),
-                isOn: $service.agentsEnabled)
-            if service.agentsEnabled, !service.agents.isEmpty {
-                ForEach(service.agents.prefix(3)) { a in
-                    HStack(spacing: 6) {
-                        Circle().fill(a.working ? Color.green : Color.white.opacity(0.25)).frame(width: 5, height: 5)
-                        Text(verbatim: a.count > 1 ? "\(a.name) ×\(a.count)" : a.name)
-                        Spacer()
-                        if a.background { Text("Background run") }
-                    }
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.6))
-                    .padding(.horizontal, 10)
-                }
-            }
-        }
+        toggleRow(icon: "sparkles", title: String(localized: "AI agents"),
+                  detail: String(localized: "Stay awake while they work"),
+                  isOn: $service.agentsEnabled)
     }
 
     private var floorRow: some View {
-        HStack {
-            Image(systemName: "battery.25percent").foregroundStyle(.white.opacity(0.6))
+        HStack(spacing: 6) {
+            Image(systemName: "battery.25percent").font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
             Text("Sleep under battery")
                 .font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
-            Spacer()
-            Stepper(value: $service.floorPercent, in: 5...80, step: 5) {
-                Text(verbatim: "\(service.floorPercent)%")
-                    .font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(.white)
-            }
-            .labelsHidden()
+            Spacer(minLength: 4)
+            Stepper(value: $service.floorPercent, in: 5...80, step: 5) { Text(verbatim: "Battery floor") }
+                .labelsHidden()
+                .controlSize(.mini)
             Text(verbatim: "\(service.floorPercent)%")
-                .font(.system(size: 11, weight: .bold, design: .rounded)).foregroundStyle(.white)
+                .font(.system(size: 10.5, weight: .bold, design: .rounded).monospacedDigit()).foregroundStyle(.white)
         }
-        .padding(.horizontal, 10).padding(.vertical, 4)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(0.06)))
+        .padding(.horizontal, 10).frame(height: 26)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.white.opacity(0.06)))
     }
 
-    private func row(icon: String, title: String, detail: String, isOn: Binding<Bool>) -> some View {
+    /// NP-4: one 28 pt line per switch. The old rows stacked a title and a detail line — four rows asked
+    /// for more than the 132 pt page body and the floor row was cut off by the panel — so the detail is a
+    /// tooltip and the running-agent list (three more rows) is gone.
+    private func toggleRow(icon: String, title: String, detail: String, isOn: Binding<Bool>) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon).foregroundStyle(.white.opacity(0.7)).frame(width: 18)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(verbatim: title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
-                Text(verbatim: detail).font(.system(size: 9, weight: .medium)).foregroundStyle(.white.opacity(0.5))
-            }
-            Spacer()
-            Toggle(isOn: isOn) { Text(verbatim: title) }.labelsHidden().toggleStyle(.switch).controlSize(.small)
+            Image(systemName: icon).font(.system(size: 11)).foregroundStyle(.white.opacity(0.7)).frame(width: 16)
+            Text(verbatim: title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
+            Spacer(minLength: 4)
+            Toggle(isOn: isOn) { Text(verbatim: title) }.labelsHidden().toggleStyle(.switch).controlSize(.mini)
         }
-        .padding(.horizontal, 10).padding(.vertical, 5)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(0.06)))
+        .padding(.horizontal, 10)
+        .frame(height: 28)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.white.opacity(0.06)))
+        .help(Text(verbatim: detail))
     }
 }
 

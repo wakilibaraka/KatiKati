@@ -165,3 +165,41 @@ final class TendederoStoreTests: XCTestCase {
         XCTAssertEqual(store.items[0].swingAngleDegrees, 0, accuracy: 0.1)
     }
 }
+
+/// NP-1: the clothesline is quiet unless the owner asked for it. Both reads use the unset-key idiom, so a
+/// never-set key, an explicit off and a stale value all land on the calm behaviour.
+final class TendederoPolicyTests: XCTestCase {
+    private func defaults() -> UserDefaults {
+        UserDefaults(suiteName: "TendederoPolicyTests.\(UUID())")!
+    }
+
+    func testQuietByDefault() {
+        let d = defaults()
+        XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndManualClipboard)
+        XCTAssertFalse(TendederoPolicy.showSidebarOnNewItem(d))
+    }
+
+    func testExplicitChoicesSurviveAndUnknownRawValuesFallBack() {
+        let d = defaults()
+        d.set(TendederoCaptureMode.screenshotsAndAutoClipboard.rawValue, forKey: TendederoPolicy.captureModeKey)
+        XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndAutoClipboard)
+        d.set(TendederoCaptureMode.screenshotsAndManualClipboard.rawValue, forKey: TendederoPolicy.captureModeKey)
+        XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndManualClipboard)
+        d.set("someFutureMode", forKey: TendederoPolicy.captureModeKey)
+        XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndManualClipboard,
+                       "a stale value must not re-enable auto-hanging")
+
+        TendederoPolicy.setShowSidebarOnNewItem(true, defaults: d)
+        XCTAssertTrue(TendederoPolicy.showSidebarOnNewItem(d))
+        TendederoPolicy.setShowSidebarOnNewItem(false, defaults: d)
+        XCTAssertFalse(TendederoPolicy.showSidebarOnNewItem(d))
+    }
+
+    func testClipboardToastIsOffUnlessStoredOn() {
+        let d = defaults()
+        XCTAssertFalse(ClipboardToastDefaults.enabledByDefault)
+        XCTAssertFalse(ClipboardToastDefaults.isEnabled(d))
+        d.set(true, forKey: ClipboardSettingsKeys.notchToastKey)
+        XCTAssertTrue(ClipboardToastDefaults.isEnabled(d))
+    }
+}

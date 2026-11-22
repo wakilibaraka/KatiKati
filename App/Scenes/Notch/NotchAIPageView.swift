@@ -29,6 +29,8 @@ struct NotchAIPageView: View {
                     Text(verbatim: snapshot.activeTurn?.model ?? snapshot.lastMeasuredModel ?? "No AI activity today")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     Spacer()
                     if let active = snapshot.activeTurn, active.isActive {
                         HStack(spacing: 4) {
@@ -50,7 +52,7 @@ struct NotchAIPageView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayTokens)
                         .font(.system(size: 26, weight: .heavy, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(snapshot.providerToday.isEmpty ? Color.white.opacity(0.3) : .white)
                     Text(verbatim: sourceCaption(snapshot))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
@@ -67,19 +69,10 @@ struct NotchAIPageView: View {
                     }
                 }
 
-                BreatherRingsMiniView()
-                    .padding(.top, 2)
             }
             .padding(NotchDesignSpec.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                    .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                            .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                    )
-            )
+            .notchCard()
 
             // Card B: Spend & 5h Reset Arc
             VStack(alignment: .leading, spacing: 8) {
@@ -95,38 +88,30 @@ struct NotchAIPageView: View {
                     Text(verbatim: "AI Spend")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
-                    Spacer()
-                    Button { showingLoadout.toggle() } label: {
-                        Text(verbatim: showingLoadout ? "Spend" : "Loadout")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.85))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.cyan.opacity(showingLoadout ? 0.35 : 0.16)))
-                    }
-                    .buttonStyle(.plain)
-                    Button {
-                        budgetPresetRaw = budgetPreset.next.rawValue
-                    } label: {
-                        Text(verbatim: budgetPreset.badgeTitle)
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.75))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.white.opacity(0.08)))
-                    }
-                    .buttonStyle(.plain)
-                    Button { showingReceipt.toggle() } label: {
-                        HStack(spacing: 3) {
-                            Image(systemName: "doc.text.fill").font(.system(size: 8))
-                            Text(verbatim: "Receipt").font(.system(size: 9, weight: .bold))
+                    Spacer(minLength: 4)
+                    // NP-3: three pills (Loadout / cap / Receipt) plus a savings badge asked for ~266 pt
+                    // in a 279 pt card and truncated to "Loado…", "Cap:…", "Re…". One menu holds all
+                    // three; the savings moved under the cost, where it belongs.
+                    Menu {
+                        Button { showingLoadout.toggle() } label: {
+                            Text(verbatim: showingLoadout ? "Show spend" : "Show loadout")
                         }
-                        .foregroundStyle(.white.opacity(0.85))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.purple.opacity(0.35)))
+                        Button { budgetPresetRaw = budgetPreset.next.rawValue } label: {
+                            Text(verbatim: "Daily cap: \(budgetPreset.badgeTitle)")
+                        }
+                        Button { showingReceipt.toggle() } label: {
+                            Text(verbatim: "Usage receipt")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.85))
+                            .frame(width: 20, height: 20)
+                            .background(Circle().fill(Color.white.opacity(0.10)))
                     }
-                    .buttonStyle(.plain)
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
                     .popover(isPresented: $showingReceipt) {
                         let receipt = AIStatsReceiptCalculator.calculate(
                             tokens: snapshot.todayTokens,
@@ -138,14 +123,6 @@ struct NotchAIPageView: View {
                         )
                         AIReceiptPopoverView(receipt: receipt)
                     }
-                    if snapshot.todaySavings > 0 {
-                        Text(verbatim: String(format: "-$%.2f saved", snapshot.todaySavings))
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(.green)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.green.opacity(0.12)))
-                    }
                 }
 
                 if showingLoadout {
@@ -155,10 +132,20 @@ struct NotchAIPageView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayCost)
                         .font(.system(size: 26, weight: .heavy, design: .rounded))
-                        .foregroundStyle(.white)
-                    Text(verbatim: snapshot.costBasisLine.isEmpty ? sourceCaption(snapshot) : snapshot.costBasisLine)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(snapshot.providerToday.isEmpty ? Color.white.opacity(0.3) : .white)
+                    // NP-3: no `Sources:` fallback here — Card A already names the stores once, and two
+                    // identical footers on one page read as a bug.
+                    if !snapshot.costBasisLine.isEmpty {
+                        Text(verbatim: snapshot.costBasisLine)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.5))
+                            .lineLimit(1)
+                    }
+                    if snapshot.todaySavings > 0 {
+                        Text(verbatim: String(format: "$%.2f saved today", snapshot.todaySavings))
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.green.opacity(0.9))
+                    }
                 }
 
                 Spacer(minLength: 0)
@@ -226,14 +213,7 @@ struct NotchAIPageView: View {
             }
             .padding(NotchDesignSpec.cardPadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                    .fill(Color.white.opacity(NotchDesignSpec.cardFillOpacity))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)
-                            .stroke(Color.white.opacity(NotchDesignSpec.cardStrokeOpacity), lineWidth: NotchDesignSpec.cardStrokeWidth)
-                    )
-            )
+            .notchCard()
         }
     }
 
@@ -342,34 +322,5 @@ struct AIReceiptPopoverView: View {
         }
         .padding(10)
         .frame(width: 220)
-    }
-}
-
-/// PHN-2 — the rings were constructed per render before this, so they always read 0/12, 0/6, 0/8.
-/// They now observe the shared controller: a done pause fills Eyes or Stretch, a logged glass fills Hydrate.
-struct BreatherRingsMiniView: View {
-    @ObservedObject private var hydro = HydrationController.shared
-
-    private var rings: BreatherRings { hydro.breather.rings }
-
-    var body: some View {
-        HStack(spacing: 8) {
-            ringPill("Eyes", progress: rings.eyes.progress, color: .cyan)
-            ringPill("Stretch", progress: rings.stretch.progress, color: .mint)
-            ringPill("Hydrate", progress: rings.hydrate.progress, color: .blue)
-        }
-    }
-
-    private func ringPill(_ label: String, progress: Double, color: Color) -> some View {
-        HStack(spacing: 3) {
-            Circle()
-                .trim(from: 0, to: CGFloat(max(0.1, progress)))
-                .stroke(color, lineWidth: 2)
-                .frame(width: 8, height: 8)
-                .rotationEffect(.degrees(-90))
-            Text(verbatim: label)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.white.opacity(0.7))
-        }
     }
 }
