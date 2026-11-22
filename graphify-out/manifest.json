@@ -594,9 +594,9 @@
     "semantic_hash": "331de2347f3f5d542a6d77e7374d07d0"
   },
   "App/Entry/PanelCoordinator+Spaces.swift": {
-    "mtime": 1795311314.551033,
-    "seen": 1795311819.696713,
-    "ast_hash": "c5bcf055165cb8d57b11d444a9648f64",
+    "mtime": 1795342564.258021,
+    "seen": 1795354993.9196422,
+    "ast_hash": "6b87d1a44c75df84629b0c08b358ca23",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Tooltip.swift": {
@@ -2604,9 +2604,9 @@
     "semantic_hash": "235553434f6be4b7097f30d1f64b2d71"
   },
   "Platform/Accessibility/AXWindowReader.swift": {
-    "mtime": 1795306091.895635,
-    "seen": 1795307021.6212108,
-    "ast_hash": "f483f44c80aa64ee8b368d89f12d8638",
+    "mtime": 1795342412.7609758,
+    "seen": 1795354993.920058,
+    "ast_hash": "c4ab5f81b957e72aed2b1312b2e2ac3f",
     "semantic_hash": ""
   },
   "Platform/Accessibility/AccessibilitySource.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
-    "mtime": 1795307597.7310822,
-    "seen": 1795308984.38532,
-    "ast_hash": "f0a09eae0cd975bb02da61fabd6fe7e5",
+    "mtime": 1795342345.3993325,
+    "seen": 1795354993.91977,
+    "ast_hash": "cff8766d60cd4fc0982efc1d23e69535",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Appearance.swift": {
@@ -6810,9 +6810,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SpaceSwitchPlan.swift": {
-    "mtime": 1795310599.137845,
-    "seen": 1795310614.0531058,
-    "ast_hash": "2b30b34b4a6bc75b64e095ed2988f6b1",
+    "mtime": 1795342323.2036216,
+    "seen": 1795354993.920005,
+    "ast_hash": "b8d78b2f8870880a4ea0aff40526c162",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/DockSwipeEventPoster.swift": {
@@ -6822,9 +6822,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SpaceSwitchPlanTests.swift": {
-    "mtime": 1795310708.971691,
-    "seen": 1795310857.851073,
-    "ast_hash": "78af898a419f0623c9e71c70f20270f6",
+    "mtime": 1795342439.9572988,
+    "seen": 1795354993.920328,
+    "ast_hash": "e99e49159537d88843da68e1d972338c",
     "semantic_hash": ""
   },
   "App/Composition/DriveMenuBarItem.swift": {
