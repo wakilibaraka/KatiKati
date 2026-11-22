@@ -345,10 +345,13 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
     var showsWindowTitle: Bool
     /// Type-to-filter inside the overview: plain letters narrow the grid, Escape clears it.
     var filterEnabled: Bool
-    /// Opt-in for everything that listens to the keyboard globally (Tab/arrows/Return, type-to-filter
-    /// and the hover key shortcuts). Off by default: Input Monitoring can be revoked, Mission Control
-    /// does not forward keys reliably, and this is the least predictable part of the overlay.
+    /// Master opt-in for everything that listens to the keyboard globally. Off by default: Input
+    /// Monitoring can be revoked, Mission Control does not forward keys reliably, and this is the
+    /// least predictable part of the overlay.
     var keyboardEnabled: Bool
+    /// The individual fragile paths under the master switch, each independently persisted so a user
+    /// can keep Tab/Return navigation without handing every letter to the filter, or vice versa.
+    var navigationEnabled: Bool
 
     init(
         spaceLabels: [String: String] = [:],
@@ -357,7 +360,8 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
         showsAppIcon: Bool = true,
         showsWindowTitle: Bool = true,
         filterEnabled: Bool = false,
-        keyboardEnabled: Bool = false
+        keyboardEnabled: Bool = false,
+        navigationEnabled: Bool = false
     ) {
         self.spaceLabels = spaceLabels
         self.showsSpaceTitles = showsSpaceTitles
@@ -366,6 +370,7 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
         self.showsWindowTitle = showsWindowTitle
         self.filterEnabled = filterEnabled
         self.keyboardEnabled = keyboardEnabled
+        self.navigationEnabled = navigationEnabled
     }
 
     /// A naming blob saved before `keyboardEnabled` existed had type-to-filter on by default. That is
@@ -380,9 +385,16 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
         showsWindowTitle = try container.decodeIfPresent(Bool.self, forKey: .showsWindowTitle) ?? true
         let storedKeyboard = try container.decodeIfPresent(Bool.self, forKey: .keyboardEnabled)
         keyboardEnabled = storedKeyboard ?? false
+        navigationEnabled = try container.decodeIfPresent(Bool.self, forKey: .navigationEnabled) ?? false
         filterEnabled = storedKeyboard == nil
             ? false
             : (try container.decodeIfPresent(Bool.self, forKey: .filterEnabled) ?? false)
+    }
+
+    /// True when any path that needs Input Monitoring is on. Settings uses it to keep the
+    /// experimental warning visible exactly while a fragile input is enabled.
+    var usesFragileInput: Bool {
+        keyboardEnabled && (navigationEnabled || filterEnabled)
     }
 
     /// The user's name for a Space, trimmed; `nil` means "no custom name" and the caller falls back
@@ -550,7 +562,7 @@ struct MissionControlHoverKeys: Codable, Equatable, Sendable {
     var keys: [MissionControlWindowAction: String]
 
     init(
-        isEnabled: Bool = true,
+        isEnabled: Bool = false,
         modifiers: Set<MissionControlModifier> = [.command],
         keys: [MissionControlWindowAction: String] = Dictionary(
             uniqueKeysWithValues: MissionControlWindowAction.allCases.map { ($0, $0.defaultKey) }

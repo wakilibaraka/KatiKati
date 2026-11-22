@@ -140,8 +140,10 @@ final class MissionControlSession {
     func start() {
         guard MissionControlSettings.isEnabled(), !isActive else { return }
         isEnabled = true
-        logger.info("[mission-control] start enabled=\(self.isEnabled, privacy: .public) axTrusted=\(AXIsProcessTrusted(), privacy: .public)")
+        // Loaded before the line so the log states the configuration this session actually started
+        // with; `Logger.info` takes an autoclosure, so every member read needs `self.`.
         configuration = MissionControlSettings.load()
+        logger.info("[mission-control] start enabled=\(self.isEnabled, privacy: .public) keyboard=\(self.configuration.naming.keyboardEnabled, privacy: .public) navigation=\(self.configuration.naming.navigationEnabled, privacy: .public) filter=\(self.configuration.naming.filterEnabled, privacy: .public) hoverKeys=\(self.configuration.actions.hoverKeys.isEnabled, privacy: .public) axTrusted=\(AXIsProcessTrusted(), privacy: .public)")
         guard AXIsProcessTrusted() else { return }
         guard let dock = NSWorkspace.shared.runningApplications.first(where: {
             $0.bundleIdentifier == "com.apple.dock"
@@ -349,7 +351,10 @@ final class MissionControlSession {
 
         // Overview navigation: Tab / arrows move the keyboard target, Return raises it. These run
         // before the hover shortcuts so a plain key never triggers a window action by accident.
-        if modifiers.isEmpty || modifiers == [.shift] {
+        // Navigation is its own opt-in: a user may want type-to-filter without handing Tab/Return
+        // to KatiKati, or the other way round.
+        if configuration.naming.navigationEnabled,
+           modifiers.isEmpty || modifiers == [.shift] {
             let step: Int? = {
                 switch event.keyCode {
                 case 48: return modifiers == [.shift] ? -1 : 1      // Tab / ⇧Tab
@@ -372,7 +377,14 @@ final class MissionControlSession {
             perform(action, source: .keyboard)
             return
         }
-        guard configuration.naming.filterEnabled, modifiers.isEmpty else { return }
+        guard configuration.naming.filterEnabled, modifiers.isEmpty else {
+            // Escape still leaves the overview when keyboard navigation is on, even if filtering is
+            // off; it clears an empty filter and dismisses on the next press.
+            if configuration.naming.navigationEnabled, event.keyCode == 53, modifiers.isEmpty {
+                apply(interaction.handle(.escape))
+            }
+            return
+        }
         if event.keyCode == 53 {
             apply(interaction.handle(.escape))
             return

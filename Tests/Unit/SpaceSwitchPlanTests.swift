@@ -107,10 +107,12 @@ final class MissionControlModelTests: XCTestCase {
         XCTAssertNil(MissionControlNaming(showsSpaceTitles: false).spaceTitle(forSpaceID: "A", index: 1))
     }
 
-    func testKeyboardAndFilterAreOptInAndLegacyFilterMigratesOff() throws {
+    func testKeyboardPathsAreOptInAndLegacyFilterMigratesOff() throws {
         let defaults = MissionControlNaming()
         XCTAssertFalse(defaults.keyboardEnabled)
+        XCTAssertFalse(defaults.navigationEnabled)
         XCTAssertFalse(defaults.filterEnabled)
+        XCTAssertFalse(defaults.usesFragileInput)
 
         // A naming blob from before the opt-in: filter was on, keyboard key did not exist.
         let legacy = """
@@ -119,15 +121,40 @@ final class MissionControlModelTests: XCTestCase {
         """
         let decoded = try JSONDecoder().decode(MissionControlNaming.self, from: Data(legacy.utf8))
         XCTAssertFalse(decoded.keyboardEnabled)
+        XCTAssertFalse(decoded.navigationEnabled)
         XCTAssertFalse(decoded.filterEnabled)
+        XCTAssertFalse(decoded.usesFragileInput)
         XCTAssertEqual(decoded.spaceLabel(forSpaceID: "1"), "Work")
 
-        // Once saved with the new key, an explicit choice is kept.
+        // Once saved with the new keys, explicit choices are kept independently.
         var chosen = defaults
         chosen.keyboardEnabled = true
-        chosen.filterEnabled = true
+        chosen.navigationEnabled = true
+        XCTAssertTrue(chosen.usesFragileInput)
+        chosen.filterEnabled = false
         let data = try JSONEncoder().encode(chosen)
-        XCTAssertEqual(try JSONDecoder().decode(MissionControlNaming.self, from: data), chosen)
+        let reloaded = try JSONDecoder().decode(MissionControlNaming.self, from: data)
+        XCTAssertEqual(reloaded, chosen)
+        XCTAssertTrue(reloaded.keyboardEnabled)
+        XCTAssertTrue(reloaded.navigationEnabled)
+        XCTAssertFalse(reloaded.filterEnabled)
+    }
+
+    func testFilterAloneDoesNotCountAsFragileUntilTheMasterIsOn() {
+        var naming = MissionControlNaming(keyboardEnabled: false, navigationEnabled: false)
+        naming.filterEnabled = true
+        XCTAssertFalse(naming.usesFragileInput)
+        naming.keyboardEnabled = true
+        XCTAssertTrue(naming.usesFragileInput)
+        naming.filterEnabled = false
+        XCTAssertFalse(naming.usesFragileInput)
+        naming.navigationEnabled = true
+        XCTAssertTrue(naming.usesFragileInput)
+    }
+
+    func testHoverKeysAreOffByDefault() {
+        XCTAssertFalse(MissionControlHoverKeys().isEnabled)
+        XCTAssertNil(MissionControlHoverKeys().action(forKey: "w", modifiers: [.command]))
     }
 
     func testBadgeTitleFollowsItsTwoSwitches() {
@@ -263,7 +290,9 @@ final class MissionControlModelTests: XCTestCase {
     }
 
     func testHoverKeysNeedTheExactModifierSet() {
-        let keys = MissionControlHoverKeys()
+        var keys = MissionControlHoverKeys()
+        XCTAssertFalse(keys.isEnabled)
+        keys.isEnabled = true
         XCTAssertEqual(keys.action(forKey: "W", modifiers: [.command]), .close)
         XCTAssertEqual(keys.action(forKey: "m", modifiers: [.command]), .minimize)
         XCTAssertNil(keys.action(forKey: "w", modifiers: [.command, .shift]))
@@ -374,6 +403,44 @@ final class MissionControlModelTests: XCTestCase {
         defer { other.removePersistentDomain(forName: suite + ".other") }
         XCTAssertEqual(MissionControlSettings.load(from: other).actions.buttons.shownActions,
                        MissionControlWindowAction.allCases)
+    }
+
+    func testFreshInstallHasEveryExperimentalPathOff() {
+        let suite = "katikati.missioncontrol.fresh.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let config = MissionControlSettings.load(from: defaults)
+        XCTAssertFalse(config.naming.keyboardEnabled)
+        XCTAssertFalse(config.naming.navigationEnabled)
+        XCTAssertFalse(config.naming.filterEnabled)
+        XCTAssertFalse(config.naming.usesFragileInput)
+        XCTAssertFalse(config.actions.hoverKeys.isEnabled)
+        XCTAssertFalse(config.framing.isEnabled)
+    }
+
+    func testOptInsSurviveARelaunch() {
+        let suite = "katikati.missioncontrol.relaunch.\(UUID().uuidString)"
+        let first = UserDefaults(suiteName: suite)!
+        defer { first.removePersistentDomain(forName: suite) }
+
+        var config = MissionControlSettings.load(from: first)
+        config.naming.keyboardEnabled = true
+        config.naming.navigationEnabled = true
+        config.naming.filterEnabled = true
+        config.actions.hoverKeys.isEnabled = true
+        MissionControlSettings.save(config, in: first)
+        first.synchronize()
+
+        // A second UserDefaults instance is a new process view of the same domain: this is what the
+        // app reads on the next launch.
+        let relaunched = UserDefaults(suiteName: suite)!
+        let loaded = MissionControlSettings.load(from: relaunched)
+        XCTAssertTrue(loaded.naming.keyboardEnabled)
+        XCTAssertTrue(loaded.naming.navigationEnabled)
+        XCTAssertTrue(loaded.naming.filterEnabled)
+        XCTAssertTrue(loaded.actions.hoverKeys.isEnabled)
+        XCTAssertTrue(loaded.naming.usesFragileInput)
     }
 }
 

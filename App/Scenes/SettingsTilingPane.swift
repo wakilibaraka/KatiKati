@@ -353,9 +353,34 @@ struct SettingsMissionControlPane: View {
 
     // MARK: Status
 
+    /// Names exactly which fragile paths are currently on, so the warning is not a permanent banner
+    /// that users learn to ignore.
+    private var fragileSummary: String? {
+        var parts: [String] = []
+        let naming = configuration.naming
+        if naming.keyboardEnabled, naming.navigationEnabled { parts.append("keyboard navigation") }
+        if naming.keyboardEnabled, naming.filterEnabled { parts.append("type-to-filter") }
+        if naming.keyboardEnabled, configuration.actions.hoverKeys.isEnabled { parts.append("hover key shortcuts") }
+        if configuration.framing.isEnabled { parts.append("the border overlay") }
+        guard !parts.isEmpty else { return nil }
+        return parts.joined(separator: ", ")
+    }
+
     private var statusCard: some View {
         SettingsCard(Text(verbatim: "Mission Control (Experimental)")) {
             SettingsNote(Text(verbatim: "Experimental. The overlay reads undocumented WindowServer/overview behaviour and has only been verified on one display without Stage Manager. Keyboard navigation, type-to-filter, hover key shortcuts and the border overlay are off by default; naming, colours and mouse/window actions do not depend on them."))
+            if let fragileSummary {
+                SettingsDivider()
+                SettingsNote(Text(verbatim: "Experimental paths are on: \(fragileSummary). These can misbehave while Mission Control owns the keyboard or when a macOS update changes the overview."))
+                SettingsButtonRow(Text(verbatim: "Turn off all experimental paths")) {
+                    configuration.naming.keyboardEnabled = false
+                    configuration.naming.navigationEnabled = false
+                    configuration.naming.filterEnabled = false
+                    configuration.actions.hoverKeys.isEnabled = false
+                    configuration.framing.isEnabled = false
+                    save()
+                }
+            }
             SettingsDivider()
             SettingsToggleRow(
                 Text("Show overlays in Mission Control"),
@@ -463,15 +488,19 @@ struct SettingsMissionControlPane: View {
             SettingsToggleRow(Text("Space titles"), isOn: bind(\.naming.showsSpaceTitles),
                               note: Text("A pill at the top of the overview with this Space's name and its position."))
             SettingsDivider()
-            SettingsToggleRow(Text(verbatim: "Keyboard navigation and hover keys"), isOn: bind(\.naming.keyboardEnabled),
-                              note: Text(verbatim: "Experimental, off by default. Needs Input Monitoring, and Mission Control does not forward every key to a background app; the overlay still works with the mouse."))
-            SettingsDivider()
-            SettingsRowPair {
-                SettingsToggleRow(Text("Window badges"), isOn: bind(\.naming.showsWindowBadges))
-            } right: {
-                SettingsToggleRow(Text("Filter while typing"), isOn: bind(\.naming.filterEnabled))
-                    .disabled(!configuration.naming.keyboardEnabled)
+            SettingsToggleRow(Text(verbatim: "Keyboard control (experimental)"), isOn: bind(\.naming.keyboardEnabled),
+                              note: Text(verbatim: "Master opt-in, off by default. Needs Input Monitoring, and Mission Control does not forward every key to a background app; the overlay still works with the mouse. Choose which keyboard paths below, and note that the hover shortcuts further down are inert unless this switch is on."))
+            if configuration.naming.keyboardEnabled {
+                SettingsDivider()
+                SettingsToggleRow(Text(verbatim: "Keyboard navigation"), isOn: bind(\.naming.navigationEnabled),
+                                  note: Text(verbatim: "Tab and the arrow keys move the keyboard target, Return raises it, Escape clears the filter or leaves the overview."))
+                SettingsDivider()
+                SettingsToggleRow(Text("Filter while typing"), isOn: bind(\.naming.filterEnabled),
+                                  note: Text(verbatim: "Letters narrow the overview. Off by default even when keyboard control is on."))
             }
+            SettingsDivider()
+            SettingsToggleRow(Text("Window badges"), isOn: bind(\.naming.showsWindowBadges),
+                              note: Text(verbatim: "The app icon, app name and window title drawn next to each thumbnail."))
             SettingsDivider()
             SettingsRowPair {
                 SettingsToggleRow(Text("App name in badge"), isOn: bind(\.naming.showsAppIcon))
