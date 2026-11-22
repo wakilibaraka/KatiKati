@@ -410,11 +410,20 @@ enum PanelGeometry {
             // With the Control Centre at the trailing end the plate takes that slot over and the
             // capsule moves inside it (`controlCentreTrailing`).
             let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
-            let plateWidth = controlCentreTrailing
+            // Full Width has no slack for a wing to park in, so the wings *become* the bar's ends:
+            // the reserve comes straight out of the plate and the bar still fills every point between
+            // them, flush on the same margins it used to run to (`wing | bar | wing`). No dead gap and
+            // no centring — centring the plate in leftover space is Centered's job, and a hug bar here
+            // would collapse the mode into that one. The strip's horizontal `ScrollView` takes the
+            // overflow, exactly as it does for a busy Centered dock (PHN-6a).
+            let wingSpace = dockWingReserve(config: wingConfig, metrics: metrics)
+            let fullWidth = controlCentreTrailing
                 ? screen.frame.width - 2 * max(0, margin)
                 : fullWidthPlateWidth(screenWidth: screen.frame.width, margin: margin, metrics: metrics)
+            let plateWidth = max(fullWidth - wingSpace.left - wingSpace.right, metrics.minimumDockWidth)
             let panelWidth = max(plateWidth, metrics.minimumDockWidth)
-            let panelX = screen.frame.minX + max(0, margin) + (placement == .left ? capsuleSpace : 0)
+            let panelX = screen.frame.minX + max(0, margin) + wingSpace.left
+                + (placement == .left ? capsuleSpace : 0)
             return CGRect(
                 x: panelX - metrics.shadowPadding,
                 y: screen.frame.minY + metrics.bottomGap - metrics.shadowPadding,
@@ -433,7 +442,7 @@ enum PanelGeometry {
             // The capsule rides beside the plate and is drawn with the bar's shadow padding, so its
             // side needs that much more room back: measured on a real bar, a trailing wing lost one
             // ladder step to the capsule's unpadded edge.
-            if capsuleSpace > 0 {
+            if capsuleSpace > 0, wingConfig.hasAnyActiveWing {
                 if placement == .left {
                     wingSpace.left += 2 * metrics.shadowPadding
                 } else {
@@ -1228,10 +1237,14 @@ enum PanelGeometry {
         let resolved = DockWingLayoutPlanner.ResolvedSizes(
             left: ladder.left.size ?? .small, right: ladder.right.size ?? .small)
 
+        // A wing is the outermost thing on the bar, so it may never be drawn past the margin. The
+        // reserve that paid for it always includes the gap, so a wing pinned to its margin still
+        // clears the plate by exactly that gap; without the clamp a size step that measured a few
+        // points over its reserve pushed the panel — shadow included — off the screen edge.
         var leftFrame: CGRect?
         if config.left.preset.isAssigned, ladder.left.isVisible {
             let w = DockWingLadder.width(of: ladder.left, preset: config.left.preset, scale: scale)
-            let x = leftAnchorMaxX - gap - w
+            let x = max(leftAnchorMaxX - gap - w, screen.frame.minX + margin)
             leftFrame = CGRect(x: x - pad, y: dockFrame.minY,
                                width: w + 2 * pad, height: metrics.windowHeight)
         }
@@ -1239,7 +1252,7 @@ enum PanelGeometry {
         var rightFrame: CGRect?
         if config.right.preset.isAssigned, ladder.right.isVisible {
             let w = DockWingLadder.width(of: ladder.right, preset: config.right.preset, scale: scale)
-            let x = rightAnchorMinX + gap
+            let x = min(rightAnchorMinX + gap, screen.frame.maxX - margin - w)
             rightFrame = CGRect(x: x - pad, y: dockFrame.minY,
                                 width: w + 2 * pad, height: metrics.windowHeight)
         }

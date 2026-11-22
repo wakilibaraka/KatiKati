@@ -6661,3 +6661,18 @@ never constructs a query, and the row links to System Settings for `.denied` / `
 | **c** | `DockWingDimensions.hydrate.large` was 232 pt native (≈198 scaled) while the ring, the total and three 8.5 pt serving pills need ≈234, so the first two pills wrapped and the third fitted. | Width 232 → 276 plus `lineLimit(1)` / `minimumScaleFactor` on a pill, so it can never wrap again. | `build/shots/phn6-wings-large.jpg`: `150 ml · 250 ml · 500 ml` on one line, against `wings-large.png` showing `150⏎ml`. |
 | **d** | **Disproven — not a defect.** The caption needs 164.7 pt on one line at 9.5 pt (measured through `NSFont`); `pause large` leaves ≈130 pt for it after the 26 pt icon plate and two 18 pt buttons. Two lines is the correct use of the space that exists, not under-constrained wrapping. **No change made.** | — | That measurement plus the style arithmetic. |
 | **e** | `NotificationZonePicker.deadCentre` drew a 9 pt `minus` glyph inside the dashed cell, which read as a broken or disabled control. | Glyph removed; the dashed empty slot alone says the screen's centre is never a zone. Still `accessibilityHidden`, still no new string. | `build/shots/phn6-zone-grid.jpg` against `settings-zone-grid.jpg`. |
+
+**Full Width (`.windows`), decided 2026-11-22.** Here the wings dock to the bar's ends instead of the bar
+narrowing: Full Width has no slack to park in, so its plate forfeits exactly the wings' park and still fills
+every remaining point (`wing | bar | capsule | wing`, flush on the island margin), and the strip's
+`ScrollView` scrolls the overflow. Centring a narrowed plate in leftover space is what Centered is for, so
+making Full Width do it would collapse the two modes into one. `testFullWidthDockDocksTheWingsToTheBarEnds`
+asserts both wings resolve at the requested size, that they reach the margins, that they clear the plate, and
+that the plate gives up exactly the reserve (`plain.width - frame.width == reserve.left + reserve.right`).
+Live on the real bar: window 1357 pt wide, left wing starting at x=6 and the right ending at 1704 — flush on
+the `islandMargin` of 6. Wings are clamped to that margin now, because a size step that measured a few points
+over its reserve used to hang the panel's shadow off the screen edge. Two review catches worth recording: the
+first version of the `.centered` capsule allowance leaked 20 pt into wing-less bars
+(`testCenteredModeHugsContent` went 389 → 369), so it is gated on `hasAnyActiveWing`; and the wing math
+assumes the capsule the bar really has, so the test builds it with `stripCapsuleTargetFrame` rather than
+passing `.zero`, which had put the right wing 62 pt short of the margin.

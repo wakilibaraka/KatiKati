@@ -203,4 +203,54 @@ final class IslandPanelGeometryTests: XCTestCase {
         XCTAssertLessThanOrEqual(plan.leftFrame!.maxX - metrics.shadowPadding, plate.minX + 0.5)
         XCTAssertGreaterThanOrEqual(plan.rightFrame!.minX + metrics.shadowPadding, plate.maxX - 0.5)
     }
+
+    /// PHN-6a in Full Width, where the plate used to run to both margins and left a wing nowhere to
+    /// go. This mode has no slack to park in, so the wings take the bar's own ends: they start and
+    /// finish on the margins the plate used to reach, the bar fills everything between them, and the
+    /// plate gives up exactly the wings' park so the strip scrolls instead of clipping.
+    func testFullWidthDockDocksTheWingsToTheBarEnds() {
+        let metrics = PanelLayoutMetrics.tungstenEdge
+        let margin: CGFloat = 12
+        var wings = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .pause, size: .medium),
+            right: DockWingSlotConfig(preset: .hydrate, size: .medium)
+        )
+        wings.gap = DockWingsConfiguration.clampedGap(10)
+
+        let frame = PanelGeometry.islandTargetFrame(
+            slot: 0, contentWidth: 1640, mode: .windows, on: testScreen,
+            metrics: metrics, margin: margin, wingConfig: wings)
+        let plate = frame.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+        // The real bar always has its drawer capsule at the trailing end; the wing wraps around it.
+        let capsule = PanelGeometry.stripCapsuleTargetFrame(
+            forDock: frame, stripPlacement: .bottom, on: testScreen,
+            drawerPlacement: .right, metrics: metrics)
+        let plan = PanelGeometry.wingPanelFrames(
+            dockFrame: frame, capsuleFrame: capsule, config: wings,
+            stripPlacement: .bottom, drawerPlacement: .right, controlCentreTrailing: false,
+            on: testScreen, metrics: metrics, margin: margin)
+
+        XCTAssertNotNil(plan.leftFrame, "Full Width must not hide the left wing")
+        XCTAssertNotNil(plan.rightFrame, "Full Width must not hide the right wing")
+        XCTAssertEqual(plan.leftSize, .medium)
+        XCTAssertEqual(plan.rightSize, .medium)
+
+        // Both wings reach the margins the full-bleed plate used to span, with nothing between them
+        // and the plate but the gap.
+        XCTAssertEqual(plan.leftFrame!.minX + metrics.shadowPadding, margin, accuracy: 0.5)
+        XCTAssertEqual(plan.rightFrame!.maxX - metrics.shadowPadding,
+                       testScreen.frame.maxX - margin, accuracy: 0.5)
+        XCTAssertLessThanOrEqual(plan.leftFrame!.maxX - metrics.shadowPadding, plate.minX + 0.5)
+        XCTAssertGreaterThanOrEqual(plan.rightFrame!.minX + metrics.shadowPadding, plate.maxX - 0.5)
+
+        // The bar still stretches: it forfeits exactly the wings' park and keeps every other point,
+        // which is what makes the strip scroll rather than the mode turn into a hug bar.
+        let plain = PanelGeometry.islandTargetFrame(
+            slot: 0, contentWidth: 1640, mode: .windows, on: testScreen,
+            metrics: metrics, margin: margin, wingConfig: .default)
+        let reserve = PanelGeometry.dockWingReserve(config: wings, metrics: metrics)
+        XCTAssertEqual(plain.width - frame.width, reserve.left + reserve.right, accuracy: 0.5)
+        XCTAssertGreaterThan(frame.insetBy(dx: metrics.shadowPadding, dy: 0).width,
+                             metrics.minimumDockWidth * 4, "the bar must stay a bar, not a chip")
+    }
 }
