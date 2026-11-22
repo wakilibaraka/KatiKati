@@ -90,9 +90,9 @@
     "semantic_hash": "e3340978a32c952d8d52b586fb0c6d2d"
   },
   "App/Composition/DailyHelpersService.swift": {
-    "mtime": 1795307953.1784775,
-    "seen": 1795308984.3850749,
-    "ast_hash": "6ed7e0972492f026c11e9d316c6c5302",
+    "mtime": 1795309217.6223197,
+    "seen": 1795310614.0519402,
+    "ast_hash": "b3449a58afa95e232f2ad1127c8b5e29",
     "semantic_hash": ""
   },
   "App/Composition/DiagnosticReport.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795299091.7935383,
-    "seen": 1795299266.8543239,
-    "ast_hash": "30c3ba5ef9940d1b173815f22550140e",
+    "mtime": 1795309219.060939,
+    "seen": 1795310614.052175,
+    "ast_hash": "2c10e392a41f4f08accab087052ce7b2",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -594,9 +594,9 @@
     "semantic_hash": "331de2347f3f5d542a6d77e7374d07d0"
   },
   "App/Entry/PanelCoordinator+Spaces.swift": {
-    "mtime": 1795308497.2576208,
-    "seen": 1795308984.385181,
-    "ast_hash": "30c6c3cdb1be7064b6dc225e37cac91c",
+    "mtime": 1795310599.2390652,
+    "seen": 1795310614.05223,
+    "ast_hash": "c7e39618108063307475a784e5ccc612",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Tooltip.swift": {
@@ -3312,9 +3312,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DailyHelpersRulesTests.swift": {
-    "mtime": 1795307784.9317052,
-    "seen": 1795308984.385785,
-    "ast_hash": "070743a40452428c80819d77a11c4eed",
+    "mtime": 1795310509.8302429,
+    "seen": 1795310614.0534139,
+    "ast_hash": "4b40f4d4013c772581074b375f07ee2a",
     "semantic_hash": ""
   },
   "Tests/Unit/DebugSwitchTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795308534.0386255,
-    "seen": 1795308984.386032,
-    "ast_hash": "979f14c0394a269069fda8b079c23338",
+    "mtime": 1795309875.993301,
+    "seen": 1795310614.053791,
+    "ast_hash": "f3431c93deee990b1ad90bc046a2e855",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795308534.0564623,
-    "seen": 1795308984.386145,
-    "ast_hash": "0c9577d97219157b23baf1d073b23c7a",
+    "mtime": 1795309741.9610739,
+    "seen": 1795310614.053934,
+    "ast_hash": "eefde96f38bebe64c0f7e1d155665513",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6810,9 +6810,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SpaceSwitchPlan.swift": {
-    "mtime": 1795308497.2560453,
-    "seen": 1795308984.385578,
-    "ast_hash": "bd945c001d58daf95ff4a6aea27c752c",
+    "mtime": 1795310599.137845,
+    "seen": 1795310614.0531058,
+    "ast_hash": "2b30b34b4a6bc75b64e095ed2988f6b1",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/DockSwipeEventPoster.swift": {
@@ -8046,9 +8046,9 @@
     "semantic_hash": ""
   },
   "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.2.md": {
-    "mtime": 1795304676.743611,
-    "seen": 1795304791.996212,
-    "ast_hash": "450f7a3644e3c84403d8d047071c0768",
+    "mtime": 1795310462.8685691,
+    "seen": 1795310614.053928,
+    "ast_hash": "04c92f0f78d08b538ca5a238f10c8c3a",
     "semantic_hash": ""
   },
   "Docs/MissionControlResearch.md": {
