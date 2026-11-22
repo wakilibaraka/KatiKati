@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795309875.993301,
-    "seen": 1795310614.053791,
-    "ast_hash": "f3431c93deee990b1ad90bc046a2e855",
+    "mtime": 1795313794.3522043,
+    "seen": 1795313863.322654,
+    "ast_hash": "5d095859d23bc087eae5b4af4b8b7c73",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795309741.9610739,
-    "seen": 1795310614.053934,
-    "ast_hash": "eefde96f38bebe64c0f7e1d155665513",
+    "mtime": 1795313824.7682564,
+    "seen": 1795313863.322756,
+    "ast_hash": "e7f58c756a1e365f69f3ac8d74608555",
     "semantic_hash": ""
   },
   "README.md": {
