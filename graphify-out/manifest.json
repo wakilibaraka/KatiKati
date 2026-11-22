@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1795308497.2581975,
-    "seen": 1795308984.385331,
-    "ast_hash": "4380dda2ad9626ccfb56a78222df4a1f",
+    "mtime": 1795310647.3880763,
+    "seen": 1795310857.850352,
+    "ast_hash": "29f0a7102ce6fbab81af6a69d8d1b6d0",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
@@ -6822,9 +6822,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SpaceSwitchPlanTests.swift": {
-    "mtime": 1795308508.098145,
-    "seen": 1795308984.3859499,
-    "ast_hash": "dfe969b41c520e9ba06dfbfbfb2b6b04",
+    "mtime": 1795310708.971691,
+    "seen": 1795310857.851073,
+    "ast_hash": "78af898a419f0623c9e71c70f20270f6",
     "semantic_hash": ""
   },
   "App/Composition/DriveMenuBarItem.swift": {
