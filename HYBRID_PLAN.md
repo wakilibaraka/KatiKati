@@ -6812,3 +6812,13 @@ No page clips vertically, no title truncates, one card token on every page and b
 The Camera page needed a ~2.5 s settle after the page change (the capture session starts first), which is why
 an early shot showed the previous page. Clipboard check: with the pointer away from the notch, a `pbcopy` left
 the left edge and the closed notch unchanged after 1 s and after 3 s — no Side Deck, no toast.
+
+---
+
+## Dock, Launcher, App Icons, Widgets & Modularity Overhaul (`DO-1` → `DO-10`, started 2026-11-22)
+
+### DO-1a — Pure Core (`LauncherPresentation.drawer` + Geometry) & Unit Tests (landed 2026-11-22)
+
+- `Core/Support/LauncherLayout.swift`: added `LauncherPresentation.drawer` (parsed via `"drawer"`), `LauncherPanelFrame.drawerSize` (`440 × 480`), and pure `LauncherPanelFrame.drawer(in:dockReserve:leading:trailing:anchorX:)` anchored above the bottom bar and clamped between side rails inside `visible`.
+- `Tests/Unit/LauncherPresentationTests.swift`: extended `parse` assertions and added `testDrawerSitsLeadingBottomAboveTheBottomBar`, `testDrawerCentersOnAnchorXAndClampsToVisible`, and `testDrawerClearsSideRailsAndFitsTinyScreen`.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherPresentationTests` (11/11 passed in 0.007 s). Zero `project.pbxproj` edits.

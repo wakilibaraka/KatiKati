@@ -57,6 +57,7 @@ enum LauncherPresentation: String, CaseIterable, Sendable {
     case fullscreen
     case centred
     case floatingDock = "dock"
+    case drawer
 
     static let `default`: LauncherPresentation = .floatingDock
 
@@ -72,16 +73,20 @@ enum LauncherPresentation: String, CaseIterable, Sendable {
 enum LauncherPanelFrame {
     static let centredMax = CGSize(width: 1200, height: 760)
     static let dockSize = CGSize(width: 720, height: 580)
+    static let drawerSize = CGSize(width: 440, height: 480)
     static let margin: CGFloat = 8
 
     /// `dockReserve` is the KatiKati bottom bar height; `leading` / `trailing` are side rail widths.
     static func rect(mode: LauncherPresentation, screen: CGRect, visible: CGRect,
-                     dockReserve: CGFloat = 0, leading: CGFloat = 0, trailing: CGFloat = 0) -> CGRect {
+                     dockReserve: CGFloat = 0, leading: CGFloat = 0, trailing: CGFloat = 0,
+                     anchorX: CGFloat? = nil) -> CGRect {
         switch mode {
         case .fullscreen: return screen
         case .centred: return centred(in: visible)
         case .floatingDock:
             return floatingDock(in: visible, dockReserve: dockReserve, leading: leading, trailing: trailing)
+        case .drawer:
+            return drawer(in: visible, dockReserve: dockReserve, leading: leading, trailing: trailing, anchorX: anchorX)
         }
     }
 
@@ -101,6 +106,23 @@ enum LauncherPanelFrame {
         let height = min(dockSize.height, area.height * 0.8)
         let x = min(max(area.midX - width / 2, area.minX + margin), area.maxX - width - margin)
         let y = area.minY + margin
+        return CGRect(x: x, y: y, width: width, height: height)
+    }
+
+    /// Compact vertical drawer anchored above the bottom bar (leading edge by default, or centered on `anchorX`),
+    /// clamped between side rails inside `visible`.
+    static func drawer(in visible: CGRect, dockReserve: CGFloat, leading: CGFloat, trailing: CGFloat,
+                       anchorX: CGFloat? = nil) -> CGRect {
+        let area = CGRect(x: visible.minX + leading, y: visible.minY + dockReserve,
+                          width: max(0, visible.width - leading - trailing),
+                          height: max(0, visible.height - dockReserve))
+        let width = min(drawerSize.width, max(min(area.width, 280), area.width - 2 * margin), area.width)
+        let height = min(drawerSize.height, area.height * 0.72)
+        let minX = min(area.minX + margin, max(area.minX, area.maxX - width))
+        let maxX = max(minX, area.maxX - width - margin)
+        let rawX = anchorX.map { $0 - width / 2 } ?? minX
+        let x = min(max(rawX, minX), maxX)
+        let y = min(area.minY + margin, max(area.minY, visible.maxY - height - margin))
         return CGRect(x: x, y: y, width: width, height: height)
     }
 }

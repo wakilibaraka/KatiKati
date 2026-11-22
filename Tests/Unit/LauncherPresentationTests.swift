@@ -14,6 +14,7 @@ final class LauncherPresentationTests: XCTestCase {
         XCTAssertEqual(LauncherPresentation.parse("fullscreen"), .fullscreen)
         XCTAssertEqual(LauncherPresentation.parse("centred"), .centred)
         XCTAssertEqual(LauncherPresentation.parse("dock"), .floatingDock)
+        XCTAssertEqual(LauncherPresentation.parse("drawer"), .drawer)
     }
 
     func testStoredPopoverKeepsAFloatingCard() {
@@ -64,6 +65,43 @@ final class LauncherPresentationTests: XCTestCase {
         let rect = LauncherPanelFrame.rect(mode: .floatingDock, screen: tiny, visible: tiny, dockReserve: 64)
         XCTAssertLessThanOrEqual(rect.width, tiny.width * 0.8 + 0.5)
         XCTAssertLessThanOrEqual(rect.height, (tiny.height - 64) * 0.8 + 0.5)
+        XCTAssertTrue(tiny.contains(rect))
+    }
+
+    func testDrawerSitsLeadingBottomAboveTheBottomBar() {
+        let rect = LauncherPanelFrame.rect(mode: .drawer, screen: screen, visible: visible, dockReserve: 64)
+        XCTAssertEqual(rect.width, LauncherPanelFrame.drawerSize.width)
+        XCTAssertEqual(rect.height, LauncherPanelFrame.drawerSize.height)
+        XCTAssertEqual(rect.minX, visible.minX + LauncherPanelFrame.margin)
+        XCTAssertEqual(rect.minY, visible.minY + 64 + LauncherPanelFrame.margin)
+        XCTAssertTrue(visible.contains(rect))
+    }
+
+    func testDrawerCentersOnAnchorXAndClampsToVisible() {
+        let centered = LauncherPanelFrame.rect(mode: .drawer, screen: screen, visible: visible,
+                                               dockReserve: 64, anchorX: 900)
+        XCTAssertEqual(centered.midX, 900, accuracy: 0.5)
+        XCTAssertTrue(visible.contains(centered))
+
+        let clampedLeft = LauncherPanelFrame.rect(mode: .drawer, screen: screen, visible: visible,
+                                                  dockReserve: 64, leading: 200, anchorX: 50)
+        XCTAssertEqual(clampedLeft.minX, visible.minX + 200 + LauncherPanelFrame.margin)
+
+        let clampedRight = LauncherPanelFrame.rect(mode: .drawer, screen: screen, visible: visible,
+                                                   dockReserve: 64, trailing: 200, anchorX: 2000)
+        XCTAssertEqual(clampedRight.maxX, visible.maxX - 200 - LauncherPanelFrame.margin)
+    }
+
+    func testDrawerClearsSideRailsAndFitsTinyScreen() {
+        let railed = LauncherPanelFrame.rect(mode: .drawer, screen: screen, visible: visible,
+                                             leading: 300, trailing: 300)
+        XCTAssertGreaterThanOrEqual(railed.minX, visible.minX + 300 + LauncherPanelFrame.margin)
+        XCTAssertLessThanOrEqual(railed.maxX, visible.maxX - 300 - LauncherPanelFrame.margin)
+
+        let tiny = CGRect(x: 0, y: 0, width: 400, height: 300)
+        let rect = LauncherPanelFrame.rect(mode: .drawer, screen: tiny, visible: tiny, dockReserve: 64)
+        XCTAssertLessThanOrEqual(rect.width, tiny.width - 2 * LauncherPanelFrame.margin)
+        XCTAssertLessThanOrEqual(rect.height, (tiny.height - 64) * 0.72 + 0.5)
         XCTAssertTrue(tiny.contains(rect))
     }
 }
