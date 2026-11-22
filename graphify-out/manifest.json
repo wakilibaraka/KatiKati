@@ -6810,9 +6810,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SpaceSwitchPlan.swift": {
-    "mtime": 1795304465.7040389,
-    "seen": 1795304791.9957042,
-    "ast_hash": "c02a7a0aca4bc03406a4b8529900ce70",
+    "mtime": 1795305901.1880243,
+    "seen": 1795306043.9452438,
+    "ast_hash": "b48f53ec060148a0bb33f9ae41f6f657",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/DockSwipeEventPoster.swift": {
@@ -6822,9 +6822,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SpaceSwitchPlanTests.swift": {
-    "mtime": 1795305444.0253491,
-    "seen": 1795305487.887889,
-    "ast_hash": "1d1a3354a28228499521b10ad6a68310",
+    "mtime": 1795305901.1928577,
+    "seen": 1795306043.9455879,
+    "ast_hash": "0995d3b1b72d0e4d3ed1ec2f367f4ff4",
     "semantic_hash": ""
   },
   "App/Composition/DriveMenuBarItem.swift": {
