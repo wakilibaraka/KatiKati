@@ -6670,8 +6670,11 @@ making Full Width do it would collapse the two modes into one. `testFullWidthDoc
 asserts both wings resolve at the requested size, that they reach the margins, that they clear the plate, and
 that the plate gives up exactly the reserve (`plain.width - frame.width == reserve.left + reserve.right`).
 Live on the real bar: window 1357 pt wide, left wing starting at x=6 and the right ending at 1704 — flush on
-the `islandMargin` of 6. Wings are clamped to that margin now, because a size step that measured a few points
-over its reserve used to hang the panel's shadow off the screen edge. Two review catches worth recording: the
+the `islandMargin` of 6. That 6 pt offset was the margin setting itself, not an over-reserve, so no extra clamp
+is applied in `wingPanelFrames`: `DockWingLadder.step` only returns a rung that fits that side's measured span,
+and the span already stops a `gap` short of the margin, so `anchor − gap − w` lands on or inside the margin by
+construction — a clamp there was a no-op on every real geometry, and a test could only reach it by bypassing the
+ladder. Two review catches worth recording: the
 first version of the `.centered` capsule allowance leaked 20 pt into wing-less bars
 (`testCenteredModeHugsContent` went 389 → 369), so it is gated on `hasAnyActiveWing`; and the wing math
 assumes the capsule the bar really has, so the test builds it with `stripCapsuleTargetFrame` rather than

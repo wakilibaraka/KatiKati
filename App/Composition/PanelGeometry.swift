@@ -1237,14 +1237,14 @@ enum PanelGeometry {
         let resolved = DockWingLayoutPlanner.ResolvedSizes(
             left: ladder.left.size ?? .small, right: ladder.right.size ?? .small)
 
-        // A wing is the outermost thing on the bar, so it may never be drawn past the margin. The
-        // reserve that paid for it always includes the gap, so a wing pinned to its margin still
-        // clears the plate by exactly that gap; without the clamp a size step that measured a few
-        // points over its reserve pushed the panel — shadow included — off the screen edge.
+        // No margin clamp is needed here: `DockWingLadder.step` only returns a visible rung whose width
+        // fits that side's own measured span, and the span already stops `gap` short of the margin, so
+        // the frame lands on or inside the margin by construction. Measured on the live full-width bar,
+        // the offset that once looked like an over-reserve was the island margin itself.
         var leftFrame: CGRect?
         if config.left.preset.isAssigned, ladder.left.isVisible {
             let w = DockWingLadder.width(of: ladder.left, preset: config.left.preset, scale: scale)
-            let x = max(leftAnchorMaxX - gap - w, screen.frame.minX + margin)
+            let x = leftAnchorMaxX - gap - w
             leftFrame = CGRect(x: x - pad, y: dockFrame.minY,
                                width: w + 2 * pad, height: metrics.windowHeight)
         }
@@ -1252,7 +1252,7 @@ enum PanelGeometry {
         var rightFrame: CGRect?
         if config.right.preset.isAssigned, ladder.right.isVisible {
             let w = DockWingLadder.width(of: ladder.right, preset: config.right.preset, scale: scale)
-            let x = min(rightAnchorMinX + gap, screen.frame.maxX - margin - w)
+            let x = rightAnchorMinX + gap
             rightFrame = CGRect(x: x - pad, y: dockFrame.minY,
                                 width: w + 2 * pad, height: metrics.windowHeight)
         }
