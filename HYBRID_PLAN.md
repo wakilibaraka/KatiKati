@@ -6822,3 +6822,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/LauncherLayout.swift`: added `LauncherPresentation.drawer` (parsed via `"drawer"`), `LauncherPanelFrame.drawerSize` (`440 × 480`), and pure `LauncherPanelFrame.drawer(in:dockReserve:leading:trailing:anchorX:)` anchored above the bottom bar and clamped between side rails inside `visible`.
 - `Tests/Unit/LauncherPresentationTests.swift`: extended `parse` assertions and added `testDrawerSitsLeadingBottomAboveTheBottomBar`, `testDrawerCentersOnAnchorXAndClampsToVisible`, and `testDrawerClearsSideRailsAndFitsTinyScreen`.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherPresentationTests` (11/11 passed in 0.007 s). Zero `project.pbxproj` edits.
+
+### DO-1b — Launcher `"Drawer"` Presentation UI & Settings Picker (landed 2026-11-22)
+
+- `App/Scenes/LauncherView.swift`: added `presentation` and `stashedAppIDs` to `LauncherModel` plus compact `drawerBody` (inline search, Grid/List toggle, Edit/Close controls, Pinned/Stashed + All Apps sections, folder overlay, drag/drop reorder, and existing context menus) while keeping Fullscreen/Centred/Floating-on-Dock unchanged.
+- `App/Entry/LauncherPanelController.swift` & `App/Entry/AppDelegate.swift`: wired `mode == .drawer` insets/corner radius, vertical-scroll pass-through in Drawer mode, and `stashedApps` sourced from `PopStore.shared` + `drawerStore`.
+- `App/Scenes/SettingsLayoutPane+Launcher.swift`: added `Drawer` option to the Launcher `Presentation` segmented picker.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherPresentationTests -only-testing:KatiKatiTests/LauncherAppIndexTests` (33/33 passed), `Scripts/check_localization.py`, `Scripts/check_debug_switches.py`, and `Scripts/check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.

@@ -28,6 +28,8 @@ final class LauncherPanelController {
     var sideBarReserve: () -> (leading: Double, trailing: Double) = { (0, 0) }
     /// Bundle ids of the apps kept in the dock; they open page 1 as Pinned.
     var keptApps: () -> [String] = { [] }
+    /// Stashed app bundle IDs from PopStore / DrawerStore so Launcher's Drawer preset surfaces them.
+    var stashedApps: () -> [String] = { [] }
     /// Called just before the launcher appears so competing floating panels (Quick Settings, Widgets, Drawers) dismiss cleanly.
     var onWillShow: () -> Void = {}
     private var backdrop: LauncherBackdrop?
@@ -57,19 +59,23 @@ final class LauncherPanelController {
                                             dockReserve: CGFloat(bottomBarReserve()),
                                             leading: CGFloat(rails.leading), trailing: CGFloat(rails.trailing))
         // Fullscreen still has to clear the menu bar and notch; a windowed card already sits inside `visibleFrame`.
+        model.presentation = mode
         model.screenInsets = mode == .fullscreen
             ? LauncherScreenInsets.compute(
                 frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
                 extraBottom: bottomBarReserve(),
                 extraLeading: rails.leading, extraTrailing: rails.trailing)
-            : (top: 0, bottom: bottomBarReserve(),
-               leading: rails.leading, trailing: rails.trailing)
+            : (mode == .drawer
+               ? (top: 0, bottom: 0, leading: 0, trailing: 0)
+               : (top: 0, bottom: bottomBarReserve(),
+                  leading: rails.leading, trailing: rails.trailing))
         model.query = ""
         model.editing = false
         model.focusedID = nil
         model.openFolderID = nil
         model.prefs = LauncherPrefs.load()
         model.keptIDs = keptApps()
+        model.stashedAppIDs = stashedApps()
         model.runningIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
         indexer.start()
         let panel = self.panel ?? makePanel()
@@ -77,7 +83,7 @@ final class LauncherPanelController {
         let look = self.look()
         panel.appearance = backdrop?.apply(theme: look.theme, tint: look.tint, screen: screen)
         backdrop?.setBlurStrength(model.prefs.blur)
-        backdrop?.setCornerRadius(mode == .fullscreen ? 0 : 22)
+        backdrop?.setCornerRadius(mode == .fullscreen ? 0 : (mode == .drawer ? 18 : 22))
         panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
@@ -113,7 +119,7 @@ final class LauncherPanelController {
     }
 
     private func handleScroll(_ event: NSEvent) {
-        guard isShown, model.query.isEmpty, model.scrollDirection == .horizontal else { return }
+        guard isShown, model.presentation != .drawer, model.query.isEmpty, model.scrollDirection == .horizontal else { return }
         // Line-based wheel events may carry only the raw deltas.
         let dx = event.scrollingDeltaX != 0 ? event.scrollingDeltaX : event.deltaX
         let dy = event.scrollingDeltaY != 0 ? event.scrollingDeltaY : event.deltaY

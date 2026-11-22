@@ -56,6 +56,12 @@ struct LauncherView: View {
     private static let dotsHeight = 36.0
     @State private var dragX: CGFloat = 0
     @State private var showGear = false
+    @AppStorage("com.katikati.launcher.drawerStyle") private var drawerStyleRaw: String = LauncherDrawerViewStyle.grid.rawValue
+
+    private enum LauncherDrawerViewStyle: String { case grid, list }
+    private var drawerStyle: LauncherDrawerViewStyle {
+        LauncherDrawerViewStyle(rawValue: drawerStyleRaw) ?? .grid
+    }
 
     private var matches: [LauncherApp] {
         LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
@@ -71,19 +77,25 @@ struct LauncherView: View {
     }
 
     var body: some View {
-        let inset = model.searchPosition.reservedInsets(sheetSide: .right, sheetWidth: 0)
-        ZStack {
-            Color.black.opacity(0.001).onTapGesture(perform: actions.close)
-            content
-                .padding(.top, 50 + inset.top + model.screenInsets.top)
-                .padding(.bottom, inset.bottom + model.screenInsets.bottom)
-                .padding(.leading, inset.leading + model.screenInsets.leading)
-                .padding(.trailing, inset.trailing + model.screenInsets.trailing)
-            if let folder = openFolder { folderOverlay(folder) }
-            toolbar
-            searchField
-                .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
-                .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
+        Group {
+            if model.presentation == .drawer {
+                drawerBody
+            } else {
+                let inset = model.searchPosition.reservedInsets(sheetSide: .right, sheetWidth: 0)
+                ZStack {
+                    Color.black.opacity(0.001).onTapGesture(perform: actions.close)
+                    content
+                        .padding(.top, 50 + inset.top + model.screenInsets.top)
+                        .padding(.bottom, inset.bottom + model.screenInsets.bottom)
+                        .padding(.leading, inset.leading + model.screenInsets.leading)
+                        .padding(.trailing, inset.trailing + model.screenInsets.trailing)
+                    if let folder = openFolder { folderOverlay(folder) }
+                    toolbar
+                    searchField
+                        .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
+                        .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
+                }
+            }
         }
         .background(pageShortcuts)
         .onAppear { monitor.acquire() }
@@ -678,7 +690,9 @@ final class LauncherModel: ObservableObject {
     @Published var state = LauncherState()
     @Published var prefs = LauncherPrefs() { didSet { if prefs != oldValue { prefs.save() } } }
     /// Dock-kept apps (Pinned on page 1) and the apps running right now (dot under the name); read at each summon.
-    var keptIDs: [String] = []
+    @Published var keptIDs: [String] = []
+    @Published var stashedAppIDs: [String] = []
+    @Published var presentation: LauncherPresentation = .default
     @Published var runningIDs: Set<String> = []
 }
 
@@ -842,5 +856,217 @@ struct LauncherTelemetryPill: View {
         .background(Capsule().fill(Color.primary.opacity(0.08)))
         .help(Text("System Telemetry (CPU · RAM · Disk)"))
         .accessibilityLabel(Text(verbatim: telemetry.summaryText))
+    }
+}
+
+private extension LauncherView {
+    @ViewBuilder var drawerBody: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                drawerHeader
+                Divider().opacity(0.35)
+                drawerContent
+            }
+            if let folder = openFolder { folderOverlay(folder) }
+        }
+    }
+
+    var drawerHeader: some View {
+        HStack(spacing: 8) {
+            LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
+                                onSubmit: {
+                                    if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
+                                    else if let answer = answers.first { run(answer) }
+                                    else if isRunnable { _ = LauncherRunner.run(routed) }
+                                    else if let first = matches.first { actions.launch(first) }
+                                    else if let q = LauncherQuickAction.resolve(model.query) { actions.quickAction(q) }
+                                },
+                                onCancel: {
+                                    if model.openFolderID != nil { model.openFolderID = nil }
+                                    else if model.editing { model.editing = false }
+                                    else { actions.close() }
+                                },
+                                onPage: { _ in },
+                                onArrow: { arrow(dx: $0, dy: $1) })
+                .frame(maxWidth: .infinity)
+                .frame(height: 28)
+
+            Button {
+                drawerStyleRaw = (drawerStyle == .grid ? LauncherDrawerViewStyle.list : .grid).rawValue
+            } label: {
+                Image(systemName: drawerStyle == .grid ? "list.bullet" : "square.grid.2x2")
+                    .font(.system(size: 12, weight: .semibold))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.10)))
+            }
+            .buttonStyle(.plain)
+            .help(drawerStyle == .grid ? Text("List") : Text("Grid"))
+            .accessibilityLabel(drawerStyle == .grid ? Text("List") : Text("Grid"))
+
+            Button { model.editing.toggle(); model.openFolderID = nil } label: {
+                Group { if model.editing { Text("Done") } else { Text("Edit") } }
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .padding(.horizontal, 10)
+                    .frame(height: 28)
+                    .background(Capsule().fill(model.editing ? Color.accentColor.opacity(0.35) : Color.primary.opacity(0.10)))
+            }
+            .buttonStyle(.plain)
+
+            Button(action: actions.close) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.10)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Close"))
+            .accessibilityLabel(Text("Close"))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    @ViewBuilder var drawerContent: some View {
+        let cols = drawerStyle == .grid ? 4 : 1
+        if model.query.isEmpty {
+            let page = LauncherAppIndex.page(
+                apps: indexer.apps,
+                usage: model.state.usage,
+                pinned: model.stashedAppIDs + (model.pinnedRow ? model.state.pinned : []),
+                columns: cols,
+                now: Date(),
+                hidden: Set(model.state.hidden),
+                order: model.state.order,
+                keptIDs: model.pinnedRow ? model.keptIDs : [],
+                separatePinned: true,
+                sort: model.prefs.sort,
+                groupByCategory: model.prefs.groupByCategory,
+                folders: model.state.folders
+            )
+            let sections: [(kind: LauncherSectionKind, apps: [LauncherApp], reorderable: Bool)] = {
+                var list: [(LauncherSectionKind, [LauncherApp], Bool)] = []
+                if !page.pinned.isEmpty { list.append((.pinned, page.pinned, false)) }
+                if page.groups.isEmpty {
+                    list.append((.allApps, page.all, true))
+                } else {
+                    list += page.groups.map { (.category($0.title), $0.apps, false) }
+                }
+                return list
+            }()
+            let _ = recordLayout(
+                [sections.map { LauncherPageSection(kind: $0.kind, apps: $0.apps, showsHeader: true) }],
+                columns: cols
+            )
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    ForEach(Array(sections.enumerated()), id: \.offset) { _, sec in
+                        VStack(alignment: .leading, spacing: 8) {
+                            sectionTitle(sec.kind)
+                            drawerCollection(sec.apps, reorderable: sec.reorderable)
+                        }
+                    }
+                }
+                .padding(14)
+            }
+        } else if matches.isEmpty && answers.isEmpty && !isRunnable {
+            noResults
+            Spacer(minLength: 0)
+        } else {
+            let _ = recordSearchLayout(matches, columns: cols)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    if !answers.isEmpty { answerSection }
+                    commandSection
+                    if !matches.isEmpty { drawerCollection(matches, reorderable: false) }
+                }
+                .padding(14)
+            }
+        }
+    }
+
+    @ViewBuilder func drawerCollection(_ apps: [LauncherApp], reorderable: Bool) -> some View {
+        if drawerStyle == .grid {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: 72, maximum: 110), spacing: 10), count: 4), spacing: 12) {
+                ForEach(apps, id: \.bundleID) { app in
+                    drawerInteractiveCell(app, reorderable: reorderable) {
+                        VStack(spacing: 5) {
+                            cellImage(app, icon: 44)
+                            Text(verbatim: app.name)
+                                .font(.system(size: 11))
+                                .lineLimit(1)
+                                .frame(maxWidth: 84)
+                                .overlay(alignment: .bottom) {
+                                    if model.prefs.showRunningDot, model.runningIDs.contains(app.bundleID) {
+                                        Circle().fill(Color.secondary).frame(width: 3.5, height: 3.5).offset(y: 6)
+                                    }
+                                }
+                        }
+                        .padding(6)
+                    }
+                }
+            }
+        } else {
+            LazyVStack(spacing: 4) {
+                ForEach(apps, id: \.bundleID) { app in
+                    drawerInteractiveCell(app, reorderable: reorderable) {
+                        HStack(spacing: 10) {
+                            cellImage(app, icon: 28)
+                            Text(verbatim: app.name)
+                                .font(.system(size: 13, weight: .medium))
+                                .lineLimit(1)
+                            Spacer(minLength: 0)
+                            if model.prefs.showRunningDot, model.runningIDs.contains(app.bundleID) {
+                                Circle().fill(Color.secondary).frame(width: 5, height: 5)
+                            }
+                            if LauncherFolders.isFolderID(app.bundleID) {
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder func drawerInteractiveCell<Content: View>(
+        _ app: LauncherApp,
+        reorderable: Bool,
+        @ViewBuilder label: () -> Content
+    ) -> some View {
+        let isFolder = LauncherFolders.isFolderID(app.bundleID)
+        let base = Button {
+            if model.editing && !isFolder { return }
+            activate(app)
+        } label: {
+            label()
+                .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.accentColor, lineWidth: model.focusedID == app.bundleID ? 2 : 0))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .modifier(LauncherWiggle(active: model.editing, seed: app.bundleID))
+        .overlay(alignment: .topLeading) { if model.editing { editBadge(app, isFolder: isFolder) } }
+        .contextMenu { menu(app, reorderable: reorderable) }
+
+        if reorderable || model.editing {
+            base
+                .onDrag { NSItemProvider(object: app.bundleID as NSString) }
+                .onDrop(of: [.plainText], isTargeted: nil) { providers in
+                    guard let provider = providers.first else { return false }
+                    _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+                        guard let id = object as? String else { return }
+                        DispatchQueue.main.async {
+                            if model.editing { actions.dropOnto(id, app) } else { actions.move(id, app) }
+                        }
+                    }
+                    return true
+                }
+        } else {
+            base
+        }
     }
 }

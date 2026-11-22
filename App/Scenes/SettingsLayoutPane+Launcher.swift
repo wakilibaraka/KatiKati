@@ -24,6 +24,7 @@ extension SettingsLayoutPane {
                         Text("Fullscreen").tag(LauncherPresentation.fullscreen)
                         Text("Centred").tag(LauncherPresentation.centred)
                         Text("Floating on dock").tag(LauncherPresentation.floatingDock)
+                        Text("Drawer").tag(LauncherPresentation.drawer)
                     }
                     .labelsHidden().pickerStyle(.segmented).fixedSize()
                 }

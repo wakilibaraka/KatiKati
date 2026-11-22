@@ -204,6 +204,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
         panel.presentation = { [weak self] in self?.settingsStore.launcherPresentation ?? .default }
         panel.keptApps = { [weak self] in self?.keptAppStore.bundleIDs ?? [] }
+        panel.stashedApps = { [weak self] in
+            let popIDs = PopStore.shared.items.filter { $0.kind == .app }.map(\.reference)
+            return popIDs + (self?.drawerStore.bundleIDs ?? [])
+        }
         panel.bottomBarReserve = { [weak self] in
             guard let store = self?.settingsStore, store.stripPlacementMap.global == .bottom else { return 0 }
             return Double(store.dockPanelHeight.points + store.bottomGap + 8)
