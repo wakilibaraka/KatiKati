@@ -14,6 +14,9 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
     case disk
     case battery
     case ai
+    // PHN-2: the wellness wings.
+    case pause
+    case hydrate
 
     var id: String { rawValue }
 
@@ -33,6 +36,8 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .disk: return "internaldrive"
         case .battery: return "battery.75percent"
         case .ai: return "sparkles"
+        case .pause: return "figure.mind.and.body"
+        case .hydrate: return "drop.fill"
         }
     }
 
@@ -49,6 +54,8 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .disk: return String(localized: "Disk & I/O")
         case .battery: return String(localized: "Battery & Thermal")
         case .ai: return String(localized: "AI")
+        case .pause: return String(localized: "Pause")
+        case .hydrate: return String(localized: "Hydrate")
         }
     }
 }
@@ -270,6 +277,12 @@ enum DockWingDimensions {
         case (.ai, .small): return 112
         case (.ai, .medium): return 184
         case (.ai, .large): return 244
+        case (.pause, .small): return 112
+        case (.pause, .medium): return 188
+        case (.pause, .large): return 244
+        case (.hydrate, .small): return 108
+        case (.hydrate, .medium): return 176
+        case (.hydrate, .large): return 232
         }
     }
 

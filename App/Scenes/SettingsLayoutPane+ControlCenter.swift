@@ -83,16 +83,70 @@ extension SettingsLayoutPane {
                 )
                 if notifMove.isEnabled {
                     SettingsDivider()
-                    SettingsPickerRow(Text("Position"), selection: Binding(
+                    // PHN-3: the text picker became the 3×3 screen it was describing.
+                    NotificationZonePicker(selection: Binding(
                         get: { notifMove.slot },
-                        set: { notifMove.setSlot($0) }
-                    )) {
-                        ForEach(NotificationSlot.allCases, id: \.self) { slot in
-                            notificationSlotTitle(slot).tag(slot)
-                        }
-                    }
+                        set: { notifMove.setGlobalSlot($0) }
+                    ))
+                    SettingsDivider()
+                    displayRoutingRow
+                }
+                SettingsDivider()
+                bannerStatusNote
+            }
+    }
+
+    /// PHN-3 — the per-display rule: follow the global zone, take one of the eight, or send this
+    /// display's banners to the notch inbox.
+    @ViewBuilder
+    private var displayRoutingRow: some View {
+        if let uuid = notificationDisplayUUID {
+            SettingsPickerRow(Text("This Display"), selection: displayRuleBinding(uuid)) {
+                Text("Follow Global").tag("global")
+                ForEach(NotificationSlot.allCases, id: \.self) { slot in
+                    Text(verbatim: NotificationZonePicker.title(for: slot)).tag(slot.rawValue)
+                }
+                Text("Send to Notch").tag("notch")
+            }
+        } else {
+            SettingsNote(Text("This display has no stable identity, so it follows the global position."))
+                .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+        }
+    }
+
+    private var notificationDisplayUUID: String? {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return nil }
+        return DisplayIdentity.uuidString(for: screen)
+    }
+
+    private func displayRuleBinding(_ uuid: String) -> Binding<String> {
+        Binding(
+            get: {
+                let target = notifMove.target(forDisplay: uuid)
+                if target.routesToNotch { return "notch" }
+                if notifMove.rule.perDisplay[uuid] != nil, let slot = target.slot { return slot.rawValue }
+                return "global"
+            },
+            set: { raw in
+                switch raw {
+                case "global": notifMove.setSlot(nil, forDisplay: uuid)
+                case "notch": notifMove.setNotchRouting(true, forDisplay: uuid)
+                default: if let slot = NotificationSlot(rawValue: raw) { notifMove.setSlot(slot, forDisplay: uuid) }
                 }
             }
+        )
+    }
+
+    /// Says which failure is in the way instead of letting the switch flip itself back silently.
+    @ViewBuilder
+    private var bannerStatusNote: some View {
+        if !notifMirror.canReadBanners {
+            SettingsNote(Text("Accessibility is off, so banners stay where macOS puts them. Grant it in Privacy & Security, then turn the switch back on."))
+                .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+        } else {
+            SettingsNote(Text("Notification Center's layout changes between macOS updates. When it looks unfamiliar, KatiKati leaves banners where they are, and the notch inbox still lists them."))
+                .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+        }
     }
 
     func controlCenterWidgetTitle(_ kind: TileKind) -> Text {
@@ -104,16 +158,70 @@ extension SettingsLayoutPane {
         }
     }
 
-    func notificationSlotTitle(_ slot: NotificationSlot) -> Text {
+}
+
+/// PHN-3 — PingPlace's visual picker: the screen as a 3×3 grid, one click per zone, the dead centre
+/// left as a picture of the screen rather than a target.
+struct NotificationZonePicker: View {
+    @Binding var selection: NotificationSlot
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ForEach(Array(NotificationZoneGrid.rows.enumerated()), id: \.offset) { _, row in
+                HStack(spacing: 6) {
+                    ForEach(Array(row.enumerated()), id: \.offset) { _, slot in
+                        if let slot { zoneCell(slot) } else { deadCentre }
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func zoneCell(_ slot: NotificationSlot) -> some View {
+        let selected = slot == selection
+        return Button { selection = slot } label: {
+            Text(verbatim: NotificationZonePicker.title(for: slot))
+                .font(.system(size: 10, weight: selected ? .semibold : .regular))
+                .foregroundStyle(selected ? Color.accentColor : Color.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, minHeight: 30)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(selected ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.045))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .strokeBorder(selected ? Color.accentColor.opacity(0.55) : Color.primary.opacity(0.09),
+                                      lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: NotificationZonePicker.title(for: slot)))
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
+        .help(Text(verbatim: NotificationZonePicker.title(for: slot)))
+    }
+
+    private var deadCentre: some View {
+        RoundedRectangle(cornerRadius: 7, style: .continuous)
+            .strokeBorder(Color.primary.opacity(0.09), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+            .frame(maxWidth: .infinity, minHeight: 30)
+            .overlay(Image(systemName: "minus").font(.system(size: 9)).foregroundStyle(.tertiary))
+            .accessibilityHidden(true)
+    }
+
+    /// The eight zone names — the same keys the picker used before the grid replaced it.
+    static func title(for slot: NotificationSlot) -> String {
         switch slot {
-        case .topLeft: return Text("Top Left")
-        case .topCenter: return Text("Top Center")
-        case .topRight: return Text("Top Right")
-        case .middleLeft: return Text("Middle Left")
-        case .middleRight: return Text("Middle Right")
-        case .bottomLeft: return Text("Bottom Left")
-        case .bottomCenter: return Text("Bottom Center")
-        case .bottomRight: return Text("Bottom Right")
+        case .topLeft: return String(localized: "Top Left")
+        case .topCenter: return String(localized: "Top Center")
+        case .topRight: return String(localized: "Top Right")
+        case .middleLeft: return String(localized: "Middle Left")
+        case .middleRight: return String(localized: "Middle Right")
+        case .bottomLeft: return String(localized: "Bottom Left")
+        case .bottomCenter: return String(localized: "Bottom Center")
+        case .bottomRight: return String(localized: "Bottom Right")
         }
     }
 }

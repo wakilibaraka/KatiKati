@@ -156,6 +156,199 @@ struct DockRing<Label: View>: View {
     }
 }
 
+// MARK: - PHN-2: the wellness wings (Pause and Hydrate)
+
+/// PHN-2 — Pause on the dock: one gentle line, a Done, a snooze and a skip. Nothing here counts misses or
+/// shows a broken streak: skipping is a first-class action, exactly like finishing.
+struct DockPauseWidgetView: View {
+    @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
+    @ObservedObject private var hydro = HydrationController.shared
+
+    private let tint = Color(red: 0.62, green: 0.78, blue: 1.0)
+
+    var body: some View {
+        Group {
+            if isVertical { verticalBody } else { horizontalBody }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear { hydro.refreshPausePrompt() }
+    }
+
+    private var caption: String {
+        hydro.currentPause?.text ?? String(localized: "Take a small breath.")
+    }
+
+    private var symbolName: String {
+        hydro.currentPause?.category.symbolName ?? "figure.mind.and.body"
+    }
+
+    private var horizontalBody: some View {
+        HStack(spacing: 8) {
+            Button { hydro.completePause() } label: { symbolPlate }
+                .buttonStyle(.plain)
+                .help(Text("Done"))
+
+            if size != .small {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: String(localized: "Pause"))
+                        .font(.system(size: 9, weight: .bold, design: .rounded)).tracking(0.6)
+                        .foregroundStyle(DockWidgetStyle.ink.opacity(0.85))
+                        .lineLimit(1)
+                    Text(verbatim: caption)
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(DockWidgetStyle.ink.opacity(0.72))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                if size == .large {
+                    iconButton("clock.arrow.circlepath", help: String(localized: "Snooze 15 Minutes")) {
+                        hydro.snoozePause()
+                    }
+                }
+                iconButton("xmark", help: String(localized: "Skip for now")) { hydro.skipPause() }
+            }
+        }
+        .padding(.horizontal, 9)
+    }
+
+    private var verticalBody: some View {
+        VStack(spacing: 4) {
+            Button { hydro.completePause() } label: { symbolPlate }
+                .buttonStyle(.plain)
+                .help(Text("Done"))
+            if size != .small {
+                Text(verbatim: String(localized: "Pause"))
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .foregroundStyle(DockWidgetStyle.ink.opacity(0.8))
+                    .lineLimit(1)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private var symbolPlate: some View {
+        ZStack {
+            Circle().fill(tint.opacity(0.18)).frame(width: 26, height: 26)
+            Image(systemName: symbolName)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(tint)
+        }
+        .contentShape(Circle())
+    }
+
+    private func iconButton(_ symbol: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 9.5, weight: .semibold))
+                .foregroundStyle(DockWidgetStyle.ink.opacity(0.62))
+                .frame(width: 18, height: 18)
+                .background(Circle().fill(Color.white.opacity(0.07)))
+        }
+        .buttonStyle(.plain)
+        .help(Text(verbatim: help))
+    }
+}
+
+/// PHN-2 — Hydrate on the dock: the day's ring, one-tap servings in the unit the user reads, the streak,
+/// and `Paused during focus` when Smart Pause is holding the nudges back.
+struct DockHydrateWidgetView: View {
+    @Environment(\.widgetSize) private var size
+    @Environment(\.dockWingVertical) private var isVertical
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ObservedObject private var hydro = HydrationController.shared
+
+    private let tint = Color(red: 0.36, green: 0.76, blue: 1.0)
+
+    var body: some View {
+        Group {
+            if isVertical { verticalBody } else { horizontalBody }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var percentText: String { "\(Int((hydro.dayProgress * 100).rounded()))%" }
+
+    private var statusText: String {
+        if hydro.smartPaused { return String(localized: "Paused during focus") }
+        if hydro.dayProgress >= 1 { return String(localized: "Goal reached") }
+        return String(format: String(localized: "%d day streak"), hydro.streak)
+    }
+
+    private var horizontalBody: some View {
+        HStack(spacing: 8) {
+            Button { hydro.add(millilitres: DrinkQuickAdd.cup.millilitres) } label: { ring(24) }
+                .buttonStyle(.plain)
+                .help(Text("Drink now"))
+
+            if size != .small {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: hydro.waterUnit.label(millilitres: hydro.todayMillilitres))
+                        .font(.system(size: 10.5, weight: .semibold, design: .rounded)).monospacedDigit()
+                        .foregroundStyle(DockWidgetStyle.ink)
+                        .lineLimit(1)
+                    Text(verbatim: statusText)
+                        .font(.system(size: 8.5))
+                        .foregroundStyle(DockWidgetStyle.ink.opacity(0.62))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                Spacer(minLength: 0)
+                if !hydro.smartPaused {
+                    if size == .large {
+                        ForEach(DrinkQuickAdd.allCases) { preset in quickAdd(preset) }
+                    } else {
+                        quickAdd(.cup)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 9)
+    }
+
+    private var verticalBody: some View {
+        VStack(spacing: 3) {
+            Button { hydro.add(millilitres: DrinkQuickAdd.cup.millilitres) } label: { ring(22) }
+                .buttonStyle(.plain)
+                .help(Text("Drink now"))
+            if size != .small {
+                Text(verbatim: hydro.waterUnit.label(millilitres: hydro.todayMillilitres))
+                    .font(.system(size: 8, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(DockWidgetStyle.ink.opacity(0.8))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func ring(_ side: CGFloat) -> some View {
+        DockRing(fraction: hydro.dayProgress, tint: tint, lineWidth: 2.6) {
+            Text(verbatim: percentText)
+                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .foregroundStyle(DockWidgetStyle.ink)
+        }
+        .frame(width: side, height: side)
+        // Reduce Motion: the ring snaps to its new fraction instead of easing to it.
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: hydro.dayProgress)
+    }
+
+    private func quickAdd(_ preset: DrinkQuickAdd) -> some View {
+        Button { hydro.add(millilitres: preset.millilitres) } label: {
+            Text(verbatim: hydro.waterUnit.label(millilitres: preset.millilitres))
+                .font(.system(size: 8.5, weight: .semibold).monospacedDigit())
+                .foregroundStyle(tint)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(tint.opacity(0.16)))
+        }
+        .buttonStyle(.plain)
+        .help(Text("Drink now"))
+    }
+}
+
 /// 30-sample history line with a soft fill, values already normalised to 0…1.
 struct DockSparkline: View {
     let values: [Double]

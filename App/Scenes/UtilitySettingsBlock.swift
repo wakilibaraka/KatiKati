@@ -746,8 +746,9 @@ struct NotchHelpersSettingsBlock: View {
     @AppStorage(DailyHelpersService.batteryKey) private var batteryNudge = false
     @AppStorage(DailyHelpersService.ejectKey) private var usbEject = false
     @AppStorage(DailyHelpersService.privacyKey) private var privacyDot = false
-    @AppStorage(DailyHelpersService.hydrateKey) private var hydrate = false
-    @AppStorage(DailyHelpersService.pauseKey) private var pauseReminder = false
+    /// PHN-4: the wellness helpers ship on, so their switches read `WellnessDefaults` rather than an
+    /// `@AppStorage` default of `false` (which cannot tell "unset" from "off").
+    @ObservedObject private var hydro = HydrationController.shared
     @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
@@ -768,9 +769,40 @@ struct NotchHelpersSettingsBlock: View {
             SettingsToggleRow(Text("Camera and Mic Indicator"), isOn: $privacyDot)
             SettingsDivider()
             SettingsRowPair(
-                left: { SettingsToggleRow(Text("Water Reminder"), isOn: $hydrate) },
-                right: { SettingsToggleRow(Text("Break Reminder"), isOn: $pauseReminder) }
+                left: { SettingsToggleRow(Text("Water Reminder"), isOn: wellnessBinding(.waterReminder)) },
+                right: { SettingsToggleRow(Text("Break Reminder"), isOn: wellnessBinding(.pauseReminder)) }
             )
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Smart Pause"),
+                isOn: wellnessBinding(.smartPause),
+                note: Text("Holds water reminders while a focus session, a call, the camera or the microphone is in use.")
+            )
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Reminder Frequency"),
+                value: Double(hydro.intervalMinutes),
+                range: 15...120,
+                step: 5,
+                valueText: "\(hydro.intervalMinutes) min",
+                set: { hydro.setIntervalMinutes(Int($0)) }
+            )
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Daily Water Goal"),
+                value: Double(hydro.dailyGoalGlasses),
+                range: 4...20,
+                step: 1,
+                valueText: "\(hydro.dailyGoalGlasses) glasses",
+                set: { hydro.setDailyGoal(Int($0)) }
+            )
+            SettingsDivider()
+            SettingsGrid(PauseCategory.allCases, id: \.self) { category in
+                SettingsCheckboxRow(Text(verbatim: category.localizedTitle), isOn: Binding(
+                    get: { hydro.pauseSession.categories.contains(category) },
+                    set: { hydro.setPauseCategory(category, enabled: $0) }
+                ))
+            }
             SettingsDivider()
             SettingsRow(Text("Teleprompter"), note: Text("Opens from ⌘Space (prompter). The window is hidden from screen recordings and shares.")) {
                 Button("Open Teleprompter Window") { TeleprompterWindowController.shared.show() }
@@ -790,6 +822,13 @@ struct NotchHelpersSettingsBlock: View {
                 info: String(localized: "Looks up synced lyrics from lrclib.net by sending the current song title and artist when the music notch card is open.")
             )
         }
+    }
+
+    private func wellnessBinding(_ item: WellnessDefaults.Item) -> Binding<Bool> {
+        Binding(
+            get: { WellnessDefaults.isEnabled(item) },
+            set: { WellnessDefaults.set($0, for: item) }
+        )
     }
 
 }

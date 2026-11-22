@@ -17,11 +17,18 @@ final class NotificationMoveService: ObservableObject {
     static let positionKey = "com.katikati.notifications.position"
     private static let notificationCenterBundleID = "com.apple.notificationcenterui"
 
-    @Published private(set) var isEnabled = UserDefaults.standard.bool(forKey: enabledKey)
-    /// macOS's own default slot is top-centre.
-    @Published private(set) var slot: NotificationSlot = {
-        UserDefaults.standard.string(forKey: positionKey).flatMap(NotificationSlot.init(rawValue:)) ?? .topCenter
+    /// PHN-3: on by default — an unset key reads as on through `WellnessDefaults`.
+    @Published private(set) var isEnabled = WellnessDefaults.isEnabled(.moveBanners)
+    /// PHN-3: one global zone plus per-display overrides and notch routing.
+    @Published private(set) var rule: NotificationPlacementRule = {
+        if let stored = NotificationPlacementRule.decode(
+            UserDefaults.standard.data(forKey: NotificationPlacementRule.storageKey)) { return stored }
+        let legacy = UserDefaults.standard.string(forKey: positionKey).flatMap(NotificationSlot.init(rawValue:))
+        return NotificationPlacementRule(global: legacy ?? .topCenter)
     }()
+
+    /// The global zone — macOS's own default is top-centre.
+    var slot: NotificationSlot { rule.global }
 
     private let log = Logger(subsystem: "com.katikati.app", category: "notifmove")
     private var observer: AXObserver?
@@ -34,15 +41,42 @@ final class NotificationMoveService: ObservableObject {
     func setEnabled(_ on: Bool) {
         guard on != isEnabled else { return }
         isEnabled = on
-        UserDefaults.standard.set(on, forKey: Self.enabledKey)
+        WellnessDefaults.set(on, for: .moveBanners)
         refresh()
     }
 
-    func setSlot(_ new: NotificationSlot) {
-        guard new != slot else { return }
-        slot = new
+    func setGlobalSlot(_ new: NotificationSlot) {
+        guard new != rule.global else { return }
+        rule = rule.withGlobal(new)
+        persistRule()
         UserDefaults.standard.set(new.rawValue, forKey: Self.positionKey)
         if isEnabled { moveAll() }
+    }
+
+    /// A per-display override; `nil` clears it back to the global zone.
+    func setSlot(_ slot: NotificationSlot?, forDisplay uuid: String?) {
+        guard let uuid, !uuid.isEmpty else {
+            if let slot { setGlobalSlot(slot) }
+            return
+        }
+        rule = rule.assigning(slot, toDisplay: uuid)
+        persistRule()
+        if isEnabled { moveAll() }
+    }
+
+    /// PHN-3: route this display's banners into the notch inbox instead of moving them.
+    func setNotchRouting(_ on: Bool, forDisplay uuid: String?) {
+        guard let uuid, !uuid.isEmpty else { return }
+        rule = rule.routingToNotch(on, display: uuid)
+        persistRule()
+        if isEnabled { moveAll() }
+    }
+
+    /// What one display will do, for the settings page.
+    func target(forDisplay uuid: String?) -> NotificationTarget { rule.target(forDisplay: uuid) }
+
+    private func persistRule() {
+        UserDefaults.standard.set(rule.encoded(), forKey: NotificationPlacementRule.storageKey)
     }
 
     func tearDown() { stop() }
@@ -56,7 +90,7 @@ final class NotificationMoveService: ObservableObject {
         guard AXIsProcessTrusted() else {
             log.warning("Notification move needs Accessibility; not starting")
             isEnabled = false
-            UserDefaults.standard.set(false, forKey: Self.enabledKey)
+            WellnessDefaults.set(false, for: .moveBanners)
             return
         }
         guard let app = NSWorkspace.shared.runningApplications.first(where: {
@@ -169,12 +203,16 @@ final class NotificationMoveService: ObservableObject {
     /// Keep the banner's offset inside its (usually full-screen) window and move the window instead.
     private func targetOrigin(windowFrame: CGRect, bannerFrame: CGRect) -> CGPoint? {
         guard let screen = screen(containing: windowFrame) else { return nil }
-        let target = NotificationPlacement.frame(
+        // PHN-3: the display's own rule decides. A notch-routed display sends nothing — the mirror
+        // already lists that banner in the notch inbox, so the banner is simply left alone.
+        let target = rule.target(forDisplay: DisplayIdentity.uuidString(for: screen))
+        guard let slot = target.slot else { return nil }
+        let targetFrame = NotificationPlacement.frame(
             slot: slot, workArea: cgRect(fromAppKit: screen.visibleFrame), banner: bannerFrame
         )
         return CGPoint(
-            x: target.minX - (bannerFrame.minX - windowFrame.minX),
-            y: target.minY - (bannerFrame.minY - windowFrame.minY)
+            x: targetFrame.minX - (bannerFrame.minX - windowFrame.minX),
+            y: targetFrame.minY - (bannerFrame.minY - windowFrame.minY)
         )
     }
 

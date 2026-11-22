@@ -815,6 +815,15 @@ struct GlassTilesToggle: View {
 struct WeatherSettingsBlock: View {
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
+    /// PHN-4: water on its own unit, defaulting from the temperature unit until it is set.
+    @AppStorage(WaterUnit.storageKey) private var waterUnitRaw: String = ""
+
+    private var waterUnitSelection: Binding<WaterUnit> {
+        Binding(
+            get: { WaterUnit.resolved(raw: waterUnitRaw.isEmpty ? nil : waterUnitRaw, temperature: tempUnit) },
+            set: { waterUnitRaw = $0.rawValue }
+        )
+    }
     @AppStorage(WeatherLayoutPreset.storageKey) private var weatherLayout: WeatherLayoutPreset = .fullScreen
     @AppStorage(WeatherHeroStyle.storageKey) private var heroStyle: WeatherHeroStyle = .scene
     @AppStorage("com.katikati.weather.chipPreset") private var weatherPresetRaw: String = WeatherChipPreset.modern.rawValue
@@ -861,6 +870,11 @@ struct WeatherSettingsBlock: View {
                 }
             }
         )
+        SettingsDivider()
+        SettingsSegmentedRow(Text("Water Unit"), selection: waterUnitSelection) {
+            Text(verbatim: "ml").tag(WaterUnit.millilitres)
+            Text(verbatim: "oz").tag(WaterUnit.ounces)
+        }
         SettingsDivider()
         SettingsRowPair(
             left: {

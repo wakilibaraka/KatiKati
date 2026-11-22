@@ -25,6 +25,7 @@ struct SettingsLayoutPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject var keyGuard = KeyGuardService.shared
     @ObservedObject var notifMove = NotificationMoveService.shared
+    @ObservedObject var notifMirror = NotificationMirrorService.shared
     @State var newPresetName = ""
     /// Slice G: the widget catalog's search query. Empty shows the reorderable module list as before.
     @State var widgetQuery = ""

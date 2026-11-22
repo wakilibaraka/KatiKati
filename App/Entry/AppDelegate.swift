@@ -606,6 +606,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NotificationMoveService.shared.refresh()
             PowerNotificationCenter.shared.start()
             DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }
+            // PHN-2: Smart Pause reads the focus timer here, where the Edge layer is in scope.
+            DailyHelpersService.shared.focusActiveProvider = { ProductivityServices.shared.focus.model.isRunning }
             DailyHelpersService.shared.start()
 
             let screenTime = ProductivityServices.shared.screenTime

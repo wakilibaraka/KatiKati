@@ -67,7 +67,7 @@ struct NotchAIPageView: View {
                     }
                 }
 
-                BreatherRingsMiniView(engine: BreatherScheduleEngine())
+                BreatherRingsMiniView()
                     .padding(.top, 2)
             }
             .padding(NotchDesignSpec.cardPadding)
@@ -345,14 +345,18 @@ struct AIReceiptPopoverView: View {
     }
 }
 
+/// PHN-2 — the rings were constructed per render before this, so they always read 0/12, 0/6, 0/8.
+/// They now observe the shared controller: a done pause fills Eyes or Stretch, a logged glass fills Hydrate.
 struct BreatherRingsMiniView: View {
-    let engine: BreatherScheduleEngine
+    @ObservedObject private var hydro = HydrationController.shared
+
+    private var rings: BreatherRings { hydro.breather.rings }
 
     var body: some View {
         HStack(spacing: 8) {
-            ringPill("Eyes", progress: engine.rings.eyes.progress, color: .cyan)
-            ringPill("Stretch", progress: engine.rings.stretch.progress, color: .mint)
-            ringPill("Hydrate", progress: engine.rings.hydrate.progress, color: .blue)
+            ringPill("Eyes", progress: rings.eyes.progress, color: .cyan)
+            ringPill("Stretch", progress: rings.stretch.progress, color: .mint)
+            ringPill("Hydrate", progress: rings.hydrate.progress, color: .blue)
         }
     }
 

@@ -174,6 +174,10 @@ struct DockWingHostView: View {
             DockTelemetryWidgetView(preset: preset)
         case .ai:
             DockAIWingWidgetView()
+        case .pause:
+            DockPauseWidgetView()
+        case .hydrate:
+            DockHydrateWidgetView()
         }
     }
 
@@ -355,6 +359,10 @@ struct DockUniversalWidgetCard: View {
             DockTelemetryWidgetView(preset: model.preset)
         case .ai:
             DockAIWingWidgetView()
+        case .pause:
+            DockPauseWidgetView()
+        case .hydrate:
+            DockHydrateWidgetView()
         }
     }
 

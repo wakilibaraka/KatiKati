@@ -1,6 +1,246 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%d day streak" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "%d Tage in Folge" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d day streak" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Racha de %d días" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Racha de %d días" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Série de %d jours" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Serie di %d giorni" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%d日連続" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%d일 연속" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sequência de %d dias" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sequência de %d dias" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连续 %d 天" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "連續 %d 天" } }
+      }
+    },
+    "Accessibility is off, so banners stay where macOS puts them. Grant it in Privacy & Security, then turn the switch back on." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bedienungshilfen sind aus, Banner bleiben also dort, wo macOS sie hinstellt. Erlaube sie in „Datenschutz & Sicherheit“ und schalte den Schalter danach wieder ein." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility is off, so banners stay where macOS puts them. Grant it in Privacy & Security, then turn the switch back on." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La accesibilidad está desactivada, así que los avisos se quedan donde macOS los coloca. Actívala en Privacidad y seguridad y vuelve a encender el interruptor." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "La accesibilidad está desactivada, así que los avisos se quedan donde macOS los coloca. Actívala en Privacidad y seguridad y vuelve a encender el interruptor." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L’accessibilité est désactivée : les bannières restent là où macOS les place. Autorisez-la dans Confidentialité et sécurité, puis réactivez l’interrupteur." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "L’accessibilità è disattivata, quindi i banner restano dove li mette macOS. Concedila in Privacy e sicurezza, poi riattiva l’interruttore." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクセシビリティがオフのため、通知バナーはmacOSが置いた場所に残ります。「プライバシーとセキュリティ」で許可してから、スイッチを入れ直してください。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "손쉬운 사용이 꺼져 있어 알림 배너는 macOS가 배치한 곳에 그대로 남습니다. ‘개인정보 보호 및 보안’에서 허용한 뒤 스위치를 다시 켜세요." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "A Acessibilidade está desligada, então os avisos ficam onde o macOS os coloca. Conceda-a em Privacidade e Segurança e ligue o interruptor de novo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "A Acessibilidade está desativada, por isso os avisos ficam onde o macOS os coloca. Conceda-a em Privacidade e Segurança e volte a ligar o interruptor." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "辅助功能未开启，通知横幅会留在 macOS 安排的位置。请在“隐私与安全性”中授权，然后重新打开开关。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "輔助使用未開啟，通知橫幅會留在 macOS 安排的位置。請在「隱私權與安全性」中授權，然後重新開啟開關。" } }
+      }
+    },
+    "Follow Global" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Global folgen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Follow Global" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Seguir global" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Seguir global" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suivre le réglage global" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Segui globale" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "全体設定に従う" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "전체 설정 따르기" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Seguir global" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Seguir global" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跟随全局" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "跟隨全域" } }
+      }
+    },
+    "Goal reached" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ziel erreicht" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Goal reached" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Objetivo alcanzado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Meta alcanzada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Objectif atteint" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Obiettivo raggiunto" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "目標達成" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "목표 달성" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Meta atingida" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Objetivo atingido" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已达标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "已達標" } }
+      }
+    },
+    "Holds water reminders while a focus session, a call, the camera or the microphone is in use." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hält Wasser-Erinnerungen zurück, solange eine Fokus-Sitzung, ein Anruf, die Kamera oder das Mikrofon läuft." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Holds water reminders while a focus session, a call, the camera or the microphone is in use." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Retiene los recordatorios de agua mientras hay una sesión de concentración, una llamada, la cámara o el micrófono en uso." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Retiene los recordatorios de agua mientras hay una sesión de concentración, una llamada, la cámara o el micrófono en uso." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suspend les rappels d’eau pendant une session de concentration, un appel, ou quand la caméra ou le micro est utilisé." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trattiene i promemoria dell’acqua durante una sessione di concentrazione, una chiamata o con videocamera o microfono in uso." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "集中セッション、通話、カメラやマイクの使用中は水分リマインダーを控えます。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "집중 세션, 통화, 카메라나 마이크 사용 중에는 물 알림을 멈춥니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Segura os lembretes de água durante uma sessão de foco, uma chamada, ou com a câmera ou o microfone em uso." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Suspende os lembretes de água durante uma sessão de concentração, uma chamada, ou com a câmara ou o microfone em uso." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在专注时段、通话中，或摄像头、麦克风使用时暂缓喝水提醒。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在專注時段、通話中，或相機、麥克風使用時暫緩喝水提醒。" } }
+      }
+    },
+    "Hydrate" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Trinken" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hydrate" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hidratación" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Hidratación" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Hydratation" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Idratazione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "水分補給" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "수분 섭취" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Hidratação" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Hidratação" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "补水" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "補水" } }
+      }
+    },
+    "Hydration cadence, goal and pause prompts live on the Notch page, under Daily Helpers." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Trink-Intervall, Ziel und Pausen-Texte stehen auf der Notch-Seite unter Tägliche Helfer." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hydration cadence, goal and pause prompts live on the Notch page, under Daily Helpers." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La frecuencia, el objetivo y los textos de pausa de hidratación están en la página Notch, en Ayudantes diarios." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "La frecuencia, el objetivo y los textos de pausa de hidratación están en la página Notch, en Ayudantes diarios." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La fréquence, l’objectif et les textes de pause de l’hydratation se trouvent sur la page Notch, sous Aides quotidiennes." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Frequenza, obiettivo e testi di pausa dell’idratazione sono nella pagina Notch, sotto Aiuti quotidiani." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "水分補給の間隔・目標・休憩の文言は、ノッチページの「毎日のヘルパー」にあります。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "수분 섭취 주기, 목표, 휴식 문구는 노치 페이지의 ‘일일 도우미’에 있습니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Frequência, meta e textos de pausa da hidratação ficam na página Notch, em Ajudantes diários." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Frequência, objetivo e textos de pausa da hidratação estão na página Notch, em Ajudantes diários." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "喝水间隔、目标和休息文案在刘海页面的“每日助手”中。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "喝水間隔、目標和休息文案在瀏海頁面的「每日小工具」中。" } }
+      }
+    },
+    "Notification Center's layout changes between macOS updates. When it looks unfamiliar, KatiKati leaves banners where they are, and the notch inbox still lists them." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Das Layout der Mitteilungszentrale ändert sich zwischen macOS-Updates. Wirkt es unbekannt, lässt KatiKati Banner stehen – der Notch-Posteingang listet sie weiterhin." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notification Center's layout changes between macOS updates. When it looks unfamiliar, KatiKati leaves banners where they are, and the notch inbox still lists them." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El diseño del Centro de notificaciones cambia entre versiones de macOS. Cuando no lo reconoce, KatiKati deja los avisos donde están y la bandeja del notch sigue mostrándolos." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "El diseño del Centro de notificaciones cambia entre versiones de macOS. Cuando no lo reconoce, KatiKati deja los avisos donde están y la bandeja del notch sigue mostrándolos." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La disposition du Centre de notifications change d’une version de macOS à l’autre. Quand elle est inconnue, KatiKati laisse les bannières en place et la boîte du notch les liste toujours." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il layout del Centro notifiche cambia tra un aggiornamento di macOS e l’altro. Quando non lo riconosce, KatiKati lascia i banner dov’è e la casella del notch li elenca comunque." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "通知センターのレイアウトはmacOSの更新で変わります。見慣れない形のときはバナーをそのままにし、ノッチの受信トレイには引き続き表示します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "알림 센터의 레이아웃은 macOS 업데이트마다 바뀝니다. 낯선 모양이면 배너를 그대로 두고, 노치 수신함에는 계속 표시합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O layout da Central de Notificações muda entre versões do macOS. Quando não o reconhece, o KatiKati deixa os avisos onde estão e a caixa do notch continua listando-os." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O layout do Centro de Notificações muda entre versões do macOS. Quando não o reconhece, o KatiKati deixa os avisos onde estão e a caixa do notch continua a listá-los." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知中心的布局会随 macOS 更新而改变。遇到不认识的布局时，KatiKati 会把横幅留在原处，刘海收件箱仍会列出它们。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "通知中心的佈局會隨 macOS 更新而改變。遇到不認識的佈局時，KatiKati 會把橫幅留在原處，瀏海收件匣仍會列出它們。" } }
+      }
+    },
+    "Paused during focus" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Im Fokus pausiert" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paused during focus" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En pausa por concentración" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "En pausa por concentración" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En pause pendant la concentration" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "In pausa durante la concentrazione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "集中中は一時停止" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "집중 중 일시 정지" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pausado durante o foco" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Em pausa durante o foco" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "专注时已暂停" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "專注時已暫停" } }
+      }
+    },
+    "Send to Notch" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "An Notch senden" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send to Notch" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar al notch" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Enviar al notch" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer au notch" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Invia al notch" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ノッチに送る" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "노치로 보내기" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Enviar para o notch" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Enviar para o notch" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "发送到刘海" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "傳送到瀏海" } }
+      }
+    },
+    "Skip for now" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Diesmal überspringen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip for now" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Omitir por ahora" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Omitir por ahora" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Passer pour l’instant" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salta per ora" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "今はスキップ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "지금은 건너뛰기" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pular por agora" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Saltar por agora" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "这次跳过" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "這次略過" } }
+      }
+    },
+    "Snooze 15 Minutes" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "15 Minuten später" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Snooze 15 Minutes" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Posponer 15 minutos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Posponer 15 minutos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Reporter de 15 minutes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimanda di 15 minuti" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "15分後に" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "15분 뒤에" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adiar 15 minutos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Adiar 15 minutos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "15 分钟后再提醒" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "15 分鐘後再提醒" } }
+      }
+    },
+    "Take a small breath." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Atme einmal ruhig." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Take a small breath." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Respira un momento." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Respira un momento." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Respirez un instant." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Fai un respiro." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ひと呼吸しましょう。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠깐 숨을 고르세요." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Respire um instante." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Respire um instante." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "深呼吸一下。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "深呼吸一下。" } }
+      }
+    },
+    "This display has no stable identity, so it follows the global position." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dieser Bildschirm hat keine feste Kennung und folgt daher der globalen Position." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This display has no stable identity, so it follows the global position." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esta pantalla no tiene una identidad estable, así que sigue la posición global." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Esta pantalla no tiene una identidad estable, así que sigue la posición global." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cet écran n’a pas d’identité stable : il suit donc la position globale." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questo schermo non ha un’identità stabile, quindi segue la posizione globale." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "このディスプレイは安定した識別子がないため、全体の位置に従います。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이 디스플레이는 고정 식별자가 없어 전체 위치를 따릅니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Esta tela não tem identidade estável, então segue a posição global." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Este ecrã não tem identidade estável, por isso segue a posição global." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "此显示器没有稳定标识，因此跟随全局位置。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "此顯示器沒有穩定識別，因此跟隨全域位置。" } }
+      }
+    },
+    "Water Unit" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wassereinheit" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Water Unit" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Unidad de agua" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Unidad de agua" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Unité d’eau" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Unità dell’acqua" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "水分の単位" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "물 단위" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Unidade de água" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Unidade de água" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "饮水单位" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "飲水單位" } }
+      }
+    },
     "\n\nIf simply turning the switch back on works, KatiKati restarts itself and there is nothing else to do; going through the cleanup above means reopening it manually afterwards.\nAlso, windows the taskbar had moved out of its way may sit one taskbar height short — maximizing them once puts them back." : {
       "localizations" : {
         "de" : {

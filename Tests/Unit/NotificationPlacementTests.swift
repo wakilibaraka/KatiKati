@@ -87,3 +87,63 @@ final class NotificationMoveGuardTests: XCTestCase {
         XCTAssertTrue(guard_.shouldMove(now: t0.addingTimeInterval(0.35)))
     }
 }
+
+// MARK: - PHN-3: per-display rules, notch routing, the picker grid
+
+final class NotificationPlacementRuleTests: XCTestCase {
+    func testGlobalZoneIsTheFallback() {
+        let rule = NotificationPlacementRule(global: .topCenter)
+        XCTAssertEqual(rule.target(forDisplay: nil), .slot(.topCenter))
+        XCTAssertEqual(rule.target(forDisplay: "UUID-A"), .slot(.topCenter))
+        XCTAssertEqual(rule.slot(forDisplay: "UUID-A"), .topCenter)
+    }
+
+    func testPerDisplayOverrideWinsOverTheGlobalZone() {
+        let rule = NotificationPlacementRule(global: .topCenter, perDisplay: ["UUID-A": .bottomRight])
+        XCTAssertEqual(rule.target(forDisplay: "UUID-A"), .slot(.bottomRight))
+        XCTAssertEqual(rule.target(forDisplay: "UUID-B"), .slot(.topCenter))
+    }
+
+    func testNotchRoutingWinsAndCanBeUndone() {
+        var rule = NotificationPlacementRule(global: .topCenter)
+        rule = rule.routingToNotch(true, display: "UUID-A")
+        XCTAssertEqual(rule.target(forDisplay: "UUID-A"), .notch)
+        XCTAssertEqual(rule.target(forDisplay: "UUID-B"), .slot(.topCenter))
+        XCTAssertTrue(rule.routesToNotch(forDisplay: "UUID-A"))
+
+        rule = rule.routingToNotch(false, display: "UUID-A")
+        XCTAssertEqual(rule.target(forDisplay: "UUID-A"), .slot(.topCenter))
+    }
+
+    func testAssigningAZoneClearsTheNotchRouteAndNilClearsTheOverride() {
+        var rule = NotificationPlacementRule(global: .topCenter)
+        rule = rule.routingToNotch(true, display: "UUID-A")
+        rule = rule.assigning(.middleLeft, toDisplay: "UUID-A")
+        XCTAssertEqual(rule.target(forDisplay: "UUID-A"), .slot(.middleLeft))
+
+        rule = rule.assigning(nil, toDisplay: "UUID-A")
+        XCTAssertEqual(rule.target(forDisplay: "UUID-A"), .slot(.topCenter))
+        XCTAssertNil(rule.perDisplay["UUID-A"])
+    }
+
+    func testRuleSurvivesACodableRoundTrip() throws {
+        let rule = NotificationPlacementRule(global: .bottomCenter, perDisplay: ["UUID-A": .topLeft])
+            .routingToNotch(true, display: "UUID-B")
+        let decoded = try XCTUnwrap(NotificationPlacementRule.decode(rule.encoded()))
+        XCTAssertEqual(decoded, rule)
+    }
+
+    func testZoneGridIsThreeByThreeWithTheDeadCentreEmpty() {
+        XCTAssertEqual(NotificationZoneGrid.rows.count, 3)
+        XCTAssertTrue(NotificationZoneGrid.rows.allSatisfy { $0.count == 3 })
+        XCTAssertNil(NotificationZoneGrid.rows[1][1])
+        XCTAssertEqual(NotificationZoneGrid.selectable, NotificationSlot.allCases)
+    }
+}
+
+private extension NotificationPlacementRule {
+    /// Test-only sugar: the notch question a caller actually asks.
+    func routesToNotch(forDisplay uuid: String?) -> Bool {
+        target(forDisplay: uuid).routesToNotch
+    }
+}

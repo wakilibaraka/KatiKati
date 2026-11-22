@@ -68,41 +68,14 @@ extension SettingsLayoutPane {
                 Text(verbatim: "Sydedock Glanceable Deck"),
                 note: Text(verbatim: "Live micro-widgets right on your display bezel with in-place countdowns and status.")
             ) {
-                DisclosureGroup {
-                    VStack(alignment: .leading, spacing: 6) {
-                        SettingsSliderRow(
-                            Text("Reminder Frequency"),
-                            value: Double(store.edgePrefs.hydrationIntervalMinutes),
-                            range: 15...120,
-                            step: 5,
-                            valueText: "\(store.edgePrefs.hydrationIntervalMinutes) min",
-                            set: { val in
-                                var p = store.edgePrefs
-                                p.hydrationIntervalMinutes = Int(val)
-                                store.setEdgePrefs(p)
-                                HydrationController.shared.setIntervalMinutes(Int(val))
-                            }
-                        )
-                        SettingsSliderRow(
-                            Text("Daily Water Goal"),
-                            value: Double(store.edgePrefs.hydrationDailyGoal),
-                            range: 4...20,
-                            step: 1,
-                            valueText: "\(store.edgePrefs.hydrationDailyGoal) glasses",
-                            set: { val in
-                                var p = store.edgePrefs
-                                p.hydrationDailyGoal = Int(val)
-                                store.setEdgePrefs(p)
-                                HydrationController.shared.setDailyGoal(Int(val))
-                            }
-                        )
-                    }
-                    .padding(.top, 4)
-                } label: {
-                    HStack {
-                        Image(systemName: "drop.fill").foregroundColor(.cyan)
-                        Text("Hydration & Water Tracking").font(.subheadline.weight(.semibold))
-                    }
+                // PHN-4: cadence and goal had two owners (this card wrote `edgePrefs` *and* the
+                // controller). They moved to the Notch page's Daily Helpers card; this card says so
+                // instead of offering a second copy of the same two numbers.
+                SettingsRow(
+                    Text("Hydration & Water Tracking"),
+                    note: Text("Hydration cadence, goal and pause prompts live on the Notch page, under Daily Helpers.")
+                ) {
+                    Image(systemName: "drop.fill").foregroundColor(.cyan)
                 }
 
                 SettingsDivider()

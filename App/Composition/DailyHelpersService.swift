@@ -33,6 +33,11 @@ final class DailyHelpersService {
     private var privacyTimer: Timer?
     private let privacyDots = PrivacyDotController()
     private var reminderTimers: [LiveNoticeKind: Timer] = [:]
+    /// PHN-2: the Smart Pause probe — camera/mic/focus state, only while Smart Pause is on.
+    private var wellnessTimer: Timer?
+    /// The focus timer lives in the Edge layer, which is not part of the test target's compile list;
+    /// `AppDelegate` hands the read in so this file stays buildable in both targets.
+    var focusActiveProvider: () -> Bool = { false }
 
     func start() {
         guard defaultsObserver == nil else { return }
@@ -48,8 +53,10 @@ final class DailyHelpersService {
         applyBattery(UserDefaults.standard.bool(forKey: Self.batteryKey))
         applyEject(UserDefaults.standard.bool(forKey: Self.ejectKey))
         applyPrivacy(UserDefaults.standard.bool(forKey: Self.privacyKey))
-        applyReminder(.hydrate, UserDefaults.standard.bool(forKey: Self.hydrateKey))
-        applyReminder(.pause, UserDefaults.standard.bool(forKey: Self.pauseKey))
+        // PHN: every wellness helper ships on, so an unset key means on (`bool(forKey:)` would read off).
+        applyReminder(.hydrate, WellnessDefaults.isEnabled(.waterReminder))
+        applyReminder(.pause, WellnessDefaults.isEnabled(.pauseReminder))
+        applyWellnessProbe()
         automationPolicy.settings = SmartDockAutomationSettings.current()
     }
 
@@ -60,13 +67,62 @@ final class DailyHelpersService {
         guard let interval = kind.reminderInterval else { return }
         if on, reminderTimers[kind] == nil {
             let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
-                MainActor.assumeIsolated { self?.deliver(.notice(kind, detail: nil)) }
+                MainActor.assumeIsolated { self?.deliverReminder(kind) }
             }
             timer.tolerance = 30
             reminderTimers[kind] = timer
         } else if !on, let timer = reminderTimers.removeValue(forKey: kind) {
             timer.invalidate()
         }
+    }
+
+    /// PHN-2 — a reminder arrives only when it will not interrupt: water holds during any blocker
+    /// (Smart Pause), a break holds only during a call/camera/mic, and a snooze silences either one.
+    /// The pause line is the current prompt, so the toast is a real nudge instead of a generic headline.
+    private func deliverReminder(_ kind: LiveNoticeKind) {
+        let hydro = HydrationController.shared
+        let blockers = hydro.blockers
+        if hydro.pauseSnoozed { return }
+        switch kind {
+        case .hydrate where blockers.any, .pause where blockers.inMeeting:
+            return
+        default:
+            break
+        }
+        var detail: String?
+        if kind == .pause {
+            hydro.refreshPausePrompt()
+            detail = hydro.currentPause?.text
+        }
+        deliver(.notice(kind, detail: detail))
+    }
+
+    /// PHN-2 — Smart Pause's inputs. Two property reads every 2 s while the switch is on; the timer is
+    /// released the moment it is off, so a disabled helper costs nothing.
+    private func applyWellnessProbe() {
+        guard WellnessDefaults.isEnabled(.smartPause) else {
+            wellnessTimer?.invalidate()
+            wellnessTimer = nil
+            HydrationController.shared.setExternalBlockers(focusActive: false, cameraInUse: false,
+                                                           microphoneInUse: false, callActive: false)
+            return
+        }
+        probeWellness()
+        guard wellnessTimer == nil else { return }
+        let timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.probeWellness() }
+        }
+        timer.tolerance = 0.5
+        wellnessTimer = timer
+    }
+
+    private func probeWellness() {
+        HydrationController.shared.setExternalBlockers(
+            focusActive: focusActiveProvider(),
+            cameraInUse: PrivacyUseProbe.cameraInUse(),
+            microphoneInUse: PrivacyUseProbe.microphoneInUse(),
+            callActive: false
+        )
     }
 
     // MARK: 36d — hide from screen capture
