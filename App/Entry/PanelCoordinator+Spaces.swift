@@ -106,8 +106,12 @@ final class MissionControlSession {
     private var workspaceObserver: NSObjectProtocol?
     private var mouseMonitor: Any?
     private var keyMonitor: Any?
-    private var renderPanel: NSPanel?
+    /// One render panel per display, keyed by CGDirectDisplayID. Mission Control spans every screen,
+    /// so a single main-screen panel would leave thumbnails on other displays unadorned and would map
+    /// their frames with the wrong origin.
+    private var renderPanels: [CGDirectDisplayID: NSPanel] = [:]
     private var controlPanel: NSPanel?
+    private var screenObserver: NSObjectProtocol?
     /// The overview's filter, hover and keyboard target; all transition rules live in Core so they
     /// are covered by `MissionControlInteractionTests` instead of only by the live session.
     private var interaction = MissionControlInteraction()
@@ -164,6 +168,18 @@ final class MissionControlSession {
             }
         }
 
+        if screenObserver == nil {
+            screenObserver = NotificationCenter.default.addObserver(
+                forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self, self.isActive else { return }
+                    self.showPanels()
+                    self.updateHover(at: Self.pointerLocation())
+                }
+            }
+        }
+
         if mouseMonitor == nil {
             mouseMonitor = NSEvent.addGlobalMonitorForEvents(
             matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
@@ -194,6 +210,8 @@ final class MissionControlSession {
         mouseMonitor = nil
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
+        if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) }
+        screenObserver = nil
         hidePanels()
         interaction.close()
         isActive = false
@@ -238,23 +256,33 @@ final class MissionControlSession {
     // MARK: Panels
 
     private func showPanels() {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
-        let local = frames.map { Self.local($0, on: screen) }
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else { return }
 
-        logger.info("[mission-control] show panels frames=\(self.frames.count, privacy: .public)")
-        let render = renderPanel ?? makePanel(clickThrough: true, level: .screenSaver)
-        render.setFrame(screen.frame, display: true)
-        renderPanel = render
+        logger.info("[mission-control] show panels frames=\(self.frames.count, privacy: .public) screens=\(screens.count, privacy: .public)")
+        var live: Set<CGDirectDisplayID> = []
+        for screen in screens {
+            let id = Self.displayID(of: screen)
+            live.insert(id)
+            let render = renderPanels[id] ?? makePanel(clickThrough: true, level: .screenSaver)
+            render.setFrame(screen.frame, display: true)
+            renderPanels[id] = render
+            render.orderFrontRegardless()
+        }
+        for (id, panel) in renderPanels where !live.contains(id) {
+            panel.orderOut(nil)
+            renderPanels.removeValue(forKey: id)
+        }
         updateRender()
-        render.orderFrontRegardless()
 
-        let controls = controlPanel ?? makePanel(clickThrough: false, level: .screenSaver)
-        controls.contentView = NSHostingView(rootView: MissionControlControlCluster(
+        if controlPanel == nil {
+            controlPanel = makePanel(clickThrough: false, level: .screenSaver)
+        }
+        controlPanel?.contentView = NSHostingView(rootView: MissionControlControlCluster(
             actions: configuration.actions.buttons.shownActions,
             onAction: { [weak self] action in self?.perform(action) }
         ))
-        controls.orderFrontRegardless()
-        controlPanel = controls
+        controlPanel?.orderFrontRegardless()
         placeControls()
     }
 
@@ -276,7 +304,7 @@ final class MissionControlSession {
     }
 
     private func hidePanels() {
-        renderPanel?.orderOut(nil)
+        for panel in renderPanels.values { panel.orderOut(nil) }
         controlPanel?.orderOut(nil)
     }
 
@@ -414,22 +442,42 @@ final class MissionControlSession {
         suspendedUntil = Date().addingTimeInterval(0.6)
     }
 
-    /// Rebuilds the render panel's root view from the current frames, configuration and live session
-    /// state (hover, keyboard target, filter). Called on every state change and never on a timer.
+    /// Rebuilds every display's render panel from the current frames, configuration and live session
+    /// state (hover, keyboard target, filter). Called on every state change, never on a timer.
     private func updateRender() {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first,
-              let render = renderPanel else { return }
-        let local = frames.map { Self.local($0, on: screen) }
-        render.contentView = NSHostingView(rootView: MissionControlSurface(
-            frames: local,
-            configuration: configuration,
-            hoveredID: hoveredID,
-            focusedID: focusedID,
-            query: query,
-            spaceTitle: spaceTitle(),
-            spaceAccent: spaceAccent(),
-            showsButtons: false
-        ))
+        let screens = NSScreen.screens
+        guard !screens.isEmpty else { return }
+        let groups = MissionControlScreenGeometry.framesByScreen(
+            frames, screens: screens.map(\.frame),
+            primaryHeight: MissionControlScreenGeometry.primaryHeight(screens.map(\.frame))
+        )
+        let filterScreen = focusedTargetScreenIndex(screens: screens) ?? hoveredScreenIndex(screens: screens)
+        for (index, screen) in screens.enumerated() {
+            guard let render = renderPanels[Self.displayID(of: screen)] else { continue }
+            render.contentView = NSHostingView(rootView: MissionControlSurface(
+                frames: groups[index],
+                configuration: configuration,
+                hoveredID: hoveredID,
+                focusedID: focusedID,
+                query: query,
+                spaceTitle: spaceTitle(on: screen),
+                spaceAccent: spaceAccent(on: screen),
+                showsButtons: false,
+                showsFilterChip: filterScreen == nil || filterScreen == index
+            ))
+        }
+    }
+
+    /// The filter readout follows the keyboard target (or the hovered window) to its display, so two
+    /// panels never show the same query twice.
+    private func focusedTargetScreenIndex(screens: [NSScreen]) -> Int? {
+        guard let focusedID, let frame = frames.first(where: { $0.id == focusedID }) else { return nil }
+        return Self.screenIndex(of: frame, screens: screens)
+    }
+
+    private func hoveredScreenIndex(screens: [NSScreen]) -> Int? {
+        guard let hoveredID, let frame = frames.first(where: { $0.id == hoveredID }) else { return nil }
+        return Self.screenIndex(of: frame, screens: screens)
     }
 
     private func updateHover(at point: CGPoint) {
@@ -443,21 +491,24 @@ final class MissionControlSession {
 
     private func placeControls() {
         guard let panel = controlPanel else { return }
+        let hidden = CGRect(x: -10_000, y: -10_000, width: 80, height: 30)
         guard configuration.actions.buttons.showsOnHover else {
-            panel.setFrame(CGRect(x: -10_000, y: -10_000, width: 80, height: 30), display: false)
+            panel.setFrame(hidden, display: false)
             return
         }
+        let screens = NSScreen.screens
         guard let hoveredID, let frame = frames.first(where: { $0.id == hoveredID }),
-              let screen = NSScreen.main ?? NSScreen.screens.first else {
-            panel.setFrame(CGRect(x: -10_000, y: -10_000, width: 80, height: 30), display: false)
+              let index = Self.screenIndex(of: frame, screens: screens) else {
+            panel.setFrame(hidden, display: false)
             return
         }
-        let local = Self.local(frame, on: screen)
+        let screen = screens[index]
+        let primaryHeight = MissionControlScreenGeometry.primaryHeight(screens.map(\.frame))
+        let local = MissionControlScreenGeometry.local(frame.frame, on: screen.frame, primaryHeight: primaryHeight)
         let width: CGFloat = CGFloat(configuration.actions.buttons.shownActions.count) * 27 + 12
-        let clampedX: CGFloat = min(screen.frame.maxX - width - 8, screen.frame.minX + local.frame.maxX - width - 8)
-        let clampedY: CGFloat = max(screen.frame.minY + 8, screen.frame.maxY - local.frame.minY - 40)
-        let origin = CGPoint(x: clampedX, y: clampedY)
-        panel.setFrame(CGRect(origin: origin, size: CGSize(width: width, height: 34)), display: true)
+        let clampedX: CGFloat = min(screen.frame.maxX - width - 8, screen.frame.minX + local.maxX - width - 8)
+        let clampedY: CGFloat = max(screen.frame.minY + 8, screen.frame.maxY - local.minY - 40)
+        panel.setFrame(CGRect(origin: CGPoint(x: clampedX, y: clampedY), size: CGSize(width: width, height: 34)), display: true)
     }
 
     private func perform(_ action: MissionControlWindowAction, source: MissionControlInteraction.Source = .pointer) {
@@ -466,9 +517,10 @@ final class MissionControlSession {
         refresh()
     }
 
-    private func spaceTitle() -> String? {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first,
-              let uuid = DisplayIdentity.uuidString(for: screen),
+    /// Each display has its own current Space and name; the pill on a secondary screen must not copy
+    /// the main display's.
+    private func spaceTitle(on screen: NSScreen) -> String? {
+        guard let uuid = DisplayIdentity.uuidString(for: screen),
               let layout = ManagedSpaceLayoutReader.layout(forDisplayUUID: uuid),
               let index = layout.orderedSpaceIDs.firstIndex(of: layout.currentSpaceID) else {
             return configuration.naming.spaceTitle(forSpaceID: "", index: 1)
@@ -476,34 +528,28 @@ final class MissionControlSession {
         return configuration.naming.spaceTitle(forSpaceID: String(layout.currentSpaceID), index: index + 1)
     }
 
-    private func spaceAccent() -> MissionControlColor? {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first,
-              let uuid = DisplayIdentity.uuidString(for: screen),
+    private func spaceAccent(on screen: NSScreen) -> MissionControlColor? {
+        guard let uuid = DisplayIdentity.uuidString(for: screen),
               let layout = ManagedSpaceLayoutReader.layout(forDisplayUUID: uuid) else { return nil }
         return configuration.colouring.accent(forSpaceID: String(layout.currentSpaceID))
     }
 
     // MARK: Geometry
 
-    /// Both AX windows and the CGWindow fallback report top-left-origin screen coordinates, and the
-    /// overlay panel's SwiftUI space also starts at the screen's top-left. The conversion is a
-    /// translation only; flipping here would mirror every card away from its Mission Control thumbnail.
-    private static func local(_ frame: MissionControlWindowFrame, on screen: NSScreen) -> MissionControlWindowFrame {
-        let rect = CGRect(
-            x: frame.frame.minX - screen.frame.minX,
-            y: frame.frame.minY - screen.frame.minY,
-            width: frame.frame.width,
-            height: frame.frame.height
-        )
-        return MissionControlWindowFrame(
-            id: frame.id, bundleID: frame.bundleID, appName: frame.appName, title: frame.title,
-            frame: rect, state: frame.state, isFocused: frame.isFocused
+    private static func displayID(of screen: NSScreen) -> CGDirectDisplayID {
+        (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+    }
+
+    private static func screenIndex(of frame: MissionControlWindowFrame, screens: [NSScreen]) -> Int? {
+        MissionControlScreenGeometry.screenIndex(
+            containing: frame.frame, screens: screens.map(\.frame),
+            primaryHeight: MissionControlScreenGeometry.primaryHeight(screens.map(\.frame))
         )
     }
 
     private static func pointerLocation() -> CGPoint {
         let cocoa = NSEvent.mouseLocation
-        let height = NSScreen.screens.first?.frame.maxY ?? 0
+        let height = MissionControlScreenGeometry.primaryHeight(NSScreen.screens.map(\.frame))
         return CGPoint(x: cocoa.x, y: height - cocoa.y)
     }
 

@@ -981,6 +981,7 @@ enum MissionControlDockProbe {
             [.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID
         ) as? [[String: Any]] else { return Probe(isActive: false, frames: [], dockReadable: false) }
         let screens = NSScreen.screens.map(\.frame)
+        let primaryHeight = MissionControlScreenGeometry.primaryHeight(screens)
         let ownPID = ProcessInfo.processInfo.processIdentifier
         var overview = false
         var frames: [MissionControlWindowFrame] = []
@@ -1001,6 +1002,9 @@ enum MissionControlDockProbe {
             }
             guard layer == 0, ownerPID != ownPID, coverage < 0.9,
                   bounds.width >= 80, bounds.height >= 50,
+                  MissionControlScreenGeometry.isVisibleThumbnail(
+                      bounds, screens: screens, primaryHeight: primaryHeight
+                  ),
                   let app = NSRunningApplication(processIdentifier: ownerPID),
                   app.bundleIdentifier != "com.apple.WindowManager" else { continue }
             let title = (info[kCGWindowName as String] as? String)?

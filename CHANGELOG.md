@@ -13,6 +13,9 @@ Mission Control: Dock overviews with names, borders, colours, filtering and wind
 
 ## [Unreleased]
 
+### Fixed
+- **Mission Control on multiple displays and with Stage Manager:** one overlay panel per display now shows only that display's thumbnails, Space name and accent; a window across the seam is assigned to the display it mostly occupies, displays above/below/left of the main one and 2× panels map frames correctly, screen rearrangement rebuilds panels, hover controls follow the window to its display, and the filter readout appears once. Stage Manager stages parked outside every display are no longer drawn as phantom cards.
+
 
 ### Changed
 - **`Scripts/build_and_run.sh --test …` re-signs on its way out, so an ad-hoc build can't sit on disk:** `xcodebuild test` relinks the product and signs it ad-hoc, silently discarding the Accessibility grant, and every live pass afterwards measured nothing. The new mode runs the tests (all extra arguments pass through, so `-only-testing:` filters work unchanged), prints the test verdict, then re-signs with the local identity, prints that it did, and relaunches the app. It exits 3 when no identity is available, so the ad-hoc state can never be left behind quietly. `--check-signing` also stopped reporting a failure (exit 1) when no instance was running, which made gates read "not running" as "wrong signature".

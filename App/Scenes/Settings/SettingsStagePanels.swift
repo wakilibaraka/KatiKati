@@ -690,6 +690,8 @@ struct MissionControlSurface: View {
     var spaceTitle: String?
     var spaceAccent: MissionControlColor?
     var showsButtons = false
+    /// Only the display that owns the keyboard target (or hover) shows the filter readout.
+    var showsFilterChip = true
     var onAction: ((MissionControlWindowAction) -> Void)?
 
     private var colouring: MissionControlColouring { configuration.colouring }
@@ -721,7 +723,7 @@ struct MissionControlSurface: View {
             if let spaceTitle {
                 spacePill(spaceTitle)
             }
-            if presentation.showsFilterChip, !query.isEmpty {
+            if presentation.showsFilterChip, showsFilterChip, !query.isEmpty {
                 filterChip(query)
             }
         }

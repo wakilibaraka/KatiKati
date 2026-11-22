@@ -717,6 +717,22 @@ final class MissionControlScreenGeometryTests: XCTestCase {
         ))
     }
 
+    func testDisplayBelowTheMainOneHasAPositiveTopLeftOrigin() {
+        let below = CGRect(x: 0, y: -1080, width: 1920, height: 1080)
+        let height = MissionControlScreenGeometry.primaryHeight([main, below])
+        XCTAssertEqual(MissionControlScreenGeometry.cgFrame(of: below, primaryHeight: height),
+                       CGRect(x: 0, y: 900, width: 1920, height: 1080))
+        XCTAssertEqual(
+            MissionControlScreenGeometry.local(CGRect(x: 100, y: 950, width: 300, height: 200),
+                                               on: below, primaryHeight: height),
+            CGRect(x: 100, y: 50, width: 300, height: 200)
+        )
+        XCTAssertTrue(MissionControlScreenGeometry.isVisibleThumbnail(
+            CGRect(x: 100, y: 950, width: 300, height: 200),
+            screens: [main, below], primaryHeight: height
+        ))
+    }
+
     func testScreenAssignmentIgnoresDisplaysThatAreNotThere() {
         let height = MissionControlScreenGeometry.primaryHeight([main])
         XCTAssertNil(MissionControlScreenGeometry.screenIndex(
