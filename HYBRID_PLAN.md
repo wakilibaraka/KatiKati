@@ -6574,3 +6574,83 @@ inside this agent app, so the resolver should prefer the activation notification
 ### Mission Control — MC-8
 
 | MC-8 | **Live verification and the macOS 26 fallback.** The Dock publishes no readable AX windows on macOS 26, so `MissionControlDockProbe` falls back to the WindowServer's layer-0 thumbnails and the real scaled frames, while entry is recognised from the key/click/swipe/pointer move that opens the overview (still no timer). The session's filter, keyboard target, Return/Escape and keyboard-vs-pointer target rules moved to `MissionControlInteraction` in Core with 13 deterministic tests; frames no longer flip vertically; pointer actions act on the hovered window. Settings reports the Input Monitoring grant separately. Live on this Mac: overlay panels at window level 1000 over the real Mission Control, badges/borders aligned to every thumbnail, Space pill, hover control cluster, and AX targeting. Synthetic key events are not delivered to a background app's global monitor while Mission Control owns the keyboard, so Tab/Return/filter were proven through the interaction tests, with the live overlay, badges, borders, Space pill and hover cluster verified from screenshots rather than by synthetic keystrokes. |
+
+## Thread status — PHN, MC, WINF (2026-11-22)
+
+### Landed and pushed
+
+| Work | Commit | Verified |
+|---|---|---|
+| **PHN-1…5** — Pause / Hydrate / PingPlace, every wellness helper default-on | `3ed09b3b` | full `xcodebuild test` green (73 targeted + full suite), localization / debug-switch / availability gates, live screenshots of the wings and the zone grid |
+| **MC-12** — Mission Control keyboard control split into opt-ins (other session's slice, finished, repaired and committed here) | `428612b2` | full suite green, incl. 6 new `MissionControlModelTests` |
+| **Edge deck hydration wave** — Reduce Motion + Smart Pause hold it flat | `131c8cae` | Debug build + availability gate green; the Reduce-Motion branch is compiled but was not seen on screen |
+| **LANES.md** claim lines (PHN, MC-12) with their hot-file touches, plus the live-check note | `131c8cae` | — |
+| **PHN live check** findings and the **WINF** read-only audit + slices | `131c8cae` | — |
+
+### Pending — nothing half-written is left in the tree
+
+1. **PHN-6, not started: the defects the live pass found.** Done, in priority order: (a) the two wings
+   resolve to `.hidden` on any dock whose widget sections fill the bar, because `wingPanelFrames` budgets only
+   the room *outside* the plate — the feature is invisible on this Mac; (b) `small` renders a bare glyph (no
+   prompt, no skip, no numbers); (c) large Hydrate's quick-adds wrap onto two lines unevenly; (d) large Pause's
+   caption wraps early with room to spare; (e) the zone grid's dashed centre reads as a broken control.
+2. **WINF-1…4, proposed only, awaiting approval.** Audit and slices are in the WINF section above; no resolver
+   code exists.
+3. **Translations:** PHN's 15 keys and the MC strings are AI drafts pending a speaker pass (Standing Rules §1.7b).
+4. **Debt:** `HydrationController` still lives in `Core/` with its legacy `NSSound` import; its arithmetic moved
+   out, the sound did not. Moving the file to `App/Composition` is its own slice.
+5. **Housekeeping:** `build/mc12` is a redundant worktree (detached, 0 unique commits, holds a pre-fix copy of
+   MC-12) — `git worktree remove build/mc12` once nothing is running there. `origin/claude/project-thread-cz5nok`
+   is superseded by newer commits in main; `origin/claude/release-beta-4` is a stale 0.17.0 beta 4 note that would
+   downgrade the project version if merged. Both are safe to delete deliberately, not to merge.
+6. **One open decision:** `MissionControlNaming.navigationEnabled` decodes as `false` for blobs written before
+   MC-12, so a user who had keyboard control on now sees the master switch on with both sub-switches off.
+   Migrate it from `keyboardEnabled`, or keep the deliberate reset?
+
+## ST — Smart Tasks hub, read-only audit (2026-11-22)
+
+Ask: one productivity graph behind **Tasks, EventKit Reminders, Goals and Bookmarks**, with a horizon switcher,
+quick capture and a compact surface. **Audit only — no code written, awaiting approval.**
+
+### What exists (real paths)
+
+| Today | Where |
+|---|---|
+| `TaskItem` (text, done, important, doneAt, trackedSeconds, runningSince, due) + `TaskList` (add / toggle / toggleImportant / setDue / delete / one running tracker at a time / clearCompleted). Every field after `text` already decodes with `decodeIfPresent` — the brief's “lenient Codable” checkbox is **already satisfied** | `Core/Support/TaskList.swift` |
+| `TaskDue` (overdue / today / tomorrow / later) and `Array.smartOrdered` (running → dated → important → rest, finished last, list order breaks ties) | same file |
+| `TasksController` — `@Published list`, one `mutate` funnel that saves on every change, closes a tracker left running across a quit | `Platform/Tasks/TasksController.swift` |
+| `TasksStore` — `Application Support/KatiKati/tasks.json`, ISO-8601, `.atomic` writes, and a file that fails to decode is moved to `.bak` rather than overwritten | `Platform/Tasks/TasksStore.swift` |
+| `Bookmark` is **not bookmark data** — it is an importer: Chrome JSON / Safari plist parsers plus token `matching(_:)`, used by the command bar | `Core/Support/Bookmarks.swift` |
+| Command-bar quick capture: `QuickAddState` (kinds note / reminder / task, stages, due none / today / tomorrow, pinned, colour index) — pure and tested | `Core/Support/QuickAddState.swift` + `Tests/Unit/QuickAddStateTests.swift` |
+| Task UI: the Edge flyout (`TasksFlyoutView`, reads `ProductivityServices.shared.tasks`, one draft field) and the Desktop todo box | `App/Scenes/Edge/TasksFlyoutView.swift`, `App/Scenes/Desktop/DesktopTodoBoxView.swift` |
+| 11 task tests (tracker, ordering, due buckets, clearCompleted) | `Tests/Unit/TaskListTests.swift` |
+| EventKit: **one** `EKEventStore` already exists — static, in the welcome guide — with `authorizationStatus(for: .reminder)` checks and access requested only from that panel's button | `App/Scenes/WelcomeGuideView.swift:158, 479–506` |
+| Missing entirely | goals, a persisted bookmark item, tags, notes, a text parser (`#goal`, `tomorrow`, `!high`, URL → bookmark), horizon selectors, reminder sync |
+
+So the lift is smaller than the brief assumes: the model, ordering, due buckets, lenient decoding and atomic
+persistence already exist and are tested. Missing: **goals**, a **persisted bookmark**, a **capture parser**,
+**horizon filtering**, and **one reminders store for the whole app** (the welcome guide's store must not become
+the second `EKEventStore`).
+
+### Slices (each ≤300 lines, zero `project.pbxproj` churn)
+
+| Slice | Scope |
+|---|---|
+| **ST-1** | Pure Core, existing files only: `TaskItem` gains `goalID`, `reminderID`, `tags`, `notesMarkdown` (all `decodeIfPresent`, so existing `tasks.json` still loads); `GoalItem` (manual fraction **or** derived from linked tasks, target date, status) and `BookmarkEntry` (title, url, domain, tags, pinned, `goalID`, `lastOpenedAt`, note, `convertedTask()`) join `Core/Support/Bookmarks.swift`; `SmartTaskCaptureParser` (`#goal`, `#tag`, `!high`, `today`/`tomorrow`, URL autodetected) and `SmartTaskHorizon` (inbox / today / upcoming / goals / bookmarks) in `TaskList.swift`. Synchronous tests for round-trip tolerance, horizon filtering, goal progress math, bookmark → task, and parser cases (URL in a title, `#` inside a word, emoji, `tomorrow` mid-sentence). |
+| **ST-2** | Persistence + reminders: `TasksStore` grows a versioned envelope for goals and bookmarks (one file, still `.atomic`, still `.bak` on decode failure); a `RemindersBridge` appended to the existing `Platform/Tasks/TasksController.swift` (no new file) holding **the app's single `EKEventStore`**, requesting access only when the user enables sync, listening to `EKEventStoreChanged`, and mapping `EKReminder` ↔ `TaskItem` by `reminderID` without creating duplicates. |
+| **ST-3** | UI in `TasksFlyoutView` / `DesktopTodoBoxView`: quick-capture field that parses on Return (Esc cancels), horizon segmented control with counts, goal rail with progress and “Add next action”, bookmark rows with Open / Copy / Make Task / Pin, and the compact surface (Today count + next due + top goal + pinned bookmark). Respects `accessibilityReduceMotion`, no timers. |
+| **ST-4** | Every new string in all 12 locales (`check_localization.py`), `check_debug_switches.py` if a switch is added, targeted `-only-testing:` runs, `graphify update .`. |
+
+**Risk noted up front:** `App/Scenes/Edge/TasksFlyoutView.swift` is Lane B (behaviour-frozen bar surfaces) — the
+flyout is a flyout, not the strip, but the lane rule means the claim line goes in **before** ST-3, and the
+integrator should know `TasksFlyoutView` and `DesktopTodoBoxView` are the touched surfaces.
+
+### The brief's open question, answered
+
+**Apple Reminders should be opt-in: off until enabled in Smart Tasks' own settings row, with the access prompt
+fired by that switch and never by opening the Tasks or Reminders tab.** Reasons: the welcome guide already
+requests reminder access from an explicit button, so a second silent request path would produce a duplicate,
+unexplained prompt; `EKEventStore` access is a system permission that survives uninstall of nothing and is
+awkward to revoke; the sync is a convenience over a list that already works offline; and the brief's own
+“never prompt unexpectedly on cold launch” checkbox points the same way. When the switch is off the bridge
+never constructs a query, and the row links to System Settings for `.denied` / `.restricted`.
