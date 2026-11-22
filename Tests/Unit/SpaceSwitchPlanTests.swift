@@ -107,6 +107,29 @@ final class MissionControlModelTests: XCTestCase {
         XCTAssertNil(MissionControlNaming(showsSpaceTitles: false).spaceTitle(forSpaceID: "A", index: 1))
     }
 
+    func testKeyboardAndFilterAreOptInAndLegacyFilterMigratesOff() throws {
+        let defaults = MissionControlNaming()
+        XCTAssertFalse(defaults.keyboardEnabled)
+        XCTAssertFalse(defaults.filterEnabled)
+
+        // A naming blob from before the opt-in: filter was on, keyboard key did not exist.
+        let legacy = """
+        {"spaceLabels":{"1":"Work"},"showsSpaceTitles":true,"showsWindowBadges":true,
+        "showsAppIcon":true,"showsWindowTitle":true,"filterEnabled":true}
+        """
+        let decoded = try JSONDecoder().decode(MissionControlNaming.self, from: Data(legacy.utf8))
+        XCTAssertFalse(decoded.keyboardEnabled)
+        XCTAssertFalse(decoded.filterEnabled)
+        XCTAssertEqual(decoded.spaceLabel(forSpaceID: "1"), "Work")
+
+        // Once saved with the new key, an explicit choice is kept.
+        var chosen = defaults
+        chosen.keyboardEnabled = true
+        chosen.filterEnabled = true
+        let data = try JSONEncoder().encode(chosen)
+        XCTAssertEqual(try JSONDecoder().decode(MissionControlNaming.self, from: data), chosen)
+    }
+
     func testBadgeTitleFollowsItsTwoSwitches() {
         let both = MissionControlNaming()
         XCTAssertEqual(both.badgeTitle(app: "Safari", title: "Docs"), "Safari — Docs")
@@ -117,6 +140,22 @@ final class MissionControlModelTests: XCTestCase {
         XCTAssertEqual(MissionControlNaming(showsAppIcon: false).badgeTitle(app: "Safari", title: "Docs"), "Docs")
         XCTAssertNil(MissionControlNaming(showsWindowBadges: false).badgeTitle(app: "Safari", title: "Docs"))
         XCTAssertNil(MissionControlNaming(showsAppIcon: false, showsWindowTitle: false).badgeTitle(app: "a", title: "b"))
+    }
+
+    func testBadgePartsKeepTheAppNameAndDocumentTitleApart() {
+        let naming = MissionControlNaming()
+        XCTAssertEqual(naming.badge(app: "Safari", title: "Release notes"),
+                       MissionControlBadge(app: "Safari", title: "Release notes"))
+        XCTAssertEqual(naming.badge(app: "Safari", title: "  "),
+                       MissionControlBadge(app: "Safari", title: nil))
+        XCTAssertEqual(naming.badge(app: " ", title: "Release notes"),
+                       MissionControlBadge(app: "Release notes", title: nil))
+        XCTAssertNil(naming.badge(app: " ", title: nil))
+        XCTAssertEqual(MissionControlNaming(showsWindowTitle: false).badge(app: "Safari", title: "Docs"),
+                       MissionControlBadge(app: "Safari", title: nil))
+        XCTAssertEqual(MissionControlNaming(showsAppIcon: false).badge(app: "Safari", title: "Docs"),
+                       MissionControlBadge(app: "Docs", title: nil))
+        XCTAssertNil(MissionControlNaming(showsWindowBadges: false).badge(app: "Safari", title: "Docs"))
     }
 
     // MARK: Filter
@@ -193,7 +232,7 @@ final class MissionControlModelTests: XCTestCase {
     // MARK: Framing
 
     func testFramingPrefersFocusThenHoverThenState() {
-        let framing = MissionControlFraming()
+        let framing = MissionControlFraming(isEnabled: true)
         XCTAssertEqual(framing.style(isFocused: true, isHovered: false, state: .standard), .solid)
         XCTAssertEqual(framing.style(isFocused: true, isHovered: true, state: .standard), .solid)
         XCTAssertEqual(framing.style(isFocused: false, isHovered: true, state: .minimized), .hairline)
@@ -201,7 +240,7 @@ final class MissionControlModelTests: XCTestCase {
         XCTAssertEqual(framing.style(isFocused: false, isHovered: false, state: .hidden), .dashed)
 
         // A focused window with the focus frame off keeps its state border instead of drawing nothing.
-        let noFocus = MissionControlFraming(showsFocusFrame: false)
+        let noFocus = MissionControlFraming(isEnabled: true, showsFocusFrame: false)
         XCTAssertEqual(noFocus.style(isFocused: true, isHovered: false, state: .standard), .hairline)
 
         var off = framing
@@ -209,7 +248,7 @@ final class MissionControlModelTests: XCTestCase {
         XCTAssertEqual(off.style(isFocused: true, isHovered: true, state: .standard), .none)
         XCTAssertNil(off.groupBorder())
         XCTAssertNil(framing.groupBorder())
-        XCTAssertEqual(MissionControlFraming(showsGroupFrame: true).groupBorder(), .dashed)
+        XCTAssertEqual(MissionControlFraming(isEnabled: true, showsGroupFrame: true).groupBorder(), .dashed)
     }
 
     // MARK: Actions
@@ -360,6 +399,92 @@ final class MissionControlPresentationTests: XCTestCase {
         XCTAssertEqual(defaults.borderWidth, 2.5)
         XCTAssertEqual(defaults.spaceTitlePlacement, .top)
         XCTAssertTrue(defaults.showsFilterChip)
+    }
+
+    func testAppearanceDefaultsToTrafficLightWithoutBorders() {
+        let presentation = MissionControlPresentation()
+        XCTAssertEqual(presentation.appearance, .trafficLight)
+        XCTAssertEqual(presentation.appearance.style.borderStyle, .none)
+        XCTAssertTrue(presentation.appearance.style.usesTrafficLightActions)
+        XCTAssertFalse(presentation.appearance.style.isLight)
+        // The border overlay is off by default; colour and naming do the work.
+        XCTAssertFalse(MissionControlFraming().isEnabled)
+        XCTAssertEqual(MissionControlFraming().style(isFocused: true, isHovered: true, state: .standard), .none)
+    }
+
+    func testEveryAppearanceHasItsOwnMaterialAndBorders() {
+        XCTAssertEqual(MissionControlAppearance.allCases.count, 4)
+        XCTAssertTrue(MissionControlAppearance.trafficLight.style.usesTrafficLightActions)
+        XCTAssertTrue(MissionControlAppearance.colourful.style.usesTrafficLightActions)
+        XCTAssertFalse(MissionControlAppearance.liquidGlass.style.usesTrafficLightActions)
+        XCTAssertFalse(MissionControlAppearance.paper.style.usesTrafficLightActions)
+        XCTAssertTrue(MissionControlAppearance.liquidGlass.style.usesMaterial)
+        XCTAssertFalse(MissionControlAppearance.trafficLight.style.usesMaterial)
+        XCTAssertTrue(MissionControlAppearance.paper.style.isLight)
+        XCTAssertGreaterThan(MissionControlAppearance.colourful.style.tintMultiplier,
+                             MissionControlAppearance.liquidGlass.style.tintMultiplier)
+    }
+
+    func testTrafficLightDotsAreColouredOnlyInTheColourfulLooks() {
+        XCTAssertNotNil(MissionControlAppearance.trafficLight.actionColor(for: .close))
+        XCTAssertNotNil(MissionControlAppearance.trafficLight.actionColor(for: .minimize))
+        XCTAssertNotNil(MissionControlAppearance.trafficLight.actionColor(for: .zoom))
+        XCTAssertNil(MissionControlAppearance.trafficLight.actionColor(for: .quit))
+        XCTAssertNil(MissionControlAppearance.liquidGlass.actionColor(for: .close))
+        XCTAssertNil(MissionControlAppearance.paper.actionColor(for: .zoom))
+        let red = MissionControlAppearance.trafficLight.actionColor(for: .close)
+        let yellow = MissionControlAppearance.trafficLight.actionColor(for: .minimize)
+        let green = MissionControlAppearance.trafficLight.actionColor(for: .zoom)
+        XCTAssertGreaterThan(red!.red, green!.red)
+        XCTAssertGreaterThan(green!.green, red!.green)
+        XCTAssertGreaterThan(yellow!.red, yellow!.blue)
+    }
+
+    func testLegacyConfigurationMigratesBordersOffButKeepsADeliberateNewChoice() throws {
+        let suite = "MissionControlAppearanceMigration.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        // An install from before the picker: borders on, presentation without an appearance key.
+        let legacy = MissionControlConfiguration(framing: MissionControlFraming(isEnabled: true))
+        let encoder = JSONEncoder()
+        defaults.set(try encoder.encode(legacy.naming), forKey: MissionControlSettings.namingKey)
+        defaults.set(try encoder.encode(legacy.framing), forKey: MissionControlSettings.framingKey)
+        defaults.set(try encoder.encode(legacy.colouring), forKey: MissionControlSettings.colouringKey)
+        defaults.set(try encoder.encode(legacy.actions), forKey: MissionControlSettings.actionsKey)
+        let legacyPresentation = """
+        {"borderWidth":4,"cornerRadius":12,"badgeOpacity":0.62,"groupPadding":8,
+        "spaceTitlePlacement":"top","badgePlacement":"top","showsFilterChip":true,
+        "accentFallback":{"red":0.22,"green":0.55,"blue":0.98,"alpha":1}}
+        """
+        defaults.set(Data(legacyPresentation.utf8), forKey: MissionControlSettings.presentationKey)
+        let migrated = MissionControlSettings.load(from: defaults)
+        XCTAssertFalse(migrated.framing.isEnabled)
+        XCTAssertEqual(migrated.presentation.appearance, .trafficLight)
+        XCTAssertEqual(migrated.presentation.borderWidth, 4)
+
+        // Once the new look is saved, a user who turns borders back on keeps them.
+        var chosen = migrated
+        chosen.framing.isEnabled = true
+        MissionControlSettings.save(chosen, in: defaults)
+        XCTAssertTrue(MissionControlSettings.load(from: defaults).framing.isEnabled)
+    }
+
+    func testPresentationSavedBeforeTheAppearancePickerKeepsItsValues() throws {
+        let json = """
+        {"borderWidth":4,"cornerRadius":18,"badgeOpacity":0.8,"groupPadding":12,
+        "spaceTitlePlacement":"bottom","badgePlacement":"leading","showsFilterChip":false,
+        "accentFallback":{"red":0.6,"green":0.4,"blue":0.9,"alpha":1}}
+        """
+        let decoded = try JSONDecoder().decode(MissionControlPresentation.self, from: Data(json.utf8))
+        XCTAssertEqual(decoded.appearance, .trafficLight)
+        XCTAssertEqual(decoded.borderWidth, 4)
+        XCTAssertEqual(decoded.cornerRadius, 18)
+        XCTAssertEqual(decoded.badgeOpacity, 0.8)
+        XCTAssertEqual(decoded.groupPadding, 12)
+        XCTAssertEqual(decoded.spaceTitlePlacement, .bottom)
+        XCTAssertEqual(decoded.badgePlacement, .leading)
+        XCTAssertFalse(decoded.showsFilterChip)
     }
 
     func testStateColourBeatsTheAppRule() {

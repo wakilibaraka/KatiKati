@@ -73,6 +73,72 @@ enum MissionControlBorderStyle: String, Codable, CaseIterable, Sendable {
     case none, hairline, solid, dashed, glow
 }
 
+/// The shipped looks. Traffic Light is the default: category colour everywhere, red/yellow/green
+/// action dots, and no border overlay (which is what looked wrong over real thumbnails). Liquid
+/// Glass and Paper are deliberately different materials; Colourful Everything is the loud version
+/// of the default.
+enum MissionControlAppearance: String, Codable, CaseIterable, Sendable {
+    case trafficLight, colourful, liquidGlass, paper
+
+    /// Fixed English labels: the picker draws them verbatim like the border styles, so they do not
+    /// add localisation keys.
+    var label: String {
+        switch self {
+        case .trafficLight: return "Traffic Light"
+        case .colourful: return "Colourful Everything"
+        case .liquidGlass: return "Liquid Glass"
+        case .paper: return "Paper"
+        }
+    }
+
+    var style: MissionControlAppearanceStyle {
+        switch self {
+        case .trafficLight:
+            return MissionControlAppearanceStyle(
+                borderStyle: .none, tintMultiplier: 2.0, usesMaterial: false,
+                isLight: false, usesTrafficLightActions: true, badgeOpacityDelta: 0
+            )
+        case .colourful:
+            return MissionControlAppearanceStyle(
+                borderStyle: .solid, tintMultiplier: 2.4, usesMaterial: false,
+                isLight: false, usesTrafficLightActions: true, badgeOpacityDelta: 0.08
+            )
+        case .liquidGlass:
+            return MissionControlAppearanceStyle(
+                borderStyle: .hairline, tintMultiplier: 0.25, usesMaterial: true,
+                isLight: false, usesTrafficLightActions: false, badgeOpacityDelta: -0.12
+            )
+        case .paper:
+            return MissionControlAppearanceStyle(
+                borderStyle: .solid, tintMultiplier: 0.6, usesMaterial: false,
+                isLight: true, usesTrafficLightActions: false, badgeOpacityDelta: 0.25
+            )
+        }
+    }
+
+    /// The dots of a real macOS window, for the default look. Hide and Quit are not traffic lights
+    /// and stay neutral so the cluster still reads as five buttons.
+    func actionColor(for action: MissionControlWindowAction) -> MissionControlColor? {
+        guard self == .trafficLight || self == .colourful else { return nil }
+        switch action {
+        case .close: return MissionControlColor(red: 1.00, green: 0.37, blue: 0.34)
+        case .minimize: return MissionControlColor(red: 0.99, green: 0.74, blue: 0.25)
+        case .zoom: return MissionControlColor(red: 0.16, green: 0.78, blue: 0.35)
+        case .hide, .quit: return nil
+        }
+    }
+}
+
+/// The pure half of an appearance: the renderer reads these numbers, the tests pin them.
+struct MissionControlAppearanceStyle: Equatable, Sendable {
+    var borderStyle: MissionControlBorderStyle
+    var tintMultiplier: Double
+    var usesMaterial: Bool
+    var isLight: Bool
+    var usesTrafficLightActions: Bool
+    var badgeOpacityDelta: Double
+}
+
 /// sRGB, clamped on the way in so a hand-edited rule cannot emit an invalid colour.
 struct MissionControlColor: Codable, Equatable, Sendable {
     var red: Double
@@ -266,6 +332,11 @@ struct MissionControlColouring: Codable, Equatable, Sendable {
     }
 }
 
+struct MissionControlBadge: Equatable, Sendable {
+    let app: String
+    let title: String?
+}
+
 struct MissionControlNaming: Codable, Equatable, Sendable {
     var spaceLabels: [String: String]
     var showsSpaceTitles: Bool
@@ -274,6 +345,10 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
     var showsWindowTitle: Bool
     /// Type-to-filter inside the overview: plain letters narrow the grid, Escape clears it.
     var filterEnabled: Bool
+    /// Opt-in for everything that listens to the keyboard globally (Tab/arrows/Return, type-to-filter
+    /// and the hover key shortcuts). Off by default: Input Monitoring can be revoked, Mission Control
+    /// does not forward keys reliably, and this is the least predictable part of the overlay.
+    var keyboardEnabled: Bool
 
     init(
         spaceLabels: [String: String] = [:],
@@ -281,7 +356,8 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
         showsWindowBadges: Bool = true,
         showsAppIcon: Bool = true,
         showsWindowTitle: Bool = true,
-        filterEnabled: Bool = true
+        filterEnabled: Bool = false,
+        keyboardEnabled: Bool = false
     ) {
         self.spaceLabels = spaceLabels
         self.showsSpaceTitles = showsSpaceTitles
@@ -289,6 +365,24 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
         self.showsAppIcon = showsAppIcon
         self.showsWindowTitle = showsWindowTitle
         self.filterEnabled = filterEnabled
+        self.keyboardEnabled = keyboardEnabled
+    }
+
+    /// A naming blob saved before `keyboardEnabled` existed had type-to-filter on by default. That is
+    /// exactly the behaviour that proved unreliable, so it migrates off once; after this build saves
+    /// the blob, the user's own choice is kept.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        spaceLabels = try container.decodeIfPresent([String: String].self, forKey: .spaceLabels) ?? [:]
+        showsSpaceTitles = try container.decodeIfPresent(Bool.self, forKey: .showsSpaceTitles) ?? true
+        showsWindowBadges = try container.decodeIfPresent(Bool.self, forKey: .showsWindowBadges) ?? true
+        showsAppIcon = try container.decodeIfPresent(Bool.self, forKey: .showsAppIcon) ?? true
+        showsWindowTitle = try container.decodeIfPresent(Bool.self, forKey: .showsWindowTitle) ?? true
+        let storedKeyboard = try container.decodeIfPresent(Bool.self, forKey: .keyboardEnabled)
+        keyboardEnabled = storedKeyboard ?? false
+        filterEnabled = storedKeyboard == nil
+            ? false
+            : (try container.decodeIfPresent(Bool.self, forKey: .filterEnabled) ?? false)
     }
 
     /// The user's name for a Space, trimmed; `nil` means "no custom name" and the caller falls back
@@ -306,6 +400,22 @@ struct MissionControlNaming: Codable, Equatable, Sendable {
         let desktop = String(format: String(localized: "Desktop %lld"), index)
         guard let label = spaceLabel(forSpaceID: spaceID) else { return desktop }
         return "\(label) · \(desktop)"
+    }
+
+    /// The two lines of a badge, app first: naming is the point of the badge, so the app keeps the
+    /// bold line and the document title sits under it instead of being flattened into a dash string.
+    func badge(app: String?, title: String?) -> MissionControlBadge? {
+        guard showsWindowBadges else { return nil }
+        let app = app?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let title = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if showsAppIcon {
+            guard !app.isEmpty || !title.isEmpty else { return nil }
+            let primary = app.isEmpty ? title : app
+            let secondary = (app.isEmpty || title.isEmpty || !showsWindowTitle) ? nil : title
+            return MissionControlBadge(app: primary, title: secondary)
+        }
+        guard showsWindowTitle, !title.isEmpty else { return nil }
+        return MissionControlBadge(app: title, title: nil)
     }
 
     /// The pill over a thumbnail: the document title with the app name, or whichever exists. Returns
@@ -356,7 +466,7 @@ struct MissionControlFraming: Codable, Equatable, Sendable {
     var stateStyles: [MissionControlWindowState: MissionControlBorderStyle]
 
     init(
-        isEnabled: Bool = true,
+        isEnabled: Bool = false,
         showsFocusFrame: Bool = true,
         focusStyle: MissionControlBorderStyle = .solid,
         hoverStyle: MissionControlBorderStyle = .hairline,
@@ -375,6 +485,9 @@ struct MissionControlFraming: Codable, Equatable, Sendable {
         self.stateStyles = stateStyles
     }
 
+    /// Off by default: the border overlay sat over Mission Control's own thumbnails and looked like
+    /// a glitch, so the shipped look relies on colour and naming instead. Every border is still one
+    /// switch away in Settings.
     /// Focused beats hovered beats the window's own state. A focused window whose focus frame is off
     /// still falls back to its state border, never to nothing, so a deliberate state border shows.
     func style(isFocused: Bool, isHovered: Bool, state: MissionControlWindowState) -> MissionControlBorderStyle {
@@ -515,6 +628,9 @@ struct MissionControlPresentation: Codable, Equatable, Sendable {
     var badgePlacement: MissionControlPlacement
     var showsFilterChip: Bool
     var accentFallback: MissionControlColor
+    /// Traffic Light by default: colourful category accents and coloured action dots, without the
+    /// border overlay. Liquid Glass and Paper are the alternative materials.
+    var appearance: MissionControlAppearance
 
     init(
         borderWidth: Double = 2.5,
@@ -524,7 +640,8 @@ struct MissionControlPresentation: Codable, Equatable, Sendable {
         spaceTitlePlacement: MissionControlPlacement = .top,
         badgePlacement: MissionControlPlacement = .top,
         showsFilterChip: Bool = true,
-        accentFallback: MissionControlColor = .blue
+        accentFallback: MissionControlColor = .blue,
+        appearance: MissionControlAppearance = .trafficLight
     ) {
         self.borderWidth = min(max(borderWidth, 1), 6)
         self.cornerRadius = min(max(cornerRadius, 0), 28)
@@ -534,6 +651,23 @@ struct MissionControlPresentation: Codable, Equatable, Sendable {
         self.badgePlacement = badgePlacement
         self.showsFilterChip = showsFilterChip
         self.accentFallback = accentFallback
+        self.appearance = appearance
+    }
+
+    /// A presentation saved before the appearance picker has no `appearance`, and must keep every
+    /// other value instead of falling back to the whole shipped default.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let fallback = MissionControlPresentation()
+        borderWidth = min(max(try container.decodeIfPresent(Double.self, forKey: .borderWidth) ?? fallback.borderWidth, 1), 6)
+        cornerRadius = min(max(try container.decodeIfPresent(Double.self, forKey: .cornerRadius) ?? fallback.cornerRadius, 0), 28)
+        badgeOpacity = min(max(try container.decodeIfPresent(Double.self, forKey: .badgeOpacity) ?? fallback.badgeOpacity, 0.2), 1)
+        groupPadding = min(max(try container.decodeIfPresent(Double.self, forKey: .groupPadding) ?? fallback.groupPadding, 0), 32)
+        spaceTitlePlacement = try container.decodeIfPresent(MissionControlPlacement.self, forKey: .spaceTitlePlacement) ?? fallback.spaceTitlePlacement
+        badgePlacement = try container.decodeIfPresent(MissionControlPlacement.self, forKey: .badgePlacement) ?? fallback.badgePlacement
+        showsFilterChip = try container.decodeIfPresent(Bool.self, forKey: .showsFilterChip) ?? fallback.showsFilterChip
+        accentFallback = try container.decodeIfPresent(MissionControlColor.self, forKey: .accentFallback) ?? fallback.accentFallback
+        appearance = try container.decodeIfPresent(MissionControlAppearance.self, forKey: .appearance) ?? .trafficLight
     }
 }
 
@@ -955,13 +1089,30 @@ enum MissionControlSettings {
             guard let data = defaults.data(forKey: key) else { return nil }
             return try? JSONDecoder().decode(type, from: data)
         }
+        var framing = decode(MissionControlFraming.self, key: framingKey) ?? MissionControlFraming()
+        // Every build before the appearance picker shipped borders on by default, and those borders
+        // are the overlay the owner reported as glitching. One migration turns them off for an
+        // existing configuration; after that the switch is the user's, and is never overridden.
+        if presentationWasSavedWithoutAppearance(in: defaults) {
+            framing.isEnabled = false
+        }
         return MissionControlConfiguration(
             naming: decode(MissionControlNaming.self, key: namingKey) ?? MissionControlNaming(),
-            framing: decode(MissionControlFraming.self, key: framingKey) ?? MissionControlFraming(),
+            framing: framing,
             colouring: decode(MissionControlColouring.self, key: colouringKey) ?? MissionControlColouring(),
             actions: decode(MissionControlActions.self, key: actionsKey) ?? MissionControlActions(),
             presentation: decode(MissionControlPresentation.self, key: presentationKey) ?? MissionControlPresentation()
         )
+    }
+
+    /// A presentation blob without the `appearance` key predates the new looks. A missing blob is
+    /// also a legacy install (four-blob era); only a saved new configuration keeps its borders.
+    static func presentationWasSavedWithoutAppearance(in defaults: UserDefaults = .standard) -> Bool {
+        guard let data = defaults.data(forKey: presentationKey),
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return true
+        }
+        return object["appearance"] == nil
     }
 
     static func save(_ configuration: MissionControlConfiguration, in defaults: UserDefaults = .standard) {

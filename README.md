@@ -53,14 +53,16 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 - **Auto-hide.** Always visible by default; it can also hide and wake from the bottom edge. `⌥⇧⌘D` toggles it.
 - **Blink-free full screen.** The bar steps out of the way before a native full-screen transition (see [Privacy](#privacy)).
 
-### Mission Control
+### Mission Control (experimental)
 
-- **Your overview, annotated.** Turn on **Settings > Window & Workspace > Mission Control** and the Dock's overview gains
-  high-contrast app/title badges, borders for the focused, hovered and full-screen windows, app group frames, a Space pill and a live
-  type-to-filter readout. Nothing is drawn while Mission Control is closed, and detection is event-driven — no timers.
-- **Make it yours.** Space names keyed to each Space, automatic app-category colours with bundle-ID and category rules, per-window-state
-  border styles and colours, thumbnail tint and Space accents, border width, corner radius, badge opacity, group padding, and top/bottom/leading/
-  trailing placement for the badge, Space pill and filter readout.
+- **Experimental, and honest about it.** Detection relies on undocumented WindowServer behaviour, has only been verified on one display without Stage Manager, and keyboard navigation, type-to-filter and the border overlay are off by default. [Why experimental](Docs/MissionControlResearch.md).
+- **Named, not guessed.** Turn on **Settings > Window & Workspace > Mission Control** and every thumbnail gets its real app icon, the app
+  name in bold and the window title beneath it, with coloured action dots in the system's red/yellow/green. A Space pill and a live
+  type-to-filter readout sit over the overview. Nothing is drawn while Mission Control is closed, and detection is event-driven — no timers.
+- **Four looks.** **Traffic Light** is the default — colourful category accents, coloured action dots and no border overlay — with
+  **Colourful Everything** (borders up), **Liquid Glass** and **Paper** as alternatives. Space names keyed to each Space, automatic
+  app-category colours with bundle-ID and category rules, optional focus/hover/state borders, thumbnail tint and Space accents, border width,
+  corner radius, badge opacity, group padding, and top/bottom/leading/trailing placement for the badge, Space pill and filter readout.
 - **Keyboard and pointer.** Tab and the arrow keys move the target, Return raises it, Escape clears the filter; hover buttons, configurable hover
   keys and right/middle-click actions close, minimize, zoom, hide or quit the window through its own Accessibility buttons.
 

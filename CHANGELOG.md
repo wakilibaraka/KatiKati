@@ -13,6 +13,10 @@ Mission Control: Dock overviews with names, borders, colours, filtering and wind
 
 ## [Unreleased]
 
+### Added
+- **Mission Control is labelled experimental, with the fragile inputs off by default:** keyboard navigation, type-to-filter and hover key shortcuts now require an explicit **Keyboard navigation and hover keys** opt-in (and Input Monitoring); the border/group overlay stays off; naming, category colours, the Traffic Light look and the mouse/window action cluster remain on. One migration turns legacy filter-on and border-on configurations off, then respects the user's choice. The Settings page and both READMEs explain why, with the reviewed landscape in `Docs/MissionControlResearch.md`: Accessibility-based action layers (Mission Control Plus, CloseUp) survive, while Dock injection/SIP-off tools (TotalSpaces) and private WindowServer naming do not port cleanly.
+- **Mission Control looks and naming:** four appearances — **Traffic Light** (default), **Colourful Everything**, **Liquid Glass** and **Paper** — with real app icons, a bold app name and the window title on a second line, and the close/minimize/zoom actions drawn as macOS's red/yellow/green traffic lights. The default keeps category colours and drops the border overlay (borders stay one switch away); an existing configuration migrates once to borders off, and a deliberate border-on choice afterwards is kept.
+
 ### Fixed
 - **Mission Control on multiple displays and with Stage Manager:** one overlay panel per display now shows only that display's thumbnails, Space name and accent; a window across the seam is assigned to the display it mostly occupies, displays above/below/left of the main one and 2× panels map frames correctly, screen rearrangement rebuilds panels, hover controls follow the window to its display, and the filter readout appears once. Stage Manager stages parked outside every display are no longer drawn as phantom cards.
 

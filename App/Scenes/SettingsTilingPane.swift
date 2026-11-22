@@ -335,6 +335,7 @@ struct SettingsMissionControlPane: View {
     var body: some View {
         SettingsPane {
             statusCard
+            researchNote
             namingCard
             framingCard
             presentationCard
@@ -353,7 +354,9 @@ struct SettingsMissionControlPane: View {
     // MARK: Status
 
     private var statusCard: some View {
-        SettingsCard(Text("Mission Control")) {
+        SettingsCard(Text(verbatim: "Mission Control (Experimental)")) {
+            SettingsNote(Text(verbatim: "Experimental. The overlay reads undocumented WindowServer/overview behaviour and has only been verified on one display without Stage Manager. Keyboard navigation, type-to-filter, hover key shortcuts and the border overlay are off by default; naming, colours and mouse/window actions do not depend on them."))
+            SettingsDivider()
             SettingsToggleRow(
                 Text("Show overlays in Mission Control"),
                 isOn: Binding(
@@ -390,6 +393,15 @@ struct SettingsMissionControlPane: View {
                 state: readiness.detection,
                 note: Text("macOS exposes no Mission Control API. KatiKati watches the Dock's overview window; when this macOS shows nothing to observe, the overlay reports unavailable instead of pretending to work.")
             )
+        }
+    }
+
+    /// The reviewed landscape behind the experimental label, kept in the app so the decision is not
+    /// folklore: several Mission Control tools died on SIP-off injection, while the survivors act only
+    /// through Accessibility and Apple's own shortcuts.
+    private var researchNote: some View {
+        SettingsCard(Text(verbatim: "Why experimental?")) {
+            SettingsNote(Text(verbatim: "A narrow action layer on top of Mission Control is proven — Mission Control Plus and the open-source CloseUp both do it through Accessibility and have survived macOS updates. Products that injected code into the Dock or required disabling SIP (TotalSpaces) did not survive Apple Silicon. Stable Space names need private WindowServer calls and cannot ship in the App Store. KatiKati therefore never injects, never asks for SIP changes, keeps the fragile keyboard/filter paths opt-in, and labels this section experimental."))
         }
     }
 
@@ -451,10 +463,14 @@ struct SettingsMissionControlPane: View {
             SettingsToggleRow(Text("Space titles"), isOn: bind(\.naming.showsSpaceTitles),
                               note: Text("A pill at the top of the overview with this Space's name and its position."))
             SettingsDivider()
+            SettingsToggleRow(Text(verbatim: "Keyboard navigation and hover keys"), isOn: bind(\.naming.keyboardEnabled),
+                              note: Text(verbatim: "Experimental, off by default. Needs Input Monitoring, and Mission Control does not forward every key to a background app; the overlay still works with the mouse."))
+            SettingsDivider()
             SettingsRowPair {
                 SettingsToggleRow(Text("Window badges"), isOn: bind(\.naming.showsWindowBadges))
             } right: {
                 SettingsToggleRow(Text("Filter while typing"), isOn: bind(\.naming.filterEnabled))
+                    .disabled(!configuration.naming.keyboardEnabled)
             }
             SettingsDivider()
             SettingsRowPair {
@@ -513,6 +529,13 @@ struct SettingsMissionControlPane: View {
 
     private var presentationCard: some View {
         SettingsCard(Text("Look & Layout")) {
+            SettingsPickerRow(Text(verbatim: "Appearance"), selection: bind(\.presentation.appearance)) {
+                ForEach(MissionControlAppearance.allCases, id: \.self) {
+                    Text(verbatim: $0.label).tag($0)
+                }
+            }
+            SettingsNote(Text(verbatim: "Traffic Light is the default: colourful category accents, real app names and window titles, and red/yellow/green action dots, with the border overlay off. Colourful Everything turns the borders up; Liquid Glass and Paper are alternative materials."))
+            SettingsDivider()
             SettingsSliderRow(
                 Text("Border width"),
                 value: configuration.presentation.borderWidth,

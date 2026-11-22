@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// What the stage draws on top of the wallpaper for the pages that have their own surface. Each view
@@ -681,6 +682,25 @@ struct StageShelf: View {
 /// The Mission Control surface, shared by the live overlay and the stage preview so the two cannot
 /// disagree: every border, tint, badge and dim comes from the same `MissionControl*` resolution.
 /// `frames` are already in this view's coordinate space (top-left origin, like Mission Control).
+/// Real app icons for the badges, cached: `NSWorkspace` is not cheap enough to ask on every hover
+/// redraw, and the same bundle appears on several windows.
+enum MissionControlAppIcon {
+    private final class Cache: @unchecked Sendable {
+        let images = NSCache<NSString, NSImage>()
+    }
+    private static let cache = Cache()
+
+    static func image(for bundleID: String?) -> NSImage? {
+        guard let bundleID, !bundleID.isEmpty else { return nil }
+        if let cached = cache.images.object(forKey: bundleID as NSString) { return cached }
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else { return nil }
+        let icon = NSWorkspace.shared.icon(forFile: url.path)
+        icon.size = NSSize(width: 32, height: 32)
+        cache.images.setObject(icon, forKey: bundleID as NSString)
+        return icon
+    }
+}
+
 struct MissionControlSurface: View {
     var frames: [MissionControlWindowFrame]
     var configuration: MissionControlConfiguration
@@ -698,6 +718,10 @@ struct MissionControlSurface: View {
     private var naming: MissionControlNaming { configuration.naming }
     private var framing: MissionControlFraming { configuration.framing }
     private var presentation: MissionControlPresentation { configuration.presentation }
+    private var appearance: MissionControlAppearance { presentation.appearance }
+    private var appearanceStyle: MissionControlAppearanceStyle { appearance.style }
+    private var ink: Color { Color(red: 0.16, green: 0.14, blue: 0.11) }
+    private var badgeTextColor: Color { appearanceStyle.isLight ? ink : .white }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -738,47 +762,35 @@ struct MissionControlSurface: View {
         let colour = colouring.borderColor(
             forBundleID: frame.bundleID, category: frame.category, state: frame.state
         )
-        let tint = colouring.tint(forBundleID: frame.bundleID, category: frame.category)
+        let tint = min(0.5, colouring.tint(forBundleID: frame.bundleID, category: frame.category) * appearanceStyle.tintMultiplier)
         let opacity = MissionControlFilter.opacity(query: query, title: frame.title, app: frame.appName)
         let shape = RoundedRectangle(cornerRadius: presentation.cornerRadius, style: .continuous)
         return ZStack(alignment: .topLeading) {
-            shape.fill(colour.color.opacity(tint))
+            if appearanceStyle.isLight {
+                shape.fill(Color(red: 0.99, green: 0.97, blue: 0.92).opacity(0.74))
+            } else {
+                shape.fill(colour.color.opacity(tint))
+            }
+            if appearanceStyle.usesMaterial {
+                shape.fill(.ultraThinMaterial).opacity(0.28)
+            }
+            appearanceBorder(shape: shape, categoryColour: colour)
             border(style, colour: colour, shape: shape)
-            if let badge = naming.badgeTitle(app: frame.appName, title: frame.title) {
-                HStack(spacing: 5) {
-                    if naming.showsAppIcon {
-                        Image(systemName: "app.fill")
-                            .font(.system(size: 9, weight: .semibold))
-                    }
-                    Text(verbatim: badge)
-                        .font(.system(size: 9.5, weight: .semibold))
-                        .lineLimit(1)
-                }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 7)
-                .padding(.vertical, 3.5)
-                .background(Capsule().fill(.black.opacity(presentation.badgeOpacity)))
-                .overlay(Capsule().stroke(.white.opacity(0.28), lineWidth: 0.75))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.badgePlacement))
-                .padding(8)
+            if let badge = naming.badge(app: frame.appName, title: frame.title) {
+                badgeView(badge, bundleID: frame.bundleID)
             }
             if hovered, showsButtons, let onAction {
                 HStack(spacing: 5) {
                     ForEach(configuration.actions.buttons.shownActions, id: \.self) { action in
                         Button { onAction(action) } label: {
-                            Image(systemName: Self.symbol(for: action))
-                                .font(.system(size: 9.5, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: 22, height: 22)
-                                .background(Circle().fill(.black.opacity(0.66)))
-                                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.75))
+                            actionDot(action, size: 22)
                         }
                         .buttonStyle(.plain)
                         .help(Text(verbatim: action.rawValue.capitalized))
                     }
                 }
                 .padding(6)
-                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(.black.opacity(0.35)))
+                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(chromeFill.opacity(0.6)))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 .padding(8)
             }
@@ -787,6 +799,96 @@ struct MissionControlSurface: View {
         .opacity(opacity)
         .position(x: frame.frame.midX, y: frame.frame.midY)
         .accessibilityLabel(Text(verbatim: naming.badgeTitle(app: frame.appName, title: frame.title) ?? frame.appName))
+    }
+
+    /// The app icon and the two lines that name the window: app name bold, document title under it.
+    /// This is the part the default look leans on, since the border overlay is off.
+    private func badgeView(_ badge: MissionControlBadge, bundleID: String?) -> some View {
+        HStack(spacing: 5) {
+            if naming.showsAppIcon {
+                if let icon = MissionControlAppIcon.image(for: bundleID) {
+                    Image(nsImage: icon)
+                        .resizable()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "app.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                }
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                Text(verbatim: badge.app)
+                    .font(.system(size: 10, weight: .semibold))
+                    .lineLimit(1)
+                if let title = badge.title {
+                    Text(verbatim: title)
+                        .font(.system(size: 8.5, weight: .medium))
+                        .foregroundStyle(badgeTextColor.opacity(0.78))
+                        .lineLimit(1)
+                }
+            }
+        }
+        .foregroundStyle(badgeTextColor)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 4)
+        .background { badgeBackground() }
+        .overlay(Capsule().stroke(badgeStroke, lineWidth: 0.75))
+        .frame(maxWidth: 230, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.badgePlacement))
+        .padding(8)
+    }
+
+    @ViewBuilder
+    private func badgeBackground() -> some View {
+        switch appearance {
+        case .liquidGlass:
+            Capsule().fill(.ultraThinMaterial)
+        case .paper:
+            Capsule().fill(Color(red: 1.0, green: 0.985, blue: 0.95).opacity(0.97))
+        case .trafficLight, .colourful:
+            Capsule().fill(.black.opacity(min(1, presentation.badgeOpacity + appearanceStyle.badgeOpacityDelta)))
+        }
+    }
+
+    private var badgeStroke: Color {
+        appearanceStyle.isLight ? ink.opacity(0.18) : .white.opacity(0.28)
+    }
+
+    @ViewBuilder
+    private func appearanceBorder(shape: RoundedRectangle, categoryColour: MissionControlColor) -> some View {
+        switch appearanceStyle.borderStyle {
+        case .none:
+            EmptyView()
+        case .hairline:
+            shape.stroke(.white.opacity(0.5), lineWidth: 1)
+        case .solid:
+            shape.stroke(
+                categoryColour.color.opacity(appearanceStyle.isLight ? 0.5 : 0.8),
+                lineWidth: max(1.5, presentation.borderWidth * 0.7)
+            )
+        case .dashed:
+            shape.stroke(categoryColour.color, style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
+        case .glow:
+            shape.stroke(categoryColour.color, lineWidth: 1.5)
+                .shadow(color: categoryColour.color.opacity(0.8), radius: 8)
+        }
+    }
+
+    private var chromeFill: Color {
+        appearanceStyle.isLight ? Color(red: 0.99, green: 0.97, blue: 0.92) : .black
+    }
+
+    private var chromeTextColor: Color { appearanceStyle.isLight ? ink : .white }
+
+    /// The five actions as the window's own controls: close/minimize/zoom take the macOS traffic
+    /// light colours in the default look; the other materials stay monochrome.
+    private func actionDot(_ action: MissionControlWindowAction, size: CGFloat) -> some View {
+        let traffic = appearance.actionColor(for: action)
+        return Image(systemName: Self.symbol(for: action))
+            .font(.system(size: size * 0.43, weight: .bold))
+            .foregroundStyle(traffic == nil ? (appearanceStyle.isLight ? ink : .white) : Color(red: 0.16, green: 0.12, blue: 0.10))
+            .frame(width: size, height: size)
+            .background(Circle().fill(traffic?.color ?? chromeFill.opacity(0.7)))
+            .overlay(Circle().stroke(traffic == nil ? (appearanceStyle.isLight ? ink.opacity(0.2) : .white.opacity(0.35)) : .black.opacity(0.12), lineWidth: 0.75))
     }
 
     @ViewBuilder
@@ -812,15 +914,27 @@ struct MissionControlSurface: View {
             Circle().fill(accent).frame(width: 7, height: 7)
             Text(verbatim: title)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(chromeTextColor)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
-        .background(Capsule().fill(.black.opacity(0.55)))
+        .background { pillBackground }
         .overlay(Capsule().stroke(accent.opacity(0.85), lineWidth: 1))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.spaceTitlePlacement))
         .padding(10)
         .allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private var pillBackground: some View {
+        switch appearance {
+        case .liquidGlass:
+            Capsule().fill(.ultraThinMaterial)
+        case .paper:
+            Capsule().fill(Color(red: 1.0, green: 0.985, blue: 0.95).opacity(0.97))
+        case .trafficLight, .colourful:
+            Capsule().fill(.black.opacity(0.55))
+        }
     }
 
     /// The type-to-filter readout: the query, how many windows match, and Escape as the way out.
@@ -834,11 +948,11 @@ struct MissionControlSurface: View {
             Text(verbatim: "\(text)  ·  \(matches)/\(frames.count)")
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(chromeTextColor)
         .padding(.horizontal, 9)
         .padding(.vertical, 4)
-        .background(Capsule().fill(.black.opacity(0.6)))
-        .overlay(Capsule().stroke(.white.opacity(0.25), lineWidth: 0.75))
+        .background { pillBackground }
+        .overlay(Capsule().stroke(appearanceStyle.isLight ? ink.opacity(0.18) : .white.opacity(0.25), lineWidth: 0.75))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: Self.alignment(for: presentation.spaceTitlePlacement.opposite))
         .padding(12)
         .allowsHitTesting(false)
@@ -937,24 +1051,49 @@ struct StageMissionControl: View {
 /// navigation untouched.
 struct MissionControlControlCluster: View {
     var actions: [MissionControlWindowAction]
+    var appearance: MissionControlAppearance = .trafficLight
     var onAction: (MissionControlWindowAction) -> Void
+
+    private var isLight: Bool { appearance.style.isLight }
+    private var fill: Color {
+        isLight ? Color(red: 0.99, green: 0.97, blue: 0.92) : (appearance.style.usesMaterial ? .clear : .black)
+    }
 
     var body: some View {
         HStack(spacing: 5) {
             ForEach(actions, id: \.self) { action in
                 Button { onAction(action) } label: {
+                    let traffic = appearance.actionColor(for: action)
                     Image(systemName: MissionControlSurface.symbol(for: action))
                         .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(traffic == nil ? (isLight ? Color(red: 0.16, green: 0.14, blue: 0.11) : .white) : Color(red: 0.16, green: 0.12, blue: 0.10))
                         .frame(width: 24, height: 24)
-                        .background(Circle().fill(.black.opacity(0.72)))
-                        .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 0.75))
+                        .background(Circle().fill(traffic?.color ?? fill.opacity(appearance.style.usesMaterial ? 0 : 0.72)))
+                        .overlay(Circle().stroke(
+                            traffic == nil
+                                ? (isLight ? Color.black.opacity(0.2) : .white.opacity(0.4))
+                                : .black.opacity(0.12),
+                            lineWidth: 0.75
+                        ))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(verbatim: action.rawValue.capitalized))
             }
         }
         .padding(4)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.black.opacity(0.35)))
+        .background { clusterBackground }
+    }
+
+    @ViewBuilder
+    private var clusterBackground: some View {
+        switch appearance {
+        case .liquidGlass:
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.ultraThinMaterial)
+        case .paper:
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(red: 1.0, green: 0.985, blue: 0.95).opacity(0.97))
+        case .trafficLight, .colourful:
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(.black.opacity(0.35))
+        }
     }
 }

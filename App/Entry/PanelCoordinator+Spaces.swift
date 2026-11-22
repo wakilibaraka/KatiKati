@@ -280,6 +280,7 @@ final class MissionControlSession {
         }
         controlPanel?.contentView = NSHostingView(rootView: MissionControlControlCluster(
             actions: configuration.actions.buttons.shownActions,
+            appearance: configuration.presentation.appearance,
             onAction: { [weak self] action in self?.perform(action) }
         ))
         controlPanel?.orderFrontRegardless()
@@ -336,6 +337,9 @@ final class MissionControlSession {
     }
 
     private func handleKey(_ event: NSEvent) {
+        // Every keyboard path is opt-in. Without it Mission Control keeps its own keyboard handling
+        // and the overlay stays purely visual plus pointer actions.
+        guard configuration.naming.keyboardEnabled else { return }
         guard isActive else {
             if Self.opensOverview(event) { scheduleActivationProbe() }
             return
