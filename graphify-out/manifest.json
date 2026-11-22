@@ -8050,5 +8050,11 @@
     "seen": 1795304791.996212,
     "ast_hash": "450f7a3644e3c84403d8d047071c0768",
     "semantic_hash": ""
+  },
+  "Docs/MissionControlResearch.md": {
+    "mtime": 1795308454.5490286,
+    "seen": 1795309030.6521778,
+    "ast_hash": "1775e26015ba25d0b72a494fdaa243b6",
+    "semantic_hash": ""
   }
 }
