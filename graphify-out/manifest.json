@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795190774.4670231,
-    "seen": 1795190868.523735,
-    "ast_hash": "a361afa3f1a490554afa3c2396163867",
+    "mtime": 1795315065.6663284,
+    "seen": 1795315266.247971,
+    "ast_hash": "6bd8c0346ce6eaf1a108823849af60ba",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Layout.swift": {
-    "mtime": 1795183382.0332575,
-    "seen": 1795184094.632127,
-    "ast_hash": "38add49847dd0b1ab9ef9bdabf8ec318",
+    "mtime": 1795314502.6419146,
+    "seen": 1795315266.2480378,
+    "ast_hash": "e7459baa957be9d448eec3e16e7a10f5",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
@@ -3588,10 +3588,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/IslandPanelGeometryTests.swift": {
-    "mtime": 1792621076.2184656,
-    "seen": 1792621609.170324,
-    "ast_hash": "1523e0dcebac2d3baacba601dbf26a81",
-    "semantic_hash": "1523e0dcebac2d3baacba601dbf26a81"
+    "mtime": 1795314751.63155,
+    "seen": 1795315266.248846,
+    "ast_hash": "5c8033aac49a4a3733b4fbacc1cd4d73",
+    "semantic_hash": ""
   },
   "Tests/Unit/IslandSlotSetTests.swift": {
     "mtime": 1792085636.5946352,
@@ -4614,9 +4614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1795308403.554744,
-    "seen": 1795308984.385323,
-    "ast_hash": "96a8dd145d58776dd5b844e4a92e45d3",
+    "mtime": 1795314650.5977607,
+    "seen": 1795315266.248242,
+    "ast_hash": "cdab0f50f2fa2dc57194ab788ac8f608",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795313794.3522043,
-    "seen": 1795313863.322654,
-    "ast_hash": "5d095859d23bc087eae5b4af4b8b7c73",
+    "mtime": 1795315217.4832017,
+    "seen": 1795315266.249014,
+    "ast_hash": "8e997fd77b1362c7853a9be330da3d70",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795314151.998457,
-    "seen": 1795314187.287091,
-    "ast_hash": "678fc83d1efceab696042e93b11f0f31",
+    "mtime": 1795315232.3260543,
+    "seen": 1795315266.249132,
+    "ast_hash": "48d7542aeb0c430635bf25805ba72e14",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6396,9 +6396,9 @@
     "semantic_hash": ""
   },
   "LANES.md": {
-    "mtime": 1795313553.3128002,
-    "seen": 1795313605.512637,
-    "ast_hash": "5aee85c8349f3f58144a377f5c819ada",
+    "mtime": 1795315218.0281982,
+    "seen": 1795315266.249132,
+    "ast_hash": "65931c8920d3406b2d7bd441d89ea2d0",
     "semantic_hash": ""
   },
   "App/Scenes/AudioRecorderTile.swift": {
@@ -6756,9 +6756,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockWidgetKit.swift": {
-    "mtime": 1795307922.7224474,
-    "seen": 1795308984.3852422,
-    "ast_hash": "3ad32ff06b8908fb41a328746bd01dcb",
+    "mtime": 1795314648.5995333,
+    "seen": 1795315266.248152,
+    "ast_hash": "519c6b02af1eb5eb8d197b4dfcc12a92",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/SystemDockWidget.swift": {
@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795307786.081919,
-    "seen": 1795308984.385458,
-    "ast_hash": "e3be42bfa7f3301947a161bccfb869f0",
+    "mtime": 1795314650.0273628,
+    "seen": 1795315266.2484128,
+    "ast_hash": "6b821fbad02c43812d8bc40589a159a7",
     "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
