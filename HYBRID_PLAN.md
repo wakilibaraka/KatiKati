@@ -6575,6 +6575,63 @@ inside this agent app, so the resolver should prefer the activation notification
 
 | MC-8 | **Live verification and the macOS 26 fallback.** The Dock publishes no readable AX windows on macOS 26, so `MissionControlDockProbe` falls back to the WindowServer's layer-0 thumbnails and the real scaled frames, while entry is recognised from the key/click/swipe/pointer move that opens the overview (still no timer). The session's filter, keyboard target, Return/Escape and keyboard-vs-pointer target rules moved to `MissionControlInteraction` in Core with 13 deterministic tests; frames no longer flip vertically; pointer actions act on the hovered window. Settings reports the Input Monitoring grant separately. Live on this Mac: overlay panels at window level 1000 over the real Mission Control, badges/borders aligned to every thumbnail, Space pill, hover control cluster, and AX targeting. Synthetic key events are not delivered to a background app's global monitor while Mission Control owns the keyboard, so Tab/Return/filter were proven through the interaction tests, with the live overlay, badges, borders, Space pill and hover cluster verified from screenshots rather than by synthetic keystrokes. |
 
+## MC-A/MC-B — overlay exit, fail-closed detection, tint budget, badge packing (landed 2026-11-22)
+
+Owner ask: no overlay may survive Mission Control closing, detection must fail closed, tints must not wash the
+screen and badges must not collide. Bug fix only — no new settings, no default changed, no new source files,
+`project.pbxproj` untouched.
+
+| Slice | Root cause | Delivered |
+|---|---|---|
+| **MC-A1** — presence machine | Entry *and* exit both hung off Dock AX notifications and the global key/mouse monitors. The Dock posts no readable Mission Control notification on macOS 26, so once the overview was decorated nothing noticed it closing; the panels stayed painted over the desktop. | Pure `MissionControlPresence` in `Core/Support/SpaceSwitchPlan.swift`: enter only with a visible backdrop **and** at least one thumbnail, `.none` for every steady refresh (so a title change while filtering cannot re-open), `.exit` on the first probe lacking either, plus `close()`. `MissionControlPresenceAction` is the only thing the session switches on. |
+| **MC-A2** — exit watchdog | No recurring read existed while the overlay was up. | `MissionControlSession` (`App/Entry/PanelCoordinator+Spaces.swift`) starts a 0.6 s `Timer` only on enter and invalidates it on `dismiss()`/`stop()`; `dismiss()` also drops the presence state, so a stale teardown cannot fire twice. `NSWorkspace.didActivateApplicationNotification` refreshes too — returning to a normal app is the clearest exit signal. |
+| **MC-A3** — entry arming | Keyboard entry was unreachable: `handleKey` returned early on `keyboardEnabled` (default off) *before* the `opensOverview` check, so F3/⌃↑ never scheduled an activation probe. | The opt-in now guards only keys *inside* the overlay. `opensOverview` runs first for every key event, and an idle probe (1.5 s, only while enabled and closed, one `CGWindowListCopyWindowInfo` each) covers openers that post nothing usable — hot corners, gestures, and the global monitor never seeing synthetic F3/⌃↑. |
+| **MC-A4** — strict geometry | The AX path accepted anything ≥80×50 inset by 4 pt and ≤80 % of the backdrop in each dimension; the CGWindow fallback accepted any layer-0, non-own window wider than 80 pt. A normal full-screen window behind the frontmost app could qualify, decorating an ordinary desktop. | Pure `MissionControlThumbnailGeometry` (minimum 80×50, at least 8 pt inside the backdrop, at most **72 % of its area**) in `SpaceSwitchPlan.swift`, applied identically in both paths of `MissionControlDockProbe` (`Platform/Accessibility/AXWindowReader.swift`). |
+| **MC-B1** — tint budget | Every frame took `min(0.5, tint × multiplier)`; the shipped default (0.3 × Traffic Light's 2.0) hit the 0.5 ceiling on every frame, and six overlapping thumbnails stacked to an opaque sheet. | Pure `MissionControlTintBudget` with `emphasisedCap 0.32` / `whisperCap 0.05`; only the hovered or keyboard-targeted frame is emphasised, non-finite or negative input becomes 0, and the budget never raises a quieter palette. `MissionControlSurface.window(frame:)` (`App/Scenes/Settings/SettingsStagePanels.swift`) is the single caller. |
+| **MC-B2** — badge packing | Badges were drawn inside each frame at its own top edge, so full-height thumbnails piled into one band at the top of the screen and one app with several windows got several badges. | `MissionControlBadgeLayout`/`MissionControlBadgePlacement` in `SpaceSwitchPlan.swift`: one badge per app (largest-area frame represents it, keyed by bundle ID or lowercased name), greedy vertical packing (26 pt tall, 4 pt gap) with column wrap and bounds clamping. The surface extracts `badgeContent` out of the per-frame stack, draws placements once in overlay space over `badgeBounds` (the union of every frame), width-caps at 230 pt and disables hit testing so it cannot steal hover. |
+
+### Verification (same session, before commit)
+
+- **Focused tests:** `./Scripts/build_and_run.sh --test` with six `-only-testing:` classes — `SpaceSwitchPlanTests`,
+  `MissionControlModelTests`, `MissionControlPresentationTests`, `MissionControlInteractionTests`,
+  `MissionControlScreenGeometryTests`, `MissionControlPresenceTests` — **66 tests, 0 failures, exit 0**. The ten new
+  `MissionControlPresenceTests` (appended to `Tests/Unit/SpaceSwitchPlanTests.swift`) cover enter needing both
+  signals, no re-entry on refresh, first-probe exit on a missing backdrop, stale thumbnails alone exiting,
+  re-entry after exit, `close()`, full-screen/uninset/oversized/undersized rejection, the 0.3 × 2.0 wash case
+  with a six-layer stack staying under 0.6, and badge packing without collision plus largest-thumbnail choice.
+- **Gates:** `python3 Scripts/check_localization.py` ✅ (2313 code-referenced keys, 2313 catalog entries × 12
+  languages); `python3 Scripts/check_debug_switches.py` ✅ (94 registered switches, none added);
+  `git diff --check` clean. Diff was 5 files, +410/−33, with `project.pbxproj` at zero changes.
+- **Live open/close:** keyboard ⌃↑ opened two layer-1000 panels (`1710×1112` and `148×32`); Escape returned
+  `katiOverlayPanels=0`. Repeated three full cycles plus a final one, then twice via the pointer path — every
+  close left zero overlay panels, including when `keyboardEnabled` was off (the shipped default). On a plain
+  desktop (Terminal/Finder, no overview) the probe produced 0 panels and 0 layer-1000 windows, so the stricter
+  geometry does not decorate an ordinary desktop.
+- **Six overlapping windows:** `build/shots/mc6-packed.png` — thumbnails legible through each other, exactly one
+  strong (hovered) frame, one badge per application, none overlapping. `build/shots/mc6-closed.png` — clean
+  desktop after Escape. Test apps were quit and Finder windows closed afterwards; final state 0 overlay panels.
+
+### What remains experimental
+
+- Mission Control is still **labelled experimental** (MC-11) and keyboard control *inside* the overlay is still
+  opt-in (`keyboardEnabled`, default off). Only entry detection became unconditional — it is not a switch to
+  keyboard navigation.
+- Detection rests on **undocumented Dock/layer-0 geometry**. The new rules fail closed (no overlay) rather than
+  open wrongly if Apple changes the backdrop or thumbnail insets, which is the intended trade but means a future
+  macOS could silently stop decorating.
+- The idle probe is a **timer**: one `CGWindowListCopyWindowInfo` every 1.5 s while the feature is enabled and the
+  overlay is closed, and one every 0.6 s only while the overlay is up. Neither runs when Mission Control support
+  is off; cost measured only as a single read per tick, not profiled for idle CPU.
+- **Hot-corner and gesture entry were not exercised live** — the idle probe is designed to cover them, but only
+  ⌃↑ and the pointer path were driven. Synthetic F3/⌃↑ still never reach the background app's global monitor
+  (the MC-8 limitation), which is precisely why the probe exists.
+- Badge widths are **estimates** (120 pt untitled, 200 pt otherwise) because the pure packer has no text
+  measurement; long titles truncate at the 230 pt cap rather than widening their badge.
+- Whisper tints at 0.05 can be **imperceptible on very dark wallpapers** — the deliberate price of never stacking
+  to an opaque sheet.
+- Verified on **this Mac only** (single 1710×1112 display). MC-9's geometry tests still cover multi-display
+  mapping, but per-display badge packing and Stage Manager were not re-run for MC-B.
+
 ## Thread status — PHN, MC, WINF (2026-11-22)
 
 ### Landed and pushed
@@ -6583,6 +6640,7 @@ inside this agent app, so the resolver should prefer the activation notification
 |---|---|---|
 | **PHN-1…5** — Pause / Hydrate / PingPlace, every wellness helper default-on | `3ed09b3b` | full `xcodebuild test` green (73 targeted + full suite), localization / debug-switch / availability gates, live screenshots of the wings and the zone grid |
 | **MC-12** — Mission Control keyboard control split into opt-ins (other session's slice, finished, repaired and committed here) | `428612b2` | full suite green, incl. 6 new `MissionControlModelTests` |
+| **MC-A/MC-B** — overlay teardown on exit, fail-closed detection, tint budget, one packed badge per app | `e13af5b2` | 66 focused tests green (six `SpaceSwitchPlan`/`MissionControl*` classes), localization / debug-switch gates and `git diff --check` clean; live keyboard and pointer open/close ×3 leaving zero overlay panels, six overlapping windows in `build/shots/mc6-*.png` |
 | **Edge deck hydration wave** — Reduce Motion + Smart Pause hold it flat | `131c8cae` | Debug build + availability gate green; the Reduce-Motion branch is compiled but was not seen on screen |
 | **LANES.md** claim lines (PHN, MC-12) with their hot-file touches, plus the live-check note | `131c8cae` | — |
 | **PHN live check** findings and the **WINF** read-only audit + slices | `131c8cae` | — |
