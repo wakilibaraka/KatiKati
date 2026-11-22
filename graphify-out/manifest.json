@@ -594,9 +594,9 @@
     "semantic_hash": "331de2347f3f5d542a6d77e7374d07d0"
   },
   "App/Entry/PanelCoordinator+Spaces.swift": {
-    "mtime": 1795310599.2390652,
-    "seen": 1795310614.05223,
-    "ast_hash": "c7e39618108063307475a784e5ccc612",
+    "mtime": 1795311314.551033,
+    "seen": 1795311819.696713,
+    "ast_hash": "c5bcf055165cb8d57b11d444a9648f64",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Tooltip.swift": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
-    "mtime": 1795310647.3880763,
-    "seen": 1795310857.850352,
-    "ast_hash": "29f0a7102ce6fbab81af6a69d8d1b6d0",
+    "mtime": 1795311367.5279768,
+    "seen": 1795311819.697259,
+    "ast_hash": "4047178a7ac516590cb8273f2f7402fa",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
