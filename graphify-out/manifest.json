@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795357572.8684945,
-    "seen": 1795362217.377707,
-    "ast_hash": "12af69c8d9f23f58d14bc1a479d42186",
+    "mtime": 1795381275.8337615,
+    "seen": 1795381458.3443289,
+    "ast_hash": "f4dc5120532e71feb767b742d2e75a44",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "App/Entry/LauncherPanelController.swift": {
-    "mtime": 1794993947.1659882,
-    "seen": 1794996059.22812,
-    "ast_hash": "d4a907f4e3e750cbd699467fbdcc74ec",
+    "mtime": 1795381274.4267335,
+    "seen": 1795381458.344339,
+    "ast_hash": "89869a47f4bf47c6f5caabfa3424d936",
     "semantic_hash": ""
   },
   "App/Entry/MacOSDockCCV2App.swift": {
@@ -960,9 +960,9 @@
     "semantic_hash": "3e789d8d5569ef0a2d6688a50a7b44e5"
   },
   "App/Scenes/LauncherView.swift": {
-    "mtime": 1794855374.9430122,
-    "seen": 1794855528.975606,
-    "ast_hash": "42d4f113b7e53672de595392ef03e8a0",
+    "mtime": 1795381257.6730945,
+    "seen": 1795381458.3444312,
+    "ast_hash": "e9c7170284731ff18d0a610b282a0f55",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
@@ -4626,9 +4626,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Launcher.swift": {
-    "mtime": 1793835661.652248,
-    "seen": 1793835846.921463,
-    "ast_hash": "1f9cdb1e923e4c7d71ef8604147d3ec9",
+    "mtime": 1795381277.1106312,
+    "seen": 1795381458.3444748,
+    "ast_hash": "a115fceb876f659bf312da823e01d721",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795381155.7147794,
-    "seen": 1795381207.1530082,
-    "ast_hash": "e26dc3c43785723bd2bd1acff21bb339",
+    "mtime": 1795381435.3902822,
+    "seen": 1795381458.345192,
+    "ast_hash": "f6142344e1d78106f6eb1cfb44ec13e3",
     "semantic_hash": ""
   },
   "README.md": {
