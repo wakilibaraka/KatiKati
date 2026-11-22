@@ -112,6 +112,11 @@ extension PanelCoordinator {
         }
     }
 
+    func toggleShelfFromCapsule() {
+        let anchor = capsulePanel?.frame.insetBy(dx: Self.shadowPadding, dy: Self.shadowPadding) ?? barBoundingFrame
+        toggleShelfPopup(anchorVisibleRect: anchor)
+    }
+
     private func openFolderPopup(path: String, anchorVisibleRect: CGRect) {
         let rootURL = URL(fileURLWithPath: path)
         let sortOrder = pinnedFolderStore.sortOrder(for: path)

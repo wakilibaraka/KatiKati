@@ -202,12 +202,16 @@ extension SettingsLayoutPane {
             // stays listed while off; the capsule sits outside the list and gets its own picker.
             SettingsDivider()
             SettingsRow(Text("Dock Slots")) {
-                Picker("Control Centre", selection: Binding(
-                    get: { store.dockSlotLayout.trailingCapsule == .controlCenter },
-                    set: { store.setControlCentreTrailing($0) }
+                Picker("Control Centre", selection: Binding<DockSlotItem?>(
+                    get: { store.dockSlotLayout.trailingCapsule },
+                    set: { store.setTrailingCapsule($0) }
                 )) {
-                    Text("Capsule").tag(true)
-                    Text("Strip").tag(false)
+                    Text(DockSlotItem.controlCenter.title).tag(DockSlotItem?.some(.controlCenter))
+                    Text(DockSlotItem.backgroundApps.title).tag(DockSlotItem?.some(.backgroundApps))
+                    Text(DockSlotItem.trash.title).tag(DockSlotItem?.some(.trash))
+                    Text(DockSlotItem.launcher.title).tag(DockSlotItem?.some(.launcher))
+                    Text(DockSlotItem.shelf.title).tag(DockSlotItem?.some(.shelf))
+                    Text("Off").tag(DockSlotItem?.none)
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }

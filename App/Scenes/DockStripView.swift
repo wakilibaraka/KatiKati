@@ -1542,8 +1542,7 @@ struct DockStripView: View {
             // Control Centre at the trailing end (2026-10-21): the disc sits where the drawer capsule
             // used to, so its slot grows by the hole the capsule panel now fills — same number the
             // panel's frame is solved from, so the two cannot drift apart.
-            let controlCentreHole = section == .widgets && settingsStore.controlCentreAtTrailingEnd && !isRail
-                ? PanelGeometry.controlCentreHole(metrics: metrics) : 0
+            let controlCentreHole: CGFloat = 0
 
             Group {
                 if isRail {

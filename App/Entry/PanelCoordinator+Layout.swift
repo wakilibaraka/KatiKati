@@ -185,13 +185,16 @@ extension PanelCoordinator {
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
             }
-        controlCentreTrailingSubscription = settingsStore.$controlCentreTrailing
-            .removeDuplicates()
-            .dropFirst()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
-            }
+        controlCentreTrailingSubscription = Publishers.CombineLatest(
+            settingsStore.$controlCentreTrailing,
+            settingsStore.$dockSlotLayout
+        )
+        .removeDuplicates { $0 == $1 }
+        .dropFirst()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+        }
         dockWingsSubscription = settingsStore.$dockWings
             .removeDuplicates()
             .dropFirst()
@@ -351,7 +354,7 @@ extension PanelCoordinator {
                 gap: CGFloat(settingsStore.islandGap),
                 margin: CGFloat(settingsStore.islandMargin),
                 widgetLayout: settingsStore.widgetLayout,
-                controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
+                controlCentreTrailing: false,
                 capsuleOwnerSlot: BackgroundAppsAnchor.hostSlot(
                     islands: BarSection.islands(for: settingsStore.barLayoutMode,
                                                 order: settingsStore.dockSectionOrder),
@@ -373,18 +376,16 @@ extension PanelCoordinator {
             gap: CGFloat(settingsStore.islandGap),
             margin: CGFloat(settingsStore.islandMargin),
             widgetLayout: settingsStore.widgetLayout,
-            controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
+            controlCentreTrailing: false,
             wingConfig: resolvedWingConfig(on: screen),
             visibleUtilityCount: settingsStore.dockVisibleUtilityCount
         )
     }
 
-    /// Whether this coordinator unit hosts the drawer capsule.
-    /// Per Appendix A, utilities (drawer, shelf, trash, folders) travel with the apps island.
+    /// Whether this coordinator unit hosts the detached bottom-right capsule (`trailingCapsule != nil`).
     var isCapsuleOwner: Bool {
-        // Slice MD-3b: the capsule block follows the `backgroundApps` slot.
-        // Slice DP-4: the slot's host is the trailing island in a split, not the apps island.
-        guard settingsStore.showsBackgroundAppsSlot else { return false }
+        // Slice DO-3: capsule stays active whenever any eligible slot is hosted there.
+        guard settingsStore.dockSlotLayout.trailingCapsule != nil else { return false }
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
                                           order: settingsStore.dockSectionOrder)
         guard islandSlot < sections.count else { return islandSlot == 0 }
@@ -404,7 +405,7 @@ extension PanelCoordinator {
         PanelGeometry.stripCapsuleTargetFrame(forDock: dockFrame, stripPlacement: stripPlacement,
                                               on: Self.screenGeometry(screen),
                                               drawerPlacement: settingsStore.drawerPlacement, metrics: layoutMetrics,
-                                              controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd)
+                                              controlCentreTrailing: false)
     }
 
     /// 抽屉目标 frame（右边贴胶囊右边、**底边硬锚在胶囊上方、向上长**）。只依赖传入的胶囊 **目标** frame + 抽屉尺寸。
@@ -494,7 +495,7 @@ extension PanelCoordinator {
                 config: resolvedWingConfig,
                 stripPlacement: stripPlacement,
                 drawerPlacement: settingsStore.drawerPlacement,
-                controlCentreTrailing: settingsStore.controlCentreAtTrailingEnd,
+                controlCentreTrailing: false,
                 on: screenGeom,
                 metrics: layoutMetrics,
                 margin: CGFloat(settingsStore.islandMargin),
@@ -588,12 +589,6 @@ extension PanelCoordinator {
         }
         if showFloatingStack, panelsAreVisible, let panel = floatingWidgetStackPanel, !panel.isVisible, !isSuspendedForPermissionLoss {
             panel.orderFrontRegardless()
-        }
-        // The capsule overlaps the plate when the Control Centre holds the trailing end, and the
-        // plate's windows are raised by the surface order (and by visibility flips) — so every
-        // layout commit puts the capsule back on top of the plate it now sits inside.
-        if capsuleOwner, settingsStore.controlCentreAtTrailingEnd {
-            reassertCapsuleSurface()
         }
         if drawerWantsOpen { syncDrawerArrow(after: commit) }
     }

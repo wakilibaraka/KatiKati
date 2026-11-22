@@ -24,7 +24,10 @@ extension DockStripView {
         // sections the slot model has none for, so the switch cannot drop an enabled widget.
         let sections = BarSection.islands(for: settingsStore.barLayoutMode,
                                           order: settingsStore.dockSectionOrder)
-        let hostedSections = islandSlot < sections.count ? sections[islandSlot] : [.apps]
+        let rawHostedSections = islandSlot < sections.count ? sections[islandSlot] : [.apps]
+        let hostedSections = settingsStore.dockSlotLayout.trailingCapsule == .controlCenter
+            ? rawHostedSections.filter { $0 != .widgets }
+            : rawHostedSections
 
         guard hostedSections.contains(.apps) else {
             let placeholderEntries = hostedSections.map { StripEntry.sectionPlaceholder(section: $0) }

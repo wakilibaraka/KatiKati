@@ -35,6 +35,10 @@ struct DrawerCapsuleButton: View {
     /// An app cell dispatched an "open" (launch / unhide): an open drawer closes, exactly as
     /// after a tap inside it. No default — an omission would leave the drawer open.
     let onPrimaryAction: () -> Void
+    /// Toggles Shelf when `.shelf` is assigned to the detached capsule.
+    var onToggleShelf: () -> Void = {}
+
+    @ObservedObject private var trashStore = TrashStateStore.shared
 
     /// Cells are numbered row-major, 0...3; the last one is the expand cell.
     @State private var hoveredCell: Int?
@@ -71,7 +75,7 @@ struct DrawerCapsuleButton: View {
     private var hoverEnabled: Bool { !isPanelHeightResizing && dragController.draggingPayload == nil }
 
     var body: some View {
-        let ids = memberIDs
+        let capsuleSlot = settingsStore.dockSlotLayout.trailingCapsule
         return ZStack {
             if fluidTheme {
                 FluidRailBody(centers: [], radius: dockScale * 27, vertical: true,
@@ -83,8 +87,39 @@ struct DrawerCapsuleButton: View {
                                   matchesDockRefraction: true)
             }
 
-            // Hover and press feedback move only the cell under the pointer; the outer frame
-            // (backdrop + rim) stays still.
+            capsuleContent(for: capsuleSlot)
+        }
+        .dockPanelRim(cornerRadius: DockShape.panelCornerRadius * dockScale,
+                      style: theme.panelRimStyle,
+                      lineWidth: theme.panelRimLineWidth,
+                      usesLiquidGlass: usesLiquidGlass,
+                      visible: !fluidTheme)
+        // No stash glow here any more: the stash target is the drawer pop chip (`PopChip`).
+        .dockShadow(theme.stripShadow,
+                    visible: DockLiquidGlassConfiguration.stripShadowVisible(
+                        usesLiquidGlass: usesLiquidGlass,
+                        usesSystemVariant: DockGlassPresentation.usesSystemVariant))
+        .padding(PanelCoordinator.shadowPadding)
+        .overlay { capsuleOverlayButton(for: capsuleSlot) }
+        // MenuHostNSView takes only right / Control-clicks and lets left clicks and scroll wheel
+        // events through, so a right click anywhere on the capsule opens the taskbar menu.
+        .overlay(NativeMenuHost(popUpHandler: onRequestTaskbarMenu))
+        // 4c: pinned style for any themed descendant (the backdrop above already reads the store
+        // directly); re-injected on every body run, so a theme change lands without a rebuild.
+        .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+        .environment(\.themeTuning, settingsStore.themeTuning)
+        .environment(\.iconSet, settingsStore.iconSet)
+    }
+
+    @ViewBuilder
+    private func capsuleContent(for slot: DockSlotItem?) -> some View {
+        switch slot {
+        case .controlCenter:
+            WiFiVolumeFABView(capsuleMode: true, dockScale: dockScale) {
+                runtime.onToggleControlCenter?()
+            }
+        case .backgroundApps:
+            let ids = memberIDs
             if ids.isEmpty {
                 DynamicGaugeCompactDiscView(scale: dockScale)
                     .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
@@ -100,35 +135,46 @@ struct DrawerCapsuleButton: View {
                 .frame(width: 35 * dockScale, height: 35 * dockScale, alignment: .center)
                 .accessibilityHidden(true)
             }
+        case .trash:
+            Image(systemName: trashStore.isFull ? "trash.fill" : "trash")
+                .font(.system(size: 19 * dockScale, weight: .semibold))
+                .foregroundStyle(Color.white.opacity(0.92))
+        case .launcher:
+            LauncherIconView(style: settingsStore.launcherIcon, size: 28 * dockScale)
+        case .shelf:
+            Image(systemName: "tray.and.arrow.down.fill")
+                .font(.system(size: 18 * dockScale, weight: .semibold))
+                .foregroundStyle(Color.white.opacity(0.92))
+        default:
+            EmptyView()
         }
-        .dockPanelRim(cornerRadius: DockShape.panelCornerRadius * dockScale,
-                      style: theme.panelRimStyle,
-                      lineWidth: theme.panelRimLineWidth,
-                      usesLiquidGlass: usesLiquidGlass,
-                      visible: !fluidTheme)
-        // No stash glow here any more: the stash target is the drawer pop chip (`PopChip`).
-        .dockShadow(theme.stripShadow,
-                    visible: DockLiquidGlassConfiguration.stripShadowVisible(
-                        usesLiquidGlass: usesLiquidGlass,
-                        usesSystemVariant: DockGlassPresentation.usesSystemVariant))
-        .padding(PanelCoordinator.shadowPadding)
-        // The hit cells split the whole padded frame into quadrants, so each target is as large
-        // as the capsule allows and reaches the screen edge.
-        .overlay {
-            Button(action: action) { Color.clear.contentShape(Rectangle()) }
-                .buttonStyle(.plain)
-                .help(Text("Background Apps"))
-                .accessibilityLabel(Text("Background Apps"))
+    }
+
+    @ViewBuilder
+    private func capsuleOverlayButton(for slot: DockSlotItem?) -> some View {
+        switch slot {
+        case .backgroundApps:
+            capsuleTapOverlay(LocalizedStringKey("Background Apps"), action: action)
+        case .trash:
+            capsuleTapOverlay(LocalizedStringKey("Trash")) {
+                TrashStateStore.openTrashWindow(runtime: runtime, store: trashStore)
+            }
+        case .launcher:
+            capsuleTapOverlay(LocalizedStringKey("Launcher")) {
+                runtime.onToggleLauncher?()
+            }
+        case .shelf:
+            capsuleTapOverlay(LocalizedStringKey("Shelf"), action: onToggleShelf)
+        case .controlCenter, .none, .some:
+            EmptyView()
         }
-        // MenuHostNSView takes only right / Control-clicks and lets left clicks through to the
-        // cells above, so a right click anywhere on the capsule is the Tungsten menu — the
-        // settings fallback entry keeps the whole capsule.
-        .overlay(NativeMenuHost(popUpHandler: onRequestTaskbarMenu))
-        // 4c: pinned style for any themed descendant (the backdrop above already reads the store
-        // directly); re-injected on every body run, so a theme change lands without a rebuild.
-        .environment(\.dockThemeStyle, settingsStore.themeMaterial)
-        .environment(\.themeTuning, settingsStore.themeTuning)
-        .environment(\.iconSet, settingsStore.iconSet)
+    }
+
+    private func capsuleTapOverlay(_ label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+        Button(action: action) { Color.clear.contentShape(Rectangle()) }
+            .buttonStyle(.plain)
+            .help(Text(label))
+            .accessibilityLabel(Text(label))
     }
 
     // MARK: Preview
