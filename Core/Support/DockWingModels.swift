@@ -282,7 +282,9 @@ enum DockWingDimensions {
         case (.pause, .large): return 244
         case (.hydrate, .small): return 108
         case (.hydrate, .medium): return 176
-        case (.hydrate, .large): return 232
+        // Was 232: the ring, the day total and three serving pills need ~234 pt at dock scale, so at
+        // 232 the first two pills wrapped to two lines while the third stayed on one.
+        case (.hydrate, .large): return 276
         }
     }
 

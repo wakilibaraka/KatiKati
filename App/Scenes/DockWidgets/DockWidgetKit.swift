@@ -208,8 +208,10 @@ struct DockPauseWidgetView: View {
                         hydro.snoozePause()
                     }
                 }
-                iconButton("xmark", help: String(localized: "Skip for now")) { hydro.skipPause() }
             }
+            // Skip stays reachable at every size: at `.small` the eye plate is the only other control,
+            // and an unlabelled glyph is not a way out of a nudge.
+            iconButton("xmark", help: String(localized: "Skip for now")) { hydro.skipPause() }
         }
         .padding(.horizontal, 9)
     }
@@ -303,6 +305,14 @@ struct DockHydrateWidgetView: View {
                         quickAdd(.cup)
                     }
                 }
+            } else {
+                // `.small` still has to say something: a bare percentage is a number with no unit.
+                Text(verbatim: hydro.waterUnit.label(millilitres: hydro.todayMillilitres))
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(DockWidgetStyle.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
         }
         .padding(.horizontal, 9)
@@ -340,6 +350,10 @@ struct DockHydrateWidgetView: View {
             Text(verbatim: hydro.waterUnit.label(millilitres: preset.millilitres))
                 .font(.system(size: 8.5, weight: .semibold).monospacedDigit())
                 .foregroundStyle(tint)
+                // A serving pill is one line, always: without this the third pill grew while the
+                // first two wrapped to “150⏎ml”, so one row rendered in two different shapes.
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 2)
                 .background(Capsule().fill(tint.opacity(0.16)))

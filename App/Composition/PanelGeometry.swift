@@ -400,7 +400,8 @@ enum PanelGeometry {
         contentInset: CGFloat = IslandChrome.contentInset,
         controlCentreTrailing: Bool = false,
         enforceMinimumWidgetWidths: Bool = true,
-        capsuleOwnerSlot: Int? = nil
+        capsuleOwnerSlot: Int? = nil,
+        wingConfig: DockWingsConfiguration = .default
     ) -> CGRect {
         switch mode {
         case .windows:
@@ -423,11 +424,32 @@ enum PanelGeometry {
 
         case .centered:
             let capsuleSpace = controlCentreTrailing ? 0 : metrics.capsuleGap + metrics.capsuleWidth
+            // Dock II wings are separate panels parked *outside* the plate, so the plate has to hand
+            // their width back before it is clamped to the screen. Without this a busy dock grows the
+            // plate to the whole usable width, `wingPanelFrames` sees zero room on both sides and
+            // `DockWingLadder` resolves both wings to `.hidden` — the feature disappears exactly when
+            // the dock is full. The strip's own horizontal `ScrollView` absorbs the lost width.
+            var wingSpace = dockWingReserve(config: wingConfig, metrics: metrics)
+            // The capsule rides beside the plate and is drawn with the bar's shadow padding, so its
+            // side needs that much more room back: measured on a real bar, a trailing wing lost one
+            // ladder step to the capsule's unpadded edge.
+            if capsuleSpace > 0 {
+                if placement == .left {
+                    wingSpace.left += 2 * metrics.shadowPadding
+                } else {
+                    wingSpace.right += 2 * metrics.shadowPadding
+                }
+            }
             let maxWidth = screen.frame.width - 2 * max(0, margin) - capsuleSpace
+                - wingSpace.left - wingSpace.right
             let targetWidth = min(maxWidth, max(min(centeredWidth, maxWidth), contentWidth))
             let panelWidth = max(targetWidth, metrics.minimumDockWidth)
             let totalWidth = panelWidth + capsuleSpace
-            let x = screen.frame.minX + (screen.frame.width - totalWidth) / 2
+            // Centre the plate in what is left *after* each wing's park, so a side never has to
+            // degrade just because the other wing is wider.
+            let slack = max(0, screen.frame.width - 2 * max(0, margin) - capsuleSpace
+                - wingSpace.left - wingSpace.right - panelWidth)
+            let x = screen.frame.minX + max(0, margin) + wingSpace.left + slack / 2
             let panelX = placement == .left ? x + capsuleSpace : x
             return CGRect(
                 x: panelX - metrics.shadowPadding,
@@ -515,6 +537,31 @@ enum PanelGeometry {
     /// Distance from the screen's top edge to the first usable point (menu bar / notch).
     static func railTopInset(on screen: PanelScreenGeometry) -> CGFloat {
         max(0, screen.frame.maxY - screen.topUsableY)
+    }
+
+    /// Horizontal room the Dock II wings need outside the plate, per side: the requested wing width
+    /// at the bar's scale plus the gap to the plate. Pure, so the reserve can be tested without
+    /// asking AppKit for a screen.
+    struct WingReserve: Equatable {
+        var left: CGFloat = 0
+        var right: CGFloat = 0
+    }
+
+    static func dockWingReserve(
+        config: DockWingsConfiguration,
+        metrics: PanelLayoutMetrics = .tungstenEdge
+    ) -> WingReserve {
+        guard config.hasAnyActiveWing else { return WingReserve() }
+        let scale = max(0.5, metrics.panelHeight / IslandChrome.nativeBarHeight)
+        let gap = DockWingsConfiguration.clampedGap(config.gap) * scale
+        var reserve = WingReserve()
+        if config.left.preset.isAssigned {
+            reserve.left = DockWingDimensions.scaledWidth(for: config.left.preset, size: config.left.size, scale: scale) + gap
+        }
+        if config.right.preset.isAssigned {
+            reserve.right = DockWingDimensions.scaledWidth(for: config.right.preset, size: config.right.size, scale: scale) + gap
+        }
+        return reserve
     }
 
     static func railWingPlan(

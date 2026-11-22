@@ -207,7 +207,8 @@ struct NotificationZonePicker: View {
         RoundedRectangle(cornerRadius: 7, style: .continuous)
             .strokeBorder(Color.primary.opacity(0.09), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
             .frame(maxWidth: .infinity, minHeight: 30)
-            .overlay(Image(systemName: "minus").font(.system(size: 9)).foregroundStyle(.tertiary))
+            // No glyph inside: the tiny “–” read as a broken or disabled cell. A dashed empty slot is
+            // enough to say “the screen's centre is never a zone”.
             .accessibilityHidden(true)
     }
 

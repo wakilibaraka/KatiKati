@@ -160,4 +160,47 @@ final class IslandPanelGeometryTests: XCTestCase {
         XCTAssertFalse(split4Islands[2].contains(.apps))
         XCTAssertFalse(split4Islands[3].contains(.apps))
     }
+
+    /// PHN-6a: a full dock used to leave the wings zero room, because the Centered plate grew to the
+    /// whole usable width and only the outside of the plate was measured. The plate now hands each
+    /// parked wing its width back, so the ladder keeps the requested size instead of hiding.
+    func testFullDockStillParksBothWingsOutsideThePlate() {
+        let metrics = PanelLayoutMetrics.tungstenEdge
+        let margin: CGFloat = 12
+        let width = DockWingsConfiguration.clampedGap(10)
+        var wings = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .pause, size: .medium),
+            right: DockWingSlotConfig(preset: .hydrate, size: .medium)
+        )
+        wings.gap = width
+
+        // 1640 pt of content on a 1440 pt screen: the live case, where the dock wants more than the
+        // screen can give and the plate is clamped.
+        let frame = PanelGeometry.islandTargetFrame(
+            slot: 0, contentWidth: 1640, mode: .centered, on: testScreen,
+            metrics: metrics, margin: margin, wingConfig: wings)
+        let plate = frame.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
+
+        // The real caller hands over the panel frame (shadow included) and lets the planner inset it.
+        let plan = PanelGeometry.wingPanelFrames(
+            dockFrame: frame, capsuleFrame: .zero, config: wings,
+            stripPlacement: .bottom, drawerPlacement: .right, controlCentreTrailing: false,
+            on: testScreen, metrics: metrics, margin: margin)
+
+        XCTAssertNotNil(plan.leftFrame, "a full dock must still park the left wing")
+        XCTAssertNotNil(plan.rightFrame, "a full dock must still park the right wing")
+        XCTAssertEqual(plan.leftSize, .medium)
+        XCTAssertEqual(plan.rightSize, .medium)
+
+        // The reserve is what pays for them: without wings the same content takes a wider plate.
+        let plain = PanelGeometry.islandTargetFrame(
+            slot: 0, contentWidth: 1640, mode: .centered, on: testScreen,
+            metrics: metrics, margin: margin, wingConfig: .default)
+        XCTAssertGreaterThan(plain.width, frame.width)
+
+        // And each wing sits outside the plate, not over it. Wing frames carry their own shadow
+        // padding, so compare the visible plates to each other.
+        XCTAssertLessThanOrEqual(plan.leftFrame!.maxX - metrics.shadowPadding, plate.minX + 0.5)
+        XCTAssertGreaterThanOrEqual(plan.rightFrame!.minX + metrics.shadowPadding, plate.maxX - 0.5)
+    }
 }

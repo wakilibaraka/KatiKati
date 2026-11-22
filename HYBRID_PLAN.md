@@ -6589,11 +6589,8 @@ inside this agent app, so the resolver should prefer the activation notification
 
 ### Pending — nothing half-written is left in the tree
 
-1. **PHN-6, not started: the defects the live pass found.** Done, in priority order: (a) the two wings
-   resolve to `.hidden` on any dock whose widget sections fill the bar, because `wingPanelFrames` budgets only
-   the room *outside* the plate — the feature is invisible on this Mac; (b) `small` renders a bare glyph (no
-   prompt, no skip, no numbers); (c) large Hydrate's quick-adds wrap onto two lines unevenly; (d) large Pause's
-   caption wraps early with room to spare; (e) the zone grid's dashed centre reads as a broken control.
+1. ~~PHN-6: the five live defects~~ — **landed 2026-11-22**, see *PHN-6 — landed* below. Four were fixed with a
+   root cause traced in code; (d) was **disproven** with measurements and not changed.
 2. **WINF-1…4, proposed only, awaiting approval.** Audit and slices are in the WINF section above; no resolver
    code exists.
 3. **Translations:** PHN's 15 keys and the MC strings are AI drafts pending a speaker pass (Standing Rules §1.7b).
@@ -6654,3 +6651,13 @@ unexplained prompt; `EKEventStore` access is a system permission that survives u
 awkward to revoke; the sync is a convenience over a list that already works offline; and the brief's own
 “never prompt unexpectedly on cold launch” checkbox points the same way. When the switch is off the bridge
 never constructs a query, and the row links to System Settings for `.denied` / `.restricted`.
+
+## PHN-6 — the five live defects, landed 2026-11-22
+
+| # | Root cause (traced in code) | Fix | Check that failed before / passes after |
+|---|---|---|---|
+| **a** | `PanelGeometry.islandTargetFrame`'s `.centered` branch never received `wingConfig` — only the rail path reserved wing room. A dock whose content wants the full usable width produced a plate with zero room outside it, so `wingPanelFrames` measured `leftAvailable = rightAvailable = 0` and `DockWingLadder` resolved both sides `.hidden`. | New pure `PanelGeometry.dockWingReserve(config:metrics:)`; `.centered` subtracts it from `maxWidth`, parks the plate after the left wing and centres it in what is left, and the strip's existing horizontal `ScrollView` absorbs the lost width. `PanelCoordinator+Layout.dockTargetFrame` passes `resolvedWingConfig(on:)`. The drawer capsule's unpadded edge is added back on its side — without it a trailing wing lost one ladder step. | `testFullDockStillParksBothWingsOutsideThePlate` (new) asserts both frames non-nil at `.medium` with 1640 pt of content on a 1440 pt screen. Disabling the reserve makes it fail with the live symptom (`XCTAssertNotNil failed - a full dock must still park the left wing`, both sizes `.small`); restoring it passes. Live on the real full dock (no hidden sections): before, no wing windows existed at all; after, left wing x=6 w=208 (`pause large`), right x=1428 w=236 (`hydrate large`), plate 1644 → 1144. |
+| **b** | Both wing views gated everything but the icon plate behind `size != .small`, so `.small` was an unlabelled glyph with no way out. | Skip (`xmark`) renders at every size; hydrate's `.small` shows the day total in the chosen unit beside the ring. | `build/shots/phn6-wings-small.jpg` (eye + ×; `0% · 0 ml`) against the earlier `wings-small.png` (bare eye, `0 %` only). |
+| **c** | `DockWingDimensions.hydrate.large` was 232 pt native (≈198 scaled) while the ring, the total and three 8.5 pt serving pills need ≈234, so the first two pills wrapped and the third fitted. | Width 232 → 276 plus `lineLimit(1)` / `minimumScaleFactor` on a pill, so it can never wrap again. | `build/shots/phn6-wings-large.jpg`: `150 ml · 250 ml · 500 ml` on one line, against `wings-large.png` showing `150⏎ml`. |
+| **d** | **Disproven — not a defect.** The caption needs 164.7 pt on one line at 9.5 pt (measured through `NSFont`); `pause large` leaves ≈130 pt for it after the 26 pt icon plate and two 18 pt buttons. Two lines is the correct use of the space that exists, not under-constrained wrapping. **No change made.** | — | That measurement plus the style arithmetic. |
+| **e** | `NotificationZonePicker.deadCentre` drew a 9 pt `minus` glyph inside the dashed cell, which read as a broken or disabled control. | Glyph removed; the dashed empty slot alone says the screen's centre is never a zone. Still `accessibilityHidden`, still no new string. | `build/shots/phn6-zone-grid.jpg` against `settings-zone-grid.jpg`. |

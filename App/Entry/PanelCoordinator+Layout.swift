@@ -356,7 +356,10 @@ extension PanelCoordinator {
                     islands: BarSection.islands(for: settingsStore.barLayoutMode,
                                                 order: settingsStore.dockSectionOrder),
                     isRail: false
-                )
+                ),
+                // Dock II wings are separate panels outside the plate: the bar has to reserve their
+                // room up front, or a full dock leaves them zero width and they resolve to hidden.
+                wingConfig: resolvedWingConfig(on: screen)
             )
         }
         return PanelGeometry.stripTargetFrame(
