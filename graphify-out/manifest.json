@@ -1962,9 +1962,9 @@
     "semantic_hash": "aa033a3eb069df436a646614a2da0ecc"
   },
   "Core/Support/LauncherLayout.swift": {
-    "mtime": 1793307111.580965,
-    "seen": 1793373444.962429,
-    "ast_hash": "59fc91a4328731302af704a3a782a024",
+    "mtime": 1795381062.9095323,
+    "seen": 1795381207.152447,
+    "ast_hash": "180da3bbf60059556e95018198cdd0ba",
     "semantic_hash": ""
   },
   "Core/Support/LauncherMenuPlan.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795359784.4775884,
-    "seen": 1795362217.3785641,
-    "ast_hash": "93f1c36a62a1e99e3b744640b423af2c",
+    "mtime": 1795381155.7147794,
+    "seen": 1795381207.1530082,
+    "ast_hash": "e26dc3c43785723bd2bd1acff21bb339",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6660,9 +6660,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherPresentationTests.swift": {
-    "mtime": 1793307847.5917778,
-    "seen": 1793373444.962686,
-    "ast_hash": "a14dfc64ae9f9637383e1f15ee8be100",
+    "mtime": 1795381066.9504664,
+    "seen": 1795381207.152766,
+    "ast_hash": "813d6564b97aa051182d7f8ae9a2c3c4",
     "semantic_hash": ""
   },
   "App/Entry/LauncherOrbController.swift": {
