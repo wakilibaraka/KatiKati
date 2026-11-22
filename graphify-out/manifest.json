@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795315065.6663284,
-    "seen": 1795315266.247971,
-    "ast_hash": "6bd8c0346ce6eaf1a108823849af60ba",
+    "mtime": 1795329819.3923256,
+    "seen": 1795330585.650631,
+    "ast_hash": "bb8d1d10a9fddc4563ddd9641e021e58",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -3588,9 +3588,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/IslandPanelGeometryTests.swift": {
-    "mtime": 1795314751.63155,
-    "seen": 1795315266.248846,
-    "ast_hash": "5c8033aac49a4a3733b4fbacc1cd4d73",
+    "mtime": 1795329649.0583453,
+    "seen": 1795330585.65128,
+    "ast_hash": "3c0080415b4768604cf7a6657acd70c1",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandSlotSetTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795315217.4832017,
-    "seen": 1795315266.249014,
-    "ast_hash": "8e997fd77b1362c7853a9be330da3d70",
+    "mtime": 1795330237.3991601,
+    "seen": 1795330585.651438,
+    "ast_hash": "f1e801abfd8c0f427f3e6e9217f9b002",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795315232.3260543,
-    "seen": 1795315266.249132,
-    "ast_hash": "48d7542aeb0c430635bf25805ba72e14",
+    "mtime": 1795330551.7130096,
+    "seen": 1795330585.651541,
+    "ast_hash": "a9a15d65152c6190c3fb085622e48a5d",
     "semantic_hash": ""
   },
   "README.md": {
