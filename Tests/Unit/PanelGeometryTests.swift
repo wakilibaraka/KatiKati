@@ -5,6 +5,23 @@ import XCTest
 final class PanelGeometryTests: XCTestCase {
     private let metrics = PanelLayoutMetrics.tungstenEdge
 
+    func testCursorPopoverClampsAllFourCorners() {
+        let visible = CGRect(x: 0, y: 0, width: 1000, height: 700)
+        let size = CGSize(width: 300, height: 220)
+        let insets = CursorPopoverInsets(top: 24, bottom: 70, left: 70, right: 70)
+        let corners = [
+            CGPoint(x: 0, y: 0),
+            CGPoint(x: 1000, y: 0),
+            CGPoint(x: 0, y: 700),
+            CGPoint(x: 1000, y: 700)
+        ]
+        let insetFrame = CGRect(x: 70, y: 70, width: 860, height: 606)
+        for cursor in corners {
+            let frame = CursorPopoverGeometry.frame(cursor: cursor, size: size, visibleFrame: visible, insets: insets)
+            XCTAssertTrue(insetFrame.contains(frame))
+        }
+    }
+
     func testBottomDockVisibleFrameChangeDoesNotMoveBottomPanelsVertically() {
         let hidden = screen(frame: CGRect(x: 0, y: 0, width: 1512, height: 982))
         let shown = screen(

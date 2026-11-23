@@ -451,7 +451,11 @@ extension PanelCoordinator {
             }
         }
 
-        popupLocalMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
+        popupLocalMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .keyDown]) { [weak self] event in
+            if event.type == .keyDown, event.keyCode == 53 {
+                self?.closeFolderPopup()
+                return nil
+            }
             self?.dismissFolderPopupIfOutside()
             return event
         }
@@ -466,6 +470,24 @@ extension PanelCoordinator {
         on screen: PanelScreenGeometry,
         arrowHidden: Bool
     ) -> CGRect {
+        if openPopupContent == .clipboard {
+            let cursor = NSEvent.mouseLocation
+            let insets = CursorPopoverInsets(
+                top: max(0, screen.frame.maxY - screen.visibleFrame.maxY),
+                bottom: max(0, screen.visibleFrame.minY - screen.frame.minY),
+                left: max(0, screen.visibleFrame.minX - screen.frame.minX),
+                right: max(0, screen.frame.maxX - screen.visibleFrame.maxX)
+            )
+            let frame = CursorPopoverGeometry.frame(
+                cursor: cursor,
+                size: size,
+                visibleFrame: screen.visibleFrame,
+                insets: insets
+            )
+            if !frame.isNull, frame.width > 0, frame.height > 0 {
+                return frame
+            }
+        }
         let cfg = settingsStore.dockUtilities
         let effectivePlacement = cfg.effectivePlacementForPreset
         if effectivePlacement != .anchored {

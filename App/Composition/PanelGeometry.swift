@@ -1,5 +1,39 @@
 import Foundation
 
+struct CursorPopoverInsets: Equatable, Sendable {
+    var top: CGFloat
+    var bottom: CGFloat
+    var left: CGFloat
+    var right: CGFloat
+    init(top: CGFloat = 0, bottom: CGFloat = 0, left: CGFloat = 0, right: CGFloat = 0) {
+        self.top = max(0, top); self.bottom = max(0, bottom)
+        self.left = max(0, left); self.right = max(0, right)
+    }
+}
+
+enum CursorPopoverGeometry {
+    static let cursorGap: CGFloat = 12
+    static func frame(cursor: CGPoint, size requestedSize: CGSize, visibleFrame: CGRect,
+                      insets: CursorPopoverInsets = CursorPopoverInsets()) -> CGRect {
+        let insetFrame = CGRect(
+            x: visibleFrame.minX + insets.left,
+            y: visibleFrame.minY + insets.bottom,
+            width: max(0, visibleFrame.width - insets.left - insets.right),
+            height: max(0, visibleFrame.height - insets.top - insets.bottom)
+        )
+        guard insetFrame.width > 0, insetFrame.height > 0 else { return .zero }
+        let width = min(max(1, requestedSize.width), insetFrame.width)
+        let height = min(max(1, requestedSize.height), insetFrame.height)
+        var x = cursor.x + cursorGap
+        if x + width > insetFrame.maxX { x = cursor.x - cursorGap - width }
+        var y = cursor.y - cursorGap - height
+        if y < insetFrame.minY { y = cursor.y + cursorGap }
+        x = min(max(x, insetFrame.minX), insetFrame.maxX - width)
+        y = min(max(y, insetFrame.minY), insetFrame.maxY - height)
+        return CGRect(x: x, y: y, width: width, height: height)
+    }
+}
+
 import CoreGraphics
 
 /// Taskbar height as the user dragged it: whole points, clamped to `minimum...maximum`.
