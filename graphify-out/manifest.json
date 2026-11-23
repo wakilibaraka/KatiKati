@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
-    "mtime": 1795298431.5492501,
-    "seen": 1795299266.854547,
-    "ast_hash": "cbd3c6dd234c56d256dfbd9f289a02d4",
+    "mtime": 1795431888.906738,
+    "seen": 1795432045.31236,
+    "ast_hash": "68c0f1637341562d87f2768dea7c1abd",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795308468.2210145,
-    "seen": 1795308984.3853319,
-    "ast_hash": "a55d725e33d76657bf67154915702763",
+    "mtime": 1795431922.574347,
+    "seen": 1795432045.312362,
+    "ast_hash": "c46ee256bdfea5792f37df23d75f9de6",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795383891.4206667,
-    "seen": 1795384204.430589,
-    "ast_hash": "aee7833fff96ac6402fedc824015caa2",
+    "mtime": 1795431874.8444066,
+    "seen": 1795432045.312428,
+    "ast_hash": "0090f09d7634641df279b68cfad903d4",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -2502,9 +2502,9 @@
     "semantic_hash": "c67500d2664875a06720b0a5c719a093"
   },
   "Core/Support/WelcomeGuideStep.swift": {
-    "mtime": 1795191693.1634321,
-    "seen": 1795192044.171815,
-    "ast_hash": "9b4d9c879ed6469a8744dc313bbbaff7",
+    "mtime": 1795431929.4578903,
+    "seen": 1795432045.312622,
+    "ast_hash": "5833f56181fd06e801c1b66cf79c1f70",
     "semantic_hash": ""
   },
   "Core/Support/WidgetLayoutModel.swift": {
@@ -2532,9 +2532,9 @@
     "semantic_hash": "82a9d7cf700cea438cbd3393ec2cc58d"
   },
   "Core/Support/WindowChipGrouping.swift": {
-    "mtime": 1795428878.185562,
-    "seen": 1795428951.6685371,
-    "ast_hash": "2dd4a828af13592454a6eb8975d30ceb",
+    "mtime": 1795431872.039983,
+    "seen": 1795432045.312626,
+    "ast_hash": "b471981741366f72cb94f6da785170ee",
     "semantic_hash": ""
   },
   "Core/Support/WindowDisplayAttribution.swift": {
@@ -4026,9 +4026,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1795299343.0651343,
-    "seen": 1795299420.124953,
-    "ast_hash": "73ec45fdad162f0d84451099b4ca276b",
+    "mtime": 1795431933.4831529,
+    "seen": 1795432045.31292,
+    "ast_hash": "80245e1055d41a639620bd255911239e",
     "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
@@ -4296,9 +4296,9 @@
     "semantic_hash": "95ea6b80e13237dae8450c33b7c239bc"
   },
   "Tests/Unit/WelcomeGuideOnboardingTests.swift": {
-    "mtime": 1795191816.4907246,
-    "seen": 1795192044.172153,
-    "ast_hash": "8fcf63cfb74c64fa7579471d98de1ae9",
+    "mtime": 1795431935.2467887,
+    "seen": 1795432045.312968,
+    "ast_hash": "d16872fca2a6349684e2ce640b09dd66",
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetLayoutModelTests.swift": {
@@ -4590,15 +4590,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1795298431.5499313,
-    "seen": 1795299266.854531,
-    "ast_hash": "edaf4cdaa404844e8c01c9132f4a665f",
+    "mtime": 1795431915.507192,
+    "seen": 1795432045.3123488,
+    "ast_hash": "6928c820758a475f479fac786b7b7807",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1795298431.5504637,
-    "seen": 1795299266.854532,
-    "ast_hash": "ce4f3a35c690f853ed883da85c9ee19f",
+    "mtime": 1795431918.861762,
+    "seen": 1795432045.31235,
+    "ast_hash": "8518148f4b706aedd5d9bf0f410f6fe4",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795430916.1335657,
-    "seen": 1795431117.329993,
-    "ast_hash": "90c4535d4bd7a313fb1b5f2176700489",
+    "mtime": 1795431945.6921632,
+    "seen": 1795432045.313115,
+    "ast_hash": "42950cb0c80b73a3b9218ddd367ce7de",
     "semantic_hash": ""
   },
   "README.md": {
