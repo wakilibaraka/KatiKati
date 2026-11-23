@@ -6864,3 +6864,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `App/Scenes/StackPopupChrome.swift` & `App/Entry/PanelCoordinator+Drawer.swift`: added `StackPopupArrowModel.isDrawerVisible` toggled true on open and false immediately on close/dismiss.
 - `App/Scenes/DrawerView.swift`: added segmented switcher (`Background Apps` | `Processes & RAM`), wider list-sized layout when showing empty state or `Processes & RAM`, `ProcessesRAMListView` (live RAM/CPU summary, Activity Monitor launch button, ranked `MemoryPill` process rows, Quit action), and lifecycle gating ensuring zero CPU while closed or on Background Apps tab.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/ProcessMemoryTests -only-testing:KatiKatiTests/ModularDockCoreTests -only-testing:KatiKatiTests/PanelGeometryTests` (77/77 passed) and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.
+
+### DO-5a — Pure `DockAppGroup` Model, Auto-Grouping & Launcher Sync + Unit Tests (landed 2026-11-23)
+
+- `Core/Support/LauncherFolders.swift`: added `DockAppGroupIconGrid` (`grid2x2` / `grid3x3`), `DockAppGroup`, and `DockAppGroups` pure CRUD, reorder, `autoGroupedByCategory`, two-way Launcher folder sync (`importingFromLauncher` / `exportingToLauncher`), and `visibleDockGroups`.
+- `Tests/Unit/LauncherFoldersTests.swift`: added `testDockAppGroupsCRUDAndReorder`, `testDockAppGroupsAutoGroupedByCategory`, and `testDockAppGroupsTwoWayLauncherSyncAndVisibility`.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherFoldersTests` (10/10 passed in 0.006 s) and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.

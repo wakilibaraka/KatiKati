@@ -81,4 +81,82 @@ final class LauncherFoldersTests: XCTestCase {
         let old = #"{"usage":{},"pinned":["x"],"hidden":[],"order":[]}"#.data(using: .utf8)!
         XCTAssertEqual(try JSONDecoder().decode(LauncherState.self, from: old).folders, [])
     }
+
+    func testDockAppGroupsCRUDAndReorder() {
+        var groups = DockAppGroups.create([], id: "g1", name: "  ", appIDs: ["a", "b", "a"])
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups[0].name, "App Group")
+        XCTAssertEqual(groups[0].appIDs, ["a", "b"])
+
+        groups = DockAppGroups.add(groups, appID: "c", to: "g1")
+        groups = DockAppGroups.add(groups, appID: "c", to: "g1")
+        XCTAssertEqual(groups[0].appIDs, ["a", "b", "c"])
+
+        groups = DockAppGroups.remove(groups, appID: "a", from: "g1")
+        XCTAssertEqual(groups[0].appIDs, ["b", "c"])
+        XCTAssertTrue(DockAppGroups.remove(
+            DockAppGroups.create([], id: "g2", name: "Solo", appIDs: ["x"]),
+            appID: "x",
+            from: "g2",
+            dropWhenEmpty: true
+        ).isEmpty)
+
+        groups = DockAppGroups.rename(groups, id: "g1", to: "  Design ")
+        XCTAssertEqual(groups[0].name, "Design")
+        groups = DockAppGroups.rename(groups, id: "g1", to: "   ")
+        XCTAssertEqual(groups[0].name, "Design")
+
+        groups = DockAppGroups.setIconGrid(groups, id: "g1", to: .grid3x3)
+        XCTAssertEqual(groups[0].iconGrid, .grid3x3)
+        XCTAssertEqual(groups[0].iconGrid.columns, 3)
+        XCTAssertEqual(groups[0].iconGrid.previewLimit, 9)
+
+        groups = DockAppGroups.create(groups, id: "g2", name: "Code", appIDs: ["z"])
+        groups = DockAppGroups.reorder(groups, draggedID: "g2", relativeTo: "g1", after: false)
+        XCTAssertEqual(groups.map(\.id), ["g2", "g1"])
+        groups = DockAppGroups.reorder(groups, draggedID: "g2", relativeTo: "g1", after: true)
+        XCTAssertEqual(groups.map(\.id), ["g1", "g2"])
+
+        groups = DockAppGroups.delete(groups, id: "g1")
+        XCTAssertEqual(groups.map(\.id), ["g2"])
+    }
+
+    func testDockAppGroupsAutoGroupedByCategory() {
+        let apps = [
+            LauncherApp(bundleID: "com.dev.xcode", name: "Xcode", path: "/Xcode.app",
+                        installedAt: .distantPast, category: "public.app-category.developer-tools"),
+            LauncherApp(bundleID: "com.dev.term", name: "Terminal", path: "/Terminal.app",
+                        installedAt: .distantPast, category: "public.app-category.developer-tools"),
+            LauncherApp(bundleID: "com.solo.app", name: "Solo", path: "/Solo.app",
+                        installedAt: .distantPast, category: "public.app-category.games"),
+        ]
+        XCTAssertEqual(DockAppGroups.categoryDisplayName(for: "public.app-category.developer-tools"), "Developer Tools")
+        let grouped = DockAppGroups.autoGroupedByCategory(apps: apps, minGroupSize: 2)
+        XCTAssertEqual(grouped.count, 1)
+        XCTAssertEqual(grouped[0].name, "Developer Tools")
+        XCTAssertEqual(grouped[0].appIDs, ["com.dev.term", "com.dev.xcode"])
+    }
+
+    func testDockAppGroupsTwoWayLauncherSyncAndVisibility() {
+        let launcherFolders = [
+            LauncherFolder(id: f1, name: "Work", appIDs: ["a", "b"]),
+            LauncherFolder(id: f2, name: "Empty", appIDs: []),
+        ]
+        let custom = DockAppGroup(id: "custom1", name: "Browsers", appIDs: ["s"], isPinnedToDock: true)
+        let staleSynced = DockAppGroup(id: "stale", name: "Old", appIDs: ["x"], isPinnedToDock: false, syncedLauncherFolderID: "gone")
+
+        let imported = DockAppGroups.importingFromLauncher(launcherFolders, into: [custom, staleSynced])
+        XCTAssertEqual(imported.map(\.name), ["Browsers", "Work"])
+        XCTAssertEqual(imported[1].syncedLauncherFolderID, f1)
+
+        var unpinned = imported[0]
+        unpinned.isPinnedToDock = false
+        XCTAssertEqual(DockAppGroups.visibleDockGroups([unpinned, imported[1]], enabled: true).map(\.id), [imported[1].id])
+        XCTAssertTrue(DockAppGroups.visibleDockGroups(imported, enabled: false).isEmpty)
+
+        let existingLauncher = [LauncherFolder(id: "unrelated", name: "Keep", appIDs: ["k"]), launcherFolders[0]]
+        let exported = DockAppGroups.exportingToLauncher(imported, existing: existingLauncher)
+        XCTAssertEqual(exported.map(\.id), ["unrelated", f1, "custom1"])
+        XCTAssertEqual(exported.first { $0.id == "custom1" }?.appIDs, ["s"])
+    }
 }
