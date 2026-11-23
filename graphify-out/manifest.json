@@ -2166,10 +2166,10 @@
     "semantic_hash": "fc09071926d7872f330a325b06b90966"
   },
   "Core/Support/ProcessMemory.swift": {
-    "mtime": 1791999130.7654655,
-    "seen": 1792295707.06059,
-    "ast_hash": "bbbbe3e30e7a44cac6a5b19401fcb80d",
-    "semantic_hash": "bbbbe3e30e7a44cac6a5b19401fcb80d"
+    "mtime": 1795426194.48559,
+    "seen": 1795426274.9245281,
+    "ast_hash": "da30a96cc2703644f3453280223d0f9f",
+    "semantic_hash": ""
   },
   "Core/Support/QuickToggles.swift": {
     "mtime": 1791999130.7675688,
@@ -3948,10 +3948,10 @@
     "semantic_hash": "7c959dd1f8eabed2a895451fe42b1b53"
   },
   "Tests/Unit/ProcessMemoryTests.swift": {
-    "mtime": 1791999130.950572,
-    "seen": 1792295707.0607748,
-    "ast_hash": "767a6732f30c5b512c9ec680d5291207",
-    "semantic_hash": "767a6732f30c5b512c9ec680d5291207"
+    "mtime": 1795426195.7326643,
+    "seen": 1795426274.924887,
+    "ast_hash": "9fa588f3fdc94c17c9250999a441ac50",
+    "semantic_hash": ""
   },
   "Tests/Unit/QuickTogglesTests.swift": {
     "mtime": 1791999130.9304934,
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795387330.4604695,
-    "seen": 1795388173.700372,
-    "ast_hash": "4f663de257673b2c57367f67c12fcec7",
+    "mtime": 1795426249.2211945,
+    "seen": 1795426274.925091,
+    "ast_hash": "b8a79506d5313657b8f9468179864b1b",
     "semantic_hash": ""
   },
   "README.md": {
