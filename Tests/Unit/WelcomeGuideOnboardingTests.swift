@@ -26,8 +26,8 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
 
     /// DP-8's pure step → settings map: every setting the guide can write belongs to exactly one step.
     func testEachStepMapsToTheSettingsItWrites() {
-        XCTAssertEqual(WelcomeGuideStep.layout.settings, [.dockStyle, .edgePlacement])
-        XCTAssertEqual(WelcomeGuideStep.widgets.settings, [.sections, .wings, .weatherCity, .aiTracking, .notch])
+        XCTAssertEqual(WelcomeGuideStep.layout.settings, [.dockStyle, .edgePlacement, .appIconPreset])
+        XCTAssertEqual(WelcomeGuideStep.widgets.settings, [.sections, .wings, .trailingCapsule, .weatherCity, .aiTracking, .notch])
         XCTAssertEqual(WelcomeGuideStep.permissions.settings, [.permissions, .launcherTrigger, .clipboardToast, .systemDock])
         let union = WelcomeGuideStep.allCases.reduce(into: Set<WelcomeGuideSetting>()) { $0.formUnion($1.settings) }
         XCTAssertEqual(union, Set(WelcomeGuideSetting.allCases), "a setting no step writes would be dead UI")

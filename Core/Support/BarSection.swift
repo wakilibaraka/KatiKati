@@ -898,6 +898,16 @@ enum BackgroundActivityIconMode: String, CaseIterable, Codable, Identifiable, Se
     static let `default`: BackgroundActivityIconMode = .grid3x3
     var id: String { rawValue }
 
+    var localizedTitle: String {
+        switch self {
+        case .grid3x3: return String(localized: "3×3 App Grid")
+        case .ramPercent: return String(localized: "RAM %")
+        case .cpuPercent: return String(localized: "CPU %")
+        case .ramPressureRing: return String(localized: "RAM Pressure Ring")
+        case .appCount: return String(localized: "App Count")
+        }
+    }
+
     static func parse(_ raw: String?) -> BackgroundActivityIconMode {
         raw.flatMap(Self.init(rawValue:)) ?? .default
     }

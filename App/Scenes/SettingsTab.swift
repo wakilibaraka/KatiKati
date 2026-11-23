@@ -10,8 +10,9 @@ enum SettingsTab: String, CaseIterable {
     case appearance
     case wallpaper
     case dockItems
-    case drawer
+    case appIcons
     case shelf
+    case barWidgets
     case widgets
     case desktop
     case weather
@@ -44,8 +45,10 @@ enum SettingsTab: String, CaseIterable {
         case "appearance": self = .appearance
         case "wallpaper": self = .wallpaper
         case "dockItems": self = .dockItems
-        case "drawer": self = .drawer
+        case "appIcons": self = .appIcons
+        case "drawer": self = .launcher
         case "shelf", "drawerShelf": self = .shelf
+        case "barWidgets": self = .barWidgets
         case "widgets": self = .widgets
         case "desktop": self = .desktop
         case "weather": self = .weather
@@ -81,10 +84,11 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return String(localized: "Menu Bar")
         case .appearance: return String(localized: "Appearance")
         case .wallpaper: return String(localized: "Wallpaper")
-        case .dockItems: return String(localized: "Dock Items")
-        case .drawer: return String(localized: "Drawer")
+        case .dockItems: return String(localized: "Dock Layout")
+        case .appIcons: return String(localized: "App Icons & Hover")
         case .shelf: return String(localized: "Shelf")
-        case .widgets: return String(localized: "Widgets")
+        case .barWidgets: return String(localized: "Bar Widgets")
+        case .widgets: return String(localized: "Widget Wings")
         case .desktop: return String(localized: "Desktop")
         case .weather: return String(localized: "Weather")
         case .notch: return String(localized: "Notch")
@@ -119,10 +123,11 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return String(localized: "System metrics, drive capacity, and status items.")
         case .appearance: return String(localized: "Themes, icons, and bar layout.")
         case .wallpaper: return String(localized: "Dynamic scenes, daylight and weather, and the dock accent.")
-        case .dockItems: return String(localized: "Dock widgets: order, size, presets, and motion.")
-        case .drawer: return String(localized: "Background-app capsule and edge placement.")
+        case .dockItems: return String(localized: "Dock position, modular slots, detached capsule, and utilities.")
+        case .appIcons: return String(localized: "Instance presets, spacing, dynamic resizing, app groups, and hover feedback.")
         case .shelf: return String(localized: "Floating card stack, shake-to-shelf, Notch File Tray, and space pinning.")
-        case .widgets: return String(localized: "Widget panes: layout, colors, and style.")
+        case .barWidgets: return String(localized: "In-dock widgets: Weather, Now Playing, Clock, styles, and order.")
+        case .widgets: return String(localized: "Left and right flanking wings, Battery & Peripherals, and floating stack.")
         case .desktop: return String(localized: "Folder boxes, to-dos, notes, and glanceable widgets on your desktop.")
         case .weather: return String(localized: "Weather units, layout, and warnings.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
@@ -155,9 +160,10 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return "menubar.rectangle"
         case .appearance: return "paintpalette"
         case .wallpaper: return "sparkles.rectangle.stack"
-        case .dockItems: return "square.grid.2x2"
-        case .drawer: return "sidebar.squares.trailing"
+        case .dockItems: return "dock.rectangle"
+        case .appIcons: return "app.badge"
         case .shelf: return "tray.and.arrow.down"
+        case .barWidgets: return "rectangle.3.offgrid"
         case .widgets: return "square.grid.2x2"
         case .desktop: return "macwindow.on.rectangle"
         case .weather: return "cloud.sun"
@@ -193,8 +199,9 @@ enum SettingsTab: String, CaseIterable {
         case .appearance: return (0.96, 0.33, 0.50)
         case .wallpaper: return (0.34, 0.50, 0.86)
         case .dockItems: return (0.72, 0.52, 0.20)
-        case .drawer: return (0.92, 0.48, 0.15)
+        case .appIcons: return (0.92, 0.48, 0.15)
         case .shelf: return (0.48, 0.36, 0.88)
+        case .barWidgets: return (0.44, 0.52, 0.96)
         case .widgets: return (0.58, 0.40, 0.93)
         case .desktop: return (0.20, 0.60, 0.86)
         case .weather: return (0.30, 0.72, 0.78)

@@ -91,6 +91,16 @@ enum AppIconPresentationPreset: String, CaseIterable, Codable, Identifiable, Sen
 
     var id: String { rawValue }
 
+    var localizedTitle: String {
+        switch self {
+        case .appPills: return String(localized: "App Pills")
+        case .windowCards: return String(localized: "Window Cards")
+        case .iconsOnly: return String(localized: "Icons Only")
+        case .windows11Grouped: return String(localized: "Windows 11 Grouped")
+        case .windows10Taskbar: return String(localized: "Windows 10 Taskbar")
+        }
+    }
+
     var groupingPolicy: WindowChipGroupPolicy {
         switch self {
         case .appPills, .iconsOnly, .windows11Grouped: return .grouped

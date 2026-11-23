@@ -3,7 +3,7 @@ import SwiftUI
 extension SettingsTab {
     /// Pages whose settings the stage can show changing.
     var showsStage: Bool { switch self {
-        case .appearance, .dockItems, .drawer, .shelf, .widgets, .notch, .edgeBars, .controlCenter, .radialDial, .tiling, .windowManagement, .missionControl, .shortcuts, .downloads: return true
+        case .appearance, .dockItems, .appIcons, .shelf, .barWidgets, .widgets, .notch, .edgeBars, .controlCenter, .radialDial, .tiling, .windowManagement, .missionControl, .shortcuts, .downloads: return true
         default: return false
         }
     }
@@ -11,7 +11,7 @@ extension SettingsTab {
     /// Pages whose stage shows the bar and the notch; the rest draw their own surface instead.
     var stageShowsBar: Bool {
         switch self {
-        case .appearance, .dockItems, .drawer, .shelf, .widgets, .notch, .edgeBars: return true
+        case .appearance, .dockItems, .appIcons, .shelf, .barWidgets, .widgets, .notch, .edgeBars: return true
         default: return false
         }
     }
@@ -137,7 +137,6 @@ struct SettingsStage: View {
                     notch(scale: scale)
                 }
                 switch tab {
-                case .drawer: StageDrawer(store: store)
                 case .shelf: StageShelf(store: store)
                 case .edgeBars: StageEdgeBars(store: store)
                 case .controlCenter: StageControlCenter(store: store)

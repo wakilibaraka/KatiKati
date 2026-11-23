@@ -24,8 +24,8 @@ enum WelcomeGuideStep: Int, CaseIterable, Sendable {
     /// Exactly the settings this step writes, live.
     var settings: Set<WelcomeGuideSetting> {
         switch self {
-        case .layout: return [.dockStyle, .edgePlacement]
-        case .widgets: return [.sections, .wings, .weatherCity, .aiTracking, .notch]
+        case .layout: return [.dockStyle, .edgePlacement, .appIconPreset]
+        case .widgets: return [.sections, .wings, .trailingCapsule, .weatherCity, .aiTracking, .notch]
         case .permissions: return [.permissions, .launcherTrigger, .clipboardToast, .systemDock]
         }
     }
@@ -35,8 +35,10 @@ enum WelcomeGuideStep: Int, CaseIterable, Sendable {
 enum WelcomeGuideSetting: String, CaseIterable, Sendable {
     case dockStyle
     case edgePlacement
+    case appIconPreset
     case sections
     case wings
+    case trailingCapsule
     case weatherCity
     case aiTracking
     case notch

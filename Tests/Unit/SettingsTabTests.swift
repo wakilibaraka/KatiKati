@@ -9,10 +9,10 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsThirtyOneTabsWithOneIdentityEach() {
-        // 2026-11-21: Mission Control joined Window & Workspace.
-        XCTAssertEqual(SettingsTab.allCases.count, 31, "thirty-one sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 31,
+    func testTheSidebarIsThirtyTwoTabsWithOneIdentityEach() {
+        // 2026-11-23 (DO-9): Drawer retired into Launcher; Dock Layout, App Icons & Hover, Bar Widgets & Widget Wings added.
+        XCTAssertEqual(SettingsTab.allCases.count, 32, "thirty-two sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 32,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -33,9 +33,15 @@ final class SettingsTabTests: XCTestCase {
         // DW-4: Wallpaper became a page of its own next to Appearance.
         XCTAssertEqual(SettingsTab(rawValue: "wallpaper"), .wallpaper)
         XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .appearance)! + 1], .wallpaper)
-        // 2026-11 reorganization: Menu Bar, Drawer, Shelf, AI Tracking elevated to dedicated tabs
+        // 2026-11 reorganization: Menu Bar, Shelf, AI Tracking elevated; Drawer folded into Launcher (DO-1 / DO-9).
         XCTAssertEqual(SettingsTab(rawValue: "menuBar"), .menuBar)
-        XCTAssertEqual(SettingsTab(rawValue: "drawer"), .drawer)
+        XCTAssertEqual(SettingsTab(rawValue: "drawer"), .launcher)
+        XCTAssertEqual(SettingsTab(rawValue: "appIcons"), .appIcons)
+        XCTAssertEqual(SettingsTab(rawValue: "barWidgets"), .barWidgets)
+        XCTAssertEqual(SettingsTab.dockItems.title, "Dock Layout")
+        XCTAssertEqual(SettingsTab.appIcons.title, "App Icons & Hover")
+        XCTAssertEqual(SettingsTab.barWidgets.title, "Bar Widgets")
+        XCTAssertEqual(SettingsTab.widgets.title, "Widget Wings")
         XCTAssertEqual(SettingsTab(rawValue: "shelf"), .shelf)
         XCTAssertEqual(SettingsTab(rawValue: "drawerShelf"), .shelf)
         XCTAssertEqual(SettingsTab(rawValue: "aiTracking"), .aiTracking)

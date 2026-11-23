@@ -113,12 +113,13 @@ struct SettingsWindowContent: View {
             case .dockItems:
                 SettingsLayoutPane(store: store, mode: .widgets)
                     .background(SettingsPageHeightProbe(tab: .dockItems))
-            case .drawer:
-                DrawerSettingsBlock(store: store)
-                    .background(SettingsPageHeightProbe(tab: .drawer))
+            case .appIcons:
+                EmptyView()
             case .shelf:
                 ShelfSettingsBlock(store: store)
                     .background(SettingsPageHeightProbe(tab: .shelf))
+            case .barWidgets:
+                WidgetLookSettingsBlock(store: store)
             case .widgets:
                 WidgetLookSettingsBlock(store: store)
             case .desktop:

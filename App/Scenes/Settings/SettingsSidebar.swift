@@ -12,10 +12,11 @@ extension SettingsTab {
         case .menuBar: return "menu bar cpu memory gpu storage battery network disk drives"
         case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
         case .wallpaper: return "wallpaper dynamic time solar daylight weather terrain city countryside mountains coast gradient mesh accent scene"
-        case .dockItems: return "dock widgets chips order size presets motion reorder"
-        case .drawer: return "drawer capsule left right background apps flank position"
+        case .dockItems: return "dock layout position slots detached capsule utilities background activity"
+        case .appIcons: return "app icons hover presets spacing dynamic resizing groups keep in dock"
         case .shelf: return "shelf file tray notch card stack shake storage expire unpinned system dock spaces"
-        case .widgets: return "pane tiles calendar glass clock tile colors notes stopwatch look"
+        case .barWidgets: return "bar widgets weather now playing clock styles presets order"
+        case .widgets: return "wings battery peripherals telemetry ram network disk floating stack"
         case .desktop: return "desktop boxes folder todo to-do quick capture glance weather vinyl music capsule dock edge quick reveal panorama displays display identify default edid topology pin layout how to"
         case .weather: return "units temperature wind forecast warnings hero animations"
         case .notch: return "island skin style open panel"
@@ -101,8 +102,8 @@ struct SettingsSidebar: View {
     @State private var hoveredTab: SettingsTab?
 
     private static let sections: [SidebarSection] = [
-        .system([.general, .menuBar, .appearance, .wallpaper, .dockItems]),
-        .surfaces([.drawer, .shelf, .widgets, .desktop, .weather, .notch, .notifications, .edgeBars]),
+        .system([.general, .menuBar, .appearance, .wallpaper, .dockItems, .appIcons]),
+        .surfaces([.barWidgets, .widgets, .shelf, .desktop, .weather, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .missionControl, .launcher, .commandBar, .controlCenter]),
         .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
         .productivity([.aiTracking, .downloads, .clipboard, .tools]),

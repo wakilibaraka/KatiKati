@@ -6921,3 +6921,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### DO-8c — DockSet-Style Notch Peripherals Page (landed 2026-11-23)
 
 - `App/Scenes/Notch/NotchHomeView.swift`: replaced temporary stub with `NotchPeripheralsPageView` (lazy `DockTelemetryFeed` + `DockDevicesFeed` retain/release strictly while visible, Mac battery hero + `AudioOutputSwitcher` output menu on the left, connected Bluetooth breakdown rows + macOS platform note on the right). Zero `project.pbxproj` edits.
+
+### DO-9a — Settings Tab Reorganization & `WelcomeGuideStep` Core (landed 2026-11-23)
+
+- `Core/Support/WindowChipGrouping.swift`, `Core/Support/BarSection.swift` & `Core/Support/WelcomeGuideStep.swift`: added `localizedTitle` helpers for `AppIconPresentationPreset` and `BackgroundActivityIconMode`, plus `.appIconPreset` & `.trailingCapsule` step settings.
+- `App/Scenes/SettingsTab.swift`, `SettingsSidebar.swift`, `SettingsStage.swift` & `SettingsWindowView.swift`: retired `.drawer` (`"drawer"` → `.launcher`), renamed `.dockItems`/`"Widgets"` into `Dock Layout`, `App Icons & Hover`, `Bar Widgets`, and `Widget Wings` (32 unique tabs & hues).
+- `Tests/Unit/{SettingsTabTests,WelcomeGuideOnboardingTests}.swift`: updated sidebar count/alias assertions and step setting coverage. Zero `project.pbxproj` edits.
