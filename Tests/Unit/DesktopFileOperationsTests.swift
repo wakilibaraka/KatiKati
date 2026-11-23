@@ -78,4 +78,24 @@ final class DesktopFileOperationsTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: item.path))
         XCTAssertEqual(moved[0].lastPathComponent, "doc 2.txt")
     }
+
+    func testCompressToZipPreservesEverySelectedFileInMultiFileArchive() throws {
+        let fileA = tempDir.appendingPathComponent("alpha.txt")
+        let fileB = tempDir.appendingPathComponent("beta.txt")
+        let fileC = tempDir.appendingPathComponent("gamma.txt")
+        try Data("alpha-payload".utf8).write(to: fileA)
+        try Data("beta-payload".utf8).write(to: fileB)
+        try Data("gamma-payload".utf8).write(to: fileC)
+
+        let archiveURL = try DesktopFileOperations.compressToZipSync([fileA, fileB, fileC], in: tempDir)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: archiveURL.path))
+
+        let extractRoot = tempDir.appendingPathComponent("extracted", isDirectory: true)
+        try FileManager.default.createDirectory(at: extractRoot, withIntermediateDirectories: true)
+        let extractedDir = try DesktopFileOperations.extractZipSync(archiveURL, to: extractRoot)
+
+        XCTAssertEqual(try String(contentsOf: extractedDir.appendingPathComponent("alpha.txt"), encoding: .utf8), "alpha-payload")
+        XCTAssertEqual(try String(contentsOf: extractedDir.appendingPathComponent("beta.txt"), encoding: .utf8), "beta-payload")
+        XCTAssertEqual(try String(contentsOf: extractedDir.appendingPathComponent("gamma.txt"), encoding: .utf8), "gamma-payload")
+    }
 }

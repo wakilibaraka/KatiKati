@@ -170,23 +170,44 @@ enum DesktopFileOperations {
         in directory: URL,
         completion: @escaping @Sendable (Result<URL, Error>) -> Void
     ) {
-        guard let first = urls.first else { return }
-        let stem = urls.count == 1 ? first.deletingPathExtension().lastPathComponent : directory.lastPathComponent
-        let archiveURL = uniqueURL(in: directory, preferredName: "\(stem).zip")
+        guard !urls.isEmpty else { return }
         archiveQueue.async {
             let result: Result<URL, Error> = Result {
-                for url in urls {
-                    let proc = Process()
-                    proc.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
-                    proc.arguments = ["-c", "-k", "--sequesterRsrc", "--keepParent", url.path, archiveURL.path]
-                    try proc.run()
-                    proc.waitUntilExit()
-                    if proc.terminationStatus != 0 { throw CocoaError(.fileWriteUnknown) }
-                }
-                return archiveURL
+                try compressToZipSync(urls, in: directory)
             }
             DispatchQueue.main.async { completion(result) }
         }
+    }
+
+    nonisolated static func compressToZipSync(_ urls: [URL], in directory: URL) throws -> URL {
+        guard let first = urls.first else { throw CocoaError(.fileNoSuchFile) }
+        let stem = urls.count == 1 ? first.deletingPathExtension().lastPathComponent : directory.lastPathComponent
+        let archiveURL = uniqueURL(in: directory, preferredName: "\(stem).zip")
+        if urls.count == 1 {
+            let proc = Process()
+            proc.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+            proc.arguments = ["-c", "-k", "--sequesterRsrc", "--keepParent", first.path, archiveURL.path]
+            try proc.run()
+            proc.waitUntilExit()
+            guard proc.terminationStatus == 0 else { throw CocoaError(.fileWriteUnknown) }
+            return archiveURL
+        }
+
+        let fm = FileManager.default
+        let staging = fm.temporaryDirectory.appendingPathComponent("katikati-desktop-zip-\(UUID().uuidString)", isDirectory: true)
+        try fm.createDirectory(at: staging, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: staging) }
+        for url in urls {
+            let stagedTarget = uniqueURL(in: staging, preferredName: url.lastPathComponent, fileManager: fm)
+            try fm.copyItem(at: url, to: stagedTarget)
+        }
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+        proc.arguments = ["-c", "-k", "--sequesterRsrc", staging.path, archiveURL.path]
+        try proc.run()
+        proc.waitUntilExit()
+        guard proc.terminationStatus == 0 else { throw CocoaError(.fileWriteUnknown) }
+        return archiveURL
     }
 
     nonisolated static func extractZip(
@@ -194,21 +215,25 @@ enum DesktopFileOperations {
         to directory: URL,
         completion: @escaping @Sendable (Result<URL, Error>) -> Void
     ) {
-        let folderName = archiveURL.deletingPathExtension().lastPathComponent
-        let destURL = uniqueURL(in: directory, preferredName: folderName)
         archiveQueue.async {
             let result: Result<URL, Error> = Result {
-                try FileManager.default.createDirectory(at: destURL, withIntermediateDirectories: true)
-                let proc = Process()
-                proc.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
-                proc.arguments = ["-x", "-k", archiveURL.path, destURL.path]
-                try proc.run()
-                proc.waitUntilExit()
-                if proc.terminationStatus != 0 { throw CocoaError(.fileReadCorruptFile) }
-                return destURL
+                try extractZipSync(archiveURL, to: directory)
             }
             DispatchQueue.main.async { completion(result) }
         }
+    }
+
+    nonisolated static func extractZipSync(_ archiveURL: URL, to directory: URL) throws -> URL {
+        let folderName = archiveURL.deletingPathExtension().lastPathComponent
+        let destURL = uniqueURL(in: directory, preferredName: folderName)
+        try FileManager.default.createDirectory(at: destURL, withIntermediateDirectories: true)
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+        proc.arguments = ["-x", "-k", archiveURL.path, destURL.path]
+        try proc.run()
+        proc.waitUntilExit()
+        if proc.terminationStatus != 0 { throw CocoaError(.fileReadCorruptFile) }
+        return destURL
     }
 
     @MainActor static func open(_ urls: [URL]) {
