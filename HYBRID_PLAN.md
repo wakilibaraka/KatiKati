@@ -10,6 +10,7 @@ Product name: **KatiKati** (Swahili *katikati* = “right in the middle / center
 This commit: **plan only — no code changes.**
 
 - 2026-11-23: Wave 3 Slice 3.2 completed — app leftover picker/scanner, review-first Trash flow, and storage row context actions.
+- 2026-11-23: Wave 3 Slice 3.3 completed — note titles, archive filtering, archive action, and decrypt-error banner.
 
 ---
 

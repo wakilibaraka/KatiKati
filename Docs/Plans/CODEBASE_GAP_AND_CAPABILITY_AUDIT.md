@@ -27,7 +27,7 @@
 ### Remaining Wave 3 & Wave 4 Architecture Slices
 - [x] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export (`afc51038`)
 - [x] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (`980a528c`)
-- [ ] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView`
+- [x] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (`ddeeed1e`)
 - [ ] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls
 - [ ] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration
 - [ ] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting
@@ -392,13 +392,13 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/StorageScanMathTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 3.3 — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (Pillar 4)
+#### [x] Slice 3.3 — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (Pillar 4) — DONE (`ddeeed1e`)
 - **Effort:** `S` | **User Impact:** `Med`
 - **Reused Modules:** `Platform/Notes/NotesController.swift:19, 48, 65, 107`, `App/Scenes/Edge/NoteSheetView.swift:24-120`
 - **Scope:**
-  1. [ ] Add an editable title `TextField` in `NoteSheetView` (`App/Scenes/Edge/NoteSheetView.swift:63-89`) wired to `NotesController.edit(id:title:body:)` (`Platform/Notes/NotesController.swift:65`).
-  2. [ ] Add an Archive/Unarchive button (`controller.setArchived(id:_:)`, `L107`) and an `Active / Archived` filter toggle in the note list header.
-  3. [ ] Surface `controller.lastError` (`L19, 48`) as a non-intrusive warning banner when an encrypted `.note` file could not be read.
+  1. [x] Add an editable title `TextField` wired to `NotesController.edit(id:title:body:)`.
+  2. [x] Add an Archive button and an Active / Archived filter toggle for the note deck.
+  3. [x] Surface `controller.lastError` as a non-intrusive warning banner when an encrypted `.note` file could not be read.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/NotesTests && python3 Scripts/check_localization.py
