@@ -186,41 +186,35 @@ final class NotchGestureTests: XCTestCase {
     // MARK: - NotchSectionPaging Tests
 
     func testPageNextPreviousNavigation() {
-        let p0 = NotchPage.downloadDeck
+        let p0 = NotchPage.audioDeck
         let p1 = p0.next()
-        XCTAssertEqual(p1, .storage)
+        XCTAssertEqual(p1, .calendar)
         let p2 = p1.next()
         XCTAssertEqual(p2, .aiTracker)
         let p3 = p2.next()
-        XCTAssertEqual(p3, .audioDeck)
+        XCTAssertEqual(p3, .peripherals)
         let p4 = p3.next()
-        XCTAssertEqual(p4, .calendar)
+        XCTAssertEqual(p4, .studioHub)
         let p5 = p4.next()
-        XCTAssertEqual(p5, .peripherals)
+        XCTAssertEqual(p5, .cameraMirror)
         let p6 = p5.next()
-        XCTAssertEqual(p6, .studioHub)
-        let p7 = p6.next()
-        XCTAssertEqual(p7, .teleprompter)
-        let p8 = p7.next()
-        XCTAssertEqual(p8, .cameraMirror)
+        XCTAssertEqual(p6, .keepAwake)
 
         // Wrapping forward
-        let p9 = p8.next()
-        XCTAssertEqual(p9, .keepAwake)
-        XCTAssertEqual(p9.next(wrap: true), .downloadDeck)
+        XCTAssertEqual(p6.next(wrap: true), .audioDeck)
         // Clamping forward without wrap
-        XCTAssertEqual(p9.next(wrap: false), .keepAwake)
+        XCTAssertEqual(p6.next(wrap: false), .keepAwake)
 
         // Wrapping backward
         XCTAssertEqual(p0.previous(wrap: true), .keepAwake)
         // Clamping backward without wrap
-        XCTAssertEqual(p0.previous(wrap: false), .downloadDeck)
+        XCTAssertEqual(p0.previous(wrap: false), .audioDeck)
     }
 
     func testPagingPolicyContextAwareSelection() {
         // User pinned page takes highest priority
-        let pinned = NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: true, userPinnedPage: .storage)
-        XCTAssertEqual(pinned, .storage)
+        let pinned = NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: true, userPinnedPage: .calendar)
+        XCTAssertEqual(pinned, .calendar)
 
         // AI turn active -> AI Mission Control
         XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: true), .aiTracker)
@@ -229,7 +223,7 @@ final class NotchGestureTests: XCTestCase {
         XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: false), .audioDeck)
 
         // Default idle fallback is the first page
-        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: false, aiTurnActive: false), .downloadDeck)
+        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: false, aiTurnActive: false), .audioDeck)
     }
 
     func testDockCompanionPolicy() {
@@ -251,34 +245,36 @@ final class NotchGestureTests: XCTestCase {
 
     func testPageDirectionFollowsTarget() {
         let visible = NotchPage.visible(teleprompter: false, mirror: false)
-        XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .storage, visible: visible), 1)
-        XCTAssertEqual(NotchPageDirection.between(from: .storage, to: .downloadDeck, visible: visible), -1)
-        XCTAssertEqual(NotchPageDirection.between(from: .keepAwake, to: .downloadDeck, visible: visible), 1, "wrap keeps swipe direction")
-        XCTAssertEqual(NotchPageDirection.between(from: .downloadDeck, to: .keepAwake, visible: visible), -1, "wrap keeps swipe direction")
+        XCTAssertEqual(NotchPageDirection.between(from: .audioDeck, to: .calendar, visible: visible), 1)
+        XCTAssertEqual(NotchPageDirection.between(from: .calendar, to: .audioDeck, visible: visible), -1)
+        XCTAssertEqual(NotchPageDirection.between(from: .keepAwake, to: .audioDeck, visible: visible), 1, "wrap keeps swipe direction")
+        XCTAssertEqual(NotchPageDirection.between(from: .audioDeck, to: .keepAwake, visible: visible), -1, "wrap keeps swipe direction")
     }
 
     func testTeleprompterPageIsOptional() {
-        XCTAssertEqual(NotchPage.visible().count, 10, "all ten pages are visible by default")
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 8)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: true).count, 7)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 6)
+        XCTAssertEqual(NotchPage.visible().count, 7)
+        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: false).count, 7)
         XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: false).last, .keepAwake)
         XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: false).dropLast().last, .teleprompter)
-        XCTAssertEqual(NotchPage.keepAwake.next(wrap: true, teleprompter: false, mirror: false), .downloadDeck)
+        XCTAssertEqual(NotchPage.keepAwake.next(wrap: true, teleprompter: false, mirror: false), .audioDeck)
         XCTAssertEqual(NotchPage.studioHub.next(wrap: true, teleprompter: true, mirror: false), .teleprompter)
         XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: true, mirror: false), .keepAwake)
-        XCTAssertEqual(NotchPage.downloadDeck.previous(wrap: true, teleprompter: true, mirror: false), .keepAwake)
-        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false, mirror: false), .downloadDeck)
+        XCTAssertEqual(NotchPage.audioDeck.previous(wrap: true, teleprompter: true, mirror: false), .keepAwake)
+        XCTAssertEqual(NotchPage.teleprompter.next(wrap: true, teleprompter: false, mirror: false), .audioDeck)
     }
 
     func testPageLayoutOrdersHidesAndRoundTrips() {
         let all = NotchPage.visible(teleprompter: false, mirror: false, layout: NotchPageLayout())
-        XCTAssertEqual(all, [.downloadDeck, .storage, .aiTracker, .audioDeck, .calendar, .peripherals, .studioHub, .keepAwake])
+        XCTAssertEqual(all, [.audioDeck, .calendar, .aiTracker, .peripherals, .studioHub, .keepAwake])
         var layout = NotchPageLayout(order: [.audioDeck, .calendar, .studioHub, .aiTracker])
-        layout.hidden = [.storage]
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false, layout: layout), [.audioDeck, .calendar, .studioHub, .aiTracker, .downloadDeck, .peripherals, .keepAwake])
+        layout.hidden = [.aiTracker]
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false, layout: layout), [.audioDeck, .calendar, .studioHub, .peripherals, .keepAwake])
         XCTAssertEqual(NotchPageLayout(raw: layout.raw), layout)
         XCTAssertEqual(NotchPageLayout(raw: "junk|99,x"), NotchPageLayout())
         layout.hidden = Set(NotchPage.allCases)
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false, layout: layout).count, 8)   // never empty
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false, layout: layout).count, 6)
     }
 
     func testDisplayDesignDefaultsAndOverrides() {

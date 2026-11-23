@@ -722,7 +722,7 @@ struct NotchHelpersSettingsBlock: View {
     /// PHN-4: the wellness helpers ship on, so their switches read `WellnessDefaults` rather than an
     /// `@AppStorage` default of `false` (which cannot tell "unset" from "off").
     @ObservedObject private var hydro = HydrationController.shared
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(LyricsTrack.enabledKey) private var syncedLyrics = false

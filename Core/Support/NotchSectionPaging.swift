@@ -6,19 +6,16 @@ import Foundation
 /// The dedicated pages of the redesigned Dynamic Island Notch bento gallery: five always-on pages, plus
 /// the teleprompter and the camera mirror, which exist only while their own switch is on.
 enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
-    case downloadDeck = 0   // Page 1: Download Manager & Torrent Hub
-    case storage = 1        // Page 2: Storage Analyzer (largest items on the Mac)
-    case aiTracker = 2      // Page 3: AI Mission Control (Claude, Codex, OpenCode, Copilot)
-    case audioDeck = 3      // Page 4: Dedicated Music Player
-    case calendar = 8       // Page 5: Dedicated Calendar & Agenda
+    case audioDeck = 3      // Page 1: Dedicated Music Player
+    case calendar = 8       // Page 2: Dedicated Calendar & Agenda
+    case aiTracker = 2      // AI Mission Control (Claude, Codex, OpenCode, Copilot)
     case peripherals = 10   // Peripherals & AirPods battery hub (DO-8)
-    case studioHub = 9      // Page 6: Multipurpose Studio & System Hub (Focus, Clipboard, System/Weather)
-    case teleprompter = 4   // Teleprompter (on by default; hideable in Settings)
-    case cameraMirror = 5   // Camera & Mic Check-in (on by default; hideable in Settings)
-    // 6 belonged to the notifications page. The inbox lives in the Side Deck now (slice SD-1): the notch
-    // keeps only its compact core pages, and never draws a full notification list inside itself. The raw
-    // value stays retired so a stored `com.katikati.notch.pageOrder` keeps meaning what it meant.
-    case keepAwake = 7      // Keep Awake: Brewing card, duration chips, lid + AI-agent rows (always last)
+    case studioHub = 9      // Multipurpose Studio & System Hub
+    case teleprompter = 4   // Opt-in Teleprompter page
+    case cameraMirror = 5   // Camera & Mic Check-in
+    case keepAwake = 7      // Always last: brewing card, lid, and AI-agent rows
+    // Raw values 0 and 1 belonged to Downloads and Storage. Both pages moved to SideDeck and those
+    // retired values remain absent so stored notch layouts cannot reintroduce their old surfaces.
 
     var id: Int { rawValue }
 
@@ -29,8 +26,6 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .calendar: return "Calendar"
         case .peripherals: return String(localized: "Peripherals")
         case .studioHub: return "Studio Hub"
-        case .storage: return String(localized: "Storage")
-        case .downloadDeck: return "Downloads & Torrents"
         case .teleprompter: return "Teleprompter"
         // Localised at the source: the title is rendered as data (`Text(page.title)`), so a bare literal
         // would ship English in every language — and the catalog gate reads it as an unreferenced key.
@@ -46,8 +41,6 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .calendar: return "calendar"
         case .peripherals: return "airpodspro"
         case .studioHub: return "slider.horizontal.2.square"
-        case .storage: return "internaldrive.fill"
-        case .downloadDeck: return "arrow.down.circle.fill"
         case .teleprompter: return "text.alignleft"
         case .cameraMirror: return "camera.viewfinder"
         case .keepAwake: return "cup.and.saucer.fill"
@@ -56,11 +49,28 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
 
     /// Reads an optional page's enabled flag, defaulting to `true` when unset so all pages show by default.
     static func isEnabled(_ key: String, in defaults: UserDefaults = .standard) -> Bool {
-        defaults.object(forKey: key) as? Bool ?? true
+        if key == "com.katikati.teleprompter.enabled" {
+            return defaults.object(forKey: key) as? Bool ?? false
+        }
+        return defaults.object(forKey: key) as? Bool ?? true
+    }
+
+    static let teleprompterDefaultMigrationKey = "com.katikati.migration.teleprompterDefaultOff.v1"
+
+    /// Fresh installs and untouched legacy installs both resolve off. The migration stamp means a later
+    /// explicit opt-in is preserved. Existing explicit settings are not rewritten after the stamp is set.
+    static func migrateTeleprompterDefaultOff(in defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: teleprompterDefaultMigrationKey) else { return }
+        if defaults.object(forKey: "com.katikati.teleprompter.enabled") == nil {
+            defaults.set(false, forKey: "com.katikati.teleprompter.enabled")
+        } else if defaults.object(forKey: "com.katikati.teleprompter.enabled") as? Bool == true {
+            defaults.set(false, forKey: "com.katikati.teleprompter.enabled")
+        }
+        defaults.set(true, forKey: teleprompterDefaultMigrationKey)
     }
 
     /// The pages in paging order. All pages show by default unless switched off or hidden.
-    static func visible(teleprompter: Bool = true, mirror: Bool = true,
+    static func visible(teleprompter: Bool = false, mirror: Bool = true,
                         layout: NotchPageLayout = .stored) -> [NotchPage] {
         layout.apply(allCases.filter { page in
             switch page {
@@ -71,14 +81,14 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         })
     }
 
-    func next(wrap: Bool = true, teleprompter: Bool = true, mirror: Bool = true) -> NotchPage {
+    func next(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = true) -> NotchPage {
         let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index + 1 < all.count { return all[index + 1] }
         return wrap ? all[0] : self
     }
 
-    func previous(wrap: Bool = true, teleprompter: Bool = true, mirror: Bool = true) -> NotchPage {
+    func previous(wrap: Bool = true, teleprompter: Bool = false, mirror: Bool = true) -> NotchPage {
         let all = Self.visible(teleprompter: teleprompter, mirror: mirror)
         guard let index = all.firstIndex(of: self) else { return all[0] }
         if index > 0 { return all[index - 1] }
@@ -146,10 +156,9 @@ enum NotchPagingPolicy {
         userPinnedPage: NotchPage? = nil
     ) -> NotchPage {
         if let pinned = userPinnedPage { return pinned }
-        if downloadsActive { return .downloadDeck }
         if aiTurnActive { return .aiTracker }
         if nowPlayingActive { return .audioDeck }
-        return .downloadDeck
+        return .audioDeck
     }
 }
 

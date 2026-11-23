@@ -374,6 +374,10 @@ struct TendederoStore: Equatable, Codable, Sendable {
 enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case windows
     case notifications
+    case downloads
+    case storage
+    case weather
+    case quickAccess
     case layouts
     case emoji
     case clipboard
@@ -389,6 +393,10 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .windows: return String(localized: "Windows")
         case .notifications: return String(localized: "Notifications")
+        case .downloads: return String(localized: "Downloads")
+        case .storage: return String(localized: "Storage")
+        case .weather: return String(localized: "Weather")
+        case .quickAccess: return String(localized: "Quick Access")
         case .layouts: return String(localized: "Layouts")
         case .emoji: return String(localized: "Emoji")
         case .clipboard: return String(localized: "Clipboard")
@@ -402,6 +410,10 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .windows: return "macwindow.on.rectangle"
         case .notifications: return "bell.fill"
+        case .downloads: return "arrow.down.circle.fill"
+        case .storage: return "internaldrive.fill"
+        case .weather: return "cloud.sun.fill"
+        case .quickAccess: return "bolt.fill"
         case .layouts: return "rectangle.split.3x1"
         case .emoji: return "face.smiling"
         case .clipboard: return "doc.on.clipboard"
@@ -421,6 +433,10 @@ enum SideDeckSearch {
         switch tab {
         case .windows: return String(localized: "Search windows")
         case .notifications: return String(localized: "Search notifications")
+        case .downloads: return String(localized: "Search downloads")
+        case .storage: return String(localized: "Search storage")
+        case .weather: return String(localized: "Search weather")
+        case .quickAccess: return String(localized: "Search quick access")
         case .layouts: return String(localized: "Search layouts")
         case .emoji: return String(localized: "Search emoji")
         case .clipboard: return String(localized: "Search clipboard")

@@ -17,6 +17,159 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "連續 %d 天" } }
       }
     },
+    "Allow Full Disk Access" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "السماح بالوصول الكامل إلى القرص" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vollzugriff auf Festplatte erlauben" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allow Full Disk Access" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Permitir acceso completo al disco" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Permitir acceso completo al disco" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autoriser l’accès complet au disque" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Consenti accesso completo al disco" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フルディスクアクセスを許可" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "전체 디스크 접근 허용" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Permitir acesso total ao disco" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Permitir acesso total ao disco" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "允许完全磁盘访问" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "允許完整磁碟存取" } }
+      }
+    },
+    "Forecast" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "التوقعات" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vorhersage" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Forecast" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pronóstico" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Pronóstico" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Prévisions" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Previsioni" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "予報" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "일기 예보" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Previsão" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Previsão" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "天气预报" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "天氣預報" } }
+      }
+    },
+    "Quick Access" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "الوصول السريع" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Schnellzugriff" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Access" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acceso rápido" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Acceso rápido" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accès rapide" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accesso rapido" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クイックアクセス" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "빠른 접근" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Acesso rápido" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Acesso rápido" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快速访问" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "快速存取" } }
+      }
+    },
+    "Review Caches" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "مراجعة الملفات المؤقتة" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Caches prüfen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review Caches" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Revisar cachés" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Revisar cachés" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Examiner les caches" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rivedi cache" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "キャッシュを確認" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "캐시 검토" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Revisar caches" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Rever caches" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "检查缓存" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "檢視快取" } }
+      }
+    },
+    "Search downloads" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "البحث في التنزيلات" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Downloads durchsuchen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search downloads" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar descargas" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar descargas" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher les téléchargements" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca nei download" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ダウンロードを検索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다운로드 검색" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar downloads" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar descargas" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索下载" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋下載項目" } }
+      }
+    },
+    "Search quick access" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "البحث في الوصول السريع" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Schnellzugriff durchsuchen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search quick access" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar acceso rápido" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar acceso rápido" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher dans l’accès rapide" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca nell'accesso rapido" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クイックアクセスを検索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "빠른 접근 검색" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar acesso rápido" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar acesso rápido" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索快速访问" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋快速存取" } }
+      }
+    },
+    "Search storage" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "البحث في التخزين" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Speicher durchsuchen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search storage" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar almacenamiento" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar almacenamiento" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher dans le stockage" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca nell'archiviazione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ストレージを検索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장공간 검색" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar armazenamento" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar armazenamento" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索存储" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋儲存空間" } }
+      }
+    },
+    "Search weather" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "البحث في الطقس" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wetter durchsuchen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search weather" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar el tiempo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar el clima" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher la météo" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca meteo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "天気を検索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "날씨 검색" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar clima" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar tempo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索天气" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋天氣" } }
+      }
+    },
+    "Weather data unavailable" : {
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "بيانات الطقس غير متاحة" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wetterdaten nicht verfügbar" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weather data unavailable" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Datos meteorológicos no disponibles" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Datos meteorológicos no disponibles" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Données météo indisponibles" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dati meteo non disponibili" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "天気データを利用できません" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "날씨 데이터를 사용할 수 없음" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dados meteorológicos indisponíveis" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Dados meteorológicos indisponíveis" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "天气数据不可用" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "天氣資料無法使用" } }
+      }
+    },
     "2×2 Grid" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "2×2-Raster" } },

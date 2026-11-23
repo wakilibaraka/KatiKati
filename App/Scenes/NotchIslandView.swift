@@ -21,7 +21,7 @@ final class NotchModel: ObservableObject {
     /// 0...1 lift of the music glow; the controller sets 1 on a track change and eases it back (50d).
     @Published var glowBoost = 0.0
     @Published var tab: NotchTab = .home
-    @Published var activePage: NotchPage = .downloadDeck
+    @Published var activePage: NotchPage = .audioDeck
     /// Last paging direction (+1 forward, -1 back); drives the slide edge in `NotchHomeView`.
     @Published var pageDirection = 1
     /// Slice DN-1/DN-2: Priority-ordered queue for transient hardware HUDs and live activities.
@@ -66,7 +66,7 @@ final class NotchModel: ObservableObject {
 struct NotchIslandView: View {
     @ObservedObject var model: NotchModel
     @ObservedObject private var feed = LiveActivityFeed.shared
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page pill's roster
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false

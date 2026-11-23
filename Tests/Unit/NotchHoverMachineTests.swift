@@ -87,18 +87,18 @@ final class NotchHoverMachineTests: XCTestCase {
 
     func testNotchPagesNeverIncludeTheNotificationInbox() {
         let pages = NotchPage.visible()
-        XCTAssertEqual(pages.count, 10, "all ten pages show by default")
-        XCTAssertEqual(pages.first, .downloadDeck)
+        XCTAssertEqual(pages.count, 7, "music, calendar, and the remaining core pages are active")
+        XCTAssertEqual(pages.first, .audioDeck)
         XCTAssertEqual(pages.last, .keepAwake)
         XCTAssertTrue(pages.contains(.peripherals))
         XCTAssertEqual(NotchPage.peripherals.symbol, "airpodspro")
         XCTAssertFalse(pages.map(\.symbol).contains("bell.fill"), "the inbox moved to the Side Deck (SD-1)")
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 8)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 6)
 
         let d = UserDefaults(suiteName: "NotchPinnedPageTests")!
         d.removePersistentDomain(forName: "NotchPinnedPageTests")
         XCTAssertNil(NotchPagingPolicy.storedPinnedPage(d))
-        XCTAssertTrue(NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d))
+        XCTAssertFalse(NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d))
         d.set(NotchPage.calendar.rawValue, forKey: NotchPagingPolicy.pinnedDefaultPageKey)
         XCTAssertEqual(NotchPagingPolicy.storedPinnedPage(d), .calendar)
         XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: false, userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)), .calendar)

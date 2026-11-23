@@ -421,6 +421,7 @@ final class AppSettingsStore: ObservableObject {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         TungstenDefaultsMigrator.migrateIfNeeded(defaults: defaults)
+        NotchPage.migrateTeleprompterDefaultOff(in: defaults)
         WeatherChipPreset.migrateToIPadIfNeeded(defaults: defaults)
         WeatherChipPreset.migrateToModernIfNeeded(defaults: defaults)
         WeatherLayoutPreset.migrateToFullScreenIfNeeded(defaults: defaults)

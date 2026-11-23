@@ -10,7 +10,7 @@ struct NotchHeaderView: View {
     @ObservedObject var model: NotchModel
     let metrics: NotchMetrics
     @StateObject private var power = SystemStatusService()
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the roster
     /// 59d: the battery card hangs under the chip, over the page area. Read-only, so it never takes a

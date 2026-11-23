@@ -471,7 +471,7 @@ private struct NotchLayoutCard: View {
 private struct NotchPagesCard: View {
     @ObservedObject var store: AppSettingsStore
     @AppStorage(NotchPageLayout.defaultsKey) private var raw = ""
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompter = true
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompter = false
     @AppStorage(CameraMirrorService.enabledKey) private var mirror = true
     @AppStorage(NotchPagingPolicy.pinnedDefaultPageKey) private var pinnedDefaultRaw: Int = -1
     @State private var pendingHide: NotchPage?
@@ -489,7 +489,7 @@ private struct NotchPagesCard: View {
                     .font(.subheadline)
                 Spacer()
                 Picker(selection: $pinnedDefaultRaw) {
-                    Text(verbatim: "Auto (Music / Downloads)").tag(-1)
+                    Text(verbatim: "Auto (Music)").tag(-1)
                     ForEach(pages.filter { !layout.hidden.contains($0) }) { page in
                         Text(verbatim: page.title).tag(page.rawValue)
                     }
@@ -524,7 +524,7 @@ private struct NotchPagesCard: View {
             HStack {
                 Button {
                     raw = ""
-                    teleprompter = true
+                    teleprompter = false
                     mirror = true
                     pinnedDefaultRaw = -1
                     if !store.notchIslandEnabled { store.setNotchIslandEnabled(true) }

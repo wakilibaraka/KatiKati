@@ -179,7 +179,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .storage, .weather, .quickAccess, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -187,7 +187,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .storage, .weather, .quickAccess, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -195,7 +195,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .storage, .weather, .quickAccess, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -442,6 +442,11 @@ private struct WindowDrawerView: View {
         switch controller.tab {
         case .windows: windows
         case .notifications: SideDeckNotificationsView(controller: controller)
+        case .downloads: SideDeckDownloadsView()
+        case .storage: SideDeckStorageView()
+        case .weather: SideDeckWeatherView()
+        case .quickAccess:
+            SideDeckQuickAccessView(onLauncher: controller.runApps, onCommandBar: controller.runSearch)
         case .layouts:
             VStack(spacing: 8) {
                 WindowsFlyoutView()
@@ -467,6 +472,14 @@ private struct WindowDrawerView: View {
             SideDeckRailButton(symbol: SideDeckTab.notifications.symbol, title: Text("Notifications"),
                                selected: controller.tab == .notifications,
                                badge: controller.unreadNotificationCount) { controller.select(.notifications) }
+            SideDeckRailButton(symbol: SideDeckTab.downloads.symbol, title: Text("Downloads"),
+                               selected: controller.tab == .downloads) { controller.select(.downloads) }
+            SideDeckRailButton(symbol: SideDeckTab.storage.symbol, title: Text("Storage"),
+                               selected: controller.tab == .storage) { controller.select(.storage) }
+            SideDeckRailButton(symbol: SideDeckTab.weather.symbol, title: Text("Weather"),
+                               selected: controller.tab == .weather) { controller.select(.weather) }
+            SideDeckRailButton(symbol: SideDeckTab.quickAccess.symbol, title: Text("Quick Access"),
+                               selected: controller.tab == .quickAccess) { controller.select(.quickAccess) }
             SideDeckRailButton(symbol: SideDeckTab.layouts.symbol, title: Text("Layouts"),
                                selected: controller.tab == .layouts) { controller.select(.layouts) }
             SideDeckRailButton(symbol: SideDeckTab.emoji.symbol, title: Text("Emoji"),
