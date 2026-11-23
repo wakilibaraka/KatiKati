@@ -576,15 +576,15 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
-    "mtime": 1795426652.9060862,
-    "seen": 1795427190.459838,
-    "ast_hash": "442e37586f857e0e7fc165da17079cc1",
+    "mtime": 1795428128.013076,
+    "seen": 1795428356.743113,
+    "ast_hash": "4850e31ec9adb04c0728a0c73cc24752",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1795384544.754933,
-    "seen": 1795388173.6995788,
-    "ast_hash": "a9b2566bc9faaeae74147790e00cf801",
+    "mtime": 1795428133.725555,
+    "seen": 1795428356.743114,
+    "ast_hash": "f3eac20f2b93de3e68f3206ff5596064",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -612,9 +612,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator.swift": {
-    "mtime": 1795426651.1298378,
-    "seen": 1795427190.4598432,
-    "ast_hash": "1ae03519adc8fcf4ad4200eccfa76630",
+    "mtime": 1795428124.8844573,
+    "seen": 1795428356.743118,
+    "ast_hash": "a59ad292684fbac4b849dc29fe65037e",
     "semantic_hash": ""
   },
   "App/Entry/RadialDialPanelController.swift": {
@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1795028398.6222327,
-    "seen": 1795028490.398102,
-    "ast_hash": "fc7348ec2b1fbd8df12a878bcb275d52",
+    "mtime": 1795428162.7814791,
+    "seen": 1795428356.7431302,
+    "ast_hash": "27603a15c660b38f79d023ead93428d5",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -720,9 +720,9 @@
     "semantic_hash": "12cd1551b6e625ea172af6c8a788e53d"
   },
   "App/Scenes/ChipView.swift": {
-    "mtime": 1795287705.281287,
-    "seen": 1795288343.0197241,
-    "ast_hash": "6e0e6c63ebd055f1fb4ec73c9c8e572a",
+    "mtime": 1795428165.8968897,
+    "seen": 1795428356.743139,
+    "ast_hash": "01592f1d5e878eb1cdbbfbeaef38789e",
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LauncherChip.swift": {
-    "mtime": 1795287721.377031,
-    "seen": 1795288343.019788,
-    "ast_hash": "0c0bda1054fbd306081d324078269e09",
+    "mtime": 1795428164.5496588,
+    "seen": 1795428356.743205,
+    "ast_hash": "25a1f45900f6217ce3a89765ac0dcff2",
     "semantic_hash": ""
   },
   "App/Scenes/LauncherFABView.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795428074.669345,
-    "seen": 1795428098.440773,
-    "ast_hash": "f3a7636420a105c8ef22859859d412d8",
+    "mtime": 1795428331.0020468,
+    "seen": 1795428356.7440891,
+    "ast_hash": "abea946f7523b24b703bbd32f46a7351",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6918,9 +6918,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PopGridPopupView.swift": {
-    "mtime": 1794994309.2816377,
-    "seen": 1794996059.22832,
-    "ast_hash": "86cd3bbcb4facb3461ee416f9d360715",
+    "mtime": 1795428159.750811,
+    "seen": 1795428356.743244,
+    "ast_hash": "5ce9d9a12e445ef50c096bac6c120ef3",
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentApproval.swift": {
