@@ -189,6 +189,11 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var liveEventOSBanners: Bool
     /// Phase 9a: per-app window-chip grouping (default `.separate` = today's behaviour).
     @Published private(set) var chipGroupingPlan: WindowChipGroupingPlan
+    /// Slice DO-6: named App Icon presentation preset, symmetrical spacing, and Keep-in-Dock menu simplification.
+    @Published private(set) var appIconPreset: AppIconPresentationPreset
+    private var hasStoredAppIconPreset: Bool
+    @Published private(set) var dockSpacingConfig: DockSpacingConfig
+    @Published private(set) var showPinAsAppIcon: Bool
     /// Phase 9c/9b: hover window preview + the floating jump list on right-click.
     @Published private(set) var chipPreviewEnabled: Bool
     @Published private(set) var chipPreviewDelayMs: Int
@@ -603,6 +608,11 @@ final class AppSettingsStore: ObservableObject {
             overrides: (defaults.dictionary(forKey: Keys.chipGroupingOverrides) as? [String: String] ?? [:])
                 .compactMapValues(WindowChipGroupPolicy.init(rawValue:))
         )
+        let storedIconPreset = defaults.string(forKey: AppIconPresentationPreset.defaultsKey)
+        hasStoredAppIconPreset = storedIconPreset != nil
+        appIconPreset = AppIconPresentationPreset.resolved(stored: storedIconPreset, isVertical: false)
+        dockSpacingConfig = Self.decoded(DockSpacingConfig.self, forKey: DockSpacingConfig.defaultsKey, defaults: defaults)?.clamped() ?? .default
+        showPinAsAppIcon = defaults.bool(forKey: AppMembershipMenuPlan.showPinAsAppIconKey)
         linkCleanerEnabled = defaults.bool(forKey: Keys.linkCleanerEnabled)
         wallpaperEnabled = defaults.bool(forKey: Keys.wallpaperEnabled)
         wallpaperMode = WallpaperMode(rawValue: defaults.string(forKey: Keys.wallpaperMode) ?? "")?.rawValue ?? WallpaperMode.both.rawValue
@@ -1830,6 +1840,34 @@ final class AppSettingsStore: ObservableObject {
         guard backgroundActivityIconMode != mode else { return }
         backgroundActivityIconMode = mode
         defaults.set(mode.rawValue, forKey: BackgroundActivityIconMode.defaultsKey)
+    }
+
+    func effectiveAppIconPreset(isVertical: Bool) -> AppIconPresentationPreset {
+        (isVertical && !hasStoredAppIconPreset) ? .iconsOnly : appIconPreset
+    }
+
+    func setAppIconPreset(_ preset: AppIconPresentationPreset) {
+        hasStoredAppIconPreset = true
+        if appIconPreset != preset {
+            appIconPreset = preset
+            defaults.set(preset.rawValue, forKey: AppIconPresentationPreset.defaultsKey)
+        }
+        setChipGroupingDefault(preset.groupingPolicy)
+    }
+
+    func setDockSpacingConfig(_ config: DockSpacingConfig) {
+        let clamped = config.clamped()
+        guard dockSpacingConfig != clamped else { return }
+        dockSpacingConfig = clamped
+        if let data = try? JSONEncoder().encode(clamped) {
+            defaults.set(data, forKey: DockSpacingConfig.defaultsKey)
+        }
+    }
+
+    func setShowPinAsAppIcon(_ value: Bool) {
+        guard showPinAsAppIcon != value else { return }
+        showPinAsAppIcon = value
+        defaults.set(value, forKey: AppMembershipMenuPlan.showPinAsAppIconKey)
     }
 
     /// Seeds "lift maximized windows clear of the taskbar" to on for a fresh install (owner 2026-09-01).

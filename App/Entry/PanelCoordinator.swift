@@ -225,6 +225,7 @@ final class PanelCoordinator: NSObject {
     var barLayoutModeSubscription: AnyCancellable?
     var layoutDimensionsSubscription: AnyCancellable?
     var widgetWidthsSubscription: AnyCancellable?
+    var appIconLayoutSubscription: AnyCancellable?
     var controlCentreTrailingSubscription: AnyCancellable?
     var dockWingsSubscription: AnyCancellable?
     var surfaceWidgetsSubscription: AnyCancellable?

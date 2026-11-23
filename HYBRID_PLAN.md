@@ -6889,3 +6889,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/WindowChipGrouping.swift`: added `AppIconPresentationPreset` (`appPills` horizontal default, `windowCards`, `iconsOnly` vertical default, `windows11Grouped`, `windows10Taskbar`), `DockSpacingConfig`, `DockDynamicCompressionResult`, and 3-stage `DockDynamicCompressionSolver`.
 - `Core/Support/AppMembershipMenuPlan.swift`: added `showPinAsAppIconKey` and `showPinAsAppIcon: Bool = false` defaulting menus to `Keep in Dock` while preserving legacy/active messaging unpinning.
 - `Tests/Unit/{WindowChipGroupingTests,AppMembershipMenuPlanTests}.swift`: added preset, spacing-clamp, 3-stage compression, and membership menu plan coverage (18/18 passed, 0 warnings). Zero `project.pbxproj` edits.
+
+### DO-6b — App Icon Preset, Compression, Spacing & Keep-in-Dock UI Wiring (landed 2026-11-23)
+
+- `App/Composition/AppSettingsStore.swift` & `App/Scenes/LauncherMembershipItem.swift`: persisted `appIconPreset`, `dockSpacingConfig`, and `showPinAsAppIcon` with automatic vertical-rail `.iconsOnly` default and `Keep in Dock` default menu behavior.
+- `App/Scenes/{DockStripView+Projection,DockStripView,ChipView}.swift` & `App/Entry/PanelCoordinator{+Layout,}.swift`: applied preset grouping + app-name-only pills (`appPills`), 3-stage anti-overflow dynamic compression (`DockDynamicCompressionSolver`), symmetrical icon/divider spacing, multi-window pill count badge, and live relayout subscription.
+- Verified with `WindowChipGroupingTests`, `AppMembershipMenuPlanTests`, `AppSettingsStoreTests`, `ModularDockCoreTests` (195/195 passed), `check_localization.py`, `check_debug_switches.py`, and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.

@@ -185,6 +185,15 @@ extension PanelCoordinator {
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
             }
+        appIconLayoutSubscription = Publishers.CombineLatest(
+            settingsStore.$appIconPreset,
+            settingsStore.$dockSpacingConfig
+        )
+        .dropFirst()
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _, _ in
+            DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
+        }
         controlCentreTrailingSubscription = Publishers.CombineLatest(
             settingsStore.$controlCentreTrailing,
             settingsStore.$dockSlotLayout

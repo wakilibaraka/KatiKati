@@ -17,13 +17,15 @@ extension LauncherMembershipItem {
         bundleID: String,
         isKept: Bool,
         isMessaging: Bool,
-        controller: AppMembershipController
+        controller: AppMembershipController,
+        showPinAsAppIcon: Bool = UserDefaults.standard.bool(forKey: AppMembershipMenuPlan.showPinAsAppIconKey)
     ) -> [LauncherMembershipItem] {
         AppMembershipMenuPlan.items(
             surface: surface,
             isFinder: FinderTaskbarPolicy.isFinder(bundleID),
             isKept: isKept,
-            isMessaging: isMessaging
+            isMessaging: isMessaging,
+            showPinAsAppIcon: showPinAsAppIcon
         ).map { item in
             switch item {
             case let .keep(isChecked):

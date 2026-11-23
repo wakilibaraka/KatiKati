@@ -56,7 +56,12 @@ extension DockStripView {
                 TrashWindowAbsorption.absorbedWindowIDs(in: runtime.snapshot, trashTitles: TrashWindowLookup.liveTitles),
                 from: runtime.snapshot)
             : runtime.snapshot
-        let snapshotItems = StripItem.items(from: stripSnapshot, grouping: settingsStore.chipGroupingPlan)
+        let activePreset = settingsStore.effectiveAppIconPreset(isVertical: isRail)
+        let effectiveGrouping = WindowChipGroupingPlan(
+            defaultPolicy: activePreset.groupingPolicy,
+            overrides: settingsStore.chipGroupingPlan.overrides
+        )
+        let snapshotItems = StripItem.items(from: stripSnapshot, grouping: effectiveGrouping)
         let snapshotBundleIDs = Set(snapshotItems.compactMap(\.bundleIdentifier))
         let hiddenBundleIDs = Set(snapshotItems.compactMap { item in
             item.status == "hidden" ? item.bundleIdentifier : nil
@@ -225,7 +230,13 @@ extension DockStripView {
         // 只显示本屏的窗口，公共段各屏不同，按全集算会把某块屏上仅剩的一张卡剥掉唯一的区分信息。
         // 也**必须在「拖出即合拢」的剔除之前**——拖走一张卡会让剩下的卡重算公共段，标签当场变长，
         // 拖到一半文字跳动。
-        let labelTitleByChipID = Self.labelTitles(for: renderedLive, heldTitles: runtime.heldLabelTitlesByChipID)
+        var labelTitleByChipID = Self.labelTitles(for: renderedLive, heldTitles: runtime.heldLabelTitlesByChipID)
+        if activePreset.usesAppNameOnly {
+            for case let .window(item) in renderedLive where !item.isAppLevelFallback {
+                let appName = item.bundleIdentifier.map(AppDisplayNameResolver.displayName(for:)) ?? item.appID
+                labelTitleByChipID[item.id] = WindowDisplayTitle.resolve(rawTitle: nil, fallbackName: appName)
+            }
+        }
         // 让位空档（从访达拖应用进条的悬停预览）。**注入点必须在这里**：顺序层
         // （`stripOrderStore.reconciled`）和多屏过滤都已经跑完，所以空档进不了 `liveOrderIDs`
         // 和 `appKeys`——顺序层一旦记住这个幽灵 id，就会在它消失后按 5s 缺席锚点继续为它留位。

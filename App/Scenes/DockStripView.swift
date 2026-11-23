@@ -269,16 +269,19 @@ struct DockStripView: View {
                 theme.panelThicknessLayer(cornerRadius: taskbarCornerRadius)
             }
 
+            let activePreset = settingsStore.effectiveAppIconPreset(isVertical: isRail)
+            let compression = compressionResult(for: projection, preset: activePreset)
+            let effectiveSpacing = isRail ? Style.railChipSpacing * dockScale : compression.iconSpacing * dockScale
             // Phase 18c: one stack, two axes — a side rail stacks the same entries top to bottom.
             ScrollView(isRail ? .vertical : .horizontal, showsIndicators: false) {
                 StripAxisStack(vertical: isRail,
-                               spacing: (isRail ? Style.railChipSpacing : Style.chipSpacing) * dockScale,
+                               spacing: effectiveSpacing,
                                // DP-3: only Wide has spare width to spend; every other mode keeps
                                // measuring its natural width.
                                wideGapCap: (!isRail && settingsStore.barLayoutMode == .windows)
                                    ? WideGapPlan.gapCap * dockScale : nil) {
                     ForEach(projection.entries) { entry in
-                        chipWithReorder(entry, projection: projection)
+                        chipWithReorder(entry, projection: projection, compression: compression)
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
                     }
                 }
@@ -1147,11 +1150,49 @@ struct DockStripView: View {
     /// target's left/right half → land left/right. A plain tap (< minimumDistance) still falls
     /// through to the chip's `onTapGesture`; right-click still opens the menu; horizontal scroll
     /// is wheel/trackpad so it never fights this click-drag.
+    private func compressionResult(for projection: StripProjection, preset: AppIconPresentationPreset) -> DockDynamicCompressionResult {
+        guard !isRail else {
+            return .init(labelWidth: 0, iconSpacing: Style.railChipSpacing,
+                         sectionSpacing: Style.dividerSidePadding, iconScale: 1.0, stage: 0, needsScroll: false)
+        }
+        let fitted = settingsStore.fittedWidgetLayout(screenWidth: stripScreenWidth)
+        let s = max(dockScale, 0.01)
+        var fixedWidth = 2 * Style.chipContentInset
+        var labeledCount = 0
+        var iconCount = 0
+        var dividerCount = 0
+        for entry in projection.entries {
+            switch entry {
+            case let .window(item):
+                if !item.isAppLevelFallback && preset.showsLabel { labeledCount += 1 } else { iconCount += 1 }
+            case .messagingApp, .keptApp, .pinnedFolder, .shelf, .pop, .appGroup, .backgroundApps, .trash, .externalDropGhost:
+                iconCount += 1
+            case .divider:
+                dividerCount += 1
+                fixedWidth += (1 / s) + 4
+            case let .sectionPlaceholder(section):
+                let baseW = fitted.width(for: section)
+                fixedWidth += (section == .media && mediaPreset.isCard) ? max(baseW, 215) : baseW
+            }
+        }
+        return DockDynamicCompressionSolver.solve(
+            availableWidth: max(320, (stripScreenWidth - 64) / s),
+            fixedWidth: fixedWidth,
+            labeledChipCount: labeledCount,
+            iconChipCount: iconCount,
+            baseIconWidth: ChipPillMetrics.cardWidth,
+            baseLabelWidth: preset.showsLabel ? preset.maxLabelWidth : 0,
+            spacing: settingsStore.dockSpacingConfig,
+            sectionGapCount: dividerCount
+        )
+    }
+
     @ViewBuilder
-    private func chipWithReorder(_ entry: StripEntry, projection: StripProjection) -> some View {
+    private func chipWithReorder(_ entry: StripEntry, projection: StripProjection,
+                                 compression: DockDynamicCompressionResult? = nil) -> some View {
         switch entry {
         case let .window(item):
-            stripEntryView(entry, projection: projection)
+            stripEntryView(entry, projection: projection, compression: compression)
                 .opacity(projection.draggingID == item.id ? 0 : 1)
                 // Frame in the shared `"strip"` space via a **background** GeometryReader — doesn't
                 // affect layout and doesn't steal clicks (an overlay with a hittable Color.clear
@@ -1370,7 +1411,7 @@ struct DockStripView: View {
                                                                   frame: geo.frame(in: .named("strip"))))
                 })
         case .appGroup, .backgroundApps, .divider, .sectionPlaceholder:
-            stripEntryView(entry, projection: projection)
+            stripEntryView(entry, projection: projection, compression: compression)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
             // 而空档既不能上报悬停帧（不弹气泡），更不能上报 `ChipFramePreferenceKey`
@@ -1475,9 +1516,10 @@ struct DockStripView: View {
     }
 
     @ViewBuilder
-    private func stripEntryView(_ entry: StripEntry, projection: StripProjection) -> some View {
+    private func stripEntryView(_ entry: StripEntry, projection: StripProjection,
+                                compression: DockDynamicCompressionResult? = nil) -> some View {
         stripEntryContent(entry, projection: projection,
-                          hovered: hoveredEntryID == entry.id, entrance: true)
+                          hovered: hoveredEntryID == entry.id, entrance: true, compression: compression)
             // Slice D: the keyboard's card wears the same accent ring wherever the pointer is.
             .overlay {
                 if dockFocus.focusedID == entry.id {
@@ -1510,7 +1552,11 @@ struct DockStripView: View {
     ///     而快照是同步拍的——拍出来会是一张半透明、偏上 8pt 的图。
     @ViewBuilder
     private func stripEntryContent(_ entry: StripEntry, projection: StripProjection,
-                                   hovered: Bool, entrance: Bool) -> some View {
+                                   hovered: Bool, entrance: Bool,
+                                   compression: DockDynamicCompressionResult? = nil) -> some View {
+        let activePreset = settingsStore.effectiveAppIconPreset(isVertical: isRail)
+        let solved = compression ?? compressionResult(for: projection, preset: activePreset)
+        let chipScale = dockScale * (isRail ? 1.0 : solved.iconScale)
         switch entry {
         case let .window(item):
             // 角标跟着应用走（2026-08-23）：`badgesByBundleID` 已按消息应用身份圈过范围，
@@ -1521,13 +1567,15 @@ struct DockStripView: View {
             ChipView(item: item,
                      onOpenJumpList: jumpListOpener(for: item),
                      labelTitle: projection.labelTitleByChipID[item.id] ?? item.title,
-                     scale: dockScale,
+                     scale: chipScale,
                      hoverStyle: hoverStyle,
                      isHovered: hovered,
                      // 只有 app-* 兜底卡（访达常驻 / 保留兜底）代表整个应用；普通窗口卡不列。
                      showsWindowListInMenu: item.isAppLevelFallback,
                      // A rail is one icon wide: titled pills would spill past it (Phase 18c).
-                     iconOnly: isRail,
+                     iconOnly: activePreset.effectiveIconOnly(isVertical: isRail),
+                     showsLabelOverride: activePreset.showsLabel && !item.isAppLevelFallback,
+                     maxLabelWidthOverride: activePreset.showsLabel ? solved.labelWidth : nil,
                      railTile: isRail,
                      showRunningDot: true,
                      pulseNonce: chipPulseNonces[item.id] ?? 0,
@@ -1623,11 +1671,12 @@ struct DockStripView: View {
                 .fill(theme.zoneDivider.color)
                 .frame(width: Style.dividerHeight * dockScale, height: 1)
         case .divider:
+            let dividerPad = max(2, (solved.sectionSpacing - 1) / 2 - solved.iconSpacing) * dockScale
             Rectangle()
                 .fill(theme.zoneDivider.color)
                 // 宽度是发丝线，恒 1pt 不缩；只有高度跟着档位走。
                 .frame(width: 1, height: Style.dividerHeight * dockScale)
-                .padding(.horizontal, Style.dividerSidePadding * dockScale)
+                .padding(.horizontal, dividerPad)
         case let .pinnedFolder(path):
             let index = 1 + (pinnedFolderStore.folderPaths.firstIndex(of: path) ?? 0)
             let delay = Double(min(index, 6)) * 0.018
@@ -1789,7 +1838,7 @@ struct DockStripView: View {
                 isLaunching: runtime.launchingBundleIDs.contains(bid),
                 isFrontmost: runningApplicationStore.frontmostBundleID == bid,
                 windowCount: Self.realWindowCount(for: bid, snapshot: runtime.snapshot),
-                scale: dockScale,
+                scale: chipScale,
                 layout: .bar,
                 railTile: isRail,
                 hoverStyle: hoverStyle,

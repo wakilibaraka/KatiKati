@@ -76,6 +76,9 @@ struct ChipView: View {
     /// 那个窗口，恒 false。**故意不给默认值**——漏传必须是编译错误（同 `scale` 那条铁律）。
     let showsWindowListInMenu: Bool
     var iconOnly: Bool = false
+    /// Slice DO-6: optional overrides driven by `AppIconPresentationPreset` and anti-overflow compression.
+    var showsLabelOverride: Bool? = nil
+    var maxLabelWidthOverride: CGFloat? = nil
     /// 侧边栏上这张卡是**方**的（Phase 42b）：主轴长度 = `cardWidth`，不是 `chipHeight`——
     /// 否则卡的长边（54）会变成图标之间的间距，侧边栏的图标行就比底边条的松。
     /// **故意不给默认值**——漏传必须是编译错误（同 `scale` 那条铁律）。
@@ -176,7 +179,8 @@ struct ChipView: View {
 
     var body: some View {
         Group {
-            if !iconOnly && (item.showsTitle || isMessagingAppWindow) {
+            let showsPill = !iconOnly && (showsLabelOverride ?? (item.showsTitle || isMessagingAppWindow))
+            if showsPill {
                 multiWindowChip
             } else {
                 bareIconChip
@@ -387,6 +391,14 @@ struct ChipView: View {
                     }
                 }
             titleLabel(capturedDisplayTitle, color: titleColor)
+            if item.isAppGroup && item.memberWindowIDs.count > 1 && !isDragCarrierSnapshot {
+                Text(verbatim: "\(item.memberWindowIDs.count)")
+                    .font(.system(size: max(8, 9.5 * scale), weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(titleColor.opacity(0.85))
+                    .padding(.horizontal, 4.5 * scale)
+                    .padding(.vertical, 1.5 * scale)
+                    .background(Capsule().fill(Color.white.opacity(0.14)))
+            }
         }
         .padding(.horizontal, ChipPillMetrics.horizontalPadding * scale)
         .frame(height: metrics.pillHeight)
@@ -407,8 +419,13 @@ struct ChipView: View {
         // 宽度用渲染药丸的同一个 `ChipPillMetrics.width`，不另写一份。
         .chipQuietHoverScale(
             quietHoverFeedback,
-            cardWidth: ChipPillMetrics.width(title: capturedDisplayTitle, scale: scale)
-                + 2 * ChipPillMetrics.titledCardInset * scale,
+            cardWidth: {
+                let pillLabelW = maxLabelWidthOverride.map {
+                    min(ChipPillMetrics.labelWidth(title: capturedDisplayTitle, scale: scale), $0 * scale)
+                } ?? ChipPillMetrics.labelWidth(title: capturedDisplayTitle, scale: scale)
+                return (2 * ChipPillMetrics.horizontalPadding + ChipPillMetrics.iconSlot + ChipPillMetrics.iconSpacing) * scale
+                    + pillLabelW + 2 * ChipPillMetrics.titledCardInset * scale
+            }(),
             scale: scale
         )
         .chipPressScale(isTapPressed)
@@ -452,14 +469,16 @@ struct ChipView: View {
     ///   否则动画途中每一帧都在重算省略号、末尾抖动。
     /// `.clipped()` 只裁到盒子的当前宽度：变长时新字从图标那侧逐帧露出来，变短时旧字被收进去。
     private func titleLabel(_ title: String, color: Color) -> some View {
-        let boxWidth = ChipPillMetrics.labelWidth(title: title, scale: scale)
-        let truncates = ChipPillMetrics.labelTruncates(title: title, scale: scale)
+        let naturalWidth = ChipPillMetrics.labelWidth(title: title, scale: scale)
+        let boxWidth = maxLabelWidthOverride.map { min(naturalWidth, $0 * scale) } ?? naturalWidth
+        let effectiveMax = maxLabelWidthOverride.map { $0 * scale } ?? WindowTitleTextMetrics.maximumWidth(for: scale)
+        let truncates = WindowTitleTextMetrics.intrinsicWidth(of: title, scale: scale) > effectiveMax
         return LabelBoxWidthDriver(width: boxWidth, chipID: item.id) { liveWidth in ZStack(alignment: .leading) {
             Text(title)
                 .font(.system(size: max(10, 12 * scale), weight: .medium, design: .rounded))
                 .foregroundStyle(color)
                 .lineLimit(1)
-                .frame(width: truncates ? WindowTitleTextMetrics.maximumWidth(for: scale) : nil,
+                .frame(width: truncates ? effectiveMax : nil,
                        alignment: .leading)
                 .fixedSize(horizontal: !truncates, vertical: false)
                 .id(title)
