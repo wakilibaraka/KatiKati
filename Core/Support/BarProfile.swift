@@ -19,15 +19,20 @@ struct BarProfile: Codable, Equatable, Identifiable, Sendable {
     /// `BarLayoutMode.rawValue`, or nil to leave the layout alone. A raw value this build does not know
     /// (a profile made by a newer build) is ignored, not an error.
     var layoutMode: String?
+    var dockSlotLayout: DockSlotLayout?
+    var dockWings: DockWingsConfiguration?
 
     init(id: String = UUID().uuidString, name: String, keptApps: [String] = [], pinnedFolders: [String] = [],
-         widgetPresetID: String? = nil, layoutMode: String? = nil) {
+         widgetPresetID: String? = nil, layoutMode: String? = nil,
+         dockSlotLayout: DockSlotLayout? = nil, dockWings: DockWingsConfiguration? = nil) {
         self.id = id
         self.name = name
         self.keptApps = keptApps
         self.pinnedFolders = pinnedFolders
         self.widgetPresetID = widgetPresetID
         self.layoutMode = layoutMode
+        self.dockSlotLayout = dockSlotLayout
+        self.dockWings = dockWings
     }
 
     // Lenient decode: a profile file written by an older or newer build still loads.
@@ -39,6 +44,8 @@ struct BarProfile: Codable, Equatable, Identifiable, Sendable {
         pinnedFolders = try c.decodeIfPresent([String].self, forKey: .pinnedFolders) ?? []
         widgetPresetID = try c.decodeIfPresent(String.self, forKey: .widgetPresetID)
         layoutMode = try c.decodeIfPresent(String.self, forKey: .layoutMode)
+        dockSlotLayout = try c.decodeIfPresent(DockSlotLayout.self, forKey: .dockSlotLayout)
+        dockWings = try c.decodeIfPresent(DockWingsConfiguration.self, forKey: .dockWings)
     }
 }
 
@@ -55,6 +62,8 @@ struct BarProfileState: Equatable, Sendable {
     var pinnedFolders: [String]
     var widgetPresetID: String?
     var layoutMode: String?
+    var dockSlotLayout: DockSlotLayout? = nil
+    var dockWings: DockWingsConfiguration? = nil
 }
 
 enum BarProfilePlan {
@@ -73,6 +82,8 @@ enum BarProfilePlan {
         var widgetPresetID: String?
         /// Nil leaves the current layout in place.
         var layoutMode: BarLayoutMode?
+        var dockSlotLayout: DockSlotLayout?
+        var dockWings: DockWingsConfiguration?
         /// Profile apps that are no longer installed and folders that no longer exist: reported, not applied.
         var skippedApps: [String] = []
         var skippedFolders: [String] = []
@@ -84,6 +95,7 @@ enum BarProfilePlan {
         var isNoOp: Bool {
             keptToRemove.isEmpty && keptToAdd.isEmpty && foldersToUnpin.isEmpty && foldersToPin.isEmpty
                 && !reordersKept && !reordersFolders && widgetPresetID == nil && layoutMode == nil
+                && dockSlotLayout == nil && dockWings == nil
         }
     }
 
@@ -115,6 +127,12 @@ enum BarProfilePlan {
         if let raw = profile.layoutMode, raw != current.layoutMode, let mode = BarLayoutMode(rawValue: raw) {
             out.layoutMode = mode
         }
+        if let layout = profile.dockSlotLayout, layout != current.dockSlotLayout {
+            out.dockSlotLayout = layout
+        }
+        if let wings = profile.dockWings, wings != current.dockWings {
+            out.dockWings = wings
+        }
         return out
     }
 
@@ -127,6 +145,7 @@ enum BarProfilePlan {
     /// The profile a "Save current bar as…" would store.
     static func snapshot(of state: BarProfileState, name: String, id: String = UUID().uuidString) -> BarProfile {
         BarProfile(id: id, name: name, keptApps: unique(state.keptApps), pinnedFolders: unique(state.pinnedFolders),
-                   widgetPresetID: state.widgetPresetID, layoutMode: state.layoutMode)
+                   widgetPresetID: state.widgetPresetID, layoutMode: state.layoutMode,
+                   dockSlotLayout: state.dockSlotLayout, dockWings: state.dockWings)
     }
 }

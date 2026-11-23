@@ -12,6 +12,7 @@ This commit: **plan only — no code changes.**
 - 2026-11-23: Wave 3 Slice 3.2 completed — app leftover picker/scanner, review-first Trash flow, and storage row context actions.
 - 2026-11-23: Wave 3 Slice 3.3 completed — note titles, archive filtering, archive action, and decrypt-error banner.
 - 2026-11-23: Wave 3 Slice 3.4 completed — Live Island camera subscription, severe weather/alarm alerts, and Sixth-Sense controls (`92da0206`).
+- 2026-11-23: Wave 4 Slice 4.1a started — BarProfile snapshots now include Dock slot layout and Dock wing configuration.
 
 ---
 

@@ -104,4 +104,24 @@ final class BarProfileTests: XCTestCase {
         let data = try JSONEncoder().encode(profile)
         XCTAssertEqual(try JSONDecoder().decode(BarProfile.self, from: data), profile)
     }
+
+    func testDockLayoutAndWingsRoundTripAndChangeOnlyWhenSet() throws {
+        let slot = DockSlotLayout(items: [.init(item: .weather, isHidden: false)],
+                                  trailingCapsule: nil, groupAdjacentUtilities: false)
+        let wings = DockWingsConfiguration(left: DockWingSlotConfig(preset: .telemetry),
+                                           right: DockWingSlotConfig(preset: .battery),
+                                           gap: 8)
+        let profile = BarProfile(name: "Modular", dockSlotLayout: slot, dockWings: wings)
+        let data = try JSONEncoder().encode(profile)
+        let decoded = try JSONDecoder().decode(BarProfile.self, from: data)
+        XCTAssertEqual(decoded.dockSlotLayout, slot)
+        XCTAssertEqual(decoded.dockWings, wings)
+
+        let current = BarProfileState(keptApps: [], pinnedFolders: [],
+                                      dockSlotLayout: slot, dockWings: wings)
+        XCTAssertTrue(edits(current, profile).isNoOp)
+        let other = DockSlotLayout(items: [.init(item: .music, isHidden: false)], groupAdjacentUtilities: true)
+        let changed = edits(current, BarProfile(name: "Other", dockSlotLayout: other))
+        XCTAssertEqual(changed.dockSlotLayout, other)
+    }
 }

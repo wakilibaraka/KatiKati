@@ -111,6 +111,8 @@ final class BarProfileService {
             settings.applyWidgetPreset(preset)
         }
         if let mode = edits.layoutMode { settings.setBarLayoutMode(mode) }
+        if let slotLayout = edits.dockSlotLayout { settings.setDockSlotLayout(slotLayout) }
+        if let wings = edits.dockWings { settings.setDockWings(wings) }
         if !edits.skippedApps.isEmpty || !edits.skippedFolders.isEmpty {
             NSLog("BarProfileService: profile \(profile.name) skipped \(edits.skippedApps.count) apps and \(edits.skippedFolders.count) folders that are gone")
         }
@@ -119,6 +121,7 @@ final class BarProfileService {
 
     private func currentState() -> BarProfileState {
         BarProfileState(keptApps: kept.bundleIDs, pinnedFolders: folders.folderPaths,
-                        widgetPresetID: nil, layoutMode: settings.barLayoutMode.rawValue)
+                        widgetPresetID: nil, layoutMode: settings.barLayoutMode.rawValue,
+                        dockSlotLayout: settings.dockSlotLayout, dockWings: settings.dockWings)
     }
 }
