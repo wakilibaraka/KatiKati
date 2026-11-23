@@ -2278,12 +2278,12 @@ final class AppSettingsStore: ObservableObject {
 
     // MARK: Dock II Wings
 
-    func setDockWing(_ preset: DockWidgetPresetType, size: WidgetSize? = nil, placement: DockWingPlacement) {
-        setDockWings(dockWings.assigning(preset, size: size, to: placement))
+    func setDockWing(_ preset: DockWidgetPresetType, size: WidgetSize? = nil, placement: DockWingPlacement, forDisplay displayUUID: String? = nil) {
+        setDockWings(dockWings.assigning(preset, size: size, to: placement, forDisplay: displayUUID))
     }
 
-    func setDockWingSize(_ size: WidgetSize, placement: DockWingPlacement) {
-        setDockWings(dockWings.updatingSize(size, for: placement))
+    func setDockWingSize(_ size: WidgetSize, placement: DockWingPlacement, forDisplay displayUUID: String? = nil) {
+        setDockWings(dockWings.updatingSize(size, for: placement, forDisplay: displayUUID))
     }
 
     func setDockWingGap(_ gap: CGFloat) {

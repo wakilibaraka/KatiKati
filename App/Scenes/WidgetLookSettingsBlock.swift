@@ -160,9 +160,22 @@ struct WidgetLookSettingsBlock: View {
 struct WidgetWingsSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @State private var showDockIISheet = false
+    @State private var selectedDisplayUUID: String?
 
     var body: some View {
         SettingsCard(Text("Dock II Wings & Widgets")) {
+            if NSScreen.screens.count > 1 {
+                SettingsRow(Text("Desktop")) {
+                    Picker("Desktop", selection: $selectedDisplayUUID) {
+                        Text("All").tag(String?.none)
+                        ForEach(NSScreen.screens, id: \.self) { screen in
+                            Text(screen.localizedName).tag(DisplayIdentity.uuidString(for: screen))
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+            }
             wingConfigRow(Text("Left Wing"), placement: .leftWing)
             SettingsDivider()
             wingConfigRow(Text("Right Wing"), placement: .rightWing)
@@ -197,12 +210,14 @@ struct WidgetWingsSettingsBlock: View {
     }
 
     private func wingConfigRow(_ label: Text, placement: DockWingPlacement) -> some View {
-        let slot = store.dockWings.slot(for: placement)
+        let slot = selectedDisplayUUID == nil
+            ? store.dockWings.slot(for: placement)
+            : store.dockWings.resolved(displayUUID: selectedDisplayUUID).slot(for: placement)
         return SettingsRow(label) {
             HStack(spacing: 8) {
                 Picker("Preset", selection: Binding(
                     get: { slot.preset },
-                    set: { store.setDockWing($0, placement: placement) }
+                    set: { store.setDockWing($0, placement: placement, forDisplay: selectedDisplayUUID) }
                 )) {
                     ForEach(DockWidgetPresetType.allCases) { preset in
                         Text(verbatim: preset.localizedTitle).tag(preset)
@@ -212,7 +227,7 @@ struct WidgetWingsSettingsBlock: View {
 
                 Picker("Size", selection: Binding(
                     get: { slot.size },
-                    set: { store.setDockWingSize($0, placement: placement) }
+                    set: { store.setDockWingSize($0, placement: placement, forDisplay: selectedDisplayUUID) }
                 )) {
                     Text("Small").tag(WidgetSize.small)
                     Text("Medium").tag(WidgetSize.medium)
@@ -402,7 +417,7 @@ private struct DockIIConfigureSheet: View {
     }
 
     private var surfacePinsSection: some View {
-        let surfaces: [WidgetSurfaceKind] = [.drawer, .backgroundAppsPopup, .floatingStack]
+        let surfaces: [WidgetSurfaceKind] = [.drawer, .shelfCard, .backgroundAppsPopup, .floatingStack]
         let items = store.surfaceWidgets.attachments(for: selectedSurface)
 
         return VStack(alignment: .leading, spacing: 10) {
@@ -442,7 +457,7 @@ private struct DockIIConfigureSheet: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(items) { item in
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     HStack(spacing: 8) {
                         Image(systemName: item.preset.symbolName)
                             .frame(width: 16)
@@ -457,6 +472,33 @@ private struct DockIIConfigureSheet: View {
                             Text("Large").tag(WidgetSize.large)
                         }
                         .labelsHidden().pickerStyle(.segmented).fixedSize()
+
+                        Button {
+                            store.toggleSurfaceWidgetCollapsed(for: item.preset, on: selectedSurface)
+                        } label: {
+                            Image(systemName: item.isCollapsed ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        }
+                        .buttonStyle(.borderless)
+
+                        Button {
+                            guard index > 0 else { return }
+                            store.moveSurfaceWidgets(on: selectedSurface, from: IndexSet(integer: index),
+                                                     to: index - 1)
+                        } label: {
+                            Image(systemName: "chevron.up")
+                        }
+                        .buttonStyle(.borderless)
+                        .disabled(index == 0)
+
+                        Button {
+                            guard index < items.count - 1 else { return }
+                            store.moveSurfaceWidgets(on: selectedSurface, from: IndexSet(integer: index),
+                                                     to: index + 1)
+                        } label: {
+                            Image(systemName: "chevron.down")
+                        }
+                        .buttonStyle(.borderless)
+                        .disabled(index == items.count - 1)
 
                         if selectedSurface != .floatingStack {
                             Button("Float") {
