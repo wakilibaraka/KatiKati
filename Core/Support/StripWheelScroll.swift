@@ -167,3 +167,74 @@ enum WheelVolumeThrottle {
         return step
     }
 }
+
+// MARK: - Multi-Page Widget Cycling & Trackpad Detent (Slice DO-7)
+
+/// Pure page-index cycling and persisted-index clamping for multi-page in-dock widgets.
+enum WidgetPageCycle {
+    static func clamped(_ page: Int, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        return min(max(page, 0), count - 1)
+    }
+
+    static func next(current: Int, count: Int, delta: Int = 1) -> Int {
+        guard count > 1 else { return 0 }
+        let safe = clamped(current, count: count)
+        return ((safe + delta) % count + count) % count
+    }
+}
+
+enum WidgetPageScrollPhase: Equatable, Sendable {
+    case began, changed, ended, cancelled, discrete
+}
+
+struct WidgetPageScrollInput: Equatable, Sendable {
+    var deltaX: CGFloat
+    var deltaY: CGFloat
+    var hasPreciseDeltas: Bool
+    var isMomentum: Bool
+    var phase: WidgetPageScrollPhase
+    var timestamp: TimeInterval
+}
+
+/// Phase-aware scroll detent for multi-page widgets: ignores trackpad momentum and locks at 1 page per swipe.
+enum WidgetPageScrollEngine {
+    static let preciseDetentThreshold: CGFloat = 28
+    static let discreteCooldown: TimeInterval = 0.22
+
+    struct State: Equatable, Sendable {
+        var accumulated: CGFloat = 0
+        var lockedForGesture: Bool = false
+        var lastDiscreteStepAt: TimeInterval = -10
+    }
+
+    static func consume(_ input: WidgetPageScrollInput, state: inout State) -> Int? {
+        guard !input.isMomentum else { return nil }
+        switch input.phase {
+        case .began:
+            state.accumulated = 0
+            state.lockedForGesture = false
+        case .ended, .cancelled:
+            state.accumulated = 0
+            state.lockedForGesture = false
+            return nil
+        case .changed, .discrete:
+            break
+        }
+        let delta = abs(input.deltaY) >= abs(input.deltaX) ? input.deltaY : input.deltaX
+        guard delta != 0 else { return nil }
+
+        if !input.hasPreciseDeltas || input.phase == .discrete {
+            guard input.timestamp - state.lastDiscreteStepAt >= discreteCooldown else { return nil }
+            state.lastDiscreteStepAt = input.timestamp
+            return delta < 0 ? 1 : -1
+        }
+        guard !state.lockedForGesture else { return nil }
+        state.accumulated += delta
+        guard abs(state.accumulated) >= preciseDetentThreshold else { return nil }
+        let step = state.accumulated < 0 ? 1 : -1
+        state.lockedForGesture = true
+        state.accumulated = 0
+        return step
+    }
+}

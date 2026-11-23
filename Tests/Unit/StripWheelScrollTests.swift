@@ -155,4 +155,58 @@ final class WheelActionMapTests: XCTestCase {
         let optHoriz = StripWheelScroll.Input(deltaX: 25, deltaY: 2, hasPreciseDeltas: true, isDirectionInverted: false, isOptionPressed: true)
         XCTAssertEqual(WheelActionMap.action(for: optHoriz, target: .emptyBar, stripOverflows: false), .ignore)
     }
+
+    func testWidgetPageCycleWrapsForwardBackwardAndClamps() {
+        XCTAssertEqual(WidgetPageCycle.clamped(-3, count: 4), 0)
+        XCTAssertEqual(WidgetPageCycle.clamped(9, count: 4), 3)
+        XCTAssertEqual(WidgetPageCycle.clamped(2, count: 0), 0)
+
+        XCTAssertEqual(WidgetPageCycle.next(current: 0, count: 3, delta: 1), 1)
+        XCTAssertEqual(WidgetPageCycle.next(current: 2, count: 3, delta: 1), 0)
+        XCTAssertEqual(WidgetPageCycle.next(current: 0, count: 3, delta: -1), 2)
+        XCTAssertEqual(WidgetPageCycle.next(current: 5, count: 1, delta: 1), 0)
+    }
+
+    func testWidgetPageScrollEngineIgnoresMomentumAndLocksOnePagePerSwipe() {
+        var state = WidgetPageScrollEngine.State()
+
+        func precise(_ dy: CGFloat, phase: WidgetPageScrollPhase, momentum: Bool = false, t: TimeInterval = 1) -> Int? {
+            WidgetPageScrollEngine.consume(
+                WidgetPageScrollInput(deltaX: 0, deltaY: dy, hasPreciseDeltas: true,
+                                      isMomentum: momentum, phase: phase, timestamp: t),
+                state: &state
+            )
+        }
+
+        XCTAssertNil(precise(-10, phase: .began, t: 1.0))
+        XCTAssertNil(precise(-12, phase: .changed, t: 1.02))
+        // Crosses 28pt threshold -> advances +1 page and locks gesture
+        XCTAssertEqual(precise(-8, phase: .changed, t: 1.04), 1)
+        XCTAssertTrue(state.lockedForGesture)
+        // Further deltas and momentum events in the same gesture do not flip again
+        XCTAssertNil(precise(-40, phase: .changed, t: 1.06))
+        XCTAssertNil(precise(-35, phase: .changed, momentum: true, t: 1.08))
+        XCTAssertNil(precise(0, phase: .ended, t: 1.12))
+        XCTAssertFalse(state.lockedForGesture)
+
+        // Fresh upward swipe goes backward -1
+        XCTAssertNil(precise(16, phase: .began, t: 2.0))
+        XCTAssertEqual(precise(15, phase: .changed, t: 2.03), -1)
+    }
+
+    func testWidgetPageScrollEngineDiscreteWheelAppliesCooldown() {
+        var state = WidgetPageScrollEngine.State()
+
+        func discrete(_ dy: CGFloat, t: TimeInterval) -> Int? {
+            WidgetPageScrollEngine.consume(
+                WidgetPageScrollInput(deltaX: 0, deltaY: dy, hasPreciseDeltas: false,
+                                      isMomentum: false, phase: .discrete, timestamp: t),
+                state: &state
+            )
+        }
+
+        XCTAssertEqual(discrete(-1, t: 10.0), 1)
+        XCTAssertNil(discrete(-1, t: 10.10))
+        XCTAssertEqual(discrete(1, t: 10.25), -1)
+    }
 }

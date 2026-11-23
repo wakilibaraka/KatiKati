@@ -6895,3 +6895,8 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `App/Composition/AppSettingsStore.swift` & `App/Scenes/LauncherMembershipItem.swift`: persisted `appIconPreset`, `dockSpacingConfig`, and `showPinAsAppIcon` with automatic vertical-rail `.iconsOnly` default and `Keep in Dock` default menu behavior.
 - `App/Scenes/{DockStripView+Projection,DockStripView,ChipView}.swift` & `App/Entry/PanelCoordinator{+Layout,}.swift`: applied preset grouping + app-name-only pills (`appPills`), 3-stage anti-overflow dynamic compression (`DockDynamicCompressionSolver`), symmetrical icon/divider spacing, multi-window pill count badge, and live relayout subscription.
 - Verified with `WindowChipGroupingTests`, `AppMembershipMenuPlanTests`, `AppSettingsStoreTests`, `ModularDockCoreTests` (195/195 passed), `check_localization.py`, `check_debug_switches.py`, and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.
+
+### DO-7a — Pure Multi-Page Widget Cycling & Trackpad Detent Engine (landed 2026-11-23)
+
+- `Core/Support/StripWheelScroll.swift`: added `WidgetPageCycle` (`next` / `clamped`), `WidgetPageScrollPhase`, `WidgetPageScrollInput`, and phase-aware `WidgetPageScrollEngine` (28 pt trackpad detent locking 1 page per swipe, momentum ignore, discrete wheel cooldown).
+- `Tests/Unit/StripWheelScrollTests.swift`: added wrapping/clamping, trackpad swipe-lock + momentum-ignore, and discrete cooldown unit tests (7/7 passed in 0.004 s, 0 warnings). Zero `project.pbxproj` edits.
