@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1794856393.5827687,
-    "seen": 1794856528.99169,
-    "ast_hash": "30d99c41db331c25cce15a28455d7fdc",
+    "mtime": 1795446007.6563876,
+    "seen": 1795446252.0797598,
+    "ast_hash": "4b34dd4950cd4a23593a9769536962c5",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -2172,10 +2172,10 @@
     "semantic_hash": ""
   },
   "Core/Support/QuickToggles.swift": {
-    "mtime": 1791999130.7675688,
-    "seen": 1792295707.0605912,
-    "ast_hash": "4aa3d82abc10ebb16b5a24c937afbdd8",
-    "semantic_hash": "4aa3d82abc10ebb16b5a24c937afbdd8"
+    "mtime": 1795445971.520876,
+    "seen": 1795446252.080032,
+    "ast_hash": "6b09313d5695c36411fb148446d6b68a",
+    "semantic_hash": ""
   },
   "Core/Support/RadialDialGeometry.swift": {
     "mtime": 1794917298.7456903,
@@ -2898,9 +2898,9 @@
     "semantic_hash": ""
   },
   "Platform/Pinboard/QuickToggleEngine.swift": {
-    "mtime": 1794871029.117069,
-    "seen": 1794871163.914284,
-    "ast_hash": "e48f4b6ecdb06f8549ecd8a68d31da3e",
+    "mtime": 1795445980.1756353,
+    "seen": 1795446252.0801642,
+    "ast_hash": "f674c98e0e768e2b1696e5d2e0694105",
     "semantic_hash": ""
   },
   "Platform/ScreenTime/ScreenTimeController.swift": {
@@ -2928,9 +2928,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/AudioOutputSwitcher.swift": {
-    "mtime": 1792444523.3881173,
-    "seen": 1792451836.244297,
-    "ast_hash": "150a5bf029139da9a0a11bde40f763a1",
+    "mtime": 1795445985.5107613,
+    "seen": 1795446252.08017,
+    "ast_hash": "ec22768f6f5b1e28d6c602d47c1d1c3c",
     "semantic_hash": ""
   },
   "Platform/SystemStatus/BluetoothDeviceReader.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795445605.999582,
-    "seen": 1795445739.8791502,
-    "ast_hash": "b0737f2b3d7f405bf0330e3061064f84",
+    "mtime": 1795446081.0622933,
+    "seen": 1795446252.0805602,
+    "ast_hash": "6d673f9ddfc124e303bcf84957ec64d4",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6654,9 +6654,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ControlCenterScrollTests.swift": {
-    "mtime": 1792625026.8714385,
-    "seen": 1792626111.720264,
-    "ast_hash": "bf010c6b8afbf198ac66bd1a6c19531b",
+    "mtime": 1795446009.7421353,
+    "seen": 1795446252.080235,
+    "ast_hash": "6c32cff9f785498f2981d41f6e66b54d",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherPresentationTests.swift": {
@@ -7464,9 +7464,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift": {
-    "mtime": 1795018616.9256878,
-    "seen": 1795018623.8308868,
-    "ast_hash": "0706bb1d2a3364a17df451a6b330c0d8",
+    "mtime": 1795446002.5571132,
+    "seen": 1795446252.079735,
+    "ast_hash": "2ce559cc3ea193264ac9a346b91262ca",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockFriendsWidgetView.swift": {
@@ -8058,9 +8058,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CODEBASE_GAP_AND_CAPABILITY_AUDIT.md": {
-    "mtime": 1795445603.6811278,
-    "seen": 1795445739.8791418,
-    "ast_hash": "34e21dc57200da84fa63a9dd25d8de90",
+    "mtime": 1795446079.1351075,
+    "seen": 1795446252.080551,
+    "ast_hash": "0bcb9dec96482091e0d5e47341d88b08",
     "semantic_hash": ""
   }
 }
