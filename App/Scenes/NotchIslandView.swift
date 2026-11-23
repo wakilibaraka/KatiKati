@@ -97,8 +97,7 @@ struct NotchIslandView: View {
     }
 
     private var detectedMeetingPlatform: MeetingCallPlatform? {
-        let apps = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
-        return MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: apps)
+        feed.detectedMeetingPlatform
     }
 
     private func openTransition(_ style: NotchOpenAnimation) -> AnyTransition {

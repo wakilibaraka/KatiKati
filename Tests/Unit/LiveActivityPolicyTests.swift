@@ -179,4 +179,14 @@ final class LiveActivityPolicyTests: XCTestCase {
         XCTAssertNil(LiveActivityPolicy.secondary(musicOnly, after: .music))
         XCTAssertNil(LiveActivityPolicy.secondary(LiveActivitySnapshot(), after: .clock))
     }
+
+    func testIdenticalIdleSnapshotsResolveIdenticallyForChangeDeduplication() {
+        let t1 = Date(timeIntervalSince1970: 1_700_000_000)
+        let t2 = Date(timeIntervalSince1970: 1_700_000_001)
+        let first = LiveActivitySources.idle.snapshot(now: t1)
+        let second = LiveActivitySources.idle.snapshot(now: t2)
+        XCTAssertEqual(LiveActivityPolicy.resolve(first), LiveActivityPolicy.resolve(second))
+        XCTAssertEqual(LiveActivityPolicy.secondary(first, after: .clock),
+                       LiveActivityPolicy.secondary(second, after: .clock))
+    }
 }

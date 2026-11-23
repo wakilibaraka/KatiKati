@@ -1,3 +1,4 @@
+import AppKit
 import Combine
 import Foundation
 
@@ -28,6 +29,8 @@ final class LiveActivityFeed: ObservableObject {
     @Published public private(set) var activity: LiveActivity
     /// The runner-up live activity, shown as a second glyph in the closed notch (Phase 34g).
     @Published public private(set) var secondaryActivity: LiveActivity?
+    /// Cached meeting-platform detection updated on app launch/termination rather than inside `View.body`.
+    @Published public private(set) var detectedMeetingPlatform: MeetingCallPlatform?
     @Published public var isNotchExpanded = false
 
     private let nowPlaying: NowPlayingService
@@ -60,6 +63,18 @@ final class LiveActivityFeed: ObservableObject {
         self.stopwatch = stopwatch
         self.countdowns = countdowns
         self.activity = LiveActivityPolicy.resolve(LiveActivitySnapshot(now: Date()))
+        refreshMeetingPlatform()
+
+        let wsCenter = NSWorkspace.shared.notificationCenter
+        Publishers.Merge(
+            wsCenter.publisher(for: NSWorkspace.didLaunchApplicationNotification),
+            wsCenter.publisher(for: NSWorkspace.didTerminateApplicationNotification)
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] _ in
+            self?.refreshMeetingPlatform()
+        }
+        .store(in: &cancellables)
 
         // Phase 33 addition: Wire instant reactive updates when nowPlaying or any productivity source changes
         sourceChanges()
@@ -103,12 +118,19 @@ final class LiveActivityFeed: ObservableObject {
     /// Whether the tick is running (diagnostics).
     var isTicking: Bool { ticker != nil }
 
-    /// Re-read every source and republish. Also callable on demand (e.g. right before showing the
-    /// island so the first frame is already current).
+    /// Re-read every source and republish only when resolved values change.
     func refresh() {
         let snapshot = sources(at: Date()).snapshot(now: Date())
-        activity = LiveActivityPolicy.resolve(snapshot)
-        secondaryActivity = LiveActivityPolicy.secondary(snapshot, after: activity.kind)
+        let nextActivity = LiveActivityPolicy.resolve(snapshot)
+        if activity != nextActivity { activity = nextActivity }
+        let nextSecondary = LiveActivityPolicy.secondary(snapshot, after: nextActivity.kind)
+        if secondaryActivity != nextSecondary { secondaryActivity = nextSecondary }
+    }
+
+    private func refreshMeetingPlatform() {
+        let bundleIDs = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
+        let next = MeetingDetectionPolicy.detectPlatform(fromRunningBundleIDs: bundleIDs)
+        if detectedMeetingPlatform != next { detectedMeetingPlatform = next }
     }
 
     // MARK: - Transport (island capsule affordance)

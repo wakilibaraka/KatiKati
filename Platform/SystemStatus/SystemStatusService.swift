@@ -18,6 +18,7 @@ final class SystemStatusService: ObservableObject {
     private var powerSource: CFRunLoopSource?
     private var wifiClient: CWWiFiClient?
     private var wifiDelegate: WiFiEventBridge?
+    private var wifiRefreshTask: Task<Void, Never>?
     private var audioDevice = AudioObjectID(kAudioObjectUnknown)
     private var audioListenerQueue = DispatchQueue.main
     private var audioBlocks: [(AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)] = []
@@ -93,6 +94,8 @@ final class SystemStatusService: ObservableObject {
     }
 
     private func stopWiFi() {
+        wifiRefreshTask?.cancel()
+        wifiRefreshTask = nil
         try? wifiClient?.stopMonitoringAllEvents()
         wifiClient?.delegate = nil
         wifiClient = nil
@@ -100,17 +103,30 @@ final class SystemStatusService: ObservableObject {
     }
 
     private func refreshWiFi() {
-        guard let interface = wifiClient?.interface() else {
-            update { $0.wifi = .off }
-            return
-        }
-        let rssi = interface.rssiValue()
-        update {
-            $0.wifi = WiFiStatus(
-                isPoweredOn: interface.powerOn(),
-                ssid: interface.ssid(),
-                rssi: rssi == 0 ? nil : rssi
-            )
+        let delayInitial = wifiRefreshTask != nil
+        wifiRefreshTask?.cancel()
+        wifiRefreshTask = Task.detached(priority: .utility) { [weak self] in
+            if delayInitial {
+                try? await Task.sleep(nanoseconds: 150_000_000)
+                guard !Task.isCancelled else { return }
+            }
+            let nextWiFi: WiFiStatus
+            if let interface = CWWiFiClient.shared().interface() {
+                let rssi = interface.rssiValue()
+                nextWiFi = WiFiStatus(
+                    isPoweredOn: interface.powerOn(),
+                    ssid: interface.ssid(),
+                    rssi: rssi == 0 ? nil : rssi
+                )
+            } else {
+                nextWiFi = .off
+            }
+            guard !Task.isCancelled else { return }
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                self.wifiRefreshTask = nil
+                self.update { $0.wifi = nextWiFi }
+            }
         }
     }
 
