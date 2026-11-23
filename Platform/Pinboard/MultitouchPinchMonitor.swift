@@ -21,12 +21,6 @@ final class MultitouchPinchMonitor {
     private var stopFn: Stop?
     private var unregisterFn: Register?
 
-    /// Touch record layout up to the normalised position (stable for years across macOS releases).
-    private struct Touch {
-        var frame: Int32; var timestamp: Double; var path: Int32; var state: Int32; var finger: Int32; var hand: Int32
-        var x: Float; var y: Float; var vx: Float; var vy: Float
-    }
-
     @discardableResult
     func start() -> Bool {
         guard devices.isEmpty,
@@ -41,8 +35,8 @@ final class MultitouchPinchMonitor {
         Self.active = self
         let callback: Frames = { _, raw, count, _, _ in
             guard let raw, let monitor = MultitouchPinchMonitor.active else { return 0 }
-            let touches = raw.assumingMemoryBound(to: Touch.self)
-            let points = (0..<Int(count)).map { (x: Double(touches[$0].x), y: Double(touches[$0].y)) }
+            let parsed = MTTouchFrameParser.parse(raw: raw, count: Int(count))
+            let points = parsed.map { (x: $0.x, y: $0.y) }
             monitor.lock.lock()
             let fired = monitor.detector.feed(fingers: points.count, spread: PinchDetector.spread(of: points))
             monitor.lock.unlock()

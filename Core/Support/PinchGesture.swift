@@ -1,30 +1,76 @@
 import Foundation
 
+/// Parses raw 64-bit `MTTouch` records (96-byte stride) from `MultitouchSupport.framework`,
+/// filtering to active surface contacts (`makeTouch = 3`, `touching = 4`).
+enum MTTouchFrameParser {
+    static let recordStride = 96
+    static let stateOffset = 20
+    static let fingerOffset = 24
+    static let xOffset = 32
+    static let yOffset = 36
+    static let vxOffset = 40
+    static let vyOffset = 44
+    static let makeTouchState: Int32 = 3
+    static let touchingState: Int32 = 4
+
+    static func parse(raw: UnsafeRawPointer, count: Int) -> [MultitouchPoint] {
+        guard count > 0 else { return [] }
+        let limit = min(count, 32)
+        var out: [MultitouchPoint] = []
+        out.reserveCapacity(limit)
+        for index in 0..<limit {
+            let base = raw.advanced(by: index * recordStride)
+            let state = base.loadUnaligned(fromByteOffset: stateOffset, as: Int32.self)
+            guard state == makeTouchState || state == touchingState else { continue }
+            let finger = base.loadUnaligned(fromByteOffset: fingerOffset, as: Int32.self)
+            let x = Double(base.loadUnaligned(fromByteOffset: xOffset, as: Float.self))
+            let y = Double(base.loadUnaligned(fromByteOffset: yOffset, as: Float.self))
+            let vx = Double(base.loadUnaligned(fromByteOffset: vxOffset, as: Float.self))
+            let vy = Double(base.loadUnaligned(fromByteOffset: vyOffset, as: Float.self))
+            guard x.isFinite, y.isFinite, vx.isFinite, vy.isFinite else { continue }
+            out.append(MultitouchPoint(id: finger, x: x, y: y, vx: vx, vy: vy))
+        }
+        return out
+    }
+}
+
 /// Recognises a Launchpad-style pinch from raw trackpad frames (Phase 7B launcher gesture).
 /// Feed one frame per touch update; it returns true exactly once per pinch, when four or more fingers have
 /// settled and then drawn together to `shrink` of their settled spread. Lifting to two fingers or fewer re-arms it.
 struct PinchDetector {
     var minFingers = 4
-    var shrink = 0.8
+    var shrink = 0.78
+    var minBaseSpread = 0.08
+    var minAbsoluteShrink = 0.035
     var settleFrames = 4
+    var confirmFrames = 2
 
     private var lastCount = 0
     private var stable = 0
     private var base: Double?
+    private var confirmCount = 0
     private var fired = false
 
     mutating func feed(fingers: Int, spread: Double) -> Bool {
         if fingers <= 2 { reset(); fired = false; return false }
-        if fingers != lastCount { lastCount = fingers; stable = 0; base = nil }
+        if fingers != lastCount { lastCount = fingers; stable = 0; base = nil; confirmCount = 0 }
         guard fingers >= minFingers else { return false }
         stable += 1
-        if stable == settleFrames { base = spread; return false }
-        guard let base, !fired, base > 0, spread <= base * shrink else { return false }
-        fired = true
-        return true
+        if stable == settleFrames { base = spread; confirmCount = 0; return false }
+        guard let base, !fired, base >= minBaseSpread else { return false }
+        if spread <= base * shrink && (base - spread) >= minAbsoluteShrink {
+            confirmCount += 1
+            if confirmCount >= confirmFrames {
+                fired = true
+                return true
+            }
+            return false
+        }
+        confirmCount = 0
+        return false
     }
 
-    private mutating func reset() { lastCount = 0; stable = 0; base = nil }
+    private mutating func reset() { lastCount = 0; stable = 0; base = nil; confirmCount = 0 }
 
     /// Mean distance of the touch points from their centre (normalised trackpad units).
     static func spread(of points: [(x: Double, y: Double)]) -> Double {

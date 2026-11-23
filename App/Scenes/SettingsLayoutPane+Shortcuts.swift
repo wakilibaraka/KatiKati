@@ -1421,7 +1421,7 @@ private struct GestureBindingRow: View {
 
     private func actionMenu(title: String, set: @escaping (GestureActionTarget) -> Void) -> some View {
         Menu {
-            ForEach(GestureActionTarget.allCases) { action in
+            ForEach(GestureActionTarget.allCases.filter { GestureRouter.allows(kind: kind, target: $0) }) { action in
                 Button(gestureActionTitle(action)) { set(action) }
             }
         } label: {
