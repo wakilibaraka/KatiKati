@@ -936,7 +936,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     on ? .doubleTap(.leftCommand) : ShortcutAction.launcher.defaultTrigger)
             },
             clipboardToastEnabled: ClipboardToastDefaults.isEnabled(),
-            onSetClipboardToast: { on in UserDefaults.standard.set(on, forKey: ClipboardMonitor.notchToastKey) }
+            onSetClipboardToast: { on in UserDefaults.standard.set(on, forKey: ClipboardMonitor.notchToastKey) },
+            initialAppIconPreset: settingsStore.appIconPreset,
+            onPickAppIconPreset: { [weak self] preset in self?.settingsStore.setAppIconPreset(preset) },
+            initialTrailingCapsule: settingsStore.dockSlotLayout.trailingCapsule,
+            onPickTrailingCapsule: { [weak self] item in self?.settingsStore.setTrailingCapsule(item) }
         )
         let content = WelcomeGuideWindowContent(
             layout: layoutContext,

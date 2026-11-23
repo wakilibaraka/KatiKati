@@ -123,6 +123,11 @@ struct WelcomeGuideLayoutContext {
     var onSetLauncherDoubleTap: (Bool) -> Void = { _ in }
     var clipboardToastEnabled = ClipboardToastDefaults.enabledByDefault
     var onSetClipboardToast: (Bool) -> Void = { _ in }
+    /// DO-9: modular App Icon preset & Detached Capsule slot pickers.
+    var initialAppIconPreset: AppIconPresentationPreset = .appPills
+    var onPickAppIconPreset: (AppIconPresentationPreset) -> Void = { _ in }
+    var initialTrailingCapsule: DockSlotItem? = .controlCenter
+    var onPickTrailingCapsule: (DockSlotItem?) -> Void = { _ in }
 }
 
 struct WelcomeGuideView: View {
@@ -135,6 +140,8 @@ struct WelcomeGuideView: View {
     @State private var pickedMode: BarLayoutMode?
     @State private var pickedStyleID: String?
     @State private var pickedPlacement: StripPlacement?
+    @State private var pickedAppIconPreset: AppIconPresentationPreset?
+    @State private var pickedTrailingCapsule: DockSlotItem??
     @State private var cityQuery = ""
     @State private var cityResults: [SavedCity] = []
     @State private var pickedCity: WeatherLocationSelection?
@@ -226,6 +233,23 @@ struct WelcomeGuideView: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+            HStack(spacing: 8) {
+                Text("App Icons")
+                    .font(.callout.weight(.medium))
+                Spacer(minLength: 8)
+                Picker("App Icons", selection: Binding(
+                    get: { pickedAppIconPreset ?? layout.initialAppIconPreset },
+                    set: { picked in
+                        pickedAppIconPreset = picked
+                        layout.onPickAppIconPreset(picked)
+                    }
+                )) {
+                    ForEach(AppIconPresentationPreset.allCases) { preset in
+                        Text(verbatim: preset.localizedTitle).tag(preset)
+                    }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
             Divider()
             HStack(spacing: 8) {
                 Spacer()
@@ -272,6 +296,26 @@ struct WelcomeGuideView: View {
             HStack(spacing: 12) {
                 wingPicker(label: Text("Left Wing"), placement: .leftWing, current: currentWings.left.preset)
                 wingPicker(label: Text("Right Wing"), placement: .rightWing, current: currentWings.right.preset)
+            }
+            HStack(spacing: 8) {
+                Text("Detached Capsule")
+                    .font(.callout.weight(.medium))
+                Spacer(minLength: 8)
+                Picker("Detached Capsule", selection: Binding<DockSlotItem?>(
+                    get: { pickedTrailingCapsule ?? layout.initialTrailingCapsule },
+                    set: { picked in
+                        pickedTrailingCapsule = picked
+                        layout.onPickTrailingCapsule(picked)
+                    }
+                )) {
+                    Text(DockSlotItem.controlCenter.title).tag(DockSlotItem?.some(.controlCenter))
+                    Text(DockSlotItem.backgroundApps.title).tag(DockSlotItem?.some(.backgroundApps))
+                    Text(DockSlotItem.trash.title).tag(DockSlotItem?.some(.trash))
+                    Text(DockSlotItem.launcher.title).tag(DockSlotItem?.some(.launcher))
+                    Text(DockSlotItem.shelf.title).tag(DockSlotItem?.some(.shelf))
+                    Text("Off").tag(DockSlotItem?.none)
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
             }
             Divider()
             // The city is asked for here: a fresh bar used to show an empty "Add City" pill.

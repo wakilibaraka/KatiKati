@@ -6932,3 +6932,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 - `App/Scenes/SettingsLayoutPane{.swift,+Widgets.swift}`: added `.barWidgets` mode moving widget catalog/reorder/presets & FAB style onto `Bar Widgets`, streamlined `Dock Layout` around `Detached Capsule`, `Background & Activity Icon`, modular `Dock Slots` and utilities while removing duplicate wing pickers and obsolete Drawer row.
 - `App/Scenes/{WidgetLookSettingsBlock,SettingsWindowView,UtilitySettingsBlock}.swift`: split `WidgetWingsSettingsBlock` cleanly from `WidgetLookSettingsBlock`, added `AppIconsSettingsBlock` (5 instance presets, spacing sliders, dynamic compression toggle, App Groups controls, hover/indicator feedback, and Pin-as-App-Icon toggle), and removed dead `DrawerSettingsBlock`. Zero `project.pbxproj` edits.
+
+### DO-9c — Onboarding App Icon Style & Detached Capsule Modularity Pickers (landed 2026-11-23)
+
+- `App/Scenes/WelcomeGuideView.swift` & `App/Entry/AppDelegate.swift`: added live-applying `App Icons` preset picker (`layoutStep`) and modular `Detached Capsule` picker (`widgetsStep`) backed by `AppSettingsStore`. Zero `project.pbxproj` edits.
