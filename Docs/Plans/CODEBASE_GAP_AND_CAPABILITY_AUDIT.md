@@ -6,6 +6,36 @@
 
 ---
 
+## Live Progress Tracker
+
+### Batch 1 — Correctness & Idle-CPU Fixes
+- [x] **Quick Win #9 / Slice 1.2** — Idle timers & shared `SystemMonitorController` (`cf03222f`)
+- [x] **Quick Win #8 / Slice 1.3 (ZIP)** — Multi-file `ditto` staging fix (`4e18742c`)
+- [x] **Quick Win #7 / Slice 1.3 (DropClip / CommandBar)** — Toggle, `AVSpeechSynthesizer` retention & `"wifipw"` (`091c339c`)
+
+### Batch 2 — Broken-UI & Live-Readout Polish
+- [x] **Quick Win #1 / Slice 1.1** — Menu bar network speed, `.menuBar` deep-link & Drive Eject/events (`a2a7f546`)
+- [x] **Quick Win #5 / Slice 2.3 (Clipboard)** — `⌘1`–`⌘9` paste & `Work` category (`09c73eeb`)
+- [x] **Quick Win #2 / Slice 2.1** — Battery cycles/health/ETA, IOHID toggle, Disk I/O & top processes (`ae014e00`)
+
+### Batch 3 — High-ROI Feature Unlocks
+- [ ] **Quick Win #4 / Slice 2.3 (Shelf)** — Vision Background Removal & Transform Parity
+- [ ] **Quick Win #10 / Slice 4.4 (Snap)** — Hold `⌥` During Drag-to-Edge for Thirds Snapping
+- [ ] **Quick Win #6 / Slice 2.4** — Control Centre Mic Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu
+- [ ] **Quick Win #3 / Slice 2.2** — Weather Warnings, Moon Phase & Desktop Weather Units
+
+### Remaining Wave 3 & Wave 4 Architecture Slices
+- [ ] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export
+- [ ] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page
+- [ ] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView`
+- [ ] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls
+- [ ] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration
+- [ ] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting
+- [ ] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases
+- [ ] **Slice 4.4 (Remaining)** — Persistent `WindowLayoutMemory` & Per-Window Float/Retile Shortcuts
+
+---
+
 ## Behavior-Frozen Files (Do Not Touch)
 
 Per `STANDING_RULES.md` §2.3 and `CLAUDE.md`, the following five files are behavior-frozen and **must remain untouched** across every slice in this plan unless an explicit bug ticket names them:
@@ -246,37 +276,37 @@ Every slice below obeys all repository gates:
 
 ### Wave 1: Zero-Idle-CPU Fixes & Broken Live Readout Repairs
 
-#### Slice 1.1 — Fix Menu Bar Network Throughput Stat & Deep-Link Menu Bar Settings (Pillar 3)
-- **Effort:** `S` | **User Impact:** `High`
+#### [x] DONE — `a2a7f546` · Slice 1.1 — Fix Menu Bar Network Throughput Stat & Deep-Link Menu Bar Settings (Pillar 3)
+- **Effort:** `S` | **User Impact:** `High` | **Status:** `[x] DONE — a2a7f546`
 - **Reused Modules:** `Core/Support/MenuBarStatModel.swift:82-148`, `App/Composition/MenuBarSystemItem.swift:65-120`, `App/Composition/DriveMenuBarItem.swift:85-88`, `Tests/Unit/MenuBarStatsTests.swift`
 - **Scope:**
-  1. Update `MenuBarStatModel.statusText(metric: .network, ...)` (`Core/Support/MenuBarStatModel.swift:82-129`) to format compact `↓/↑` throughput (`SystemMonitorFormat.bytes(values.down) + "/s"`) and return `[.text]` (or `.percentage`) in `styles(for: .network)` so the Network menu bar item shows live speed instead of `"–"`.
-  2. Update `MenuBarSystemItem.openSettings()` (`App/Composition/MenuBarSystemItem.swift:117`) and `DriveMenuBarItem.openSettings()` (`App/Composition/DriveMenuBarItem.swift:86`) to call `openSettings(selecting: .menuBar)`.
-  3. Replace `DriveMenuBarItem`'s 10s polling timer (`App/Composition/DriveMenuBarItem.swift:36-38`) with `NSWorkspace.didMountNotification` / `didUnmountNotification` observers plus a refresh in `menuNeedsUpdate(_:)` (`L63`), and add an Eject menu item for removable drives.
+  1. [x] Update `MenuBarStatModel.statusText(metric: .network, ...)` (`Core/Support/MenuBarStatModel.swift:82-129`) to format compact `↓/↑` throughput (`SystemMonitorFormat.bytes(values.down) + "/s"`) and return `[.text]` (or `.percentage`) in `styles(for: .network)` so the Network menu bar item shows live speed instead of `"–"`.
+  2. [x] Update `MenuBarSystemItem.openSettings()` (`App/Composition/MenuBarSystemItem.swift:117`) and `DriveMenuBarItem.openSettings()` (`App/Composition/DriveMenuBarItem.swift:86`) to call `openSettings(selecting: .menuBar)`.
+  3. [x] Replace `DriveMenuBarItem`'s 10s polling timer (`App/Composition/DriveMenuBarItem.swift:36-38`) with `NSWorkspace.didMountNotification` / `didUnmountNotification` observers plus a refresh in `menuNeedsUpdate(_:)` (`L63`), and add an Eject menu item for removable drives.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/MenuBarStatsTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 1.2 — Eliminate Unconditional Idle Timers in `HydrationController`, `NutritionController` & `QuitOnLastWindowService` (Pillars 4, 11, 13)
-- **Effort:** `S` | **User Impact:** `High`
+#### [x] DONE — `cf03222f` · Slice 1.2 — Eliminate Unconditional Idle Timers in `HydrationController`, `NutritionController` & `QuitOnLastWindowService` (Pillars 4, 11, 13)
+- **Effort:** `S` | **User Impact:** `High` | **Status:** `[x] DONE — cf03222f`
 - **Reused Modules:** `Core/Support/HydrationController.swift:77, 261-284`, `Core/Support/NutritionController.swift:108, 195-209`, `App/Composition/QuitOnLastWindowService.swift:85-87, 154-220`, `Platform/SystemMonitor/SystemMonitorController.swift:7`, `App/Composition/DockWidgetFeeds.swift:52`, `App/Composition/DockTelemetryFeed.swift:13`
 - **Scope:**
-  1. Add ref-counted `retain()` / `release()` (or `setActive(_:)`) to `HydrationController` and `NutritionController` so their 1 Hz timers only run while a Hydration or Nutrition view is mounted, stopping at 0 Hz at rest.
-  2. In `QuitOnLastWindowService` (`App/Composition/QuitOnLastWindowService.swift:85-87, 154-158`), only arm `idleTimer` when `idleThresholdSeconds > 0`, and pass `isAgentWorking: AgentUsageService.shared.snapshot.activeTurn?.isActive == true` into `evaluateIdleApps()`.
-  3. Add `static let shared = SystemMonitorController()` (`Platform/SystemMonitor/SystemMonitorController.swift:8`) and point `ProductivityServices.shared.systemMonitor`, `DockSystemFeed`, and `DockTelemetryFeed` to `SystemMonitorController.shared`.
+  1. [x] Add ref-counted `retain()` / `release()` (or `setActive(_:)`) to `HydrationController` and `NutritionController` so their 1 Hz timers only run while a Hydration or Nutrition view is mounted, stopping at 0 Hz at rest.
+  2. [x] In `QuitOnLastWindowService` (`App/Composition/QuitOnLastWindowService.swift:85-87, 154-158`), only arm `idleTimer` when `idleThresholdSeconds > 0`, and pass `isAgentWorking: AgentUsageService.shared.snapshot.activeTurn?.isActive == true` into `evaluateIdleApps()`.
+  3. [x] Add `static let shared = SystemMonitorController()` (`Platform/SystemMonitor/SystemMonitorController.swift:8`) and point `ProductivityServices.shared.systemMonitor`, `DockSystemFeed`, and `DockTelemetryFeed` to `SystemMonitorController.shared`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/QuitOnLastWindowTests -only-testing:KatiKatiTests/SystemMonitorMathTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 1.3 — Fix DropClip Selection Pill Toggle, Speech Retention & Command Bar `"wifipw"` / Multi-File ZIP (Pillar 5)
-- **Effort:** `S` | **User Impact:** `High`
+#### [x] DONE — `4e18742c` & `091c339c` · Slice 1.3 — Fix DropClip Selection Pill Toggle, Speech Retention & Command Bar `"wifipw"` / Multi-File ZIP (Pillar 5)
+- **Effort:** `S` | **User Impact:** `High` | **Status:** `[x] DONE — 4e18742c (ZIP) & 091c339c (DropClip/CommandBar)`
 - **Reused Modules:** `Core/Support/Translate.swift:121, 144-163`, `App/Entry/TranslatePanelController.swift:20-83`, `App/Scenes/CommandBarView.swift:61-65, 529`, `Platform/Desktop/DesktopFileOperations.swift:168-190`
 - **Scope:**
-  1. Check `DropClipPolicy.isEnabled(defaults:)` in `TranslatePanelController.toggleSelection()` (`App/Entry/TranslatePanelController.swift:20-28`); retain `private let speechSynthesizer = AVSpeechSynthesizer()` on `TranslatePanelController` (`L69-73`); wire `.AI` to pass selected text into `CommandBarView`.
-  2. Fix `CommandBarModel.generateValue` (`App/Scenes/CommandBarView.swift:62`) to check `CommandGenerator.match(query) == .wifiPassword` (`"wifipw"`), and pass `clipboard` + `selection` into `QuicklinkValues` at `L529`.
-  3. Fix `DesktopFileOperations.compressToZip(urls:)` (`Platform/Desktop/DesktopFileOperations.swift:178-185`) to pass all input paths plus `archiveURL.path` in a single `ditto -c -k --sequesterRsrc --keepParent` invocation.
+  1. [x] Check `DropClipPolicy.isEnabled(defaults:)` in `TranslatePanelController.toggleSelection()` (`App/Entry/TranslatePanelController.swift:20-28`); retain `private let speechSynthesizer = AVSpeechSynthesizer()` on `TranslatePanelController` (`L69-73`); wire `.AI` to pass selected text into `CommandBarView`. (`091c339c`)
+  2. [x] Fix `CommandBarModel.generateValue` (`App/Scenes/CommandBarView.swift:62`) to check `CommandGenerator.match(query) == .wifiPassword` (`"wifipw"`), and pass `clipboard` + `selection` into `QuicklinkValues` at `L529`. (`091c339c`)
+  3. [x] Fix `DesktopFileOperations.compressToZip(urls:)` (`Platform/Desktop/DesktopFileOperations.swift:178-185`) to stage and archive all input paths in a single `ditto -c -k --sequesterRsrc --keepParent` invocation. (`4e18742c`)
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/TranslateTests -only-testing:KatiKatiTests/CommandBarTests -only-testing:KatiKatiTests/QuicklinkTemplateTests && python3 Scripts/check_localization.py
@@ -286,49 +316,49 @@ Every slice below obeys all repository gates:
 
 ### Wave 2: High-Yield Backend Capabilities Exposed in UI
 
-#### Slice 2.1 — Expose Battery Cycle Count, Health %, Time Remaining & Disk I/O / Top Processes (Pillar 13)
-- **Effort:** `S` | **User Impact:** `High`
+#### [x] DONE — `ae014e00` · Slice 2.1 — Expose Battery Cycle Count, Health %, Time Remaining & Disk I/O / Top Processes (Pillar 13)
+- **Effort:** `S` | **User Impact:** `High` | **Status:** `[x] DONE — ae014e00`
 - **Reused Modules:** `Core/Support/SystemMonitorMath.swift:141-201`, `Core/Support/PowerFacts.swift:7-57`, `Platform/SystemStatus/SystemHealthReaders.swift:9-76`, `App/Composition/DockTelemetryFeed.swift:107-124`, `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:435-624`, `App/Scenes/Edge/SystemMonitorFlyoutView.swift:24-60`
 - **Scope:**
-  1. Add `batteryCycleCount: Int?`, `batteryHealthPercent: Int?`, and `batterySecondsRemaining: Int?` to `DockTelemetryState` (`Core/Support/DockWingModels.swift:455-475`) and populate them in `DockTelemetryFeed.refreshTemperature()` (`App/Composition/DockTelemetryFeed.swift:111-123`) from `BatteryHealthReader.read()` and `SystemMonitorSampler.battery()`.
-  2. Display cycle count, health percentage, and formatted time remaining (`PowerFacts.durationText`) in `BatteryPeripheralsPopoverCard` and `DockTelemetryPreviewCard` (`App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:466-470, 548-561`), plus an opt-in toggle for Apple Silicon SoC temperature (`com.katikati.dockII.telemetryIOHIDEnabled`).
-  3. Add Disk Read/Write throughput (`s.diskRead` / `s.diskWrite`) and top 3 CPU processes (`TopProcessReader.read(limit: 3)`) to `SystemMonitorFlyoutView` (`App/Scenes/Edge/SystemMonitorFlyoutView.swift:27-34`).
+  1. [x] Add `batteryCycleCount: Int?`, `batteryHealthPercent: Int?`, and `batterySecondsRemaining: Int?` to `DockTelemetryState` (`Core/Support/DockWingModels.swift:455-475`) and populate them in `DockTelemetryFeed.refreshTemperature()` (`App/Composition/DockTelemetryFeed.swift:111-123`) from `BatteryHealthReader.read()` and `SystemMonitorSampler.battery()`.
+  2. [x] Display cycle count, health percentage, and formatted time remaining (`PowerFacts.durationText`) in `BatteryPeripheralsPopoverCard` and `DockTelemetryPreviewCard` (`App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:466-470, 548-561`), plus an opt-in toggle for Apple Silicon SoC temperature (`com.katikati.dockII.telemetryIOHIDEnabled`).
+  3. [x] Add Disk Read/Write throughput (`s.diskRead` / `s.diskWrite`) and top 3 CPU processes (`TopProcessReader.read(limit: 3)`) to `SystemMonitorFlyoutView` (`App/Scenes/Edge/SystemMonitorFlyoutView.swift:27-34`).
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/PowerFactsTests -only-testing:KatiKatiTests/PinboardTests -only-testing:KatiKatiTests/DockWingModelsTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 2.2 — Cross-Surface Weather Parity: Severe Warnings, Moon Phase & Desktop Weather Units (Pillar 6)
+#### [ ] Slice 2.2 — Cross-Surface Weather Parity: Severe Warnings, Moon Phase & Desktop Weather Units (Pillar 6)
 - **Effort:** `S` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/WeatherDetail.swift:114-141`, `Core/Support/WeatherWarnings.swift:52`, `App/Scenes/Weather/WeatherModernPanel.swift:60-138`, `App/Scenes/Weather/WeatherFullScreenView.swift:56-192`, `App/Scenes/Weather/WeatherDetailViews.swift:215-237`, `App/Scenes/Desktop/DesktopWeatherBoxView.swift:7-39`
 - **Scope:**
-  1. Render `WarningsTile` (`WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())`) in `WeatherModernPanel` (`App/Scenes/Weather/WeatherModernPanel.swift:62`) and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherFullScreenView.swift:58`).
-  2. Add a `MoonPhase` card (`MoonPhase.symbolName(at:)`, `MoonPhase.illumination(at:)`) to `DetailGrid` (`App/Scenes/Weather/WeatherDetailViews.swift:224-236`) and `WeatherFullScreenView.tiles` (`App/Scenes/Weather/WeatherFullScreenView.swift:167-192`).
-  3. Update `DesktopWeatherBoxView` (`App/Scenes/Desktop/DesktopWeatherBoxView.swift:7-39`) to use `@AppStorage(WeatherUnits.temperatureKey)` (`WeatherUnits.degrees`) and add city prev/next buttons when `service.locations.count > 1`.
+  1. [ ] Render `WarningsTile` (`WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())`) in `WeatherModernPanel` (`App/Scenes/Weather/WeatherModernPanel.swift:62`) and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherFullScreenView.swift:58`).
+  2. [ ] Add a `MoonPhase` card (`MoonPhase.symbolName(at:)`, `MoonPhase.illumination(at:)`) to `DetailGrid` (`App/Scenes/Weather/WeatherDetailViews.swift:224-236`) and `WeatherFullScreenView.tiles` (`App/Scenes/Weather/WeatherFullScreenView.swift:167-192`).
+  3. [ ] Update `DesktopWeatherBoxView` (`App/Scenes/Desktop/DesktopWeatherBoxView.swift:7-39`) to use `@AppStorage(WeatherUnits.temperatureKey)` (`WeatherUnits.degrees`) and add city prev/next buttons when `service.locations.count > 1`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WeatherDetailTests -only-testing:KatiKatiTests/WeatherWarningsTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 2.3 — Shelf Vision Background Removal & Transform Parity + Clipboard `⌘1`–`⌘9` & `Work` Category (Pillars 4 & 5)
-- **Effort:** `M` | **User Impact:** `High`
+#### [ ] Slice 2.3 — Shelf Vision Background Removal & Transform Parity + Clipboard `⌘1`–`⌘9` & `Work` Category (Pillars 4 & 5)
+- **Effort:** `M` | **User Impact:** `High` | **Status:** `Clipboard [x] DONE — 09c73eeb · Shelf [ ] Pending`
 - **Reused Modules:** `App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:128-211, 475-502`, `Core/Support/ClipboardHistory.swift:4-19`, `Core/Support/ClipboardPlus.swift:79-106`, `Platform/Clipboard/ClipboardMonitor.swift:110-185`, `App/Scenes/Edge/ClipboardFlyoutView.swift:61-74, 149-198`
 - **Scope:**
-  1. Add a **Remove Background** button (`ShelfActions.removeBackground`) to `ShelfGridPopupView` (`floatingTransformBar`, `selectionBar`, and `shelfMenuItems` when selection contains images), and expose `Merge PDF` + `Convert` in compact-grid `selectionBar` and `shelfMenuItems`.
-  2. Add `var originBundleID: String? = nil` to `ClipEntry` (`Core/Support/ClipboardHistory.swift:4-19`), capture `NSWorkspace.shared.frontmostApplication?.bundleIdentifier` in `ClipboardMonitor.poll()` (`Platform/Clipboard/ClipboardMonitor.swift:148-185`), and pass `entry.originBundleID` + a default work bundle ID set to `ClipboardCardMetadata.classify` in `ClipboardFlyoutView.swift:184`.
-  3. Handle `⌘1`–`⌘9` in `ClipboardFlyoutView.handleKey(_:)` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-164`) to paste the corresponding `MaccyPinShortcutAssigner` slot.
+  1. [ ] Add a **Remove Background** button (`ShelfActions.removeBackground`) to `ShelfGridPopupView` (`floatingTransformBar`, `selectionBar`, and `shelfMenuItems` when selection contains images), and expose `Merge PDF` + `Convert` in compact-grid `selectionBar` and `shelfMenuItems`.
+  2. [x] DONE — `09c73eeb`: Add `var originBundleID: String? = nil` to `ClipEntry` (`Core/Support/ClipboardHistory.swift:4-19`), capture `NSWorkspace.shared.frontmostApplication?.bundleIdentifier` in `ClipboardMonitor.poll()` (`Platform/Clipboard/ClipboardMonitor.swift:148-185`), and pass `entry.originBundleID` + a default work bundle ID set to `ClipboardCardMetadata.classify` in `ClipboardFlyoutView.swift:184`.
+  3. [x] DONE — `09c73eeb`: Handle `⌘1`–`⌘9` in `ClipboardFlyoutView.handleKey(_:)` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-164`) to paste the corresponding `MaccyPinShortcutAssigner` slot.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/ClipboardHistoryTests -only-testing:KatiKatiTests/ClipboardPlusTests -only-testing:KatiKatiTests/PDFReducePlanTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 2.4 — Control Centre Audio Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (Pillar 7)
+#### [ ] Slice 2.4 — Control Centre Audio Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (Pillar 7)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:20, 48, 74-75, 239-265`, `Core/Support/QuickToggles.swift:61-100`, `App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`
 - **Scope:**
-  1. Add an **Input (Microphone)** section to `AudioOutputMenu.populate` (`Platform/SystemStatus/AudioOutputSwitcher.swift:58-76`) using `AudioOutputSwitcher.devices(input: true)` and `setDefault(id, input: true)`.
-  2. Render a Keyboard Backlight slider in `DockControlCenterSliderCard` (`App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`) when `KeyboardBacklight.isAvailable` is true.
-  3. Save actual current input volume into `QuickToggleEngine.micPrevious` (`Platform/Pinboard/QuickToggleEngine.swift:74-75`) before mutating input volume to `0`, and add a context menu on the `.vpn` pill listing all services from `VPNServiceParser.list()`.
+  1. [ ] Add an **Input (Microphone)** section to `AudioOutputMenu.populate` (`Platform/SystemStatus/AudioOutputSwitcher.swift:58-76`) using `AudioOutputSwitcher.devices(input: true)` and `setDefault(id, input: true)`.
+  2. [ ] Render a Keyboard Backlight slider in `DockControlCenterSliderCard` (`App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`) when `KeyboardBacklight.isAvailable` is true.
+  3. [ ] Save actual current input volume into `QuickToggleEngine.micPrevious` (`Platform/Pinboard/QuickToggleEngine.swift:74-75`) before mutating input volume to `0`, and add a context menu on the `.vpn` pill listing all services from `VPNServiceParser.list()`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/QuickTogglesTests -only-testing:KatiKatiTests/ControlCenterLayoutTests && python3 Scripts/check_localization.py
@@ -338,49 +368,49 @@ Every slice below obeys all repository gates:
 
 ### Wave 3: Real Data Wiring for Tracking, Storage, Notch & Notes
 
-#### Slice 3.1 — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export (Pillar 11)
+#### [ ] Slice 3.1 — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export (Pillar 11)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/AgentUsage/AgentUsageModels.swift:181-299`, `App/Composition/AgentUsageService.swift:138-336`, `App/Scenes/Notch/NotchAIPageView.swift:115-125`, `Core/Support/ScreenTime.swift:6-57`, `App/Scenes/Edge/ScreenTimeViews.swift:65-90`, `Core/Support/SettingsBackup.swift:233-238`
 - **Scope:**
-  1. Compute real `activeDuration`, 7-day daily cost/token totals (`weeklyHeatmap`), and consecutive active `streakDays` in `AgentUsageService.refreshAsync()` (`App/Composition/AgentUsageService.swift:138-336`), storing them on `AgentUsageSnapshot`.
-  2. Replace the hardcoded `activeDuration: 3600, linesAdded: 120, linesDeleted: 24, streakDays: 3` in `NotchAIPageView.swift:115-125` with the real values from `snapshot`.
-  3. Add `"screen-time.json"` and `"profiles.json"` to `SettingsBackupService.applicationSupportFiles` (`Core/Support/SettingsBackup.swift:233-238`), and add an **Export JSON/CSV…** button in `ScreenTimeFlyoutView` (`App/Scenes/Edge/ScreenTimeViews.swift:82`).
+  1. [ ] Compute real `activeDuration`, 7-day daily cost/token totals (`weeklyHeatmap`), and consecutive active `streakDays` in `AgentUsageService.refreshAsync()` (`App/Composition/AgentUsageService.swift:138-336`), storing them on `AgentUsageSnapshot`.
+  2. [ ] Replace the hardcoded `activeDuration: 3600, linesAdded: 120, linesDeleted: 24, streakDays: 3` in `NotchAIPageView.swift:115-125` with the real values from `snapshot`.
+  3. [ ] Add `"screen-time.json"` and `"profiles.json"` to `SettingsBackupService.applicationSupportFiles` (`Core/Support/SettingsBackup.swift:233-238`), and add an **Export JSON/CSV…** button in `ScreenTimeFlyoutView` (`App/Scenes/Edge/ScreenTimeViews.swift:82`).
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/AgentUsageTests -only-testing:KatiKatiTests/ScreenTimeTests -only-testing:KatiKatiTests/SettingsBackupTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 3.2 — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (Pillar 12)
+#### [ ] Slice 3.2 — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (Pillar 12)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/StorageScanMath.swift:141-215`, `App/Composition/CleanerService.swift:8-67`, `App/Scenes/Notch/NotchStoragePageView.swift:57-148`
 - **Scope:**
-  1. Add `CleanerService.scanLeftovers(forAppAt appURL: URL, completion:)` (or orphaned `~/Library` scan against installed apps in `/Applications` and `~/Applications`) using `AppLeftoverScanPlan.candidatePaths(home:existingPaths:bundleID:appName:)` (`Core/Support/StorageScanMath.swift:205-214`).
-  2. Replace the hardcoded `"com.spotify.client"` / `"Spotify"` alert in `NotchStoragePageView.reviewLeftovers` (`App/Scenes/Notch/NotchStoragePageView.swift:93-110`) with an `NSOpenPanel` `.app` picker (or automatic orphaned-leftover list) and a review-first `Move to Trash` confirmation backed by `CleanerService.clean(_:)`.
-  3. Add a right-click context menu (`Reveal in Finder`, `Move to Trash`, `Copy Path`) to rows in `NotchStoragePageView.rows(_:)` (`L57-79`).
+  1. [ ] Add `CleanerService.scanLeftovers(forAppAt appURL: URL, completion:)` (or orphaned `~/Library` scan against installed apps in `/Applications` and `~/Applications`) using `AppLeftoverScanPlan.candidatePaths(home:existingPaths:bundleID:appName:)` (`Core/Support/StorageScanMath.swift:205-214`).
+  2. [ ] Replace the hardcoded `"com.spotify.client"` / `"Spotify"` alert in `NotchStoragePageView.reviewLeftovers` (`App/Scenes/Notch/NotchStoragePageView.swift:93-110`) with an `NSOpenPanel` `.app` picker (or automatic orphaned-leftover list) and a review-first `Move to Trash` confirmation backed by `CleanerService.clean(_:)`.
+  3. [ ] Add a right-click context menu (`Reveal in Finder`, `Move to Trash`, `Copy Path`) to rows in `NotchStoragePageView.rows(_:)` (`L57-79`).
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/StorageScanMathTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 3.3 — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (Pillar 4)
+#### [ ] Slice 3.3 — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (Pillar 4)
 - **Effort:** `S` | **User Impact:** `Med`
 - **Reused Modules:** `Platform/Notes/NotesController.swift:19, 48, 65, 107`, `App/Scenes/Edge/NoteSheetView.swift:24-120`
 - **Scope:**
-  1. Add an editable title `TextField` in `NoteSheetView` (`App/Scenes/Edge/NoteSheetView.swift:63-89`) wired to `NotesController.edit(id:title:body:)` (`Platform/Notes/NotesController.swift:65`).
-  2. Add an Archive/Unarchive button (`controller.setArchived(id:_:)`, `L107`) and an `Active / Archived` filter toggle in the note list header.
-  3. Surface `controller.lastError` (`L19, 48`) as a non-intrusive warning banner when an encrypted `.note` file could not be read.
+  1. [ ] Add an editable title `TextField` in `NoteSheetView` (`App/Scenes/Edge/NoteSheetView.swift:63-89`) wired to `NotesController.edit(id:title:body:)` (`Platform/Notes/NotesController.swift:65`).
+  2. [ ] Add an Archive/Unarchive button (`controller.setArchived(id:_:)`, `L107`) and an `Active / Archived` filter toggle in the note list header.
+  3. [ ] Surface `controller.lastError` (`L19, 48`) as a non-intrusive warning banner when an encrypted `.note` file could not be read.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/NotesTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 3.4 — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls (Pillar 2)
+#### [ ] Slice 3.4 — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls (Pillar 2)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `App/Composition/IslandLiveBridge.swift:16, 29, 44, 72-106`, `Core/Support/LiveEventDetector.swift:16-43`, `Core/Support/NotchBehavior.swift:188-395`, `App/Scenes/LiveIslandSettingsBlock.swift:220-550`
 - **Scope:**
-  1. Subscribe `IslandLiveBridge.start()` (`App/Composition/IslandLiveBridge.swift:72-106`) to `cameraService.$isMirrored` to post/end `ActivityID.camera`.
-  2. Feed severe weather warnings (`WeatherWarningEngine.warnings`) and due alarms/imminent meetings (`AlarmStore` / `CalendarService`) into `LiveEventDetector` / `LiveEventCenter`.
-  3. Add Settings controls in `LiveIslandSettingsBlock.swift` to toggle `DeferredFocusQueue` focus deferral and reset `SuggestionBackoffTracker`, and localize remaining `Text(verbatim:)` section headers.
+  1. [ ] Subscribe `IslandLiveBridge.start()` (`App/Composition/IslandLiveBridge.swift:72-106`) to `cameraService.$isMirrored` to post/end `ActivityID.camera`.
+  2. [ ] Feed severe weather warnings (`WeatherWarningEngine.warnings`) and due alarms/imminent meetings (`AlarmStore` / `CalendarService`) into `LiveEventDetector` / `LiveEventCenter`.
+  3. [ ] Add Settings controls in `LiveIslandSettingsBlock.swift` to toggle `DeferredFocusQueue` focus deferral and reset `SuggestionBackoffTracker`, and localize remaining `Text(verbatim:)` section headers.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/NotchBehaviorTests -only-testing:KatiKatiTests/LiveEventDetectorTests && python3 Scripts/check_localization.py
@@ -390,48 +420,48 @@ Every slice below obeys all repository gates:
 
 ### Wave 4: Architecture Unification (Dock Profiles, Widget Surfaces, Wallpaper & Window Management)
 
-#### Slice 4.1 — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (Pillar 1)
+#### [ ] Slice 4.1 — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (Pillar 1)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/BarProfile.swift:10-43`, `App/Composition/BarProfileService.swift:14-124`, `Core/Support/BarSection.swift:600, 709`, `App/Scenes/SettingsLayoutPane+Widgets.swift:80-215`, `App/Entry/StatusMenuController.swift:763-781`, `App/Scenes/WelcomeGuideView.swift:202, 264-295`
 - **Scope:**
-  1. Extend `BarProfile` (`Core/Support/BarProfile.swift:10-21`) with optional `dockSlotLayout: DockSlotLayout?` and `dockWings: DockWingsConfiguration?`, and record the active preset/slot state in `BarProfileService.currentState()` (`App/Composition/BarProfileService.swift:120-123`).
-  2. Add a **Dock Profiles** picker/save/delete card and a **Group Adjacent Utilities** toggle (`store.dockSlotLayout.groupAdjacentUtilities`) to `App/Scenes/SettingsLayoutPane+Widgets.swift`, while removing the duplicate legacy `Show Shelf` / `Show Trash` / `Background Apps` / `Mid-Dock Utilities` rows (`L156-213`).
-  3. Migrate `StatusMenuController.rebuildAddItemsMenu()` (`App/Entry/StatusMenuController.swift:763-781`) and `WelcomeGuideView.widgetsStep` (`App/Scenes/WelcomeGuideView.swift:264-295`) to mutate `store.dockSlotLayout`.
+  1. [ ] Extend `BarProfile` (`Core/Support/BarProfile.swift:10-21`) with optional `dockSlotLayout: DockSlotLayout?` and `dockWings: DockWingsConfiguration?`, and record the active preset/slot state in `BarProfileService.currentState()` (`App/Composition/BarProfileService.swift:120-123`).
+  2. [ ] Add a **Dock Profiles** picker/save/delete card and a **Group Adjacent Utilities** toggle (`store.dockSlotLayout.groupAdjacentUtilities`) to `App/Scenes/SettingsLayoutPane+Widgets.swift`, while removing the duplicate legacy `Show Shelf` / `Show Trash` / `Background Apps` / `Mid-Dock Utilities` rows (`L156-213`).
+  3. [ ] Migrate `StatusMenuController.rebuildAddItemsMenu()` (`App/Entry/StatusMenuController.swift:763-781`) and `WelcomeGuideView.widgetsStep` (`App/Scenes/WelcomeGuideView.swift:264-295`) to mutate `store.dockSlotLayout`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/BarProfileTests -only-testing:KatiKatiTests/DockSlotLayoutTests -only-testing:KatiKatiTests/WelcomeGuideTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 4.2 — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (Pillar 8)
+#### [ ] Slice 4.2 — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (Pillar 8)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/DockWingModels.swift:91, 129-199, 647-805`, `App/Scenes/WidgetLookSettingsBlock.swift:160-226, 405-476`, `Core/Support/Desktop/DesktopBoxModel.swift:64-120`
 - **Scope:**
-  1. Add `.shelfCard` to `DockIIConfigureSheet.surfacePinsSection` (`App/Scenes/WidgetLookSettingsBlock.swift:405`) alongside collapse/reorder controls (`DockWidgetConfigStore.togglingCollapsed` / `moving`).
-  2. Add a display picker to `WidgetWingsSettingsBlock` (`App/Scenes/WidgetLookSettingsBlock.swift:160-226`) when `NSScreen.screens.count > 1`, writing to `DockWingsConfiguration.perDisplay` (`Core/Support/DockWingModels.swift:91, 165-199`).
-  3. Add optional `wingPreset: DockWidgetPresetType?` to `DesktopBox` (`Core/Support/Desktop/DesktopBoxModel.swift:83`) so any Dock II Wing widget (`.telemetry`, `.ram`, `.network`, `.disk`, `.battery`, `.ai`, `.controlCenter`, `.vpn`, `.hydrate`, `.pause`) can be added to the Desktop canvas.
+  1. [ ] Add `.shelfCard` to `DockIIConfigureSheet.surfacePinsSection` (`App/Scenes/WidgetLookSettingsBlock.swift:405`) alongside collapse/reorder controls (`DockWidgetConfigStore.togglingCollapsed` / `moving`).
+  2. [ ] Add a display picker to `WidgetWingsSettingsBlock` (`App/Scenes/WidgetLookSettingsBlock.swift:160-226`) when `NSScreen.screens.count > 1`, writing to `DockWingsConfiguration.perDisplay` (`Core/Support/DockWingModels.swift:91, 165-199`).
+  3. [ ] Add optional `wingPreset: DockWidgetPresetType?` to `DesktopBox` (`Core/Support/Desktop/DesktopBoxModel.swift:83`) so any Dock II Wing widget (`.telemetry`, `.ram`, `.network`, `.disk`, `.battery`, `.ai`, `.controlCenter`, `.vpn`, `.hydrate`, `.pause`) can be added to the Desktop canvas.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/DockWingModelsTests -only-testing:KatiKatiTests/DesktopBoxModelTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 4.3 — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases (Pillar 9)
+#### [ ] Slice 4.3 — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases (Pillar 9)
 - **Effort:** `S` | **User Impact:** `Med`
 - **Reused Modules:** `Core/Support/WallpaperSelector.swift:32-37, 357-369, 444-510`, `Core/Support/SolarPhase.swift:101-168`, `App/Composition/WallpaperEngine.swift:179-195, 335-344, 420-435`, `App/Scenes/SettingsAppearancePane.swift:449-457, 567-593`
 - **Scope:**
-  1. Use `SolarPosition.at(now, latitude: ..., longitude: ...)` (`Core/Support/WallpaperSelector.swift:358`) in `TerrainWallpaperRenderer.render` (`App/Composition/WallpaperEngine.swift:430`) to position the sun glow horizontally/vertically when coordinates are available, and expand `WallpaperSelector.skyPackAliases` inside `WallpaperEngine.pack(folder:)` (`L335-344`).
-  2. Render `SkyAtmosphere` stars, moon disc, and cloud bands in `WallpaperStageView` (`App/Scenes/SettingsAppearancePane.swift:567-593`) so the Settings stage matches the rendered desktop frame.
+  1. [ ] Use `SolarPosition.at(now, latitude: ..., longitude: ...)` (`Core/Support/WallpaperSelector.swift:358`) in `TerrainWallpaperRenderer.render` (`App/Composition/WallpaperEngine.swift:430`) to position the sun glow horizontally/vertically when coordinates are available, and expand `WallpaperSelector.skyPackAliases` inside `WallpaperEngine.pack(folder:)` (`L335-344`).
+  2. [ ] Render `SkyAtmosphere` stars, moon disc, and cloud bands in `WallpaperStageView` (`App/Scenes/SettingsAppearancePane.swift:567-593`) so the Settings stage matches the rendered desktop frame.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WallpaperSelectorTests -only-testing:KatiKatiTests/SolarPhaseTests && python3 Scripts/check_localization.py
   ```
 
-#### Slice 4.4 — Persistent `WindowLayoutMemory`, `⌥`-Drag to Thirds & Per-Window Float/Retile Shortcuts (Pillar 10)
+#### [ ] Slice 4.4 — Persistent `WindowLayoutMemory`, `⌥`-Drag to Thirds & Per-Window Float/Retile Shortcuts (Pillar 10)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/WindowLayoutMemory.swift:7-59`, `App/Composition/WindowLayoutRestoreController.swift:10-110`, `Core/Support/WindowSnap.swift:77-130`, `Platform/Windows/WindowSnapService.swift:206-230`, `App/Composition/TilingEngine.swift:381-387, 495-505`, `Core/Support/Shortcuts.swift`
 - **Scope:**
-  1. Conform `WindowLayoutMemory` (`Core/Support/WindowLayoutMemory.swift:7`) to `Codable` and persist/load it in `WindowLayoutRestoreController` (`~/Library/Application Support/KatiKati/window-layouts.json`, included in `SettingsBackupService.applicationSupportFiles`).
-  2. In `SnapDragMonitor.dragged()` (`Platform/Windows/WindowSnapService.swift:223`), pass `layout: NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners` to `SnapZonePlanner.resolve` so holding Option while dragging to an edge snaps into horizontal thirds.
-  3. Add Command Bar commands (`tile float`, `tile retile`) and `ShortcutAction` cases for floating the focused window (`TilingEngine.shared.releaseWindow`) and re-tiling all hand-moved windows (`TilingEngine.shared.retileAll()`).
+  1. [ ] Conform `WindowLayoutMemory` (`Core/Support/WindowLayoutMemory.swift:7`) to `Codable` and persist/load it in `WindowLayoutRestoreController` (`~/Library/Application Support/KatiKati/window-layouts.json`, included in `SettingsBackupService.applicationSupportFiles`).
+  2. [ ] In `SnapDragMonitor.dragged()` (`Platform/Windows/WindowSnapService.swift:223`), pass `layout: NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners` to `SnapZonePlanner.resolve` so holding Option while dragging to an edge snaps into horizontal thirds.
+  3. [ ] Add Command Bar commands (`tile float`, `tile retile`) and `ShortcutAction` cases for floating the focused window (`TilingEngine.shared.releaseWindow`) and re-tiling all hand-moved windows (`TilingEngine.shared.retileAll()`).
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WindowLayoutMemoryTests -only-testing:KatiKatiTests/WindowSnapTests -only-testing:KatiKatiTests/TilingLayoutTests && python3 Scripts/check_localization.py
@@ -443,13 +473,13 @@ Every slice below obeys all repository gates:
 
 Each of these 10 quick wins reuses existing `Core/` or `Platform/` code and can land in a single `<= 300`-line slice with zero new dependencies and zero `project.pbxproj` changes:
 
-1. **Fix Menu Bar Network Speed Readout (`Core/Support/MenuBarStatModel.swift:82-129`):** `MenuBarSystemItem` already samples `down`/`up` bytes/sec every second, but `MenuBarStatModel.statusText(metric: .network)` returns `"–"` because `fraction(metric: .network)` is `nil`. Formatting `values.down`/`values.up` in `statusText` makes the Network menu bar stat work immediately (~20 lines).
-2. **Surface Battery Cycle Count, Health % & Time Remaining in Battery Popover (`App/Composition/DockTelemetryFeed.swift:111-122`, `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:548-561`):** `BatteryHealthReader.read()` already parses `cycleCount` and `healthPercent` and `SystemMonitorSampler.battery()` already reads `secondsRemaining`, but `DockTelemetryFeed` discards all three. Passing them through `DockTelemetryState` adds cycle count, health %, and charge/discharge ETA in ~35 lines.
-3. **Add Severe Weather Warnings & Moon Phase to `WeatherModernPanel` and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherModernPanel.swift:62`, `App/Scenes/Weather/WeatherFullScreenView.swift:58`):** `WeatherWarningEngine` and `MoonPhase` are already tested in `Core/Support/`, but only legacy `WeatherGlanceView` renders `WarningsTile`, and no view renders `MoonPhase` (~45 lines).
-4. **Expose On-Device Vision Background Removal in `ShelfGridPopupView` (`App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:475-502`):** `ShelfActions.removeBackground(_:into:)` (`VNGenerateForegroundInstanceMaskRequest`) is completely implemented and tested, needing only a button in `floatingTransformBar` / `selectionBar` / `shelfMenuItems` (~30 lines).
-5. **Wire `⌘1`–`⌘9` Pinned Paste Shortcuts & `Work` Category in `ClipboardFlyoutView` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-198`):** `ClipboardFlyoutView` already draws `"⌘1"`…`"⌘9"` badges on pinned clips and `All / Work / Personal` tabs, but `handleKey` ignores `⌘1`–`⌘9` and `classify` passes `originBundleID: nil` (~45 lines).
-6. **Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
-7. **Fix DropClip Selection Pill Settings Toggle, Speech ARC Drop & Command Bar `"wifipw"` (`App/Entry/TranslatePanelController.swift:20-73`, `App/Scenes/CommandBarView.swift:62`):** Checking `DropClipPolicy.enabledKey`, retaining `AVSpeechSynthesizer` as a property, and changing `"wifi"` to `"wifipw"` in `CommandBarView.swift:62` fixes three user-visible bugs in ~25 lines.
-8. **Fix Multi-File ZIP Overwrite Bug in `DesktopFileOperations.compressToZip` (`Platform/Desktop/DesktopFileOperations.swift:178-185`):** Passing all file paths to a single `ditto` process instead of looping and overwriting `archiveURL` on each iteration fixes multi-file Desktop Box zipping in ~15 lines.
-9. **Stop 1 Hz Idle Timers in `HydrationController`, `NutritionController` & `QuitOnLastWindowService` + Share `SystemMonitorController.shared` (`Core/Support/HydrationController.swift:261`, `Core/Support/NutritionController.swift:195`, `App/Composition/QuitOnLastWindowService.swift:85`, `Platform/SystemMonitor/SystemMonitorController.swift:7`):** Gating timers on active consumers/thresholds and sharing one ref-counted `SystemMonitorController` eliminates unnecessary background wakeups (~50 lines).
-10. **Hold `⌥` During Drag-to-Edge to Snap Windows into Thirds (`Platform/Windows/WindowSnapService.swift:223`, `Core/Support/WindowSnap.swift:109-124`):** `SnapZonePlanner.resolve` already supports `layout: .thirds`; passing `.thirds` when `NSEvent.modifierFlags.contains(.option)` in `SnapDragMonitor.dragged()` unlocks drag-to-thirds snapping in ~10 lines.
+1. [x] **DONE — `a2a7f546` · Fix Menu Bar Network Speed Readout (`Core/Support/MenuBarStatModel.swift:82-129`):** `MenuBarSystemItem` already samples `down`/`up` bytes/sec every second, but `MenuBarStatModel.statusText(metric: .network)` returns `"–"` because `fraction(metric: .network)` is `nil`. Formatting `values.down`/`values.up` in `statusText` makes the Network menu bar stat work immediately (~20 lines).
+2. [x] **DONE — `ae014e00` · Surface Battery Cycle Count, Health % & Time Remaining in Battery Popover (`App/Composition/DockTelemetryFeed.swift:111-122`, `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:548-561`):** `BatteryHealthReader.read()` already parses `cycleCount` and `healthPercent` and `SystemMonitorSampler.battery()` already reads `secondsRemaining`, but `DockTelemetryFeed` discards all three. Passing them through `DockTelemetryState` adds cycle count, health %, and charge/discharge ETA in ~35 lines.
+3. [ ] **Add Severe Weather Warnings & Moon Phase to `WeatherModernPanel` and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherModernPanel.swift:62`, `App/Scenes/Weather/WeatherFullScreenView.swift:58`):** `WeatherWarningEngine` and `MoonPhase` are already tested in `Core/Support/`, but only legacy `WeatherGlanceView` renders `WarningsTile`, and no view renders `MoonPhase` (~45 lines).
+4. [ ] **Expose On-Device Vision Background Removal in `ShelfGridPopupView` (`App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:475-502`):** `ShelfActions.removeBackground(_:into:)` (`VNGenerateForegroundInstanceMaskRequest`) is completely implemented and tested, needing only a button in `floatingTransformBar` / `selectionBar` / `shelfMenuItems` (~30 lines).
+5. [x] **DONE — `09c73eeb` · Wire `⌘1`–`⌘9` Pinned Paste Shortcuts & `Work` Category in `ClipboardFlyoutView` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-198`):** `ClipboardFlyoutView` already draws `"⌘1"`…`"⌘9"` badges on pinned clips and `All / Work / Personal` tabs, but `handleKey` ignores `⌘1`–`⌘9` and `classify` passes `originBundleID: nil` (~45 lines).
+6. [ ] **Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
+7. [x] **DONE — `091c339c` · Fix DropClip Selection Pill Settings Toggle, Speech ARC Drop & Command Bar `"wifipw"` (`App/Entry/TranslatePanelController.swift:20-73`, `App/Scenes/CommandBarView.swift:62`):** Checking `DropClipPolicy.enabledKey`, retaining `AVSpeechSynthesizer` as a property, and changing `"wifi"` to `"wifipw"` in `CommandBarView.swift:62` fixes three user-visible bugs in ~25 lines.
+8. [x] **DONE — `4e18742c` · Fix Multi-File ZIP Overwrite Bug in `DesktopFileOperations.compressToZip` (`Platform/Desktop/DesktopFileOperations.swift:178-185`):** Passing all file paths to a single `ditto` process instead of looping and overwriting `archiveURL` on each iteration fixes multi-file Desktop Box zipping in ~15 lines.
+9. [x] **DONE — `cf03222f` · Stop 1 Hz Idle Timers in `HydrationController`, `NutritionController` & `QuitOnLastWindowService` + Share `SystemMonitorController.shared` (`Core/Support/HydrationController.swift:261`, `Core/Support/NutritionController.swift:195`, `App/Composition/QuitOnLastWindowService.swift:85`, `Platform/SystemMonitor/SystemMonitorController.swift:7`):** Gating timers on active consumers/thresholds and sharing one ref-counted `SystemMonitorController` eliminates unnecessary background wakeups (~50 lines).
+10. [ ] **Hold `⌥` During Drag-to-Edge to Snap Windows into Thirds (`Platform/Windows/WindowSnapService.swift:223`, `Core/Support/WindowSnap.swift:109-124`):** `SnapZonePlanner.resolve` already supports `layout: .thirds`; passing `.thirds` when `NSEvent.modifierFlags.contains(.option)` in `SnapDragMonitor.dragged()` unlocks drag-to-thirds snapping in ~10 lines.
