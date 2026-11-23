@@ -740,6 +740,12 @@ final class TrackpadGestureBindingTests: XCTestCase {
         XCTAssertEqual(decoded, rules)
     }
 
+    func testFourFingerTapNeverAllowsLauncherTarget() {
+        XCTAssertFalse(GestureRouter.allows(kind: .fourFingerTap, target: .launcher))
+        XCTAssertTrue(GestureRouter.allows(kind: .pinchIn, target: .launcher))
+        XCTAssertTrue(GestureRouter.allows(kind: .fourFingerTap, target: .commandBar))
+    }
+
     func testSnapCycleWalksHalfThirdTwoThirdsPerEdge() {
         var cycle = SnapCycleState()
         let t0 = Date(timeIntervalSince1970: 3000)

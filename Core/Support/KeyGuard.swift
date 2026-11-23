@@ -695,6 +695,11 @@ enum GestureRouter {
         let action = (context.tilingEnabled ? rule.tilingAction : nil) ?? rule.windowAction
         return action == .none ? nil : action
     }
+
+    /// Four-finger tap must never open the Launcher; only a pinch gesture may.
+    static func allows(kind: MultitouchGestureKind, target: GestureActionTarget) -> Bool {
+        !(kind == .fourFingerTap && target == .launcher)
+    }
 }
 
 /// The strip command a gesture runs, kept separate from the AppKit call so the route is testable.

@@ -1112,11 +1112,6 @@ final class GestureDispatcher: ObservableObject {
     private typealias Start = @convention(c) (UnsafeMutableRawPointer, Int32) -> Void
     private typealias Stop = @convention(c) (UnsafeMutableRawPointer) -> Void
 
-    private struct Touch {
-        var frame: Int32; var timestamp: Double; var path: Int32; var state: Int32; var finger: Int32; var hand: Int32
-        var x: Float; var y: Float; var vx: Float; var vy: Float
-    }
-
     func setEnabled(_ on: Bool) {
         isEnabled = on
         UserDefaults.standard.set(on, forKey: Self.enabledKey)
@@ -1199,11 +1194,7 @@ final class GestureDispatcher: ObservableObject {
         stopFn = unsafeBitCast(stopSym, to: Stop.self)
         let callback: Frames = { _, raw, count, _, _ in
             guard let raw else { return 0 }
-            let touches = raw.assumingMemoryBound(to: Touch.self)
-            let pts: [MultitouchPoint] = (0..<Int(count)).map {
-                let t = touches[$0]
-                return MultitouchPoint(id: t.finger, x: Double(t.x), y: Double(t.y), vx: Double(t.vx), vy: Double(t.vy))
-            }
+            let pts = MTTouchFrameParser.parse(raw: raw, count: Int(count))
             Task { @MainActor in GestureDispatcher.shared.handle(points: pts) }
             return 0
         }
@@ -1235,7 +1226,8 @@ final class GestureDispatcher: ObservableObject {
         }
         guard let rule = rules[gesture] else { return }
         let context = GestureContext(tilingEnabled: TilingEngine.shared.isEnabled)
-        guard let target = GestureRouter.target(for: rule, context: context) else { return }
+        guard let target = GestureRouter.target(for: rule, context: context),
+              GestureRouter.allows(kind: gesture, target: target) else { return }
         dispatch(target)
     }
 
