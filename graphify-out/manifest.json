@@ -1500,10 +1500,10 @@
     "semantic_hash": "a39dad3aeb9c3661211fe418b5867fd2"
   },
   "Core/Support/AppMembershipMenuPlan.swift": {
-    "mtime": 1791999130.7384443,
-    "seen": 1792295707.060524,
-    "ast_hash": "f6dbcba09cb4a696f059fef0ad7b11fd",
-    "semantic_hash": "f6dbcba09cb4a696f059fef0ad7b11fd"
+    "mtime": 1795428696.9237611,
+    "seen": 1795428951.668322,
+    "ast_hash": "ab8394bb3161ce0954942c5428306d3a",
+    "semantic_hash": ""
   },
   "Core/Support/AppRemoval.swift": {
     "mtime": 1794848720.3409548,
@@ -2532,10 +2532,10 @@
     "semantic_hash": "82a9d7cf700cea438cbd3393ec2cc58d"
   },
   "Core/Support/WindowChipGrouping.swift": {
-    "mtime": 1791999130.7543933,
-    "seen": 1792295707.060629,
-    "ast_hash": "a5eb86e604914f0391571aa2c301d2a2",
-    "semantic_hash": "a5eb86e604914f0391571aa2c301d2a2"
+    "mtime": 1795428878.185562,
+    "seen": 1795428951.6685371,
+    "ast_hash": "2dd4a828af13592454a6eb8975d30ceb",
+    "semantic_hash": ""
   },
   "Core/Support/WindowDisplayAttribution.swift": {
     "mtime": 1791999130.7368774,
@@ -3144,10 +3144,10 @@
     "semantic_hash": "4eeb1f928137a3c7294dc8814a3a559a"
   },
   "Tests/Unit/AppMembershipMenuPlanTests.swift": {
-    "mtime": 1791999130.9423938,
-    "seen": 1792295707.060693,
-    "ast_hash": "20c7adb4d34b96e04049d3c9da2ae630",
-    "semantic_hash": "20c7adb4d34b96e04049d3c9da2ae630"
+    "mtime": 1795428706.1408422,
+    "seen": 1795428951.668653,
+    "ast_hash": "419ac12d105ae0aef60ff73e947611f5",
+    "semantic_hash": ""
   },
   "Tests/Unit/AppMembershipProjectionTests.swift": {
     "mtime": 1791999130.9562929,
@@ -4326,10 +4326,10 @@
     "semantic_hash": "bc6cffbed1fb46dfe118205e046bc006"
   },
   "Tests/Unit/WindowChipGroupingTests.swift": {
-    "mtime": 1791999130.9376795,
-    "seen": 1792295707.060819,
-    "ast_hash": "fedf7c2fa856755d1e3ab2907dbf2ab6",
-    "semantic_hash": "fedf7c2fa856755d1e3ab2907dbf2ab6"
+    "mtime": 1795428699.814752,
+    "seen": 1795428951.6688719,
+    "ast_hash": "712f7d0c20be1bfeb3846b1c17eb0733",
+    "semantic_hash": ""
   },
   "Tests/Unit/WindowDisplayAttributionTests.swift": {
     "mtime": 1791999130.9308522,
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795428331.0020468,
-    "seen": 1795428356.7440891,
-    "ast_hash": "abea946f7523b24b703bbd32f46a7351",
+    "mtime": 1795428880.6971943,
+    "seen": 1795428951.66901,
+    "ast_hash": "4904c10cb8ae879522960a3e1357336e",
     "semantic_hash": ""
   },
   "README.md": {
