@@ -71,6 +71,16 @@ struct LiveEventPresentation {
             headline = String(localized: "Download finished")
             detail = name
 
+        case let .severeWeather(kind):
+            symbol = "cloud.bolt.rain.fill"
+            headline = String(localized: "Weather")
+            detail = kind
+
+        case let .alarmDue(label):
+            symbol = "alarm.fill"
+            headline = String(localized: "Alarm")
+            detail = label.isEmpty ? nil : label
+
         case let .notice(kind, extra):
             detail = extra
             switch kind {

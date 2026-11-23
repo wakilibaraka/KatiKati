@@ -38,6 +38,8 @@ enum LiveEvent: Equatable, Sendable {
     case clipboardPasted(preview: String)
     /// A browser download finished (Phase 34e; delivered directly by `DownloadsMonitor`, not by the diff).
     case downloadFinished(name: String?)
+    case severeWeather(kind: String)
+    case alarmDue(label: String)
     /// A Phase 36 daily-helper notice (Caps Lock, battery…); delivered directly by `DailyHelpersService`.
     case notice(LiveNoticeKind, detail: String?)
 }

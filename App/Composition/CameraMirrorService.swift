@@ -28,6 +28,7 @@ final class CameraMirrorService: ObservableObject {
     /// True from `start()` until the camera is open (or refused). The page shows a warm-up pane meanwhile
     /// instead of claiming there is no camera.
     @Published private(set) var isStarting = false
+    @Published private(set) var isMirrored = false
 
     private var input: AVCaptureDeviceInput?
     private var isRunning = false
@@ -92,6 +93,7 @@ final class CameraMirrorService: ObservableObject {
         wantsCamera = false
         generation &+= 1
         isStarting = false
+        isMirrored = false
         guard isRunning else { return }
         isRunning = false
         let session = self.session
@@ -127,6 +129,7 @@ final class CameraMirrorService: ObservableObject {
         guard let opened else {
             availability = state == .ready ? .noCameras : state
             isStarting = false
+            isMirrored = false
             return
         }
         session.beginConfiguration()
@@ -137,6 +140,7 @@ final class CameraMirrorService: ObservableObject {
             input = nil
             availability = .noCameras
             isStarting = false
+            isMirrored = true
             return
         }
         session.addInput(opened)
@@ -158,6 +162,7 @@ final class CameraMirrorService: ObservableObject {
             Task { @MainActor in
                 guard let self, self.wantsCamera else { return }
                 self.isStarting = false
+                self.isMirrored = true
             }
         }
     }

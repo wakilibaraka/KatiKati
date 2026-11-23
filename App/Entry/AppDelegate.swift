@@ -119,7 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Phase 8b-4B: the Live Island's app-wide event feed. A **single** instance on purpose — each
     /// island has its own rendering feed, so per-island detection would fire the same toast N times
     /// on a multi-display setup (see `LiveEventCenter`'s header).
-    private let liveEventCenter = LiveEventCenter()
+    private let liveEventCenter = LiveEventCenter.shared
     /// Phase 8b-7: the notch skin of the Live Island. Built lazily — only while the setting is on.
     private let notchPanel = NotchPanelCoordinator()
     /// Phase 8e menu utilities. The cleaner polls only while its setting is on.

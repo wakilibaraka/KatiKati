@@ -308,6 +308,10 @@ final class SurfaceTimeTravelCoordinator: ObservableObject {
     @Published private(set) var buffer = NotchTimeTravelBuffer()
     @Published private(set) var activePreview: TimeTravelPreview?
     @Published var suggestionBackoff = SuggestionBackoffTracker.load()
+    @Published var focusDeferralEnabled = UserDefaults.standard.object(forKey: "com.katikati.notch.focusDeferral") == nil
+        ? true : UserDefaults.standard.bool(forKey: "com.katikati.notch.focusDeferral") {
+        didSet { UserDefaults.standard.set(focusDeferralEnabled, forKey: "com.katikati.notch.focusDeferral") }
+    }
 
     private var focusQueue = DeferredFocusQueue()
     private var previewExpireWork: DispatchWorkItem?
@@ -357,7 +361,8 @@ final class SurfaceTimeTravelCoordinator: ObservableObject {
         isCritical: Bool,
         isFocusActive: Bool
     ) -> Bool {
-        focusQueue.shouldPresentImmediately(entry, isCritical: isCritical, isFocusActive: isFocusActive)
+        guard focusDeferralEnabled else { return true }
+        return focusQueue.shouldPresentImmediately(entry, isCritical: isCritical, isFocusActive: isFocusActive)
     }
 
     func flushFocusQueue() -> (items: [NotchTimeTravelEntry], summary: String?) {
@@ -375,6 +380,11 @@ final class SurfaceTimeTravelCoordinator: ObservableObject {
 
     func acceptSuggestion(ruleKey: String) {
         suggestionBackoff.recordAccepted(ruleKey: ruleKey)
+        suggestionBackoff.save()
+    }
+
+    func resetSuggestionBackoff() {
+        suggestionBackoff.reset()
         suggestionBackoff.save()
     }
 

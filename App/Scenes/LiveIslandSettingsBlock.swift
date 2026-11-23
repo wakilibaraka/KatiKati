@@ -6,6 +6,7 @@ import SwiftUI
 /// on. Titles are whole literals (localization gate stays one-to-one).
 struct LiveIslandSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var timeTravel = SurfaceTimeTravelCoordinator.shared
     @Environment(\.settingsStageVisible) private var stageVisible
     @State private var showPlayground = false
 
@@ -97,6 +98,18 @@ struct LiveIslandSettingsBlock: View {
                 isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) })
             )
             .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Focus"),
+                isOn: $timeTravel.focusDeferralEnabled
+            )
+            .help(Text("Focus"))
+            SettingsRow(Text("Suggestions")) {
+                Button("Reset") {
+                    timeTravel.resetSuggestionBackoff()
+                }
+                .buttonStyle(.bordered)
+            }
         }
         NotchAppearanceCard()
         NotchLayoutCard()

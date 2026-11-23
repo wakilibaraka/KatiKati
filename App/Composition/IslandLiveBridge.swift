@@ -14,6 +14,8 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
     private let downloadService: DownloadManagerService
     private let agentService: AgentUsageService
     private let cameraService: CameraMirrorService
+    private let weatherService: WeatherService
+    private let alarmStore: AlarmStore
     private let systemStatus = SystemStatusService()
 
     private weak var shelfStore: ShelfStore?
@@ -41,7 +43,9 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         liveActivityFeed: LiveActivityFeed = .shared,
         downloadService: DownloadManagerService = .shared,
         agentService: AgentUsageService = .shared,
-        cameraService: CameraMirrorService = .shared
+        cameraService: CameraMirrorService = .shared,
+        weatherService: WeatherService = .shared,
+        alarmStore: AlarmStore? = nil
     ) {
         self.driver = driver ?? IslandSurfaceDriver()
         self.registry = registry ?? IslandPresetRegistry()
@@ -49,6 +53,8 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         self.downloadService = downloadService
         self.agentService = agentService
         self.cameraService = cameraService
+        self.weatherService = weatherService
+        self.alarmStore = alarmStore ?? ProductivityServices.shared.alarms
     }
 
     func bindShelfStore(_ store: ShelfStore) {
@@ -94,6 +100,21 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
             .sink { [weak self] _ in self?.syncAgent() }
             .store(in: &cancellables)
 
+        cameraService.$isMirrored
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.syncCamera() }
+            .store(in: &cancellables)
+
+        weatherService.$currentState
+            .receive(on: RunLoop.main)
+            .sink { [weak self] state in self?.syncWeather(state) }
+            .store(in: &cancellables)
+
+        alarmStore.$alarms
+            .receive(on: RunLoop.main)
+            .sink { [weak self] alarms in self?.syncAlarm(alarms) }
+            .store(in: &cancellables)
+
         systemStatus.$status
             .receive(on: RunLoop.main)
             .sink { [weak self] status in self?.syncBattery(status.battery) }
@@ -102,6 +123,9 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         syncMediaAndProductivity()
         syncDownloads()
         syncAgent()
+        syncCamera()
+        syncWeather(weatherService.currentState)
+        syncAlarm(alarmStore.alarms)
         syncShelf()
     }
 
@@ -285,6 +309,33 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
                 priority: 8
             )
         )
+    }
+
+    private func syncCamera() {
+        guard cameraService.isMirrored else {
+            driver.store.end(ActivityID.camera)
+            registry.unregister(id: ActivityID.camera)
+            return
+        }
+        registry.register(
+            id: ActivityID.camera,
+            views: IslandPresets.recording(title: "Camera Mirror", since: Date())
+        )
+        driver.store.start(IslandActivitySpec(id: ActivityID.camera, label: "Camera Mirror", priority: 6))
+    }
+
+    private func syncWeather(_ state: WeatherState) {
+        guard let detail = state.detail,
+              let warning = WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())
+                .first(where: { $0.severity == .severe }) else { return }
+        LiveEventCenter.shared.deliver(.severeWeather(kind: warning.kind.rawValue), now: Date())
+    }
+
+    private func syncAlarm(_ alarms: [AlarmItem]) {
+        let now = Date()
+        guard let (alarm, fire) = AlarmList.next(in: alarms, after: now),
+              fire.timeIntervalSince(now) <= 60 else { return }
+        LiveEventCenter.shared.deliver(.alarmDue(label: alarm.label), now: now)
     }
 
     private func syncShelf(alertOnDrop: Bool = false) {

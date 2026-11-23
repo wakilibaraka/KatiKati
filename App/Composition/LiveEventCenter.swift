@@ -41,12 +41,16 @@ extension LiveEvent {
             return true
         case .trackChanged, .stopwatchStopped, .countdownReachedToday, .clipboardCopied, .clipboardPasted, .downloadFinished, .notice:
             return false
+        case .severeWeather, .alarmDue:
+            return true
         }
     }
 }
 
 @MainActor
 final class LiveEventCenter {
+    static let shared = LiveEventCenter()
+
     private let feed: LiveActivityFeed
     private let toast = LiveEventToastPresenter.shared
 
