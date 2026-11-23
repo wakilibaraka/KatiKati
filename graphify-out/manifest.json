@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795429184.2929976,
-    "seen": 1795429303.645758,
-    "ast_hash": "5a11b10123a1a8d20218ac5c2659f6b3",
+    "mtime": 1795429884.2858732,
+    "seen": 1795430223.398707,
+    "ast_hash": "a55ce3e6004d9aeff340e6cd3798e92d",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1296,9 +1296,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
-    "mtime": 1795019247.3780568,
-    "seen": 1795019625.081544,
-    "ast_hash": "337a85dd9dfa86468d473f515fd93f39",
+    "mtime": 1795429882.9894583,
+    "seen": 1795430223.3988538,
+    "ast_hash": "d44da3c7ce66935ffd62ec443f07c26f",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherGlanceView.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795429434.7117596,
-    "seen": 1795429460.300656,
-    "ast_hash": "ca6d6333be0f2bfc0ae1d38221ed5d8e",
+    "mtime": 1795429889.7088158,
+    "seen": 1795430223.399719,
+    "ast_hash": "fae95ecf536103d5590144ab9aa474d6",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6414,9 +6414,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ExpandedMediaCardView.swift": {
-    "mtime": 1795019174.974119,
-    "seen": 1795019625.0814579,
-    "ast_hash": "e184a3d4966b83875297e6ead6f2f2cf",
+    "mtime": 1795429863.0059633,
+    "seen": 1795430223.398747,
+    "ast_hash": "646ebb9873a03349b5b646be1fa5985f",
     "semantic_hash": ""
   },
   "App/Scenes/NowPlayingPopup.swift": {
@@ -6528,9 +6528,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherModernChip.swift": {
-    "mtime": 1795014149.7654552,
-    "seen": 1795014308.644066,
-    "ast_hash": "747b0286c7ec9c7f37e1e3184e8714a3",
+    "mtime": 1795429879.707067,
+    "seen": 1795430223.39885,
+    "ast_hash": "7b358fa6bc76e4825ae2cc13ed4a175b",
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherModernPanel.swift": {
