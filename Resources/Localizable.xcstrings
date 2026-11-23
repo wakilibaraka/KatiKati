@@ -17819,79 +17819,79 @@
         }
       }
     },
-    "Battery & Thermal" : {
+    "Battery & Peripherals" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Batterie & Temperatur"
+            "value" : "Batterie & Peripheriegeräte"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Battery & Thermal"
+            "value" : "Battery & Peripherals"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Batería y temperatura"
+            "value" : "Batería y periféricos"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Batería y temperatura"
+            "value" : "Batería y periféricos"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Batterie et thermique"
+            "value" : "Batterie et périphériques"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Batteria e temperatura"
+            "value" : "Batteria e periferiche"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バッテリーと温度"
+            "value" : "バッテリーと周辺機器"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "배터리 및 발열"
+            "value" : "배터리 및 주변기기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bateria e Térmica"
+            "value" : "Bateria e Periféricos"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bateria e Térmica"
+            "value" : "Bateria e Periféricos"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "电池与温度"
+            "value" : "电池与外设"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "電池與溫度"
+            "value" : "電池與週邊裝置"
           }
         }
       }
@@ -18967,6 +18967,83 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "藍牙裝置"
+          }
+        }
+      }
+    },
+    "Bluetooth Settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth-Einstellungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de Bluetooth"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración de Bluetooth"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages Bluetooth"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni Bluetooth"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth 設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth 설정"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de Bluetooth"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definições de Bluetooth"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蓝牙设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "藍牙設定"
           }
         }
       }
@@ -89654,6 +89731,83 @@
         }
       }
     },
+    "No Bluetooth peripherals connected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Bluetooth-Peripheriegeräte verbunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Bluetooth peripherals connected"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay periféricos Bluetooth conectados"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay periféricos Bluetooth conectados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun périphérique Bluetooth connecté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna periferica Bluetooth connessa"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続された Bluetooth 周辺機器はありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결된 Bluetooth 주변기기가 없습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum periférico Bluetooth conectado"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum periférico Bluetooth ligado"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有已连接的蓝牙外设"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有已連線的藍牙週邊裝置"
+          }
+        }
+      }
+    },
     "No Camera Found" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -132911,6 +133065,83 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在懸停預覽中顯示視窗即時縮圖；沒有此權限時只顯示標題。"
+          }
+        }
+      }
+    },
+    "Shows Mac and Bluetooth accessories. macOS does not share iPhone or Apple Watch battery levels with third-party apps." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt Mac- und Bluetooth-Zubehör an. macOS teilt die Akkustände von iPhone oder Apple Watch nicht mit Drittanbieter-Apps."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows Mac and Bluetooth accessories. macOS does not share iPhone or Apple Watch battery levels with third-party apps."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra el Mac y los accesorios Bluetooth. macOS no comparte los niveles de batería del iPhone o Apple Watch con apps de terceros."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra la Mac y los accesorios Bluetooth. macOS no comparte los niveles de batería del iPhone o Apple Watch con apps de terceros."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche le Mac et les accessoires Bluetooth. macOS ne partage pas le niveau de batterie de l’iPhone ou de l’Apple Watch avec les apps tierces."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra il Mac e gli accessori Bluetooth. macOS non condivide i livelli della batteria di iPhone o Apple Watch con app di terze parti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac と Bluetooth アクセサリを表示します。macOS では iPhone や Apple Watch のバッテリー残量はサードパーティ製アプリに共有されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 및 Bluetooth 액세서리를 표시합니다. macOS는 iPhone 또는 Apple Watch 배터리 잔량을 서드파티 앱과 공유하지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra o Mac e acessórios Bluetooth. O macOS não compartilha os níveis de bateria do iPhone ou Apple Watch com apps de terceiros."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra o Mac e acessórios Bluetooth. O macOS não partilha os níveis de bateria do iPhone ou Apple Watch com apps de terceiros."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示 Mac 与蓝牙配件的电量。macOS 不向第三方应用开放 iPhone 或 Apple Watch 的电池百分比。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示 Mac 與藍牙配件的電量。macOS 不會將 iPhone 或 Apple Watch 的電池電量分享給第三方 App。"
           }
         }
       }
