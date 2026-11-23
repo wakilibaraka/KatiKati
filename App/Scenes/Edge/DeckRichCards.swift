@@ -354,6 +354,8 @@ struct DeckHydrationCardView: View {
                         )
                 )
         )
+        .onAppear { hydro.retain() }
+        .onDisappear { hydro.release() }
     }
 }
 
@@ -432,6 +434,8 @@ struct DeckFoodCardView: View {
                         .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.5)
                 )
         )
+        .onAppear { nutri.retain() }
+        .onDisappear { nutri.release() }
     }
 }
 

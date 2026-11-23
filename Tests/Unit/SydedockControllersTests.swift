@@ -86,4 +86,36 @@ final class SydedockControllersTests: XCTestCase {
         store.addHabit(title: "Drink Green Tea")
         XCTAssertTrue(store.habits.contains { $0.title == "Drink Green Tea" })
     }
+
+    func testHydrationAndNutritionTimersStayIdleUntilRetained() {
+        let hydro = HydrationController()
+        XCTAssertFalse(hydro.isTimerRunning)
+        XCTAssertEqual(hydro.activeHolders, 0)
+
+        hydro.retain()
+        XCTAssertEqual(hydro.activeHolders, 1)
+        XCTAssertTrue(hydro.isTimerRunning)
+
+        hydro.retain()
+        XCTAssertEqual(hydro.activeHolders, 2)
+        hydro.release()
+        XCTAssertEqual(hydro.activeHolders, 1)
+        XCTAssertTrue(hydro.isTimerRunning)
+
+        hydro.release()
+        XCTAssertEqual(hydro.activeHolders, 0)
+        XCTAssertFalse(hydro.isTimerRunning)
+
+        let nutri = NutritionController()
+        XCTAssertFalse(nutri.isTimerRunning)
+        XCTAssertEqual(nutri.activeHolders, 0)
+
+        nutri.retain()
+        XCTAssertEqual(nutri.activeHolders, 1)
+        XCTAssertTrue(nutri.isTimerRunning)
+
+        nutri.release()
+        XCTAssertEqual(nutri.activeHolders, 0)
+        XCTAssertFalse(nutri.isTimerRunning)
+    }
 }

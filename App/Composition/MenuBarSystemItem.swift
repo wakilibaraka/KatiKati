@@ -10,7 +10,7 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     /// The master switch; same key the old single CPU/MEM readout used.
     static let enabledKey = MenuBarStatModel.masterEnabledKey
 
-    private let monitor = SystemMonitorController()
+    private let monitor = SystemMonitorController.shared
     private var items: [MenuBarMetric: NSStatusItem] = [:]
     private var sink: AnyCancellable?
     private var observer: NSObjectProtocol?
@@ -48,8 +48,10 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
             items[metric] = item
         }
         if items.isEmpty {
-            sink = nil
-            monitor.release()
+            if sink != nil {
+                sink = nil
+                monitor.release()
+            }
         } else if sink == nil {
             monitor.acquire()
             sink = monitor.$snapshot.sink { [weak self] snapshot in self?.render(snapshot) }

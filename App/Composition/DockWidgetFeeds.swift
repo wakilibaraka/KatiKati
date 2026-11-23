@@ -49,7 +49,7 @@ final class DockSystemFeed: ObservableObject {
     @Published private(set) var memory = SampleHistory()
     @Published private(set) var diskRead = SampleHistory()
     @Published private(set) var diskWrite = SampleHistory()
-    private let monitor = SystemMonitorController()
+    private let monitor = SystemMonitorController.shared
     private var cancellable: AnyCancellable?
 
     private init() {
@@ -63,7 +63,10 @@ final class DockSystemFeed: ObservableObject {
         }
     }
 
-    func retain() { monitor.acquire() }
+    func retain() {
+        monitor.acquire()
+        snapshot = monitor.snapshot
+    }
     func release() { monitor.release() }
 }
 

@@ -93,6 +93,8 @@ public final class NutritionController: ObservableObject {
     @Published public var soundEnabled: Bool = true
 
     private var timer: Timer?
+    private(set) var activeHolders = 0
+    public var isTimerRunning: Bool { timer != nil }
     private var lastDayString: String = ""
 
     private static let dayDateFormatter: DateFormatter = {
@@ -105,7 +107,19 @@ public final class NutritionController: ObservableObject {
     public init() {
         load()
         checkDayRollover()
+    }
+
+    public func retain() {
+        activeHolders += 1
+        checkDayRollover()
         startTimer()
+    }
+
+    public func release() {
+        activeHolders = max(0, activeHolders - 1)
+        guard activeHolders == 0 else { return }
+        timer?.invalidate()
+        timer = nil
     }
 
     deinit {

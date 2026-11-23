@@ -113,6 +113,8 @@ struct HydrationFlyoutView: View {
             }
         }
         .padding(16)
+        .onAppear { hydro.retain() }
+        .onDisappear { hydro.release() }
     }
 }
 
@@ -240,6 +242,8 @@ struct FoodFlyoutView: View {
             .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.05)))
         }
         .padding(16)
+        .onAppear { nutri.retain() }
+        .onDisappear { nutri.release() }
     }
 
     private func macroBadge(title: String, grams: Int, color: Color) -> some View {

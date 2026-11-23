@@ -51,6 +51,8 @@ final class QuitOnLastWindowService: ObservableObject {
     @Published private(set) var idleMinMemoryMB: Int = UserDefaults.standard.integer(forKey: IdleAppAutoQuitPolicy.minMemoryMBKey)
     @Published private(set) var idlePerAppRaw: String = UserDefaults.standard.string(forKey: IdleAppAutoQuitPolicy.perAppActionsKey) ?? ""
 
+    var isIdleTimerRunning: Bool { idleTimer != nil }
+
     var isEnabled: Bool {
         switch mode {
         case .off: return false
@@ -82,6 +84,16 @@ final class QuitOnLastWindowService: ObservableObject {
             MainActor.assumeIsolated { self?.forget(app?.processIdentifier) }
         })
         refresh()
+        updateIdleTimer()
+    }
+
+    private func updateIdleTimer() {
+        guard !workspaceObservers.isEmpty, idleThresholdSeconds > 0 else {
+            idleTimer?.invalidate()
+            idleTimer = nil
+            return
+        }
+        guard idleTimer == nil else { return }
         idleTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.evaluateIdleApps() }
         }
@@ -155,6 +167,7 @@ final class QuitOnLastWindowService: ObservableObject {
         guard seconds != idleThresholdSeconds else { return }
         idleThresholdSeconds = seconds
         UserDefaults.standard.set(seconds, forKey: IdleAppAutoQuitPolicy.defaultsKey)
+        updateIdleTimer()
     }
 
     func setIdleAction(_ action: IdleAppAction) {
@@ -189,7 +202,7 @@ final class QuitOnLastWindowService: ObservableObject {
 
     // MARK: idle & heavy app management (Leaf + Quitter)
 
-    func evaluateIdleApps(now: Date = Date(), isPlayingMedia: Bool? = nil, isAgentWorking: Bool = false) {
+    func evaluateIdleApps(now: Date = Date(), isPlayingMedia: Bool? = nil, isAgentWorking: Bool? = nil) {
         let threshold = idleThresholdSeconds
         let minBytes = UInt64(max(0, idleMinMemoryMB)) * 1024 * 1024
         let perApp = IdleAppAutoQuitPolicy.parsePerAppActions(idlePerAppRaw)
@@ -202,6 +215,7 @@ final class QuitOnLastWindowService: ObservableObject {
         guard threshold > 0 else { return }
 
         let mediaOrCallActive = isPlayingMedia ?? (PrivacyUseProbe.microphoneInUse() || PrivacyUseProbe.cameraInUse())
+        let agentWorking = isAgentWorking ?? (AgentUsageService.shared.snapshot.activeTurn?.isActive == true)
 
         for app in NSWorkspace.shared.runningApplications {
             guard app.activationPolicy == .regular,
@@ -216,7 +230,7 @@ final class QuitOnLastWindowService: ObservableObject {
                 idleDuration: idleDuration,
                 memoryBytes: memoryBytes,
                 isPlayingMedia: mediaOrCallActive,
-                isAgentWorking: isAgentWorking
+                isAgentWorking: agentWorking
             ) else { continue }
 
             switch resolved {

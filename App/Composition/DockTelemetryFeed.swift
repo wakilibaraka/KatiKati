@@ -10,7 +10,7 @@ final class DockTelemetryFeed: ObservableObject {
 
     @Published private(set) var state = DockTelemetryState()
 
-    private let monitor = SystemMonitorController()
+    private let monitor = SystemMonitorController.shared
     private var history = SampleHistory(capacity: 30)
     private var ramHistory = SampleHistory(capacity: 30)
     private var networkHistory = SampleHistory(capacity: 30)

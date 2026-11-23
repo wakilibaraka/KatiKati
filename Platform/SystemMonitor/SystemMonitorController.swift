@@ -5,6 +5,8 @@ import Foundation
 /// while at least one view is on screen, so a closed flyout costs nothing.
 @MainActor
 final class SystemMonitorController: ObservableObject {
+    static let shared = SystemMonitorController()
+
     @Published private(set) var snapshot = SystemSnapshot()
     /// OW-4: read once when the controller is created; the Rig card only formats it after that.
     @Published private(set) var rigSpec = MacRigSpecSnapshot.current()
@@ -12,7 +14,8 @@ final class SystemMonitorController: ObservableObject {
     @Published private(set) var isThrottled = false
     private var timer: Timer?
     private var currentInterval: TimeInterval = 1
-    private var holders = 0
+    private(set) var holders = 0
+    var isSampling: Bool { timer != nil }
     private var lastCPU: CPUTicks?
     private var lastNet: NetCounters?
     private var lastDisk: DiskCounters?

@@ -58,6 +58,8 @@ public final class HydrationController: ObservableObject {
 
     private var timer: Timer?
     private var probe: Timer?
+    private(set) var activeHolders = 0
+    public var isTimerRunning: Bool { timer != nil }
     private var isLoading = true
     private var lastDayString: String = ""
     private var millilitresByDay: [String: Int] = [:]
@@ -74,7 +76,24 @@ public final class HydrationController: ObservableObject {
         load()
         checkDayRollover()
         isLoading = false
-        startTimer()
+    }
+
+    public func retain() {
+        activeHolders += 1
+        checkDayRollover()
+        refreshSmartPause()
+        if !smartPaused {
+            startTimer()
+        }
+    }
+
+    public func release() {
+        activeHolders = max(0, activeHolders - 1)
+        guard activeHolders == 0 else { return }
+        timer?.invalidate()
+        timer = nil
+        probe?.invalidate()
+        probe = nil
     }
 
     deinit {
@@ -194,6 +213,7 @@ public final class HydrationController: ObservableObject {
     public func setSmartPaused(_ on: Bool) {
         guard on != smartPaused else { return }
         smartPaused = on
+        guard activeHolders > 0 else { return }
         if on {
             timer?.invalidate(); timer = nil
             startProbe()
