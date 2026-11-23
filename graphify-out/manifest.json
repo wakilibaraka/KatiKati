@@ -2574,9 +2574,9 @@
     "semantic_hash": "d3d06fcee7f66f95d1a7efd64c4820e9"
   },
   "Core/Support/WindowSnap.swift": {
-    "mtime": 1795217844.9916003,
-    "seen": 1795217889.460861,
-    "ast_hash": "7e747908db03489b118ab11f5094cdba",
+    "mtime": 1795445588.9564905,
+    "seen": 1795445739.878675,
+    "ast_hash": "43b28ada636ffc10b26886f7541f47d6",
     "semantic_hash": ""
   },
   "Core/Support/WindowSwitcherModel.swift": {
@@ -2970,9 +2970,9 @@
     "semantic_hash": "ff91fe3d118e3cb16a04b0c1664b293c"
   },
   "Platform/Windows/WindowSnapService.swift": {
-    "mtime": 1795217769.1026921,
-    "seen": 1795217889.460941,
-    "ast_hash": "d500aa1f09091b5fbf03bec4a1a4341f",
+    "mtime": 1795445591.0306504,
+    "seen": 1795445739.878753,
+    "ast_hash": "873cb02441d2c2ad7f14d4ec52c89114",
     "semantic_hash": ""
   },
   "Resources/AppIcon.icon/icon.json": {
@@ -4380,9 +4380,9 @@
     "semantic_hash": "c761a1854048312afb1b02410e3a9c6e"
   },
   "Tests/Unit/WindowSnapTests.swift": {
-    "mtime": 1795097906.591071,
-    "seen": 1795097975.55158,
-    "ast_hash": "2f4e4131fcff4bc173d6270ed0097bd8",
+    "mtime": 1795445593.000248,
+    "seen": 1795445739.87902,
+    "ast_hash": "0f475e7dd7a5c73c859bbbf6c72097bd",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowSubscriptionLedgerTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795445374.6604693,
-    "seen": 1795445510.50633,
-    "ast_hash": "fe17c3ea1cf59181d635500d1e9dc7b9",
+    "mtime": 1795445605.999582,
+    "seen": 1795445739.8791502,
+    "ast_hash": "b0737f2b3d7f405bf0330e3061064f84",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8058,9 +8058,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CODEBASE_GAP_AND_CAPABILITY_AUDIT.md": {
-    "mtime": 1795445373.201252,
-    "seen": 1795445510.506322,
-    "ast_hash": "3cedb90896e03bfe45975fa0a940aec7",
+    "mtime": 1795445603.6811278,
+    "seen": 1795445739.8791418,
+    "ast_hash": "34e21dc57200da84fa63a9dd25d8de90",
     "semantic_hash": ""
   }
 }
