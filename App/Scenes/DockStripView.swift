@@ -19,6 +19,7 @@ struct DockStripView: View {
     @ObservedObject var trashStore = TrashStateStore.shared
     /// The drawer pop: the tail zone's first chip and its popup's list.
     @ObservedObject var popStore = PopStore.shared
+    @ObservedObject var appGroupStore = DockAppGroupStore.shared
     @EnvironmentObject var settingsStore: AppSettingsStore
     @EnvironmentObject var displayTopologyStore: DisplayTopologyStore
     @AppStorage("com.katikati.widgets.fabStyle") private var widgetsFABStyle: String = "gauge"
@@ -92,6 +93,7 @@ struct DockStripView: View {
     var onClipboardPopupToggle: (CGRect) -> Void = { _ in }
     /// In-dock 4-square `Background & Activity` tile clicked: toggles the popup above the tile.
     var onBackgroundAppsToggle: (CGRect) -> Void = { _ in }
+    var onAppGroupPopupToggle: (String, CGRect) -> Void = { _, _ in }
     /// Where the pop chip sits on screen, for the coordinator's stash drop zone. Written by this view.
     var popChipFrameSink: PopChipFrameSink?
     /// 「添加文件夹…」统一入口（NSOpenPanel 归 AppDelegate 管）。
@@ -788,7 +790,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .pop, .backgroundApps, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .pinnedFolder, .shelf, .pop, .appGroup, .backgroundApps, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -903,7 +905,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .pop, .backgroundApps, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .shelf, .pop, .appGroup, .backgroundApps, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1367,7 +1369,7 @@ struct DockStripView: View {
                                            value: StripChipFrames(id: "pop", zone: .pop,
                                                                   frame: geo.frame(in: .named("strip"))))
                 })
-        case .backgroundApps, .divider, .sectionPlaceholder:
+        case .appGroup, .backgroundApps, .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
@@ -1671,6 +1673,22 @@ struct DockStripView: View {
             )
             .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
                            animatedEntryIDs: $animatedEntryIDs)
+        case let .appGroup(groupID):
+            if let group = appGroupStore.group(id: groupID) {
+                DockAppGroupChip(
+                    group: group,
+                    groupStore: appGroupStore,
+                    runningApplicationStore: runningApplicationStore,
+                    scale: dockScale,
+                    railTile: isRail,
+                    hoverStyle: hoverStyle,
+                    isHovered: hovered,
+                    onTap: { appGroupChipTapped(groupID: groupID) }
+                )
+                .reportStripChipFrame(id: "app-group-\(groupID)", zone: .section)
+                .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
+                               animatedEntryIDs: $animatedEntryIDs)
+            }
         case .backgroundApps:
             BackgroundActivityDockTile(
                 scale: dockScale,
@@ -2278,6 +2296,8 @@ extension DockStripView {
             launcherTap(bundleID, hasRealWindow: false)
         case .pinnedFolder(let path):
             openFolderInFinder(path)
+        case let .appGroup(groupID):
+            appGroupChipTapped(groupID: groupID)
         case .backgroundApps:
             backgroundAppsChipTapped()
         default:

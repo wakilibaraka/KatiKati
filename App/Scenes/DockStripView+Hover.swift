@@ -75,6 +75,8 @@ extension DockStripView {
             return String(localized: "Trash")
         case .pop:
             return String(localized: "Drawer")
+        case let .appGroup(id):
+            return appGroupStore.group(id: id)?.name ?? String(localized: "App Group")
         case .backgroundApps:
             return String(localized: "Background & Activity")
         case .shelf:

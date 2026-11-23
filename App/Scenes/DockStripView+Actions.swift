@@ -164,6 +164,12 @@ extension DockStripView {
         onBackgroundAppsToggle(screenRect)
     }
 
+    /// Dock App Group folder click: opens the anchored iOS-style folder popover.
+    func appGroupChipTapped(groupID: String) {
+        guard let screenRect = utilityAnchorScreenRect(id: "app-group-\(groupID)") else { return }
+        onAppGroupPopupToggle(groupID, screenRect)
+    }
+
     /// Dock-icon-click equivalent: unhide + reopen. The app recreates its main window
     /// even when other windows are visible (verified with WeChat, 2026-06-12).
     /// 消息区图标**认不出主窗口**时的左键（第 3 条兜底，2026-08-23）：

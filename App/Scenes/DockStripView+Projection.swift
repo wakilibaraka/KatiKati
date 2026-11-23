@@ -287,6 +287,11 @@ extension DockStripView {
                 appsEntries += zone
             }
         }
+        let appGroupEntries = DockAppGroups.visibleDockGroups(
+            appGroupStore.groups,
+            enabled: appGroupStore.isEnabled
+        ).map { StripEntry.appGroup(id: $0.id) }
+        appsEntries += appGroupEntries
         let showInDockBackgroundApps = settingsStore.showsBackgroundAppsSlot
             && settingsStore.dockSlotLayout.trailingCapsule != .backgroundApps
         if showInDockBackgroundApps {

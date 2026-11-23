@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The drawer pop's dock icon (DockPops-style): a tile with a live 2 × 2 preview of the pop's first
 /// items. Sits at the head of the tail zone, left of the pinned folders (Downloads) and the Trash.
@@ -173,5 +174,118 @@ final class PopChipFrameSink {
         return CGRect(x: stripRootScreenRect.minX + frame.minX,
                       y: stripRootScreenRect.maxY - frame.maxY,
                       width: frame.width, height: frame.height)
+    }
+}
+
+// MARK: - Dock App Group Tile (DockFolders, Slice DO-5)
+
+/// iOS/iPadOS-style App Folder tile directly on the Dock strip showing a mini 2×2 or 3×3 preview grid.
+struct DockAppGroupChip: View {
+    let group: DockAppGroup
+    @ObservedObject var groupStore: DockAppGroupStore
+    @ObservedObject var runningApplicationStore: RunningApplicationStore
+    let scale: CGFloat
+    let railTile: Bool
+    let hoverStyle: HoverStyle
+    let isHovered: Bool
+    let onTap: () -> Void
+
+    @State private var isDropTargeted = false
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var hasRunningApp: Bool {
+        group.appIDs.contains { runningApplicationStore.isRunning($0) }
+    }
+
+    var body: some View {
+        let art = ChipPillMetrics.bareIconVisibleSlot * scale
+        let cols = group.iconGrid.columns
+        let inset = art * (cols == 2 ? 0.12 : 0.08)
+        let cell = (art - inset * CGFloat(cols + 1)) / CGFloat(cols)
+        let preview = Array(group.appIDs.prefix(group.iconGrid.previewLimit))
+
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+            ZStack {
+                RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)
+                    .fill(colorScheme == .dark ? Color(white: 0.26).opacity(0.88) : Color(white: 0.93).opacity(0.92))
+                RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)
+                    .strokeBorder(isDropTargeted ? Color.accentColor : Color.white.opacity(0.22),
+                                  lineWidth: isDropTargeted ? 2 : 0.75)
+                if preview.isEmpty {
+                    Image(systemName: "folder.badge.plus")
+                        .font(.system(size: art * 0.42, weight: .medium))
+                        .foregroundStyle(Color.secondary)
+                } else {
+                    VStack(spacing: inset) {
+                        ForEach(0..<cols, id: \.self) { row in
+                            HStack(spacing: inset) {
+                                ForEach(0..<cols, id: \.self) { col in
+                                    let index = row * cols + col
+                                    if index < preview.count {
+                                        Image(nsImage: AppIconResolver.icon(for: preview[index]))
+                                            .resizable()
+                                            .interpolation(.high)
+                                            .frame(width: cell, height: cell)
+                                    } else {
+                                        Color.clear.frame(width: cell, height: cell)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(width: art, height: art)
+            .frame(width: ChipPillMetrics.bareIconSlot * scale,
+                   height: ChipPillMetrics.bareIconSlot * scale)
+            Spacer(minLength: 0)
+        }
+        .overlay(alignment: .bottom) {
+            if hasRunningApp && !railTile {
+                Circle()
+                    .fill(Color.white.opacity(0.85))
+                    .frame(width: 4 * scale, height: 4 * scale)
+                    .offset(y: -1 * scale)
+            }
+        }
+        .frame(width: ChipPillMetrics.cardWidth * scale,
+               height: ChipPillMetrics.cardFrameHeight(scale, onRail: railTile))
+        .chipQuietHoverScale(hoverStyle.showsQuietHoverFeedback(isHovering: isHovered),
+                             cardWidth: ChipPillMetrics.cardWidth * scale,
+                             scale: scale)
+        .scaleEffect(isDropTargeted ? 1.08 : 1)
+        .contentShape(Rectangle())
+        .onTapGesture { onTap() }
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted) { providers in
+            groupStore.handleAppDrop(providers, into: group.id)
+        }
+        .floatingContextMenu { buildMenu() }
+        .help(Text(verbatim: group.name))
+        .animation(.easeInOut(duration: 0.12), value: isDropTargeted)
+    }
+
+    private func buildMenu() -> NSMenu {
+        let menu = NSMenu()
+        menu.addItem(ClosureMenuItem(String(localized: "Open")) { onTap() })
+        let gridMenu = NSMenu()
+        let item2 = ClosureMenuItem(String(localized: "2×2 Grid")) { groupStore.setIconGrid(.grid2x2, for: group.id) }
+        item2.state = group.iconGrid == .grid2x2 ? .on : .off
+        let item3 = ClosureMenuItem(String(localized: "3×3 Grid")) { groupStore.setIconGrid(.grid3x3, for: group.id) }
+        item3.state = group.iconGrid == .grid3x3 ? .on : .off
+        gridMenu.addItem(item2)
+        gridMenu.addItem(item3)
+        let gridItem = NSMenuItem(title: String(localized: "Icon Grid"), action: nil, keyEquivalent: "")
+        gridItem.submenu = gridMenu
+        menu.addItem(gridItem)
+        let syncItem = ClosureMenuItem(String(localized: "Sync with Launcher Folders")) {
+            groupStore.setSyncWithLauncher(!groupStore.syncWithLauncherFolders)
+        }
+        syncItem.state = groupStore.syncWithLauncherFolders ? .on : .off
+        menu.addItem(syncItem)
+        menu.addItem(ClosureMenuItem(String(localized: "Auto-Group Apps")) { groupStore.autoGroupInstalledApps() })
+        menu.addItem(.separator())
+        menu.addItem(ClosureMenuItem(String(localized: "Delete Group")) { groupStore.deleteGroup(group.id) })
+        return menu
     }
 }

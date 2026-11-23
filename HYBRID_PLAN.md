@@ -6870,3 +6870,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/LauncherFolders.swift`: added `DockAppGroupIconGrid` (`grid2x2` / `grid3x3`), `DockAppGroup`, and `DockAppGroups` pure CRUD, reorder, `autoGroupedByCategory`, two-way Launcher folder sync (`importingFromLauncher` / `exportingToLauncher`), and `visibleDockGroups`.
 - `Tests/Unit/LauncherFoldersTests.swift`: added `testDockAppGroupsCRUDAndReorder`, `testDockAppGroupsAutoGroupedByCategory`, and `testDockAppGroupsTwoWayLauncherSyncAndVisibility`.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherFoldersTests` (10/10 passed in 0.006 s) and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.
+
+### DO-5b — `DockAppGroupStore` & In-Dock Mini-Grid App Group Tiles (landed 2026-11-23)
+
+- `App/Composition/PopStore.swift`: added `DockAppGroupStore` with persisted CRUD, `LauncherStore` two-way sync, off-main-thread `LauncherIndexer.scanDirectories()` category auto-grouping, and shared `.app` drag-drop handling.
+- `App/Scenes/PopChip.swift` & `App/Scenes/{StripProjection,DockStripView+Projection,DockStripView+Hover,DockStripView+Actions,DockStripView}.swift`: added `DockAppGroupChip` (2×2/3×3 mini-grid, running indicator dot, `.app` drop target, context menu) and strip projection/keyboard focus wiring.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherFoldersTests -only-testing:KatiKatiTests/ModularDockCoreTests` (44/44 passed) and `check_availability_warnings.py`. Zero `project.pbxproj` edits.
