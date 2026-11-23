@@ -894,9 +894,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
-    "mtime": 1794879254.6344678,
-    "seen": 1794879470.012836,
-    "ast_hash": "6c7360d7aa361d68dfc113d36749f7ff",
+    "mtime": 1795444613.7322726,
+    "seen": 1795444918.6886961,
+    "ast_hash": "d537b8d7107d983219a5303c7339b7c9",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/TasksFlyoutView.swift": {
@@ -7452,9 +7452,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DockTelemetryFeed.swift": {
-    "mtime": 1795443456.7793717,
-    "seen": 1795443762.313618,
-    "ast_hash": "272f63c82216395836381940074013af",
+    "mtime": 1795444608.8696635,
+    "seen": 1795444918.6885061,
+    "ast_hash": "41193f150c6be0835fbeeddec90397e1",
     "semantic_hash": ""
   },
   "App/Composition/DockVpnFeed.swift": {
@@ -7482,9 +7482,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift": {
-    "mtime": 1795430737.1717913,
-    "seen": 1795430865.468095,
-    "ast_hash": "0d9067c9b985eead30f5b0a8d2fdf28f",
+    "mtime": 1795444612.511846,
+    "seen": 1795444918.6886709,
+    "ast_hash": "c3bf52b5cec71cc580a3e82c2e806282",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockVpnWidgetView.swift": {
@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795430731.0897598,
-    "seen": 1795430865.4682932,
-    "ast_hash": "a1cb10e2e75a5376bb4a66a5b04469da",
+    "mtime": 1795444607.8363402,
+    "seen": 1795444918.6889,
+    "ast_hash": "5954475cbdce639182457684b17b00ce",
     "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
@@ -7524,9 +7524,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingModelsTests.swift": {
-    "mtime": 1795190582.6918411,
-    "seen": 1795190868.524342,
-    "ast_hash": "47ea454288f48bc15c1d3a4481c7079e",
+    "mtime": 1795444614.7669566,
+    "seen": 1795444918.689258,
+    "ast_hash": "f565a8aef41225e0d2a360edf31ee979",
     "semantic_hash": ""
   },
   "Tests/Unit/DockWingServicesTests.swift": {
