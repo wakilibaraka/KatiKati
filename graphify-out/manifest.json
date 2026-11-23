@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795443461.4262278,
-    "seen": 1795443762.31365,
-    "ast_hash": "62c44003dc82c33ce224a35cb093b095",
+    "mtime": 1795444265.1770394,
+    "seen": 1795444367.024404,
+    "ast_hash": "da4860021a005762148307dafb81ee19",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1792686406.0171554,
-    "seen": 1792689772.289058,
-    "ast_hash": "01e8534f63f919f85682b38ab3cfbf69",
+    "mtime": 1795444263.4387608,
+    "seen": 1795444367.0248141,
+    "ast_hash": "43d62e31a44d6bf51e0aac30cc6f95b9",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6384,9 +6384,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1792686792.3345935,
-    "seen": 1792689772.2892952,
-    "ast_hash": "288d7560419a29cb0765c2d99fedc804",
+    "mtime": 1795444270.3679338,
+    "seen": 1795444367.025186,
+    "ast_hash": "5e20f9ccce571708d63762cd1b784a53",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
@@ -6828,9 +6828,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DriveMenuBarItem.swift": {
-    "mtime": 1793819859.772716,
-    "seen": 1793821372.723707,
-    "ast_hash": "54bf65d40ba45a20b95e98418286ff4a",
+    "mtime": 1795444268.3141034,
+    "seen": 1795444367.024381,
+    "ast_hash": "5d17df45451a7a5a208cc14d54df4758",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DrivesDockWidget.swift": {
