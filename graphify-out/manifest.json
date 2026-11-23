@@ -762,9 +762,9 @@
     "semantic_hash": "6b4c10242a927738cfda6aa4593e031b"
   },
   "App/Scenes/DockStripView+Actions.swift": {
-    "mtime": 1795426602.1623917,
-    "seen": 1795427190.459883,
-    "ast_hash": "3291eb6d3266431b81432822f0a01c73",
+    "mtime": 1795427824.2992404,
+    "seen": 1795428098.439839,
+    "ast_hash": "98bd561d8b7dd680b47103ca223c7477",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+ExternalDrop.swift": {
@@ -774,15 +774,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Hover.swift": {
-    "mtime": 1795426598.2232628,
-    "seen": 1795427190.4598851,
-    "ast_hash": "9c11b44ca2352656a5a37d805746765d",
+    "mtime": 1795427821.4210248,
+    "seen": 1795428098.43984,
+    "ast_hash": "5a97ccb0e42b4eb4ae80a60d04215750",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
-    "mtime": 1795426599.8144345,
-    "seen": 1795427190.459886,
-    "ast_hash": "f323e815cde951ed055622b7e3ba2501",
+    "mtime": 1795427823.0483422,
+    "seen": 1795428098.439841,
+    "ast_hash": "f2f3763cd18eb2d126f7987ceebf8660",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Trash.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795426829.6729634,
-    "seen": 1795427190.459887,
-    "ast_hash": "6d6ee9d0543f17a5234a9453e1745983",
+    "mtime": 1795427875.7976716,
+    "seen": 1795428098.4398432,
+    "ast_hash": "ca7d6dd6e5eafaa6c5597e5e79ec760a",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1242,9 +1242,9 @@
     "semantic_hash": "94713de488217fc971f96a6a079da442"
   },
   "App/Scenes/StripProjection.swift": {
-    "mtime": 1795426596.9609303,
-    "seen": 1795427190.459994,
-    "ast_hash": "a1181f5a56331716e4b7d49028e0e497",
+    "mtime": 1795427819.6147819,
+    "seen": 1795428098.4399538,
+    "ast_hash": "748788e0a4bd31bbf7e575f5fa61211b",
     "semantic_hash": ""
   },
   "App/Scenes/StripResizeGrip.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795427750.1907563,
-    "seen": 1795427777.047811,
-    "ast_hash": "04043480cc055c50aef41415f2ea45dd",
+    "mtime": 1795428074.669345,
+    "seen": 1795428098.440773,
+    "ast_hash": "f3a7636420a105c8ef22859859d412d8",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6900,9 +6900,9 @@
     "semantic_hash": ""
   },
   "App/Composition/PopStore.swift": {
-    "mtime": 1793482084.6261995,
-    "seen": 1793764772.5667899,
-    "ast_hash": "927795b55849f77e81d0ff184211fe87",
+    "mtime": 1795427813.1836896,
+    "seen": 1795428098.4397361,
+    "ast_hash": "fdd16e7adde66219e62c2d8ca80f2614",
     "semantic_hash": ""
   },
   "App/Scenes/BackupSettingsBlock.swift": {
@@ -6912,9 +6912,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PopChip.swift": {
-    "mtime": 1795017486.221525,
-    "seen": 1795018026.889262,
-    "ast_hash": "ea848d62e575e91ec939c0e09a65e48c",
+    "mtime": 1795427815.6972044,
+    "seen": 1795428098.439919,
+    "ast_hash": "e7fa91c3fd70dc5626fb191a0fa992fb",
     "semantic_hash": ""
   },
   "App/Scenes/PopGridPopupView.swift": {
