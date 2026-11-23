@@ -10,7 +10,17 @@ struct DockTelemetryWidgetView: View {
     @Environment(\.dockWingVertical) private var isVertical
     @Environment(\.dockPopoverEdge) private var popoverEdge
     @ObservedObject private var feed = DockTelemetryFeed.shared
+    @ObservedObject private var devicesFeed = DockDevicesFeed.shared
     @State private var showDetails = false
+
+    private var peripheralOverview: DockPeripheralBatteryOverview {
+        DockPeripheralBatteryOverview.build(
+            macPercent: feed.state.batteryFraction.map { Int(($0 * 100).rounded()) },
+            macCharging: feed.state.batteryCharging,
+            macOnAC: feed.state.batteryFraction == nil || feed.state.batteryCharging,
+            devices: devicesFeed.devices
+        )
+    }
 
     private struct DisplaySpec {
         let primary: String
@@ -26,7 +36,9 @@ struct DockTelemetryWidgetView: View {
         let sparkValues = normalizedSparkValues(spec.values, seedFloor: 0.08)
 
         Group {
-            if isVertical {
+            if preset == .battery {
+                batteryPeripheralsWingBody(spec: spec)
+            } else if isVertical {
                 verticalBody(spec: spec, sparkValues: sparkValues)
             } else {
                 ZStack(alignment: .bottom) {
@@ -61,19 +73,152 @@ struct DockTelemetryWidgetView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
         .popover(isPresented: $showDetails, arrowEdge: popoverEdge) {
-            DockTelemetryPreviewCard(onOpenActivityMonitor: {
-                showDetails = false
-                SystemDockActions.openActivityMonitor()
-            })
+            if preset == .battery {
+                BatteryPeripheralsPopoverCard(
+                    overview: peripheralOverview,
+                    telemetryState: feed.state,
+                    devicesFeed: devicesFeed,
+                    onOpenActivityMonitor: {
+                        showDetails = false
+                        SystemDockActions.openActivityMonitor()
+                    }
+                )
+            } else {
+                DockTelemetryPreviewCard(onOpenActivityMonitor: {
+                    showDetails = false
+                    SystemDockActions.openActivityMonitor()
+                })
+            }
         }
         .onTapGesture {
             showDetails.toggle()
         }
-        .onAppear { feed.retain() }
-        .onDisappear { feed.release() }
+        .onAppear {
+            feed.retain()
+            if preset == .battery { devicesFeed.retain() }
+        }
+        .onDisappear {
+            feed.release()
+            if preset == .battery { devicesFeed.release() }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "\(spec.primary) \(spec.trailing)"))
         .accessibilityAddTraits(.isButton)
+    }
+
+    @ViewBuilder
+    private func batteryPeripheralsWingBody(spec: DisplaySpec) -> some View {
+        let overview = peripheralOverview
+        let macFrac = overview.macPercent.map { Double($0) / 100.0 } ?? 1.0
+        let macTint = batteryLevelColor(overview.macPercent, charging: overview.macCharging)
+        let fillColors = [macTint.opacity(0.42), macTint.opacity(0.18), macTint.opacity(0.08)]
+        let strokeColors = [macTint, macTint.opacity(0.85)]
+
+        if isVertical {
+            ZStack(alignment: .bottom) {
+                ThermalSparklineCanvas(values: [macFrac, macFrac, macFrac], fillColors: fillColors, strokeColors: strokeColors)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top, size == .small ? 18 : 30)
+                    .padding(.bottom, size == .small ? 2 : 16)
+
+                VStack(spacing: 2) {
+                    HStack(spacing: 2) {
+                        Image(systemName: macBatterySymbol(percent: overview.macPercent, charging: overview.macCharging))
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(macTint)
+                        Text(verbatim: "BAT")
+                            .font(.system(size: 8, weight: .bold, design: .rounded))
+                            .foregroundStyle(DockWidgetStyle.ink.opacity(0.62))
+                    }
+                    Text(verbatim: overview.macPercent.map { "\($0)%" } ?? "AC")
+                        .font(.system(size: 11.5, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(DockWidgetStyle.ink)
+                        .lineLimit(1).minimumScaleFactor(0.65)
+                    if size != .small {
+                        let tops = overview.topBatteryPeripherals(limit: size == .large ? 2 : 1)
+                        if !tops.isEmpty {
+                            Spacer(minLength: 2)
+                            ForEach(tops) { dev in
+                                HStack(spacing: 2) {
+                                    Image(systemName: dev.richSymbolName).font(.system(size: 8.5, weight: .semibold))
+                                    Text(verbatim: "\(dev.lowestBattery ?? 0)%")
+                                        .font(.system(size: 8.5, weight: .semibold, design: .rounded).monospacedDigit())
+                                        .lineLimit(1).minimumScaleFactor(0.65)
+                                }
+                                .foregroundStyle(batteryLevelColor(dev.lowestBattery))
+                            }
+                        } else {
+                            Spacer(minLength: 0)
+                            Text(verbatim: spec.trailing)
+                                .font(.system(size: 8.5, weight: .semibold, design: .rounded).monospacedDigit())
+                                .foregroundStyle(spec.trailingColor)
+                                .lineLimit(1).minimumScaleFactor(0.7)
+                        }
+                    }
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        } else {
+            let tops = overview.topBatteryPeripherals(limit: size == .small ? 1 : (size == .medium ? 2 : 3))
+            ZStack(alignment: .bottom) {
+                ThermalSparklineCanvas(values: [macFrac, macFrac, macFrac], fillColors: fillColors, strokeColors: strokeColors)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top, 18)
+                    .padding(.bottom, 2)
+
+                HStack(spacing: 4) {
+                    HStack(spacing: 3) {
+                        Image(systemName: macBatterySymbol(percent: overview.macPercent, charging: overview.macCharging))
+                            .font(.system(size: 10.5, weight: .semibold))
+                            .foregroundStyle(macTint)
+                        Text(verbatim: overview.macPercent.map { "\($0)%" } ?? "AC")
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(DockWidgetStyle.ink)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 3)
+                    if !tops.isEmpty {
+                        HStack(spacing: size == .small ? 3 : 5) {
+                            ForEach(tops) { dev in
+                                HStack(spacing: 2) {
+                                    Image(systemName: dev.richSymbolName).font(.system(size: 9.5, weight: .semibold))
+                                    Text(verbatim: "\(dev.lowestBattery ?? 0)%")
+                                        .font(.system(size: 9.5, weight: .semibold, design: .rounded).monospacedDigit())
+                                }
+                                .foregroundStyle(batteryLevelColor(dev.lowestBattery))
+                                .lineLimit(1).minimumScaleFactor(0.75)
+                            }
+                        }
+                    } else {
+                        Text(verbatim: spec.trailing)
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(spec.trailingColor)
+                            .lineLimit(1)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.top, 5)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+        }
+    }
+
+    private func macBatterySymbol(percent: Int?, charging: Bool) -> String {
+        guard let percent else { return "powerplug.fill" }
+        if charging { return "battery.100percent.bolt" }
+        if percent <= 20 { return "battery.25percent" }
+        if percent <= 55 { return "battery.50percent" }
+        return percent <= 85 ? "battery.75percent" : "battery.100percent"
+    }
+
+    private func batteryLevelColor(_ percent: Int?, charging: Bool = false) -> Color {
+        if charging { return Color(red: 0.36, green: 0.90, blue: 0.56) }
+        guard let percent else { return Color(red: 0.42, green: 0.90, blue: 0.56) }
+        if percent <= 20 { return DockWidgetStyle.bad }
+        if percent <= 40 { return DockWidgetStyle.warn }
+        return Color(red: 0.42, green: 0.90, blue: 0.56)
     }
 
     private func verticalBody(spec: DisplaySpec, sparkValues: [Double]) -> some View {
@@ -360,6 +505,120 @@ private struct DockTelemetryPreviewCard: View {
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+}
+
+private struct BatteryPeripheralsPopoverCard: View {
+    let overview: DockPeripheralBatteryOverview
+    let telemetryState: DockTelemetryState
+    @ObservedObject var devicesFeed: DockDevicesFeed
+    var onOpenActivityMonitor: () -> Void
+
+    private func levelColor(_ level: Int?, charging: Bool = false) -> Color {
+        if charging { return Color(red: 0.36, green: 0.90, blue: 0.56) }
+        guard let level else { return .secondary }
+        if level <= 20 { return DockWidgetStyle.bad }
+        if level <= 40 { return DockWidgetStyle.warn }
+        return Color(red: 0.42, green: 0.90, blue: 0.56)
+    }
+
+    var body: some View {
+        DockPreviewCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Text("Battery & Peripherals")
+                        .font(.system(size: 13, weight: .semibold))
+                    Spacer(minLength: 8)
+                    Button { devicesFeed.refreshNow() } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 11.5, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(devicesFeed.isRefreshing)
+                    .opacity(devicesFeed.isRefreshing ? 0.45 : 0.85)
+                    .accessibilityLabel(Text("Refresh"))
+                }
+
+                HStack(spacing: 10) {
+                    Image(systemName: overview.macPercent == nil ? "desktopcomputer" : "laptopcomputer")
+                        .font(.system(size: 15))
+                        .frame(width: 22)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("This Mac")
+                            .font(.system(size: 12.5, weight: .medium))
+                        let sub = [overview.macCharging ? String(localized: "Charging") : nil,
+                                   telemetryState.batteryWatts.map { String(format: "%.0fW", $0) },
+                                   telemetryState.thermalState.name].compactMap { $0 }.joined(separator: " · ")
+                        if !sub.isEmpty {
+                            Text(verbatim: sub).dockCaption()
+                        }
+                    }
+                    Spacer(minLength: 6)
+                    Text(verbatim: overview.macPercent.map { "\($0)%" } ?? "AC")
+                        .font(.system(size: 13, weight: .semibold).monospacedDigit())
+                        .foregroundStyle(levelColor(overview.macPercent, charging: overview.macCharging))
+                }
+
+                Divider().opacity(0.25)
+
+                if overview.connectedPeripherals.isEmpty {
+                    Text("No Bluetooth peripherals connected")
+                        .dockCaption()
+                } else {
+                    ForEach(overview.connectedPeripherals) { device in
+                        HStack(spacing: 10) {
+                            Image(systemName: device.richSymbolName)
+                                .font(.system(size: 15))
+                                .frame(width: 22)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(verbatim: device.name)
+                                    .font(.system(size: 12.5, weight: .medium))
+                                    .lineLimit(1)
+                                if let breakdown = device.batteryBreakdown {
+                                    Text(verbatim: breakdown).dockCaption()
+                                }
+                            }
+                            Spacer(minLength: 6)
+                            if let level = device.lowestBattery {
+                                Text(verbatim: "\(level)%")
+                                    .font(.system(size: 13, weight: .semibold).monospacedDigit())
+                                    .foregroundStyle(levelColor(level))
+                            } else {
+                                Text("Connected")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+
+                Text("Shows Mac and Bluetooth accessories. macOS does not share iPhone or Apple Watch battery levels with third-party apps.")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Divider().opacity(0.25)
+
+                HStack(spacing: 8) {
+                    Button("Bluetooth Settings") {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.BluetoothSettings") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+
+                    Spacer()
+
+                    Button("Activity Monitor", action: onOpenActivityMonitor)
+                        .buttonStyle(.plain)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(width: 284)
         }
     }
 }

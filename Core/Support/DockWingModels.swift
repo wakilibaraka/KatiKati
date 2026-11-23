@@ -52,7 +52,7 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .ram: return String(localized: "RAM Usage")
         case .network: return String(localized: "Network Traffic")
         case .disk: return String(localized: "Disk & I/O")
-        case .battery: return String(localized: "Battery & Thermal")
+        case .battery: return String(localized: "Battery & Peripherals")
         case .ai: return String(localized: "AI")
         case .pause: return String(localized: "Pause")
         case .hydrate: return String(localized: "Hydrate")

@@ -73,8 +73,10 @@ final class DockDevicesFeed: ObservableObject {
     static let shared = DockDevicesFeed()
 
     @Published private(set) var devices: [BluetoothDevice] = []
+    @Published private(set) var isRefreshing = false
     private var timer: Timer?
     private var holders = 0
+    private var refreshTask: Task<Void, Never>?
 
     func retain() {
         holders += 1
@@ -90,13 +92,26 @@ final class DockDevicesFeed: ObservableObject {
         guard holders == 0 else { return }
         timer?.invalidate()
         timer = nil
+        refreshTask?.cancel()
+        refreshTask = nil
+    }
+
+    func refreshNow() {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        refreshTask = Task { [weak self] in
+            defer {
+                self?.isRefreshing = false
+                self?.refreshTask = nil
+            }
+            let all = await BluetoothDeviceReader.read()
+            guard !Task.isCancelled else { return }
+            self?.devices = all.filter(\.isConnected)
+        }
     }
 
     private func refresh() {
-        Task { [weak self] in
-            let all = await BluetoothDeviceReader.read()
-            self?.devices = all.filter(\.isConnected)
-        }
+        refreshNow()
     }
 }
 

@@ -6912,3 +6912,8 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/BluetoothDevices.swift`: added `BluetoothDevice.richSymbolName` / `isAudioPeripheral` and `DockPeripheralBatteryOverview` (deterministic connected-first / low-battery-first sorting and desktop-Mac nil-battery safety).
 - `Core/Support/NotchSectionPaging.swift` & `App/Scenes/Notch/NotchHomeView.swift`: added `NotchPage.peripherals = 10` (`"Peripherals"`, `"airpodspro"`) and temporary `EmptyView()` compile stub for `DO-8b`.
 - `Tests/Unit/{BluetoothDevicesTests,NotchHoverMachineTests,NotificationMirrorTests,NotchGestureTests,CameraMirrorTests}.swift`: updated page count/order assertions and added unit tests covering symbol classification and `DockPeripheralBatteryOverview`. Zero `project.pbxproj` edits.
+
+### DO-8b — Lazy `DockDevicesFeed.refreshNow()` & Upgraded Battery & Peripherals Wing (landed 2026-11-23)
+
+- `App/Composition/DockWidgetFeeds.swift`: added coalesced `isRefreshing` + `refreshNow()` on `DockDevicesFeed` with task cancellation on release.
+- `Core/Support/DockWingModels.swift` & `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift`: renamed `.battery` preset to `Battery & Peripherals`, lazily retain/release `DockDevicesFeed` only when `.battery` renders, added horizontal/vertical peripheral chips and `BatteryPeripheralsPopoverCard` (Mac + BT accessories + platform note). Zero `project.pbxproj` edits.
