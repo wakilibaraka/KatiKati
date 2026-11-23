@@ -27,7 +27,6 @@ struct WidgetLookSettingsBlock: View {
     @AppStorage(CalendarLookaheadHorizon.defaultsKey) private var lookaheadRaw: Int = CalendarLookaheadHorizon.defaultPreset.rawValue
     @AppStorage(CalendarDockAction.singleClickKey) private var calendarSingleClick: CalendarDockAction = .togglePanel
     @AppStorage(CalendarDockAction.doubleClickKey) private var calendarDoubleClick: CalendarDockAction = .openCalendarApp
-    @State private var showDockIISheet = false
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsCard(Text("Widget Appearance")) {
@@ -153,33 +152,41 @@ struct WidgetLookSettingsBlock: View {
                     }
                 )
             }
+        }
+    }
+}
 
-            SettingsCard(Text("Dock II Wings & Widgets")) {
-                wingConfigRow(Text("Left Wing"), placement: .leftWing)
-                SettingsDivider()
-                wingConfigRow(Text("Right Wing"), placement: .rightWing)
-                SettingsDivider()
-                SettingsSliderRow(
-                    Text("Wing Spacing"),
-                    value: store.dockWings.gap,
-                    range: DockWingsConfiguration.minGap...DockWingsConfiguration.maxGap,
-                    step: 1
-                ) {
-                    store.setDockWingGap($0)
-                }
-                SettingsDivider()
-                SettingsRow(Text("Pins, Friends & Integrations")) {
-                    HStack(spacing: 8) {
-                        Button("Configure…") {
-                            showDockIISheet = true
+/// Dedicated Widget Wings tab (`Dock II Wings & Widgets` + Floating Widget Stack configuration sheet).
+struct WidgetWingsSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
+    @State private var showDockIISheet = false
+
+    var body: some View {
+        SettingsCard(Text("Dock II Wings & Widgets")) {
+            wingConfigRow(Text("Left Wing"), placement: .leftWing)
+            SettingsDivider()
+            wingConfigRow(Text("Right Wing"), placement: .rightWing)
+            SettingsDivider()
+            SettingsSliderRow(
+                Text("Wing Spacing"),
+                value: store.dockWings.gap,
+                range: DockWingsConfiguration.minGap...DockWingsConfiguration.maxGap,
+                step: 1
+            ) {
+                store.setDockWingGap($0)
+            }
+            SettingsDivider()
+            SettingsRow(Text("Pins, Friends & Integrations")) {
+                HStack(spacing: 8) {
+                    Button("Configure…") {
+                        showDockIISheet = true
+                    }
+                    .controlSize(.small)
+                    if store.dockWings.hasAnyActiveWing {
+                        Button("Reset Wings") {
+                            store.resetDockWings()
                         }
                         .controlSize(.small)
-                        if store.dockWings.hasAnyActiveWing {
-                            Button("Reset Wings") {
-                                store.resetDockWings()
-                            }
-                            .controlSize(.small)
-                        }
                     }
                 }
             }
@@ -213,6 +220,143 @@ struct WidgetLookSettingsBlock: View {
                 }
                 .labelsHidden().pickerStyle(.segmented).fixedSize()
                 .disabled(!slot.preset.isAssigned)
+            }
+        }
+    }
+}
+
+/// Dedicated App Icons & Hover tab: instance presets, symmetrical spacing, anti-overflow resizing,
+/// Dock App Groups, icon animations/running indicators, hover previews, and Pin-as-App-Icon menu toggle.
+struct AppIconsSettingsBlock: View {
+    @ObservedObject var store: AppSettingsStore
+    @ObservedObject private var appGroupStore = DockAppGroupStore.shared
+    @AppStorage(DockHoverAnimationStyle.defaultsKey) private var hoverAnimationRaw = DockHoverAnimationStyle.none.rawValue
+    @AppStorage(DockPressAnimationStyle.defaultsKey) private var pressAnimationRaw = DockPressAnimationStyle.tactileSquish.rawValue
+    @AppStorage(DockRunningIndicatorStyle.defaultsKey) private var runningIndicatorRaw = DockRunningIndicatorStyle.macDot.rawValue
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+            SettingsCard(Text("App Icon Presets")) {
+                SettingsPickerRow(
+                    Text("Running Apps Style"),
+                    selection: Binding(get: { store.appIconPreset }, set: { store.setAppIconPreset($0) }),
+                    note: Text("Vertical docks automatically default to Icons Only unless you pick a preset.")
+                ) {
+                    ForEach(AppIconPresentationPreset.allCases) { preset in
+                        Text(verbatim: preset.localizedTitle).tag(preset)
+                    }
+                }
+            }
+
+            SettingsCard(Text("Spacing & Dynamic Resizing")) {
+                SettingsSliderRow(
+                    Text("Icon Spacing"),
+                    value: store.dockSpacingConfig.iconSpacing,
+                    range: DockSpacingConfig.iconSpacingRange,
+                    step: 1,
+                    valueText: "\(Int(store.dockSpacingConfig.iconSpacing)) pt"
+                ) { val in
+                    var cfg = store.dockSpacingConfig
+                    cfg.iconSpacing = val
+                    store.setDockSpacingConfig(cfg)
+                }
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Section Spacing"),
+                    value: store.dockSpacingConfig.sectionSpacing,
+                    range: DockSpacingConfig.sectionSpacingRange,
+                    step: 1,
+                    valueText: "\(Int(store.dockSpacingConfig.sectionSpacing)) pt"
+                ) { val in
+                    var cfg = store.dockSpacingConfig
+                    cfg.sectionSpacing = val
+                    store.setDockSpacingConfig(cfg)
+                }
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Dynamic Anti-Overflow Resizing"),
+                    isOn: Binding(
+                        get: { store.dockSpacingConfig.dynamicCompressionEnabled },
+                        set: { enabled in
+                            var cfg = store.dockSpacingConfig
+                            cfg.dynamicCompressionEnabled = enabled
+                            store.setDockSpacingConfig(cfg)
+                        }
+                    ),
+                    note: Text("Automatically trims labels, gaps, and icon scale when many windows are open to reduce scrolling.")
+                )
+            }
+
+            SettingsCard(Text("App Groups")) {
+                SettingsToggleRow(
+                    Text("Enable App Groups"),
+                    isOn: Binding(get: { appGroupStore.isEnabled }, set: { appGroupStore.setEnabled($0) })
+                )
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Sync with Launcher Folders"),
+                    isOn: Binding(get: { appGroupStore.syncWithLauncherFolders }, set: { appGroupStore.setSyncWithLauncher($0) })
+                )
+                SettingsDivider()
+                SettingsButtonRow(
+                    Text("Auto-Group Installed Apps"),
+                    note: Text("Organizes installed apps into Dock folders by category.")
+                ) {
+                    appGroupStore.autoGroupInstalledApps()
+                }
+            }
+
+            SettingsCard(Text("Icon Feedback & Hover")) {
+                SettingsSegmentedRow(Text("Icon Set"), selection: Binding(get: { store.iconSet }, set: store.setIconSet)) {
+                    Text("System").tag(IconSet.system)
+                    Text("Modern").tag(IconSet.modern)
+                    Text("Classic").tag(IconSet.classic)
+                }
+                SettingsDivider()
+                SettingsRow(Text("Hover Animation")) {
+                    Picker("Hover Animation", selection: $hoverAnimationRaw) {
+                        ForEach(DockHoverAnimationStyle.allCases) { style in
+                            SettingsLayoutPane.hoverAnimationTitle(style).tag(style.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsRow(Text("Click Effect")) {
+                    Picker("Click Effect", selection: $pressAnimationRaw) {
+                        ForEach(DockPressAnimationStyle.allCases) { style in
+                            SettingsLayoutPane.pressAnimationTitle(style).tag(style.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsRow(Text("Running Indicator")) {
+                    Picker("Running Indicator", selection: $runningIndicatorRaw) {
+                        ForEach(DockRunningIndicatorStyle.allCases) { style in
+                            SettingsLayoutPane.runningIndicatorTitle(style).tag(style.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Show app name on hover"),
+                    isOn: Binding(get: { store.hoverStyle.isExpressive }, set: { store.setHoverStyle($0 ? .standard : .quiet) })
+                )
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Show window previews on hover"),
+                    isOn: Binding(get: { store.chipPreviewEnabled }, set: { store.setChipPreviewEnabled($0) })
+                )
+            }
+
+            SettingsCard(Text("App Context Menu")) {
+                SettingsToggleRow(
+                    Text("Show 'Pin as App Icon' in app menus"),
+                    isOn: Binding(get: { store.showPinAsAppIcon }, set: { store.setShowPinAsAppIcon($0) }),
+                    note: Text("Keep in Dock is the default. Enable this legacy option to also show separate icon pinning.")
+                )
             }
         }
     }

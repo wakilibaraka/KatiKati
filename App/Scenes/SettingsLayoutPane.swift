@@ -82,7 +82,7 @@ struct SettingsLayoutPane: View {
     /// quit & close) share this pane, so a row is written once and the sidebar splits the audience.
     enum Mode {
         case radialDial, shortcuts, keyboard, visualizer, mouse, gestures, quitApps
-        case widgets, edgeBars, geometry, chips, launcher, controlCenter, notifications
+        case widgets, barWidgets, edgeBars, geometry, chips, launcher, controlCenter, notifications
     }
     var mode: Mode = .shortcuts
 
@@ -90,6 +90,8 @@ struct SettingsLayoutPane: View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             if mode == .widgets {
                 widgetSections
+            } else if mode == .barWidgets {
+                barWidgetSections
             } else if mode == .edgeBars {
                 edgeBarSections
             } else if mode == .geometry {

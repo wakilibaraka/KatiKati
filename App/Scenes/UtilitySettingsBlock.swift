@@ -335,33 +335,6 @@ struct UtilitySettingsBlock: View {
     }
 }
 
-/// Dedicated settings pane for the Background Apps Drawer capsule flanking the Dock bar.
-struct DrawerSettingsBlock: View {
-    @ObservedObject var store: AppSettingsStore
-
-    var body: some View {
-        SettingsCard(
-            Text("Drawer"),
-            note: Text("Places the circular Background Apps Drawer capsule on the left or right flank of the bottom Dock bar (or inside Control Center when docked trailing).")
-        ) {
-            SettingsToggleRow(
-                Text("Drawer"),
-                isOn: Binding(get: { store.showDrawer }, set: { store.setShowDrawer($0) }),
-                note: Text("Show the Drawer button beside the Dock to list running background apps with no open window.")
-            )
-            SettingsDivider()
-            SettingsPickerRow(
-                Text("Drawer Position"),
-                selection: Binding(get: { store.drawerPlacement }, set: { store.setDrawerPlacement($0) }),
-                note: Text("Left puts the Drawer button before the Dock apps; Right puts it after them.")
-            ) {
-                Text("Left").tag(DrawerPlacement.left)
-                Text("Right").tag(DrawerPlacement.right)
-            }
-        }
-    }
-}
-
 /// Dedicated settings pane for the temporary Shelf card stack, Notch File Tray sync, and Space pinning.
 struct ShelfSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore

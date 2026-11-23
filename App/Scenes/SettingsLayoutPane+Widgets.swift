@@ -77,7 +77,7 @@ extension SettingsLayoutPane {
 
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
-        SettingsCard(Text("Dock Items")) {
+        SettingsCard(Text("Dock Layout")) {
             if !stageVisible {
                 DockLivePreviewStrip(
                     mode: store.barLayoutMode,
@@ -87,122 +87,8 @@ extension SettingsLayoutPane {
                 )
                 SettingsDivider()
             }
-            // Slice DA-2: how the icons answer the pointer and the click, and how a running app is marked. The
-            // list below gives these three rows their height back in `widgetListCap`, so the page keeps its clamp.
-            SettingsRow(Text("Hover Animation")) {
-                Picker("Hover Animation", selection: $hoverAnimationRaw) {
-                    ForEach(DockHoverAnimationStyle.allCases) { style in
-                        hoverAnimationTitle(style).tag(style.rawValue)
-                    }
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            SettingsDivider()
-            SettingsRow(Text("Click Effect")) {
-                Picker("Click Effect", selection: $pressAnimationRaw) {
-                    ForEach(DockPressAnimationStyle.allCases) { style in
-                        pressAnimationTitle(style).tag(style.rawValue)
-                    }
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            SettingsDivider()
-            SettingsRow(Text("Running Indicator")) {
-                Picker("Running Indicator", selection: $runningIndicatorRaw) {
-                    ForEach(DockRunningIndicatorStyle.allCases) { style in
-                        runningIndicatorTitle(style).tag(style.rawValue)
-                    }
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            SettingsDivider()
-            // Slice G: the catalog's search field. While a query is typed the module list is replaced by the
-            // matching catalog rows, so the page keeps its clamp (the list gives this row its height back in
-            // `widgetListCap`).
-            SettingsRow(Text("Search widgets")) {
-                TextField("Search widgets", text: $widgetQuery)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 220)
-            }
-            SettingsDivider()
-            if widgetQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                List {
-                    ForEach(store.widgetLayout.order, id: \.self) { widget in
-                        widgetRow(widget)
-                            .listRowInsets(EdgeInsets())
-                    }
-                    .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
-                }
-                .listStyle(.plain)
-                // Close-out F1 (2026-10-15): the list is a control inside a card, so it may not paint its
-                // own well (luminance 35 across 816 × 186 pt against the card's 42) and its rows may not
-                // sit off the grid (label ink at 50.5 pt against the page's 42, 38 pt pitch against 41).
-                // The reorder itself (`.onMove` above) stays — it is the reason this is still a `List`.
-                .scrollContentBackground(.hidden)
-                // A `List` lays its rows out in an `NSOutlineView`, which reserves 8 pt of leading
-                // indentation that `.listRowInsets` cannot reach (measured on the running app: the row
-                // labels at 50 pt against the page's 42) — the list is pulled back by that much.
-                .padding(.horizontal, -Self.listRowChromeInset)
-                .frame(height: min(Self.widgetListHeight(count: store.widgetLayout.order.count),
-                                   widgetListCap))
-            } else {
-                widgetCatalogList
-            }
-            // The preset row and the switch that arms the context presets are one line (2026-10-18):
-            // two lines of controls were 21 pt this page did not have. The context rows it opens stay
-            // under it.
-            HStack(spacing: SettingsMetrics.controlSpacing) {
-                presetControls
-                Spacer(minLength: SettingsMetrics.controlSpacing)
-                contextPresetsToggle
-            }
-            contextPresetRows
-            // The menu-bar menu's four switches moved here (2026-10-21). Dock motion moved into
-            // the Dock card above, where it is Animation Speed.
-            // The pre-MD-4 "Control Centre on the right" switch is gone: the slot list's
-            // Capsule/Strip picker is the one control for that decision.
-            SettingsDivider()
-            SettingsToggleRow(Text("Show Shelf"), isOn: Binding(
-                get: { store.showShelf },
-                set: { store.setShowShelf($0) }
-            ))
-            SettingsDivider()
-            SettingsToggleRow(Text("Show Trash"), isOn: Binding(
-                get: { store.showTrash },
-                set: { store.setShowTrash($0) }
-            ))
-            SettingsDivider()
-            SettingsToggleRow(Text("Drawer"), isOn: Binding(
-                get: { store.showDrawer },
-                set: { store.setShowDrawer($0) }
-            ))
-            // Slice B: the system Dock's pinned apps, adopted into the bar's kept list.
-            if let importDockPins {
-                SettingsDivider()
-                SettingsRow(Text("Import from Dock")) {
-                    Button {
-                        importedDockPinCount = importDockPins()
-                    } label: {
-                        if importedDockPinCount > 0 {
-                            Text("Imported")
-                        } else {
-                            Text("Import")
-                        }
-                    }
-                    .controlSize(.small)
-                    .disabled(importedDockPinCount > 0)
-                }
-            }
-            SettingsDivider()
-            SettingsToggleRow(Text("Background Apps"), isOn: Binding(
-                get: { store.showBackgroundApps },
-                set: { store.setShowBackgroundApps($0) }
-            ))
-            // Slice MD-4: the one ordered slot list. Hide keeps a slot's position (I2), so the row
-            // stays listed while off; the capsule sits outside the list and gets its own picker.
-            SettingsDivider()
-            SettingsRow(Text("Dock Slots")) {
-                Picker("Control Centre", selection: Binding<DockSlotItem?>(
+            SettingsRow(Text("Detached Capsule")) {
+                Picker("Detached Capsule", selection: Binding<DockSlotItem?>(
                     get: { store.dockSlotLayout.trailingCapsule },
                     set: { store.setTrailingCapsule($0) }
                 )) {
@@ -212,6 +98,18 @@ extension SettingsLayoutPane {
                     Text(DockSlotItem.launcher.title).tag(DockSlotItem?.some(.launcher))
                     Text(DockSlotItem.shelf.title).tag(DockSlotItem?.some(.shelf))
                     Text("Off").tag(DockSlotItem?.none)
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
+            SettingsRow(Text("Background & Activity Icon")) {
+                Picker("Background & Activity Icon", selection: Binding(
+                    get: { store.backgroundActivityIconMode },
+                    set: { store.setBackgroundActivityIconMode($0) }
+                )) {
+                    ForEach(BackgroundActivityIconMode.allCases) { iconMode in
+                        Text(verbatim: iconMode.localizedTitle).tag(iconMode)
+                    }
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
@@ -243,48 +141,35 @@ extension SettingsLayoutPane {
                 }
             }
             SettingsDivider()
-            SettingsSegmentedRow(Text("Icon Set"), selection: Binding(
-                get: { store.iconSet }, set: store.setIconSet
-            )) {
-                Text("System").tag(IconSet.system)
-                Text("Modern").tag(IconSet.modern)
-                Text("Classic").tag(IconSet.classic)
-            }
-            SettingsDivider()
-            SettingsRow(Text("Right FAB Style")) {
-                Picker("Right FAB Style", selection: $fabStyleRaw) {
-                    Text("Dynamic Gauge").tag("gauge")
-                    Text("Classic Glyph").tag("classic")
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            .help(Text("The dock's right button: a live gauge or a single glyph."))
-            SettingsDivider()
-            SettingsToggleRow(Text("Show app name on hover"), isOn: Binding(
-                get: { store.hoverStyle.isExpressive },
-                set: { store.setHoverStyle($0 ? .standard : .quiet) }
+            SettingsToggleRow(Text("Show Shelf"), isOn: Binding(
+                get: { store.showShelf },
+                set: { store.setShowShelf($0) }
             ))
             SettingsDivider()
-            SettingsRow(Text("Dock II Wings")) {
-                HStack(spacing: 8) {
-                    Picker("Left Wing", selection: Binding(
-                        get: { store.dockWings.left.preset },
-                        set: { store.setDockWing($0, placement: .leftWing) }
-                    )) {
-                        ForEach(DockWidgetPresetType.allCases) { preset in
-                            Text(verbatim: preset.localizedTitle).tag(preset)
+            SettingsToggleRow(Text("Show Trash"), isOn: Binding(
+                get: { store.showTrash },
+                set: { store.setShowTrash($0) }
+            ))
+            SettingsDivider()
+            SettingsToggleRow(Text("Background Apps"), isOn: Binding(
+                get: { store.showBackgroundApps },
+                set: { store.setShowBackgroundApps($0) }
+            ))
+            // Slice B: the system Dock's pinned apps, adopted into the bar's kept list.
+            if let importDockPins {
+                SettingsDivider()
+                SettingsRow(Text("Import from Dock")) {
+                    Button {
+                        importedDockPinCount = importDockPins()
+                    } label: {
+                        if importedDockPinCount > 0 {
+                            Text("Imported")
+                        } else {
+                            Text("Import")
                         }
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
-                    Picker("Right Wing", selection: Binding(
-                        get: { store.dockWings.right.preset },
-                        set: { store.setDockWing($0, placement: .rightWing) }
-                    )) {
-                        ForEach(DockWidgetPresetType.allCases) { preset in
-                            Text(verbatim: preset.localizedTitle).tag(preset)
-                        }
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                    .controlSize(.small)
+                    .disabled(importedDockPinCount > 0)
                 }
             }
             SettingsDivider()
@@ -352,10 +237,49 @@ extension SettingsLayoutPane {
                 set: { store.setWindowLiftEnabled($0) }
             ))
         }
+    }
 
-        // The style presets moved to `WidgetLookSettingsBlock` (2026-10-15): they are appearance, and
-        // keeping them here made the page four sections where `Docs/SETTINGS.md` rule 5 allows three.
-        // Same keys, same controls.
+    @ViewBuilder
+    var barWidgetSections: some View {
+        SettingsCard(Text("Bar Widgets")) {
+            SettingsRow(Text("Search widgets")) {
+                TextField("Search widgets", text: $widgetQuery)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(maxWidth: 220)
+            }
+            SettingsDivider()
+            if widgetQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                List {
+                    ForEach(store.widgetLayout.order, id: \.self) { widget in
+                        widgetRow(widget)
+                            .listRowInsets(EdgeInsets())
+                    }
+                    .onMove { store.setWidgetLayout(store.widgetLayout.moving(from: $0, to: $1)) }
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .padding(.horizontal, -Self.listRowChromeInset)
+                .frame(height: min(Self.widgetListHeight(count: store.widgetLayout.order.count),
+                                   widgetListCap))
+            } else {
+                widgetCatalogList
+            }
+            HStack(spacing: SettingsMetrics.controlSpacing) {
+                presetControls
+                Spacer(minLength: SettingsMetrics.controlSpacing)
+                contextPresetsToggle
+            }
+            contextPresetRows
+            SettingsDivider()
+            SettingsRow(Text("Right FAB Style")) {
+                Picker("Right FAB Style", selection: $fabStyleRaw) {
+                    Text("Dynamic Gauge").tag("gauge")
+                    Text("Classic Glyph").tag("classic")
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            .help(Text("The dock's right button: a live gauge or a single glyph."))
+        }
     }
 
     /// Fast → slow. `WidgetMotionPreset.allCases` is storage order (Fluid first, Slow last), which
@@ -469,7 +393,7 @@ extension SettingsLayoutPane {
             - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0))
     }
 
-    func hoverAnimationTitle(_ style: DockHoverAnimationStyle) -> Text {
+    static func hoverAnimationTitle(_ style: DockHoverAnimationStyle) -> Text {
         switch style {
         case .none: return Text("None")
         case .magnification: return Text("Magnification")
@@ -481,7 +405,7 @@ extension SettingsLayoutPane {
         }
     }
 
-    func pressAnimationTitle(_ style: DockPressAnimationStyle) -> Text {
+    static func pressAnimationTitle(_ style: DockPressAnimationStyle) -> Text {
         switch style {
         case .tactileSquish: return Text("Tactile Squish")
         case .launchBounce: return Text("Launch Bounce")
@@ -490,7 +414,7 @@ extension SettingsLayoutPane {
         }
     }
 
-    func runningIndicatorTitle(_ style: DockRunningIndicatorStyle) -> Text {
+    static func runningIndicatorTitle(_ style: DockRunningIndicatorStyle) -> Text {
         switch style {
         case .macDot: return Text("Dot")
         case .windowsPill: return Text("Windows Pill")

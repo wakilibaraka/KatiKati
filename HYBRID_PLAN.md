@@ -6927,3 +6927,8 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/WindowChipGrouping.swift`, `Core/Support/BarSection.swift` & `Core/Support/WelcomeGuideStep.swift`: added `localizedTitle` helpers for `AppIconPresentationPreset` and `BackgroundActivityIconMode`, plus `.appIconPreset` & `.trailingCapsule` step settings.
 - `App/Scenes/SettingsTab.swift`, `SettingsSidebar.swift`, `SettingsStage.swift` & `SettingsWindowView.swift`: retired `.drawer` (`"drawer"` → `.launcher`), renamed `.dockItems`/`"Widgets"` into `Dock Layout`, `App Icons & Hover`, `Bar Widgets`, and `Widget Wings` (32 unique tabs & hues).
 - `Tests/Unit/{SettingsTabTests,WelcomeGuideOnboardingTests}.swift`: updated sidebar count/alias assertions and step setting coverage. Zero `project.pbxproj` edits.
+
+### DO-9b — Deduplicated Dock Layout, App Icons & Hover, Bar Widgets & Widget Wings Panes (landed 2026-11-23)
+
+- `App/Scenes/SettingsLayoutPane{.swift,+Widgets.swift}`: added `.barWidgets` mode moving widget catalog/reorder/presets & FAB style onto `Bar Widgets`, streamlined `Dock Layout` around `Detached Capsule`, `Background & Activity Icon`, modular `Dock Slots` and utilities while removing duplicate wing pickers and obsolete Drawer row.
+- `App/Scenes/{WidgetLookSettingsBlock,SettingsWindowView,UtilitySettingsBlock}.swift`: split `WidgetWingsSettingsBlock` cleanly from `WidgetLookSettingsBlock`, added `AppIconsSettingsBlock` (5 instance presets, spacing sliders, dynamic compression toggle, App Groups controls, hover/indicator feedback, and Pin-as-App-Icon toggle), and removed dead `DrawerSettingsBlock`. Zero `project.pbxproj` edits.
