@@ -796,6 +796,8 @@ struct SettingsStepperRow: View {
                 Text(verbatim: readout)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .fixedSize()
                 Stepper(value: value, in: range, step: step) { label }
                     .labelsHidden()
                     .accessibilityLabel(label)

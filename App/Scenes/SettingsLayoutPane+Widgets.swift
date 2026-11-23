@@ -23,29 +23,38 @@ struct DockProfileActions {
 private struct DockProfilesCard: View {
     let actions: DockProfileActions
     @State private var name = ""
+    @State private var profiles: [BarProfileSummary] = []
 
     var body: some View {
-        SettingsCard(Text("Dock Layout")) {
-            if actions.summaries().isEmpty {
+        SettingsCard(Text("Dock Profiles")) {
+            if profiles.isEmpty {
                 Text("None").foregroundStyle(.secondary)
             } else {
-                ForEach(actions.summaries()) { profile in
-                    SettingsRow(Text(profile.name)) {
+                ForEach(profiles) { profile in
+                    SettingsRow(Text(verbatim: profile.name)) {
                         Button("Apply") { actions.apply(profile.id) }.controlSize(.small)
-                        Button("Delete") { actions.delete(profile.id) }.controlSize(.small)
+                        Button("Delete") {
+                            actions.delete(profile.id)
+                            profiles = actions.summaries()
+                        }.controlSize(.small)
                     }
                     SettingsDivider()
                 }
             }
-            SettingsRow(Text("Save")) {
+            SettingsDivider()
+            SettingsRow(Text("New Profile")) {
                 TextField("Name", text: $name).textFieldStyle(.roundedBorder).frame(width: 160)
                 Button("Save") {
-                    if actions.save(name) != nil { name = "" }
+                    if actions.save(name) != nil {
+                        name = ""
+                        profiles = actions.summaries()
+                    }
                 }
                 .controlSize(.small)
                 .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
+        .onAppear { profiles = actions.summaries() }
     }
 }
 

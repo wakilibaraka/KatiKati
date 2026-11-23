@@ -297,7 +297,7 @@ struct SettingsWindowContent: View {
                             Text(MenuBarStatModel.displayName(style)).tag(style.rawValue)
                         }
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                    .labelsHidden().pickerStyle(.menu).frame(width: 145, alignment: .trailing)
                 }
                 Toggle(MenuBarStatModel.displayName(metric), isOn: Binding(
                     get: { MenuBarStatModel.isEnabled(metric) },
@@ -952,8 +952,6 @@ struct WeatherSettingsBlock: View {
         // "Weather Animations" moved to the Widget Appearance card (2026-10-15), where the other
         // widget-animation row already lives and where it shares a line instead of owning one.
         SettingsDivider()
-        // The three thresholds are one line (2026-10-18): the widest label is 156 pt against its
-        // 414 pt third of the card, and the page had no room left for a line of its own.
         SettingsRowPair(
             left: {
                 SettingsStepperRow(
@@ -965,27 +963,22 @@ struct WeatherSettingsBlock: View {
                 )
             },
             right: {
-                SettingsRowPair(
-                    left: {
-                        SettingsStepperRow(
-                            Text("Wind Warning"),
-                            value: binding(\.windKmh),
-                            in: 20...120,
-                            step: 5,
-                            readout: "\(Int(thresholds.windKmh)) km/h"
-                        )
-                    },
-                    right: {
-                        SettingsStepperRow(
-                            Text("Snow Warning"),
-                            value: binding(\.snowCmPerDay),
-                            in: 1...30,
-                            step: 1,
-                            readout: "\(Int(thresholds.snowCmPerDay)) cm"
-                        )
-                    }
+                SettingsStepperRow(
+                    Text("Wind Warning"),
+                    value: binding(\.windKmh),
+                    in: 20...120,
+                    step: 5,
+                    readout: "\(Int(thresholds.windKmh)) km/h"
                 )
             }
+        )
+        SettingsDivider()
+        SettingsStepperRow(
+            Text("Snow Warning"),
+            value: binding(\.snowCmPerDay),
+            in: 1...30,
+            step: 1,
+            readout: "\(Int(thresholds.snowCmPerDay)) cm"
         )
     }
 

@@ -394,6 +394,38 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增 App 群組" } }
       }
     },
+    "Dock Profiles" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dock-Profile" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dock Profiles" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Perfiles del Dock" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Perfiles del Dock" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Profils du Dock" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Profili del Dock" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dock プロファイル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock 프로필" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Perfis do Dock" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Perfis da Dock" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "程序坞配置文件" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "Dock 描述檔" } }
+      }
+    },
+    "New Profile" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neues Profil" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Profile" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo perfil" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo perfil" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nouveau profil" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nuovo profilo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "新規プロファイル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 프로필" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Novo perfil" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Novo perfil" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "新建配置文件" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增描述檔" } }
+      }
+    },
     "Float Focused Window" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Fokussiertes Fenster schwebend machen" } },

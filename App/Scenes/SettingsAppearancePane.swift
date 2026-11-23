@@ -582,12 +582,19 @@ struct WallpaperStageView: View {
             let sky = Gradient(colors: [color(environment.skyTop), color(environment.skyBottom)])
             context.fill(Path(CGRect(origin: .zero, size: size)),
                          with: .linearGradient(sky, startPoint: .zero, endPoint: CGPoint(x: 0, y: size.height)))
-            if environment.glowStrength > 0 {
-                let center = CGPoint(x: size.width * 0.72, y: size.height * 0.34)
+            let moonPoint: CGPoint? = {
+                guard let moon = atmosphere?.moon, moon.visibility > 0 else { return nil }
+                let x = size.width * min(max(0.5 + moon.azimuth / 720, 0.14), 0.86)
+                let y = size.height * min(max(0.46 - moon.altitude / 220, 0.16), 0.56)
+                return CGPoint(x: x, y: y)
+            }()
+            if environment.glowStrength > 0 || moonPoint != nil {
+                let center = moonPoint ?? CGPoint(x: size.width * 0.72, y: size.height * 0.34)
+                let strength = max(environment.glowStrength, (atmosphere?.moon.visibility ?? 0) * 0.35)
                 let radius = size.height * 0.45
                 context.fill(Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius,
                                                     width: radius * 2, height: radius * 2)),
-                             with: .radialGradient(Gradient(colors: [color(environment.glow).opacity(environment.glowStrength), .clear]),
+                             with: .radialGradient(Gradient(colors: [color(environment.glow).opacity(strength), .clear]),
                                                    center: center, startRadius: 0, endRadius: radius))
             }
             if let atmosphere {
@@ -600,12 +607,11 @@ struct WallpaperStageView: View {
                                       width: radius, height: radius)
                     context.fill(Path(ellipseIn: rect), with: .color(.white.opacity(atmosphere.starOpacity)))
                 }
-                let moon = atmosphere.moon
-                if moon.visibility > 0 {
-                    let moonX = size.width * (0.5 + moon.azimuth / 720)
-                    let moonY = size.height * (0.28 + moon.altitude / 180)
-                    let moonRect = CGRect(x: moonX - 7, y: moonY - 7, width: 14, height: 14)
-                    context.fill(Path(ellipseIn: moonRect), with: .color(.white.opacity(moon.visibility)))
+                if let moonPoint {
+                    let haloRect = CGRect(x: moonPoint.x - 10, y: moonPoint.y - 10, width: 20, height: 20)
+                    context.fill(Path(ellipseIn: haloRect), with: .color(.white.opacity(atmosphere.moon.visibility * 0.18)))
+                    let moonRect = CGRect(x: moonPoint.x - 6, y: moonPoint.y - 6, width: 12, height: 12)
+                    context.fill(Path(ellipseIn: moonRect), with: .color(.white.opacity(atmosphere.moon.visibility)))
                 }
                 for (index, band) in atmosphere.clouds.enumerated() {
                     let y = size.height * (0.22 + Double(index) * 0.11)
