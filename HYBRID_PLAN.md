@@ -6917,3 +6917,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 - `App/Composition/DockWidgetFeeds.swift`: added coalesced `isRefreshing` + `refreshNow()` on `DockDevicesFeed` with task cancellation on release.
 - `Core/Support/DockWingModels.swift` & `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift`: renamed `.battery` preset to `Battery & Peripherals`, lazily retain/release `DockDevicesFeed` only when `.battery` renders, added horizontal/vertical peripheral chips and `BatteryPeripheralsPopoverCard` (Mac + BT accessories + platform note). Zero `project.pbxproj` edits.
+
+### DO-8c — DockSet-Style Notch Peripherals Page (landed 2026-11-23)
+
+- `App/Scenes/Notch/NotchHomeView.swift`: replaced temporary stub with `NotchPeripheralsPageView` (lazy `DockTelemetryFeed` + `DockDevicesFeed` retain/release strictly while visible, Mac battery hero + `AudioOutputSwitcher` output menu on the left, connected Bluetooth breakdown rows + macOS platform note on the right). Zero `project.pbxproj` edits.
