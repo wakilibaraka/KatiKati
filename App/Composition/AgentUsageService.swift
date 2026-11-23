@@ -13,7 +13,7 @@ import SQLite3
 /// own cost + token columns. Read with explicit columns (never SELECT *) so a schema without
 /// accounting simply fails to prepare and yields nothing.
 enum AgentOpenCodeReader {
-    static func read(dbPath: String, now: Date = Date(), calendar: Calendar = .current) -> (read: Bool, rows: [AgentStoreRow]) {
+    static func read(dbPath: String, now: Date = Date(), calendar: Calendar = .current, daysBack: Int = 0) -> (read: Bool, rows: [AgentStoreRow]) {
         var handle: OpaquePointer?
         guard sqlite3_open_v2(dbPath, &handle, SQLITE_OPEN_READONLY, nil) == SQLITE_OK, let db = handle else {
             if let handle { sqlite3_close(handle) }
@@ -21,9 +21,9 @@ enum AgentOpenCodeReader {
         }
         defer { sqlite3_close(db) }
 
-        let startOfDay = calendar.startOfDay(for: now)
+        let startOfDay = calendar.date(byAdding: .day, value: -max(0, daysBack), to: calendar.startOfDay(for: now)) ?? now
         let lo = Int64(startOfDay.timeIntervalSince1970 * 1000)
-        let hi = lo + 86_400_000
+        let hi = Int64(now.timeIntervalSince1970 * 1000) + 1
 
         var rows: [AgentStoreRow] = []
         var sawAccounting = false
@@ -152,9 +152,16 @@ final class AgentUsageService: ObservableObject {
             var totalCost = 0.0
             var totalSavings = 0.0
             var recentTurns: [AgentLiveTurn] = []
+            var dailyCosts: [String: Double] = [:]
+            var activeDays = Set<String>()
+            var activeIntervals: [(start: Date, end: Date)] = []
+            var linesAdded = 0
+            var linesDeleted = 0
             let isRecent: (Date) -> Bool = { $0.timeIntervalSinceNow > -300 }
+            let dayKey: (Date) -> String = { ScreenTimeLedger.dayKey($0, calendar: calendar) }
+            let weekStart = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) ?? now
 
-            // 2. Read Claude Code project transcripts (today's files, last 64 KB)
+            // 2. Read Claude Code project transcripts (last seven days, last 64 KB per file)
             // 52c — the opt-in hook's newest event beats the mtime window: Stop ends a turn at once,
             // UserPromptSubmit keeps it active while Claude works. No usable event keeps the old rule.
             let hookLog = (try? String(contentsOf: ClaudeHookConfig.logURL(home: home), encoding: .utf8)) ?? ""
@@ -166,12 +173,12 @@ final class AgentUsageService: ObservableObject {
             }
             if let enumerator = claudeEnumerator {
                 var day = AgentProviderDay()
-                var hadRows = false
+                var hadTodayRows = false
                 while let fileURL = enumerator.nextObject() as? URL {
                     guard fileURL.pathExtension == "jsonl" else { continue }
                     guard let fileValues = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
                           let modDate = fileValues.contentModificationDate,
-                          calendar.isDateInToday(modDate) else {
+                          modDate >= weekStart else {
                         continue
                     }
 
@@ -187,33 +194,45 @@ final class AgentUsageService: ObservableObject {
                             let lines = content.components(separatedBy: .newlines)
                             for line in lines where !line.isEmpty {
                                 if let parsed = AgentClaudeParser.parseJSONLLine(line) {
-                                    hadRows = true
-                                    totalTokens += parsed.tokens
-                                    day.tokens += parsed.tokens
+                                    let activityDate = parsed.timestamp ?? modDate
+                                    activeDays.insert(dayKey(activityDate))
                                     let modelName = parsed.model ?? "claude-3-7-sonnet"
                                     let (c, s) = AgentPricing.cost(tokens: parsed.tokens, model: modelName)
-                                    totalCost += c
-                                    day.cost += c
-                                    totalSavings += s
+                                    dailyCosts[dayKey(activityDate), default: 0] += c
+                                    activeIntervals.append((activityDate, max(activityDate, modDate)))
+                                    if calendar.isDateInToday(activityDate) {
+                                        hadTodayRows = true
+                                        totalTokens += parsed.tokens
+                                        day.tokens += parsed.tokens
+                                        totalCost += c
+                                        day.cost += c
+                                        totalSavings += s
+                                    }
+                                    if let tool = AgentClaudeParser.parseToolCallLine(line) {
+                                        linesAdded += tool.addedLines
+                                        linesDeleted += tool.deletedLines
+                                    }
 
                                     let projectName = fileURL.deletingLastPathComponent().lastPathComponent
-                                    recentTurns.append(AgentLiveTurn(
-                                        id: "\(fileURL.lastPathComponent)-\(modDate.timeIntervalSince1970)",
-                                        provider: .claude,
-                                        model: AgentPricing.displayName(modelName),
-                                        project: projectName,
-                                        started: parsed.timestamp ?? modDate,
-                                        lastActivity: modDate,
-                                        tokens: parsed.tokens,
-                                        cost: c,
-                                        isActive: claudeWorking ?? isRecent(modDate)
-                                    ))
+                                    if isRecent(modDate) {
+                                        recentTurns.append(AgentLiveTurn(
+                                            id: "\(fileURL.lastPathComponent)-\(modDate.timeIntervalSince1970)",
+                                            provider: .claude,
+                                            model: AgentPricing.displayName(modelName),
+                                            project: projectName,
+                                            started: activityDate,
+                                            lastActivity: modDate,
+                                            tokens: parsed.tokens,
+                                            cost: c,
+                                            isActive: claudeWorking ?? isRecent(modDate)
+                                        ))
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                if hadRows {
+                if hadTodayRows {
                     day.costIsStoreReported = false
                     newSnapshot.providerToday[.claude] = day
                 }
@@ -221,28 +240,35 @@ final class AgentUsageService: ObservableObject {
 
             // 3. Read OpenCode's own store: the cost column is the tool's number, not a price we computed.
             let openCodeDB = home.appendingPathComponent(".local/share/opencode/opencode.db").path
-            let openCode = AgentOpenCodeReader.read(dbPath: openCodeDB, now: now, calendar: calendar)
+            let openCode = AgentOpenCodeReader.read(dbPath: openCodeDB, now: now, calendar: calendar, daysBack: 6)
             if openCode.read {
                 newSnapshot.sourcesRead.append(.opencode)
             }
             if !openCode.rows.isEmpty {
                 var day = AgentProviderDay(costIsStoreReported: true)
                 for row in openCode.rows {
-                    totalTokens += row.tokens
-                    day.tokens += row.tokens
-                    totalCost += row.storeCost
-                    day.cost += row.storeCost
-                    recentTurns.append(AgentLiveTurn(
-                        id: "opencode-\(row.project)-\(row.lastActivity.timeIntervalSince1970)",
-                        provider: .opencode,
-                        model: row.model,
-                        project: row.project,
-                        started: row.lastActivity,
-                        lastActivity: row.lastActivity,
-                        tokens: row.tokens,
-                        cost: row.storeCost,
-                        isActive: isRecent(row.lastActivity)
-                    ))
+                    dailyCosts[dayKey(row.lastActivity), default: 0] += row.storeCost
+                    activeDays.insert(dayKey(row.lastActivity))
+                    activeIntervals.append((row.lastActivity, row.lastActivity.addingTimeInterval(1)))
+                    if calendar.isDateInToday(row.lastActivity) {
+                        totalTokens += row.tokens
+                        day.tokens += row.tokens
+                        totalCost += row.storeCost
+                        day.cost += row.storeCost
+                    }
+                    if isRecent(row.lastActivity) {
+                        recentTurns.append(AgentLiveTurn(
+                            id: "opencode-\(row.project)-\(row.lastActivity.timeIntervalSince1970)",
+                            provider: .opencode,
+                            model: row.model,
+                            project: row.project,
+                            started: row.lastActivity,
+                            lastActivity: row.lastActivity,
+                            tokens: row.tokens,
+                            cost: row.storeCost,
+                            isActive: true
+                        ))
+                    }
                 }
                 newSnapshot.providerToday[.opencode] = day
             }
@@ -263,7 +289,7 @@ final class AgentUsageService: ObservableObject {
                     guard fileURL.pathExtension == "jsonl" else { continue }
                     guard let fileValues = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
                           let modDate = fileValues.contentModificationDate,
-                          calendar.isDateInToday(modDate) else {
+                          modDate >= weekStart else {
                         continue
                     }
                     if let fileHandle = try? FileHandle(forReadingFrom: fileURL) {
@@ -276,23 +302,30 @@ final class AgentUsageService: ObservableObject {
                             for line in content.components(separatedBy: .newlines) where !line.isEmpty {
                                 if let parsed = AgentCodexParser.parseJSONLLine(line) {
                                     codexHadRows = true
-                                    totalTokens += parsed.tokens
-                                    codexDay.tokens += parsed.tokens
                                     let modelName = parsed.model ?? "codex"
                                     let (c, _) = AgentPricing.cost(tokens: parsed.tokens, model: modelName)
-                                    totalCost += c
-                                    codexDay.cost += c
-                                    recentTurns.append(AgentLiveTurn(
-                                        id: "codex-\(fileURL.lastPathComponent)-\(modDate.timeIntervalSince1970)",
-                                        provider: .codex,
-                                        model: parsed.model ?? AgentProvider.codex.displayName,
-                                        project: fileURL.deletingLastPathComponent().lastPathComponent,
-                                        started: modDate,
-                                        lastActivity: modDate,
-                                        tokens: parsed.tokens,
-                                        cost: c,
-                                        isActive: isRecent(modDate)
-                                    ))
+                                    dailyCosts[dayKey(modDate), default: 0] += c
+                                    activeDays.insert(dayKey(modDate))
+                                    activeIntervals.append((modDate, modDate.addingTimeInterval(1)))
+                                    if calendar.isDateInToday(modDate) {
+                                        totalTokens += parsed.tokens
+                                        codexDay.tokens += parsed.tokens
+                                        totalCost += c
+                                        codexDay.cost += c
+                                    }
+                                    if isRecent(modDate) {
+                                        recentTurns.append(AgentLiveTurn(
+                                            id: "codex-\(fileURL.lastPathComponent)-\(modDate.timeIntervalSince1970)",
+                                            provider: .codex,
+                                            model: parsed.model ?? AgentProvider.codex.displayName,
+                                            project: fileURL.deletingLastPathComponent().lastPathComponent,
+                                            started: modDate,
+                                            lastActivity: modDate,
+                                            tokens: parsed.tokens,
+                                            cost: c,
+                                            isActive: true
+                                        ))
+                                    }
                                 }
                             }
                         }
@@ -327,6 +360,11 @@ final class AgentUsageService: ObservableObject {
             newSnapshot.todayTokens = totalTokens
             newSnapshot.todayCost = totalCost
             newSnapshot.todaySavings = totalSavings
+            newSnapshot.activeDuration = AgentUsageMetrics.activeDuration(intervals: activeIntervals)
+            newSnapshot.linesAdded = linesAdded
+            newSnapshot.linesDeleted = linesDeleted
+            newSnapshot.weeklyHeatmap = AgentUsageMetrics.heatmap(dailyCosts: dailyCosts, endingAt: now, calendar: calendar)
+            newSnapshot.streakDays = AgentUsageMetrics.streakDays(activeDays: activeDays, endingAt: now, calendar: calendar)
             newSnapshot.recentTurns = recentTurns.sorted(by: { $0.lastActivity > $1.lastActivity })
             newSnapshot.activeTurn = newSnapshot.recentTurns.first(where: { $0.isActive })
 

@@ -56,6 +56,30 @@ struct ScreenTimeLedger: Equatable, Codable, Sendable {
     }
 }
 
+enum ScreenTimeExport {
+    static func json(_ ledger: ScreenTimeLedger) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return try encoder.encode(ledger)
+    }
+
+    static func csv(_ ledger: ScreenTimeLedger) -> Data {
+        var rows = ["day,bundleID,name,seconds"]
+        for day in ledger.days.keys.sorted() {
+            for bundleID in ledger.days[day]!.keys.sorted() {
+                let name = ledger.names[bundleID] ?? bundleID
+                rows.append([day, bundleID, name, String(ledger.days[day]![bundleID]!)].map(escape).joined(separator: ","))
+            }
+        }
+        return Data((rows.joined(separator: "\n") + "\n").utf8)
+    }
+
+    private static func escape(_ value: String) -> String {
+        guard value.contains(",") || value.contains("\"") || value.contains("\n") else { return value }
+        return "\"\(value.replacingOccurrences(of: "\"", with: "\"\""))\""
+    }
+}
+
 /// Accrues foreground time into a ledger. The platform feeds it events (app switched, idle, screen asleep) and ticks;
 /// everything about *how time is counted* lives here so it can be tested without a clock.
 struct ScreenTimeTracker: Equatable, Sendable {

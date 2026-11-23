@@ -116,10 +116,10 @@ struct NotchAIPageView: View {
                         let receipt = AIStatsReceiptCalculator.calculate(
                             tokens: snapshot.todayTokens,
                             costUSD: snapshot.todayCost,
-                            activeDuration: 3600,
-                            linesAdded: 120,
-                            linesDeleted: 24,
-                            streakDays: 3
+                            activeDuration: snapshot.activeDuration,
+                            linesAdded: snapshot.linesAdded,
+                            linesDeleted: snapshot.linesDeleted,
+                            streakDays: snapshot.streakDays
                         )
                         AIReceiptPopoverView(receipt: receipt)
                     }

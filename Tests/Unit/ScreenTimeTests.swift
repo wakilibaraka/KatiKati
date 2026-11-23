@@ -88,6 +88,16 @@ final class ScreenTimeTests: XCTestCase {
         XCTAssertTrue(l.days.isEmpty)
     }
 
+    func testExportsJSONAndCSV() throws {
+        var ledger = ScreenTimeLedger()
+        ledger.add(bundleID: "com.example.app", name: "Example, App", seconds: 42, day: "2026-10-12")
+        let json = try ScreenTimeExport.json(ledger)
+        XCTAssertNotNil(try JSONDecoder().decode(ScreenTimeLedger.self, from: json))
+        let csv = String(decoding: ScreenTimeExport.csv(ledger), as: UTF8.self)
+        XCTAssertTrue(csv.contains("\"Example, App\""))
+        XCTAssertTrue(csv.contains("com.example.app"))
+    }
+
     func testAwayAndFormat() {
         XCTAssertTrue(ScreenTimeTracker.isAway(idleSeconds: 120, screenAsleep: false))
         XCTAssertTrue(ScreenTimeTracker.isAway(idleSeconds: 0, screenAsleep: true))

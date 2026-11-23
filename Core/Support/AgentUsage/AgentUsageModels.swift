@@ -252,6 +252,10 @@ struct AgentUsageSnapshot: Equatable, Sendable {
     var todayTokens: AgentTokens = AgentTokens()
     var todayCost: Double = 0.0
     var todaySavings: Double = 0.0
+    var activeDuration: TimeInterval = 0
+    var linesAdded: Int = 0
+    var linesDeleted: Int = 0
+    var streakDays: Int = 0
     var activeTurn: AgentLiveTurn? = nil
     var limits: [AgentProvider: AgentLimits] = [:]
     var recentTurns: [AgentLiveTurn] = []
@@ -295,6 +299,60 @@ struct AgentUsageSnapshot: Equatable, Sendable {
         } else {
             return "\(count)"
         }
+    }
+
+}
+
+enum AgentUsageMetrics {
+    static func activeDuration(intervals: [(start: Date, end: Date)], maximumGap: TimeInterval = 300) -> TimeInterval {
+        let normalized = intervals.compactMap { interval -> (Date, Date)? in
+            guard interval.end > interval.start else { return nil }
+            return (interval.start, min(interval.end, interval.start.addingTimeInterval(maximumGap)))
+        }.sorted { $0.0 < $1.0 }
+
+        var total: TimeInterval = 0
+        var current: (Date, Date)?
+        for interval in normalized {
+            guard let existing = current else {
+                current = interval
+                continue
+            }
+            if interval.0 <= existing.1 {
+                current = (existing.0, max(existing.1, interval.1))
+            } else {
+                total += existing.1.timeIntervalSince(existing.0)
+                current = interval
+            }
+        }
+        if let current { total += current.1.timeIntervalSince(current.0) }
+        return total
+    }
+
+    static func heatmap(dailyCosts: [String: Double], endingAt end: Date, calendar: Calendar) -> [Double] {
+        (0..<7).reversed().map { offset in
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: end) else { return 0 }
+            return dailyCosts[ScreenTimeLedger.dayKey(date, calendar: calendar)] ?? 0
+        }
+    }
+
+    static func streakDays(dailyCosts: [String: Double], endingAt end: Date, calendar: Calendar) -> Int {
+        var streak = 0
+        for offset in 0..<7 {
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: end) else { break }
+            guard (dailyCosts[ScreenTimeLedger.dayKey(date, calendar: calendar)] ?? 0) > 0 else { break }
+            streak += 1
+        }
+        return streak
+    }
+
+    static func streakDays(activeDays: Set<String>, endingAt end: Date, calendar: Calendar) -> Int {
+        var streak = 0
+        for offset in 0..<7 {
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: end) else { break }
+            guard activeDays.contains(ScreenTimeLedger.dayKey(date, calendar: calendar)) else { break }
+            streak += 1
+        }
+        return streak
     }
 }
 

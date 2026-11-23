@@ -121,6 +121,24 @@ final class SettingsBackupServiceTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: boxesURL), boxesPayload)
         XCTAssertEqual(defaults.object(forKey: DesktopCanvasConfig.enabledKey) as? Bool, true)
     }
+
+    func testScreenTimeAndProfilesFilesTravelWithBackups() throws {
+        let screenTime = Data("{\"days\":{}}".utf8)
+        let profiles = Data("[]".utf8)
+        try screenTime.write(to: dir.appendingPathComponent("screen-time.json"))
+        try profiles.write(to: dir.appendingPathComponent("profiles.json"))
+
+        let backup = service().makeBackup(categories: [.settingsAndShortcuts, .barAndLauncher])
+        XCTAssertEqual(backup.files["screen-time.json"], screenTime)
+        XCTAssertEqual(backup.files["profiles.json"], profiles)
+
+        try? FileManager.default.removeItem(at: dir.appendingPathComponent("screen-time.json"))
+        try? FileManager.default.removeItem(at: dir.appendingPathComponent("profiles.json"))
+        let summary = try service().restore(backup, categories: [.settingsAndShortcuts, .barAndLauncher])
+        XCTAssertEqual(summary.filesWritten, 2)
+        XCTAssertEqual(try Data(contentsOf: dir.appendingPathComponent("screen-time.json")), screenTime)
+        XCTAssertEqual(try Data(contentsOf: dir.appendingPathComponent("profiles.json")), profiles)
+    }
 }
 
 /// 笔记经密码信封进出备份：不写 note.key、不落明文文件、错误密码时什么都不改。

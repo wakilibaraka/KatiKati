@@ -52,6 +52,10 @@ struct SettingsBackupService {
 
     var backupsDirectory: URL { supportDirectory.appendingPathComponent("Backups", isDirectory: true) }
 
+    var applicationSupportFiles: [String] {
+        ["tasks.json", "desktop-boxes.json", "desktop-capture.json", "screen-time.json", "profiles.json"]
+    }
+
     // MARK: - Export
 
     private func storedValues() -> [String: Any] {
@@ -66,16 +70,10 @@ struct SettingsBackupService {
             if let value = all[key].flatMap(BackupValue.init(propertyList:)) { values[key] = value }
         }
         var files: [String: Data] = [:]
-        if categories.contains(.tasks), let data = try? Data(contentsOf: supportDirectory.appendingPathComponent("tasks.json")) {
-            files["tasks.json"] = data
-        }
-        if categories.contains(.settingsAndShortcuts) {
-            if let data = try? Data(contentsOf: supportDirectory.appendingPathComponent("desktop-boxes.json")) {
-                files["desktop-boxes.json"] = data
-            }
-            if let data = try? Data(contentsOf: supportDirectory.appendingPathComponent("desktop-capture.json")) {
-                files["desktop-capture.json"] = data
-            }
+        for name in applicationSupportFiles {
+            guard let category = SettingsBackupFile.category(ofFile: name), categories.contains(category),
+                  let data = try? Data(contentsOf: supportDirectory.appendingPathComponent(name)) else { continue }
+            files[name] = data
         }
         return SettingsBackupFile(appVersion: appVersion, created: now(), categories: categories, defaults: values, files: files)
     }

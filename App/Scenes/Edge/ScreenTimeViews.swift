@@ -1,4 +1,6 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Today's total, the busiest apps and a seven-day strip (Phase 7B-W2). Used by the edge-deck flyout and, with fewer
 /// rows, by the launcher's Screen Time tile. Shows an empty state when tracking is off.
@@ -79,6 +81,11 @@ struct ScreenTimeFlyoutView: View {
                 .toggleStyle(.switch)
             Text("Only the name of the front app and the time it was in front are kept, on this Mac.")
                 .font(.system(size: 10)).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            Menu("Export") {
+                Button { exportJSON() } label: { Text(verbatim: "JSON") }
+                Button { exportCSV() } label: { Text(verbatim: "CSV") }
+            }
+            .menuStyle(.borderlessButton)
             Button("Delete Screen Time Data") { confirmDelete = true }
                 .buttonStyle(.link).font(.system(size: 11))
                 .alert(isPresented: $confirmDelete) {
@@ -87,6 +94,30 @@ struct ScreenTimeFlyoutView: View {
                 }
         }
         .padding(14)
+    }
+
+    private func exportJSON() {
+        export(defaultName: "screen-time.json", contentType: .json) {
+            try ScreenTimeExport.json(controller.ledger)
+        }
+    }
+
+    private func exportCSV() {
+        export(defaultName: "screen-time.csv", contentType: .commaSeparatedText) {
+            ScreenTimeExport.csv(controller.ledger)
+        }
+    }
+
+    private func export(defaultName: String, contentType: UTType, data: () throws -> Data) {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [contentType]
+        panel.nameFieldStringValue = defaultName
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try data().write(to: url, options: .atomic)
+        } catch {
+            NSLog("ScreenTime export failed: \(error.localizedDescription)")
+        }
     }
 
     @ViewBuilder private var limitsSection: some View {

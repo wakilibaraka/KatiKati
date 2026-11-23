@@ -209,6 +209,24 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertEqual(snapshot.lastMeasuredModel, "space-bunny-free")
     }
 
+    func testUsageMetricsMergeIntervalsAndBuildHeatmapAndStreak() {
+        let calendar = Calendar(identifier: .gregorian)
+        let end = Date(timeIntervalSince1970: 1_800_000_000)
+        let intervals = [
+            (start: end.addingTimeInterval(-240), end: end.addingTimeInterval(-120)),
+            (start: end.addingTimeInterval(-180), end: end),
+            (start: end.addingTimeInterval(-10_000), end: end.addingTimeInterval(-9_900))
+        ]
+        XCTAssertEqual(AgentUsageMetrics.activeDuration(intervals: intervals), 340, accuracy: 0.001)
+
+        let today = ScreenTimeLedger.dayKey(end, calendar: calendar)
+        let yesterday = ScreenTimeLedger.dayKey(end.addingTimeInterval(-86_400), calendar: calendar)
+        let costs = [yesterday: 2.0, today: 1.0]
+        XCTAssertEqual(Array(AgentUsageMetrics.heatmap(dailyCosts: costs, endingAt: end, calendar: calendar).suffix(2)), [2.0, 1.0])
+        XCTAssertEqual(AgentUsageMetrics.streakDays(dailyCosts: costs, endingAt: end, calendar: calendar), 2)
+        XCTAssertEqual(AgentUsageMetrics.streakDays(activeDays: [yesterday, today], endingAt: end, calendar: calendar), 2)
+    }
+
     // Phase 52a — fixtures below follow the shapes actually on disk in October 2026
     // (Claude Code 2.1.300 transcripts, Codex 0.144 rollouts), not the shapes the parsers
     // were first written against. Values are synthetic; only the envelopes are real.
