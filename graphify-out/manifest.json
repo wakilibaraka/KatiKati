@@ -354,10 +354,10 @@
     "semantic_hash": "26b3fec7918f8834b15f49c13ed36397"
   },
   "App/Composition/ProcessMemoryReader.swift": {
-    "mtime": 1791999130.799877,
-    "seen": 1792295707.060408,
-    "ast_hash": "86cc29f5f50f94f2e7cb09e166ba65ba",
-    "semantic_hash": "86cc29f5f50f94f2e7cb09e166ba65ba"
+    "mtime": 1795427211.0177407,
+    "seen": 1795427403.4506838,
+    "ast_hash": "72b301f1b3092e505e034aef5aa46e55",
+    "semantic_hash": ""
   },
   "App/Composition/RecentlyClosedStore.swift": {
     "mtime": 1795096068.1891367,
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Drawer.swift": {
-    "mtime": 1795426660.1276073,
-    "seen": 1795427190.459836,
-    "ast_hash": "75f9e57e362a7373d9edf900b71c2e98",
+    "mtime": 1795427216.154257,
+    "seen": 1795427403.450725,
+    "ast_hash": "e3e364ed094d9a73f1950bda42ab7c3b",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Fullscreen.swift": {
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DrawerView.swift": {
-    "mtime": 1794972066.0027533,
-    "seen": 1794972536.096689,
-    "ast_hash": "cce0dc8dff52976f0870197330b08f65",
+    "mtime": 1795427221.4400818,
+    "seen": 1795427403.45079,
+    "ast_hash": "ebeb35c1f3e0880cec4e5c35520d9564",
     "semantic_hash": ""
   },
   "App/Scenes/DynamicGaugeFABView.swift": {
@@ -1206,9 +1206,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/StackPopupChrome.swift": {
-    "mtime": 1795019697.6366997,
-    "seen": 1795027280.4658718,
-    "ast_hash": "e579d91f052fdec22c36e464ada6ddfe",
+    "mtime": 1795427212.4427748,
+    "seen": 1795427403.4508731,
+    "ast_hash": "eaf41ae5563b0b177d3c8434de228b83",
     "semantic_hash": ""
   },
   "App/Scenes/StatusMenuWidgets.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795427164.1294513,
-    "seen": 1795427190.4607208,
-    "ast_hash": "2d2e713f6e0bd74a89eb4cb8336011fb",
+    "mtime": 1795427378.8651922,
+    "seen": 1795427403.451586,
+    "ast_hash": "3f7acaba9baec0511600136bcb427194",
     "semantic_hash": ""
   },
   "README.md": {
