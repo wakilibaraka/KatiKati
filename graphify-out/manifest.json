@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795215839.600011,
-    "seen": 1795216342.560211,
-    "ast_hash": "a684b14255a74a2c7bbe96f1d785a409",
+    "mtime": 1795435966.4841466,
+    "seen": 1795436292.884897,
+    "ast_hash": "fb8790e596f4f5cf6092b7c4bdd8e382",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1795215839.5994856,
-    "seen": 1795216342.56058,
-    "ast_hash": "4502c5bf4178640d264a54825f89a700",
+    "mtime": 1795435926.3780491,
+    "seen": 1795436292.88527,
+    "ast_hash": "40367fe22fbd66e8a08e04920311b60b",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -2148,9 +2148,9 @@
     "semantic_hash": ""
   },
   "Core/Support/PinchGesture.swift": {
-    "mtime": 1795213619.6700253,
-    "seen": 1795213746.454321,
-    "ast_hash": "d40179beae24c96ee9fa1d8f13017f41",
+    "mtime": 1795435921.0693007,
+    "seen": 1795436292.8853161,
+    "ast_hash": "f04f2c0b86983266b76f7e0ba9820e36",
     "semantic_hash": ""
   },
   "Core/Support/PlayerAccess.swift": {
@@ -2892,10 +2892,10 @@
     "semantic_hash": "c4bf0fbfd2405e358487fb356c863b1b"
   },
   "Platform/Pinboard/MultitouchPinchMonitor.swift": {
-    "mtime": 1794911433.4043102,
-    "seen": 1794911601.509443,
-    "ast_hash": "7d5d91de074a9d0549099dc278957fde",
-    "semantic_hash": "7d5d91de074a9d0549099dc278957fde"
+    "mtime": 1795435928.7178018,
+    "seen": 1795436292.88546,
+    "ast_hash": "c139a2b845f65fe584674e93b9e0044c",
+    "semantic_hash": ""
   },
   "Platform/Pinboard/QuickToggleEngine.swift": {
     "mtime": 1794871029.117069,
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1795215871.720345,
-    "seen": 1795216342.560896,
-    "ast_hash": "0a0e4f45d447960863038394e2ee9aa3",
+    "mtime": 1795435950.3416972,
+    "seen": 1795436292.885615,
+    "ast_hash": "b7c4afa1720c89bbc2a96b940de59f3e",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
@@ -3924,10 +3924,10 @@
     "semantic_hash": "e4d9cf0576875c3d2059411155b01684"
   },
   "Tests/Unit/PinchGestureTests.swift": {
-    "mtime": 1791999130.9557505,
-    "seen": 1792295707.0607731,
-    "ast_hash": "b7b6be0bf4364b72c56d28347b7bbb36",
-    "semantic_hash": "b7b6be0bf4364b72c56d28347b7bbb36"
+    "mtime": 1795435947.9116547,
+    "seen": 1795436292.885671,
+    "ast_hash": "0c3e79ce961cd4607453f8a36ea2de98",
+    "semantic_hash": ""
   },
   "Tests/Unit/PinnedIslandTests.swift": {
     "mtime": 1792272871.050425,
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1795280649.363658,
-    "seen": 1795280970.242785,
-    "ast_hash": "0c7646c3ff1dc044e8e69a4b5a0e7fba",
+    "mtime": 1795435932.9592752,
+    "seen": 1795436292.8851042,
+    "ast_hash": "50907f9dded0f27d7560f36c49ea50ab",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
