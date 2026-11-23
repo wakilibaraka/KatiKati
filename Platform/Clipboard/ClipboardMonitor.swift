@@ -52,7 +52,7 @@ final class ClipboardMonitor: ObservableObject {
         pasteboard.clearContents()
         pasteboard.setString(entry.text, forType: .string)
         lastChange = pasteboard.changeCount
-        history.remember(entry.text)
+        history.remember(entry.text, originBundleID: entry.originBundleID)
     }
 
     /// Copies the entry, then sends ⌘V to the still-frontmost app (the flyout is non-activating). Only
@@ -152,10 +152,11 @@ final class ClipboardMonitor: ObservableObject {
         skipNextCopy = outcome.nextMode.isSkippingNextCopy
         guard outcome.record else { return }
         let types = (pasteboard.types ?? []).map(\.rawValue)
+        let originBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         guard ClipboardHistory.shouldRecord(types: types),
               MaccyPasteboardFilter.shouldRecord(
                 types: types,
-                sourceBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+                sourceBundleID: originBundleID,
                 text: pasteboard.string(forType: .string),
                 rules: filterRules
               ),
@@ -164,7 +165,7 @@ final class ClipboardMonitor: ObservableObject {
         guard !ClipboardIgnoreRules.matches(text, rules: rules) else { return }
         let limit = defaults.integer(forKey: ClipboardSettingsKeys.historyLimit)
         history.limit = limit > 0 ? limit : ClipboardHistory.maxUnpinned
-        history.remember(text)
+        history.remember(text, originBundleID: originBundleID)
         history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
         if defaults.object(forKey: Self.soundsKey) as? Bool ?? true { NSSound(named: "Tink")?.play() }
         onRecorded?(text)

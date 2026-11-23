@@ -120,6 +120,9 @@ final class ClipboardCardMetadataTests: XCTestCase {
         let workMeta = ClipboardCardMetadata.classify(text: "meeting notes", originBundleID: "com.tinyspeck.slackmacgap", workBundleIDs: workApps)
         XCTAssertEqual(workMeta.category, .work)
 
+        let defaultXcodeMeta = ClipboardCardMetadata.classify(text: "let x = 42", originBundleID: "com.apple.dt.Xcode")
+        XCTAssertEqual(defaultXcodeMeta.category, .work)
+
         let personalMeta = ClipboardCardMetadata.classify(text: "recipe list", originBundleID: "com.apple.Safari", workBundleIDs: workApps)
         XCTAssertEqual(personalMeta.category, .personal)
     }
@@ -185,6 +188,9 @@ final class MaccyClipboardTests: XCTestCase {
         XCTAssertNil(second[ids[1]])
         XCTAssertEqual(second[ids[9]], 2, "the gap left by an unpin is refilled")
         XCTAssertEqual(second[ids[8]], 9)
+        XCTAssertEqual(MaccyPinShortcutAssigner.entryID(forSlot: 1, in: second), ids[0])
+        XCTAssertEqual(MaccyPinShortcutAssigner.entryID(forSlot: 2, in: second), ids[9])
+        XCTAssertNil(MaccyPinShortcutAssigner.entryID(forSlot: 10, in: second))
     }
 
     func testKeyboardTableMatchesMaccy() {
@@ -195,6 +201,10 @@ final class MaccyClipboardTests: XCTestCase {
         XCTAssertEqual(MaccyKeyAction.action(key: "delete", modifiers: .option), .delete)
         XCTAssertEqual(MaccyKeyAction.action(key: "backspace", modifiers: [.option, .command]), .clearUnpinned)
         XCTAssertEqual(MaccyKeyAction.action(key: "\u{7f}", modifiers: [.shift, .option, .command]), .clearAll)
+        XCTAssertEqual(MaccyKeyAction.action(key: "1", modifiers: .command), .selectPinSlot(1))
+        XCTAssertEqual(MaccyKeyAction.action(key: "9", modifiers: .command), .selectPinSlot(9))
+        XCTAssertNil(MaccyKeyAction.action(key: "0", modifiers: .command))
+        XCTAssertNil(MaccyKeyAction.action(key: "1", modifiers: [.command, .option]))
         XCTAssertNil(MaccyKeyAction.action(key: "return", modifiers: .command))
         XCTAssertNil(MaccyKeyAction.action(key: "x", modifiers: .option))
     }

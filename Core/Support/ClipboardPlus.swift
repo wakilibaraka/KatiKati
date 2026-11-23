@@ -73,10 +73,40 @@ struct ClipboardCardMetadata: Equatable, Sendable {
         case image(width: Int, height: Int)
     }
 
+    static let defaultWorkBundleIDs: Set<String> = [
+        "com.apple.dt.xcode",
+        "com.apple.terminal",
+        "com.googlecode.iterm2",
+        "dev.warp.warp-stable",
+        "com.mitchellh.ghostty",
+        "com.microsoft.vscode",
+        "com.todesktop.230313mzl4w4u92",
+        "com.tinyspeck.slackmacgap",
+        "com.microsoft.teams",
+        "com.microsoft.teams2",
+        "us.zoom.xos",
+        "notion.id",
+        "com.linear",
+        "com.figma.desktop",
+        "md.obsidian",
+        "com.apple.mail",
+        "com.apple.ical",
+        "com.apple.iwork.keynote",
+        "com.apple.iwork.numbers",
+        "com.apple.iwork.pages",
+        "com.microsoft.word",
+        "com.microsoft.excel",
+        "com.microsoft.powerpoint"
+    ]
+
     let contentType: ContentType
     let category: ClipboardCategory
 
-    static func classify(text: String, originBundleID: String? = nil, workBundleIDs: Set<String> = []) -> ClipboardCardMetadata {
+    static func classify(
+        text: String,
+        originBundleID: String? = nil,
+        workBundleIDs: Set<String> = defaultWorkBundleIDs
+    ) -> ClipboardCardMetadata {
         if let parsedColor = parseHexColor(text) {
             return ClipboardCardMetadata(
                 contentType: .hexColor(hex: parsedColor.hex, color: parsedColor.color),
@@ -92,7 +122,12 @@ struct ClipboardCardMetadata: Equatable, Sendable {
         )
     }
 
-    static func classifyImage(width: Int, height: Int, originBundleID: String? = nil, workBundleIDs: Set<String> = []) -> ClipboardCardMetadata {
+    static func classifyImage(
+        width: Int,
+        height: Int,
+        originBundleID: String? = nil,
+        workBundleIDs: Set<String> = defaultWorkBundleIDs
+    ) -> ClipboardCardMetadata {
         ClipboardCardMetadata(
             contentType: .image(width: max(0, width), height: max(0, height)),
             category: resolveCategory(originBundleID: originBundleID, workBundleIDs: workBundleIDs)
@@ -293,6 +328,11 @@ enum MaccyPinShortcutAssigner {
         }
         return slots
     }
+
+    static func entryID(forSlot slot: Int, in slots: [UUID: Int]) -> UUID? {
+        guard (1...maxSlot).contains(slot) else { return nil }
+        return slots.first(where: { $0.value == slot })?.key
+    }
 }
 
 /// Slice MC-2 — Maccy's keyboard table, resolved from a key and its modifiers. Pure so the flyout only has to map
@@ -305,6 +345,7 @@ enum MaccyKeyAction: Equatable, Sendable {
     case delete               // ⌥⌫
     case clearUnpinned        // ⌥⌘⌫
     case clearAll             // ⇧⌥⌘⌫
+    case selectPinSlot(Int)   // ⌘1…⌘9
 
     struct Modifiers: OptionSet, Sendable, Equatable {
         let rawValue: Int
@@ -316,7 +357,11 @@ enum MaccyKeyAction: Equatable, Sendable {
     /// `key` is the event's `charactersIgnoringModifiers`; `"return"` and `"delete"` are accepted as names too, so a
     /// test or a menu item can call this without building an `NSEvent`.
     static func action(key: String, modifiers: Modifiers) -> MaccyKeyAction? {
-        switch key.lowercased() {
+        let lowered = key.lowercased()
+        switch lowered {
+        case "1", "2", "3", "4", "5", "6", "7", "8", "9":
+            guard modifiers == .command, let slot = Int(lowered) else { return nil }
+            return .selectPinSlot(slot)
         case "return", "\r", "\n", "enter":
             if modifiers == [.option, .shift] { return .pastePlain }
             if modifiers == .option { return .paste }

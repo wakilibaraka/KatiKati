@@ -8,13 +8,22 @@ struct ClipEntry: Equatable, Identifiable, Sendable {
     var date: Date
     /// MC-3: how many times this text has been copied, so "Most Used" has something to sort by.
     var copyCount: Int
+    var originBundleID: String?
 
-    init(id: UUID = UUID(), text: String, pinned: Bool = false, date: Date = Date(), copyCount: Int = 1) {
+    init(
+        id: UUID = UUID(),
+        text: String,
+        pinned: Bool = false,
+        date: Date = Date(),
+        copyCount: Int = 1,
+        originBundleID: String? = nil
+    ) {
         self.id = id
         self.text = text
         self.pinned = pinned
         self.date = date
         self.copyCount = copyCount
+        self.originBundleID = originBundleID
     }
 }
 
@@ -48,7 +57,7 @@ struct ClipboardHistory: Equatable, Sendable {
 
     /// Remembers `raw` at the top. Blank text is ignored; an identical entry moves up (keeping its pin); text that
     /// merely extends or shortens the newest entry replaces it (dictation, typing-ahead selections).
-    mutating func remember(_ raw: String, now: Date = Date()) {
+    mutating func remember(_ raw: String, now: Date = Date(), originBundleID: String? = nil) {
         let text = String(raw.prefix(Self.maxLength)).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         let key = text.lowercased()
@@ -57,23 +66,27 @@ struct ClipboardHistory: Equatable, Sendable {
             if firstKey == key {
                 entries[0].text = text
                 entries[0].copyCount += 1
+                if let originBundleID { entries[0].originBundleID = originBundleID }
                 return
             }
             if key.hasPrefix(firstKey) || firstKey.hasPrefix(key) {
                 entries[0].text = text
                 entries[0].date = now
                 entries[0].copyCount += 1
+                if let originBundleID { entries[0].originBundleID = originBundleID }
                 return
             }
         }
         var pinned = false
         var copies = 1
+        var resolvedOrigin = originBundleID
         if let i = entries.firstIndex(where: { $0.text.lowercased() == key }) {
             pinned = entries[i].pinned
             copies = entries[i].copyCount + 1
+            resolvedOrigin = resolvedOrigin ?? entries[i].originBundleID
             entries.remove(at: i)
         }
-        entries.insert(ClipEntry(text: text, pinned: pinned, date: now, copyCount: copies), at: 0)
+        entries.insert(ClipEntry(text: text, pinned: pinned, date: now, copyCount: copies, originBundleID: resolvedOrigin), at: 0)
         prune()
     }
 

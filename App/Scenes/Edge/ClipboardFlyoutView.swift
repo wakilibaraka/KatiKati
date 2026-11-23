@@ -150,8 +150,17 @@ struct ClipboardFlyoutView: View {
         if press.key == .upArrow { moveSelection(by: -1); return .handled }
         if press.key == .downArrow { moveSelection(by: 1); return .handled }
         guard let action = MaccyKeyAction.action(key: String(press.characters),
-                                                 modifiers: MaccyKeyAction.Modifiers(press.modifiers)),
-              let target = visibleEntries.first(where: { $0.id == selectedID }) ?? visibleEntries.first else { return .ignored }
+                                                 modifiers: MaccyKeyAction.Modifiers(press.modifiers)) else { return .ignored }
+        if case .selectPinSlot(let slot) = action {
+            guard let pinID = MaccyPinShortcutAssigner.entryID(forSlot: slot, in: pinSlots),
+                  let pinned = monitor.history.displayOrder.first(where: { $0.id == pinID }) else { return .ignored }
+            selectedID = pinned.id
+            if pasteAutomatically { monitor.pastePlain(pinned) } else { monitor.copy(pinned) }
+            copiedID = pinned.id
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { if copiedID == pinned.id { copiedID = nil } }
+            return .handled
+        }
+        guard let target = visibleEntries.first(where: { $0.id == selectedID }) ?? visibleEntries.first else { return .ignored }
         switch action {
         case .copy: monitor.copy(target)
         case .paste, .pastePlain: monitor.pastePlain(target)
@@ -159,15 +168,21 @@ struct ClipboardFlyoutView: View {
         case .delete: monitor.remove(target.id)
         case .clearUnpinned: monitor.clearAll(keepingPinned: true)
         case .clearAll: monitor.clearAll(keepingPinned: false)
+        case .selectPinSlot: break
         }
         return .handled
     }
 
     private var visibleEntries: [ClipEntry] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let base = trimmed.isEmpty
+        let queryFiltered = trimmed.isEmpty
             ? monitor.history.displayOrder
             : monitor.history.displayOrder.filter { $0.text.localizedStandardContains(trimmed) }
+        let base = selectedCategory == .all
+            ? queryFiltered
+            : queryFiltered.filter {
+                ClipboardCardMetadata.classify(text: $0.text, originBundleID: $0.originBundleID).category == selectedCategory
+            }
         // MC-3: pins first in every order; the sort only decides among peers.
         let pinned = base.filter(\.pinned)
         var rest = base.filter { !$0.pinned }
@@ -181,7 +196,7 @@ struct ClipboardFlyoutView: View {
 
     @ViewBuilder
     private func row(_ entry: ClipEntry, env: TileEnv) -> some View {
-        let meta = ClipboardCardMetadata.classify(text: entry.text)
+        let meta = ClipboardCardMetadata.classify(text: entry.text, originBundleID: entry.originBundleID)
         if selectedCategory == .all || meta.category == selectedCategory {
             Button {
                 if pasteAutomatically { monitor.pastePlain(entry) } else { monitor.copy(entry) }

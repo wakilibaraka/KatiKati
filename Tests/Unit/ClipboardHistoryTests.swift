@@ -12,11 +12,13 @@ final class ClipboardHistoryTests: XCTestCase {
 
     func testDuplicateMovesToTopKeepingItsPin() {
         var h = ClipboardHistory()
-        h.remember("alpha"); h.remember("beta")
+        h.remember("alpha", originBundleID: "com.apple.dt.Xcode")
+        h.remember("beta", originBundleID: "com.apple.Safari")
         h.togglePin(h.entries[1].id)         // pin alpha
         h.remember("ALPHA")
         XCTAssertEqual(h.entries.map(\.text), ["ALPHA", "beta"])
         XCTAssertTrue(h.entries[0].pinned)
+        XCTAssertEqual(h.entries[0].originBundleID, "com.apple.dt.Xcode", "re-copying without a new origin preserves the recorded origin bundle ID")
     }
 
     func testGrowingTextReplacesTheNewestEntry() {
