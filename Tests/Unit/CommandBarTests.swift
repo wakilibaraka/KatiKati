@@ -40,17 +40,41 @@ final class CommandBarTests: XCTestCase {
         XCTAssertEqual(rows, [.app(app("n", "Notes"))])
     }
 
-    func testEmptyQueryYieldsNothing() {
-        XCTAssertTrue(CommandBarResults.build(query: "", apps: [app("s", "Safari")], usage: [:], running: []).isEmpty)
-        XCTAssertTrue(CommandBarResults.build(query: "   ", apps: [], usage: [:], running: []).isEmpty)
+    func testEmptyQueryShowsMacEssentials() {
+        let rows = CommandBarResults.build(query: "", apps: [], usage: [:], running: [])
+        XCTAssertEqual(Array(rows.prefix(CommandBarLearning.essentials.count)),
+                       CommandBarLearning.essentials.map(CommandBarResult.action))
     }
 
     func testEmptyQuerySuggestsFrequentlyLaunchedApps() {
         let safari = app("s", "Safari"), notes = app("n", "Notes"), unused = app("u", "Unused")
-        let usage = ["s": LauncherUsage(launches: 2, lastLaunched: .distantPast),
-                     "n": LauncherUsage(launches: 4, lastLaunched: .distantPast)]
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let usage = ["s": LauncherUsage(launches: 2, lastLaunched: now),
+                     "n": LauncherUsage(launches: 4, lastLaunched: now)]
         XCTAssertEqual(CommandBarResults.build(query: "", apps: [safari, notes, unused], usage: usage, running: []),
-                       [.app(notes), .app(safari)])
+                       CommandBarLearning.essentials.map(CommandBarResult.action) + [.app(notes), .app(safari)])
+    }
+
+    func testPinnedAppsLeadAndHiddenAppsStayOut() {
+        let safari = app("s", "Safari"), notes = app("n", "Notes")
+        let learning = CommandBarLearning(pinnedIDs: ["n"], hiddenIDs: ["s"], aliases: [:])
+        let rows = CommandBarResults.build(query: "", apps: [safari, notes], usage: [:], running: [], learning: learning)
+        XCTAssertEqual(rows.first, .app(notes))
+        XCTAssertFalse(rows.contains(.app(safari)))
+    }
+
+    func testAliasResolvesBeforeSearch() {
+        let learning = CommandBarLearning(pinnedIDs: [], hiddenIDs: [], aliases: ["br": "Safari"])
+        let rows = CommandBarResults.build(query: "br", apps: [app("s", "Safari")], usage: [:], running: [], learning: learning)
+        XCTAssertEqual(rows.first, .app(app("s", "Safari")))
+    }
+
+    func testFrecencyDecaysWithAge() {
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        let recent = LauncherUsage(launches: 2, lastLaunched: now)
+        let old = LauncherUsage(launches: 2, lastLaunched: now.addingTimeInterval(-14 * 86_400))
+        XCTAssertGreaterThan(CommandBarFrecency.score(recent, now: now),
+                             CommandBarFrecency.score(old, now: now))
     }
 
     func testQuitRowsAreBestMatchFirst() {

@@ -85,9 +85,14 @@ final class CommandBarPanelController {
         }
         let panel = self.panel ?? makePanel()
         self.panel = panel
-        let size = NSSize(width: 640, height: 380)
+        let sizePreset = CommandBarSizePreset(rawValue: UserDefaults.standard.string(forKey: "com.katikati.commandbar.size") ?? "") ?? .standard
+        let positionPreset = CommandBarPositionPreset(rawValue: UserDefaults.standard.string(forKey: "com.katikati.commandbar.position") ?? "") ?? .upperThird
+        let size = NSSize(width: sizePreset.size.width, height: sizePreset.size.height)
         let f = screen.visibleFrame
-        panel.setFrame(NSRect(x: f.midX - size.width / 2, y: f.maxY - size.height - f.height * 0.12, width: size.width, height: size.height), display: true)
+        let y = positionPreset == .center
+            ? f.midY - size.height / 2
+            : f.maxY - size.height - f.height * 0.12
+        panel.setFrame(NSRect(x: f.midX - size.width / 2, y: y, width: size.width, height: size.height), display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
         if !prefill.isEmpty { model.query = prefill }

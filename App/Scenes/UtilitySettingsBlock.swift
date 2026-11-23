@@ -686,11 +686,31 @@ struct LauncherSettingsBlock: View {
 struct CommandBarSettingsBlock: View {
     var tabState: SettingsTabState? = nil
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
+    @AppStorage("com.katikati.commandbar.position") private var position = CommandBarPositionPreset.upperThird.rawValue
+    @AppStorage("com.katikati.commandbar.size") private var size = CommandBarSizePreset.standard.rawValue
     @AppStorage(Quicklink.key) private var quicklinks = ""
 
     var body: some View {
         SettingsCard(Text("Command Bar")) {
             SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Position"),
+                selection: $position
+            ) {
+                ForEach(CommandBarPositionPreset.allCases, id: \.rawValue) { option in
+                    Text(option.title).tag(option.rawValue)
+                }
+            }
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Size"),
+                selection: $size
+            ) {
+                ForEach(CommandBarSizePreset.allCases, id: \.rawValue) { option in
+                    Text(option.title).tag(option.rawValue)
+                }
+            }
             SettingsDivider()
             SettingsEditorRow(
                 Text("Quicklinks"),

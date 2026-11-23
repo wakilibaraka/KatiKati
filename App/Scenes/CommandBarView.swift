@@ -117,6 +117,11 @@ struct CommandBarView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("com.katikati.commandbar.size") private var sizePreset = CommandBarSizePreset.standard.rawValue
+
+    private var panelSize: CGSize {
+        CommandBarSizePreset(rawValue: sizePreset)?.size ?? CommandBarSizePreset.standard.size
+    }
 
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
@@ -227,7 +232,7 @@ struct CommandBarView: View {
             Divider().opacity(0.22)
             footer
         }
-        .frame(width: 640, height: 380)
+        .frame(width: panelSize.width, height: panelSize.height)
         .background(DockPanelBackdrop(theme: theme, cornerRadius: 16, usesLiquidGlass: false))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .dockPanelRim(cornerRadius: 16, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth, usesLiquidGlass: false)
