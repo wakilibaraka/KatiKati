@@ -570,21 +570,21 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Layout.swift": {
-    "mtime": 1795314502.6419146,
-    "seen": 1795315266.2480378,
-    "ast_hash": "e7459baa957be9d448eec3e16e7a10f5",
+    "mtime": 1795384553.8799016,
+    "seen": 1795388173.699577,
+    "ast_hash": "1e9545d637226b331d6e0dd377023fbb",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
-    "mtime": 1795017494.2871017,
-    "seen": 1795018026.8891551,
-    "ast_hash": "837c73fc973143d71a160b0ca5809a32",
+    "mtime": 1795384543.8314023,
+    "seen": 1795388173.699578,
+    "ast_hash": "a914053c708552dc657ebd3f52764e85",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1795182174.0368178,
-    "seen": 1795182478.094081,
-    "ast_hash": "22c9538fe8a374b9cc89cfe5ee814151",
+    "mtime": 1795384544.754933,
+    "seen": 1795388173.6995788,
+    "ast_hash": "a9b2566bc9faaeae74147790e00cf801",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
-    "mtime": 1795177313.2515023,
-    "seen": 1795177967.043762,
-    "ast_hash": "5cb01e1ff95f76170041b0fc0384c47c",
+    "mtime": 1795384556.396311,
+    "seen": 1795388173.699622,
+    "ast_hash": "bca5a8b7500328067a16391198f0f93e",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Trash.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795287674.227046,
-    "seen": 1795288343.019752,
-    "ast_hash": "7f9587edc23b9d74c862c29d74b186fd",
+    "mtime": 1795384558.257056,
+    "seen": 1795388173.6996229,
+    "ast_hash": "822b90c713da83138c756f7fd075af6b",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -816,9 +816,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DrawerCapsuleButton.swift": {
-    "mtime": 1793366435.4311643,
-    "seen": 1793373444.962243,
-    "ast_hash": "e2b70d91a43459305adf208d16c5ad11",
+    "mtime": 1795385172.794921,
+    "seen": 1795388173.699637,
+    "ast_hash": "727968973a8e6bea6912acca4c3727d0",
     "semantic_hash": ""
   },
   "App/Scenes/DrawerView.swift": {
@@ -1320,10 +1320,10 @@
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
-    "mtime": 1792079954.2257197,
-    "seen": 1792295707.060506,
-    "ast_hash": "594ec7c645ed88895339faf92a8b7982",
-    "semantic_hash": "594ec7c645ed88895339faf92a8b7982"
+    "mtime": 1795384511.005167,
+    "seen": 1795388173.699736,
+    "ast_hash": "038dec40b3039bc2f5643ec3be33ffb8",
+    "semantic_hash": ""
   },
   "App/Scenes/WidgetEditMode.swift": {
     "mtime": 1795028290.4464183,
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795175094.5329509,
-    "seen": 1795176222.465663,
-    "ast_hash": "051a29b65f2f00bf8e1eb4ce19c0598f",
+    "mtime": 1795384559.7832632,
+    "seen": 1795388173.6997042,
+    "ast_hash": "0630c2ffc3edab7f7a60f9a1a67f4b93",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795384176.092736,
-    "seen": 1795384204.431287,
-    "ast_hash": "6e305873f1e5bab2fc963bf34830eb09",
+    "mtime": 1795387330.4604695,
+    "seen": 1795388173.700372,
+    "ast_hash": "4f663de257673b2c57367f67c12fcec7",
     "semantic_hash": ""
   },
   "README.md": {
