@@ -4,20 +4,22 @@ import Foundation
 /// Phase 20c — remembers where windows sat for each display topology so the layout can be put back after the
 /// displays return (sleep/wake, unplug/replug). Pure; the controller feeds it snapshots and applies the moves.
 /// Inspired by DeskBar's sleep-layout idea, reimplemented from the behaviour.
-struct WindowLayoutMemory: Equatable {
-    struct Window: Equatable {
+struct WindowLayoutMemory: Equatable, Codable, Sendable {
+    struct Window: Equatable, Codable, Sendable {
         let pid: Int32
         let cgWindowID: UInt32
         let frame: CGRect
         var key: String { "\(pid):\(cgWindowID)" }
     }
 
-    struct Move: Equatable {
+    struct Move: Equatable, Codable, Sendable {
         let pid: Int32
         let cgWindowID: UInt32
         let frame: CGRect
     }
 
+    /// Persisted filename inside Application Support/KatiKati and settings backups.
+    static let fileName = "window-layouts.json"
     /// Frame differences at or below this many points are not worth moving a window for.
     static let tolerance: CGFloat = 8
     /// Topologies remembered at once (oldest dropped); a laptop with two docks is already three.

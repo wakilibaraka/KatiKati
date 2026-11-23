@@ -194,6 +194,8 @@ struct SettingsLayoutPane: View {
         case .tilingGrowMain: return String(localized: "Grow Main Tile")
         case .tilingShrinkMain: return String(localized: "Shrink Main Tile")
         case .tilingFlipMain: return String(localized: "Flip Main Tile Side")
+        case .tilingFloatFocused: return String(localized: "Float Focused Window")
+        case .tilingRetileAll: return String(localized: "Retile All Windows")
         // Ribbon (scrolling strip)
         case .stripFocusNext: return String(localized: "Focus Next Column")
         case .stripFocusPrevious: return String(localized: "Focus Previous Column")

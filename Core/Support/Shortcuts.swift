@@ -25,6 +25,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case tilingSwapNext, tilingSwapPrevious
     /// Main-area tuning: widen, narrow, or flip the main window to the other side. Default `.off`.
     case tilingGrowMain, tilingShrinkMain, tilingFlipMain
+    /// Float the focused tiled window or retile all manually released windows. Default `.off`.
+    case tilingFloatFocused, tilingRetileAll
     /// Phase 31: the colourful interactive radial dial / pie menu. Default `.off`.
     case radialDial
     /// The dial opened straight on its Snapping / Tools page. Both default `.off`.
@@ -73,6 +75,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         switch self {
         case .showCheatSheet: return 73
         case .clipboardMenu: return 74
+        case .tilingFloatFocused: return 75
+        case .tilingRetileAll: return 76
         case .launcher: return 2
         case .pinboard: return 3
         case .quickSettings: return 4
@@ -169,7 +173,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .toggleTiling, .cycleTilingLayout,
              .tilingFocusNext, .tilingFocusPrevious,
              .tilingSwapNext, .tilingSwapPrevious,
-             .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain: return .off
+             .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain,
+             .tilingFloatFocused, .tilingRetileAll: return .off
         // Phase 31 radial dial: ⌃⌥R by default for main dial, sub-page shortcuts off by default
         case .radialDial: return .key(ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option))
         case .radialDialSnap, .radialDialTools: return .off
@@ -201,6 +206,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .tilingFocusNext, .tilingFocusPrevious,
              .tilingSwapNext, .tilingSwapPrevious,
              .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain,
+             .tilingFloatFocused, .tilingRetileAll,
              .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
              .stripCycleWidth, .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious,
              .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,
@@ -698,6 +704,7 @@ extension ShortcutAction {
             return .windowAndSnap
         case .toggleTiling, .cycleTilingLayout, .tilingFocusNext, .tilingFocusPrevious,
              .tilingSwapNext, .tilingSwapPrevious, .tilingGrowMain, .tilingShrinkMain, .tilingFlipMain,
+             .tilingFloatFocused, .tilingRetileAll,
              .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
              .stripCycleWidth, .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious,
              .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,

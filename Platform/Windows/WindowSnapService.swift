@@ -165,6 +165,18 @@ enum WindowSnapService {
               let quartz = frame(of: ref as! AXUIElement) else { return nil }
         return CGRect(x: quartz.minX, y: primary - quartz.maxY, width: quartz.width, height: quartz.height)
     }
+
+    /// Returns the CoreGraphics window ID of the frontmost other app's focused window, if accessible.
+    static func frontmostWindowCGID() -> CGWindowID? {
+        guard AXIsProcessTrusted(),
+              let app = NSWorkspace.shared.frontmostApplication,
+              app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return nil }
+        var ref: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(AXUIElementCreateApplication(app.processIdentifier),
+                                            kAXFocusedWindowAttribute as CFString, &ref) == .success,
+              let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else { return nil }
+        return AXWindowReader.cgWindowID(for: ref as! AXUIElement)
+    }
 }
 
 /// Non-intercepting drag-to-edge monitor (G3). It observes mouse drags only while the setting is

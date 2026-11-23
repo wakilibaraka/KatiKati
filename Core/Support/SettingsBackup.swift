@@ -232,7 +232,7 @@ struct SettingsBackupFile: Codable, Equatable, Sendable {
     /// protects the notes already on this Mac.
     static func category(ofFile name: String) -> BackupCategory? {
         if name == "tasks.json" { return .tasks }
-        if name == "desktop-boxes.json" || name == "desktop-capture.json" || name == "screen-time.json" {
+        if name == "desktop-boxes.json" || name == "desktop-capture.json" || name == "screen-time.json" || name == WindowLayoutMemory.fileName {
             return .settingsAndShortcuts
         }
         if name == "profiles.json" { return .barAndLauncher }

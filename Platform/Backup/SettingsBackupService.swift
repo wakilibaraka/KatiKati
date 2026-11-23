@@ -53,7 +53,7 @@ struct SettingsBackupService {
     var backupsDirectory: URL { supportDirectory.appendingPathComponent("Backups", isDirectory: true) }
 
     var applicationSupportFiles: [String] {
-        ["tasks.json", "desktop-boxes.json", "desktop-capture.json", "screen-time.json", "profiles.json"]
+        ["tasks.json", "desktop-boxes.json", "desktop-capture.json", "screen-time.json", "profiles.json", WindowLayoutMemory.fileName]
     }
 
     // MARK: - Export

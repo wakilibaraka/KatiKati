@@ -146,5 +146,7 @@ final class SettingsBackupTests: XCTestCase {
         XCTAssertNil(SettingsBackupFile.category(ofFile: "note.key"), "a backup must never replace the notes key")
         XCTAssertEqual(SettingsBackupFile.category(ofFile: "screen-time.json"), .settingsAndShortcuts)
         XCTAssertEqual(SettingsBackupFile.category(ofFile: "profiles.json"), .barAndLauncher)
+        XCTAssertEqual(WindowLayoutMemory.fileName, "window-layouts.json")
+        XCTAssertEqual(SettingsBackupFile.category(ofFile: WindowLayoutMemory.fileName), .settingsAndShortcuts)
     }
 }

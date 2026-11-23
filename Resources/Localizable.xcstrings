@@ -394,6 +394,38 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增 App 群組" } }
       }
     },
+    "Float Focused Window" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fokussiertes Fenster schwebend machen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Float Focused Window" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hacer flotante la ventana enfocada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Hacer flotante la ventana enfocada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rendre flottante la fenêtre active" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rendi mobile la finestra attiva" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォーカス中のウィンドウをフローティング" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성 창 플로팅" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tornar flutuante a janela em foco" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Tornar flutuante a janela em foco" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "浮动当前聚焦窗口" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "浮動目前焦點視窗" } }
+      }
+    },
+    "Retile All Windows" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle Fenster neu anordnen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retile All Windows" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reorganizar todas las ventanas" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reorganizar todas las ventanas" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réorganiser toutes les fenêtres" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ridistribuisci tutte le finestre" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すべてのウィンドウを再タイル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "모든 창 다시 타일링" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reorganizar todas as janelas" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Reorganizar todas as janelas" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新平铺所有窗口" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "重新平鋪所有視窗" } }
+      }
+    },
     "Remove Background" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrund entfernen" } },

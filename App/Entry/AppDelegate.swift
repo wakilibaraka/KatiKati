@@ -494,6 +494,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.adjustMainRatio(by: -0.05)
                 case .tilingFlipMain:
                     TilingEngine.shared.setOptions(TilingLayoutOptions(mainRatio: TilingEngine.shared.options.mainRatio, mirrored: !TilingEngine.shared.options.mirrored))
+                case .tilingFloatFocused:
+                    TilingEngine.shared.releaseFocusedWindow()
+                case .tilingRetileAll:
+                    TilingEngine.shared.retileAll()
                 case .stripFocusNext:
                     TilingEngine.shared.focusStripColumn(1)
                 case .stripFocusPrevious:

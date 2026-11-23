@@ -51,4 +51,23 @@ final class WindowLayoutMemoryTests: XCTestCase {
         memory.record(topology: "AB", windows: [])
         XCTAssertEqual(memory.plan(topology: "AB", current: [win(1, 0, 0)]).count, 1)
     }
+
+    func testCodableRoundTripPreservesLayoutsAndRecencyOrder() throws {
+        var memory = WindowLayoutMemory()
+        for i in 0..<WindowLayoutMemory.topologyLimit {
+            memory.record(topology: "T\(i)", windows: [win(UInt32(i + 1), CGFloat(i * 100), 50)])
+        }
+        let data = try JSONEncoder().encode(memory)
+        var decoded = try JSONDecoder().decode(WindowLayoutMemory.self, from: data)
+        XCTAssertEqual(decoded, memory)
+
+        let moves = decoded.plan(topology: "T0", current: [win(1, 10, 10)])
+        XCTAssertEqual(moves, [.init(pid: 10, cgWindowID: 1, frame: CGRect(x: 0, y: 50, width: 800, height: 600))])
+
+        // Recording one more topology should evict "T0" first because recency order survived decode.
+        decoded.record(topology: "T_EXTRA", windows: [win(99, 500, 500)])
+        XCTAssertNil(decoded.layouts["T0"])
+        XCTAssertNotNil(decoded.layouts["T1"])
+        XCTAssertNotNil(decoded.layouts["T_EXTRA"])
+    }
 }

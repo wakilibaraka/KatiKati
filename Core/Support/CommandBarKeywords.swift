@@ -64,6 +64,7 @@ enum BarMacro: CaseIterable, Sendable {
     case play, next, previous
     case pauseKeyboard, cleanKeyboard, teleprompter
     case snapLeft, snapRight, snapTop, snapBottom, snapMaximize, snapCenter, snapNextDisplay
+    case tileFloat, tileRetile
 
     var keywords: [String] {
         switch self {
@@ -102,6 +103,8 @@ enum BarMacro: CaseIterable, Sendable {
         case .snapMaximize: return ["maximize", "fullscreen", "max"]
         case .snapCenter: return ["center", "middle"]
         case .snapNextDisplay: return ["nextdisplay", "display", "monitor"]
+        case .tileFloat: return ["tile float", "float", "tilefloat"]
+        case .tileRetile: return ["tile retile", "retile", "tileretile"]
         }
     }
 
@@ -142,6 +145,8 @@ enum BarMacro: CaseIterable, Sendable {
         case .snapMaximize: return "Maximize Window"
         case .snapCenter: return "Center Window"
         case .snapNextDisplay: return "Move to Next Display"
+        case .tileFloat: return "Float Focused Window"
+        case .tileRetile: return "Retile All Windows"
         }
     }
 
@@ -149,7 +154,7 @@ enum BarMacro: CaseIterable, Sendable {
         switch self {
         case .snapLeft, .snapRight, .snapTop, .snapBottom, .snapMaximize, .snapCenter:
             return "Snap Frontmost Window"
-        case .snapNextDisplay:
+        case .snapNextDisplay, .tileFloat, .tileRetile:
             return "Window Management"
         case .ocr, .shortcutsApp, .terminal, .teleprompter:
             return "Utility"
@@ -235,6 +240,8 @@ enum BarMacro: CaseIterable, Sendable {
         case .snapMaximize: return "arrow.up.left.and.arrow.down.right"
         case .snapCenter: return "rectangle.center.inset.filled"
         case .snapNextDisplay: return "display.2"
+        case .tileFloat: return "macwindow.on.rectangle"
+        case .tileRetile: return "square.grid.2x2"
         default: return "bolt"
         }
     }

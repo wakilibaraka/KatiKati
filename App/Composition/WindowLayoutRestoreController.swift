@@ -12,6 +12,7 @@ final class WindowLayoutRestoreController {
 
     private let runtime: AppRuntime
     private let displayTable: @MainActor () -> WindowDisplayAttribution.Table
+    private let fileURL: URL
     private var memory = WindowLayoutMemory()
     private var snapshotSink: AnyCancellable?
     private var observers: [NSObjectProtocol] = []
@@ -19,11 +20,25 @@ final class WindowLayoutRestoreController {
     /// rearranging windows and that arrangement must not overwrite the one worth restoring.
     private var isFrozen = false
     private var settleTask: Task<Void, Never>?
+    private var saveTask: Task<Void, Never>?
     private let log = Logger(subsystem: "com.katikati.app", category: "layout-restore")
 
-    init(runtime: AppRuntime, displayTable: @escaping @MainActor () -> WindowDisplayAttribution.Table) {
+    nonisolated static var defaultURL: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("KatiKati", isDirectory: true)
+            .appendingPathComponent(WindowLayoutMemory.fileName)
+    }
+
+    init(runtime: AppRuntime,
+         displayTable: @escaping @MainActor () -> WindowDisplayAttribution.Table,
+         fileURL: URL = WindowLayoutRestoreController.defaultURL) {
         self.runtime = runtime
         self.displayTable = displayTable
+        self.fileURL = fileURL
+        if let data = try? Data(contentsOf: fileURL),
+           let decoded = try? JSONDecoder().decode(WindowLayoutMemory.self, from: data) {
+            self.memory = decoded
+        }
     }
 
     private var isEnabled: Bool { UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true }
@@ -63,12 +78,43 @@ final class WindowLayoutRestoreController {
 
     private func record(_ snapshot: DockSnapshot) {
         guard !isFrozen, isEnabled else { return }
+        let previous = memory
         memory.record(topology: topologyKey, windows: layoutWindows(snapshot))
+        if memory != previous { scheduleSave() }
+    }
+
+    private func scheduleSave() {
+        saveTask?.cancel()
+        saveTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard !Task.isCancelled else { return }
+            self?.persistNow()
+        }
+    }
+
+    private func persistNow() {
+        let snapshot = memory
+        let url = fileURL
+        Task.detached(priority: .utility) {
+            try? Self.write(snapshot, to: url)
+        }
+    }
+
+    nonisolated private static func write(_ memory: WindowLayoutMemory, to url: URL) throws {
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(memory).write(to: url, options: .atomic)
     }
 
     // MARK: - Restoring
 
-    private func freeze() { isFrozen = true; settleTask?.cancel() }
+    private func freeze() {
+        isFrozen = true
+        settleTask?.cancel()
+        saveTask?.cancel()
+        persistNow()
+    }
 
     /// Waits for the displays and windows to settle, then restores. Each new event restarts the wait.
     private func scheduleRestore() {

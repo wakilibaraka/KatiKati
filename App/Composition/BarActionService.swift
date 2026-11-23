@@ -45,6 +45,10 @@ enum BarActionService {
             TeleprompterWindowController.shared.show()
         case .cleanKeyboard:
             KeyGuardService.shared.startCleaningLock()
+        case .tileFloat:
+            TilingEngine.shared.releaseFocusedWindow()
+        case .tileRetile:
+            TilingEngine.shared.retileAll()
         default:
             break
         }

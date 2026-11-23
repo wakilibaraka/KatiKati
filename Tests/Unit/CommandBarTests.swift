@@ -212,11 +212,17 @@ final class CommandKeywordTests: XCTestCase {
     func testWindowManagementMacros() {
         XCTAssertEqual(CommandKeyword.parse("left"), .macro(.snapLeft))
         XCTAssertEqual(CommandKeyword.parse("maximize"), .macro(.snapMaximize))
+        XCTAssertEqual(CommandKeyword.parse("tile float"), .macro(.tileFloat))
+        XCTAssertEqual(CommandKeyword.parse("tile retile"), .macro(.tileRetile))
         XCTAssertEqual(BarMacro.snapLeft.snapPosition, .leftHalf)
         XCTAssertEqual(BarMacro.snapMaximize.snapPosition, .maximize)
         XCTAssertFalse(BarMacro.matching("snap").isEmpty)
         XCTAssertEqual(BarMacro.snapLeft.title, "Left Half")
         XCTAssertEqual(BarMacro.snapLeft.subtitle, "Snap Frontmost Window")
+        XCTAssertEqual(BarMacro.tileFloat.title, "Float Focused Window")
+        XCTAssertEqual(BarMacro.tileRetile.title, "Retile All Windows")
+        XCTAssertEqual(CommandBarResults.build(query: "tile float", apps: [], usage: [:], running: []).first, .action(.tileFloat))
+        XCTAssertEqual(CommandBarResults.build(query: "tile retile", apps: [], usage: [:], running: []).first, .action(.tileRetile))
     }
 
     func testGuardedInlineMath() {

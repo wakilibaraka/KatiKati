@@ -491,6 +491,21 @@ final class TilingEngine: ObservableObject {
         if isEnabled { reapplyLayout() }
     }
 
+    /// Releases the currently focused window from auto-tiling (frontmost AX window first,
+    /// falling back to the active screen tree's focused window).
+    func releaseFocusedWindow() {
+        guard isEnabled else { return }
+        if let cgID = WindowSnapService.frontmostWindowCGID(), cgID != 0 {
+            releaseWindow(cgWindowID: cgID)
+            return
+        }
+        if let key = activeScreenKey(),
+           let focusedID = trees[key]?.focusedID,
+           let cgID = lastWindows[focusedID]?.cgWindowID, cgID != 0 {
+            releaseWindow(cgWindowID: cgID)
+        }
+    }
+
     /// Releases a window from auto-tiling immediately (e.g. after a manual Snap Zone placement).
     func releaseWindow(cgWindowID: CGWindowID) {
         guard isEnabled, cgWindowID != 0 else { return }

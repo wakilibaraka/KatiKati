@@ -32,7 +32,7 @@
 - [x] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (`146aebf8`)
 - [x] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (`43344c47`)
 - [x] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases (`13cc28b1`)
-- [ ] **Slice 4.4 (Remaining)** — Persistent `WindowLayoutMemory` & Per-Window Float/Retile Shortcuts
+- [x] **Slice 4.4** — Persistent `WindowLayoutMemory`, `⌥`-Drag Thirds (`2ff53647`) & Float/Retile Shortcuts (`DONE`)
 
 ---
 
@@ -455,13 +455,13 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WallpaperSelectorTests -only-testing:KatiKatiTests/SolarPhaseTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 4.4 — Persistent `WindowLayoutMemory`, `⌥`-Drag to Thirds & Per-Window Float/Retile Shortcuts (Pillar 10)
-- **Effort:** `M` | **User Impact:** `High` | **Status:** `⌥-Drag Thirds [x] DONE — 2ff53647 · Persistence/Shortcuts [ ] Pending`
+#### [x] DONE · Slice 4.4 — Persistent `WindowLayoutMemory`, `⌥`-Drag to Thirds & Per-Window Float/Retile Shortcuts (Pillar 10)
+- **Effort:** `M` | **User Impact:** `High` | **Status:** `[x] DONE — ⌥-Drag Thirds (2ff53647) & Persistence/Shortcuts`
 - **Reused Modules:** `Core/Support/WindowLayoutMemory.swift:7-59`, `App/Composition/WindowLayoutRestoreController.swift:10-110`, `Core/Support/WindowSnap.swift:77-130`, `Platform/Windows/WindowSnapService.swift:206-230`, `App/Composition/TilingEngine.swift:381-387, 495-505`, `Core/Support/Shortcuts.swift`
 - **Scope:**
-  1. [ ] Conform `WindowLayoutMemory` (`Core/Support/WindowLayoutMemory.swift:7`) to `Codable` and persist/load it in `WindowLayoutRestoreController` (`~/Library/Application Support/KatiKati/window-layouts.json`, included in `SettingsBackupService.applicationSupportFiles`).
+  1. [x] Conform `WindowLayoutMemory` (`Core/Support/WindowLayoutMemory.swift:7`) to `Codable` and persist/load it in `WindowLayoutRestoreController` (`~/Library/Application Support/KatiKati/window-layouts.json`, included in `SettingsBackupService.applicationSupportFiles`).
   2. [x] DONE — `2ff53647`: In `SnapDragMonitor.dragged()` (`Platform/Windows/WindowSnapService.swift:223`), pass `layout: NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners` to `SnapZonePlanner.resolve` so holding Option while dragging to an edge snaps into horizontal thirds.
-  3. [ ] Add Command Bar commands (`tile float`, `tile retile`) and `ShortcutAction` cases for floating the focused window (`TilingEngine.shared.releaseWindow`) and re-tiling all hand-moved windows (`TilingEngine.shared.retileAll()`).
+  3. [x] Add Command Bar commands (`tile float`, `tile retile`) and `ShortcutAction` cases for floating the focused window (`TilingEngine.shared.releaseWindow`) and re-tiling all hand-moved windows (`TilingEngine.shared.retileAll()`).
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WindowLayoutMemoryTests -only-testing:KatiKatiTests/WindowSnapTests -only-testing:KatiKatiTests/TilingLayoutTests && python3 Scripts/check_localization.py
