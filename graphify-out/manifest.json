@@ -1134,15 +1134,15 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1795470679.2413096,
-    "seen": 1795470702.06672,
-    "ast_hash": "9398e0710363d6253d60799736ad0884",
+    "mtime": 1795474056.2023184,
+    "seen": 1795474154.666267,
+    "ast_hash": "740bbd05c9f50bcfd3a1cefe1adda1db",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
-    "mtime": 1795287721.9755545,
-    "seen": 1795288343.0198379,
-    "ast_hash": "6cc764409d9c2a03e4a58f51a138c68f",
+    "mtime": 1795474024.2366834,
+    "seen": 1795474154.6662688,
+    "ast_hash": "36e80a1522d261f5f577f70c8444a5b3",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795470679.2424462,
-    "seen": 1795470702.066729,
-    "ast_hash": "164e389cf92b2a5e01fd6776916548e8",
+    "mtime": 1795474085.8986423,
+    "seen": 1795474154.6662788,
+    "ast_hash": "3893422209e31085eb755b38cbec363f",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795470679.2418082,
-    "seen": 1795470702.066725,
-    "ast_hash": "648b73a882b3732498426eeb06327867",
+    "mtime": 1795474071.7131405,
+    "seen": 1795474154.666274,
+    "ast_hash": "05a1732425cb715d4ea08c9a0afa61cb",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
