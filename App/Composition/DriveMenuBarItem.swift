@@ -8,8 +8,8 @@ final class DriveMenuBarItem: NSObject, NSMenuDelegate {
     static let enabledKey = "com.katikati.menuBar.drives.enabled"
 
     private var item: NSStatusItem?
-    private var timer: Timer?
     private var observer: NSObjectProtocol?
+    private var mountObservers: [NSObjectProtocol] = []
     private var volumes: [DriveVolume] = []
 
     func start() {
@@ -24,17 +24,23 @@ final class DriveMenuBarItem: NSObject, NSMenuDelegate {
 
     private func apply() {
         guard isOn else {
-            timer?.invalidate()
-            timer = nil
+            let wsCenter = NSWorkspace.shared.notificationCenter
+            mountObservers.forEach { wsCenter.removeObserver($0) }
+            mountObservers.removeAll()
             if let item { NSStatusBar.system.removeStatusItem(item) }
             item = nil
             return
         }
         item = item ?? makeItem()
         refresh()
-        guard timer == nil else { return }
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
+        guard mountObservers.isEmpty else { return }
+        let wsCenter = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.didMountNotification, NSWorkspace.didUnmountNotification] {
+            mountObservers.append(
+                wsCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.refresh() }
+                }
+            )
         }
     }
 
@@ -70,6 +76,15 @@ final class DriveMenuBarItem: NSObject, NSMenuDelegate {
             row.representedObject = volume.mountPath
             row.image = Self.barImage(volume.usedFraction, removable: volume.isRemovable)
             menu.addItem(row)
+            if volume.isRemovable {
+                let eject = NSMenuItem(title: "\(String(localized: "Eject")) \(volume.name)",
+                                       action: #selector(ejectVolume(_:)), keyEquivalent: "")
+                eject.target = self
+                eject.representedObject = volume.mountPath
+                eject.indentationLevel = 1
+                eject.image = NSImage(systemSymbolName: "eject.fill", accessibilityDescription: nil)
+                menu.addItem(eject)
+            }
         }
         menu.addItem(.separator())
         let settings = NSMenuItem(title: String(localized: "Open Settings…"), action: #selector(openSettings), keyEquivalent: "")
@@ -82,9 +97,15 @@ final class DriveMenuBarItem: NSObject, NSMenuDelegate {
         NSWorkspace.shared.open(URL(fileURLWithPath: path))
     }
 
+    @objc private func ejectVolume(_ sender: NSMenuItem) {
+        guard let path = sender.representedObject as? String else { return }
+        try? NSWorkspace.shared.unmountAndEjectDevice(at: URL(fileURLWithPath: path))
+        refresh()
+    }
+
     @objc private func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
-        (NSApp.delegate as? AppDelegate)?.openSettings(nil)
+        (NSApp.delegate as? AppDelegate)?.openSettings(selecting: .menuBar)
     }
 
     /// DiskView's bar: blue until the volume passes 90 %, red after. Not a template, so the colour

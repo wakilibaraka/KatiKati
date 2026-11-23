@@ -56,6 +56,7 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .percentage, values: values), "86%")
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .remainingTime, values: values), "1h 24m")
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .watts, values: values), "18.2 W")
+        XCTAssertEqual(MenuBarStatModel.statusText(metric: .network, style: .percentage, values: values), "↓1.2 MB/s ↑300 KB/s")
         // A battery with no estimate reads as missing, never as 0.
         values.battery = MenuBarBattery(fraction: 0.86, isCharging: false)
         XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .remainingTime, values: values), "–")

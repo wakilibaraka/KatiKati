@@ -113,6 +113,9 @@ enum MenuBarStatModel {
 
     /// The status item's text; empty means the style draws an image instead (bar / pie / icon).
     static func statusText(metric: MenuBarMetric, style: MenuBarMetricStyle, values: MenuBarStatValues) -> String {
+        if metric == .network {
+            return menuRowText(metric: .network, values: values)
+        }
         switch style {
         case .barGraph, .pieChart, .iconOnly:
             return ""
