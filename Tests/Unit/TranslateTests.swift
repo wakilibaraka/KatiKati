@@ -93,6 +93,26 @@ final class DropClipPolicyTests: XCTestCase {
             originBundleID: "com.apple.Safari",
             isSecureInput: false
         ))
+
+        // Suppressed when DropClip toggle is off
+        XCTAssertFalse(DropClipPolicy.shouldPresent(
+            text: "Hello world",
+            originBundleID: "com.apple.Safari",
+            isSecureInput: false,
+            isEnabled: false
+        ))
+    }
+
+    func testIsEnabledDefaultsToTrueAndRespectsUserDefaults() {
+        let suiteName = "katikati.dropclip.test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        XCTAssertTrue(DropClipPolicy.isEnabled(defaults: defaults))
+        defaults.set(false, forKey: DropClipPolicy.enabledKey)
+        XCTAssertFalse(DropClipPolicy.isEnabled(defaults: defaults))
+        defaults.set(true, forKey: DropClipPolicy.enabledKey)
+        XCTAssertTrue(DropClipPolicy.isEnabled(defaults: defaults))
     }
 
     func testActionsFiltersByContent() {

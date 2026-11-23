@@ -120,6 +120,10 @@ enum DropClipPolicy {
     static let maxTextLength = 10_000
     static let enabledKey = "com.katikati.dropclip.enabled"
 
+    static func isEnabled(defaults: UserDefaults = .standard) -> Bool {
+        (defaults.object(forKey: enabledKey) as? Bool) ?? true
+    }
+
     static let defaultExcludedBundleIDs: Set<String> = [
         "com.agilebits.onepassword",
         "com.agilebits.onepassword7",
@@ -137,17 +141,19 @@ enum DropClipPolicy {
 
     /// Evaluates whether the floating action pill should be presented for a selection.
     /// Strictly suppressed when:
-    /// 1. Secure event input is enabled (passwords, sensitive fields)
-    /// 2. Frontmost app is in the excluded bundle ID list (password managers)
-    /// 3. Text length is below minTextLength or exceeds maxTextLength
-    /// 4. Text consists entirely of whitespace
+    /// 1. DropClip is disabled in Settings (`isEnabled == false`)
+    /// 2. Secure event input is enabled (passwords, sensitive fields)
+    /// 3. Frontmost app is in the excluded bundle ID list (password managers)
+    /// 4. Text length is below minTextLength or exceeds maxTextLength
+    /// 5. Text consists entirely of whitespace
     static func shouldPresent(
         text: String,
         originBundleID: String?,
         isSecureInput: Bool,
+        isEnabled: Bool = true,
         excludedBundleIDs: Set<String> = defaultExcludedBundleIDs
     ) -> Bool {
-        guard !isSecureInput else { return false }
+        guard isEnabled, !isSecureInput else { return false }
 
         if let bundleID = originBundleID?.lowercased() {
             let excluded = Set(excludedBundleIDs.map { $0.lowercased() })

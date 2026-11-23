@@ -138,6 +138,8 @@ final class CommandGeneratorTests: XCTestCase {
         XCTAssertEqual(CommandGenerator.match("json"), .formatJSON)
         XCTAssertEqual(CommandGenerator.match("ip"), .ipAddress)
         XCTAssertEqual(CommandGenerator.match("wifipw"), .wifiPassword)
+        XCTAssertEqual(CommandGenerator.match("  WIFIPW "), .wifiPassword)
+        XCTAssertNil(CommandGenerator.match("wifi"))
         XCTAssertTrue(CommandGenerator.formatJSON.isSystemBacked)
         XCTAssertFalse(CommandGenerator.uuid.isSystemBacked)
         XCTAssertFalse(CommandGenerator.matching("pass").isEmpty)

@@ -61,8 +61,7 @@ final class CommandBarModel: ObservableObject {
                         if let pwd, !pwd.isEmpty {
                             self.cachedWifi = (password: pwd, date: Date())
                         }
-                        let trimmed = self.query.trimmingCharacters(in: .whitespaces).lowercased()
-                        if trimmed == "wifi" {
+                        if CommandGenerator.match(self.query) == .wifiPassword {
                             self.refresh()
                         }
                     }

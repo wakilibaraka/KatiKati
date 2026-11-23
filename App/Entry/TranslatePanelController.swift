@@ -13,14 +13,21 @@ final class TranslatePanelController {
 
     private var panel: NSPanel?
     private var outsideMonitor: Any?
+    private let speechSynthesizer = AVSpeechSynthesizer()
 
     var isShown: Bool { panel?.isVisible ?? false }
 
     /// Reads the frontmost app's selection and shows the pill; gates by DropClipPolicy.
     func toggleSelection() {
-        guard let text = SelectedTextReader.selectedText() else { dismiss(); return }
+        guard DropClipPolicy.isEnabled(),
+              let text = SelectedTextReader.selectedText() else { dismiss(); return }
         let originID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-        guard DropClipPolicy.shouldPresent(text: text, originBundleID: originID, isSecureInput: IsSecureEventInputEnabled()) else {
+        guard DropClipPolicy.shouldPresent(
+            text: text,
+            originBundleID: originID,
+            isSecureInput: IsSecureEventInputEnabled(),
+            isEnabled: DropClipPolicy.isEnabled()
+        ) else {
             dismiss()
             return
         }
@@ -68,9 +75,11 @@ final class TranslatePanelController {
             break
         case .speak:
             dismiss()
+            if speechSynthesizer.isSpeaking {
+                speechSynthesizer.stopSpeaking(at: .immediate)
+            }
             let utterance = AVSpeechUtterance(string: text)
-            let synth = AVSpeechSynthesizer()
-            synth.speak(utterance)
+            speechSynthesizer.speak(utterance)
         case .quickFix:
             let fixed = text.trimmingCharacters(in: .whitespacesAndNewlines)
             NSPasteboard.general.clearContents()
