@@ -17,6 +17,7 @@ final class QuickToggleEngine: ObservableObject {
     @Published private(set) var states: [QuickToggleID: Bool] = [:]
     @Published private(set) var unavailable: Set<QuickToggleID> = []
     @Published private(set) var flash: QuickToggleID?
+    @Published private(set) var vpnServices: [VPNServiceParser.Entry] = []
     private var micPrevious = 70
 
     /// The owner's manual switch; agent-driven holds are reported by `KeepAwakeService`.
@@ -26,12 +27,26 @@ final class QuickToggleEngine: ObservableObject {
         Task.detached(priority: .utility) {
             var next: [QuickToggleID: Bool] = [:]
             var gone = Set<QuickToggleID>()
+            let liveMic = Self.readInputVolume()
+            let services = VPNService.list()
             for id in QuickToggleID.allCases where !id.isAction {
-                if let v = Self.read(id) { next[id] = v } else if id == .bluetooth { next[id] = false } else { gone.insert(id) }
+                if id == .muteMic {
+                    if let liveMic { next[.muteMic] = (liveMic == 0) } else { gone.insert(.muteMic) }
+                } else if id == .vpn {
+                    next[.vpn] = services.contains(where: \.connected)
+                } else if let v = Self.read(id) {
+                    next[id] = v
+                } else if id == .bluetooth {
+                    next[id] = false
+                } else {
+                    gone.insert(id)
+                }
             }
             let result = next, missing = gone
             await MainActor.run { [weak self] in
                 guard let self else { return }
+                if let liveMic, liveMic > 0 { self.micPrevious = liveMic }
+                self.vpnServices = services
                 var merged = result
                 merged[.keepAwake] = self.keepAwakeOn
                 self.states = merged
@@ -44,14 +59,30 @@ final class QuickToggleEngine: ObservableObject {
         if id == .keepAwake { setKeepAwake(!keepAwakeOn); return }
         let target = !(states[id] ?? false)
         if !id.isAction { states[id] = target }
+        let savedMic = micPrevious
         Task.detached(priority: .userInitiated) {
-            let ok = Self.write(id, target, micPrevious: await self.micPrevious)
+            let currentMic = id == .muteMic ? Self.readInputVolume() : nil
+            let transition = QuickToggleID.resolvedMicTransition(
+                turningMuteOn: target,
+                currentInputVolume: currentMic,
+                savedPrevious: savedMic
+            )
+            let ok = Self.write(id, target, micPrevious: transition.nextSavedPrevious)
             await MainActor.run { [weak self] in
                 guard let self else { return }
+                if id == .muteMic { self.micPrevious = transition.nextSavedPrevious }
                 if id.isAction { self.flash = id; DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { self.flash = nil } }
                 if !ok { self.unavailable.insert(id) }
                 self.refresh()
             }
+        }
+    }
+
+    func toggleVPNService(_ entry: VPNServiceParser.Entry) {
+        let target = !entry.connected
+        Task.detached(priority: .userInitiated) {
+            _ = VPNService.setService(entry.id, connected: target)
+            await MainActor.run { [weak self] in self?.refresh() }
         }
     }
 
@@ -71,7 +102,7 @@ final class QuickToggleEngine: ObservableObject {
         case .dockAutoHide: return defaultsBool("com.apple.dock", "autohide") ?? false
         case .pathBar: return defaultsBool("com.apple.finder", "ShowPathbar") ?? false
         case .muteMic:
-            guard let v = Int(osascript("input volume of (get volume settings)").trimmingCharacters(in: .whitespacesAndNewlines)) else { return nil }
+            guard let v = readInputVolume() else { return nil }
             return v == 0
         case .wifi: return CWWiFiClient.shared().interface()?.powerOn()
         case .bluetooth: return BluetoothPower.read()
@@ -80,6 +111,10 @@ final class QuickToggleEngine: ObservableObject {
         case .vpn: return VPNService.anyConnected()
         case .emptyTrash, .ejectDisks, .screenSaver, .lockScreen, .relaunchFinder, .screenMirroring: return nil
         }
+    }
+
+    nonisolated private static func readInputVolume() -> Int? {
+        Int(osascript("input volume of (get volume settings)").trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     nonisolated private static func defaultsBool(_ domain: String, _ key: String) -> Bool? {
@@ -299,4 +334,5 @@ enum VPNService {
     static func list() -> [Entry] { VPNServiceParser.list() }
     static func anyConnected() -> Bool { VPNServiceParser.anyConnected() }
     static func set(_ on: Bool) -> Bool { VPNServiceParser.set(on) }
+    static func setService(_ id: String, connected: Bool) -> Bool { VPNServiceParser.setService(id, connected: connected) }
 }

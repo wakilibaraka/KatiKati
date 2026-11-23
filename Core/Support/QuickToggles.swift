@@ -50,6 +50,17 @@ enum QuickToggleID: String, CaseIterable, Sendable {
     }
 
     static func serialize(_ ids: [QuickToggleID]) -> String { ids.map(\.rawValue).joined(separator: ",") }
+
+    /// Computes the target input volume and updated `micPrevious` when toggling `.muteMic`.
+    static func resolvedMicTransition(
+        turningMuteOn: Bool,
+        currentInputVolume: Int?,
+        savedPrevious: Int
+    ) -> (targetVolume: Int, nextSavedPrevious: Int) {
+        let nextSaved = (currentInputVolume ?? 0) > 0 ? (currentInputVolume ?? savedPrevious) : savedPrevious
+        let clampedRestore = min(100, max(40, nextSaved))
+        return (turningMuteOn ? 0 : clampedRestore, nextSaved)
+    }
 }
 
 /// Phase 16i: Network-configured VPNs via `/usr/sbin/scutil --nc`. Best-effort single toggle — the tile
@@ -97,6 +108,11 @@ enum VPNServiceParser {
         }
         guard let active = services.first(where: { $0.connected }) else { return true }
         return status("/usr/sbin/scutil", ["--nc", "stop", active.id]) == 0
+    }
+
+    static func setService(_ id: String, connected: Bool) -> Bool {
+        guard !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+        return status("/usr/sbin/scutil", ["--nc", connected ? "start" : "stop", id]) == 0
     }
 
     private static func status(_ path: String, _ args: [String]) -> Int32 {

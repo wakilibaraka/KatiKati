@@ -20,8 +20,8 @@
 
 ### Batch 3 — High-ROI Feature Unlocks
 - [x] **Quick Win #4 / Slice 2.3 (Shelf)** — Vision Background Removal & Transform Parity (`51830adc`)
-- [x] **Quick Win #10 / Slice 4.4 (Snap)** — Hold `⌥` During Drag-to-Edge for Thirds Snapping (`DONE`)
-- [ ] **Quick Win #6 / Slice 2.4** — Control Centre Mic Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu
+- [x] **Quick Win #10 / Slice 4.4 (Snap)** — Hold `⌥` During Drag-to-Edge for Thirds Snapping (`2ff53647`)
+- [x] **Quick Win #6 / Slice 2.4** — Control Centre Mic Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (`DONE`)
 - [ ] **Quick Win #3 / Slice 2.2** — Weather Warnings, Moon Phase & Desktop Weather Units
 
 ### Remaining Wave 3 & Wave 4 Architecture Slices
@@ -352,13 +352,13 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/ClipboardHistoryTests -only-testing:KatiKatiTests/ClipboardPlusTests -only-testing:KatiKatiTests/PDFReducePlanTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 2.4 — Control Centre Audio Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (Pillar 7)
-- **Effort:** `M` | **User Impact:** `High`
+#### [x] DONE · Slice 2.4 — Control Centre Audio Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (Pillar 7)
+- **Effort:** `M` | **User Impact:** `High` | **Status:** `[x] DONE`
 - **Reused Modules:** `Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:20, 48, 74-75, 239-265`, `Core/Support/QuickToggles.swift:61-100`, `App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`
 - **Scope:**
-  1. [ ] Add an **Input (Microphone)** section to `AudioOutputMenu.populate` (`Platform/SystemStatus/AudioOutputSwitcher.swift:58-76`) using `AudioOutputSwitcher.devices(input: true)` and `setDefault(id, input: true)`.
-  2. [ ] Render a Keyboard Backlight slider in `DockControlCenterSliderCard` (`App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`) when `KeyboardBacklight.isAvailable` is true.
-  3. [ ] Save actual current input volume into `QuickToggleEngine.micPrevious` (`Platform/Pinboard/QuickToggleEngine.swift:74-75`) before mutating input volume to `0`, and add a context menu on the `.vpn` pill listing all services from `VPNServiceParser.list()`.
+  1. [x] Add an **Input (Microphone)** section to `AudioOutputMenu.populate` (`Platform/SystemStatus/AudioOutputSwitcher.swift:58-76`) using `AudioOutputSwitcher.devices(input: true)` and `setDefault(id, input: true)`.
+  2. [x] Render a Keyboard Backlight slider in `DockControlCenterSliderCard` (`App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`) when `KeyboardBacklight.isAvailable` is true.
+  3. [x] Save actual current input volume into `QuickToggleEngine.micPrevious` (`Platform/Pinboard/QuickToggleEngine.swift:74-75`) before mutating input volume to `0`, and add a context menu on the `.vpn` pill listing all services from `VPNServiceParser.list()`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/QuickTogglesTests -only-testing:KatiKatiTests/ControlCenterLayoutTests && python3 Scripts/check_localization.py
@@ -456,11 +456,11 @@ Every slice below obeys all repository gates:
   ```
 
 #### [ ] Slice 4.4 — Persistent `WindowLayoutMemory`, `⌥`-Drag to Thirds & Per-Window Float/Retile Shortcuts (Pillar 10)
-- **Effort:** `M` | **User Impact:** `High` | **Status:** `⌥-Drag Thirds [x] DONE · Persistence/Shortcuts [ ] Pending`
+- **Effort:** `M` | **User Impact:** `High` | **Status:** `⌥-Drag Thirds [x] DONE — 2ff53647 · Persistence/Shortcuts [ ] Pending`
 - **Reused Modules:** `Core/Support/WindowLayoutMemory.swift:7-59`, `App/Composition/WindowLayoutRestoreController.swift:10-110`, `Core/Support/WindowSnap.swift:77-130`, `Platform/Windows/WindowSnapService.swift:206-230`, `App/Composition/TilingEngine.swift:381-387, 495-505`, `Core/Support/Shortcuts.swift`
 - **Scope:**
   1. [ ] Conform `WindowLayoutMemory` (`Core/Support/WindowLayoutMemory.swift:7`) to `Codable` and persist/load it in `WindowLayoutRestoreController` (`~/Library/Application Support/KatiKati/window-layouts.json`, included in `SettingsBackupService.applicationSupportFiles`).
-  2. [x] DONE: In `SnapDragMonitor.dragged()` (`Platform/Windows/WindowSnapService.swift:223`), pass `layout: NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners` to `SnapZonePlanner.resolve` so holding Option while dragging to an edge snaps into horizontal thirds.
+  2. [x] DONE — `2ff53647`: In `SnapDragMonitor.dragged()` (`Platform/Windows/WindowSnapService.swift:223`), pass `layout: NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners` to `SnapZonePlanner.resolve` so holding Option while dragging to an edge snaps into horizontal thirds.
   3. [ ] Add Command Bar commands (`tile float`, `tile retile`) and `ShortcutAction` cases for floating the focused window (`TilingEngine.shared.releaseWindow`) and re-tiling all hand-moved windows (`TilingEngine.shared.retileAll()`).
 - **Verification Command:**
   ```bash
@@ -478,8 +478,8 @@ Each of these 10 quick wins reuses existing `Core/` or `Platform/` code and can 
 3. [ ] **Add Severe Weather Warnings & Moon Phase to `WeatherModernPanel` and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherModernPanel.swift:62`, `App/Scenes/Weather/WeatherFullScreenView.swift:58`):** `WeatherWarningEngine` and `MoonPhase` are already tested in `Core/Support/`, but only legacy `WeatherGlanceView` renders `WarningsTile`, and no view renders `MoonPhase` (~45 lines).
 4. [x] **DONE — `51830adc` · Expose On-Device Vision Background Removal in `ShelfGridPopupView` (`App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:475-502`):** `ShelfActions.removeBackground(_:into:)` (`VNGenerateForegroundInstanceMaskRequest`) is completely implemented and tested, needing only a button in `floatingTransformBar` / `selectionBar` / `shelfMenuItems` (~30 lines).
 5. [x] **DONE — `09c73eeb` · Wire `⌘1`–`⌘9` Pinned Paste Shortcuts & `Work` Category in `ClipboardFlyoutView` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-198`):** `ClipboardFlyoutView` already draws `"⌘1"`…`"⌘9"` badges on pinned clips and `All / Work / Personal` tabs, but `handleKey` ignores `⌘1`–`⌘9` and `classify` passes `originBundleID: nil` (~45 lines).
-6. [ ] **Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
+6. [x] **DONE · Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
 7. [x] **DONE — `091c339c` · Fix DropClip Selection Pill Settings Toggle, Speech ARC Drop & Command Bar `"wifipw"` (`App/Entry/TranslatePanelController.swift:20-73`, `App/Scenes/CommandBarView.swift:62`):** Checking `DropClipPolicy.enabledKey`, retaining `AVSpeechSynthesizer` as a property, and changing `"wifi"` to `"wifipw"` in `CommandBarView.swift:62` fixes three user-visible bugs in ~25 lines.
 8. [x] **DONE — `4e18742c` · Fix Multi-File ZIP Overwrite Bug in `DesktopFileOperations.compressToZip` (`Platform/Desktop/DesktopFileOperations.swift:178-185`):** Passing all file paths to a single `ditto` process instead of looping and overwriting `archiveURL` on each iteration fixes multi-file Desktop Box zipping in ~15 lines.
 9. [x] **DONE — `cf03222f` · Stop 1 Hz Idle Timers in `HydrationController`, `NutritionController` & `QuitOnLastWindowService` + Share `SystemMonitorController.shared` (`Core/Support/HydrationController.swift:261`, `Core/Support/NutritionController.swift:195`, `App/Composition/QuitOnLastWindowService.swift:85`, `Platform/SystemMonitor/SystemMonitorController.swift:7`):** Gating timers on active consumers/thresholds and sharing one ref-counted `SystemMonitorController` eliminates unnecessary background wakeups (~50 lines).
-10. [x] **DONE · Hold `⌥` During Drag-to-Edge to Snap Windows into Thirds (`Platform/Windows/WindowSnapService.swift:223`, `Core/Support/WindowSnap.swift:109-124`):** `SnapZonePlanner.resolve` already supports `layout: .thirds`; passing `.thirds` when `NSEvent.modifierFlags.contains(.option)` in `SnapDragMonitor.dragged()` unlocks drag-to-thirds snapping in ~10 lines.
+10. [x] **DONE — `2ff53647` · Hold `⌥` During Drag-to-Edge to Snap Windows into Thirds (`Platform/Windows/WindowSnapService.swift:223`, `Core/Support/WindowSnap.swift:109-124`):** `SnapZonePlanner.resolve` already supports `layout: .thirds`; passing `.thirds` when `NSEvent.modifierFlags.contains(.option)` in `SnapDragMonitor.dragged()` unlocks drag-to-thirds snapping in ~10 lines.

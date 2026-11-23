@@ -57,20 +57,38 @@ enum AudioOutputSwitcher {
 /// A menu of outputs wrapped around any label (the AirPlay glyphs on the Now Playing card).
 struct AudioOutputMenu<Glyph: View>: View {
     @State private var devices: [AudioOutputDevice] = []
+    @State private var inputDevices: [AudioOutputDevice] = []
     let label: () -> Glyph
 
     var body: some View {
         Menu {
-            ForEach(devices) { device in
-                Button { AudioOutputSwitcher.setDefault(device.id); devices = AudioOutputSwitcher.devices() } label: {
-                    if device.isDefault { Label(device.name, systemImage: "checkmark") } else { Text(verbatim: device.name) }
+            Section("Audio Output") {
+                ForEach(devices) { device in
+                    Button { AudioOutputSwitcher.setDefault(device.id, input: false); refreshDevices() } label: {
+                        if device.isDefault { Label(device.name, systemImage: "checkmark") } else { Text(verbatim: device.name) }
+                    }
+                }
+            }
+            if !inputDevices.isEmpty {
+                Divider()
+                Section("Microphone") {
+                    ForEach(inputDevices) { device in
+                        Button { AudioOutputSwitcher.setDefault(device.id, input: true); refreshDevices() } label: {
+                            if device.isDefault { Label(device.name, systemImage: "checkmark") } else { Text(verbatim: device.name) }
+                        }
+                    }
                 }
             }
         } label: { label() }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
-        .onAppear { devices = AudioOutputSwitcher.devices() }
+        .onAppear { refreshDevices() }
         .accessibilityLabel(Text("Audio Output"))
+    }
+
+    private func refreshDevices() {
+        devices = AudioOutputSwitcher.devices(input: false)
+        inputDevices = AudioOutputSwitcher.devices(input: true)
     }
 }

@@ -83,4 +83,30 @@ final class ControlCenterGridTests: XCTestCase {
         XCTAssertEqual(ControlCenterGrid.columns(count: 0, rowsFit: 4), 4)
         XCTAssertEqual(ControlCenterGrid.columns(count: 16, rowsFit: 0), 4)
     }
+
+    func testMicMuteTransitionPreservesPreMuteVolume() {
+        let muted = QuickToggleID.resolvedMicTransition(turningMuteOn: true, currentInputVolume: 85, savedPrevious: 70)
+        XCTAssertEqual(muted.targetVolume, 0)
+        XCTAssertEqual(muted.nextSavedPrevious, 85)
+
+        let unmuted = QuickToggleID.resolvedMicTransition(turningMuteOn: false, currentInputVolume: 0, savedPrevious: muted.nextSavedPrevious)
+        XCTAssertEqual(unmuted.targetVolume, 85)
+        XCTAssertEqual(unmuted.nextSavedPrevious, 85)
+
+        let floored = QuickToggleID.resolvedMicTransition(turningMuteOn: false, currentInputVolume: 0, savedPrevious: 15)
+        XCTAssertEqual(floored.targetVolume, 40)
+    }
+
+    func testVPNServiceParserParsesMultipleServices() {
+        let sample = """
+        Available network connection services in the current set (*=enabled):
+        * (Connected)      11111111-2222-3333-4444-555555555555 PPP --> L2TP       "Corp VPN"                     [PPP:L2TP]
+        * (Disconnected)   AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE IPSec              "Personal WireGuard"           [IPSec]
+        """
+        let entries = VPNServiceParser.parse(sample)
+        XCTAssertEqual(entries, [
+            VPNServiceParser.Entry(id: "11111111-2222-3333-4444-555555555555", name: "Corp VPN", connected: true),
+            VPNServiceParser.Entry(id: "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE", name: "Personal WireGuard", connected: false)
+        ])
+    }
 }

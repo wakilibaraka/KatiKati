@@ -11,6 +11,7 @@ struct DockControlCenterWidgetView: View {
     @StateObject private var systemStatus = SystemStatusService()
     @State private var showSliderCard = false
     @State private var brightness: Double = DisplayServicesBrightness.current() ?? 0.75
+    @State private var keyLight: Double? = KeyboardBacklight.current()
     private let brightnessAvailable = DisplayServicesBrightness.current() != nil
 
     private let airplayGreen = Color(red: 0.25, green: 0.85, blue: 0.45)
@@ -30,11 +31,13 @@ struct DockControlCenterWidgetView: View {
             DockControlCenterSliderCard(
                 brightness: $brightness,
                 brightnessAvailable: brightnessAvailable,
+                keyLight: $keyLight,
                 volume: Binding(
                     get: { Double(systemStatus.currentVolumeLevel) },
                     set: { systemStatus.setVolume(Float(min(1, max(0, $0)))) }
                 ),
                 onBrightnessChange: { DisplayServicesBrightness.set($0) },
+                onKeyLightChange: { KeyboardBacklight.set($0) },
                 onOpenDisplays: { toggles.perform(.screenMirroring) }
             )
         }
@@ -44,6 +47,7 @@ struct DockControlCenterWidgetView: View {
             if let current = DisplayServicesBrightness.current() {
                 brightness = current
             }
+            keyLight = KeyboardBacklight.current()
         }
         .onDisappear {
             systemStatus.release()
@@ -80,6 +84,7 @@ struct DockControlCenterWidgetView: View {
         glyphButton(symbol: "sun.max.fill", tint: brightness > 0.05 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.45),
                     helpText: String(localized: "Brightness & Volume")) {
             brightness = DisplayServicesBrightness.current() ?? brightness
+            keyLight = KeyboardBacklight.current()
             showSliderCard.toggle()
         }
         .accessibilityLabel(Text("Brightness"))
@@ -101,6 +106,7 @@ struct DockControlCenterWidgetView: View {
         glyphButton(symbol: volumeSymbol(for: vol), tint: vol > 0.01 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.42),
                     helpText: String(localized: "Volume & Brightness")) {
             brightness = DisplayServicesBrightness.current() ?? brightness
+            keyLight = KeyboardBacklight.current()
             showSliderCard.toggle()
         }
         .accessibilityLabel(Text("Volume"))
@@ -139,8 +145,10 @@ struct DockControlCenterWidgetView: View {
 private struct DockControlCenterSliderCard: View {
     @Binding var brightness: Double
     let brightnessAvailable: Bool
+    @Binding var keyLight: Double?
     @Binding var volume: Double
     let onBrightnessChange: (Double) -> Void
+    let onKeyLightChange: (Double) -> Void
     let onOpenDisplays: () -> Void
 
     var body: some View {
@@ -174,10 +182,43 @@ private struct DockControlCenterSliderCard: View {
                     }
                 }
 
+                if let currentKeyLight = keyLight {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("Keyboard").font(.system(size: 12, weight: .semibold))
+                            Spacer()
+                            Text(verbatim: "\(Int((currentKeyLight * 100).rounded()))%")
+                                .dockCaption()
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "light.min")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                            Slider(
+                                value: Binding(
+                                    get: { currentKeyLight },
+                                    set: {
+                                        keyLight = $0
+                                        onKeyLightChange($0)
+                                    }
+                                ),
+                                in: 0...1.0
+                            )
+                            Image(systemName: "keyboard")
+                                .font(.system(size: 13))
+                        }
+                    }
+                }
+
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text("Sound").font(.system(size: 12, weight: .semibold))
                         Spacer()
+                        AudioOutputMenu {
+                            Image(systemName: "airplayaudio")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(.secondary)
+                        }
                         Text(verbatim: "\(Int((volume * 100).rounded()))%")
                             .dockCaption()
                     }

@@ -742,6 +742,21 @@ struct ControlCenterView: View {
         .disabled(gone)
         .animation(.spring(response: 0.28, dampingFraction: 0.78), value: on)
         .accessibilityAddTraits(on ? .isSelected : [])
+        .contextMenu {
+            if id == .vpn {
+                ForEach(engine.vpnServices, id: \.id) { service in
+                    Button {
+                        engine.toggleVPNService(service)
+                    } label: {
+                        if service.connected {
+                            Label(service.name, systemImage: "checkmark")
+                        } else {
+                            Text(verbatim: service.name)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Sliders
