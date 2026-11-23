@@ -2346,9 +2346,9 @@
     "semantic_hash": "be3a07fefbbda3b534c0d35e1a72aca8"
   },
   "Core/Support/StripWheelScroll.swift": {
-    "mtime": 1795004032.6172633,
-    "seen": 1795004485.892559,
-    "ast_hash": "bc771b25878ae3a1f0801d8d57d91da4",
+    "mtime": 1795429321.0592813,
+    "seen": 1795429460.300143,
+    "ast_hash": "985f07515c48ff805c3cc06ebf793a90",
     "semantic_hash": ""
   },
   "Core/Support/SystemGaugeModel.swift": {
@@ -4146,9 +4146,9 @@
     "semantic_hash": "72dd00358dfa51bc9e99153d60acbf76"
   },
   "Tests/Unit/StripWheelScrollTests.swift": {
-    "mtime": 1795004131.8616602,
-    "seen": 1795004485.8940659,
-    "ast_hash": "9ecbc4951238e61ab95a1f5986cff26d",
+    "mtime": 1795429323.674961,
+    "seen": 1795429460.300492,
+    "ast_hash": "52c2fa367826ad58ac4c970ea6ea68ba",
     "semantic_hash": ""
   },
   "Tests/Unit/SyncPassSchedulerTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795429277.0914407,
-    "seen": 1795429303.6466272,
-    "ast_hash": "68e735b671e19b28bd6115b8d3f33189",
+    "mtime": 1795429434.7117596,
+    "seen": 1795429460.300656,
+    "ast_hash": "ca6d6333be0f2bfc0ae1d38221ed5d8e",
     "semantic_hash": ""
   },
   "README.md": {
