@@ -32,6 +32,8 @@ struct NotchHomeView: View {
                     NotchMusicPageView(feed: feed)
                 case .calendar:
                     NotchProductivityPageView(feed: feed)
+                case .peripherals:
+                    EmptyView()
                 case .storage:
                     NotchStoragePageView()
                 case .downloadDeck:

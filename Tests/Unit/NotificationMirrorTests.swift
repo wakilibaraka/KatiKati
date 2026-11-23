@@ -62,8 +62,8 @@ final class NotificationMirrorTests: XCTestCase {
     /// SD-1: the inbox lives in the Side Deck now. The notch gallery keeps its compact core pages and has
     /// no notification page left to cycle to.
     func testTheNotificationsInboxIsInTheSideDeckNotTheNotch() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 7)
-        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 9)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 8)
+        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 10)
         XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: true).contains { $0.symbol == "bell.fill" })
         XCTAssertTrue(SideDeckTab.allCases.contains(.notifications))
         XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")

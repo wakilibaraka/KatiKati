@@ -87,11 +87,13 @@ final class NotchHoverMachineTests: XCTestCase {
 
     func testNotchPagesNeverIncludeTheNotificationInbox() {
         let pages = NotchPage.visible()
-        XCTAssertEqual(pages.count, 9, "all nine pages show by default")
+        XCTAssertEqual(pages.count, 10, "all ten pages show by default")
         XCTAssertEqual(pages.first, .downloadDeck)
         XCTAssertEqual(pages.last, .keepAwake)
+        XCTAssertTrue(pages.contains(.peripherals))
+        XCTAssertEqual(NotchPage.peripherals.symbol, "airpodspro")
         XCTAssertFalse(pages.map(\.symbol).contains("bell.fill"), "the inbox moved to the Side Deck (SD-1)")
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 7)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 8)
 
         let d = UserDefaults(suiteName: "NotchPinnedPageTests")!
         d.removePersistentDomain(forName: "NotchPinnedPageTests")

@@ -40,6 +40,28 @@ struct BluetoothDevice: Equatable, Identifiable, Sendable {
         default: return "dot.radiowaves.left.and.right"
         }
     }
+
+    /// Richer device-specific SF Symbol used by Peripherals Wing & Notch UI while keeping `symbolName`
+    /// backward-compatible for minorType-based unit assertions.
+    var richSymbolName: String {
+        let lower = name.lowercased()
+        if lower.contains("airpods max") { return "airpodsmax" }
+        if lower.contains("airpods pro") { return "airpodspro" }
+        if lower.contains("airpods") { return "airpods" }
+        if lower.contains("beats") || lower.contains("buds") || lower.contains("earbud") { return "earbuds" }
+        if lower.contains("iphone") { return "iphone" }
+        if lower.contains("ipad") { return "ipad" }
+        return symbolName
+    }
+
+    var isAudioPeripheral: Bool {
+        if let k = kind?.lowercased(), k == "headphones" || k == "headset" || k == "speaker" {
+            return true
+        }
+        let lower = name.lowercased()
+        return lower.contains("airpods") || lower.contains("beats") || lower.contains("buds")
+            || lower.contains("earbud") || lower.contains("headphone") || lower.contains("speaker")
+    }
 }
 
 /// The two sources of a device list — `system_profiler` and the HID driver's registry — merged into
@@ -127,5 +149,53 @@ enum BatteryBuddyPolicy {
     static func update(alreadyLow: Set<String>, devices: [BluetoothDevice]) -> (alerts: [BluetoothDevice], low: Set<String>) {
         let low = PowerNotificationPolicy.lowDevices(devices)
         return (low.filter { !alreadyLow.contains($0.id) }, Set(low.map(\.id)))
+    }
+}
+
+/// Pure snapshot of Mac + connected Bluetooth peripheral battery levels for Wing & Notch Peripherals surfaces.
+struct DockPeripheralBatteryOverview: Equatable, Sendable {
+    var macPercent: Int?
+    var macCharging: Bool
+    var macOnAC: Bool
+    var connectedPeripherals: [BluetoothDevice]
+
+    static func build(
+        macPercent: Int?,
+        macCharging: Bool,
+        macOnAC: Bool,
+        devices: [BluetoothDevice]
+    ) -> DockPeripheralBatteryOverview {
+        let clampedMac = macPercent.map { min(100, max(0, $0)) }
+        let sorted = devices.filter(\.isConnected).sorted { lhs, rhs in
+            let lHas = lhs.lowestBattery != nil
+            let rHas = rhs.lowestBattery != nil
+            if lHas != rHas { return lHas }
+            if lhs.isLowBattery != rhs.isLowBattery { return lhs.isLowBattery }
+            if let l = lhs.lowestBattery, let r = rhs.lowestBattery, l != r { return l < r }
+            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+        }
+        return DockPeripheralBatteryOverview(
+            macPercent: clampedMac,
+            macCharging: macCharging,
+            macOnAC: macOnAC,
+            connectedPeripherals: sorted
+        )
+    }
+
+    var batteryPeripherals: [BluetoothDevice] {
+        connectedPeripherals.filter { $0.lowestBattery != nil }
+    }
+
+    func topBatteryPeripherals(limit: Int) -> [BluetoothDevice] {
+        guard limit > 0 else { return [] }
+        return Array(batteryPeripherals.prefix(limit))
+    }
+
+    var lowestOverallPercent: Int? {
+        ([macPercent].compactMap { $0 } + batteryPeripherals.compactMap(\.lowestBattery)).min()
+    }
+
+    var hasAnyLowDevice: Bool {
+        (macPercent.map { !macCharging && $0 <= 20 } ?? false) || batteryPeripherals.contains(where: \.isLowBattery)
     }
 }

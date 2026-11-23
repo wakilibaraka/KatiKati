@@ -33,9 +33,9 @@ final class CameraMirrorTests: XCTestCase {
 
     /// The mirror page exists only while its switch is on, and it takes its place after the teleprompter.
     func testTheMirrorPageJoinsTheGalleryOnlyWhenItIsSwitchedOn() {
-        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 7)
+        XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: false).count, 8)
         XCTAssertEqual(NotchPage.visible(teleprompter: false, mirror: true).dropLast().last, .cameraMirror)
-        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 9)
+        XCTAssertEqual(NotchPage.visible(teleprompter: true, mirror: true).count, 10)
         XCTAssertFalse(NotchPage.visible(teleprompter: true, mirror: false).contains(.cameraMirror))
 
         // Paging follows the same gallery: from the last always-on page, forward lands on the mirror.

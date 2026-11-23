@@ -104,4 +104,65 @@ final class BluetoothDevicesTests: XCTestCase {
         XCTAssertNil(mouse.batteryBreakdown)
         XCTAssertFalse(mouse.isLowBattery)
     }
+
+    func testRichSymbolNameAndAudioPeripheralClassification() {
+        let pro = BluetoothDevice(name: "Baraka's AirPods Pro", address: "1", isConnected: true, kind: "Headphones")
+        let maxPods = BluetoothDevice(name: "AirPods Max", address: "2", isConnected: true, kind: "Headphones")
+        let plainPods = BluetoothDevice(name: "AirPods 4", address: "3", isConnected: true, kind: nil)
+        let buds = BluetoothDevice(name: "Beats Fit Buds", address: "4", isConnected: true, kind: nil)
+        let mouse = BluetoothDevice(name: "MX Master 3S Mouse", address: "5", isConnected: true, kind: "Mouse")
+        let phone = BluetoothDevice(name: "iPhone 16 Pro", address: "6", isConnected: true, kind: nil)
+
+        XCTAssertEqual(pro.richSymbolName, "airpodspro")
+        XCTAssertEqual(maxPods.richSymbolName, "airpodsmax")
+        XCTAssertEqual(plainPods.richSymbolName, "airpods")
+        XCTAssertEqual(buds.richSymbolName, "earbuds")
+        XCTAssertEqual(mouse.richSymbolName, "computermouse")
+        XCTAssertEqual(phone.richSymbolName, "iphone")
+
+        XCTAssertTrue(pro.isAudioPeripheral)
+        XCTAssertTrue(plainPods.isAudioPeripheral)
+        XCTAssertTrue(buds.isAudioPeripheral)
+        XCTAssertFalse(mouse.isAudioPeripheral)
+        XCTAssertFalse(phone.isAudioPeripheral)
+    }
+
+    func testDockPeripheralBatteryOverviewOrdersLowFirstAndHandlesDesktopMac() {
+        let podsLow = BluetoothDevice(name: "AirPods Pro", address: "a", isConnected: true, kind: "Headphones", batteryLeft: 90, batteryRight: 15, batteryCase: 60)
+        let keyboard = BluetoothDevice(name: "Magic Keyboard", address: "b", isConnected: true, kind: "Keyboard", batteryMain: 78)
+        let trackpad = BluetoothDevice(name: "Magic Trackpad", address: "c", isConnected: true, kind: "Trackpad", batteryMain: 42)
+        let speakerNoBattery = BluetoothDevice(name: "Living Room Speaker", address: "d", isConnected: true, kind: "Speaker", batteryMain: nil)
+        let offlineMouse = BluetoothDevice(name: "Spare Mouse", address: "e", isConnected: false, kind: "Mouse", batteryMain: 5)
+
+        let laptop = DockPeripheralBatteryOverview.build(
+            macPercent: 88,
+            macCharging: false,
+            macOnAC: false,
+            devices: [speakerNoBattery, keyboard, offlineMouse, trackpad, podsLow]
+        )
+        XCTAssertEqual(laptop.connectedPeripherals.map(\.name), [
+            "AirPods Pro", "Magic Trackpad", "Magic Keyboard", "Living Room Speaker"
+        ])
+        XCTAssertEqual(laptop.topBatteryPeripherals(limit: 2).map(\.name), ["AirPods Pro", "Magic Trackpad"])
+        XCTAssertEqual(laptop.lowestOverallPercent, 15)
+        XCTAssertTrue(laptop.hasAnyLowDevice)
+
+        let desktopSafe = DockPeripheralBatteryOverview.build(
+            macPercent: nil,
+            macCharging: false,
+            macOnAC: true,
+            devices: [keyboard, speakerNoBattery]
+        )
+        XCTAssertNil(desktopSafe.macPercent)
+        XCTAssertEqual(desktopSafe.lowestOverallPercent, 78)
+        XCTAssertFalse(desktopSafe.hasAnyLowDevice)
+
+        let macChargingLow = DockPeripheralBatteryOverview.build(
+            macPercent: 12,
+            macCharging: true,
+            macOnAC: true,
+            devices: [keyboard]
+        )
+        XCTAssertFalse(macChargingLow.hasAnyLowDevice)
+    }
 }

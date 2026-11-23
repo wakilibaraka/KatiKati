@@ -11,6 +11,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case aiTracker = 2      // Page 3: AI Mission Control (Claude, Codex, OpenCode, Copilot)
     case audioDeck = 3      // Page 4: Dedicated Music Player
     case calendar = 8       // Page 5: Dedicated Calendar & Agenda
+    case peripherals = 10   // Peripherals & AirPods battery hub (DO-8)
     case studioHub = 9      // Page 6: Multipurpose Studio & System Hub (Focus, Clipboard, System/Weather)
     case teleprompter = 4   // Teleprompter (on by default; hideable in Settings)
     case cameraMirror = 5   // Camera & Mic Check-in (on by default; hideable in Settings)
@@ -26,6 +27,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .aiTracker: return "AI Mission Control"
         case .audioDeck: return "Music"
         case .calendar: return "Calendar"
+        case .peripherals: return String(localized: "Peripherals")
         case .studioHub: return "Studio Hub"
         case .storage: return String(localized: "Storage")
         case .downloadDeck: return "Downloads & Torrents"
@@ -42,6 +44,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         case .aiTracker: return "sparkles"
         case .audioDeck: return "music.note"
         case .calendar: return "calendar"
+        case .peripherals: return "airpodspro"
         case .studioHub: return "slider.horizontal.2.square"
         case .storage: return "internaldrive.fill"
         case .downloadDeck: return "arrow.down.circle.fill"
