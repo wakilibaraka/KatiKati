@@ -241,6 +241,534 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "與啟動台資料夾同步" } }
       }
     },
+    "3×3 App Grid" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "3×3-App-Raster" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "3×3 App Grid" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula de apps 3×3" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula de apps 3×3" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grille d’apps 3×3" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Griglia app 3×3" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "3×3 アプリグリッド" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "3×3 앱 격자" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grade de apps 3×3" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grelha de apps 3×3" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "3×3 应用网格" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "3×3 應用程式格線" } }
+      }
+    },
+    "App Context Menu" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Kontextmenü" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Context Menu" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Menú contextual de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Menú contextual de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Menu contextuel des apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Menu contestuale app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリコンテキストメニュー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 컨텍스트 메뉴" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Menu de contexto dos apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Menu de contexto das apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用右键菜单" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 右鍵選單" } }
+      }
+    },
+    "App Icon Presets" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Symbol-Vorgaben" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Icon Presets" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preajustes de iconos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Preajustes de íconos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Préréglages d’icônes d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Preset icone app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリアイコンプリセット" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 아이콘 프리셋" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Predefinições de ícones" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Predefinições de ícones" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用图标预设" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "應用程式圖示預設" } }
+      }
+    },
+    "App Icons" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Symbole" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Icons" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iconos de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Íconos de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icônes d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Icone app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリアイコン" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 아이콘" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ícones de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ícones das apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "應用程式圖示" } }
+      }
+    },
+    "App Icons & Hover" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Symbole & Hover" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Icons & Hover" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iconos y al pasar el cursor" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Íconos y al pasar el cursor" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icônes d’apps et survol" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Icone app e passaggio" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリアイコンとホバー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 아이콘 및 호버" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ícones e Foco ao Passar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ícones e Passagem do Rato" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用图标与悬停" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "應用程式圖示與懸停" } }
+      }
+    },
+    "App Pills" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Kapseln" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Pills" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cápsulas de app" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cápsulas de app" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pilules d’app" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pillole app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリピル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 필" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pílulas de app" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pílulas de app" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用胶囊" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 膠囊" } }
+      }
+    },
+    "Auto-Group Installed Apps" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Installierte Apps automatisch gruppieren" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-Group Installed Apps" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps instaladas automáticamente" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps instaladas automáticamente" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grouper automatiquement les apps installées" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Raggruppa app installate automaticamente" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "インストール済みアプリを自動グループ化" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "설치된 앱 자동 그룹화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps instalados automaticamente" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps instaladas automaticamente" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自动分组已安装应用" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自動分組已安裝 App" } }
+      }
+    },
+    "Automatically trims labels, gaps, and icon scale when many windows are open to reduce scrolling." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kürzt Beschriftungen, Abstände und Symbolgröße automatisch bei vielen offenen Fenstern, um Scrollen zu vermeiden." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Automatically trims labels, gaps, and icon scale when many windows are open to reduce scrolling." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ajusta etiquetas, espacios y escala de iconos automáticamente al haber muchas ventanas para reducir el desplazamiento." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ajusta etiquetas, espacios y escala de íconos automáticamente al haber muchas ventanas para reducir el desplazamiento." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réduit automatiquement les libellés, les espacements et l’échelle des icônes lorsque de nombreuses fenêtres sont ouvertes." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Riduce automaticamente etichette, spaziature e scala delle icone quando ci sono molte finestre aperte." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "多くのウインドウが開いているときにラベル幅・間隔・アイコン倍率を自動調整してスクロールを減らします。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "열린 창이 많을 때 레이블, 간격 및 아이콘 크기를 자동으로 줄여 스크롤을 최소화합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reduz automaticamente rótulos, espaçamentos e escala dos ícones com muitas janelas abertas para evitar rolagem." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ajusta automaticamente etiquetas, espaços e escala dos ícones com muitas janelas abertas para reduzir o deslocamento." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开较多窗口时自动收缩标题、间距与图标缩放，尽量避免横向滚动。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "開啟較多視窗時自動收窄標題、間距與圖示比例，減少橫向捲動。" } }
+      }
+    },
+    "Background & Activity Icon" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrund- & Aktivitätssymbol" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Background & Activity Icon" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Icono de fondo y actividad" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ícono de fondo y actividad" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icône Arrière-plan et activité" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Icona Sfondo e attività" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バックグラウンドとアクティビティアイコン" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "백그라운드 및 활성 아이콘" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ícone de Segundo Plano e Atividade" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ícone de Segundo Plano e Atividade" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "后台与活动图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "背景與活動圖示" } }
+      }
+    },
+    "Bar Widgets" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Leisten-Widgets" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bar Widgets" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de la barra" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de la barra" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de la barre" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Widget nella barra" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バーウィジェット" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "바 위젯" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Widgets da Barra" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Widgets da Barra" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "栏内小组件" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列內小工具" } }
+      }
+    },
+    "Detached Capsule" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abgesetzte Kapsel" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Detached Capsule" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cápsula separada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cápsula separada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Capsule détachée" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Capsula separata" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "独立カプセル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "분리된 캡슐" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cápsula Separada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cápsula Separada" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "独立尾部胶囊" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "獨立尾部膠囊" } }
+      }
+    },
+    "Dock Layout" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dock-Layout" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dock Layout" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Diseño del Dock" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Diseño del Dock" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Disposition du Dock" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Layout del Dock" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dock レイアウト" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock 레이아웃" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Layout do Dock" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Disposição da Dock" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "程序坞布局" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "程式塢版面" } }
+      }
+    },
+    "Dock position, modular slots, detached capsule, and utilities." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dock-Position, modulare Slots, abgesetzte Kapsel und Hilfsmittel." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dock position, modular slots, detached capsule, and utilities." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Posición del Dock, ranuras modulares, cápsula separada y utilidades." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Posición del Dock, ranuras modulares, cápsula separada y utilidades." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Position du Dock, emplacements modulaires, capsule détachée et utilitaires." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Posizione del Dock, slot modulari, capsula separata e utilità." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dock の位置、モジュラースロット、独立カプセル、ユーティリティ。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock 위치, 모듈식 슬롯, 분리된 캡슐 및 유틸리티." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Posição do Dock, espaços modulares, cápsula separada e utilitários." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Posição da Dock, espaços modulares, cápsula separada e utilitários." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "程序坞位置、模块化槽位、独立胶囊与实用工具。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "程式塢位置、模組化槽位、獨立膠囊與工具。" } }
+      }
+    },
+    "Dynamic Anti-Overflow Resizing" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dynamische Überlauf-Anpassung" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dynamic Anti-Overflow Resizing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Redimensión dinámica antidesbordamiento" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Redimensión dinámica antidesbordamiento" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Redimensionnement dynamique anti-débordement" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ridimensionamento dinamico anti-overflow" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "動的オーバーフロー防止リサイズ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "동적 오버플로 방지 크기 조절" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Redimensionamento dinâmico anti-transbordamento" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Redimensionamento dinâmico anti-transbordamento" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "防溢出动态缩放" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "防溢位動態縮放" } }
+      }
+    },
+    "Enable App Groups" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Gruppen aktivieren" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable App Groups" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar grupos de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Activar grupos de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer les groupes d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Abilita gruppi di app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリグループを有効化" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 그룹 활성화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ativar grupos de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativar grupos de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用应用分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用 App 群組" } }
+      }
+    },
+    "Icon Feedback & Hover" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Symbol-Feedback & Hover" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon Feedback & Hover" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Animaciones y respuesta al cursor" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Animaciones y respuesta al cursor" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Effets d’icône et survol" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Feedback icone e passaggio" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコン反応とホバー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘 반응 및 호버" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Resposta de Ícones e Hover" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Resposta dos Ícones e Passagem" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "图标动效与悬停反馈" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "圖示動效與懸停回饋" } }
+      }
+    },
+    "Icon Spacing" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Symbolabstand" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon Spacing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Espaciado entre iconos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Espaciado entre íconos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Espacement des icônes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Spaziatura icone" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコン間隔" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘 간격" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Espaçamento de ícones" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Espaçamento entre ícones" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "图标间距" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "圖示間距" } }
+      }
+    },
+    "Icons Only" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur Symbole" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icons Only" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo iconos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Solo íconos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icônes uniquement" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Solo icone" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコンのみ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘만" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apenas ícones" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apenas ícones" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "僅圖示" } }
+      }
+    },
+    "In-dock widgets: Weather, Now Playing, Clock, styles, and order." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dock-Widgets: Wetter, Aktuelle Wiedergabe, Uhr, Stile und Reihenfolge." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In-dock widgets: Weather, Now Playing, Clock, styles, and order." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Widgets integrados: Tiempo, Reproduciendo, Reloj, estilos y orden." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Widgets integrados: Clima, Reproduciendo, Reloj, estilos y orden." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Widgets intégrés : Météo, À l’écoute, Horloge, styles et ordre." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Widget nella barra: Meteo, In riproduzione, Orologio, stili e ordine." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バー内ウィジェット：天気、再生中、時計、スタイル、順序。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "독 위젯: 날씨, 지금 재생 중, 시계, 스타일 및 순서." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Widgets na barra: Tempo, Reproduzindo, Relógio, estilos e ordem." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Widgets na barra: Tempo, A reproduzir, Relógio, estilos e ordem." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "栏内小组件：天气、正在播放、时钟、样式与顺序。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列內小工具：天氣、播放中、時鐘、樣式與順序。" } }
+      }
+    },
+    "Instance presets, spacing, dynamic resizing, app groups, and hover feedback." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Instanz-Vorgaben, Abstände, dynamische Größe, App-Gruppen und Hover-Feedback." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Instance presets, spacing, dynamic resizing, app groups, and hover feedback." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preajustes de ventanas, espaciado, redimensión dinámica, grupos y respuesta al cursor." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Preajustes de ventanas, espaciado, redimensión dinámica, grupos y respuesta al cursor." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Préréglages d’instances, espacement, taille dynamique, groupes et survol." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Preset istanze, spaziatura, ridimensionamento dinamico, gruppi e passaggio." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表示プリセット、間隔、動的リサイズ、アプリグループ、ホバー反応。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "인스턴스 프리셋, 간격, 동적 크기 조절, 앱 그룹 및 호버 반응." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Predefinições de janelas, espaçamento, tamanho dinâmico, grupos e foco ao passar." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Predefinições de janelas, espaçamento, tamanho dinâmico, grupos e passagem." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "多窗口预设、间距、动态防溢出缩放、应用分组与悬停反馈。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "多視窗預設、間距、動態防溢位縮放、App 群組與懸停回饋。" } }
+      }
+    },
+    "Keep in Dock is the default. Enable this legacy option to also show separate icon pinning." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "„Im Dock behalten“ ist der Standard. Aktiviere diese klassische Option für separates Symbol-Anheften." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep in Dock is the default. Enable this legacy option to also show separate icon pinning." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mantener en el Dock es el predeterminado. Activa esta opción clásica para fijar iconos por separado." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mantener en el Dock es el predeterminado. Activa esta opción clásica para fijar íconos por separado." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Garder dans le Dock est l’option par défaut. Activez cette option héritée pour l’épinglage d’icône distinct." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mantieni nel Dock è predefinito. Attiva questa opzione classica per mostrare anche il fissaggio icona separato." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "「Dock に追加」が既定です。従来のアイコン単体固定も表示するには有効にしてください。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "‘Dock에 유지’가 기본값입니다. 별도 아이콘 고정 메뉴도 표시하려면 이 레거시 옵션을 켜세요." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Manter no Dock é o padrão. Ative esta opção clássica para mostrar também a fixação separada." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Manter na Dock é a predefinição. Ative esta opção clássica para mostrar também a fixação separada." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "默认只显示“在程序坞中保留”；开启此传统选项后同时显示单独的图标固定。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "預設僅顯示「保留在 Dock 中」；啟用此舊版選項後可同時顯示獨立圖示釘選。" } }
+      }
+    },
+    "Left and right flanking wings, Battery & Peripherals, and floating stack." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Linke und rechte Flügel, Batterie & Peripheriegeräte und schwebender Stapel." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Left and right flanking wings, Battery & Peripherals, and floating stack." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alas laterales izquierda y derecha, batería y periféricos y pila flotante." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Alas laterales izquierda y derecha, batería y periféricos y pila flotante." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ailes gauche et droite, batterie et périphériques, et pile flottante." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ali laterali sinistra e destra, batteria e periferiche e pila mobile." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "左右のウィング、バッテリーと周辺機器、フローティングスタック。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "좌우 윙, 배터리 및 주변기기, 플로팅 스택." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Asas laterais esquerda e direita, bateria e periféricos e pilha flutuante." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Asas laterais esquerda e direita, bateria e periféricos e pilha flutuante." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "左右侧翼、电池与外设，以及悬浮小组件堆叠。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "左右側翼、電池與週邊裝置，以及懸浮小工具堆疊。" } }
+      }
+    },
+    "Organizes installed apps into Dock folders by category." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sortiert installierte Apps nach Kategorie in Dock-Ordner." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Organizes installed apps into Dock folders by category." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Organiza las apps instaladas en carpetas del Dock por categoría." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Organiza las apps instaladas en carpetas del Dock por categoría." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Organise les apps installées en dossiers du Dock par catégorie." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Organizza le app installate in cartelle del Dock per categoria." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "インストール済みアプリをカテゴリ別に Dock フォルダへ整理します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "설치된 앱을 카테고리별로 Dock 폴더에 정리합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Organiza os apps instalados em pastas do Dock por categoria." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Organiza as apps instaladas em pastas da Dock por categoria." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按分类把已安装应用整理为程序坞文件夹。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "依分類將已安裝的 App 整理為 Dock 資料夾。" } }
+      }
+    },
+    "RAM Pressure Ring" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "RAM-Druckring" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "RAM Pressure Ring" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Anillo de presión de RAM" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Anillo de presión de RAM" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Anneau de pression RAM" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Anello pressione RAM" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "メモリプレッシャーリング" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "메모리 압박 링" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Anel de Pressão de RAM" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Anel de Pressão de RAM" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "内存压力圆环" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "記憶體壓力圓環" } }
+      }
+    },
+    "Running Apps Style" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Darstellung laufender Apps" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Running Apps Style" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estilo de apps activas" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Estilo de apps activas" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Style des apps actives" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Stile app in esecuzione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "実行中アプリのスタイル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "실행 중인 앱 스타일" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estilo de Apps em Execução" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Estilo das Apps em Execução" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "运行中应用样式" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "執行中 App 樣式" } }
+      }
+    },
+    "Section Spacing" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abschnittsabstand" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Section Spacing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Espaciado entre secciones" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Espaciado entre secciones" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Espacement des sections" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Spaziatura sezioni" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "セクション間隔" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "섹션 간격" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Espaçamento de seções" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Espaçamento de secções" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分区间距" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "分區間距" } }
+      }
+    },
+    "Show 'Pin as App Icon' in app menus" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "„Als App-Symbol anheften“ in App-Menüs anzeigen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show 'Pin as App Icon' in app menus" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar «Fijar como icono de app» en menús" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar “Fijar como ícono de app” en menús" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher « Épingler comme icône » dans les menus" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra «Fissa come icona app» nei menu" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリメニューに「アプリアイコンとして固定」を表示" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 메뉴에 ‘앱 아이콘으로 고정’ 표시" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar 'Fixar como Ícone' nos menus de app" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar 'Afixar como Ícone' nos menus das apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在应用菜单中显示“固定为应用图标”" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在 App 選單中顯示「釘選為 App 圖示」" } }
+      }
+    },
+    "Spacing & Dynamic Resizing" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abstände & dynamische Größe" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spacing & Dynamic Resizing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Espaciado y redimensión dinámica" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Espaciado y redimensión dinámica" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Espacement et taille dynamique" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Spaziatura e ridimensionamento dinamico" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "間隔と動的リサイズ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "간격 및 동적 크기 조절" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Espaçamento e Tamanho Dinâmico" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Espaçamento e Tamanho Dinâmico" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "间距与动态防溢出缩放" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "間距與動態防溢位縮放" } }
+      }
+    },
+    "Vertical docks automatically default to Icons Only unless you pick a preset." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vertikale Docks verwenden standardmäßig „Nur Symbole“, sofern keine Vorgabe gewählt wird." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vertical docks automatically default to Icons Only unless you pick a preset." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los docks verticales usan Solo iconos por defecto salvo que elijas un preajuste." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Los docks verticales usan Solo íconos por defecto salvo que elijas un preajuste." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les docks verticaux utilisent Icônes uniquement par défaut, sauf si vous choisissez un préréglage." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "I dock verticali usano Solo icone per impostazione predefinita se non scegli un preset." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "縦向き Dock はプリセットを選ばない限り自動的に「アイコンのみ」になります。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "세로 Dock은 프리셋을 직접 고르지 않으면 자동으로 ‘아이콘만’을 사용합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Docks verticais usam Apenas ícones por padrão, salvo se você escolher outro estilo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "As Docks verticais usam Apenas ícones por predefinição, salvo se escolher outra opção." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "竖向程序坞默认自动使用“仅图标”，除非你手动指定预设。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "垂直 Dock 預設自動使用「僅圖示」，除非你手動指定預設。" } }
+      }
+    },
+    "Widget Wings" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Widget-Flügel" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Widget Wings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alas de widgets" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Alas de widgets" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ailes de widgets" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ali widget" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ウィジェットウィング" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "위젯 윙" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Asas de Widgets" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Asas de Widgets" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "小组件侧翼" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "小工具側翼" } }
+      }
+    },
+    "Window Cards" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fensterkarten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Window Cards" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tarjetas de ventana" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Tarjetas de ventana" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cartes de fenêtre" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Schede finestra" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ウインドウカード" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "창 카드" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cartões de Janela" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cartões de Janela" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "窗口卡片" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "視窗卡片" } }
+      }
+    },
+    "Windows 10 Taskbar" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Windows-10-Taskleiste" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Windows 10 Taskbar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Barra de Windows 10" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Barra de Windows 10" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Barre des tâches Windows 10" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Barra di Windows 10" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Windows 10 タスクバー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Windows 10 작업 표시줄" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Barra do Windows 10" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Barra do Windows 10" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Windows 10 任务栏" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "Windows 10 工作列" } }
+      }
+    },
+    "Windows 11 Grouped" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 Gruppiert" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 Grouped" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 agrupado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 agrupado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 groupé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 raggruppato" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 グループ化" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 그룹화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 Agrupado" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 Agrupado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "Windows 11 分組" } }
+      }
+    },
     "Activity Monitor" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivitätsanzeige" } },
@@ -16816,83 +17344,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "「背景 App」列出沒有視窗的執行中 App。除非開啟此項，否則 Apple 輔助程序保持隱藏。"
-          }
-        }
-      }
-    },
-    "Background-app capsule and edge placement." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hintergrund-Apps-Kapsel und Randposition."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Background-app capsule and edge placement."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cápsula de apps en segundo plano y ubicación."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cápsula de apps en segundo plano y ubicación."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Capsule des apps en arrière-plan et positionnement."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Capsula app in background e posizionamento."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックグラウンドアプリのカプセルと配置。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백그라운드 앱 캡슐 및 위치 설정."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cápsula de apps em segundo plano e posição."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cápsula de apps em segundo plano e posição."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "后台应用胶囊与边缘位置。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "背景應用程式膠囊與邊緣位置。"
           }
         }
       }
@@ -43945,100 +44396,6 @@
         }
       }
     },
-    "Dock Slots" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "فتحات الدوك"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock-Slots"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock Slots"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ranuras del Dock"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ranuras del Dock"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Emplacements du Dock"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Slot del Dock"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ドックのスロット"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "독 슬롯"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock-slots"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Espaços do Dock"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Espaços do Dock"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Слоты дока"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "程序坞槽位"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "程式塢槽位"
-          }
-        }
-      }
-    },
     "Dock Window Layering" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -44419,83 +44776,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "停靠至螢幕邊緣"
-          }
-        }
-      }
-    },
-    "Dock widgets: order, size, presets, and motion." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock-Widgets: Reihenfolge, Größe, Vorgaben und Bewegung."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock widgets: order, size, presets, and motion."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widgets del Dock: orden, tamaño, ajustes y animaciones."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widgets del Dock: orden, tamaño, ajustes y animaciones."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widgets du Dock : ordre, taille, préréglages et animations."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget del Dock: ordine, dimensioni, preset e animazioni."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock ウィジェット：順序、サイズ、プリセット、モーション。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock 위젯: 순서, 크기, 프리셋, 모션."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widgets da Dock: ordem, tamanho, predefinições e animações."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widgets da Dock: ordem, tamanho, predefinições e animações."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock 小组件：顺序、大小、预设与动效。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dock 小工具：順序、大小、預設與動效。"
           }
         }
       }
@@ -46415,82 +46695,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "抽屜"
-          }
-        }
-      }
-    },
-    "Drawer Position" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schubladenposition"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drawer Position"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posición del cajón"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posición del cajón"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Position du tiroir"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posizione del cassetto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ドロワーの位置"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "서랍 위치"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posição da gaveta"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posição da gaveta"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "抽屉位置"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "抽屜位置"
           }
         }
       }
@@ -77101,83 +77305,6 @@
         }
       }
     },
-    "Left puts the Drawer button before the Dock apps; Right puts it after them." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Links setzt die Drawer-Taste vor die Dock-Apps, Rechts dahinter."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Left puts the Drawer button before the Dock apps; Right puts it after them."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Izquierda coloca el botón Cajón antes de las apps del Dock; Derecha después."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Izquierda coloca el botón Cajón antes de las apps del Dock; Derecha después."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "À gauche place le bouton Tiroir avant les apps du Dock ; à droite, après."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinistra posiziona il pulsante Drawer prima delle app del Dock; Destra dopo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "左にすると Dock アプリの前、右にすると後にドロワーボタンを配置します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "왼쪽은 Dock 앱 앞에, 오른쪽은 앱 뒤에 서랍 버튼을 배치합니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esquerda coloca o botão Gaveta antes dos apps do Dock; Direita depois."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esquerda coloca o botão Gaveta antes das apps da Dock; Direita depois."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "设为“左”会将抽屉按钮放在程序坞应用之前；“右”则放在其后。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設為「左」會將抽屜按鈕放在 Dock 應用程式之前；「右」則放在其後。"
-          }
-        }
-      }
-    },
     "Lemon" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -107302,83 +107429,6 @@
         }
       }
     },
-    "Places the circular Background Apps Drawer capsule on the left or right flank of the bottom Dock bar (or inside Control Center when docked trailing)." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Platziert die runde Hintergrund-Apps-Drawer-Kapsel links oder rechts am unteren Dock (oder im Kontrollzentrum, wenn rechts angedockt)."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Places the circular Background Apps Drawer capsule on the left or right flank of the bottom Dock bar (or inside Control Center when docked trailing)."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coloca la cápsula circular del cajón de apps en el flanco izquierdo o derecho del Dock inferior (o dentro del Centro de control si está al final)."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coloca la cápsula circular del cajón de apps en el flanco izquierdo o derecho del Dock inferior (o dentro del Centro de control si está al final)."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Place la capsule circulaire du tiroir d’arrière-plan à gauche ou à droite du Dock (ou dans le Centre de contrôle s’il est ancré en fin)."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posiziona la capsula circolare del Drawer sul fianco sinistro o destro del Dock inferiore (o nel Centro di Controllo se ancorato in coda)."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "円形のバックグラウンドアプリドロワーカプセルを下部 Dock の左右どちらかの端に配置します（コントロールセンターが末尾にある場合はその中に配置）。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "원형 백그라운드 앱 서랍 캡슐을 하단 Dock 바의 왼쪽 또는 오른쪽에 배치합니다(제어 센터가 끝에 고정된 경우 그 안에 표시)."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posiciona a cápsula circular da Gaveta à esquerda ou à direita do Dock inferior (ou na Central de Controle quando ancorada no final)."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coloca a cápsula circular da Gaveta no lado esquerdo ou direito da Dock inferior (ou na Central de Controlo quando ancorada no fim)."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将圆形“后台应用抽屉”胶囊置于底部程序坞的左侧或右侧翼（当控制中心停靠在尾部时则位于控制中心内）。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將圓形「背景應用抽屜」膠囊置於底部 Dock 的左側或右側翼（當控制中心停靠在尾部時位於控制中心內）。"
-          }
-        }
-      }
-    },
     "Play" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -132527,83 +132577,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "顯示提醒事項"
-          }
-        }
-      }
-    },
-    "Show the Drawer button beside the Dock to list running background apps with no open window." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeigt die Drawer-Taste neben dem Dock für laufende Hintergrund-Apps ohne offenes Fenster."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show the Drawer button beside the Dock to list running background apps with no open window."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muestra el botón Cajón junto al Dock para listar apps activas sin ventanas abiertas."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muestra el botón Cajón junto al Dock para listar apps activas sin ventanas abiertas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Affiche le bouton Tiroir à côté du Dock pour lister les apps actives sans fenêtre ouverte."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra il pulsante Drawer accanto al Dock per elencare le app attive senza finestre aperte."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ウィンドウを開いていないバックグラウンド実行中アプリを一覧表示するドロワーボタンを Dock の横に置きます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "열린 창 없이 백그라운드에서 실행 중인 앱을 나열하는 서랍 버튼을 Dock 옆에 표시합니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra o botão Gaveta ao lado do Dock para listar apps ativos sem janela aberta."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra o botão Gaveta junto à Dock para listar apps em execução sem janela aberta."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在程序坞旁显示抽屉按钮，用于查看正在后台运行但没有打开窗口的应用。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 Dock 旁顯示抽屜按鈕，以檢視正在背景執行但沒有開啟視窗的應用程式。"
           }
         }
       }
@@ -162699,83 +162672,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "小工具樣式與預設"
-          }
-        }
-      }
-    },
-    "Widget panes: layout, colors, and style." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget-Bereiche: Layout, Farben und Stil."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget panes: layout, colors, and style."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paneles de widgets: distribución, colores y estilo."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paneles de widgets: distribución, colores y estilo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Panneaux de widgets : disposition, couleurs et style."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pannelli widget: disposizione, colori e stile."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ウィジェットペイン：レイアウト、色、スタイル。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위젯 패널: 레이아웃, 색상, 스타일."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Painéis de widgets: disposição, cores e estilo."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Painéis de widgets: disposição, cores e estilo."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "小组件面板：布局、颜色与样式。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "小工具面板：版面、顏色與樣式。"
           }
         }
       }
