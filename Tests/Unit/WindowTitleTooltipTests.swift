@@ -182,7 +182,7 @@ final class ChipPillMetricsTests: XCTestCase {
     }
 
     /// 两张满宽标题卡相邻：放大之后仍要剩得下缝。
-    /// 静息可见缝 = `2 * titledCardInset + chipSpacing` = 10pt，预算 3pt → 至少剩 7pt。
+    /// 静息可见缝 = `2 * titledCardInset + chipSpacing` = 6pt，预算 3pt → 至少剩 3pt。
     func testTwoWidestTitledCardsStillLeaveAVisibleGap() {
         let scale: CGFloat = 1
         let longTitle = String(repeating: "very-long-window-title-", count: 20)
@@ -192,8 +192,8 @@ final class ChipPillMetricsTests: XCTestCase {
         let s = ChipPillMetrics.quietHoverScale(forCardWidth: cardWidth, scale: scale)
         let remaining = restingGap - cardWidth * (s - 1) / 2
 
-        XCTAssertEqual(restingGap, 10, accuracy: 0.001, "静息缝的构成变了，这条判据要跟着重算")
-        XCTAssertGreaterThanOrEqual(remaining, 7 - 0.001,
+        XCTAssertEqual(restingGap, 6, accuracy: 0.001, "静息缝的构成变了，这条判据要跟着重算")
+        XCTAssertGreaterThanOrEqual(remaining, 3 - 0.001,
                                     "放大后只剩 \(remaining)pt，宽卡又会挤到邻居")
     }
 

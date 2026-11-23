@@ -142,12 +142,13 @@ enum AppIconPresentationPreset: String, CaseIterable, Codable, Identifiable, Sen
 
 /// Symmetrical spacing configuration for Dock app icons and inter-section gaps.
 struct DockSpacingConfig: Equatable, Codable, Sendable {
-    static let defaultsKey = "com.katikati.dock.spacingConfig.v1"
-    static let iconSpacingRange: ClosedRange<CGFloat> = 2...16
-    static let sectionSpacingRange: ClosedRange<CGFloat> = 6...24
+    static let defaultsKey = "com.katikati.dock.spacingConfig.v2"
+    static let legacyV1DefaultsKey = "com.katikati.dock.spacingConfig.v1"
+    static let iconSpacingRange: ClosedRange<CGFloat> = -2...12
+    static let sectionSpacingRange: ClosedRange<CGFloat> = 3...20
 
-    var iconSpacing: CGFloat = 6
-    var sectionSpacing: CGFloat = 12
+    var iconSpacing: CGFloat = 1
+    var sectionSpacing: CGFloat = 6
     var dynamicCompressionEnabled: Bool = true
 
     static let `default` = DockSpacingConfig()
@@ -173,8 +174,8 @@ struct DockDynamicCompressionResult: Equatable, Sendable {
 /// Three-stage anti-overflow solver: (1) shrink pill labels -> (2) tighten spacing symmetrically -> (3) gently scale icons.
 enum DockDynamicCompressionSolver {
     static let minLabelWidth: CGFloat = 88
-    static let minIconSpacing: CGFloat = 2
-    static let minSectionSpacing: CGFloat = 5
+    static let minIconSpacing: CGFloat = 0
+    static let minSectionSpacing: CGFloat = 3
     static let minIconScale: CGFloat = 0.78
 
     static func solve(

@@ -79,10 +79,41 @@ final class WindowChipGroupingTests: XCTestCase {
     }
 
     func testDockSpacingConfigClamping() {
-        let extreme = DockSpacingConfig(iconSpacing: 0, sectionSpacing: 99, dynamicCompressionEnabled: false).clamped()
+        XCTAssertEqual(DockSpacingConfig.default.iconSpacing, 1)
+        XCTAssertEqual(DockSpacingConfig.default.sectionSpacing, 6)
+        XCTAssertEqual(DockSpacingConfig.iconSpacingRange, -2...12)
+        XCTAssertEqual(DockSpacingConfig.sectionSpacingRange, 3...20)
+        XCTAssertTrue(DockSpacingConfig.iconSpacingRange.contains(0))
+
+        let extreme = DockSpacingConfig(iconSpacing: -10, sectionSpacing: 99, dynamicCompressionEnabled: false).clamped()
         XCTAssertEqual(extreme.iconSpacing, DockSpacingConfig.iconSpacingRange.lowerBound)
         XCTAssertEqual(extreme.sectionSpacing, DockSpacingConfig.sectionSpacingRange.upperBound)
         XCTAssertFalse(extreme.dynamicCompressionEnabled)
+    }
+
+    func testDockDynamicCompressionRespectsZeroAndNegativeIconSpacing() {
+        for userIconSpacing in [-2.0, 0.0] as [CGFloat] {
+            let cfg = DockSpacingConfig(iconSpacing: userIconSpacing, sectionSpacing: 8, dynamicCompressionEnabled: true)
+            let result = DockDynamicCompressionSolver.solve(
+                availableWidth: 680, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 4,
+                baseIconWidth: 40, baseLabelWidth: 164, spacing: cfg, sectionGapCount: 2
+            )
+            XCTAssertGreaterThanOrEqual(result.stage, 2)
+            XCTAssertEqual(result.iconSpacing, userIconSpacing, accuracy: 0.001,
+                           "Stage 2 compression must not expand user spacing of \(userIconSpacing) pt")
+            XCTAssertGreaterThanOrEqual(result.sectionSpacing, DockDynamicCompressionSolver.minSectionSpacing - 0.001)
+            XCTAssertLessThanOrEqual(result.sectionSpacing, 8)
+        }
+
+        let maxCompressed = DockDynamicCompressionSolver.solve(
+            availableWidth: 500, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            baseIconWidth: 40, baseLabelWidth: 164,
+            spacing: DockSpacingConfig(iconSpacing: 4, sectionSpacing: 10, dynamicCompressionEnabled: true),
+            sectionGapCount: 2
+        )
+        XCTAssertEqual(maxCompressed.stage, 3)
+        XCTAssertEqual(maxCompressed.iconSpacing, DockDynamicCompressionSolver.minIconSpacing, accuracy: 0.001)
+        XCTAssertEqual(maxCompressed.sectionSpacing, DockDynamicCompressionSolver.minSectionSpacing, accuracy: 0.001)
     }
 
     func testDockDynamicCompressionStagesAndDisabledScrollFallback() {

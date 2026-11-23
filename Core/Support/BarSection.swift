@@ -99,7 +99,7 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .system: return 150
         case .devices: return 150
         case .drives: return 130
-        case .dictionary, .terminal: return 56
+        case .dictionary, .terminal: return 40
         case .ai: return 112
         case .widgets: return 40
         }
@@ -116,8 +116,17 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
         case .apps: return 0
         case .media: return 72
         case .clock: return 76
-        case .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .utilities: return 56
+        case .dictionary, .terminal: return 40
+        case .calendar, .system, .devices, .drives, .ai, .utilities: return 56
         case .widgets: return 40
+        }
+    }
+
+    /// Utility/tool icon tiles that pack at icon spacing and separate from Clock with a tight divider.
+    var isUtilityToolTile: Bool {
+        switch self {
+        case .utilities, .dictionary, .terminal: return true
+        default: return false
         }
     }
 

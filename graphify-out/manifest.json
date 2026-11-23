@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795470679.2307367,
-    "seen": 1795470702.066484,
-    "ast_hash": "8dc89141473512d150ee97247fac9c3d",
+    "mtime": 1795477540.7729335,
+    "seen": 1795478141.2297752,
+    "ast_hash": "f9a95892af821ca3a511cd050988e266",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
-    "mtime": 1795429070.6617346,
-    "seen": 1795429303.645756,
-    "ast_hash": "1597e5a2897ca6a945febfa2d060026f",
+    "mtime": 1795477583.1629934,
+    "seen": 1795478141.229934,
+    "ast_hash": "4837b8752741dddc105854ea55abdcad",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Trash.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795429884.2858732,
-    "seen": 1795430223.398707,
-    "ast_hash": "a55ce3e6004d9aeff340e6cd3798e92d",
+    "mtime": 1795477650.8652122,
+    "seen": 1795478141.2299352,
+    "ast_hash": "c243335b788d378cef90ceb20d8b8f16",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1338,9 +1338,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WidgetLookSettingsBlock.swift": {
-    "mtime": 1795470679.24277,
-    "seen": 1795470702.066766,
-    "ast_hash": "5805a8cb7538fef86417ab2900095d51",
+    "mtime": 1795477585.2298648,
+    "seen": 1795478141.2300649,
+    "ast_hash": "7370bcca937773c5e23ba2f380ff28c7",
     "semantic_hash": ""
   },
   "App/Scenes/WidgetMotionAnimation.swift": {
@@ -1362,9 +1362,9 @@
     "semantic_hash": "fb4f8dd123266feeca7239bde996ec48"
   },
   "App/Scenes/WindowTitleTooltip.swift": {
-    "mtime": 1794840021.6834044,
-    "seen": 1794840433.410068,
-    "ast_hash": "7d1e83972ec32bb4bbf5e435038bb120",
+    "mtime": 1795477580.0838969,
+    "seen": 1795478141.230068,
+    "ast_hash": "807c0a7bd776447767cb0351aa9342d7",
     "semantic_hash": ""
   },
   "Core/Identity/Rules/IdentityRuleEngine.swift": {
@@ -1542,9 +1542,9 @@
     "semantic_hash": "b4d31ca4fe2da8b2b9fabb00c4038857"
   },
   "Core/Support/BarSection.swift": {
-    "mtime": 1795431874.8444066,
-    "seen": 1795432045.312428,
-    "ast_hash": "0090f09d7634641df279b68cfad903d4",
+    "mtime": 1795477523.7170365,
+    "seen": 1795478141.230102,
+    "ast_hash": "be1a7bce8e1b408616f1043ecf529c9c",
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
@@ -1902,9 +1902,9 @@
     "semantic_hash": "ff5c4bbb981f04283e0cde0f931b7fa8"
   },
   "Core/Support/IslandLayoutSolver.swift": {
-    "mtime": 1795184249.5691319,
-    "seen": 1795184428.834712,
-    "ast_hash": "996aeaf897d5a19392e73ebd0cd42012",
+    "mtime": 1795477525.3974447,
+    "seen": 1795478141.230187,
+    "ast_hash": "165c54a16fa6d90b0f777a10a74d20c5",
     "semantic_hash": ""
   },
   "Core/Support/IslandSlotSet.swift": {
@@ -2532,9 +2532,9 @@
     "semantic_hash": "82a9d7cf700cea438cbd3393ec2cc58d"
   },
   "Core/Support/WindowChipGrouping.swift": {
-    "mtime": 1795431872.039983,
-    "seen": 1795432045.312626,
-    "ast_hash": "b471981741366f72cb94f6da785170ee",
+    "mtime": 1795477522.4195035,
+    "seen": 1795478141.230311,
+    "ast_hash": "34b042d27167be6d48d7cab65d9b546c",
     "semantic_hash": ""
   },
   "Core/Support/WindowDisplayAttribution.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795383903.1126652,
-    "seen": 1795384204.430919,
-    "ast_hash": "cdc2bd34fbc6f3abd22dd0a1e2fec69a",
+    "mtime": 1795477685.562726,
+    "seen": 1795478141.230443,
+    "ast_hash": "3beb192e8854038fd95e3a76dd4960b5",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -3210,9 +3210,9 @@
     "semantic_hash": "2ca0a88d8fd48cd79ccc8c7a3c03376c"
   },
   "Tests/Unit/BarLayoutModeTests.swift": {
-    "mtime": 1795182187.5914874,
-    "seen": 1795182478.0946062,
-    "ast_hash": "5635d09f8e8d669cc5bbbf1ebc026e94",
+    "mtime": 1795477675.8100257,
+    "seen": 1795478141.2304509,
+    "ast_hash": "aece270c66ce626b60c0cc0d320fcaae",
     "semantic_hash": ""
   },
   "Tests/Unit/BluetoothDevicesTests.swift": {
@@ -3582,9 +3582,9 @@
     "semantic_hash": "46d465216e2b6d7c9319060f064af595"
   },
   "Tests/Unit/IslandLayoutSolverTests.swift": {
-    "mtime": 1795184311.962713,
-    "seen": 1795184428.8350348,
-    "ast_hash": "51d50b934f2180582b2a16126488900f",
+    "mtime": 1795477692.753116,
+    "seen": 1795478141.2305338,
+    "ast_hash": "c154e0a7becd117f864210f0653ecea6",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandPanelGeometryTests.swift": {
@@ -4326,9 +4326,9 @@
     "semantic_hash": "bc6cffbed1fb46dfe118205e046bc006"
   },
   "Tests/Unit/WindowChipGroupingTests.swift": {
-    "mtime": 1795428699.814752,
-    "seen": 1795428951.6688719,
-    "ast_hash": "712f7d0c20be1bfeb3846b1c17eb0733",
+    "mtime": 1795477672.9798267,
+    "seen": 1795478141.2306728,
+    "ast_hash": "8c4a37eedfaac6835251a27d6b540955",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowDisplayAttributionTests.swift": {
@@ -4404,10 +4404,10 @@
     "semantic_hash": "bde26a0f348cae31e4d1300388f1ab4b"
   },
   "Tests/Unit/WindowTitleTooltipTests.swift": {
-    "mtime": 1792090570.2243147,
-    "seen": 1792295707.0608268,
-    "ast_hash": "0a4af7ea9b0015bc8d5caa2fdc1159c4",
-    "semantic_hash": "0a4af7ea9b0015bc8d5caa2fdc1159c4"
+    "mtime": 1795477677.387251,
+    "seen": 1795478141.230685,
+    "ast_hash": "dec46bc4900d7e765ab316c16a1fb4d9",
+    "semantic_hash": ""
   },
   "Tools/WindowLab/Entry/main.swift": {
     "mtime": 1791999130.7270603,

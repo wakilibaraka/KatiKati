@@ -300,6 +300,16 @@ struct AppIconsSettingsBlock: View {
                     ),
                     note: Text("Automatically trims labels, gaps, and icon scale when many windows are open to reduce scrolling.")
                 )
+                SettingsDivider()
+                HStack {
+                    Spacer()
+                    Button(LocalizedStringKey("Reset to Default")) {
+                        store.setDockSpacingConfig(.default)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(store.dockSpacingConfig == .default)
+                }
             }
 
             SettingsCard(Text("App Groups")) {

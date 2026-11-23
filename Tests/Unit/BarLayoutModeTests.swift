@@ -115,6 +115,19 @@ final class BarLayoutModeTests: XCTestCase {
         XCTAssertEqual(BarSection.apps.defaultWidgetWidth, 0)
         XCTAssertEqual(BarSection.media.defaultWidgetWidth, 215)
         XCTAssertEqual(BarSection.clock.defaultWidgetWidth, 160)
+        XCTAssertEqual(BarSection.dictionary.defaultWidgetWidth, 40)
+        XCTAssertEqual(BarSection.terminal.defaultWidgetWidth, 40)
+        XCTAssertEqual(BarSection.dictionary.minimumWidgetWidth, 40)
+        XCTAssertEqual(BarSection.terminal.minimumWidgetWidth, 40)
+    }
+
+    func testUtilityToolTileClassification() {
+        for tool in [BarSection.utilities, .dictionary, .terminal] {
+            XCTAssertTrue(tool.isUtilityToolTile)
+        }
+        for other in [BarSection.clock, .apps, .media, .weather] {
+            XCTAssertFalse(other.isUtilityToolTile)
+        }
     }
 
     func testFABSectionsAreSquareAndIdentified() {

@@ -669,3 +669,41 @@ final class WideGapPlanTests: XCTestCase {
                        "a rail hangs the block off the apps island, not the bottom of the stack")
     }
 }
+
+final class WideZoneSpacerPlanTests: XCTestCase {
+    func testZeroOrNegativeSpareAddsNothing() {
+        let zero = WideZoneSpacerPlan.resolve(spare: 0, flexBoundaryCount: 2)
+        XCTAssertEqual(zero.boundaryExtra, 0)
+        XCTAssertEqual(zero.endPadding, 0)
+        XCTAssertEqual(WideZoneSpacerPlan.resolve(spare: -50, flexBoundaryCount: 2), zero)
+    }
+
+    func testZeroFlexBoundariesCentersContentSymmetrically() {
+        let plan = WideZoneSpacerPlan.resolve(spare: 160, flexBoundaryCount: 0)
+        XCTAssertEqual(plan.boundaryExtra, 0)
+        XCTAssertEqual(plan.endPadding, 80, accuracy: 0.001)
+    }
+
+    func testOneOrTwoFlexBoundariesAbsorbAllSpareWithoutEndPadding() {
+        let single = WideZoneSpacerPlan.resolve(spare: 240, flexBoundaryCount: 1)
+        XCTAssertEqual(single.boundaryExtra, 240, accuracy: 0.001)
+        XCTAssertEqual(single.endPadding, 0)
+
+        let dual = WideZoneSpacerPlan.resolve(spare: 240, flexBoundaryCount: 2)
+        XCTAssertEqual(dual.boundaryExtra, 120, accuracy: 0.001)
+        XCTAssertEqual(dual.endPadding, 0)
+    }
+
+    func testPointConservationAcrossSpareAndFlexCounts() {
+        for flexCount in [0, 1, 2, 3] {
+            for spare in stride(from: 0.0, through: 900.0, by: 45.0) {
+                let plan = WideZoneSpacerPlan.resolve(spare: spare, flexBoundaryCount: flexCount)
+                XCTAssertEqual(
+                    plan.boundaryExtra * CGFloat(flexCount) + plan.endPadding * 2,
+                    spare,
+                    accuracy: 0.001
+                )
+            }
+        }
+    }
+}

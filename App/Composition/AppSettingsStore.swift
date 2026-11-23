@@ -612,7 +612,18 @@ final class AppSettingsStore: ObservableObject {
         let storedIconPreset = defaults.string(forKey: AppIconPresentationPreset.defaultsKey)
         hasStoredAppIconPreset = storedIconPreset != nil
         appIconPreset = AppIconPresentationPreset.resolved(stored: storedIconPreset, isVertical: false)
-        dockSpacingConfig = Self.decoded(DockSpacingConfig.self, forKey: DockSpacingConfig.defaultsKey, defaults: defaults)?.clamped() ?? .default
+        if let current = Self.decoded(DockSpacingConfig.self, forKey: DockSpacingConfig.defaultsKey, defaults: defaults) {
+            dockSpacingConfig = current.clamped()
+        } else if let legacy = Self.decoded(DockSpacingConfig.self, forKey: DockSpacingConfig.legacyV1DefaultsKey, defaults: defaults) {
+            var migrated = DockSpacingConfig.default
+            migrated.dynamicCompressionEnabled = legacy.dynamicCompressionEnabled
+            dockSpacingConfig = migrated
+            if let data = try? JSONEncoder().encode(migrated) {
+                defaults.set(data, forKey: DockSpacingConfig.defaultsKey)
+            }
+        } else {
+            dockSpacingConfig = .default
+        }
         showPinAsAppIcon = defaults.bool(forKey: AppMembershipMenuPlan.showPinAsAppIconKey)
         linkCleanerEnabled = defaults.bool(forKey: Keys.linkCleanerEnabled)
         wallpaperEnabled = defaults.bool(forKey: Keys.wallpaperEnabled)

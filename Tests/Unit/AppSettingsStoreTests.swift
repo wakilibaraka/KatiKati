@@ -2364,6 +2364,25 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(applied.visibleItems.contains(.weather))
         XCTAssertFalse(applied.visibleItems.contains(.dictionary))
     }
+
+    func testDockSpacingConfigMigrationAndPersistence() throws {
+        let legacyDefaults = makeDefaults()
+        let legacyObject = try JSONEncoder().encode(
+            DockSpacingConfig(iconSpacing: 2, sectionSpacing: 6, dynamicCompressionEnabled: false)
+        )
+        legacyDefaults.set(legacyObject, forKey: DockSpacingConfig.legacyV1DefaultsKey)
+
+        let migratedStore = AppSettingsStore(defaults: legacyDefaults)
+        XCTAssertEqual(migratedStore.dockSpacingConfig.iconSpacing, 1)
+        XCTAssertEqual(migratedStore.dockSpacingConfig.sectionSpacing, 6)
+        XCTAssertFalse(migratedStore.dockSpacingConfig.dynamicCompressionEnabled)
+
+        migratedStore.setDockSpacingConfig(
+            DockSpacingConfig(iconSpacing: 0, sectionSpacing: 4, dynamicCompressionEnabled: true)
+        )
+        let reloaded = AppSettingsStore(defaults: legacyDefaults)
+        XCTAssertEqual(reloaded.dockSpacingConfig, DockSpacingConfig(iconSpacing: 0, sectionSpacing: 4, dynamicCompressionEnabled: true))
+    }
 }
 
 /// 只回答「读状态那一刻在不在主线程」：不在 → `.on`。

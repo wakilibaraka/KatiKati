@@ -30,7 +30,13 @@ extension DockStripView {
             : rawHostedSections
 
         guard hostedSections.contains(.apps) else {
-            let placeholderEntries = hostedSections.map { StripEntry.sectionPlaceholder(section: $0) }
+            var placeholderEntries: [StripEntry] = []
+            for (index, section) in hostedSections.enumerated() {
+                if index > 0, section == .clock, hostedSections[index - 1].isUtilityToolTile {
+                    placeholderEntries.append(.divider(id: "section-divider-clock"))
+                }
+                placeholderEntries.append(.sectionPlaceholder(section: section))
+            }
             return StripProjection(
                 snapshotItems: [],
                 snapshotBundleIDs: [],
@@ -318,12 +324,12 @@ extension DockStripView {
             } else {
                 if !finalEntries.isEmpty {
                     let prev = hostedSections[index - 1]
-                    // Add a divider when transitioning from apps to the right widget cluster.
-                    // Consecutive widgets (.launcher + .weather, .media + .clock + .widgets)
-                    // flow together naturally without divider clutter.
-                    let needsDivider = (prev == .apps)
-                    if needsDivider {
+                    // Add a flex divider when transitioning from apps to the right widget cluster,
+                    // and a tight non-flex hairline divider between utility/tool tiles and Clock.
+                    if prev == .apps {
                         finalEntries.append(.divider(id: "layout-divider-\(section.rawValue)"))
+                    } else if section == .clock && prev.isUtilityToolTile {
+                        finalEntries.append(.divider(id: "section-divider-clock"))
                     }
                 }
                 finalEntries.append(.sectionPlaceholder(section: section))

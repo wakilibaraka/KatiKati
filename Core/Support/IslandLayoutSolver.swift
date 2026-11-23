@@ -437,6 +437,27 @@ enum WideGapPlan {
     }
 }
 
+/// Wide-bar spare-width distribution that keeps icons and tool tiles strictly at `Icon Spacing`
+/// while absorbing leftover bar width at major zone boundaries (between left widgets, apps, and
+/// right widgets), or equally at both ends when no flex boundary exists.
+/// Conservation invariant: `boundaryExtra * CGFloat(flexBoundaryCount) + 2 * endPadding == max(0, spare)`.
+enum WideZoneSpacerPlan {
+    struct Plan: Equatable, Sendable {
+        /// Total extra width added around each flex boundary (`boundaryExtra / 2` before and after).
+        let boundaryExtra: CGFloat
+        /// Points added at each end when there are no flex boundaries.
+        let endPadding: CGFloat
+    }
+
+    static func resolve(spare: CGFloat, flexBoundaryCount: Int) -> Plan {
+        let budget = max(0, spare)
+        let count = max(0, flexBoundaryCount)
+        guard budget > 0 else { return Plan(boundaryExtra: 0, endPadding: 0) }
+        guard count > 0 else { return Plan(boundaryExtra: 0, endPadding: budget / 2) }
+        return Plan(boundaryExtra: budget / CGFloat(count), endPadding: 0)
+    }
+}
+
 /// Chrome `DockStripView` draws around and between a fixed island's sections: the horizontal
 /// content inset at both ends and a divider gap between neighbouring sections, both scaled with
 /// the bar height. The solver sizes fixed islands with it so a frame never clips its own content

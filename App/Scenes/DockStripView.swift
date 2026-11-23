@@ -276,13 +276,11 @@ struct DockStripView: View {
             ScrollView(isRail ? .vertical : .horizontal, showsIndicators: false) {
                 StripAxisStack(vertical: isRail,
                                spacing: effectiveSpacing,
-                               // DP-3: only Wide has spare width to spend; every other mode keeps
-                               // measuring its natural width.
-                               wideGapCap: (!isRail && settingsStore.barLayoutMode == .windows)
-                                   ? WideGapPlan.gapCap * dockScale : nil) {
+                               wideFill: !isRail && settingsStore.barLayoutMode == .windows) {
                     ForEach(projection.entries) { entry in
                         chipWithReorder(entry, projection: projection, compression: compression)
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
+                            .layoutValue(key: StripWideFlexBoundaryKey.self, value: Self.isWideFlexBoundary(entry))
                     }
                 }
                 .frame(minWidth: isRail ? nil : fullWidthContentWidth,
@@ -1624,9 +1622,11 @@ struct DockStripView: View {
                     HStack(spacing: 6 * dockScale) {
                         if controlCentreHole > 0 { Color.clear.frame(width: controlCentreHole) }
                         if section.supportsWidgetSizes, let members = settingsStore.widgetLayout.instance(for: section).stack, members.count > 1 {
-                            SmartStackSlot(host: section, members: members) { widgetChip($0, size: widgetSize) }
+                            SmartStackSlot(host: section, members: members) {
+                                widgetChip($0, size: widgetSize, iconSpacing: solved.iconSpacing)
+                            }
                         } else {
-                            widgetChip(section, size: widgetSize)
+                            widgetChip(section, size: widgetSize, iconSpacing: solved.iconSpacing)
                         }
                     }
                     // Refined slot insets: every widget card matches the 40pt height of the FABs
@@ -1682,7 +1682,7 @@ struct DockStripView: View {
                 .fill(theme.zoneDivider.color)
                 .frame(width: Style.dividerHeight * dockScale, height: 1)
         case .divider:
-            let dividerPad = max(2, (solved.sectionSpacing - 1) / 2 - solved.iconSpacing) * dockScale
+            let dividerPad = max(0, (solved.sectionSpacing - 1) / 2 - solved.iconSpacing) * dockScale
             Rectangle()
                 .fill(theme.zoneDivider.color)
                 // 宽度是发丝线，恒 1pt 不缩；只有高度跟着档位走。
@@ -2014,8 +2014,10 @@ extension DockStripView {
         railWidgetTileContent(section).environment(\.dockPopoverEdge, stripPlacement.previewEdge)
     }
 
-    func widgetChip(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
-        widgetChipContent(section, size: widgetSize).environment(\.dockPopoverEdge, stripPlacement.previewEdge)
+    func widgetChip(_ section: BarSection, size widgetSize: WidgetSize,
+                    iconSpacing: CGFloat = DockSpacingConfig.default.iconSpacing) -> some View {
+        widgetChipContent(section, size: widgetSize, iconSpacing: iconSpacing)
+            .environment(\.dockPopoverEdge, stripPlacement.previewEdge)
     }
 
     @ViewBuilder
@@ -2102,7 +2104,8 @@ extension DockStripView {
     }
 
     @ViewBuilder
-    private func widgetChipContent(_ section: BarSection, size widgetSize: WidgetSize) -> some View {
+    private func widgetChipContent(_ section: BarSection, size widgetSize: WidgetSize,
+                                   iconSpacing: CGFloat = DockSpacingConfig.default.iconSpacing) -> some View {
         switch section {
         case .weather:
             WeatherChip()
@@ -2174,6 +2177,7 @@ extension DockStripView {
             DockUtilitiesClusterView(
                 isRail: false,
                 dockScale: dockScale,
+                iconSpacing: iconSpacing,
                 popStore: popStore,
                 pinnedFolderStore: pinnedFolderStore,
                 folderCoverStore: folderCoverStore,
@@ -2366,7 +2370,16 @@ extension DockStripView {
         dockFocus.end()
     }
 
+    private static func isWideFlexBoundary(_ entry: StripEntry) -> Bool {
+        if case let .divider(id) = entry {
+            return id.hasPrefix("layout-divider-")
+        }
+        return false
+    }
+}
 
+private struct StripWideFlexBoundaryKey: LayoutValueKey {
+    static let defaultValue: Bool = false
 }
 
 /// HStack on the bottom bar, VStack on a side rail (Phase 18c). `AnyLayout` would do this in one
@@ -2374,34 +2387,32 @@ extension DockStripView {
 private struct StripAxisStack<Content: View>: View {
     let vertical: Bool
     let spacing: CGFloat
-    /// DP-3: non-nil on a Wide bottom bar — the spare width is spread by `WideGapPlan` instead of
-    /// by two elastic dividers. `nil` keeps the natural-width stack every other mode measures.
-    var wideGapCap: CGFloat? = nil
+    /// In Wide mode, absorbs spare width at major zone boundaries (`layout-divider-*`) while
+    /// keeping app icons and utility/tool clusters strictly at `Icon Spacing`.
+    var wideFill: Bool = false
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         if vertical {
             VStack(alignment: .center, spacing: spacing, content: content)
-        } else if let wideGapCap {
-            WideStripFillLayout(baseSpacing: spacing, gapCap: wideGapCap) { content() }
+        } else if wideFill {
+            WideStripFillLayout(baseSpacing: spacing) { content() }
         } else {
             HStack(alignment: .center, spacing: spacing, content: content)
         }
     }
 }
 
-/// Wide's horizontal stack (DP-3): fills the plate, then spends the leftover through
-/// `WideGapPlan` — each interior gap grows by at most the cap and the rest is shared equally by
-/// both ends. Placement is by hand because only a `Layout` sees the true spare width and the real
-/// subview widths in the same pass; a pair of `Spacer`s could only pour everything into one hole.
+/// Wide's horizontal stack: fills the plate while keeping app icons and tool clusters strictly at
+/// `baseSpacing` (`Icon Spacing`), pouring spare width evenly into major zone flex boundaries
+/// (`WideZoneSpacerPlan`) — or equally at both ends when no flex boundary is present.
 private struct WideStripFillLayout: Layout {
     let baseSpacing: CGFloat
-    let gapCap: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        let natural = sizes.reduce(0) { $0 + $1.width }
-            + baseSpacing * CGFloat(max(0, sizes.count - 1))
+        let natural = max(0, sizes.reduce(0) { $0 + $1.width }
+            + baseSpacing * CGFloat(max(0, sizes.count - 1)))
         let width = max(natural, proposal.width ?? natural)
         return CGSize(width: width, height: proposal.height ?? (sizes.map(\.height).max() ?? 0))
     }
@@ -2412,15 +2423,18 @@ private struct WideStripFillLayout: Layout {
         let gaps = max(0, sizes.count - 1)
         let contentWidth = sizes.reduce(0) { $0 + $1.width }
         let spare = max(0, bounds.width - contentWidth - baseSpacing * CGFloat(gaps))
-        let plan = WideGapPlan.resolve(spare: spare, interiorGaps: gaps, cap: gapCap)
+        let flexCount = subviews.reduce(0) { $0 + ($1[StripWideFlexBoundaryKey.self] ? 1 : 0) }
+        let plan = WideZoneSpacerPlan.resolve(spare: spare, flexBoundaryCount: flexCount)
         var x = bounds.minX + plan.endPadding
         for (index, size) in sizes.enumerated() {
+            let isFlex = subviews[index][StripWideFlexBoundaryKey.self]
+            if isFlex { x += plan.boundaryExtra / 2 }
             subviews[index].place(
                 at: CGPoint(x: x, y: bounds.midY - size.height / 2),
                 anchor: .topLeading,
                 proposal: ProposedViewSize(size)
             )
-            x += size.width + baseSpacing + (index < gaps ? plan.gap : 0)
+            x += size.width + (isFlex ? plan.boundaryExtra / 2 : 0) + (index < gaps ? baseSpacing : 0)
         }
     }
 }
@@ -2499,6 +2513,7 @@ final class DockFocusKeyView: NSView {
 private struct DockUtilitiesClusterView: View {
     let isRail: Bool
     let dockScale: CGFloat
+    var iconSpacing: CGFloat = DockSpacingConfig.default.iconSpacing
     @ObservedObject var popStore: PopStore
     @ObservedObject var pinnedFolderStore: PinnedFolderStore
     @ObservedObject var folderCoverStore: PinnedFolderCoverStore
@@ -2533,7 +2548,7 @@ private struct DockUtilitiesClusterView: View {
                 ForEach(items) { utilityView(for: $0) }
             }
         } else {
-            HStack(spacing: ChipPillMetrics.chipSpacing * dockScale) {
+            HStack(spacing: iconSpacing * dockScale) {
                 ForEach(items) { utilityView(for: $0) }
             }
         }
