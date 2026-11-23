@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795434875.0975711,
-    "seen": 1795434956.190562,
-    "ast_hash": "45b4d8f4855a45a2dce9c2ef877c0e78",
+    "mtime": 1795445179.6622956,
+    "seen": 1795445219.5090659,
+    "ast_hash": "36abc9b41ca72c5afcf59074ea537ded",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8058,9 +8058,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CODEBASE_GAP_AND_CAPABILITY_AUDIT.md": {
-    "mtime": 1795441217.5682278,
-    "seen": 1795443762.314684,
-    "ast_hash": "bdf953c11aec643251b9740e060ebba3",
+    "mtime": 1795445178.313478,
+    "seen": 1795445219.509055,
+    "ast_hash": "092a56ce5c76ab29bf8b5486d10c656c",
     "semantic_hash": ""
   }
 }
