@@ -10,6 +10,21 @@ final class DockWingModelsTests: XCTestCase {
         XCTAssertEqual(config.gap, DockWingsConfiguration.defaultGap)
     }
 
+    func testPerDisplayWingAssignmentResolvesWithoutChangingGlobalWings() {
+        let global = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .telemetry, size: .medium),
+            right: DockWingSlotConfig(preset: .ram, size: .medium)
+        )
+        let display = global
+            .assigning(.vpn, size: .large, to: .leftWing, forDisplay: "DISP-A")
+            .assigning(.battery, size: .small, to: .rightWing, forDisplay: "DISP-A")
+
+        XCTAssertEqual(display.resolved(displayUUID: "DISP-A").left.preset, .vpn)
+        XCTAssertEqual(display.resolved(displayUUID: "DISP-A").right.preset, .battery)
+        XCTAssertEqual(display.resolved(displayUUID: "DISP-B").left.preset, .telemetry)
+        XCTAssertEqual(display.resolved(displayUUID: "DISP-B").right.preset, .ram)
+    }
+
     func testConfigurationCodableRoundTripAndGapClamp() {
         let config = DockWingsConfiguration(
             left: DockWingSlotConfig(preset: .spotify, size: .large),

@@ -48,6 +48,13 @@ final class DesktopBoxCoreTests: XCTestCase {
         XCTAssertEqual(decoded.backingPath, "/tmp/Inbox")
     }
 
+    func testDesktopWidgetItemRoundTripsWingPreset() throws {
+        let item = DesktopWidgetItem(kind: .glance, title: "Network", wingPreset: .network)
+        let decoded = try JSONDecoder().decode(DesktopWidgetItem.self, from:
+            JSONEncoder().encode(item))
+        XCTAssertEqual(decoded.wingPreset, .network)
+    }
+
     func testPhase61FileStacksAndTabGroupRoundTrip() throws {
         let groupID = UUID()
         let item = DesktopWidgetItem(

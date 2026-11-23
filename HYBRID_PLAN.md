@@ -14,6 +14,7 @@ This commit: **plan only — no code changes.**
 - 2026-11-23: Wave 3 Slice 3.4 completed — Live Island camera subscription, severe weather/alarm alerts, and Sixth-Sense controls (`92da0206`).
 - 2026-11-23: Wave 4 Slice 4.1a started — BarProfile snapshots now include Dock slot layout and Dock wing configuration.
 - 2026-11-23: Wave 4 Slice 4.1 completed — Dock Profiles, utility grouping, and Dock slot menu/onboarding migration (`146aebf8`).
+- 2026-11-23: Wave 4 Slice 4.2a started — Desktop boxes now persist optional Dock wing presets, with per-display wing resolution tests.
 
 ---
 
