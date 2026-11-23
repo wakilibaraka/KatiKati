@@ -374,6 +374,7 @@ struct LauncherChip: View {
                 for item in membershipItems {
                     menu.addItem(AppMenuBuilder.membershipItem(item))
                 }
+                AppMenuBuilder.appendAppGroupMenu(to: menu, bundleID: bundleID)
             }
         }
         return menu

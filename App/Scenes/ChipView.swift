@@ -600,6 +600,7 @@ struct ChipView: View {
         for descriptor in items {
             menu.addItem(AppMenuBuilder.membershipItem(descriptor))
         }
+        AppMenuBuilder.appendAppGroupMenu(to: menu, bundleID: bid)
     }
 
     // MARK: - Helpers

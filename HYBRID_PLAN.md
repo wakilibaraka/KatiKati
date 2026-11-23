@@ -6876,3 +6876,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `App/Composition/PopStore.swift`: added `DockAppGroupStore` with persisted CRUD, `LauncherStore` two-way sync, off-main-thread `LauncherIndexer.scanDirectories()` category auto-grouping, and shared `.app` drag-drop handling.
 - `App/Scenes/PopChip.swift` & `App/Scenes/{StripProjection,DockStripView+Projection,DockStripView+Hover,DockStripView+Actions,DockStripView}.swift`: added `DockAppGroupChip` (2×2/3×3 mini-grid, running indicator dot, `.app` drop target, context menu) and strip projection/keyboard focus wiring.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherFoldersTests -only-testing:KatiKatiTests/ModularDockCoreTests` (44/44 passed) and `check_availability_warnings.py`. Zero `project.pbxproj` edits.
+
+### DO-5c — Anchored `DockAppGroupPopupView` & App Group Context Menu (landed 2026-11-23)
+
+- `App/Entry/PanelCoordinator{+PanelSetup,+Popups,}.swift`: added `PopupContent.appGroup(id:)`, strip-anchored toggle/open, and `DockAppGroupStore` relayout/dismiss subscription.
+- `App/Scenes/PopGridPopupView.swift`: extracted shared `launchOrActivateApp(bundleID:)` and added `DockAppGroupPopupView` with inline rename, Grid/List mode toggle, `+` app picker (`NSOpenPanel`), `.app` drag-drop, and `"Remove from Group"` actions.
+- `App/Scenes/{AppMenuFragments,LauncherChip,ChipView}.swift`: added `AppMenuBuilder.appendAppGroupMenu(to:bundleID:)` exposing `"App Groups"` membership and `"New App Group"` creation across strip and launcher context menus.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherFoldersTests -only-testing:KatiKatiTests/ModularDockCoreTests -only-testing:KatiKatiTests/PanelGeometryTests` (81/81 passed) and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.

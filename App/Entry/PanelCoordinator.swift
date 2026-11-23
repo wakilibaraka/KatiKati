@@ -155,6 +155,7 @@ final class PanelCoordinator: NSObject {
         case pop
         case screenshots
         case clipboard
+        case appGroup(id: String)
     }
     var folderPopupPanel: NSPanel?
     /// 弹窗真正承载 SwiftUI 的 hosting view（contentView 是普通 NSView 容器,fittingSize 读这个）。
@@ -207,6 +208,7 @@ final class PanelCoordinator: NSObject {
     var chipPanelStorage: ChipPanelController?
     var pinnedFolderStoreSubscription: AnyCancellable?
     var pinnedFolderSortSubscription: AnyCancellable?
+    var appGroupStoreSubscription: AnyCancellable?
     var snapshotWidthSubscription: AnyCancellable?
     var drawerStoreWidthSubscription: AnyCancellable?
     var messagingStoreWidthSubscription: AnyCancellable?

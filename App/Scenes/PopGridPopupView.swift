@@ -179,16 +179,7 @@ struct PopGridPopupView: View {
     private func open(_ item: PopItem) {
         switch item.kind {
         case .app:
-            let running = NSRunningApplication.runningApplications(withBundleIdentifier: item.reference)
-            if let app = running.first {
-                running.forEach { $0.unhide() }
-                app.activate(options: [.activateAllWindows])
-            } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: item.reference) {
-                NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
-            } else {
-                NSSound.beep()
-                return
-            }
+            guard launchOrActivateApp(bundleID: item.reference) else { return }
             onClosePopup()
         case .folder:
             browsing = URL(fileURLWithPath: item.reference, isDirectory: true)
@@ -354,4 +345,165 @@ private struct PopObservedSettingsHost<Content: View>: View {
     var body: some View {
         content(settingsStore)
     }
+}
+
+private func launchOrActivateApp(bundleID: String) -> Bool {
+    let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+    if let app = running.first {
+        running.forEach { $0.unhide() }
+        app.activate(options: [.activateAllWindows])
+        return true
+    } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+        return true
+    }
+    NSSound.beep()
+    return false
+}
+
+/// Anchored iOS/iPadOS-style folder popover for a Dock App Group (`DockFolders`).
+struct DockAppGroupPopupView: View {
+    let groupID: String
+    @ObservedObject var groupStore: DockAppGroupStore
+    let context: StackPopupContext
+    let usesLiquidGlass: Bool
+    var onClosePopup: () -> Void = {}
+    var onContentResize: (CGSize) -> Void = { _ in }
+
+    @State private var isRenaming = false
+    @State private var draftName = ""
+    @State private var isDropTargeted = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var group: DockAppGroup {
+        groupStore.group(id: groupID) ?? DockAppGroup(id: groupID, name: String(localized: "App Group"), appIDs: [])
+    }
+
+    var body: some View {
+        let items = group.appIDs
+        let mode = groupStore.viewMode
+        let style: DrawerLayoutStyle = mode == .list ? .list : .grid
+        let names = items.map { AppDisplayNameResolver.displayName(for: $0) }
+        let note: String? = isRenaming ? "" : (items.isEmpty ? String(localized: "Drop apps here or click + to add") : nil)
+        let plate: StackPlateMetrics = DrawerLayoutMath.plateMetrics(style: style, labels: names)
+        let layout: StackGridLayout.Result = items.isEmpty
+            ? StackGridLayout.Result(columns: StackGridLayout.noteMinColumns, visibleRows: 0, scrolls: false)
+            : DrawerLayoutMath.resolveLayout(itemCount: items.count, style: style, limits: context.limits, hasNote: note != nil)
+
+        return StackPopupChrome(
+            title: group.name,
+            note: note,
+            layout: layout,
+            plate: plate,
+            usesLiquidGlass: usesLiquidGlass,
+            arrow: context.arrow,
+            onPanelSizeChange: onContentResize,
+            gridAnimation: reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82),
+            gridAnimationKey: items + [mode.rawValue, isRenaming ? "renaming" : "view"],
+            noteAccessory: isRenaming ? AnyView(renameBar) : nil,
+            headerAccessory: AnyView(headerControls(mode: mode)),
+            isDropTargeted: isDropTargeted
+        ) {
+            ForEach(items, id: \.self) { bundleID in
+                let path = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID)?.path
+                let name = AppDisplayNameResolver.displayName(for: bundleID)
+                if mode == .list {
+                    PopListRow(
+                        iconPath: path,
+                        staticIcon: path == nil ? Self.missingAppIcon : nil,
+                        label: name,
+                        rowWidth: plate.cell.cellSize.width,
+                        dragURL: nil,
+                        contextMenu: { itemMenu(for: bundleID) }
+                    ) { openApp(bundleID) }
+                } else {
+                    FolderGridCell(
+                        iconPath: path,
+                        staticIcon: path == nil ? Self.missingAppIcon : nil,
+                        label: name,
+                        preview: nil,
+                        dragURL: nil,
+                        contextMenu: { itemMenu(for: bundleID) }
+                    ) { openApp(bundleID) }
+                }
+            }
+        }
+        .contentShape(Rectangle())
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDropTargeted) { groupStore.handleAppDrop($0, into: groupID) }
+    }
+
+    private func headerControls(mode: PopViewMode) -> some View {
+        HStack(spacing: 6) {
+            Button {
+                if isRenaming { commitRename() } else { draftName = group.name; isRenaming = true }
+            } label: {
+                Image(systemName: isRenaming ? "checkmark" : "pencil")
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .frame(width: 22, height: 22)
+                    .background(Circle().fill(Color.white.opacity(0.12)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Rename Group"))
+
+            Button { pickApplicationToAdd() } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .frame(width: 22, height: 22)
+                    .background(Circle().fill(Color.white.opacity(0.12)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Add Application"))
+
+            DrawerLayoutTogglePill(mode: mode, reduceMotion: reduceMotion) { next in
+                withAnimation(reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 0.82)) {
+                    groupStore.setViewMode(next)
+                }
+            }
+        }
+    }
+
+    private var renameBar: some View {
+        TextField("Group Name", text: $draftName)
+            .textFieldStyle(.roundedBorder)
+            .controlSize(.small)
+            .onSubmit { commitRename() }
+    }
+
+    private func commitRename() {
+        groupStore.renameGroup(groupID, to: draftName)
+        isRenaming = false
+    }
+
+    private func openApp(_ bundleID: String) {
+        if launchOrActivateApp(bundleID: bundleID) { onClosePopup() }
+    }
+
+    private func itemMenu(for bundleID: String) -> NSMenu {
+        let menu = NSMenu()
+        menu.addItem(ClosureMenuItem(String(localized: "Open")) { openApp(bundleID) })
+        menu.addItem(.separator())
+        menu.addItem(ClosureMenuItem(String(localized: "Remove from Group")) {
+            groupStore.removeApp(bundleID, from: groupID)
+        })
+        return menu
+    }
+
+    private func pickApplicationToAdd() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = true
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        guard panel.runModal() == .OK else { return }
+        for url in panel.urls {
+            if let bid = Bundle(url: url)?.bundleIdentifier {
+                groupStore.addApp(bid, to: groupID)
+            }
+        }
+    }
+
+    private static let missingAppIcon = NSWorkspace.shared.icon(for: .applicationBundle)
 }

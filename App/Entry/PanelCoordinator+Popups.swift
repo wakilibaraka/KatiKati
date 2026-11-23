@@ -72,6 +72,8 @@ extension PanelCoordinator {
             toggleScreenshotsPopup(anchorVisibleRect: screenAnchor)
         case .clipboard:
             toggleClipboardPopup(anchorVisibleRect: screenAnchor)
+        case let .appGroup(id):
+            toggleAppGroupPopup(groupID: id, anchorVisibleRect: screenAnchor)
         }
     }
 
@@ -91,6 +93,8 @@ extension PanelCoordinator {
             toggleScreenshotsPopup(anchorVisibleRect: anchor)
         case .clipboard:
             toggleClipboardPopup(anchorVisibleRect: anchor)
+        case let .appGroup(id):
+            toggleAppGroupPopup(groupID: id, anchorVisibleRect: anchor)
         }
     }
 
@@ -209,6 +213,31 @@ extension PanelCoordinator {
             closeFolderPopup()
         } else {
             openClipboardPopup(anchorVisibleRect: anchorVisibleRect)
+        }
+    }
+
+    func toggleAppGroupPopup(groupID: String, anchorVisibleRect: CGRect) {
+        if folderPopupWantsOpen, openPopupContent == .appGroup(id: groupID) {
+            closeFolderPopup()
+        } else {
+            openAppGroupPopup(groupID: groupID, anchorVisibleRect: anchorVisibleRect)
+        }
+    }
+
+    private func openAppGroupPopup(groupID: String, anchorVisibleRect: CGRect) {
+        let store = DockAppGroupStore.shared
+        presentPopup(content: .appGroup(id: groupID), anchorVisibleRect: anchorVisibleRect) { [weak self] context in
+            NSHostingView(rootView: DockAppGroupPopupView(
+                groupID: groupID,
+                groupStore: store,
+                context: context,
+                usesLiquidGlass: usesLiquidGlass,
+                onClosePopup: { [weak self] in self?.closeFolderPopup() },
+                onContentResize: { [weak self] size in self?.repositionFolderPopup(animated: true, contentSize: size) }
+            )
+            .environment(\.dockBadgesByBundleID, self?.badgeStore.badgesByBundleID ?? [:])
+            .environment(\.dockThemeStyle, settingsStore.themeMaterial)
+            .environment(\.themeTuning, settingsStore.themeTuning))
         }
     }
 
@@ -667,6 +696,18 @@ extension PanelCoordinator {
                 if let openPath = self.openPopupPath {
                     self.openFolderPopup(path: openPath, anchorVisibleRect: self.popupAnchorVisibleRect)
                 }
+            }
+        appGroupStoreSubscription = DockAppGroupStore.shared.$groups
+            .combineLatest(DockAppGroupStore.shared.$isEnabled)
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] groups, enabled in
+                guard let self else { return }
+                if case let .appGroup(id) = self.openPopupContent,
+                   (!enabled || !groups.contains { $0.id == id && $0.isPinnedToDock }) {
+                    self.closeFolderPopup()
+                }
+                DispatchQueue.main.async { [weak self] in self?.relayout(animated: true) }
             }
     }
 }

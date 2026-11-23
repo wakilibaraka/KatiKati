@@ -291,6 +291,33 @@ enum AppMenuBuilder {
             }
         }
     }
+
+    /// Appends an `App Groups` submenu so any running/pinned/Launcher app can join, leave, or start a Dock App Group.
+    @MainActor
+    static func appendAppGroupMenu(to menu: NSMenu, bundleID: String?) {
+        let groupStore = DockAppGroupStore.shared
+        guard groupStore.isEnabled, let bid = bundleID, !bid.isEmpty else { return }
+        let submenu = NSMenu()
+        for group in groupStore.groups {
+            let member = group.appIDs.contains(bid)
+            let item = ClosureMenuItem(group.name) {
+                if member { groupStore.removeApp(bid, from: group.id) } else { groupStore.addApp(bid, to: group.id) }
+            }
+            item.state = member ? .on : .off
+            submenu.addItem(item)
+        }
+        if !groupStore.groups.isEmpty { submenu.addItem(.separator()) }
+        submenu.addItem(ClosureMenuItem(String(localized: "New App Group")) {
+            let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bid)
+            let rawCategory = appURL.flatMap { Bundle(url: $0)?.object(forInfoDictionaryKey: "LSApplicationCategoryType") as? String } ?? ""
+            let category = DockAppGroups.categoryDisplayName(for: rawCategory)
+            let title = category.isEmpty ? AppDisplayNameResolver.displayName(for: bid) : category
+            groupStore.createGroup(name: title, appIDs: [bid])
+        })
+        let top = NSMenuItem(title: String(localized: "App Groups"), action: nil, keyEquivalent: "")
+        top.submenu = submenu
+        menu.addItem(top)
+    }
 }
 
 
