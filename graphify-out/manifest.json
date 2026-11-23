@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1795308402.3590512,
-    "seen": 1795308984.385328,
-    "ast_hash": "37e183fbaa14bdbc9d045b4870353f10",
+    "mtime": 1795432106.3684385,
+    "seen": 1795432308.58965,
+    "ast_hash": "af00ca1cf69564b58e15eea7aa78ded6",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795431922.574347,
-    "seen": 1795432045.312362,
-    "ast_hash": "c46ee256bdfea5792f37df23d75f9de6",
+    "mtime": 1795432107.855228,
+    "seen": 1795432308.589655,
+    "ast_hash": "1fb0a9830cbd39621e23c26b059e8961",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1795357711.9573874,
-    "seen": 1795362217.377877,
-    "ast_hash": "6e5a8d2ca5ed2062b7a2e8021d6460b9",
+    "mtime": 1795432109.7263162,
+    "seen": 1795432308.589675,
+    "ast_hash": "f1efe73892044c449a0f0b386ecd865e",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1795357574.8725877,
-    "seen": 1795362217.377886,
-    "ast_hash": "5f482a2e3e28e4314e97d179e68eee01",
+    "mtime": 1795432307.3129454,
+    "seen": 1795432308.589685,
+    "ast_hash": "78a7837af52a5b4b4c7e99f6a3a32f22",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -1338,9 +1338,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WidgetLookSettingsBlock.swift": {
-    "mtime": 1795015365.7855148,
-    "seen": 1795015661.964441,
-    "ast_hash": "a0e63710bf40e43b8bdccd8e70f931a3",
+    "mtime": 1795432159.11315,
+    "seen": 1795432308.589688,
+    "ast_hash": "ab3b30e8c50d08fbdb1d5073c6fd9538",
     "semantic_hash": ""
   },
   "App/Scenes/WidgetMotionAnimation.swift": {
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795384559.7832632,
-    "seen": 1795388173.6997042,
-    "ast_hash": "0630c2ffc3edab7f7a60f9a1a67f4b93",
+    "mtime": 1795432164.2176914,
+    "seen": 1795432308.589649,
+    "ast_hash": "5eb2c7cf4fd8052d5fa8ffc190478fd7",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795431945.6921632,
-    "seen": 1795432045.313115,
-    "ast_hash": "42950cb0c80b73a3b9218ddd367ce7de",
+    "mtime": 1795432180.8934288,
+    "seen": 1795432308.590417,
+    "ast_hash": "684bec1c435307aa3b3ba5a29903d1fa",
     "semantic_hash": ""
   },
   "README.md": {
