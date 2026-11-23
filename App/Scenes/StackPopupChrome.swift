@@ -19,6 +19,8 @@ final class StackPopupArrowModel: ObservableObject {
     /// capsule carries the background-app count, and its click asks for exactly that section. A count,
     /// not a flag: every open that asks scrolls once, and an open that does not ask changes nothing.
     @Published var revealTailGeneration = 0
+    /// Live visibility flag for the drawer host so background samplers run strictly while shown.
+    @Published var isDrawerVisible = false
 }
 
 /// What the coordinator knows and a popup's content needs: how large the grid may get on this

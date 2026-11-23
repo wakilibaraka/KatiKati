@@ -6857,3 +6857,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `App/Scenes/{StripProjection,DockStripView+Projection,DockStripView+Hover,DockStripView+Actions,DockStripView}.swift`: added `StripEntry.backgroundApps` at the end of `.apps` (hidden when `trailingCapsule == .backgroundApps`), self-contained `BackgroundActivityDockTile`, hover bubble, and context menu (`Icon Display`, `Open Activity Monitor`, `Hide from Dock`).
 - `App/Entry/PanelCoordinator{+Drawer,+Layout,+PanelSetup,}.swift`: added `drawerAnchorOverride` so `DrawerView` anchors cleanly above the in-dock tile as well as the detached capsule.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/ModularDockCoreTests -only-testing:KatiKatiTests/PanelGeometryTests` (71/71 passed) and `check_availability_warnings.py`. Zero `project.pbxproj` edits.
+
+### DO-4c — Zero-Idle-CPU Process & RAM Inspector in `DrawerView` (landed 2026-11-23)
+
+- `App/Composition/ProcessMemoryReader.swift`: added `processName(pid:)` and `@MainActor final class ActivityProcessMonitor` that samples running apps + unclaimed >= 30 MB processes off the main thread (`Task.detached(priority: .utility)`) strictly when started and cancels immediately on `stop()` / `deinit`.
+- `App/Scenes/StackPopupChrome.swift` & `App/Entry/PanelCoordinator+Drawer.swift`: added `StackPopupArrowModel.isDrawerVisible` toggled true on open and false immediately on close/dismiss.
+- `App/Scenes/DrawerView.swift`: added segmented switcher (`Background Apps` | `Processes & RAM`), wider list-sized layout when showing empty state or `Processes & RAM`, `ProcessesRAMListView` (live RAM/CPU summary, Activity Monitor launch button, ranked `MemoryPill` process rows, Quit action), and lifecycle gating ensuring zero CPU while closed or on Background Apps tab.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/ProcessMemoryTests -only-testing:KatiKatiTests/ModularDockCoreTests -only-testing:KatiKatiTests/PanelGeometryTests` (77/77 passed) and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.

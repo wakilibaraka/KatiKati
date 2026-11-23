@@ -38,6 +38,7 @@ extension PanelCoordinator {
         onAccessoryWillOpen?(self, .drawer)
         drawerActionCloseToken += 1  // 旧点击排队的 delayed close 捕获旧 token，不匹配则丢弃
         drawerWantsOpen = true
+        drawerArrow.isDrawerVisible = true
         setAutoHideInhibitor(.drawerOpen, active: true)
         drawerSpringOpened = false   // 默认手动开；弹簧路径在 springOpenDrawer 里再置 true
 
@@ -262,6 +263,7 @@ extension PanelCoordinator {
     func closeDrawer() {
         guard drawerWantsOpen else { return }
         drawerWantsOpen = false
+        drawerArrow.isDrawerVisible = false
         setAutoHideInhibitor(.drawerOpen, active: false)
         drawerSpringOpened = false
         repositionFloatingWidgetStackIfNeeded(animated: true)
@@ -291,6 +293,7 @@ extension PanelCoordinator {
     func closeDrawerImmediately() {
         guard drawerWantsOpen || drawerPanel?.isVisible == true else { return }
         drawerWantsOpen = false
+        drawerArrow.isDrawerVisible = false
         drawerAnchorOverride = nil
         setAutoHideInhibitor(.drawerOpen, active: false)
         drawerSpringOpened = false
