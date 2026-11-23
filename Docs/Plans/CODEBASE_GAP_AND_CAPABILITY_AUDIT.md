@@ -28,7 +28,7 @@
 - [x] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export (`afc51038`)
 - [x] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (`980a528c`)
 - [x] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (`ddeeed1e`)
-- [ ] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls
+- [x] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls (`92da0206`)
 - [ ] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration
 - [ ] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting
 - [ ] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases
@@ -408,9 +408,9 @@ Every slice below obeys all repository gates:
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `App/Composition/IslandLiveBridge.swift:16, 29, 44, 72-106`, `Core/Support/LiveEventDetector.swift:16-43`, `Core/Support/NotchBehavior.swift:188-395`, `App/Scenes/LiveIslandSettingsBlock.swift:220-550`
 - **Scope:**
-  1. [ ] Subscribe `IslandLiveBridge.start()` (`App/Composition/IslandLiveBridge.swift:72-106`) to `cameraService.$isMirrored` to post/end `ActivityID.camera`.
-  2. [ ] Feed severe weather warnings (`WeatherWarningEngine.warnings`) and due alarms/imminent meetings (`AlarmStore` / `CalendarService`) into `LiveEventDetector` / `LiveEventCenter`.
-  3. [ ] Add Settings controls in `LiveIslandSettingsBlock.swift` to toggle `DeferredFocusQueue` focus deferral and reset `SuggestionBackoffTracker`, and localize remaining `Text(verbatim:)` section headers.
+  1. [x] Subscribe `IslandLiveBridge.start()` (`App/Composition/IslandLiveBridge.swift:72-106`) to `cameraService.$isMirrored` to post/end `ActivityID.camera`.
+  2. [x] Feed severe weather warnings (`WeatherWarningEngine.warnings`) and due alarms/imminent meetings (`AlarmStore` / `CalendarService`) into `LiveEventDetector` / `LiveEventCenter`.
+  3. [x] Add Settings controls in `LiveIslandSettingsBlock.swift` to toggle `DeferredFocusQueue` focus deferral and reset `SuggestionBackoffTracker`, and localize remaining `Text(verbatim:)` section headers.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/NotchBehaviorTests -only-testing:KatiKatiTests/LiveEventDetectorTests && python3 Scripts/check_localization.py
