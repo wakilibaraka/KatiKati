@@ -17,6 +17,230 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "連續 %d 天" } }
       }
     },
+    "2×2 Grid" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "2×2-Raster" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "2×2 Grid" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula 2×2" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula 2×2" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grille 2×2" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Griglia 2×2" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "2×2 グリッド" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "2×2 격자" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grade 2×2" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grelha 2×2" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "2×2 网格" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "2×2 格線" } }
+      }
+    },
+    "3×3 Grid" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "3×3-Raster" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "3×3 Grid" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula 3×3" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula 3×3" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grille 3×3" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Griglia 3×3" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "3×3 グリッド" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "3×3 격자" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grade 3×3" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grelha 3×3" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "3×3 网格" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "3×3 格線" } }
+      }
+    },
+    "Add Application" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App hinzufügen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Application" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir app" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Agregar app" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter une application" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aggiungi app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリを追加" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 추가" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar aplicativo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar aplicação" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加应用" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "加入應用程式" } }
+      }
+    },
+    "App Group" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Gruppe" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Group" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grupo de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Grupo de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Groupe d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Gruppo di app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリグループ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 그룹" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grupo de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grupo de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 群組" } }
+      }
+    },
+    "App Groups" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Gruppen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Groups" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grupos de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Grupos de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Groupes d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Gruppi di app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリグループ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 그룹" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grupos de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grupos de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 群組" } }
+      }
+    },
+    "Auto-Group Apps" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Apps automatisch gruppieren" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-Group Apps" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps automáticamente" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps automáticamente" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grouper automatiquement les apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Raggruppa app automaticamente" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリを自動グループ化" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 자동 그룹화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps automaticamente" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Agrupar apps automaticamente" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按类别自动分组应用" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "依類別自動分組 App" } }
+      }
+    },
+    "Delete Group" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gruppe löschen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Group" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar grupo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar grupo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer le groupe" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Elimina gruppo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "グループを削除" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "그룹 삭제" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apagar grupo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar grupo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "刪除群組" } }
+      }
+    },
+    "Drop apps here or click + to add" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Apps hierher ziehen oder auf + klicken" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drop apps here or click + to add" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Suelta apps aquí o pulsa + para añadir" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Suelta apps aquí o haz clic en + para agregar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déposez des apps ici ou cliquez sur +" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trascina qui le app o fai clic su +" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ここにアプリをドロップするか + をクリック" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱을 여기에 놓거나 +를 클릭하여 추가하세요" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Solte apps aqui ou clique em + para adicionar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Largue apps aqui ou clique em + para adicionar" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将应用拖到此处或点 + 添加" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "將 App 拖到此處或按 + 加入" } }
+      }
+    },
+    "Group Name" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gruppenname" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Group Name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del grupo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del grupo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom du groupe" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nome gruppo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "グループ名" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "그룹 이름" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nome do grupo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nome do grupo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "分组名称" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "群組名稱" } }
+      }
+    },
+    "Icon Grid" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Symbolraster" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon Grid" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula de iconos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula de íconos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grille d’icônes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Griglia icone" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコングリッド" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘 격자" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grade de ícones" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grelha de ícones" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "图标网格" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "圖示格線" } }
+      }
+    },
+    "New App Group" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neue App-Gruppe" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New App Group" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo grupo de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo grupo de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nouveau groupe d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nuovo gruppo di app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "新規アプリグループ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "새 앱 그룹" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Novo grupo de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Novo grupo de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "新建应用分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增 App 群組" } }
+      }
+    },
+    "Remove from Group" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus Gruppe entfernen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove from Group" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Quitar del grupo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Quitar del grupo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Retirer du groupe" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimuovi dal gruppo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "グループから削除" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "그룹에서 제거" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Remover do grupo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Remover do grupo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "从分组移出" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "從群組移除" } }
+      }
+    },
+    "Rename Group" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gruppe umbenennen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rename Group" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Renombrar grupo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Renombrar grupo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Renommer le groupe" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rinomina gruppo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "グループ名を変更" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "그룹 이름 변경" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Renomear grupo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mudar nome do grupo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重命名分组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "重新命名群組" } }
+      }
+    },
+    "Sync with Launcher Folders" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mit Launcher-Ordnern synchronisieren" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sync with Launcher Folders" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sincronizar con carpetas del lanzador" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Sincronizar con carpetas del lanzador" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Synchroniser avec les dossiers du lanceur" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sincronizza con le cartelle del launcher" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ランチャーフォルダと同期" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "런처 폴더와 동기화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sincronizar com pastas do lançador" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sincronizar com pastas do lançador" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "与启动台文件夹同步" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "與啟動台資料夾同步" } }
+      }
+    },
     "Activity Monitor" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivitätsanzeige" } },
