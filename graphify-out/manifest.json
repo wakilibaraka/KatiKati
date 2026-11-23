@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/ClipboardFlyoutView.swift": {
-    "mtime": 1795443274.0170176,
-    "seen": 1795443762.3137732,
-    "ast_hash": "351db210b369a1c8d1696614246e490f",
+    "mtime": 1795444437.7768037,
+    "seen": 1795444544.5309708,
+    "ast_hash": "440054c6fe1bd574c1353ddddc4ce425",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckLabel.swift": {
@@ -1614,15 +1614,15 @@
     "semantic_hash": ""
   },
   "Core/Support/ClipboardHistory.swift": {
-    "mtime": 1795217778.9642107,
-    "seen": 1795217889.460657,
-    "ast_hash": "df83780ee8cb4fe890eaf30a6b76f8fc",
+    "mtime": 1795444430.765445,
+    "seen": 1795444544.5311391,
+    "ast_hash": "92d99b78f27379e9ce0105dcdd8a996e",
     "semantic_hash": ""
   },
   "Core/Support/ClipboardPlus.swift": {
-    "mtime": 1795357570.8988738,
-    "seen": 1795362217.377934,
-    "ast_hash": "3753dc549a7e4c186fd2e5f941ddfbae",
+    "mtime": 1795444433.4270997,
+    "seen": 1795444544.53114,
+    "ast_hash": "335524b7417b22af80ede890322b6662",
     "semantic_hash": ""
   },
   "Core/Support/ClockChipContent.swift": {
@@ -2706,9 +2706,9 @@
     "semantic_hash": ""
   },
   "Platform/Clipboard/ClipboardMonitor.swift": {
-    "mtime": 1795015808.5915196,
-    "seen": 1795016109.679084,
-    "ast_hash": "59a88b1d03c5f60318bfa12606408b8e",
+    "mtime": 1795444436.4035602,
+    "seen": 1795444544.531565,
+    "ast_hash": "b0e1f34e87085250c6f4fb495bdfe37c",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/CoreGraphicsSource.swift": {
@@ -3282,15 +3282,15 @@
     "semantic_hash": "4dce96370bef93d769de0f2f7b5a184e"
   },
   "Tests/Unit/ClipboardHistoryTests.swift": {
-    "mtime": 1792552389.820767,
-    "seen": 1792555046.631823,
-    "ast_hash": "fd01bfcd4720d557ece0a1029c342af3",
+    "mtime": 1795444438.984974,
+    "seen": 1795444544.531685,
+    "ast_hash": "f808b00f43525a556280c3a5fe704305",
     "semantic_hash": ""
   },
   "Tests/Unit/ClipboardPlusTests.swift": {
-    "mtime": 1794881659.1729481,
-    "seen": 1794881775.600498,
-    "ast_hash": "36655e29a22b1ce28b9bb7332e1201cf",
+    "mtime": 1795444441.5087125,
+    "seen": 1795444544.5316858,
+    "ast_hash": "73f55b815144b9d7fcc5159843f1ced3",
     "semantic_hash": ""
   },
   "Tests/Unit/ColorFormatTests.swift": {
