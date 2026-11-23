@@ -27,6 +27,10 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     // Track active URLSession tasks
     private var activeTasks: [UUID: URLSessionDownloadTask] = [:]
+    private var segmentTasks: [URLSessionDownloadTask: (id: UUID, index: Int)] = [:]
+    private var segmentPlans: [UUID: DownloadSegmentPlan] = [:]
+    private var segmentFiles: [UUID: [Int: URL]] = [:]
+    private var segmentResumeCompleted: [UUID: [Int: Int64]] = [:]
     private var resumeDataMap: [UUID: Data] = [:]
 
     // Track previous byte counts for speed calculation
@@ -313,10 +317,6 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         let id = UUID()
         let name = url.lastPathComponent.isEmpty ? "file.download" : url.lastPathComponent
         let dest = downloadsDirectory.appendingPathComponent(name)
-
-        let task = urlSession.downloadTask(with: url)
-        activeTasks[id] = task
-
         let item = DownloadItem(
             id: id,
             name: name,
@@ -331,9 +331,107 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             addedAt: Date()
         )
         items.insert(item, at: 0)
-        task.resume()
+        Task { [weak self] in await self?.startDirectDownload(id: id, url: url, destination: dest) }
         reconcileTicker()
         return true
+    }
+
+    private func startDirectDownload(id: UUID, url: URL, destination: URL) async {
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+        request.timeoutInterval = 15
+        let length: Int64?
+        let acceptsRanges: Bool
+        if let (_, response) = try? await URLSession.shared.data(for: request),
+           let http = response as? HTTPURLResponse,
+           http.statusCode == 200 || http.statusCode == 206 {
+            length = http.value(forHTTPHeaderField: "Content-Length").flatMap(Int64.init)
+            acceptsRanges = (http.value(forHTTPHeaderField: "Accept-Ranges")?.lowercased() == "bytes")
+        } else {
+            length = nil
+            acceptsRanges = false
+        }
+        await MainActor.run {
+            guard self.items.contains(where: { $0.id == id && $0.type == .directUrl }) else { return }
+            if let idx = self.items.firstIndex(where: { $0.id == id }) {
+                self.items[idx].totalBytes = length ?? 0
+            }
+            let plan = DownloadSegmentPlanner.plan(contentLength: length, acceptRanges: acceptsRanges)
+            if plan.isMultiSegment {
+                self.startSegmentTasks(id: id, url: url, destination: destination, plan: plan)
+            } else {
+                self.startSingleStream(id: id, url: url)
+            }
+        }
+    }
+
+    private func startSingleStream(id: UUID, url: URL) {
+        let task = urlSession.downloadTask(with: url)
+        activeTasks[id] = task
+        task.resume()
+    }
+
+    private func startSegmentTasks(id: UUID, url: URL, destination: URL, plan: DownloadSegmentPlan) {
+        segmentPlans[id] = plan
+        let completed = segmentResumeCompleted[id] ?? [:]
+        for segment in plan.segments where (completed[segment.index] ?? 0) < segment.length {
+            var request = URLRequest(url: url)
+            request.setValue(segment.rangeHeader, forHTTPHeaderField: "Range")
+            request.timeoutInterval = 60
+            let task = urlSession.downloadTask(with: request)
+            segmentTasks[task] = (id: id, index: segment.index)
+            task.resume()
+        }
+        if plan.segments.allSatisfy({ (completed[$0.index] ?? 0) >= $0.length }) {
+            assembleSegments(id: id, destination: destination, plan: plan)
+        }
+    }
+
+    private func assembleSegments(id: UUID, destination: URL, plan: DownloadSegmentPlan) {
+        let files = segmentFiles[id] ?? [:]
+        guard files.count == plan.segments.count else { return }
+        let part = destination.deletingPathExtension().appendingPathExtension(destination.pathExtension + ".part")
+        try? FileManager.default.removeItem(at: part)
+        guard FileManager.default.createFile(atPath: part.path, contents: nil) else { return }
+        do {
+            let output = try FileHandle(forWritingTo: part)
+            defer { try? output.close() }
+            for segment in plan.segments {
+                guard let file = files[segment.index],
+                      let input = try? FileHandle(forReadingFrom: file) else { return }
+                defer { try? input.close() }
+                try output.seek(toOffset: UInt64(segment.start))
+                while let chunk = try input.read(upToCount: 1024 * 1024), !chunk.isEmpty {
+                    try output.write(contentsOf: chunk)
+                }
+            }
+            try output.synchronize()
+            try? FileManager.default.removeItem(at: destination)
+            try FileManager.default.moveItem(at: part, to: destination)
+            for file in files.values { try? FileManager.default.removeItem(at: file) }
+            if let first = files.values.first {
+                try? FileManager.default.removeItem(at: first.deletingLastPathComponent())
+            }
+            if let idx = items.firstIndex(where: { $0.id == id }) {
+                items[idx].totalBytes = plan.totalBytes
+                items[idx].bytesDownloaded = plan.totalBytes
+                items[idx].downloadSpeedBps = 0
+                items[idx].etaSeconds = nil
+                items[idx].state = .completed
+                items[idx].completedAt = Date()
+            }
+            segmentPlans.removeValue(forKey: id)
+            segmentFiles.removeValue(forKey: id)
+            segmentResumeCompleted.removeValue(forKey: id)
+            reconcileTicker()
+        } catch {
+            try? FileManager.default.removeItem(at: part)
+            if let idx = items.firstIndex(where: { $0.id == id }) {
+                items[idx].state = .failed(error.localizedDescription)
+                items[idx].downloadSpeedBps = 0
+            }
+            reconcileTicker()
+        }
     }
 
     // MARK: - Actions (Pause, Resume, Cancel, Reveal)
@@ -345,6 +443,10 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         items[idx].uploadSpeedBps = 0
         items[idx].etaSeconds = nil
 
+        for (task, owner) in segmentTasks where owner.id == id {
+            task.cancel()
+        }
+        segmentTasks = segmentTasks.filter { $0.value.id != id }
         if let task = activeTasks[id] {
             task.cancel(byProducingResumeData: { [weak self] data in
                 Task { @MainActor in
@@ -368,7 +470,11 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         items[idx].downloadSpeedBps = 0
 
         if items[idx].type == .directUrl {
-            if let resumeData = resumeDataMap[id] {
+            if let plan = segmentPlans[id], plan.isMultiSegment {
+                guard let src = items[idx].sourceURL, let url = URL(string: src) else { return }
+                startSegmentTasks(id: id, url: url, destination: items[idx].destinationURL
+                    ?? downloadsDirectory.appendingPathComponent(items[idx].name), plan: plan)
+            } else if let resumeData = resumeDataMap[id] {
                 let task = urlSession.downloadTask(withResumeData: resumeData)
                 activeTasks[id] = task
                 task.resume()
@@ -389,6 +495,12 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         if let task = activeTasks[id] {
             task.cancel()
             activeTasks.removeValue(forKey: id)
+        }
+        for (task, owner) in segmentTasks where owner.id == id { task.cancel() }
+        segmentTasks = segmentTasks.filter { $0.value.id != id }
+        segmentPlans.removeValue(forKey: id)
+        if let files = segmentFiles.removeValue(forKey: id)?.values {
+            for file in files { try? FileManager.default.removeItem(at: file) }
         }
         resumeDataMap.removeValue(forKey: id)
         items.removeAll(where: { $0.id == id })
@@ -504,6 +616,53 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
+        if let owner = segmentTasks[downloadTask] {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                if let http = downloadTask.response as? HTTPURLResponse, http.statusCode != 206 {
+                    for (task, _) in self.segmentTasks { task.cancel() }
+                    self.segmentTasks.removeAll()
+                    self.segmentPlans.removeValue(forKey: owner.id)
+                    self.segmentFiles.removeValue(forKey: owner.id)
+                    self.segmentResumeCompleted.removeValue(forKey: owner.id)
+                    if let item = self.items.first(where: { $0.id == owner.id }),
+                       let src = item.sourceURL, let url = URL(string: src) {
+                        self.startSingleStream(id: owner.id, url: url)
+                    }
+                    return
+                }
+                let root = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("katikati-download-\(owner.id.uuidString)", isDirectory: true)
+                try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+                let segmentURL = root.appendingPathComponent("segment-\(owner.index)")
+                try? FileManager.default.removeItem(at: segmentURL)
+                guard (try? FileManager.default.moveItem(at: location, to: segmentURL)) != nil else { return }
+                var files = self.segmentFiles[owner.id] ?? [:]
+                files[owner.index] = segmentURL
+                self.segmentFiles[owner.id] = files
+                var plan = self.segmentPlans[owner.id]
+                if plan != nil {
+                    if let size = try? segmentURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                        let segmentIndex = owner.index
+                        var segments = plan!.segments
+                        segments[segmentIndex].completedBytes = Int64(size)
+                        plan = DownloadSegmentPlan(segments: segments, isMultiSegment: plan!.isMultiSegment)
+                        self.segmentPlans[owner.id] = plan
+                        var completed = self.segmentResumeCompleted[owner.id] ?? [:]
+                        completed[segmentIndex] = Int64(size)
+                        self.segmentResumeCompleted[owner.id] = completed
+                    }
+                }
+                self.segmentTasks.removeValue(forKey: downloadTask)
+                if let plan = plan,
+                   files.count == plan.segments.count,
+                   let item = self.items.first(where: { $0.id == owner.id }),
+                   let dest = item.destinationURL {
+                    self.assembleSegments(id: owner.id, destination: dest, plan: plan)
+                }
+            }
+            return
+        }
         let matchedId = activeTasks.first(where: { $0.value == downloadTask })?.key
         DispatchQueue.main.async { [weak self] in
             guard let self, let id = matchedId else { return }
@@ -528,6 +687,29 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) {
+        if let owner = segmentTasks[downloadTask] {
+            DispatchQueue.main.async { [weak self] in
+                guard let self, let plan = self.segmentPlans[owner.id],
+                      let idx = self.items.firstIndex(where: { $0.id == owner.id }) else { return }
+                let completed = plan.segments.enumerated().reduce(Int64(0)) { sum, entry in
+                    if entry.offset == owner.index { return sum + totalBytesWritten }
+                    return sum + entry.element.completedBytes
+                }
+                self.items[idx].bytesDownloaded = min(plan.totalBytes, completed)
+                let previous = self.previousBytes[owner.id]
+                let now = Date()
+                if let previous, now.timeIntervalSince(previous.timestamp) >= 0.5 {
+                    let speed = max(0, (completed - previous.bytes) / Int64(max(0.5, now.timeIntervalSince(previous.timestamp))))
+                    self.items[idx].downloadSpeedBps = speed
+                    let eta = plan.remainingBytes
+                    self.items[idx].etaSeconds = speed > 0 ? Int(eta / speed) : nil
+                    self.previousBytes[owner.id] = (bytes: completed, timestamp: now)
+                } else if previous == nil {
+                    self.previousBytes[owner.id] = (bytes: completed, timestamp: now)
+                }
+            }
+            return
+        }
         let matchedId = activeTasks.first(where: { $0.value == downloadTask })?.key
         DispatchQueue.main.async { [weak self] in
             guard let self, let id = matchedId else { return }
