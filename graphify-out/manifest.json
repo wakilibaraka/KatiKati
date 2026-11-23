@@ -264,9 +264,9 @@
     "semantic_hash": "dcb577c924888cb7f03ed42e7bb0eac5"
   },
   "App/Composition/LiveActivityFeed.swift": {
-    "mtime": 1794908324.4295287,
-    "seen": 1794908715.943255,
-    "ast_hash": "5ba0dab316e05f2afbf7677987fd459d",
+    "mtime": 1795473856.8731139,
+    "seen": 1795474000.772087,
+    "ast_hash": "2c0df7cc15fe58ad714e60575ca5a5ad",
     "semantic_hash": ""
   },
   "App/Composition/LiveEventBannerPoster.swift": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1795443274.0237424,
-    "seen": 1795443762.313822,
-    "ast_hash": "662b1db3d6f461ed1df9da06aba3d41d",
+    "mtime": 1795473858.598284,
+    "seen": 1795474000.772269,
+    "ast_hash": "b4f4173cb3431eff3d60181079f9513c",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -2952,9 +2952,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/SystemStatusService.swift": {
-    "mtime": 1792686382.5060747,
-    "seen": 1792689772.2891898,
-    "ast_hash": "3b9f6451b6bd9d2fdbf8a5953dffa329",
+    "mtime": 1795473861.7607703,
+    "seen": 1795474000.772661,
+    "ast_hash": "0e64aa25ed5efac5fecc79f056c72f89",
     "semantic_hash": ""
   },
   "Platform/Tasks/TasksController.swift": {
@@ -3702,10 +3702,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/LiveActivityPolicyTests.swift": {
-    "mtime": 1792038729.2068925,
-    "seen": 1792295707.06075,
-    "ast_hash": "48247e4e0cf48c4e81bf86d7cf98ee5b",
-    "semantic_hash": "48247e4e0cf48c4e81bf86d7cf98ee5b"
+    "mtime": 1795473863.6539402,
+    "seen": 1795474000.772817,
+    "ast_hash": "de5704c17c9274816920f45074058883",
+    "semantic_hash": ""
   },
   "Tests/Unit/LiveActivitySourcesTests.swift": {
     "mtime": 1791999130.94418,
