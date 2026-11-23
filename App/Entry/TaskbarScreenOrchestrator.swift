@@ -320,6 +320,11 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         (unitContainingMouse() ?? units.first)?.coordinator.toggleWholeBarPopup(content: .shelf)
     }
 
+    func toggleClipboardPopup(at point: NSPoint) {
+        let anchor = NSRect(x: point.x - 8, y: point.y - 8, width: 16, height: 16)
+        (unitContainingMouse() ?? units.first)?.coordinator.toggleClipboardPopup(anchorVisibleRect: anchor)
+    }
+
     func setTaskbarMenuOpen(_ open: Bool) {
         units.forEach { $0.coordinator.setTaskbarMenuOpen(open) }
     }

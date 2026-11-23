@@ -338,6 +338,7 @@ enum JSONPrettyPrinter {
 }
 
 struct CommandBarLearning: Equatable, Codable, Sendable {
+    static let key = "com.katikati.commandbar.learning"
     var pinnedIDs: Set<String> = []
     var hiddenIDs: Set<String> = []
     var aliases: [String: String] = [:]

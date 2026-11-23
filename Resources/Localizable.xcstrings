@@ -1,6 +1,54 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "AI Mission Control" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "KI-Mission-Control" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "AI Mission Control" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Control de misión de IA" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Control de misión de IA" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Centre de mission IA" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Centro missione IA" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "AIミッションコントロール" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "AI 미션 컨트롤" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Controle de Missão de IA" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Controlo de Missão de IA" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI任务控制中心" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "AI任務控制中心" } }
+      }
+    },
+    "Cursor Clipboard Menu" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zwischenablagemenü am Zeiger" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cursor Clipboard Menu" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Menú de portapapeles en el cursor" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Menú de portapapeles en el cursor" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Menu Presse-papiers au curseur" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Menu appunti sul cursore" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カーソルクリップボードメニュー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "커서 클립보드 메뉴" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Menu da área de transferência no cursor" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Menu da área de transferência no cursor" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "光标剪贴板菜单" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "游標剪貼簿選單" } }
+      }
+    },
+    "Search AI activity" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "KI-Aktivität suchen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search AI activity" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar actividad de IA" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar actividad de IA" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher l’activité IA" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca attività IA" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "AIアクティビティを検索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "AI 활동 검색" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar atividade de IA" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar atividade de IA" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索AI活动" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋AI活動" } }
+      }
+    },
     "%d day streak" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "%d Tage in Folge" } },

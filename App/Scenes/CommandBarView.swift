@@ -37,6 +37,9 @@ final class CommandBarModel: ObservableObject {
     var events: [EventEntry] = []
     var menuItems: [MenuSearchEntry] = []
     var profiles: [BarProfileSummary] = []
+    var learning = (try? UserDefaults.standard.data(forKey: CommandBarLearning.key).flatMap {
+        try JSONDecoder().decode(CommandBarLearning.self, from: $0)
+    }) ?? CommandBarLearning()
 
     private var cachedWifi: (password: String, date: Date)?
     private var isFetchingWifiPassword = false
@@ -78,6 +81,7 @@ final class CommandBarModel: ObservableObject {
         let built = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
                                             custom: custom, quicklinks: quicklinks, processes: processes, files: files, clips: clips,
                                             bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles,
+                                            learning: learning,
                                             generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
         let isEmptyQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let grouped = CommandBarSectionStore.group(built, isEmptyQuery: isEmptyQuery)

@@ -61,6 +61,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case stripTabNext, stripTabPrevious
     /// SCU-4: the floating cheat sheet. Default `.off` — the user picks a shortcut for it.
     case showCheatSheet
+    /// Cursor-anchored clipboard history menu. Hyper+V by default; Option+Shift+V fallback.
+    case clipboardMenu
 
     /// The ribbon's eight pictures, ⌘⌃1–8 in visual order (1 = Chain).
     case ribbonChain, ribbonHalves, ribbonTwoPlusOne, ribbonOnePlusTwo
@@ -70,6 +72,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     var hotKeyID: UInt32 {
         switch self {
         case .showCheatSheet: return 73
+        case .clipboardMenu: return 74
         case .launcher: return 2
         case .pinboard: return 3
         case .quickSettings: return 4
@@ -153,6 +156,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .pinboard: return .chord(.controlOptionSpace)
         case .commandBar: return .chord(.optionSpace)
         case .showCheatSheet: return .off
+        case .clipboardMenu: return .hyper(9)
         case .quickSettings, .keepAwake, .drawer, .notchTools, .weather, .clock, .translate: return .off
         // All snap zones default to off — user assigns via Settings › Shortcuts › Snap Hotkeys.
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
@@ -699,7 +703,7 @@ extension ShortcutAction {
              .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,
              .ribbonThirds, .ribbonQuarters, .ribbonFive, .ribbonSix:
             return .tiling
-        case .showCheatSheet:
+        case .showCheatSheet, .clipboardMenu:
             return .tools
         case .drawer, .notchTools, .weather, .clock, .notchPageNext, .notchPagePrevious,
              .desktopQuickReveal, .desktopToggleHidden,
@@ -784,7 +788,8 @@ enum ShortcutPresetPack: String, CaseIterable, Sendable {
         .snapMaximize: 46,     // M
         .snapNextDisplay: 37,  // L
         .windowSwitcher: 13,   // W
-        .toggleTiling: 17      // T
+        .toggleTiling: 17,     // T
+        .clipboardMenu: 9      // V
     ]
 
     func bindings(replacing current: [ShortcutAction: ShortcutTrigger]) -> [ShortcutAction: ShortcutTrigger] {
