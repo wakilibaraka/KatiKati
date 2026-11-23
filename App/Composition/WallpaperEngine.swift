@@ -220,7 +220,8 @@ final class WallpaperEngine: ObservableObject {
                               height: min(screen.frame.height * scale, 2880))
             let url = custom[key]?()
                 ?? TerrainWallpaperRenderer.materialize(environment: environment, atmosphere: atmosphere, key: key,
-                                                        size: size, generation: useGeneration)
+                                                        size: size, generation: useGeneration,
+                                                        latitude: state.latitude, longitude: state.longitude, date: now)
             guard let url else { continue }
             do {
                 try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
@@ -340,6 +341,9 @@ final class WallpaperEngine: ObservableObject {
             let key = ((file as NSString).deletingPathExtension).lowercased()
             result[key] = { URL(fileURLWithPath: folder).appendingPathComponent(file) }
         }
+        for (alias, canonical) in WallpaperSelector.skyPackAliases where result[canonical] != nil {
+            result[alias] = result[canonical]
+        }
         return result
     }
 }
@@ -360,13 +364,16 @@ enum TerrainWallpaperRenderer {
     /// The URL for the picture, rendering it when missing. `generation > 0` yields a *copy* under a different
     /// name: same pixels, new URL, so a forced re-apply is not silently ignored.
     static func materialize(environment: WallpaperEnvironment, atmosphere: SkyAtmosphere, key: String,
-                            size: CGSize, generation: Int) -> URL? {
+                            size: CGSize, generation: Int, latitude: Double? = nil, longitude: Double? = nil,
+                            date: Date = Date()) -> URL? {
         guard let dir = directory() else { return nil }
         let width = Int(size.width.rounded()), height = Int(size.height.rounded())
-        let base = "\(key)-\(width)x\(height)-\(WallpaperFrameSignature.of(environment, atmosphere))"
+        let coordinateKey = "\(Int((latitude ?? 0) * 1000))-\(Int((longitude ?? 0) * 1000))"
+        let base = "\(key)-\(width)x\(height)-\(coordinateKey)-\(WallpaperFrameSignature.of(environment, atmosphere))"
         let source = dir.appendingPathComponent("\(base).png")
         if !FileManager.default.fileExists(atPath: source.path) {
-            guard let image = render(environment: environment, atmosphere: atmosphere, width: width, height: height),
+            guard let image = render(environment: environment, atmosphere: atmosphere, width: width, height: height,
+                                     latitude: latitude, longitude: longitude, date: date),
                   let dest = CGImageDestinationCreateWithURL(source as CFURL, UTType.png.identifier as CFString, 1, nil)
             else { return nil }
             CGImageDestinationAddImage(dest, image, nil)
@@ -402,7 +409,8 @@ enum TerrainWallpaperRenderer {
     }
 
     static func render(environment: WallpaperEnvironment, atmosphere: SkyAtmosphere,
-                       width: Int, height: Int) -> CGImage? {
+                       width: Int, height: Int, latitude: Double? = nil, longitude: Double? = nil,
+                       date: Date = Date()) -> CGImage? {
         let space = CGColorSpaceCreateDeviceRGB()
         guard width > 0, height > 0,
               let ctx = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: space,
@@ -427,7 +435,8 @@ enum TerrainWallpaperRenderer {
            let glow = CGGradient(colorsSpace: space,
                                  colors: [color(environment.glow, CGFloat(environment.glowStrength)),
                                           color(environment.glow, 0)] as CFArray, locations: [0, 1]) {
-            let center = CGPoint(x: w * 0.72, y: h * 0.66)
+            let glowPosition = SolarGlowPosition.at(date, latitude: latitude, longitude: longitude)
+            let center = CGPoint(x: w * glowPosition.x, y: h * glowPosition.y)
             ctx.drawRadialGradient(glow, startCenter: center, startRadius: 0, endCenter: center, endRadius: h * 0.45, options: [])
         }
         // DW-9 commit B: cloud bands sit above the horizon glow and behind the silhouettes, so a ridge can cover

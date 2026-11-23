@@ -366,6 +366,22 @@ enum SolarPosition {
         return CelestialMath.horizontal(rightAscension: rightAscension, declination: declination,
                                         date: date, latitude: latitude, longitude: longitude)
     }
+
+}
+
+struct SolarGlowPosition: Equatable, Sendable {
+    var x: Double
+    var y: Double
+
+    static func at(_ date: Date, latitude: Double?, longitude: Double?, fallbackX: Double = 0.72, fallbackY: Double = 0.66) -> SolarGlowPosition {
+        guard let latitude, let longitude else {
+            return SolarGlowPosition(x: fallbackX, y: fallbackY)
+        }
+        let position = SolarPosition.at(date, latitude: latitude, longitude: longitude)
+        let x = 0.5 + sin(CelestialMath.radians(position.azimuth)) * 0.42
+        let y = 0.18 + min(max((position.altitude + 10) / 80, 0), 1) * 0.54
+        return SolarGlowPosition(x: min(max(x, 0), 1), y: min(max(y, 0.18), 0.72))
+    }
 }
 
 /// The moon's place for an instant and a location (abbreviated lunar ephemeris: mean longitude, anomaly and

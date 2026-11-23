@@ -10,6 +10,17 @@ final class SolarPhaseTests: XCTestCase {
         SolarPhaseResolver.phase(at: base.addingTimeInterval(offset), times: times)
     }
 
+    func testSolarGlowPositionFallsBackWithoutCoordinatesAndStaysNormalized() {
+        let fallback = SolarGlowPosition.at(rise, latitude: nil, longitude: nil)
+        XCTAssertEqual(fallback.x, 0.72)
+        XCTAssertEqual(fallback.y, 0.66)
+        let positioned = SolarGlowPosition.at(rise, latitude: 51.5, longitude: -0.12)
+        XCTAssertGreaterThanOrEqual(positioned.x, 0)
+        XCTAssertLessThanOrEqual(positioned.x, 1)
+        XCTAssertGreaterThanOrEqual(positioned.y, 0.18)
+        XCTAssertLessThanOrEqual(positioned.y, 0.72)
+    }
+
     func testBoundariesAroundSunrise() {
         XCTAssertEqual(phase(-31 * 60, from: rise), .night)
         XCTAssertEqual(phase(-30 * 60, from: rise), .dawn)

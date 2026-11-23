@@ -247,7 +247,7 @@ struct SettingsWallpaperPane: View {
             Text("Live Preview"),
             note: Text("Scrub the day and the sky to see the scene. The desktop follows your own clock and forecast; until the weather service reports sun times this preview uses a 06:30–19:30 day.")
         ) {
-            WallpaperStageView(environment: previewEnvironment, accent: accentPreviewColors)
+            WallpaperStageView(environment: previewEnvironment, atmosphere: previewAtmosphere, accent: accentPreviewColors)
                 .frame(height: 168)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(.white.opacity(0.18)))
@@ -456,6 +456,14 @@ struct SettingsWallpaperPane: View {
         return TerrainMimicCatalog.environment(scene: scene, phase: resolved.phase, sky: resolved.sky)
     }
 
+    private var previewAtmosphere: SkyAtmosphere {
+        let hour = followLiveTime ? liveHour : previewHour
+        let live = Self.phase(forHour: hour, on: Date()).solarPhase
+        let resolved = store.wallpaperMoodValue.resolve(weather: previewSky, phase: live)
+        let date = Calendar.current.date(bySettingHour: Int(previewHour), minute: Int((previewHour - floor(previewHour)) * 60), second: 0, of: Date()) ?? Date()
+        return SkyAtmosphere.plan(phase: resolved.phase, sky: resolved.sky, date: date, seed: 0x51D3)
+    }
+
     private var accentPreviewColors: [Color] {
         store.dockAccent.resolved(wallpaperAccent: sampledAccentHexes).map {
             Color(red: $0.red, green: $0.green, blue: $0.blue)
@@ -566,6 +574,7 @@ struct SettingsWallpaperPane: View {
 /// the current accent stops so the dock's own colours are visible next to the picture they were sampled from.
 struct WallpaperStageView: View {
     let environment: WallpaperEnvironment
+    var atmosphere: SkyAtmosphere?
     let accent: [Color]
 
     var body: some View {
@@ -580,6 +589,32 @@ struct WallpaperStageView: View {
                                                     width: radius * 2, height: radius * 2)),
                              with: .radialGradient(Gradient(colors: [color(environment.glow).opacity(environment.glowStrength), .clear]),
                                                    center: center, startRadius: 0, endRadius: radius))
+            }
+            if let atmosphere {
+                let starCount = min(atmosphere.starCount, 90)
+                for index in 0..<starCount {
+                    let dx = Double((index * 83 + 17) % 100) / 100
+                    let dy = Double((index * 47 + 11) % 64) / 100
+                    let radius = index.isMultiple(of: 7) ? 1.4 : 0.8
+                    let rect = CGRect(x: size.width * dx, y: size.height * dy,
+                                      width: radius, height: radius)
+                    context.fill(Path(ellipseIn: rect), with: .color(.white.opacity(atmosphere.starOpacity)))
+                }
+                let moon = atmosphere.moon
+                if moon.visibility > 0 {
+                    let moonX = size.width * (0.5 + moon.azimuth / 720)
+                    let moonY = size.height * (0.28 + moon.altitude / 180)
+                    let moonRect = CGRect(x: moonX - 7, y: moonY - 7, width: 14, height: 14)
+                    context.fill(Path(ellipseIn: moonRect), with: .color(.white.opacity(moon.visibility)))
+                }
+                for (index, band) in atmosphere.clouds.enumerated() {
+                    let y = size.height * (0.22 + Double(index) * 0.11)
+                    let width = size.width * band.coverage
+                    let rect = CGRect(x: size.width * 0.08 + band.drift * size.width * 0.1,
+                                      y: y, width: width, height: 8 + band.thickness * 10)
+                    context.fill(Path(roundedRect: rect, cornerRadius: 8),
+                                 with: .color(.white.opacity(band.opacity * 0.45)))
+                }
             }
             for (index, layer) in environment.layers.enumerated() {
                 context.fill(band(index: index, of: environment.layers.count, size: size), with: .color(color(layer)))
