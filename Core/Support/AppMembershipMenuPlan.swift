@@ -11,6 +11,8 @@ import Foundation
 /// - drawer 消息：在程序坞中保留 + 固定为应用图标（已勾选）
 /// - Finder：仅在程序坞中保留（2026-08-20 起访达纳入统一保留勾选，但仍不能进消息区）
 enum AppMembershipMenuPlan {
+    static let showPinAsAppIconKey = "com.katikati.dock.showPinAsAppIcon"
+
     enum Surface: Equatable { case strip, drawer }
 
     /// 无 closure 的展示态，供渲染层映射成具体动作。
@@ -22,16 +24,15 @@ enum AppMembershipMenuPlan {
     static func items(surface: Surface,
                       isFinder: Bool,
                       isKept: Bool,
-                      isMessaging: Bool) -> [Item] {
+                      isMessaging: Bool,
+                      showPinAsAppIcon: Bool = false) -> [Item] {
         // 访达只给保留勾选：消息区的图标代表「这个应用的主窗口」，访达没有这种语义。
         if isFinder { return [.keep(isChecked: isKept)] }
-        // 保留勾选恒在前，消息命令在后。
+        // 保留勾选恒在前；「固定为应用图标」默认隐藏（高级选项启用或已固定时保留取消入口）。
         var items: [Item] = [.keep(isChecked: isKept)]
         if isMessaging {
             items.append(.messaging(isChecked: true))
-        } else if surface == .strip {
-            // 「固定为应用图标」只在 strip 的普通应用出现：抽屉里标记不改 placement（抽屉优先级更高），
-            // 没有可见效果，故 drawer 面不提供该命令。
+        } else if surface == .strip && showPinAsAppIcon {
             items.append(.messaging(isChecked: false))
         }
         return items

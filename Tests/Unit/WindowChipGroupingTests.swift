@@ -56,4 +56,98 @@ final class WindowChipGroupingTests: XCTestCase {
         XCTAssertEqual(WindowChipGrouping.nextIndex(count: 3, frontIndex: 2), 0)
         XCTAssertEqual(WindowChipGrouping.nextIndex(count: 0, frontIndex: nil), 0)
     }
+
+    func testAppIconPresentationPresetPropertiesAndResolution() {
+        XCTAssertEqual(AppIconPresentationPreset.defaultHorizontal, .appPills)
+        XCTAssertEqual(AppIconPresentationPreset.defaultVertical, .iconsOnly)
+        XCTAssertEqual(AppIconPresentationPreset.resolved(stored: nil, isVertical: false), .appPills)
+        XCTAssertEqual(AppIconPresentationPreset.resolved(stored: nil, isVertical: true), .iconsOnly)
+        XCTAssertEqual(AppIconPresentationPreset.resolved(stored: "windowCards", isVertical: true), .windowCards)
+
+        XCTAssertEqual(AppIconPresentationPreset.appPills.groupingPolicy, .grouped)
+        XCTAssertTrue(AppIconPresentationPreset.appPills.usesAppNameOnly)
+        XCTAssertTrue(AppIconPresentationPreset.appPills.showsLabel)
+        XCTAssertFalse(AppIconPresentationPreset.appPills.effectiveIconOnly(isVertical: false))
+        XCTAssertTrue(AppIconPresentationPreset.appPills.effectiveIconOnly(isVertical: true))
+
+        XCTAssertEqual(AppIconPresentationPreset.windowCards.groupingPolicy, .separate)
+        XCTAssertFalse(AppIconPresentationPreset.windowCards.usesAppNameOnly)
+        XCTAssertFalse(AppIconPresentationPreset.windows11Grouped.showsLabel)
+        XCTAssertTrue(AppIconPresentationPreset.windows11Grouped.showsMultiWindowBadge)
+        XCTAssertGreaterThan(AppIconPresentationPreset.windows10Taskbar.maxLabelWidth,
+                             AppIconPresentationPreset.windowCards.maxLabelWidth)
+    }
+
+    func testDockSpacingConfigClamping() {
+        let extreme = DockSpacingConfig(iconSpacing: 0, sectionSpacing: 99, dynamicCompressionEnabled: false).clamped()
+        XCTAssertEqual(extreme.iconSpacing, DockSpacingConfig.iconSpacingRange.lowerBound)
+        XCTAssertEqual(extreme.sectionSpacing, DockSpacingConfig.sectionSpacingRange.upperBound)
+        XCTAssertFalse(extreme.dynamicCompressionEnabled)
+    }
+
+    func testDockDynamicCompressionStagesAndDisabledScrollFallback() {
+        let baseSpacing = DockSpacingConfig(iconSpacing: 8, sectionSpacing: 14, dynamicCompressionEnabled: true)
+
+        // Stage 0: fits naturally
+        let s0 = DockDynamicCompressionSolver.solve(
+            availableWidth: 1200, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            baseIconWidth: 40, baseLabelWidth: 164, spacing: baseSpacing, sectionGapCount: 2
+        )
+        XCTAssertEqual(s0.stage, 0)
+        XCTAssertEqual(s0.labelWidth, 164)
+        XCTAssertEqual(s0.iconScale, 1.0)
+        XCTAssertFalse(s0.needsScroll)
+
+        // Stage 1: shrinks labels only (100 + 4*204 + 2*40 + 5*8 + 2*14 = 1064; 944 leaves 120pt -> 30pt/label)
+        let s1 = DockDynamicCompressionSolver.solve(
+            availableWidth: 944, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            baseIconWidth: 40, baseLabelWidth: 164, spacing: baseSpacing, sectionGapCount: 2
+        )
+        XCTAssertEqual(s1.stage, 1)
+        XCTAssertEqual(s1.labelWidth, 134, accuracy: 0.5)
+        XCTAssertEqual(s1.iconSpacing, 8)
+        XCTAssertEqual(s1.iconScale, 1.0)
+        XCTAssertFalse(s1.needsScroll)
+
+        // Stage 2: labels floored at 88 (width 760), spacing tightens down (e.g. 730)
+        let s2 = DockDynamicCompressionSolver.solve(
+            availableWidth: 730, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            baseIconWidth: 40, baseLabelWidth: 164, spacing: baseSpacing, sectionGapCount: 2
+        )
+        XCTAssertEqual(s2.stage, 2)
+        XCTAssertEqual(s2.labelWidth, 88)
+        XCTAssertLessThan(s2.iconSpacing, 8)
+        XCTAssertLessThan(s2.sectionSpacing, 14)
+        XCTAssertEqual(s2.iconScale, 1.0)
+        XCTAssertFalse(s2.needsScroll)
+
+        // Stage 3: scale absorbs moderate overflow without scroll; extreme overflow sets needsScroll
+        let s3Fit = DockDynamicCompressionSolver.solve(
+            availableWidth: 640, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            baseIconWidth: 40, baseLabelWidth: 164, spacing: baseSpacing, sectionGapCount: 2
+        )
+        XCTAssertEqual(s3Fit.stage, 3)
+        XCTAssertLessThan(s3Fit.iconScale, 1.0)
+        XCTAssertGreaterThanOrEqual(s3Fit.iconScale, DockDynamicCompressionSolver.minIconScale)
+        XCTAssertFalse(s3Fit.needsScroll)
+
+        let s3Scroll = DockDynamicCompressionSolver.solve(
+            availableWidth: 420, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            baseIconWidth: 40, baseLabelWidth: 164, spacing: baseSpacing, sectionGapCount: 2
+        )
+        XCTAssertEqual(s3Scroll.stage, 3)
+        XCTAssertEqual(s3Scroll.iconScale, DockDynamicCompressionSolver.minIconScale)
+        XCTAssertTrue(s3Scroll.needsScroll)
+
+        // Disabled compression preserves full metrics and flags scroll
+        var disabledCfg = baseSpacing
+        disabledCfg.dynamicCompressionEnabled = false
+        let disabled = DockDynamicCompressionSolver.solve(
+            availableWidth: 900, fixedWidth: 100, labeledChipCount: 4, iconChipCount: 2,
+            spacing: disabledCfg, sectionGapCount: 2
+        )
+        XCTAssertEqual(disabled.stage, 0)
+        XCTAssertEqual(disabled.labelWidth, 164)
+        XCTAssertTrue(disabled.needsScroll)
+    }
 }

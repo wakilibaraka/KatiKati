@@ -6883,3 +6883,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `App/Scenes/PopGridPopupView.swift`: extracted shared `launchOrActivateApp(bundleID:)` and added `DockAppGroupPopupView` with inline rename, Grid/List mode toggle, `+` app picker (`NSOpenPanel`), `.app` drag-drop, and `"Remove from Group"` actions.
 - `App/Scenes/{AppMenuFragments,LauncherChip,ChipView}.swift`: added `AppMenuBuilder.appendAppGroupMenu(to:bundleID:)` exposing `"App Groups"` membership and `"New App Group"` creation across strip and launcher context menus.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/LauncherFoldersTests -only-testing:KatiKatiTests/ModularDockCoreTests -only-testing:KatiKatiTests/PanelGeometryTests` (81/81 passed) and `check_availability_warnings.py /tmp/katikati-test.log`. Zero `project.pbxproj` edits.
+
+### DO-6a — App Icon Presets, Anti-Overflow Compression Solver, Spacing & Keep-in-Dock Plan (landed 2026-11-23)
+
+- `Core/Support/WindowChipGrouping.swift`: added `AppIconPresentationPreset` (`appPills` horizontal default, `windowCards`, `iconsOnly` vertical default, `windows11Grouped`, `windows10Taskbar`), `DockSpacingConfig`, `DockDynamicCompressionResult`, and 3-stage `DockDynamicCompressionSolver`.
+- `Core/Support/AppMembershipMenuPlan.swift`: added `showPinAsAppIconKey` and `showPinAsAppIcon: Bool = false` defaulting menus to `Keep in Dock` while preserving legacy/active messaging unpinning.
+- `Tests/Unit/{WindowChipGroupingTests,AppMembershipMenuPlanTests}.swift`: added preset, spacing-clamp, 3-stage compression, and membership menu plan coverage (18/18 passed, 0 warnings). Zero `project.pbxproj` edits.

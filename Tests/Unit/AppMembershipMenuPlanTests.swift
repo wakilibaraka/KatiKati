@@ -4,8 +4,13 @@ import XCTest
 final class AppMembershipMenuPlanTests: XCTestCase {
 
     func testStripPlainAppShowsKeepAndUncheckedMessaging() {
-        let items = AppMembershipMenuPlan.items(surface: .strip, isFinder: false, isKept: false, isMessaging: false)
-        XCTAssertEqual(items, [.keep(isChecked: false), .messaging(isChecked: false)])
+        let defaultItems = AppMembershipMenuPlan.items(surface: .strip, isFinder: false, isKept: false, isMessaging: false)
+        XCTAssertEqual(defaultItems, [.keep(isChecked: false)])
+
+        let advancedItems = AppMembershipMenuPlan.items(
+            surface: .strip, isFinder: false, isKept: false, isMessaging: false, showPinAsAppIcon: true
+        )
+        XCTAssertEqual(advancedItems, [.keep(isChecked: false), .messaging(isChecked: false)])
     }
 
     func testStripMessagingAppShowsKeepAndCheckedMessaging() {
@@ -50,7 +55,11 @@ final class AppMembershipMenuPlanTests: XCTestCase {
 
     func testMessagingCheckStateReflectsMembership() {
         XCTAssertEqual(
-            AppMembershipMenuPlan.items(surface: .strip, isFinder: false, isKept: false, isMessaging: false).last,
+            AppMembershipMenuPlan.items(surface: .strip, isFinder: false, isKept: false, isMessaging: false, showPinAsAppIcon: false),
+            [.keep(isChecked: false)]
+        )
+        XCTAssertEqual(
+            AppMembershipMenuPlan.items(surface: .strip, isFinder: false, isKept: false, isMessaging: false, showPinAsAppIcon: true).last,
             .messaging(isChecked: false)
         )
         XCTAssertEqual(
