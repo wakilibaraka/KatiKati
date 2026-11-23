@@ -9,6 +9,8 @@ Previous plan: v2 (`DockBar base × SplitBar-old modes × live-SplitBar segments
 Product name: **KatiKati** (Swahili *katikati* = “right in the middle / centered” — the centered-bar promise).
 This commit: **plan only — no code changes.**
 
+- 2026-11-23: Wave 3 Slice 3.2 completed — app leftover picker/scanner, review-first Trash flow, and storage row context actions.
+
 ---
 
 ## Decisions locked with the owner

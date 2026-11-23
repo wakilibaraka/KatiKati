@@ -26,7 +26,7 @@
 
 ### Remaining Wave 3 & Wave 4 Architecture Slices
 - [x] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export (`afc51038`)
-- [ ] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page
+- [x] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (`980a528c`)
 - [ ] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView`
 - [ ] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls
 - [ ] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration
@@ -380,13 +380,13 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/AgentUsageTests -only-testing:KatiKatiTests/ScreenTimeTests -only-testing:KatiKatiTests/SettingsBackupTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 3.2 — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (Pillar 12)
+#### [x] Slice 3.2 — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (Pillar 12) — DONE (`980a528c`)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/StorageScanMath.swift:141-215`, `App/Composition/CleanerService.swift:8-67`, `App/Scenes/Notch/NotchStoragePageView.swift:57-148`
 - **Scope:**
-  1. [ ] Add `CleanerService.scanLeftovers(forAppAt appURL: URL, completion:)` (or orphaned `~/Library` scan against installed apps in `/Applications` and `~/Applications`) using `AppLeftoverScanPlan.candidatePaths(home:existingPaths:bundleID:appName:)` (`Core/Support/StorageScanMath.swift:205-214`).
-  2. [ ] Replace the hardcoded `"com.spotify.client"` / `"Spotify"` alert in `NotchStoragePageView.reviewLeftovers` (`App/Scenes/Notch/NotchStoragePageView.swift:93-110`) with an `NSOpenPanel` `.app` picker (or automatic orphaned-leftover list) and a review-first `Move to Trash` confirmation backed by `CleanerService.clean(_:)`.
-  3. [ ] Add a right-click context menu (`Reveal in Finder`, `Move to Trash`, `Copy Path`) to rows in `NotchStoragePageView.rows(_:)` (`L57-79`).
+  1. [x] Add `CleanerService.scanLeftovers(forAppAt appURL: URL, completion:)` using `AppLeftoverScanPlan.candidatePaths(home:existingPaths:bundleID:appName:)`.
+  2. [x] Replace the hardcoded Spotify alert with an `NSOpenPanel` `.app` picker and review-first `Move to Trash` confirmation backed by `CleanerService.clean(_:)`.
+  3. [x] Add a right-click context menu (`Reveal`, `Move to Trash`, `Copy Path`) to storage rows.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/StorageScanMathTests && python3 Scripts/check_localization.py
