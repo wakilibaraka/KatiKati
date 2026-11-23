@@ -217,10 +217,12 @@ final class SnapDragMonitor {
         }
         let area = DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame,
                                         dock: WindowSnapService.dockFrame(screen))
-        let previous = activeZone.flatMap {
-            $0.frame.insetBy(dx: -8, dy: -8).contains(mouse) ? $0 : nil
-        }
-        guard let zone = previous ?? SnapZonePlanner.resolve(at: mouse, in: area, edgeMargin: edgeMargin) else {
+        let layout: SnapZonePlanner.Layout = NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners
+        let previous = layout == .edgesAndCorners ? activeZone.flatMap {
+            (![SnapPosition.leftThird, .centerThird, .rightThird].contains($0.position)
+             && $0.frame.insetBy(dx: -8, dy: -8).contains(mouse)) ? $0 : nil
+        } : nil
+        guard let zone = previous ?? SnapZonePlanner.resolve(at: mouse, in: area, layout: layout, edgeMargin: edgeMargin) else {
             activeZone = nil
             preview?.orderOut(nil)
             return

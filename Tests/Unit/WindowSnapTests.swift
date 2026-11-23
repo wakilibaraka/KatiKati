@@ -91,6 +91,8 @@ final class WindowSnapTests: XCTestCase {
         XCTAssertEqual(SnapZonePlanner.resolve(at: CGPoint(x: 110, y: 60), in: area, layout: .centerAndMaximize)?.position, .maximize)
         XCTAssertNil(SnapZonePlanner.resolve(at: CGPoint(x: 0, y: 0), in: area, layout: .thirds))
         XCTAssertNil(SnapZonePlanner.resolve(at: CGPoint(x: 550, y: 350), in: .zero))
+        XCTAssertEqual(SnapZonePlanner.dragLayout(optionDown: false), .edgesAndCorners)
+        XCTAssertEqual(SnapZonePlanner.dragLayout(optionDown: true), .thirds)
     }
 }
 

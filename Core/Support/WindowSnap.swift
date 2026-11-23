@@ -103,6 +103,11 @@ enum SnapZonePlanner {
         position.frame(in: area)
     }
 
+    /// Selects the drag-to-snap layout from modifier flags: holding Option (`⌥`) switches to horizontal thirds.
+    static func dragLayout(optionDown: Bool) -> Layout {
+        optionDown ? .thirds : .edgesAndCorners
+    }
+
     /// Pointer-to-zone resolver for a display work area. Edge layouts require the pointer to be
     /// inside `edgeMargin`; thirds always resolve once inside the area; the center layout prefers
     /// `.center` and falls back to `.maximize` outside the center rect.
