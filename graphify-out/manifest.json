@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchHomeView.swift": {
-    "mtime": 1795358141.7595239,
-    "seen": 1795362217.377821,
-    "ast_hash": "9176cbf11e4c0f958065faae349f43a8",
+    "mtime": 1795430362.808694,
+    "seen": 1795430587.140943,
+    "ast_hash": "203cae0c863abe69d47884725e215fdf",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchMirrorPageView.swift": {
@@ -1548,9 +1548,9 @@
     "semantic_hash": ""
   },
   "Core/Support/BluetoothDevices.swift": {
-    "mtime": 1792685716.7969892,
-    "seen": 1792689772.289,
-    "ast_hash": "54ad743b57f02adc1c25160e0ba71f11",
+    "mtime": 1795430416.3380191,
+    "seen": 1795430587.14129,
+    "ast_hash": "d643141ce489c68ab43dd10782fdda89",
     "semantic_hash": ""
   },
   "Core/Support/Bookmarks.swift": {
@@ -2082,9 +2082,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchSectionPaging.swift": {
-    "mtime": 1794993991.3541136,
-    "seen": 1794996059.22865,
-    "ast_hash": "776ef2dc4eb2a94b821141297b818e0c",
+    "mtime": 1795430361.3065453,
+    "seen": 1795430587.1414258,
+    "ast_hash": "6c5191cf98d05a3864a61ee3c74bdd3e",
     "semantic_hash": ""
   },
   "Core/Support/NoteCipher.swift": {
@@ -3216,9 +3216,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/BluetoothDevicesTests.swift": {
-    "mtime": 1792626402.3098545,
-    "seen": 1792630179.526478,
-    "ast_hash": "2507844eab70d00b8ba3d5185c353bb2",
+    "mtime": 1795430377.9405508,
+    "seen": 1795430587.141671,
+    "ast_hash": "10f963dd56d9e0b5d7d3019f4a6be532",
     "semantic_hash": ""
   },
   "Tests/Unit/BuildProvenanceTests.swift": {
@@ -3252,9 +3252,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/CameraMirrorTests.swift": {
-    "mtime": 1794993996.1289527,
-    "seen": 1794996059.2290502,
-    "ast_hash": "ce8dbcfafdc6b544c3a3dc24304b3044",
+    "mtime": 1795430388.024931,
+    "seen": 1795430587.141676,
+    "ast_hash": "f30a6ea1b2c5dafdccd49801d3e2a4dd",
     "semantic_hash": ""
   },
   "Tests/Unit/CaptureRecognitionTests.swift": {
@@ -3822,15 +3822,15 @@
     "semantic_hash": "174a605a5b88ccc5e11bd5c249a09090"
   },
   "Tests/Unit/NotchGestureTests.swift": {
-    "mtime": 1794995888.538333,
-    "seen": 1794996059.229232,
-    "ast_hash": "b28ffc473506bb17122a376fec25f15b",
+    "mtime": 1795430386.0669022,
+    "seen": 1795430587.1418061,
+    "ast_hash": "7f3c180f88a75ecaba832cff2cdd0158",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchHoverMachineTests.swift": {
-    "mtime": 1795002573.6809027,
-    "seen": 1795002901.029585,
-    "ast_hash": "92ed97b410099bf9a6eba40bde60a9d5",
+    "mtime": 1795430380.192906,
+    "seen": 1795430587.141807,
+    "ast_hash": "01a6809e8b68e3d1980321743f37b885",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchLayoutSpecTests.swift": {
@@ -3876,9 +3876,9 @@
     "semantic_hash": "cffe9d036fa8f6e07cb1bdd960ce7aad"
   },
   "Tests/Unit/NotificationMirrorTests.swift": {
-    "mtime": 1794993997.6751506,
-    "seen": 1794996059.22925,
-    "ast_hash": "20424a8259e442944554e258a68d4c1c",
+    "mtime": 1795430382.0808427,
+    "seen": 1795430587.141817,
+    "ast_hash": "9adfb3b437b862a51b7210f696a49b21",
     "semantic_hash": ""
   },
   "Tests/Unit/NotificationPlacementTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795429889.7088158,
-    "seen": 1795430223.399719,
-    "ast_hash": "fae95ecf536103d5590144ab9aa474d6",
+    "mtime": 1795430394.096546,
+    "seen": 1795430587.1420631,
+    "ast_hash": "07dc904d408d60fa3a86fa08d14656eb",
     "semantic_hash": ""
   },
   "README.md": {
