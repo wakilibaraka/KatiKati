@@ -2454,10 +2454,10 @@
     "semantic_hash": "df748d4cc3235174ab3e91659b8cfa0b"
   },
   "Core/Support/WeatherDetail.swift": {
-    "mtime": 1791999130.76664,
-    "seen": 1792295707.060622,
-    "ast_hash": "4044dc4e969ac47419ad70266f06fc45",
-    "semantic_hash": "4044dc4e969ac47419ad70266f06fc45"
+    "mtime": 1795446721.0707026,
+    "seen": 1795446904.29759,
+    "ast_hash": "3df4750790807d05289a7b5ebd7e9c18",
+    "semantic_hash": ""
   },
   "Core/Support/WeatherEffects.swift": {
     "mtime": 1791999130.7707205,
@@ -4284,10 +4284,10 @@
     "semantic_hash": "b931adabf2a7cedda229ed5b0da6a051"
   },
   "Tests/Unit/WeatherWarningTests.swift": {
-    "mtime": 1791999130.9422145,
-    "seen": 1792295707.060815,
-    "ast_hash": "488c4c8beea215aaa002d38ea713542c",
-    "semantic_hash": "488c4c8beea215aaa002d38ea713542c"
+    "mtime": 1795446740.5769508,
+    "seen": 1795446904.2979121,
+    "ast_hash": "5a1c51dc03818c7c87bbc5010d4f634e",
+    "semantic_hash": ""
   },
   "Tests/Unit/WelcomeGuideDecisionTests.swift": {
     "mtime": 1791999130.9485197,
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795446081.0622933,
-    "seen": 1795446252.0805602,
-    "ast_hash": "6d673f9ddfc124e303bcf84957ec64d4",
+    "mtime": 1795446797.6854997,
+    "seen": 1795446904.298056,
+    "ast_hash": "b056bb85f3bf09ca9a1e997517845508",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6516,9 +6516,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherDetailViews.swift": {
-    "mtime": 1792543476.3665233,
-    "seen": 1792543621.864918,
-    "ast_hash": "809d03ad66840ddfab11a6598f784efd",
+    "mtime": 1795446735.3467584,
+    "seen": 1795446904.297369,
+    "ast_hash": "c37da833ffccc677f557c8fd0947eecb",
     "semantic_hash": ""
   },
   "Core/Support/WeatherDetailBands.swift": {
@@ -6534,15 +6534,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherModernPanel.swift": {
-    "mtime": 1792543498.264065,
-    "seen": 1792543621.8649228,
-    "ast_hash": "20a96989b818723797c8bf667774417e",
+    "mtime": 1795446725.148631,
+    "seen": 1795446904.2973719,
+    "ast_hash": "ec535c3c9fd444c479b6aeac6609210e",
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherFullScreenView.swift": {
-    "mtime": 1792544796.5957434,
-    "seen": 1792544978.319201,
-    "ast_hash": "a888a4f53d0d596e1c4cd1f9d8050c3c",
+    "mtime": 1795446732.8819618,
+    "seen": 1795446904.2973702,
+    "ast_hash": "ef72abd30a606f0d534f4d2d53fc57c9",
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherScenery.swift": {
@@ -7782,9 +7782,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWeatherBoxView.swift": {
-    "mtime": 1795076943.2137873,
-    "seen": 1795080198.695904,
-    "ast_hash": "3760182f04fc64b9543b70864501fe33",
+    "mtime": 1795446737.5350895,
+    "seen": 1795446904.297249,
+    "ast_hash": "035eb3f64f91ed1c01793a3292780a42",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopGlanceNames.swift": {
@@ -8058,9 +8058,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CODEBASE_GAP_AND_CAPABILITY_AUDIT.md": {
-    "mtime": 1795446079.1351075,
-    "seen": 1795446252.080551,
-    "ast_hash": "0bcb9dec96482091e0d5e47341d88b08",
+    "mtime": 1795446793.5206535,
+    "seen": 1795446904.298048,
+    "ast_hash": "f8ab8937fe0e047f62de6068f45d369a",
     "semantic_hash": ""
   }
 }
