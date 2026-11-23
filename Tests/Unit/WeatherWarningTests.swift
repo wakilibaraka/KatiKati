@@ -72,4 +72,14 @@ final class WeatherWarningTests: XCTestCase {
         XCTAssertEqual(w.map(\.kind), [.freeze, .wind], "severe freeze sorts before advisory wind")
         XCTAssertEqual(WeatherWarningKind.allCases.count, Set(WeatherWarningKind.allCases.map(\.symbolName)).count)
     }
+
+    func testMoonPhaseIlluminationAndSymbolFormatting() {
+        let knownNew = Date(timeIntervalSince1970: 947_182_440)
+        XCTAssertEqual(MoonPhase.illuminationText(at: knownNew), "0%")
+        XCTAssertEqual(MoonPhase.symbolName(at: knownNew), "moonphase.new.moon")
+
+        let halfSynodic = Date(timeIntervalSince1970: 947_182_440 + (29.530588853 * 86_400) / 2)
+        XCTAssertEqual(MoonPhase.illuminationText(at: halfSynodic), "100%")
+        XCTAssertEqual(MoonPhase.symbolName(at: halfSynodic), "moonphase.full.moon")
+    }
 }

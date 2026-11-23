@@ -15,6 +15,7 @@ struct WeatherModernPanel: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scrub: Int?
     @State private var searching = false
+    @State private var showingWarnings = false
 
     private static let ink = Color(white: 0.96)
     private static let env = TileEnv(palette: .classic, isDark: true)
@@ -60,6 +61,7 @@ struct WeatherModernPanel: View {
     private var header: some View {
         let hour = scrub.flatMap { detail.hourly.indices.contains($0) ? detail.hourly[$0] : nil }
         let shownC = hour?.temperature ?? state.temperatureCelsius
+        let warnings = WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())
         return VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
                 Circle().fill(accent).frame(width: 7, height: 7)
@@ -71,6 +73,18 @@ struct WeatherModernPanel: View {
                     Button { service.step(by: 1) } label: { Image(systemName: "chevron.right") }.buttonStyle(.plain)
                 }
                 Spacer()
+                if let top = warnings.first {
+                    Button { showingWarnings.toggle() } label: {
+                        HStack(spacing: 4) { Image(systemName: top.kind.symbolName); weatherWarningTitle(top.kind) }
+                            .font(.system(size: 10.5, weight: .bold)).padding(.horizontal, 7).padding(.vertical, 3)
+                            .background(Capsule().fill(top.severity == .severe ? Color.red.opacity(0.85) : Color.orange.opacity(0.85)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .popover(isPresented: $showingWarnings) {
+                        WarningsTile(env: Self.env, warnings: warnings, units: units, width: 280)
+                    }
+                }
                 Button { searching.toggle() } label: { Image(systemName: "magnifyingglass") }.buttonStyle(.plain)
                     .popover(isPresented: $searching) { CitySearchPopover(service: service, close: { searching = false }) }
             }

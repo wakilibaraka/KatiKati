@@ -126,6 +126,10 @@ public enum MoonPhase {
         (1 - cos(fraction(at: date) * 2 * .pi)) / 2
     }
 
+    public static func illuminationText(at date: Date = Date()) -> String {
+        "\(Int((illumination(at: date) * 100).rounded()))%"
+    }
+
     public static func symbolName(at date: Date) -> String {
         switch Int((fraction(at: date) * 8).rounded()) % 8 {
         case 0: return "moonphase.new.moon"

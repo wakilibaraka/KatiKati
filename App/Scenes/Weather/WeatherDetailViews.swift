@@ -230,6 +230,7 @@ struct DetailGrid: View {
                     NumberBand(env: env, icon: "thermometer.medium", title: Text("Feels Like"), value: units.t(detail.apparent))
                     NumberBand(env: env, icon: "gauge", title: Text("Pressure"), value: "\(Int(detail.pressure)) hPa")
                     NumberBand(env: env, icon: "eye.fill", title: Text("Visibility"), value: String(format: "%.0f km", detail.visibilityMeters / 1000))
+                    NumberBand(env: env, icon: MoonPhase.symbolName(at: Date()), title: Text("Moon"), value: MoonPhase.illuminationText(at: Date()))
                 }
             }
         }

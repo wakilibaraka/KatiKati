@@ -21,8 +21,8 @@
 ### Batch 3 — High-ROI Feature Unlocks
 - [x] **Quick Win #4 / Slice 2.3 (Shelf)** — Vision Background Removal & Transform Parity (`51830adc`)
 - [x] **Quick Win #10 / Slice 4.4 (Snap)** — Hold `⌥` During Drag-to-Edge for Thirds Snapping (`2ff53647`)
-- [x] **Quick Win #6 / Slice 2.4** — Control Centre Mic Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (`DONE`)
-- [ ] **Quick Win #3 / Slice 2.2** — Weather Warnings, Moon Phase & Desktop Weather Units
+- [x] **Quick Win #6 / Slice 2.4** — Control Centre Mic Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (`f9e9b0c1`)
+- [x] **Quick Win #3 / Slice 2.2** — Weather Warnings, Moon Phase & Desktop Weather Units (`DONE`)
 
 ### Remaining Wave 3 & Wave 4 Architecture Slices
 - [ ] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export
@@ -328,13 +328,13 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/PowerFactsTests -only-testing:KatiKatiTests/PinboardTests -only-testing:KatiKatiTests/DockWingModelsTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 2.2 — Cross-Surface Weather Parity: Severe Warnings, Moon Phase & Desktop Weather Units (Pillar 6)
-- **Effort:** `S` | **User Impact:** `High`
+#### [x] DONE · Slice 2.2 — Cross-Surface Weather Parity: Severe Warnings, Moon Phase & Desktop Weather Units (Pillar 6)
+- **Effort:** `S` | **User Impact:** `High` | **Status:** `[x] DONE`
 - **Reused Modules:** `Core/Support/WeatherDetail.swift:114-141`, `Core/Support/WeatherWarnings.swift:52`, `App/Scenes/Weather/WeatherModernPanel.swift:60-138`, `App/Scenes/Weather/WeatherFullScreenView.swift:56-192`, `App/Scenes/Weather/WeatherDetailViews.swift:215-237`, `App/Scenes/Desktop/DesktopWeatherBoxView.swift:7-39`
 - **Scope:**
-  1. [ ] Render `WarningsTile` (`WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())`) in `WeatherModernPanel` (`App/Scenes/Weather/WeatherModernPanel.swift:62`) and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherFullScreenView.swift:58`).
-  2. [ ] Add a `MoonPhase` card (`MoonPhase.symbolName(at:)`, `MoonPhase.illumination(at:)`) to `DetailGrid` (`App/Scenes/Weather/WeatherDetailViews.swift:224-236`) and `WeatherFullScreenView.tiles` (`App/Scenes/Weather/WeatherFullScreenView.swift:167-192`).
-  3. [ ] Update `DesktopWeatherBoxView` (`App/Scenes/Desktop/DesktopWeatherBoxView.swift:7-39`) to use `@AppStorage(WeatherUnits.temperatureKey)` (`WeatherUnits.degrees`) and add city prev/next buttons when `service.locations.count > 1`.
+  1. [x] Render `WarningsTile` (`WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())`) in `WeatherModernPanel` (`App/Scenes/Weather/WeatherModernPanel.swift:62`) and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherFullScreenView.swift:58`).
+  2. [x] Add a `MoonPhase` card (`MoonPhase.symbolName(at:)`, `MoonPhase.illumination(at:)`) to `DetailGrid` (`App/Scenes/Weather/WeatherDetailViews.swift:224-236`) and `WeatherFullScreenView.tiles` (`App/Scenes/Weather/WeatherFullScreenView.swift:167-192`).
+  3. [x] Update `DesktopWeatherBoxView` (`App/Scenes/Desktop/DesktopWeatherBoxView.swift:7-39`) to use `@AppStorage(WeatherUnits.temperatureKey)` (`WeatherUnits.degrees`) and add city prev/next buttons when `service.locations.count > 1`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WeatherDetailTests -only-testing:KatiKatiTests/WeatherWarningsTests && python3 Scripts/check_localization.py
@@ -352,8 +352,8 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/ClipboardHistoryTests -only-testing:KatiKatiTests/ClipboardPlusTests -only-testing:KatiKatiTests/PDFReducePlanTests && python3 Scripts/check_localization.py
   ```
 
-#### [x] DONE · Slice 2.4 — Control Centre Audio Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (Pillar 7)
-- **Effort:** `M` | **User Impact:** `High` | **Status:** `[x] DONE`
+#### [x] DONE — `f9e9b0c1` · Slice 2.4 — Control Centre Audio Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu (Pillar 7)
+- **Effort:** `M` | **User Impact:** `High` | **Status:** `[x] DONE — f9e9b0c1`
 - **Reused Modules:** `Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:20, 48, 74-75, 239-265`, `Core/Support/QuickToggles.swift:61-100`, `App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift:139-211`
 - **Scope:**
   1. [x] Add an **Input (Microphone)** section to `AudioOutputMenu.populate` (`Platform/SystemStatus/AudioOutputSwitcher.swift:58-76`) using `AudioOutputSwitcher.devices(input: true)` and `setDefault(id, input: true)`.
@@ -475,10 +475,10 @@ Each of these 10 quick wins reuses existing `Core/` or `Platform/` code and can 
 
 1. [x] **DONE — `a2a7f546` · Fix Menu Bar Network Speed Readout (`Core/Support/MenuBarStatModel.swift:82-129`):** `MenuBarSystemItem` already samples `down`/`up` bytes/sec every second, but `MenuBarStatModel.statusText(metric: .network)` returns `"–"` because `fraction(metric: .network)` is `nil`. Formatting `values.down`/`values.up` in `statusText` makes the Network menu bar stat work immediately (~20 lines).
 2. [x] **DONE — `ae014e00` · Surface Battery Cycle Count, Health % & Time Remaining in Battery Popover (`App/Composition/DockTelemetryFeed.swift:111-122`, `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:548-561`):** `BatteryHealthReader.read()` already parses `cycleCount` and `healthPercent` and `SystemMonitorSampler.battery()` already reads `secondsRemaining`, but `DockTelemetryFeed` discards all three. Passing them through `DockTelemetryState` adds cycle count, health %, and charge/discharge ETA in ~35 lines.
-3. [ ] **Add Severe Weather Warnings & Moon Phase to `WeatherModernPanel` and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherModernPanel.swift:62`, `App/Scenes/Weather/WeatherFullScreenView.swift:58`):** `WeatherWarningEngine` and `MoonPhase` are already tested in `Core/Support/`, but only legacy `WeatherGlanceView` renders `WarningsTile`, and no view renders `MoonPhase` (~45 lines).
+3. [x] **DONE · Add Severe Weather Warnings & Moon Phase to `WeatherModernPanel` and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherModernPanel.swift:62`, `App/Scenes/Weather/WeatherFullScreenView.swift:58`):** `WeatherWarningEngine` and `MoonPhase` are already tested in `Core/Support/`, but only legacy `WeatherGlanceView` renders `WarningsTile`, and no view renders `MoonPhase` (~45 lines).
 4. [x] **DONE — `51830adc` · Expose On-Device Vision Background Removal in `ShelfGridPopupView` (`App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:475-502`):** `ShelfActions.removeBackground(_:into:)` (`VNGenerateForegroundInstanceMaskRequest`) is completely implemented and tested, needing only a button in `floatingTransformBar` / `selectionBar` / `shelfMenuItems` (~30 lines).
 5. [x] **DONE — `09c73eeb` · Wire `⌘1`–`⌘9` Pinned Paste Shortcuts & `Work` Category in `ClipboardFlyoutView` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-198`):** `ClipboardFlyoutView` already draws `"⌘1"`…`"⌘9"` badges on pinned clips and `All / Work / Personal` tabs, but `handleKey` ignores `⌘1`–`⌘9` and `classify` passes `originBundleID: nil` (~45 lines).
-6. [x] **DONE · Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
+6. [x] **DONE — `f9e9b0c1` · Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
 7. [x] **DONE — `091c339c` · Fix DropClip Selection Pill Settings Toggle, Speech ARC Drop & Command Bar `"wifipw"` (`App/Entry/TranslatePanelController.swift:20-73`, `App/Scenes/CommandBarView.swift:62`):** Checking `DropClipPolicy.enabledKey`, retaining `AVSpeechSynthesizer` as a property, and changing `"wifi"` to `"wifipw"` in `CommandBarView.swift:62` fixes three user-visible bugs in ~25 lines.
 8. [x] **DONE — `4e18742c` · Fix Multi-File ZIP Overwrite Bug in `DesktopFileOperations.compressToZip` (`Platform/Desktop/DesktopFileOperations.swift:178-185`):** Passing all file paths to a single `ditto` process instead of looping and overwriting `archiveURL` on each iteration fixes multi-file Desktop Box zipping in ~15 lines.
 9. [x] **DONE — `cf03222f` · Stop 1 Hz Idle Timers in `HydrationController`, `NutritionController` & `QuitOnLastWindowService` + Share `SystemMonitorController.shared` (`Core/Support/HydrationController.swift:261`, `Core/Support/NutritionController.swift:195`, `App/Composition/QuitOnLastWindowService.swift:85`, `Platform/SystemMonitor/SystemMonitorController.swift:7`):** Gating timers on active consumers/thresholds and sharing one ref-counted `SystemMonitorController` eliminates unnecessary background wakeups (~50 lines).

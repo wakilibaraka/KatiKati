@@ -16,6 +16,7 @@ struct WeatherFullScreenView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scrub: Int?
     @State private var searching = false
+    @State private var showingWarnings = false
 
     private var glass: some ShapeStyle { Color.white.opacity(0.16) }
     private var accent: Color {
@@ -54,7 +55,8 @@ struct WeatherFullScreenView: View {
     // MARK: Top bar and hero
 
     private var topBar: some View {
-        HStack(spacing: 10) {
+        let warnings = WeatherWarningEngine.warnings(for: detail, thresholds: WeatherPrefs.thresholds())
+        return HStack(spacing: 10) {
             if !service.savedCities.cities.isEmpty {
                 Button { service.step(by: -1) } label: { Image(systemName: "chevron.left") }.buttonStyle(.plain)
             }
@@ -65,6 +67,18 @@ struct WeatherFullScreenView: View {
             Button { searching.toggle() } label: { Image(systemName: "magnifyingglass") }.buttonStyle(.plain)
                 .popover(isPresented: $searching) { CitySearchPopover(service: service, close: { searching = false }) }
             Spacer()
+            if let top = warnings.first {
+                Button { showingWarnings.toggle() } label: {
+                    HStack(spacing: 4) { Image(systemName: top.kind.symbolName); weatherWarningTitle(top.kind) }
+                        .font(.system(size: 11.5, weight: .bold)).padding(.horizontal, 9).padding(.vertical, 4)
+                        .background(Capsule().fill(top.severity == .severe ? Color.red.opacity(0.85) : Color.orange.opacity(0.85)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $showingWarnings) {
+                    WarningsTile(env: TileEnv(palette: .classic, isDark: true), warnings: warnings, units: units, width: 280)
+                }
+            }
             if let notice = WeatherNotice(isLive: state.isLive, staleness: WeatherStaleness(lastUpdated: state.lastUpdated)) {
                 Button { Task { await service.refresh() } } label: {
                     Group { notice == .offline ? Text("Offline") : Text("Updating") }
@@ -166,6 +180,7 @@ struct WeatherFullScreenView: View {
 
     private func tiles(columns: Int) -> some View {
         let sun = WeatherDetailBands.sunFraction(sunrise: detail.sunrise, sunset: detail.sunset, nowMinutes: nowMinutes)
+        let now = Date()
         let items: [(Text, String, Text, Double?)] = [
             (Text("UV Index"), String(format: "%.0f", detail.uvIndex), UVLevel(index: detail.uvIndex).name, UVLevel.fraction(index: detail.uvIndex)),
             (Text("Wind"), WeatherUnits.wind(detail.windSpeed, units.wind), Text(verbatim: WeatherUnits.compass(detail.windDirection)), nil),
@@ -173,6 +188,7 @@ struct WeatherFullScreenView: View {
             (Text("Humidity"), "\(Int(detail.humidity.rounded()))%", Text(verbatim: units.t(detail.dewPoint)), detail.humidity / 100),
             (Text("Pressure"), "\(Int(detail.pressure.rounded())) hPa", Text(verbatim: ""), nil),
             (Text("Visibility"), String(format: "%.0f km", detail.visibilityMeters / 1000), Text(verbatim: String(format: "%.1f mm", detail.precipitation)), nil),
+            (Text("Moon"), MoonPhase.illuminationText(at: now), Text(verbatim: ""), MoonPhase.illumination(at: now)),
         ]
         return LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columns), spacing: 10) {
             ForEach(items.indices, id: \.self) { i in
