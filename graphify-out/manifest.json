@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795430394.096546,
-    "seen": 1795430587.1420631,
-    "ast_hash": "07dc904d408d60fa3a86fa08d14656eb",
+    "mtime": 1795430748.438713,
+    "seen": 1795430865.468917,
+    "ast_hash": "9abbb445d8cc994e48a518c0cd6cec46",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6738,9 +6738,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DockWidgetFeeds.swift": {
-    "mtime": 1794908812.058111,
-    "seen": 1794909452.567605,
-    "ast_hash": "5a6820512ec70892e316c809851fd6d8",
+    "mtime": 1795430728.7745073,
+    "seen": 1795430865.4679601,
+    "ast_hash": "82b6ec066d1bf6f1b91986506561b5c7",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/CalendarDockWidget.swift": {
@@ -7482,9 +7482,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift": {
-    "mtime": 1795018542.1083245,
-    "seen": 1795018623.830889,
-    "ast_hash": "2d14cbf012974e8e3add6f17da4c91f9",
+    "mtime": 1795430737.1717913,
+    "seen": 1795430865.468095,
+    "ast_hash": "0d9067c9b985eead30f5b0a8d2fdf28f",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockVpnWidgetView.swift": {
@@ -7500,9 +7500,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795314650.0273628,
-    "seen": 1795315266.2484128,
-    "ast_hash": "6b821fbad02c43812d8bc40589a159a7",
+    "mtime": 1795430731.0897598,
+    "seen": 1795430865.4682932,
+    "ast_hash": "a1cb10e2e75a5376bb4a66a5b04469da",
     "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
