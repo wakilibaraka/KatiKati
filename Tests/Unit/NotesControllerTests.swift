@@ -157,4 +157,14 @@ final class NotesControllerTests: XCTestCase {
         c.move(id: d.id, by: 0)
         XCTAssertEqual(changes, 1, "no-op does not notify")
     }
+
+    func testArchivePersistsAndCanBeReversed() throws {
+        let c = try makeController()
+        let n = c.create(body: "archive me")
+        c.setArchived(id: n.id, true)
+        XCTAssertTrue(c.note(id: n.id)?.archived == true)
+        XCTAssertTrue(try diskNotes().first?.archived == true)
+        c.setArchived(id: n.id, false)
+        XCTAssertFalse(c.note(id: n.id)?.archived == true)
+    }
 }

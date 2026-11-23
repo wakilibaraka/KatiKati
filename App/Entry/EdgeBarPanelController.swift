@@ -227,9 +227,9 @@ final class EdgeBarPanelController {
         if hasNotes, let notes = model.showsFan ? notesProvider() : (observedNotes ?? notesPeek()) {
             if observedNotes !== notes {
                 observedNotes = notes
-                model.tabs = notes.notes.filter { !$0.archived }
+                model.tabs = notes.notes
                 notesCancellable = notes.$notes.receive(on: DispatchQueue.main).sink { [weak self] list in
-                    self?.model.tabs = list.filter { !$0.archived }
+                    self?.model.tabs = list
                     self?.applyFrame()
                 }
             }

@@ -21,7 +21,24 @@ struct NoteSheetView: View {
         ZStack(alignment: .bottom) {
             if let note {
                 VStack(spacing: 0) {
+                    if let error = controller.lastError {
+                        Text(error)
+                            .font(.caption2)
+                            .foregroundStyle(.red)
+                            .lineLimit(2)
+                            .padding(.horizontal, 10)
+                            .padding(.top, 6)
+                    }
                     header(note, palette: palette)
+                    TextField("Note", text: Binding(
+                        get: { controller.note(id: noteID)?.title ?? "" },
+                        set: { controller.edit(id: noteID, title: $0) }
+                    ))
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(palette.inkColor)
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 6)
                     NoteBodyEditor(text: Binding(
                         get: { controller.note(id: noteID)?.body ?? "" },
                         set: { controller.edit(id: noteID, body: $0) }
@@ -77,6 +94,12 @@ struct NoteSheetView: View {
             }
             .buttonStyle(.plain)
             .help(note.pinned ? Text("Unpin") : Text("Pin"))
+            Button { controller.setArchived(id: noteID, !note.archived); onClose() } label: {
+                Image(systemName: note.archived ? "archivebox.fill" : "archivebox")
+                    .foregroundColor(palette.inkColor.opacity(0.75))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Archive"))
             Button { controller.delete(id: noteID) } label: {
                 Image(systemName: "trash").foregroundColor(palette.inkColor.opacity(0.75))
             }

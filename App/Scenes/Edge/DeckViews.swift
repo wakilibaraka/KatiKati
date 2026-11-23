@@ -36,6 +36,7 @@ final class DeckViewModel: ObservableObject {
     /// The panel is fan-sized (stays true while the exit animation plays, until the panel shrinks to the pill).
     @Published var showsFan = false
     @Published var showAll = false
+    @Published var showArchived = false
     @Published var tabs: [Note] = []
     @Published var buttons: [DeckButton] = []
     @Published var tileStyle: EdgeTileStyle = .glass
@@ -70,8 +71,12 @@ final class DeckViewModel: ObservableObject {
     var metrics: DeckMetrics { DeckMetrics(scale: CGFloat(scale)) }
     var deckFont: DeckFont { DeckFont(postScript: tabFont, scale: CGFloat(scale)) }
 
-    var visibleTabs: [Note] { showAll ? tabs : Array(tabs.prefix(DeckGeometry.fanLimit)) }
-    var hiddenCount: Int { showAll ? 0 : max(0, tabs.count - DeckGeometry.fanLimit) }
+    var filteredTabs: [Note] { tabs.filter { showArchived || !$0.archived } }
+    var visibleTabs: [Note] {
+        let filtered = filteredTabs
+        return showAll ? filtered : Array(filtered.prefix(DeckGeometry.fanLimit))
+    }
+    var hiddenCount: Int { showAll ? 0 : max(0, filteredTabs.count - DeckGeometry.fanLimit) }
 
     /// One layout used by both the view and the controller's panel sizing.
     func layout(panelHeight: CGFloat) -> DeckLayout {
@@ -93,7 +98,7 @@ final class DeckViewModel: ObservableObject {
 
     /// Items that give the pill its dashes: note tabs + button accents so 1 note never collapses the pill.
     var pillItemCount: Int {
-        let raw = max(1, tabs.count + buttons.count)
+        let raw = max(1, filteredTabs.count + buttons.count)
         return collapseToButton ? min(3, raw) : raw
     }
 }
@@ -372,6 +377,21 @@ struct DeckFanView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: model.onRight ? .topTrailing : .topLeading)
             .padding(.top, max(0, (geo.size.height - (layout.stackHeight + (model.barStyle == .bezelDock ? 20 * CGFloat(model.scale) : 0))) / 2))
+            .overlay(alignment: model.onRight ? .topTrailing : .topLeading) {
+                Button {
+                    model.showArchived.toggle()
+                    model.showAll = false
+                } label: {
+                    Image(systemName: model.showArchived ? "archivebox.fill" : "archivebox")
+                        .font(.system(size: 10, weight: .semibold))
+                        .padding(5)
+                        .background(.black.opacity(0.25), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.white.opacity(0.8))
+                .help(Text("Archive"))
+                .padding(model.onRight ? .trailing : .leading, 4)
+            }
         }
     }
 
