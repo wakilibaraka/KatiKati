@@ -177,12 +177,23 @@ final class AppMembershipControllerTests: XCTestCase {
         let bundleID = "com.example.app"
         drawer.add(bundleID)
 
+        let defaultStripItems = LauncherMembershipItem.items(
+            surface: .strip,
+            bundleID: bundleID,
+            isKept: false,
+            isMessaging: false,
+            controller: controller,
+            showPinAsAppIcon: false
+        )
+        XCTAssertFalse(defaultStripItems.contains { $0.label == String(localized: "Pin as App Icon") })
+
         let unchecked = try XCTUnwrap(LauncherMembershipItem.items(
             surface: .strip,
             bundleID: bundleID,
             isKept: false,
             isMessaging: false,
-            controller: controller
+            controller: controller,
+            showPinAsAppIcon: true
         ).last)
         XCTAssertEqual(unchecked.label, String(localized: "Pin as App Icon"))
         XCTAssertEqual(unchecked.isChecked, false)

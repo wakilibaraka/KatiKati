@@ -6936,3 +6936,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### DO-9c — Onboarding App Icon Style & Detached Capsule Modularity Pickers (landed 2026-11-23)
 
 - `App/Scenes/WelcomeGuideView.swift` & `App/Entry/AppDelegate.swift`: added live-applying `App Icons` preset picker (`layoutStep`) and modular `Detached Capsule` picker (`widgetsStep`) backed by `AppSettingsStore`. Zero `project.pbxproj` edits.
+
+### DO-10 — Full Suite, Re-Sign, Visual Livecheck Polish & Final Gates (landed 2026-11-23)
+
+- `Tests/Unit/AppMembershipControllerTests.swift`: aligned `testMessagingMenuDescriptorRoundTripPreservesAsymmetricSemantics` with `DO-6` default (`showPinAsAppIcon == false` keeps `"Keep in Dock"` only, while verifying `showPinAsAppIcon: true` preserves `"Pin as App Icon"` round-trip).
+- `App/Scenes/SettingsLayoutPane+Widgets.swift`: fixed `Bar Widgets` `widgetListCap` and added clipping + divider so `Presets` never overlaps the widget order list; aligned `Dock Layout` slot toggles in a right column and filtered the retired `.drawer` slot row.
+- Verified with full `KatiKatiTests` suite via `./Scripts/build_and_run.sh --test` (3,659 executed, 2 skipped, 0 failures), re-signed & verified (`--check-signing`), `live_check_settings_tabs.py` across all 32 Settings tabs + screenshot inspection of `Dock Layout`, `App Icons & Hover`, `Bar Widgets`, `Widget Wings`, `Launcher`, and live Dock strip/capsule/wings, plus `check_localization.py` (2,364 keys × 12 locales), `check_debug_switches.py` (94 switches), and `check_availability_warnings.py /tmp/katikati-test.log` (0 warnings). Zero `project.pbxproj` edits.

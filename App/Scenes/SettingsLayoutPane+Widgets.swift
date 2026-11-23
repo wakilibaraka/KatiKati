@@ -113,31 +113,43 @@ extension SettingsLayoutPane {
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
-            ForEach(Array(store.dockSlotLayout.items.enumerated()), id: \.element.item) { index, entry in
+            let slotEntries = store.dockSlotLayout.items.filter { $0.item != .drawer }
+            ForEach(Array(slotEntries.enumerated()), id: \.element.item) { index, entry in
                 SettingsDivider()
                 HStack(spacing: SettingsMetrics.controlSpacing) {
+                    Text(entry.item.title)
+                    Spacer(minLength: SettingsMetrics.controlSpacing)
                     Toggle(isOn: Binding(
                         get: { !(store.dockSlotLayout.items.first { $0.item == entry.item }?.isHidden ?? false) },
                         set: { store.setDockSlotItem(entry.item, hidden: !$0) }
                     )) {
-                        Text(entry.item.title)
+                        EmptyView()
                     }
+                    .labelsHidden()
                     .toggleStyle(.switch)
-                    Spacer(minLength: SettingsMetrics.controlSpacing)
+                    .accessibilityLabel(Text(entry.item.title))
                     Button {
-                        store.moveDockSlotItem(entry.item, by: -1)
+                        let items = store.dockSlotLayout.items
+                        if let raw = items.firstIndex(where: { $0.item == entry.item }),
+                           let target = items[..<raw].lastIndex(where: { $0.item != .drawer }) {
+                            store.moveDockSlotItem(entry.item, by: target - raw)
+                        }
                     } label: {
                         Image(systemName: "chevron.up")
                     }
                     .buttonStyle(.borderless)
                     .disabled(index == 0)
                     Button {
-                        store.moveDockSlotItem(entry.item, by: 1)
+                        let items = store.dockSlotLayout.items
+                        if let raw = items.firstIndex(where: { $0.item == entry.item }),
+                           let target = items.indices.dropFirst(raw + 1).first(where: { items[$0].item != .drawer }) {
+                            store.moveDockSlotItem(entry.item, by: target - raw)
+                        }
                     } label: {
                         Image(systemName: "chevron.down")
                     }
                     .buttonStyle(.borderless)
-                    .disabled(index == store.dockSlotLayout.items.count - 1)
+                    .disabled(index == slotEntries.count - 1)
                 }
             }
             SettingsDivider()
@@ -261,9 +273,12 @@ extension SettingsLayoutPane {
                 .padding(.horizontal, -Self.listRowChromeInset)
                 .frame(height: min(Self.widgetListHeight(count: store.widgetLayout.order.count),
                                    widgetListCap))
+                .clipped()
             } else {
                 widgetCatalogList
+                    .clipped()
             }
+            SettingsDivider()
             HStack(spacing: SettingsMetrics.controlSpacing) {
                 presetControls
                 Spacer(minLength: SettingsMetrics.controlSpacing)
@@ -381,15 +396,8 @@ extension SettingsLayoutPane {
     /// row its 41 pt back and the page stays inside the 1074 pt clamp either way (measured 1061 pt with
     /// the presets off, `DOCK_SETTINGS_PAGE_HEIGHT`).
     var widgetListCap: CGFloat {
-        // Three feedback pickers (DA-2) sit above the list: give them their 41 pt rows back.
-        let pickerRows = 3 * (Self.widgetRowHeight + 4)
-        // Slice G's search row sits between the pickers and the list; it takes a row's height from the list.
         let searchRow = Self.widgetRowHeight + 4
-        // Dock II Wings quick row + Utility Popups row take one row each so the page stays under 1074 pt.
-        let wingRow = Self.widgetRowHeight + 4
-        let utilityPopupsRow = Self.widgetRowHeight + 4
-        let previewHeight: CGFloat = stageVisible ? 0 : 62
-        return max(Self.widgetRowHeight, Self.widgetListMaxHeight - pickerRows - searchRow - wingRow - utilityPopupsRow - previewHeight
+        return max(Self.widgetRowHeight * 4, Self.widgetListMaxHeight - searchRow
             - (store.contextPresetsEnabled ? Self.widgetRowHeight + 4 : 0))
     }
 
