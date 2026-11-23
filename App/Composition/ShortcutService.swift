@@ -51,7 +51,20 @@ final class ShortcutService {
             case .hold(let key):
                 holdActions[key, default: []].append(action)
             case .hyper:
-                break   // fired by `HyperkeyService`, which reads the same bindings
+                // The Hyperkey service owns the primary trigger. Option+Shift+V is a clash-free
+                // fallback while Hyper Key is off.
+                if action == .clipboardMenu {
+                    let fallback = ShortcutKey(
+                        keyCode: 9,
+                        modifiers: ShortcutKey.option | ShortcutKey.shift
+                    )
+                    let monitor = GlobalHotKeyMonitor(shortcut: Self.shortcut(for: action, key: fallback)) { [weak self] in
+                        self?.onAction(action)
+                    }
+                    if monitor.start() == .registered { hotKeys[action] = monitor } else {
+                        failed[action] = String(format: String(localized: "%@ is taken by macOS or another app, so it is not active."), fallback.glyphs)
+                    }
+                }
             }
         }
         ShortcutRegistrationState.shared.failures = failed

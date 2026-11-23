@@ -1,5 +1,61 @@
 import Foundation
 
+struct DownloadSegment: Equatable, Sendable {
+    let index: Int
+    let start: Int64
+    let end: Int64
+    var completedBytes: Int64 = 0
+    var length: Int64 { end - start + 1 }
+    var remainingBytes: Int64 { max(0, length - completedBytes) }
+    var rangeHeader: String { "bytes=\(start)-\(end)" }
+}
+
+struct DownloadSegmentPlan: Equatable, Sendable {
+    let segments: [DownloadSegment]
+    let isMultiSegment: Bool
+    var totalBytes: Int64 { segments.reduce(0) { $0 + $1.length } }
+    var completedBytes: Int64 { segments.reduce(0) { $0 + $1.completedBytes } }
+    var remainingBytes: Int64 { max(0, totalBytes - completedBytes) }
+    func speedAndETA(bytesPerSecond: Int64, now: Date = Date()) -> (speed: Int64, eta: Int64?) {
+        let speed = max(0, bytesPerSecond)
+        guard speed > 0 else { return (0, nil) }
+        return (speed, max(0, remainingBytes / speed))
+    }
+}
+
+enum DownloadSegmentPlanner {
+    static let defaultSegmentCount = 4
+    static let minimumSegmentBytes: Int64 = 1_048_576
+
+    static func plan(contentLength: Int64?, acceptRanges: Bool, segmentCount: Int = defaultSegmentCount,
+                     minimumSegmentBytes: Int64 = DownloadSegmentPlanner.minimumSegmentBytes) -> DownloadSegmentPlan {
+        guard let length = contentLength, length > 0, acceptRanges, segmentCount > 1,
+              length >= minimumSegmentBytes * 2 else {
+            let length = contentLength ?? 0
+            return DownloadSegmentPlan(
+                segments: length > 0 ? [DownloadSegment(index: 0, start: 0, end: length - 1)] : [],
+                isMultiSegment: false
+            )
+        }
+        let maximumSegments = max(1, length / max(1, minimumSegmentBytes))
+        let count = min(segmentCount, Int(maximumSegments), 16)
+        guard count > 1 else {
+            return DownloadSegmentPlan(segments: [DownloadSegment(index: 0, start: 0, end: length - 1)], isMultiSegment: false)
+        }
+        let base = length / Int64(count)
+        let remainder = length % Int64(count)
+        var cursor: Int64 = 0
+        var segments: [DownloadSegment] = []
+        for index in 0..<count {
+            let extra = Int64(index < Int(remainder) ? 1 : 0)
+            let end = cursor + base + extra - 1
+            segments.append(DownloadSegment(index: index, start: cursor, end: end))
+            cursor = end + 1
+        }
+        return DownloadSegmentPlan(segments: segments, isMultiSegment: true)
+    }
+}
+
 // MARK: - Download Types & State
 
 public enum DownloadType: String, Codable, CaseIterable, Sendable {

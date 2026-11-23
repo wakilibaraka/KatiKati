@@ -439,6 +439,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 // One cheat sheet, one entry point: the shortcut opens the same overlay the
                 // Commands settings card and the notch's Tools button open.
                 case .showCheatSheet: ShortcutCheatSheetService.shared.toggle(pinned: true)
+                case .clipboardMenu: self.panelCoordinator?.toggleClipboardPopup(at: NSEvent.mouseLocation)
                 case .pinboard: self.controlCenterPanel.toggle()
                 case .quickSettings: self.controlCenterPanel.toggle()
                 case .drawer: self.panelCoordinator?.toggleDrawer()

@@ -5,6 +5,7 @@ import os.log
 
 @MainActor
 public final class WeatherService: NSObject, ObservableObject, CLLocationManagerDelegate {
+    @MainActor public static let shared = WeatherService()
     @Published public private(set) var currentState: WeatherState = .empty
     /// 5g-B: saved cities (≤5) and which place the panel/pill show. `.current` = device location.
     @Published public private(set) var savedCities: SavedCities

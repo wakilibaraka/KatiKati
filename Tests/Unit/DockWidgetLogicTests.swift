@@ -367,9 +367,8 @@ final class GlanceStackTests: XCTestCase {
 /// Slice SD-1/SD-2 — the Side Deck's rail tabs, badges and keyboard selection, all pure.
 final class SideDeckLogicTests: XCTestCase {
     func testNotificationsTabSitsRightAfterWindows() {
-        // `scratchpad` (OW-3) and `markets` (OW-5b) are appended last, so the bell still sits right after Windows.
         XCTAssertEqual(SideDeckTab.allCases.map(\.rawValue),
-                       ["windows", "notifications", "layouts", "emoji", "clipboard", "tendedero", "scratchpad", "markets"])
+                       ["windows", "notifications", "downloads", "storage", "weather", "quickAccess", "aiMissionControl", "layouts", "emoji", "clipboard", "tendedero", "scratchpad", "markets"])
         XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")
         XCTAssertEqual(SideDeckTab.notifications.title, "Notifications")
     }
@@ -377,6 +376,10 @@ final class SideDeckLogicTests: XCTestCase {
     func testPlaceholdersNameWhatEachTabFilters() {
         XCTAssertEqual(SideDeckSearch.placeholder(for: .windows), "Search windows")
         XCTAssertEqual(SideDeckSearch.placeholder(for: .notifications), "Search notifications")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .downloads), "Search downloads")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .storage), "Search storage")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .weather), "Search weather")
+        XCTAssertEqual(SideDeckSearch.placeholder(for: .quickAccess), "Search quick access")
         XCTAssertEqual(SideDeckSearch.placeholder(for: .clipboard), "Search clipboard")
         XCTAssertEqual(SideDeckSearch.placeholder(for: .tendedero), "Search shelf")
         XCTAssertEqual(SideDeckTab.allCases.map(\.searchPlaceholder).count, SideDeckTab.allCases.count)

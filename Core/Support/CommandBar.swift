@@ -337,6 +337,63 @@ enum JSONPrettyPrinter {
     }
 }
 
+struct CommandBarLearning: Equatable, Codable, Sendable {
+    static let key = "com.katikati.commandbar.learning"
+    var pinnedIDs: Set<String> = []
+    var hiddenIDs: Set<String> = []
+    var aliases: [String: String] = [:]
+
+    static let essentials: [BarMacro] = [.lock, .darkMode, .keepAwake, .emptyTrash, .snapCenter]
+
+    func resolvedQuery(_ query: String) -> String {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return aliases[trimmed.lowercased()] ?? query
+    }
+
+    func visible(_ app: LauncherApp) -> Bool {
+        !hiddenIDs.contains(app.bundleID)
+    }
+}
+
+enum CommandBarSizePreset: String, CaseIterable, Sendable {
+    case compact, standard, wide
+
+    var size: CGSize {
+        switch self {
+        case .compact: return CGSize(width: 560, height: 320)
+        case .standard: return CGSize(width: 640, height: 380)
+        case .wide: return CGSize(width: 720, height: 440)
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .compact: return "Compact"
+        case .standard: return "Standard"
+        case .wide: return "Wide"
+        }
+    }
+}
+
+enum CommandBarPositionPreset: String, CaseIterable, Sendable {
+    case upperThird, center
+
+    var title: String {
+        switch self {
+        case .upperThird: return "Upper Third"
+        case .center: return "Center"
+        }
+    }
+}
+
+enum CommandBarFrecency {
+    static func score(_ usage: LauncherUsage, now: Date, halfLife: TimeInterval = 7 * 86_400) -> Double {
+        guard usage.launches > 0 else { return 0 }
+        let age = max(0, now.timeIntervalSince(usage.lastLaunched))
+        return Double(usage.launches) * pow(0.5, age / halfLife)
+    }
+}
+
 enum CommandBarResults {
     /// The rows for `query`. Math/web → answer rows; the word routes (`/` `>` `:` `!`) → their own rows;
     /// plain search → generator / custom / app matches, each running app's Quit row right after it.
@@ -353,21 +410,34 @@ enum CommandBarResults {
                       events: [EventEntry] = [],
                       menuItems: [MenuSearchEntry] = [],
                       profiles: [BarProfileSummary] = [],
+                      learning: CommandBarLearning = .init(),
+                      now: Date = Date(),
                       generate: (CommandGenerator) -> String = { $0.value() }) -> [CommandBarResult] {
         if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return apps.filter { (usage[$0.bundleID]?.launches ?? 0) > 0 }
+            let pinned = apps.filter { learning.pinnedIDs.contains($0.bundleID) && learning.visible($0) }
+            let suggested = CommandBarLearning.essentials.map(CommandBarResult.action)
+            let mostUsed = apps.filter { (usage[$0.bundleID]?.launches ?? 0) > 0 && learning.visible($0) }
                 .sorted { a, b in
                     let left = usage[a.bundleID]!, right = usage[b.bundleID]!
-                    if left.launches != right.launches { return left.launches > right.launches }
+                    let leftScore = CommandBarFrecency.score(left, now: now)
+                    let rightScore = CommandBarFrecency.score(right, now: now)
+                    if leftScore != rightScore { return leftScore > rightScore }
                     if left.lastLaunched != right.lastLaunched { return left.lastLaunched > right.lastLaunched }
                     return LauncherAppIndex.nameOrder(a, b)
-                }.prefix(8).map(CommandBarResult.app)
+                }
+            return (pinned.map(CommandBarResult.app) + suggested + mostUsed.map(CommandBarResult.app))
+                .reduce(into: [CommandBarResult]()) { rows, row in
+                    if !rows.contains(row) { rows.append(row) }
+                }
+                .prefix(12)
+                .map { $0 }
         }
-        let keyword = CommandKeyword.parse(query)
+        let resolvedQuery = learning.resolvedQuery(query)
+        let keyword = CommandKeyword.parse(resolvedQuery)
         if case .mode(let mode, let argument)? = keyword {
             return modeRows(mode, argument, apps: apps, usage: usage, running: running, processes: processes, files: files, clips: clips, bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles)
         }
-        if let token = CommandBarQueryParser.parse(query, quicklinks: quicklinks).token {
+        if let token = CommandBarQueryParser.parse(resolvedQuery, quicklinks: quicklinks).token {
             switch token.scope {
             case .googleSearch:
                 return token.remainingQuery.isEmpty ? [] : [.answer(.web(query: token.remainingQuery))]
@@ -377,7 +447,7 @@ enum CommandBarResults {
                 break
             }
         }
-        let routed = LauncherCommandParser.parse(query)
+        let routed = LauncherCommandParser.parse(resolvedQuery)
         switch routed {
         case .process(let term):
             return processRows(term, processes)
@@ -391,7 +461,7 @@ enum CommandBarResults {
             return LauncherAnswers.answers(for: routed).map(CommandBarResult.answer)
         case .apps(let term):
             if term.lowercased() == "trash" { return [.trash(.open), .trash(.empty)] }
-            var rows = appRows(term, apps: apps, usage: usage, running: running, custom: custom, quicklinks: quicklinks, generate: generate)
+            var rows = appRows(term, apps: apps.filter(learning.visible), usage: usage, running: running, custom: custom, quicklinks: quicklinks, generate: generate)
             if case .macro(let macro)? = keyword { rows.insert(.action(macro), at: 0) }
 
             // Guarded inline math check (e.g. 24 * 7, 100 / 4)

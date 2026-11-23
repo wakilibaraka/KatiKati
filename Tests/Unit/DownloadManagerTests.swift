@@ -4,6 +4,34 @@ import XCTest
 
 final class DownloadManagerTests: XCTestCase {
 
+    func testSegmentPlannerSplitsContiguouslyAndDeterministically() {
+        let plan = DownloadSegmentPlanner.plan(contentLength: 10_000_000, acceptRanges: true, segmentCount: 4)
+        XCTAssertTrue(plan.isMultiSegment)
+        XCTAssertEqual(plan.segments.count, 4)
+        XCTAssertEqual(plan.segments.map { $0.rangeHeader },
+                       ["bytes=0-2499999", "bytes=2500000-4999999", "bytes=5000000-7499999", "bytes=7500000-9999999"])
+        XCTAssertEqual(plan.totalBytes, 10_000_000)
+    }
+
+    func testSegmentPlannerFallsBackForUnknownOrUnsupportedRanges() {
+        XCTAssertFalse(DownloadSegmentPlanner.plan(contentLength: nil, acceptRanges: true).isMultiSegment)
+        XCTAssertFalse(DownloadSegmentPlanner.plan(contentLength: 10_000_000, acceptRanges: false).isMultiSegment)
+        XCTAssertFalse(DownloadSegmentPlanner.plan(contentLength: 100, acceptRanges: true).isMultiSegment)
+        let unknown = DownloadSegmentPlanner.plan(contentLength: nil, acceptRanges: true)
+        XCTAssertTrue(unknown.segments.isEmpty)
+    }
+
+    func testSegmentProgressAndETA() {
+        let segments = [
+            DownloadSegment(index: 0, start: 0, end: 499, completedBytes: 250),
+            DownloadSegment(index: 1, start: 500, end: 999, completedBytes: 100)
+        ]
+        let plan = DownloadSegmentPlan(segments: segments, isMultiSegment: true)
+        XCTAssertEqual(plan.completedBytes, 350)
+        XCTAssertEqual(plan.remainingBytes, 650)
+        XCTAssertEqual(plan.speedAndETA(bytesPerSecond: 100).eta, 6)
+    }
+
     func testMagnetURIParserValid() {
         let uri = "magnet:?xt=urn:btih:c12fe1c06bba254a9dc9f519b335380dc1f74c38&dn=Ubuntu+24.04+LTS&tr=https%3A%2F%2Ftorrent.ubuntu.com%2Fannounce&xl=5400000000"
         let parsed = MagnetURIParser.parse(uri)

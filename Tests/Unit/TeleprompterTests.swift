@@ -3,6 +3,17 @@ import XCTest
 
 // Phase 37a — teleprompter pure rules.
 final class TeleprompterTests: XCTestCase {
+    func testTeleprompterDefaultMigrationRunsOnceAndDefaultsOff() {
+        let suiteName = "TeleprompterDefaultMigrationTests.\(UUID())"
+        let d = UserDefaults(suiteName: suiteName)!
+        d.set(true, forKey: TeleprompterModel.enabledKey)
+        NotchPage.migrateTeleprompterDefaultOff(in: d)
+        XCTAssertFalse(d.bool(forKey: TeleprompterModel.enabledKey))
+        XCTAssertTrue(d.bool(forKey: NotchPage.teleprompterDefaultMigrationKey))
+        d.set(true, forKey: TeleprompterModel.enabledKey)
+        NotchPage.migrateTeleprompterDefaultOff(in: d)
+        XCTAssertTrue(d.bool(forKey: TeleprompterModel.enabledKey), "a later explicit opt-in survives")
+    }
     func testSpeedScalesWithWPMAndFont() {
         let slow = TeleprompterSpeed.pointsPerSecond(wpm: 100, fontSize: 30)
         XCTAssertGreaterThan(TeleprompterSpeed.pointsPerSecond(wpm: 200, fontSize: 30), slow)

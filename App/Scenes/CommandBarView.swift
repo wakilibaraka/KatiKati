@@ -37,6 +37,9 @@ final class CommandBarModel: ObservableObject {
     var events: [EventEntry] = []
     var menuItems: [MenuSearchEntry] = []
     var profiles: [BarProfileSummary] = []
+    var learning = (try? UserDefaults.standard.data(forKey: CommandBarLearning.key).flatMap {
+        try JSONDecoder().decode(CommandBarLearning.self, from: $0)
+    }) ?? CommandBarLearning()
 
     private var cachedWifi: (password: String, date: Date)?
     private var isFetchingWifiPassword = false
@@ -78,6 +81,7 @@ final class CommandBarModel: ObservableObject {
         let built = CommandBarResults.build(query: query, apps: apps, usage: usage, running: running,
                                             custom: custom, quicklinks: quicklinks, processes: processes, files: files, clips: clips,
                                             bookmarks: bookmarks, events: events, menuItems: menuItems, profiles: profiles,
+                                            learning: learning,
                                             generate: { [weak self] in self?.generateValue(for: $0) ?? "" })
         let isEmptyQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let grouped = CommandBarSectionStore.group(built, isEmptyQuery: isEmptyQuery)
@@ -117,6 +121,11 @@ struct CommandBarView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("com.katikati.commandbar.size") private var sizePreset = CommandBarSizePreset.standard.rawValue
+
+    private var panelSize: CGSize {
+        CommandBarSizePreset(rawValue: sizePreset)?.size ?? CommandBarSizePreset.standard.size
+    }
 
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
 
@@ -227,7 +236,7 @@ struct CommandBarView: View {
             Divider().opacity(0.22)
             footer
         }
-        .frame(width: 640, height: 380)
+        .frame(width: panelSize.width, height: panelSize.height)
         .background(DockPanelBackdrop(theme: theme, cornerRadius: 16, usesLiquidGlass: false))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .dockPanelRim(cornerRadius: 16, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth, usesLiquidGlass: false)

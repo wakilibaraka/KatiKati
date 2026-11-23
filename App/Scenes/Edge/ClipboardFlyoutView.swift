@@ -1126,7 +1126,9 @@ struct DockClipboardUtilityHostedView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    @ViewBuilder
     private func compactClipboardRow(_ entry: ClipEntry) -> some View {
+        let selected = hoveredID == entry.id
         HStack(spacing: 8) {
             Image(systemName: entry.pinned ? "pin.fill" : "doc.text")
                 .font(.system(size: 10.5)).foregroundStyle(entry.pinned ? Color.orange : .white.opacity(0.6))
@@ -1141,8 +1143,17 @@ struct DockClipboardUtilityHostedView: View {
             }.buttonStyle(.plain)
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(white: 0.14).opacity(0.92)))
-        .onTapGesture { monitor.copy(entry) }
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(selected ? Color.white.opacity(0.20) : Color(white: 0.10).opacity(0.96))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(Color.white.opacity(selected ? 0.42 : 0.14), lineWidth: 1)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .onHover { hoveredID = $0 ? entry.id : (hoveredID == entry.id ? nil : hoveredID) }
+        .onTapGesture { monitor.pastePlain(entry); onClose() }
         .onDrag { NSItemProvider(object: entry.text as NSString) }
     }
 

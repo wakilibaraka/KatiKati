@@ -686,11 +686,31 @@ struct LauncherSettingsBlock: View {
 struct CommandBarSettingsBlock: View {
     var tabState: SettingsTabState? = nil
     @AppStorage("com.katikati.commandbar.hints") private var commandHints = true
+    @AppStorage("com.katikati.commandbar.position") private var position = CommandBarPositionPreset.upperThird.rawValue
+    @AppStorage("com.katikati.commandbar.size") private var size = CommandBarSizePreset.standard.rawValue
     @AppStorage(Quicklink.key) private var quicklinks = ""
 
     var body: some View {
         SettingsCard(Text("Command Bar")) {
             SettingsToggleRow(Text("Show Command Hints"), isOn: $commandHints)
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Position"),
+                selection: $position
+            ) {
+                ForEach(CommandBarPositionPreset.allCases, id: \.rawValue) { option in
+                    Text(option.title).tag(option.rawValue)
+                }
+            }
+            SettingsDivider()
+            SettingsPickerRow(
+                Text("Size"),
+                selection: $size
+            ) {
+                ForEach(CommandBarSizePreset.allCases, id: \.rawValue) { option in
+                    Text(option.title).tag(option.rawValue)
+                }
+            }
             SettingsDivider()
             SettingsEditorRow(
                 Text("Quicklinks"),
@@ -722,7 +742,7 @@ struct NotchHelpersSettingsBlock: View {
     /// PHN-4: the wellness helpers ship on, so their switches read `WellnessDefaults` rather than an
     /// `@AppStorage` default of `false` (which cannot tell "unset" from "off").
     @ObservedObject private var hydro = HydrationController.shared
-    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = true
+    @AppStorage(TeleprompterModel.enabledKey) private var teleprompterPage = false
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
     @AppStorage(LyricsTrack.enabledKey) private var syncedLyrics = false

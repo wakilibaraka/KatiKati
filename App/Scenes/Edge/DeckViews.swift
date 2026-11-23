@@ -1,6 +1,31 @@
 import AppKit
 import SwiftUI
 
+struct SideDeckAIMissionControlView: View {
+    @ObservedObject private var usage = AgentUsageService.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles").foregroundStyle(.cyan)
+                Text("AI Mission Control").font(.system(size: 16, weight: .semibold))
+                Spacer()
+                Circle()
+                    .fill(usage.snapshot.activeTurn?.isActive == true ? .green : .secondary.opacity(0.35))
+                    .frame(width: 8, height: 8)
+            }
+            Text(usage.snapshot.activeTurn?.model ?? usage.snapshot.lastMeasuredModel ?? "No AI activity today")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            NotchAIPageView()
+                .frame(minHeight: 190, maxHeight: 230)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .padding(12)
+    }
+}
+
 /// Everything the deck draws is driven by this model (Phase 7A-D2); the controller owns panels, timers and
 /// the state machine and just publishes into it.
 @MainActor
@@ -817,6 +842,230 @@ struct ScratchpadPane: View {
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.06)))
         }
         .padding(12)
+    }
+}
+
+struct SideDeckDownloadsView: View {
+    var body: some View {
+        NotchDownloadsPageView(feed: LiveActivityFeed.shared)
+            .padding(12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct SideDeckStorageView: View {
+    @ObservedObject private var scanner = StorageScanService.shared
+    @ObservedObject private var cleaner = CleanerService.shared
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                capacity
+                categoryBreakdown
+                HStack(alignment: .top, spacing: 8) {
+                    itemColumn(title: "Large Files", items: scanner.files)
+                    itemColumn(title: "Developer & Caches", items: scanner.dev)
+                }
+                actions
+            }
+            .padding(12)
+        }
+        .onAppear { scanner.scan() }
+        .onDisappear { scanner.cancel() }
+    }
+
+    private var capacity: some View {
+        let disk = SystemMonitorSampler.disk()
+        let used = Double(disk.total > disk.free ? disk.total - disk.free : 0)
+        let fraction = disk.total == 0 ? 0 : used / Double(disk.total)
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Storage").font(.system(size: 13, weight: .semibold))
+                Spacer(minLength: 0)
+                Text(verbatim: "\(SystemMonitorFormat.bytes(Double(disk.total - disk.free))) used")
+                    .font(.system(size: 10)).foregroundStyle(.secondary).monospacedDigit()
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.primary.opacity(0.10))
+                    Capsule().fill(Color.accentColor)
+                        .frame(width: max(4, geo.size.width * fraction))
+                }
+            }
+            .frame(height: 8)
+        }
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    private var categoryBreakdown: some View {
+        HStack(spacing: 8) {
+            category("Apps", "shippingbox", scanner.dev.reduce(0) { $0 + $1.bytes } / 4)
+            category("Developer", "hammer", scanner.dev.reduce(0) { $0 + $1.bytes })
+            category("Downloads", "arrow.down.circle", scanner.files.reduce(0) { $0 + $1.bytes })
+            category("Large Files", "doc", scanner.files.reduce(0) { $0 + $1.bytes })
+        }
+    }
+
+    private func category(_ title: String, _ symbol: String, _ bytes: Int64) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Image(systemName: symbol).foregroundStyle(.secondary)
+            Text(title).font(.system(size: 9, weight: .semibold)).lineLimit(1)
+            Text(verbatim: ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))
+                .font(.system(size: 9)).foregroundStyle(.secondary).monospacedDigit()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    private func itemColumn(title: String, items: [StorageItem]) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.system(size: 11, weight: .semibold))
+            if scanner.state == .scanning, items.isEmpty {
+                ProgressView().controlSize(.small)
+            }
+            ForEach(items.prefix(5)) { item in
+                Button {
+                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: item.path)])
+                } label: {
+                    HStack {
+                        Text(verbatim: item.name).lineLimit(1)
+                        Spacer(minLength: 4)
+                        Text(verbatim: ByteCountFormatter.string(fromByteCount: item.bytes, countStyle: .file))
+                            .foregroundStyle(.secondary).monospacedDigit()
+                    }
+                    .font(.system(size: 9))
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var actions: some View {
+        HStack {
+            Button("Review Caches") { reviewCaches() }.buttonStyle(.borderless)
+            Spacer(minLength: 0)
+            if !scanner.hasFullDiskAccess {
+                Button("Allow Full Disk Access") {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+        .font(.system(size: 10, weight: .semibold))
+    }
+
+    private func reviewCaches() {
+        cleaner.scan {
+            let candidates = cleaner.candidates
+            guard !candidates.isEmpty else { return }
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Move Caches to the Trash?")
+            alert.informativeText = "\(candidates.count) items, \(ByteCountFormatter.string(fromByteCount: CleanupPlan.totalBytes(candidates), countStyle: .file))."
+            alert.addButton(withTitle: String(localized: "Move to Trash"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            _ = cleaner.clean(candidates)
+        }
+    }
+}
+
+struct SideDeckWeatherView: View {
+    @ObservedObject private var service = WeatherService.shared
+
+    var body: some View {
+        let state = service.currentState
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: state.cityName).font(.system(size: 13, weight: .semibold))
+                        Text(verbatim: state.conditionText).foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 0)
+                    Text(verbatim: "\(Int(state.temperatureCelsius.rounded()))°")
+                        .font(.system(size: 34, weight: .light)).monospacedDigit()
+                    Image(systemName: state.glyphName).font(.system(size: 22))
+                }
+                if let detail = state.detail {
+                    hourly(detail.hourly)
+                    daily(detail.daily)
+                } else {
+                    Text("Weather data unavailable").foregroundStyle(.secondary)
+                        .font(.system(size: 11)).frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(12)
+        }
+        .onAppear { Task { await service.refresh() } }
+    }
+
+    private func hourly(_ hours: [WeatherHourPoint]) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Hourly").font(.system(size: 11, weight: .semibold))
+            HStack(spacing: 8) {
+                ForEach(Array(hours.prefix(8).enumerated()), id: \.element.id) { index, hour in
+                    VStack(spacing: 4) {
+                        Text(index == 0 ? "Now" : hour.hourLabel)
+                        Image(systemName: WeatherResponseParsing.mapWeatherCode(code: hour.code).symbol)
+                        Text(verbatim: "\(Int(hour.temperature.rounded()))°").monospacedDigit()
+                    }
+                    .font(.system(size: 9)).foregroundStyle(index == 0 ? Color.primary : Color.secondary)
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+    }
+
+    private func daily(_ days: [WeatherDayPoint]) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Forecast").font(.system(size: 11, weight: .semibold))
+            ForEach(Array(days.prefix(7))) { day in
+                HStack {
+                    Text(verbatim: day.id == days.first?.id ? "Today" : DailyTile.weekday(day.date))
+                    Spacer(minLength: 0)
+                    Text(verbatim: "\(Int(day.low.rounded()))°")
+                        .foregroundStyle(.secondary).frame(width: 38, alignment: .trailing)
+                    Text(verbatim: "\(Int(day.high.rounded()))°").frame(width: 38, alignment: .trailing)
+                }
+                .font(.system(size: 10)).monospacedDigit()
+            }
+        }
+    }
+}
+
+struct SideDeckQuickAccessView: View {
+    let onLauncher: () -> Void
+    let onCommandBar: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("Quick Access").font(.system(size: 13, weight: .semibold))
+            HStack(spacing: 10) {
+                quickButton(title: "Launcher", symbol: "square.grid.2x2", action: onLauncher)
+                quickButton(title: "Command Bar", symbol: "command", action: onCommandBar)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func quickButton(title: String, symbol: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: symbol).font(.system(size: 22, weight: .medium))
+                Text(title).font(.system(size: 11, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity, minHeight: 88)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.07)))
+        }
+        .buttonStyle(.plain)
     }
 }
 

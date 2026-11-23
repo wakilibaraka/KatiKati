@@ -166,6 +166,7 @@ struct SettingsLayoutPane: View {
         case .translate: return String(localized: "Translate")
         // Phase 26a snap zones
         case .showCheatSheet: return String(localized: "Show Shortcuts Cheat Sheet")
+        case .clipboardMenu: return String(localized: "Cursor Clipboard Menu")
         case .snapLeftHalf: return String(localized: "Snap Left Half")
         case .snapRightHalf: return String(localized: "Snap Right Half")
         case .snapTopHalf: return String(localized: "Snap Top Half")

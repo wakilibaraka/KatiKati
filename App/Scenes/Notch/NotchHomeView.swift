@@ -34,10 +34,6 @@ struct NotchHomeView: View {
                     NotchProductivityPageView(feed: feed)
                 case .peripherals:
                     NotchPeripheralsPageView()
-                case .storage:
-                    NotchStoragePageView()
-                case .downloadDeck:
-                    NotchDownloadsPageView(feed: feed)
                 case .teleprompter:
                     NotchTeleprompterPageView()
                 case .cameraMirror:
