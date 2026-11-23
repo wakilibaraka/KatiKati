@@ -7584,15 +7584,15 @@
     "semantic_hash": ""
   },
   "Platform/Desktop/DesktopFileOperations.swift": {
-    "mtime": 1795049071.7457867,
-    "seen": 1795049366.0664399,
-    "ast_hash": "5a02c845e6a93eed585bab2a5258ff07",
+    "mtime": 1795443823.8137894,
+    "seen": 1795443910.531273,
+    "ast_hash": "bb6fe2451152b3a8fc1c0180bbaf1ad9",
     "semantic_hash": ""
   },
   "Tests/Unit/DesktopFileOperationsTests.swift": {
-    "mtime": 1795039393.7402837,
-    "seen": 1795039599.494806,
-    "ast_hash": "fe226b60a065b2deae87eb28351f7678",
+    "mtime": 1795443825.7388446,
+    "seen": 1795443910.531384,
+    "ast_hash": "9341e1a5dd42d6e77efcc44c3d70fcd0",
     "semantic_hash": ""
   },
   "App/Composition/DesktopFolderBoxModel.swift": {
