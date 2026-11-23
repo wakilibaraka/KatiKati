@@ -85,12 +85,14 @@ final class ShelfLogicTests: XCTestCase {
         let imageActions = ShelfBatchTransformAction.eligibleActions(for: [png])
         XCTAssertTrue(imageActions.contains(.zipItems))
         XCTAssertTrue(imageActions.contains(.mergeToPDF))
+        XCTAssertTrue(imageActions.contains(.removeBackground))
         XCTAssertTrue(imageActions.contains(.convertImages(format: .webp)))
         XCTAssertTrue(imageActions.contains(.copyAllPaths))
         XCTAssertTrue(imageActions.contains(.airDropShare))
 
         let pdfActions = ShelfBatchTransformAction.eligibleActions(for: [pdf])
         XCTAssertTrue(pdfActions.contains(.mergeToPDF))
+        XCTAssertFalse(pdfActions.contains(.removeBackground))
         XCTAssertFalse(pdfActions.contains(.convertImages(format: .png)))
 
         let zipActions = ShelfBatchTransformAction.eligibleActions(for: [zip])

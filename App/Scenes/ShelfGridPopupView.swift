@@ -132,6 +132,8 @@ struct ShelfGridPopupView: View {
         let compressible = urls.filter(ShelfActions.canCompress)
         let reducible = urls.filter(ShelfActions.isPDF)
         let reducibleImages = urls.filter(ShelfActions.isImage)
+        let bgRemovable = urls.filter(ShelfActions.canRemoveBackground)
+        let actions = ShelfBatchTransformAction.eligibleActions(for: urls)
         func finish() { selected = [] }
         return HStack(spacing: 4) {
             Text(String(format: String(localized: "%d selected"), urls.count))
@@ -143,6 +145,9 @@ struct ShelfGridPopupView: View {
                 for u in urls where store.isPinned(u.path) == allPinned { store.togglePin(u.path) }
             }
             barButton("doc.zipper", help: Text("Zip")) { ShelfActions.zip(urls, into: store); finish() }
+            if actions.contains(.mergeToPDF) {
+                barButton("doc.on.doc", help: Text("Merge PDF")) { mergeToPDF(urls); finish() }
+            }
             if !compressible.isEmpty {
                 barButton("arrow.down.right.and.arrow.up.left", help: Text("Compress")) { ShelfActions.compress(compressible, into: store); finish() }
             }
@@ -151,6 +156,26 @@ struct ShelfGridPopupView: View {
             }
             if !reducibleImages.isEmpty {
                 barButton("arrow.down.circle", help: Text("Reduce Image")) { ShelfActions.reduceImage(reducibleImages, into: store); finish() }
+                Menu {
+                    ForEach(ImageTargetFormat.allCases, id: \.rawValue) { fmt in
+                        Button(fmt.rawValue.uppercased()) { ShelfActions.convertImage(reducibleImages, format: fmt, into: store); finish() }
+                    }
+                } label: {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .frame(width: 26, height: 24)
+                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.12)))
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .help(Text("Convert"))
+            }
+            if !bgRemovable.isEmpty {
+                barButton("person.and.background.dotted", help: Text("Remove Background")) {
+                    ShelfActions.removeBackground(bgRemovable, into: store)
+                    finish()
+                }
             }
             barButton("square.and.arrow.up", help: Text("Share…")) { ShelfActions.share(urls); finish() }
             barButton("airplayaudio", help: Text("AirDrop")) { ShelfActions.airDrop(urls); finish() }
@@ -200,6 +225,19 @@ struct ShelfGridPopupView: View {
         }
         if ShelfActions.isImage(url) {
             items.append(ClosureMenuItem(String(localized: "Reduce Image")) { ShelfActions.reduceImage([url], into: store) })
+            if ShelfActions.canRemoveBackground(url) {
+                items.append(ClosureMenuItem(String(localized: "Remove Background")) { ShelfActions.removeBackground([url], into: store) })
+            }
+            let convertSub = NSMenu(title: String(localized: "Convert"))
+            for fmt in ImageTargetFormat.allCases {
+                convertSub.addItem(ClosureMenuItem(fmt.rawValue.uppercased()) { ShelfActions.convertImage([url], format: fmt, into: store) })
+            }
+            let convertItem = NSMenuItem(title: String(localized: "Convert"), action: nil, keyEquivalent: "")
+            convertItem.submenu = convertSub
+            items.append(convertItem)
+        }
+        if ShelfActions.isImage(url) || ShelfActions.isPDF(url) {
+            items.append(ClosureMenuItem(String(localized: "Merge PDF")) { mergeToPDF([url]) })
         }
         items.append(ClosureMenuItem(String(localized: "Zip")) { ShelfActions.zip([url], into: store) })
         if store.itemPaths.count > 1 {
@@ -477,6 +515,9 @@ extension ShelfGridPopupView {
         return HStack(spacing: 5) {
             if actions.contains(.zipItems) { pillAction("Zip") { ShelfActions.zip(urls, into: shelfStore); selected = [] } }
             if actions.contains(.mergeToPDF) { pillAction("Merge PDF") { mergeToPDF(urls) } }
+            if actions.contains(.removeBackground) {
+                pillAction("Remove Background") { ShelfActions.removeBackground(urls, into: shelfStore); selected = [] }
+            }
             if actions.contains(where: { if case .convertImages = $0 { return true }; return false }) {
                 Menu {
                     ForEach(ImageTargetFormat.allCases, id: \.rawValue) { fmt in

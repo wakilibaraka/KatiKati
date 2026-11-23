@@ -250,6 +250,7 @@ struct ShelfCardPresentation: Equatable, Sendable {
 enum ShelfBatchTransformAction: Equatable, Identifiable, Sendable {
     case zipItems
     case mergeToPDF
+    case removeBackground
     case convertImages(format: ImageTargetFormat)
     case copyAllPaths
     case airDropShare
@@ -258,6 +259,7 @@ enum ShelfBatchTransformAction: Equatable, Identifiable, Sendable {
         switch self {
         case .zipItems: return "zipItems"
         case .mergeToPDF: return "mergeToPDF"
+        case .removeBackground: return "removeBackground"
         case .convertImages(let format): return "convert.\(format.rawValue)"
         case .copyAllPaths: return "copyAllPaths"
         case .airDropShare: return "airDropShare"
@@ -268,6 +270,7 @@ enum ShelfBatchTransformAction: Equatable, Identifiable, Sendable {
         switch self {
         case .zipItems: return String(localized: "Zip")
         case .mergeToPDF: return String(localized: "Merge PDF")
+        case .removeBackground: return String(localized: "Remove Background")
         case .convertImages(let format): return format.rawValue.uppercased()
         case .copyAllPaths: return String(localized: "Copy Paths")
         case .airDropShare: return String(localized: "AirDrop")
@@ -285,6 +288,9 @@ enum ShelfBatchTransformAction: Equatable, Identifiable, Sendable {
         var actions: [ShelfBatchTransformAction] = [.zipItems]
         if hasImages || hasPDF {
             actions.append(.mergeToPDF)
+        }
+        if urls.contains(where: FileTransformPlan.canRemoveBackground) {
+            actions.append(.removeBackground)
         }
         if hasImages {
             for format in ImageTargetFormat.allCases {

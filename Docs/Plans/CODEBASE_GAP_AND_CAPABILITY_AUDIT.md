@@ -19,7 +19,7 @@
 - [x] **Quick Win #2 / Slice 2.1** — Battery cycles/health/ETA, IOHID toggle, Disk I/O & top processes (`ae014e00`)
 
 ### Batch 3 — High-ROI Feature Unlocks
-- [ ] **Quick Win #4 / Slice 2.3 (Shelf)** — Vision Background Removal & Transform Parity
+- [x] **Quick Win #4 / Slice 2.3 (Shelf)** — Vision Background Removal & Transform Parity (`DONE`)
 - [ ] **Quick Win #10 / Slice 4.4 (Snap)** — Hold `⌥` During Drag-to-Edge for Thirds Snapping
 - [ ] **Quick Win #6 / Slice 2.4** — Control Centre Mic Input Switcher, Keyboard Backlight Slider & Multi-VPN Menu
 - [ ] **Quick Win #3 / Slice 2.2** — Weather Warnings, Moon Phase & Desktop Weather Units
@@ -340,11 +340,11 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WeatherDetailTests -only-testing:KatiKatiTests/WeatherWarningsTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 2.3 — Shelf Vision Background Removal & Transform Parity + Clipboard `⌘1`–`⌘9` & `Work` Category (Pillars 4 & 5)
-- **Effort:** `M` | **User Impact:** `High` | **Status:** `Clipboard [x] DONE — 09c73eeb · Shelf [ ] Pending`
+#### [x] DONE · Slice 2.3 — Shelf Vision Background Removal & Transform Parity + Clipboard `⌘1`–`⌘9` & `Work` Category (Pillars 4 & 5)
+- **Effort:** `M` | **User Impact:** `High` | **Status:** `[x] DONE — Clipboard (09c73eeb) & Shelf (Quick Win #4)`
 - **Reused Modules:** `App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:128-211, 475-502`, `Core/Support/ClipboardHistory.swift:4-19`, `Core/Support/ClipboardPlus.swift:79-106`, `Platform/Clipboard/ClipboardMonitor.swift:110-185`, `App/Scenes/Edge/ClipboardFlyoutView.swift:61-74, 149-198`
 - **Scope:**
-  1. [ ] Add a **Remove Background** button (`ShelfActions.removeBackground`) to `ShelfGridPopupView` (`floatingTransformBar`, `selectionBar`, and `shelfMenuItems` when selection contains images), and expose `Merge PDF` + `Convert` in compact-grid `selectionBar` and `shelfMenuItems`.
+  1. [x] DONE: Add a **Remove Background** button (`ShelfActions.removeBackground`) to `ShelfGridPopupView` (`floatingTransformBar`, `selectionBar`, and `shelfMenuItems` when selection contains images), and expose `Merge PDF` + `Convert` in compact-grid `selectionBar` and `shelfMenuItems`.
   2. [x] DONE — `09c73eeb`: Add `var originBundleID: String? = nil` to `ClipEntry` (`Core/Support/ClipboardHistory.swift:4-19`), capture `NSWorkspace.shared.frontmostApplication?.bundleIdentifier` in `ClipboardMonitor.poll()` (`Platform/Clipboard/ClipboardMonitor.swift:148-185`), and pass `entry.originBundleID` + a default work bundle ID set to `ClipboardCardMetadata.classify` in `ClipboardFlyoutView.swift:184`.
   3. [x] DONE — `09c73eeb`: Handle `⌘1`–`⌘9` in `ClipboardFlyoutView.handleKey(_:)` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-164`) to paste the corresponding `MaccyPinShortcutAssigner` slot.
 - **Verification Command:**
@@ -476,7 +476,7 @@ Each of these 10 quick wins reuses existing `Core/` or `Platform/` code and can 
 1. [x] **DONE — `a2a7f546` · Fix Menu Bar Network Speed Readout (`Core/Support/MenuBarStatModel.swift:82-129`):** `MenuBarSystemItem` already samples `down`/`up` bytes/sec every second, but `MenuBarStatModel.statusText(metric: .network)` returns `"–"` because `fraction(metric: .network)` is `nil`. Formatting `values.down`/`values.up` in `statusText` makes the Network menu bar stat work immediately (~20 lines).
 2. [x] **DONE — `ae014e00` · Surface Battery Cycle Count, Health % & Time Remaining in Battery Popover (`App/Composition/DockTelemetryFeed.swift:111-122`, `App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift:548-561`):** `BatteryHealthReader.read()` already parses `cycleCount` and `healthPercent` and `SystemMonitorSampler.battery()` already reads `secondsRemaining`, but `DockTelemetryFeed` discards all three. Passing them through `DockTelemetryState` adds cycle count, health %, and charge/discharge ETA in ~35 lines.
 3. [ ] **Add Severe Weather Warnings & Moon Phase to `WeatherModernPanel` and `WeatherFullScreenView` (`App/Scenes/Weather/WeatherModernPanel.swift:62`, `App/Scenes/Weather/WeatherFullScreenView.swift:58`):** `WeatherWarningEngine` and `MoonPhase` are already tested in `Core/Support/`, but only legacy `WeatherGlanceView` renders `WarningsTile`, and no view renders `MoonPhase` (~45 lines).
-4. [ ] **Expose On-Device Vision Background Removal in `ShelfGridPopupView` (`App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:475-502`):** `ShelfActions.removeBackground(_:into:)` (`VNGenerateForegroundInstanceMaskRequest`) is completely implemented and tested, needing only a button in `floatingTransformBar` / `selectionBar` / `shelfMenuItems` (~30 lines).
+4. [x] **DONE · Expose On-Device Vision Background Removal in `ShelfGridPopupView` (`App/Composition/ShelfActions.swift:218-258`, `App/Scenes/ShelfGridPopupView.swift:475-502`):** `ShelfActions.removeBackground(_:into:)` (`VNGenerateForegroundInstanceMaskRequest`) is completely implemented and tested, needing only a button in `floatingTransformBar` / `selectionBar` / `shelfMenuItems` (~30 lines).
 5. [x] **DONE — `09c73eeb` · Wire `⌘1`–`⌘9` Pinned Paste Shortcuts & `Work` Category in `ClipboardFlyoutView` (`App/Scenes/Edge/ClipboardFlyoutView.swift:149-198`):** `ClipboardFlyoutView` already draws `"⌘1"`…`"⌘9"` badges on pinned clips and `All / Work / Personal` tabs, but `handleKey` ignores `⌘1`–`⌘9` and `classify` passes `originBundleID: nil` (~45 lines).
 6. [ ] **Add Microphone Input Selector & Keyboard Backlight Slider to Control Centre (`Platform/SystemStatus/AudioOutputSwitcher.swift:14, 28, 58-76`, `Platform/Pinboard/QuickToggleEngine.swift:239-265`):** Both `AudioOutputSwitcher.devices(input: true)` and `KeyboardBacklight` are already implemented in `Platform/` and just need rows in `AudioOutputMenu` and `DockControlCenterSliderCard` (~50 lines).
 7. [x] **DONE — `091c339c` · Fix DropClip Selection Pill Settings Toggle, Speech ARC Drop & Command Bar `"wifipw"` (`App/Entry/TranslatePanelController.swift:20-73`, `App/Scenes/CommandBarView.swift:62`):** Checking `DropClipPolicy.enabledKey`, retaining `AVSpeechSynthesizer` as a property, and changing `"wifi"` to `"wifipw"` in `CommandBarView.swift:62` fixes three user-visible bugs in ~25 lines.

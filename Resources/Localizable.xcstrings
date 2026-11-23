@@ -394,6 +394,22 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增 App 群組" } }
       }
     },
+    "Remove Background" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrund entfernen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove Background" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Quitar fondo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Quitar fondo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer l’arrière-plan" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimuovi sfondo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "背景を削除" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "배경 제거" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Remover fundo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Remover fundo" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移除背景" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "移除背景" } }
+      }
+    },
     "Remove from Group" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus Gruppe entfernen" } },
