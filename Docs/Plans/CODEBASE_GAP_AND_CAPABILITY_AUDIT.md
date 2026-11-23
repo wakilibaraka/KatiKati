@@ -29,7 +29,7 @@
 - [x] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page (`980a528c`)
 - [x] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (`ddeeed1e`)
 - [x] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls (`92da0206`)
-- [ ] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration
+- [x] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (`146aebf8`)
 - [ ] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting
 - [ ] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases
 - [ ] **Slice 4.4 (Remaining)** — Persistent `WindowLayoutMemory` & Per-Window Float/Retile Shortcuts
@@ -420,13 +420,13 @@ Every slice below obeys all repository gates:
 
 ### Wave 4: Architecture Unification (Dock Profiles, Widget Surfaces, Wallpaper & Window Management)
 
-#### [ ] Slice 4.1 — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (Pillar 1)
+#### [x] Slice 4.1 — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (Pillar 1)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/BarProfile.swift:10-43`, `App/Composition/BarProfileService.swift:14-124`, `Core/Support/BarSection.swift:600, 709`, `App/Scenes/SettingsLayoutPane+Widgets.swift:80-215`, `App/Entry/StatusMenuController.swift:763-781`, `App/Scenes/WelcomeGuideView.swift:202, 264-295`
 - **Scope:**
-  1. [ ] Extend `BarProfile` (`Core/Support/BarProfile.swift:10-21`) with optional `dockSlotLayout: DockSlotLayout?` and `dockWings: DockWingsConfiguration?`, and record the active preset/slot state in `BarProfileService.currentState()` (`App/Composition/BarProfileService.swift:120-123`).
-  2. [ ] Add a **Dock Profiles** picker/save/delete card and a **Group Adjacent Utilities** toggle (`store.dockSlotLayout.groupAdjacentUtilities`) to `App/Scenes/SettingsLayoutPane+Widgets.swift`, while removing the duplicate legacy `Show Shelf` / `Show Trash` / `Background Apps` / `Mid-Dock Utilities` rows (`L156-213`).
-  3. [ ] Migrate `StatusMenuController.rebuildAddItemsMenu()` (`App/Entry/StatusMenuController.swift:763-781`) and `WelcomeGuideView.widgetsStep` (`App/Scenes/WelcomeGuideView.swift:264-295`) to mutate `store.dockSlotLayout`.
+  1. [x] Extend `BarProfile` (`Core/Support/BarProfile.swift:10-21`) with optional `dockSlotLayout: DockSlotLayout?` and `dockWings: DockWingsConfiguration?`, and record the active preset/slot state in `BarProfileService.currentState()` (`App/Composition/BarProfileService.swift:120-123`).
+  2. [x] Add a **Dock Profiles** picker/save/delete card and a **Mid-Dock Utilities** grouping toggle (`store.dockSlotLayout.groupAdjacentUtilities`) to `App/Scenes/SettingsLayoutPane+Widgets.swift`, while removing the duplicate legacy `Show Shelf` / `Show Trash` / `Background Apps` / `Mid-Dock Utilities` rows (`L156-213`).
+  3. [x] Migrate `StatusMenuController.rebuildAddItemsMenu()` (`App/Entry/StatusMenuController.swift:763-781`) and `WelcomeGuideView.widgetsStep` (`App/Scenes/WelcomeGuideView.swift:264-295`) to mutate `store.dockSlotLayout`.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/BarProfileTests -only-testing:KatiKatiTests/DockSlotLayoutTests -only-testing:KatiKatiTests/WelcomeGuideTests && python3 Scripts/check_localization.py
