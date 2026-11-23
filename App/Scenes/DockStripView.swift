@@ -90,6 +90,8 @@ struct DockStripView: View {
     var onPopPopupToggle: (CGRect) -> Void = { _ in }
     var onScreenshotsPopupToggle: (CGRect) -> Void = { _ in }
     var onClipboardPopupToggle: (CGRect) -> Void = { _ in }
+    /// In-dock 4-square `Background & Activity` tile clicked: toggles the popup above the tile.
+    var onBackgroundAppsToggle: (CGRect) -> Void = { _ in }
     /// Where the pop chip sits on screen, for the coordinator's stash drop zone. Written by this view.
     var popChipFrameSink: PopChipFrameSink?
     /// 「添加文件夹…」统一入口（NSOpenPanel 归 AppDelegate 管）。
@@ -786,7 +788,7 @@ struct DockStripView: View {
             }
         case let .keptApp(bid):
             launcherTap(bid, hasRealWindow: false)   // 保留占位只在没有真窗口时存在
-        case .pinnedFolder, .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .pinnedFolder, .shelf, .pop, .backgroundApps, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return   // 空档不可拖，也就不会有飞行中的载荷指向它
         }
     }
@@ -901,7 +903,7 @@ struct DockStripView: View {
                 : nil
             return DragCarrierGeometry.pickUpPose(chipHeight: height, pressedScale: nil,
                                                   hoverScale: hoverScale)
-        case .shelf, .pop, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
+        case .shelf, .pop, .backgroundApps, .trash, .divider, .externalDropGhost, .sectionPlaceholder:
             return .resting
         }
     }
@@ -1365,7 +1367,7 @@ struct DockStripView: View {
                                            value: StripChipFrames(id: "pop", zone: .pop,
                                                                   frame: geo.frame(in: .named("strip"))))
                 })
-        case .divider, .sectionPlaceholder:
+        case .backgroundApps, .divider, .sectionPlaceholder:
             stripEntryView(entry, projection: projection)
         case .externalDropGhost:
             // 让位空档：**刻意不经 `stripEntryView`**。那个函数是悬停帧的唯一上报口，
@@ -1667,6 +1669,17 @@ struct DockStripView: View {
                 onTap: { popChipTapped() },
                 onAddFolder: onAddFolder
             )
+            .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
+                           animatedEntryIDs: $animatedEntryIDs)
+        case .backgroundApps:
+            BackgroundActivityDockTile(
+                scale: dockScale,
+                railTile: isRail,
+                hoverStyle: hoverStyle,
+                isHovered: hovered,
+                onTap: { backgroundAppsChipTapped() }
+            )
+            .reportStripChipFrame(id: "background-apps", zone: .section)
             .stripEntrance(id: entrance ? entry.id : nil, delay: 0,
                            animatedEntryIDs: $animatedEntryIDs)
         case .shelf:
@@ -2122,7 +2135,7 @@ extension DockStripView {
         }
     }
 
-    private func utilityAnchorScreenRect(id: String) -> CGRect? {
+    func utilityAnchorScreenRect(id: String) -> CGRect? {
         let candidate = frames.sectionFrames[id]
             ?? frames.sectionFrames[id.replacingOccurrences(of: "sec-", with: "")]
         guard let frame = candidate, frame != .zero, stripRootScreenRect != .zero else { return nil }
@@ -2265,6 +2278,8 @@ extension DockStripView {
             launcherTap(bundleID, hasRealWindow: false)
         case .pinnedFolder(let path):
             openFolderInFinder(path)
+        case .backgroundApps:
+            backgroundAppsChipTapped()
         default:
             return
         }
@@ -2557,5 +2572,96 @@ private extension View {
                 )
             }
         )
+    }
+}
+
+/// Self-contained 4-square `Background & Activity` dock tile so background-app updates stay scoped to this leaf view.
+private struct BackgroundActivityDockTile: View {
+    let scale: CGFloat
+    let railTile: Bool
+    let hoverStyle: HoverStyle
+    let isHovered: Bool
+    let onTap: () -> Void
+
+    @EnvironmentObject private var runtime: AppRuntime
+    @EnvironmentObject private var drawerStore: DrawerStore
+    @EnvironmentObject private var messagingStore: MessagingAppStore
+    @EnvironmentObject private var keptAppStore: KeptAppStore
+    @EnvironmentObject private var settingsStore: AppSettingsStore
+    @ObservedObject private var backgroundStore = BackgroundAppsStore.shared
+    @AppStorage(BackgroundAppsStore.showSystemHelpersKey) private var showSystemHelpers = false
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var memberIDs: [String] {
+        let windowBacked = Set(StripItem.items(from: runtime.snapshot).filter { !$0.isAppLevelFallback }.compactMap(\.bundleIdentifier))
+        return backgroundStore.backgroundIDs(
+            windowBacked: windowBacked,
+            kept: Set(keptAppStore.bundleIDs),
+            messaging: Set(messagingStore.bundleIDs),
+            stashed: Set(drawerStore.bundleIDs),
+            showSystemHelpers: showSystemHelpers
+        )
+    }
+
+    private func iconModeTitle(_ mode: BackgroundActivityIconMode) -> String {
+        switch mode {
+        case .grid3x3: return String(localized: "App Grid")
+        case .ramPercent: return String(localized: "RAM %")
+        case .cpuPercent: return String(localized: "CPU %")
+        case .ramPressureRing: return String(localized: "RAM Pressure")
+        case .appCount: return String(localized: "App Count")
+        }
+    }
+
+    private func buildMenu() -> NSMenu {
+        let menu = NSMenu()
+        let iconSubmenu = NSMenu()
+        for mode in BackgroundActivityIconMode.allCases {
+            let item = ClosureMenuItem(iconModeTitle(mode)) { settingsStore.setBackgroundActivityIconMode(mode) }
+            item.state = settingsStore.backgroundActivityIconMode == mode ? .on : .off
+            iconSubmenu.addItem(item)
+        }
+        let iconItem = NSMenuItem(title: String(localized: "Icon Display"), action: nil, keyEquivalent: "")
+        iconItem.submenu = iconSubmenu
+        menu.addItem(iconItem)
+        menu.addItem(.separator())
+        menu.addItem(ClosureMenuItem(String(localized: "Open Activity Monitor")) {
+            NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Utilities/Activity Monitor.app"))
+        })
+        menu.addItem(ClosureMenuItem(String(localized: "Hide from Dock")) {
+            settingsStore.setShowBackgroundApps(false)
+        })
+        return menu
+    }
+
+    var body: some View {
+        let art = ChipPillMetrics.bareIconVisibleSlot * scale
+        let slot = ChipPillMetrics.bareIconSlot * scale
+        return VStack(spacing: 0) {
+            Spacer(minLength: 0)
+            ZStack {
+                RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)
+                    .fill(colorScheme == .dark ? Color.white.opacity(0.11) : Color.black.opacity(0.08))
+                RoundedRectangle(cornerRadius: art * 0.215, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.18), lineWidth: 0.75)
+                BackgroundActivityIconView(
+                    mode: settingsStore.backgroundActivityIconMode,
+                    memberIDs: memberIDs,
+                    scale: scale
+                )
+            }
+            .frame(width: art, height: art)
+            .frame(width: slot, height: slot)
+            Spacer(minLength: 0)
+        }
+        .frame(width: ChipPillMetrics.cardWidth * scale,
+               height: ChipPillMetrics.cardFrameHeight(scale, onRail: railTile))
+        .chipQuietHoverScale(hoverStyle.showsQuietHoverFeedback(isHovering: isHovered),
+                             cardWidth: ChipPillMetrics.cardWidth * scale,
+                             scale: scale)
+        .contentShape(Rectangle())
+        .onTapGesture { onTap() }
+        .floatingContextMenu { buildMenu() }
+        .help(Text("Background & Activity"))
     }
 }

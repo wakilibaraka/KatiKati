@@ -119,22 +119,12 @@ struct DrawerCapsuleButton: View {
                 runtime.onToggleControlCenter?()
             }
         case .backgroundApps:
-            let ids = memberIDs
-            if ids.isEmpty {
-                DynamicGaugeCompactDiscView(scale: dockScale)
-                    .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
-            } else {
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(9 * dockScale), spacing: 4 * dockScale), count: 3),
-                          alignment: .leading, spacing: 4 * dockScale) {
-                    ForEach(Array(ids.prefix(9)), id: \.self) { id in
-                        Image(nsImage: AppIconResolver.icon(for: id))
-                            .resizable().aspectRatio(contentMode: .fit)
-                            .frame(width: 9 * dockScale, height: 9 * dockScale)
-                    }
-                }
-                .frame(width: 35 * dockScale, height: 35 * dockScale, alignment: .center)
-                .accessibilityHidden(true)
-            }
+            BackgroundActivityIconView(
+                mode: settingsStore.backgroundActivityIconMode,
+                memberIDs: memberIDs,
+                scale: dockScale
+            )
+            .cellFeedback(hovered: hoverEnabled && hoveredCell != nil, pressed: pressedCell != nil)
         case .trash:
             Image(systemName: trashStore.isFull ? "trash.fill" : "trash")
                 .font(.system(size: 19 * dockScale, weight: .semibold))

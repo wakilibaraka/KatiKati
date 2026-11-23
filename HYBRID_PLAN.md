@@ -6850,3 +6850,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/ProcessMemory.swift`: added `AppIdentity`, `ProcessEntry`, shared cycle-safe `claimTreeBytes`, `rankedUsage(procs:apps:fallbackNames:minFallbackBytes:limit:)`, and `totalBytes(entries:)` to rank grouped apps and high-RAM helpers by physical footprint without double-counting shared descendants.
 - `Tests/Unit/ProcessMemoryTests.swift`: added `testRankedUsageAggregatesDescendantsAndSortsDescending`, `testRankedUsageGroupsMultipleRootsForSameBundleWithoutDoubleCounting`, and `testRankedUsageIncludesHighRAMFallbackHelpersAndRespectsLimit`.
 - Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/ProcessMemoryTests` (6/6 passed in 0.006 s) and `check_availability_warnings.py /tmp/katikati-test.log` (0 warnings). Zero `project.pbxproj` edits.
+
+### DO-4b — Configurable 5-Mode Icon & In-Dock 4-Square `Background & Activity` Tile (landed 2026-11-23)
+
+- `App/Scenes/DynamicGaugeFABView.swift` & `App/Scenes/DrawerCapsuleButton.swift`: added `BackgroundActivityIconView` supporting all 5 `BackgroundActivityIconMode` variants (`grid3x3`, `ramPercent`, `cpuPercent`, `ramPressureRing`, `appCount`) with shared `CircularGaugeDiscView` / `MonitoredGaugeDiscView` (zero telemetry acquisition in `.grid3x3` mode).
+- `App/Scenes/{StripProjection,DockStripView+Projection,DockStripView+Hover,DockStripView+Actions,DockStripView}.swift`: added `StripEntry.backgroundApps` at the end of `.apps` (hidden when `trailingCapsule == .backgroundApps`), self-contained `BackgroundActivityDockTile`, hover bubble, and context menu (`Icon Display`, `Open Activity Monitor`, `Hide from Dock`).
+- `App/Entry/PanelCoordinator{+Drawer,+Layout,+PanelSetup,}.swift`: added `drawerAnchorOverride` so `DrawerView` anchors cleanly above the in-dock tile as well as the detached capsule.
+- Verified with `./Scripts/build_and_run.sh --test -only-testing:KatiKatiTests/ModularDockCoreTests -only-testing:KatiKatiTests/PanelGeometryTests` (71/71 passed) and `check_availability_warnings.py`. Zero `project.pbxproj` edits.

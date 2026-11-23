@@ -14,21 +14,32 @@ extension PanelCoordinator {
         if drawerWantsOpen { closeDrawer() } else { openDrawer(revealingBackgroundApps: true) }
     }
 
+    /// Toggles the `Background & Activity` popup anchored above an in-dock strip tile.
+    func toggleDrawerFromStrip(anchorVisibleRect: CGRect) {
+        if drawerWantsOpen && drawerAnchorOverride != nil {
+            closeDrawer()
+            return
+        }
+        drawerAnchorOverride = anchorVisibleRect.insetBy(dx: -layoutMetrics.shadowPadding, dy: -layoutMetrics.shadowPadding)
+        openDrawer(revealingBackgroundApps: false, keepAnchorOverride: true)
+    }
+
     /// - Parameter revealingBackgroundApps: the capsule asked for the drawer's background-app section.
     ///   Only the drawer's empty state can ask (the count disc is drawn when the drawer holds no apps),
     ///   so that section is the whole grid — but the grid can still be taller than the plate, and a
     ///   scrolled grid always opens at its top (`StackPopupChrome`), which would hide the section's
     ///   end. The scroll itself happens in the chrome, once the panel is on screen.
-    func openDrawer(revealingBackgroundApps: Bool = false) {
-        guard let mainPanel = dockPanel, capsulePanel != nil else { return }
+    func openDrawer(revealingBackgroundApps: Bool = false, keepAnchorOverride: Bool = false) {
+        if !keepAnchorOverride { drawerAnchorOverride = nil }
+        guard let mainPanel = dockPanel else { return }
+        let screen = panelCurrentScreen(panel: mainPanel)
+        let (capsuleRef, limits) = drawerAnchor(on: screen)
+        guard capsuleRef != .zero else { return }
         onAccessoryWillOpen?(self, .drawer)
         drawerActionCloseToken += 1  // 旧点击排队的 delayed close 捕获旧 token，不匹配则丢弃
         drawerWantsOpen = true
         setAutoHideInhibitor(.drawerOpen, active: true)
         drawerSpringOpened = false   // 默认手动开；弹簧路径在 springOpenDrawer 里再置 true
-
-        let screen = panelCurrentScreen(panel: mainPanel)
-        let (capsuleRef, limits) = drawerAnchor(on: screen)
 
         // 宿主只建一次；之后打开只在可用高度变了才换 rootView。
         // 各阶段打 `HoverTrace.action("drawerOpen")` 标记：打开这一转的主线程停顿由哪段贡献，只有它能分出来。
@@ -89,7 +100,8 @@ extension PanelCoordinator {
     /// 顶部上限仍避让菜单栏 / 刘海；底部锚点不避让原生 Dock，避免 Command+Option+D 或侧边 Dock 推动抽屉。
     private func drawerAnchor(on screen: NSScreen) -> (capsuleRef: NSRect, limits: StackGridLayout.Limits) {
         let screenGeometry = Self.screenGeometry(screen)
-        let capsuleRef = lastCapsuleTargetFrame == .zero ? (capsulePanel?.frame ?? .zero) : lastCapsuleTargetFrame
+        let fallbackCapsule = lastCapsuleTargetFrame == .zero ? (capsulePanel?.frame ?? .zero) : lastCapsuleTargetFrame
+        let capsuleRef = drawerAnchorOverride ?? fallbackCapsule
         return (capsuleRef, PanelGeometry.drawerGridLimits(forCapsule: capsuleRef, on: screenGeometry, metrics: layoutMetrics,
                                                                    stripPlacement: stripPlacement))
     }
@@ -146,7 +158,7 @@ extension PanelCoordinator {
     }
 
     private func writeDrawerArrow(live: Bool) {
-        let capsule = live ? capsulePanel?.frame : lastCapsuleTargetFrame
+        let capsule = drawerAnchorOverride ?? (live ? capsulePanel?.frame : lastCapsuleTargetFrame)
         let drawer = live ? drawerPanel?.frame : lastDrawerTargetFrame
         guard let capsule, let drawer, capsule != .zero, drawer != .zero else { return }
         let offset = capsule.midX - drawer.midX   // the capsule's visible rect is inset symmetrically
@@ -264,6 +276,7 @@ extension PanelCoordinator {
         }, completionHandler: { [weak self] in
             Task { @MainActor [weak self] in
                 guard let self, !self.drawerWantsOpen else { return }   // 淡出中又开了 → 别 orderOut
+                self.drawerAnchorOverride = nil
                 panel.orderOut(nil)
                 self.drawerArrow.scrollGeneration &+= 1   // next open starts at the grid's top
                 // …and the rebuild that comes with it must not replay a tail request from this showing:
@@ -278,6 +291,7 @@ extension PanelCoordinator {
     func closeDrawerImmediately() {
         guard drawerWantsOpen || drawerPanel?.isVisible == true else { return }
         drawerWantsOpen = false
+        drawerAnchorOverride = nil
         setAutoHideInhibitor(.drawerOpen, active: false)
         drawerSpringOpened = false
         repositionFloatingWidgetStackIfNeeded(animated: true)

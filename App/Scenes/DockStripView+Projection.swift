@@ -287,6 +287,11 @@ extension DockStripView {
                 appsEntries += zone
             }
         }
+        let showInDockBackgroundApps = settingsStore.showsBackgroundAppsSlot
+            && settingsStore.dockSlotLayout.trailingCapsule != .backgroundApps
+        if showInDockBackgroundApps {
+            appsEntries.append(.backgroundApps)
+        }
         var finalEntries: [StripEntry] = []
         for (index, section) in hostedSections.enumerated() {
             if section == .apps {

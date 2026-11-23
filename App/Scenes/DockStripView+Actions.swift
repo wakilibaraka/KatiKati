@@ -158,6 +158,12 @@ extension DockStripView {
         onPopPopupToggle(screenRect)
     }
 
+    /// In-dock 4-square `Background & Activity` tile click: toggles the popup anchored above the tile.
+    func backgroundAppsChipTapped() {
+        guard let screenRect = utilityAnchorScreenRect(id: "background-apps") else { return }
+        onBackgroundAppsToggle(screenRect)
+    }
+
     /// Dock-icon-click equivalent: unhide + reopen. The app recreates its main window
     /// even when other windows are visible (verified with WeChat, 2026-06-12).
     /// 消息区图标**认不出主窗口**时的左键（第 3 条兜底，2026-08-23）：

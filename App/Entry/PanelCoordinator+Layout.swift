@@ -442,6 +442,7 @@ extension PanelCoordinator {
         // 任务条目标帧一变（宽度/切屏）就关弹窗——不追动画中的锚点（与原生 Dock 行为一致,保 target-frame 纯度）。
         if dockT != lastDockTargetFrame {
             if folderPopupWantsOpen { closeFolderPopup() }
+            if drawerAnchorOverride != nil && drawerWantsOpen { closeDrawer() }
             dismissWindowTitleTooltip(suppressCurrentUntilExit: true)
         }
         lastDockTargetFrame = dockT
@@ -468,13 +469,16 @@ extension PanelCoordinator {
         } else {
             capsule.orderOut(nil)
         }
-        if capsuleOwner, let drawer = drawerPanel, drawer.isVisible, let hosting = drawerContentHost {
+        if (capsuleOwner || drawerAnchorOverride != nil), let drawer = drawerPanel, drawer.isVisible, let hosting = drawerContentHost {
             // Smaller than any plate = not laid out yet, never a size: keep the last good one.
             let fitting = hosting.fittingSize
             if Self.isPlausibleDrawerSize(fitting) { lastDrawerSize = fitting }
-            let drawerT = drawerTargetFrame(forCapsule: capsuleT, size: lastDrawerSize, on: screen)
-            lastDrawerTargetFrame = drawerT
-            pairs.append((drawer, drawerT))
+            let anchorRef = drawerAnchorOverride ?? capsuleT
+            if anchorRef != .zero {
+                let drawerT = drawerTargetFrame(forCapsule: anchorRef, size: lastDrawerSize, on: screen)
+                lastDrawerTargetFrame = drawerT
+                pairs.append((drawer, drawerT))
+            }
         }
 
         // Dock II Flanking Wings + Floating Widget Stack (lazy, only when assigned)

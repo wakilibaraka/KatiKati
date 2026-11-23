@@ -140,6 +140,8 @@ final class PanelCoordinator: NSObject {
     /// 那套是给全屏和边缘自动隐藏用的，混进来会让底边唤醒把面板又拉回屏幕。
     var isSuspendedForPermissionLoss = false
     var drawerLocalMonitor: Any?
+    /// Optional strip-tile frame (padded with `shadowPadding`) when opened from the in-dock 4-square tile.
+    var drawerAnchorOverride: CGRect? = nil
     /// This unit's drawer pop chip on screen (written by its strip): the stash drop zone.
     let popChipFrame = PopChipFrameSink()
     var drawerGlobalMonitor: Any?
