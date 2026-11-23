@@ -17,6 +17,182 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "連續 %d 天" } }
       }
     },
+    "Activity Monitor" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivitätsanzeige" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Activity Monitor" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Monitor de actividad" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Monitor de Actividad" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Moniteur d’activité" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Monitoraggio attività" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクティビティモニタ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활동 모니터" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Monitor de Atividade" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Monitor de Atividade" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "活动监视器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "活動監視器" } }
+      }
+    },
+    "App Count" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Anzahl" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Count" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Número de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cantidad de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nombre d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Numero di app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリ数" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 수" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Contagem de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Número de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用数量" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 數量" } }
+      }
+    },
+    "App Grid" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Raster" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Grid" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuadrícula de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grille d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Griglia app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリグリッド" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 격자" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Grade de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Grelha de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用网格" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 格線" } }
+      }
+    },
+    "Background & Activity" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrund & Aktivität" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Background & Activity" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Segundo plano y actividad" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Segundo plano y actividad" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Arrière-plan et activité" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Background e attività" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バックグラウンドとアクティビティ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "백그라운드 및 활성 상태" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Segundo plano e atividade" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Segundo plano e atividade" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "后台与活动" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "背景與活動" } }
+      }
+    },
+    "CPU %" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "CPU %" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "CPU %" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "% CPU" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "% de CPU" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "% processeur" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "% CPU" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "CPU %" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "CPU %" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "% de CPU" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "% de CPU" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "CPU %" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "CPU %" } }
+      }
+    },
+    "Hide from Dock" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus dem Dock ausblenden" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide from Dock" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar del Dock" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar del Dock" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Masquer du Dock" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nascondi dal Dock" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dockから隠す" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock에서 숨기기" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar do Dock" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar da Dock" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "从程序坞隐藏" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "從 Dock 隱藏" } }
+      }
+    },
+    "Icon Display" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Symboldarstellung" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon Display" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Visualización del icono" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Estilo del ícono" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Affichage de l’icône" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aspetto icona" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコン表示" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘 표시" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Exibição do ícone" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apresentação do ícone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "图标显示" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "圖示顯示" } }
+      }
+    },
+    "Processes & RAM" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Prozesse & RAM" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Processes & RAM" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Procesos y RAM" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Procesos y RAM" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Processus et RAM" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Processi e RAM" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "プロセスとメモリ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "프로세스 및 메모리" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Processos e RAM" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Processos e RAM" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "进程与内存" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "程序與記憶體" } }
+      }
+    },
+    "RAM %" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "RAM %" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "RAM %" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "% RAM" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "% de RAM" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "% mémoire" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "% RAM" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "メモリ %" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "메모리 %" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "% de RAM" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "% de RAM" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "内存 %" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "記憶體 %" } }
+      }
+    },
+    "RAM Pressure" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Speicherdruck" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "RAM Pressure" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Presión de memoria" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Presión de memoria" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pression mémoire" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pressione memoria" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "メモリプレッシャー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "메모리 사용량" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pressão de memória" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pressão de memória" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "内存压力" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "記憶體壓力" } }
+      }
+    },
+    "Sampling processes…" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Prozesse werden erfasst…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sampling processes…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Analizando procesos…" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Analizando procesos…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Analyse des processus…" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Campionamento processi…" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "プロセスを計測中…" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "프로세스 측정 중…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Analisando processos…" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "A analisar processos…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在采样进程…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "正在取樣程序…" } }
+      }
+    },
     "Accessibility is off, so banners stay where macOS puts them. Grant it in Privacy & Security, then turn the switch back on." : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Bedienungshilfen sind aus, Banner bleiben also dort, wo macOS sie hinstellt. Erlaube sie in „Datenschutz & Sicherheit“ und schalte den Schalter danach wieder ein." } },
