@@ -3132,10 +3132,10 @@
     "semantic_hash": "5ff698d1309a3773549eb3d14f7e168e"
   },
   "Tests/Unit/AppMembershipControllerTests.swift": {
-    "mtime": 1791999130.9339788,
-    "seen": 1792295707.0606909,
-    "ast_hash": "4d13cc5815f61f3c0595233524c8a5e5",
-    "semantic_hash": "4d13cc5815f61f3c0595233524c8a5e5"
+    "mtime": 1795433270.9500756,
+    "seen": 1795434956.190202,
+    "ast_hash": "1868f1a372916ae66c9c637ed12109df",
+    "semantic_hash": ""
   },
   "Tests/Unit/AppMembershipInvariantTests.swift": {
     "mtime": 1791999130.9469063,
@@ -4638,9 +4638,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
-    "mtime": 1795432164.2176914,
-    "seen": 1795432308.589649,
-    "ast_hash": "5eb2c7cf4fd8052d5fa8ffc190478fd7",
+    "mtime": 1795434574.2521534,
+    "seen": 1795434956.189814,
+    "ast_hash": "3d798dc91500b27ed29bff2f956ee7e4",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795330237.3991601,
-    "seen": 1795330585.651438,
-    "ast_hash": "f1e801abfd8c0f427f3e6e9217f9b002",
+    "mtime": 1795434876.7892768,
+    "seen": 1795434956.190455,
+    "ast_hash": "e0db08375521d0ebd02aeff137c6034b",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795432315.6479173,
-    "seen": 1795432375.934688,
-    "ast_hash": "8b5733eab5fe37b8da2bdabf3a7f4a73",
+    "mtime": 1795434875.0975711,
+    "seen": 1795434956.190562,
+    "ast_hash": "45b4d8f4855a45a2dce9c2ef877c0e78",
     "semantic_hash": ""
   },
   "README.md": {
