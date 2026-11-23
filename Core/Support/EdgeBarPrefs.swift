@@ -378,6 +378,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case storage
     case weather
     case quickAccess
+    case aiMissionControl
     case layouts
     case emoji
     case clipboard
@@ -397,6 +398,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .storage: return String(localized: "Storage")
         case .weather: return String(localized: "Weather")
         case .quickAccess: return String(localized: "Quick Access")
+        case .aiMissionControl: return String(localized: "AI Mission Control")
         case .layouts: return String(localized: "Layouts")
         case .emoji: return String(localized: "Emoji")
         case .clipboard: return String(localized: "Clipboard")
@@ -414,6 +416,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .storage: return "internaldrive.fill"
         case .weather: return "cloud.sun.fill"
         case .quickAccess: return "bolt.fill"
+        case .aiMissionControl: return "sparkles"
         case .layouts: return "rectangle.split.3x1"
         case .emoji: return "face.smiling"
         case .clipboard: return "doc.on.clipboard"
@@ -437,6 +440,7 @@ enum SideDeckSearch {
         case .storage: return String(localized: "Search storage")
         case .weather: return String(localized: "Search weather")
         case .quickAccess: return String(localized: "Search quick access")
+        case .aiMissionControl: return String(localized: "Search AI activity")
         case .layouts: return String(localized: "Search layouts")
         case .emoji: return String(localized: "Search emoji")
         case .clipboard: return String(localized: "Search clipboard")

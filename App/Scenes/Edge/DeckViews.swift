@@ -1,6 +1,31 @@
 import AppKit
 import SwiftUI
 
+struct SideDeckAIMissionControlView: View {
+    @ObservedObject private var usage = AgentUsageService.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles").foregroundStyle(.cyan)
+                Text("AI Mission Control").font(.system(size: 16, weight: .semibold))
+                Spacer()
+                Circle()
+                    .fill(usage.snapshot.activeTurn?.isActive == true ? .green : .secondary.opacity(0.35))
+                    .frame(width: 8, height: 8)
+            }
+            Text(usage.snapshot.activeTurn?.model ?? usage.snapshot.lastMeasuredModel ?? "No AI activity today")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            NotchAIPageView()
+                .frame(minHeight: 190, maxHeight: 230)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .padding(12)
+    }
+}
+
 /// Everything the deck draws is driven by this model (Phase 7A-D2); the controller owns panels, timers and
 /// the state machine and just publishes into it.
 @MainActor

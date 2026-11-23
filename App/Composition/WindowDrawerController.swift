@@ -179,7 +179,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .downloads, .storage, .weather, .quickAccess, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -187,7 +187,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .downloads, .storage, .weather, .quickAccess, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -195,7 +195,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .downloads, .storage, .weather, .quickAccess, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -445,6 +445,7 @@ private struct WindowDrawerView: View {
         case .downloads: SideDeckDownloadsView()
         case .storage: SideDeckStorageView()
         case .weather: SideDeckWeatherView()
+        case .aiMissionControl: SideDeckAIMissionControlView()
         case .quickAccess:
             SideDeckQuickAccessView(onLauncher: controller.runApps, onCommandBar: controller.runSearch)
         case .layouts:
@@ -468,6 +469,8 @@ private struct WindowDrawerView: View {
             SideDeckRailButton(symbol: SideDeckTab.windows.symbol, title: Text("Windows"),
                                selected: controller.tab == .windows) { controller.select(.windows) }
             SideDeckRailButton(symbol: "square.grid.2x2", title: Text("Apps"), selected: false) { controller.runApps() }
+            SideDeckRailButton(symbol: SideDeckTab.aiMissionControl.symbol, title: Text("AI Mission Control"),
+                               selected: controller.tab == .aiMissionControl) { controller.select(.aiMissionControl) }
             // SD-1/SD-2: the bell, with the live unread badge the notch inbox used to carry.
             SideDeckRailButton(symbol: SideDeckTab.notifications.symbol, title: Text("Notifications"),
                                selected: controller.tab == .notifications,
