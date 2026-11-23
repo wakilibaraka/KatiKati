@@ -30,7 +30,7 @@
 - [x] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView` (`ddeeed1e`)
 - [x] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls (`92da0206`)
 - [x] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (`146aebf8`)
-- [ ] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting
+- [x] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (`43344c47`)
 - [ ] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases
 - [ ] **Slice 4.4 (Remaining)** — Persistent `WindowLayoutMemory` & Per-Window Float/Retile Shortcuts
 
@@ -432,13 +432,13 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/BarProfileTests -only-testing:KatiKatiTests/DockSlotLayoutTests -only-testing:KatiKatiTests/WelcomeGuideTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 4.2 — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (Pillar 8)
+#### [x] Slice 4.2 — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (Pillar 8)
 - **Effort:** `M` | **User Impact:** `High`
 - **Reused Modules:** `Core/Support/DockWingModels.swift:91, 129-199, 647-805`, `App/Scenes/WidgetLookSettingsBlock.swift:160-226, 405-476`, `Core/Support/Desktop/DesktopBoxModel.swift:64-120`
 - **Scope:**
-  1. [ ] Add `.shelfCard` to `DockIIConfigureSheet.surfacePinsSection` (`App/Scenes/WidgetLookSettingsBlock.swift:405`) alongside collapse/reorder controls (`DockWidgetConfigStore.togglingCollapsed` / `moving`).
-  2. [ ] Add a display picker to `WidgetWingsSettingsBlock` (`App/Scenes/WidgetLookSettingsBlock.swift:160-226`) when `NSScreen.screens.count > 1`, writing to `DockWingsConfiguration.perDisplay` (`Core/Support/DockWingModels.swift:91, 165-199`).
-  3. [ ] Add optional `wingPreset: DockWidgetPresetType?` to `DesktopBox` (`Core/Support/Desktop/DesktopBoxModel.swift:83`) so any Dock II Wing widget (`.telemetry`, `.ram`, `.network`, `.disk`, `.battery`, `.ai`, `.controlCenter`, `.vpn`, `.hydrate`, `.pause`) can be added to the Desktop canvas.
+  1. [x] Add `.shelfCard` to `DockIIConfigureSheet.surfacePinsSection` (`App/Scenes/WidgetLookSettingsBlock.swift:405`) alongside collapse/reorder controls (`DockWidgetConfigStore.togglingCollapsed` / `moving`).
+  2. [x] Add a display picker to `WidgetWingsSettingsBlock` (`App/Scenes/WidgetLookSettingsBlock.swift:160-226`) when `NSScreen.screens.count > 1`, writing to `DockWingsConfiguration.perDisplay` (`Core/Support/DockWingModels.swift:91, 165-199`).
+  3. [x] Add optional `wingPreset: DockWidgetPresetType?` to `DesktopBox` (`Core/Support/Desktop/DesktopBoxModel.swift:83`) so any Dock II Wing widget (`.telemetry`, `.ram`, `.network`, `.disk`, `.battery`, `.ai`, `.controlCenter`, `.vpn`, `.hydrate`, `.pause`) can be added to the Desktop canvas.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/DockWingModelsTests -only-testing:KatiKatiTests/DesktopBoxModelTests && python3 Scripts/check_localization.py
