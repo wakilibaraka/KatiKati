@@ -368,7 +368,7 @@ final class GlanceStackTests: XCTestCase {
 final class SideDeckLogicTests: XCTestCase {
     func testNotificationsTabSitsRightAfterWindows() {
         XCTAssertEqual(SideDeckTab.allCases.map(\.rawValue),
-                       ["windows", "notifications", "downloads", "storage", "weather", "quickAccess", "layouts", "emoji", "clipboard", "tendedero", "scratchpad", "markets"])
+                       ["windows", "notifications", "downloads", "storage", "weather", "quickAccess", "aiMissionControl", "layouts", "emoji", "clipboard", "tendedero", "scratchpad", "markets"])
         XCTAssertEqual(SideDeckTab.notifications.symbol, "bell.fill")
         XCTAssertEqual(SideDeckTab.notifications.title, "Notifications")
     }
