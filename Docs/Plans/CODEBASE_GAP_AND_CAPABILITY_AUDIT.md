@@ -25,7 +25,7 @@
 - [x] **Quick Win #3 / Slice 2.2** — Weather Warnings, Moon Phase & Desktop Weather Units (`c301ec2e`)
 
 ### Remaining Wave 3 & Wave 4 Architecture Slices
-- [ ] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export
+- [x] **Slice 3.1** — Real AI Usage Receipt Metrics, 7-Day Heatmap & Screen Time Export (`afc51038`)
 - [ ] **Slice 3.2** — Real App-Leftover Scanner & Review-First Trash Flow on Notch Storage Page
 - [ ] **Slice 3.3** — Encrypted Note Titles, Archive Filter & Decrypt-Error Banner in `NoteSheetView`
 - [ ] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls
