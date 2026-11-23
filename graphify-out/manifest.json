@@ -666,9 +666,9 @@
     "semantic_hash": "9bf59cab2552ce28dde87ffc3fd9971f"
   },
   "App/Entry/TranslatePanelController.swift": {
-    "mtime": 1794851559.9350457,
-    "seen": 1794851687.164515,
-    "ast_hash": "ad9bb11582c8e80eee7c8fe9bed093a2",
+    "mtime": 1795443971.2779024,
+    "seen": 1795444068.9571,
+    "ast_hash": "8a326179196c132c0ec7a7f9a7e1a49d",
     "semantic_hash": ""
   },
   "App/KatiKati-Bridging-Header.h": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/CommandBarView.swift": {
-    "mtime": 1795443274.015456,
-    "seen": 1795443762.313731,
-    "ast_hash": "daf0139f553b214f01f18626f7e4f023",
+    "mtime": 1795443972.8765488,
+    "seen": 1795444068.957112,
+    "ast_hash": "0b2f45d61baac6ace7cc6768e5fb16b5",
     "semantic_hash": ""
   },
   "App/Scenes/ContentView.swift": {
@@ -2430,9 +2430,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Translate.swift": {
-    "mtime": 1794851507.9731,
-    "seen": 1794851687.164821,
-    "ast_hash": "6dac3f448e4a383b8c8f43cd15d3b681",
+    "mtime": 1795443968.4906979,
+    "seen": 1795444068.957508,
+    "ast_hash": "8516da29935a9b827740b8efa0ae25ce",
     "semantic_hash": ""
   },
   "Core/Support/URLCleaner.swift": {
@@ -3300,9 +3300,9 @@
     "semantic_hash": "8db4b44a5d400a761b79c9810d5581f1"
   },
   "Tests/Unit/CommandBarTests.swift": {
-    "mtime": 1795443274.0462558,
-    "seen": 1795443762.3142688,
-    "ast_hash": "9c0d63c37e22098ea33ed01d6e0038bd",
+    "mtime": 1795443975.917092,
+    "seen": 1795444068.95775,
+    "ast_hash": "8c9bcf1b63e6ff0bd29492f3b1ed7101",
     "semantic_hash": ""
   },
   "Tests/Unit/Core/Support/ClockChipContentTests.swift": {
@@ -4242,9 +4242,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/TranslateTests.swift": {
-    "mtime": 1794846640.442605,
-    "seen": 1794846684.228835,
-    "ast_hash": "843f7934f945286796df3e0812d8920e",
+    "mtime": 1795443974.541833,
+    "seen": 1795444068.9579468,
+    "ast_hash": "25991eb46da34643acaf9fe9a1270859",
     "semantic_hash": ""
   },
   "Tests/Unit/TrashStateStoreTests.swift": {
