@@ -31,7 +31,7 @@
 - [x] **Slice 3.4** — Live Island Camera Mirror Subscription, Weather/Alarm Alerts & Sixth-Sense Controls (`92da0206`)
 - [x] **Slice 4.1** — Dock Profiles Studio, `groupAdjacentUtilities` Toggle & `DockSlotLayout` Migration (`146aebf8`)
 - [x] **Slice 4.2** — Universal Widget Surface Pins (`.shelfCard`), Per-Display Wings & Desktop Wing Hosting (`43344c47`)
-- [ ] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases
+- [x] **Slice 4.3** — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases (`13cc28b1`)
 - [ ] **Slice 4.4 (Remaining)** — Persistent `WindowLayoutMemory` & Per-Window Float/Retile Shortcuts
 
 ---
@@ -444,12 +444,12 @@ Every slice below obeys all repository gates:
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/DockWingModelsTests -only-testing:KatiKatiTests/DesktopBoxModelTests && python3 Scripts/check_localization.py
   ```
 
-#### [ ] Slice 4.3 — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases (Pillar 9)
+#### [x] Slice 4.3 — Dynamic Wallpaper Solar-Position Glow, `SkyAtmosphere` Stage Preview & Sky Pack Aliases (Pillar 9)
 - **Effort:** `S` | **User Impact:** `Med`
 - **Reused Modules:** `Core/Support/WallpaperSelector.swift:32-37, 357-369, 444-510`, `Core/Support/SolarPhase.swift:101-168`, `App/Composition/WallpaperEngine.swift:179-195, 335-344, 420-435`, `App/Scenes/SettingsAppearancePane.swift:449-457, 567-593`
 - **Scope:**
-  1. [ ] Use `SolarPosition.at(now, latitude: ..., longitude: ...)` (`Core/Support/WallpaperSelector.swift:358`) in `TerrainWallpaperRenderer.render` (`App/Composition/WallpaperEngine.swift:430`) to position the sun glow horizontally/vertically when coordinates are available, and expand `WallpaperSelector.skyPackAliases` inside `WallpaperEngine.pack(folder:)` (`L335-344`).
-  2. [ ] Render `SkyAtmosphere` stars, moon disc, and cloud bands in `WallpaperStageView` (`App/Scenes/SettingsAppearancePane.swift:567-593`) so the Settings stage matches the rendered desktop frame.
+  1. [x] Use `SolarPosition.at(now, latitude: ..., longitude: ...)` (`Core/Support/WallpaperSelector.swift:358`) in `TerrainWallpaperRenderer.render` (`App/Composition/WallpaperEngine.swift:430`) to position the sun glow horizontally/vertically when coordinates are available, and expand `WallpaperSelector.skyPackAliases` inside `WallpaperEngine.pack(folder:)` (`L335-344`).
+  2. [x] Render `SkyAtmosphere` stars, moon disc, and cloud bands in `WallpaperStageView` (`App/Scenes/SettingsAppearancePane.swift:567-593`) so the Settings stage matches the rendered desktop frame.
 - **Verification Command:**
   ```bash
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/WallpaperSelectorTests -only-testing:KatiKatiTests/SolarPhaseTests && python3 Scripts/check_localization.py

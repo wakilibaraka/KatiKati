@@ -16,7 +16,7 @@ This commit: **plan only — no code changes.**
 - 2026-11-23: Wave 4 Slice 4.1 completed — Dock Profiles, utility grouping, and Dock slot menu/onboarding migration (`146aebf8`).
 - 2026-11-23: Wave 4 Slice 4.2a started — Desktop boxes now persist optional Dock wing presets, with per-display wing resolution tests.
 - 2026-11-23: Wave 4 Slice 4.2 completed — Shelf surface pins, per-display wing controls, and desktop wing preset hosting (`43344c47`).
-- 2026-11-23: Wave 4 Slice 4.3 completed — Solar-position terrain glow, sky-pack aliases, and atmospheric Settings preview.
+- 2026-11-23: Wave 4 Slice 4.3 completed — Solar-position terrain glow, sky-pack aliases, and atmospheric Settings preview (`13cc28b1`).
 
 ---
 
