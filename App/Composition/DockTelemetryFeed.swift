@@ -104,14 +104,18 @@ final class DockTelemetryFeed: ObservableObject {
         }
     }
 
+    func refreshSensorsNow() {
+        refreshTemperature()
+    }
+
     private func refreshTemperature() {
         let useIOHID = iohidEnabled
         Task.detached(priority: .utility) {
             let gpu = SystemMonitorSampler.gpu()
             let bat = SystemMonitorSampler.battery()
+            let health = BatteryHealthReader.read()
             let iohidTemp = useIOHID ? AppleSiliconSensorReader.readSoCTemperatureCelsius() : nil
-            let fallbackBatteryTemp = iohidTemp == nil ? BatteryHealthReader.read()?.temperatureCelsius : nil
-            let temp = iohidTemp ?? fallbackBatteryTemp
+            let temp = iohidTemp ?? health?.temperatureCelsius
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.state.gpuUsage = gpu
@@ -119,6 +123,9 @@ final class DockTelemetryFeed: ObservableObject {
                 self.state.batteryFraction = bat?.fraction
                 self.state.batteryCharging = bat?.isCharging ?? false
                 self.state.batteryWatts = bat?.watts
+                self.state.batterySecondsRemaining = bat?.secondsRemaining
+                self.state.batteryCycleCount = health?.cycleCount
+                self.state.batteryHealthPercent = health?.healthPercent
             }
         }
     }

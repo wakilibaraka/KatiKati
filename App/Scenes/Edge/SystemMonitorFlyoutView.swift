@@ -2,12 +2,14 @@ import SwiftUI
 
 /// CPU, memory, disk and network at a glance (Phase 7A-8c). Samples only while open.
 struct SystemMonitorFlyoutView: View {
-    static let size = CGSize(width: 280, height: 300)
+    static let size = CGSize(width: 280, height: 372)
     @ObservedObject private var monitor = ProductivityServices.shared.systemMonitor
+    @State private var topProcesses: [TopProcess] = []
+    @State private var processTask: Task<Void, Never>?
 
     var body: some View {
         let s = monitor.snapshot
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Text("System").font(.headline)
                 Spacer(minLength: 0)
@@ -31,6 +33,28 @@ struct SystemMonitorFlyoutView: View {
                 Label { Text(verbatim: SystemMonitorFormat.bytes(s.up) + "/s") } icon: { Image(systemName: "arrow.up") }
             }
             .font(.callout.monospacedDigit())
+            HStack {
+                Label { Text(verbatim: "SSD ↓ " + SystemMonitorFormat.bytes(s.diskRead) + "/s") } icon: { Image(systemName: "internaldrive") }
+                Spacer()
+                Text(verbatim: "↑ " + SystemMonitorFormat.bytes(s.diskWrite) + "/s")
+            }
+            .font(.caption.monospacedDigit())
+            .foregroundStyle(.secondary)
+            if !topProcesses.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(topProcesses, id: \.self) { proc in
+                        HStack {
+                            Text(verbatim: proc.name)
+                                .font(.caption2)
+                                .lineLimit(1)
+                            Spacer()
+                            Text(verbatim: String(format: "%.1f%%", proc.cpu))
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
             // OW-4: the Rig badge — the machine's inventory, read at startup and copied in one click.
             Divider()
             HStack(alignment: .firstTextBaseline) {
@@ -55,8 +79,26 @@ struct SystemMonitorFlyoutView: View {
         }
         .padding(16)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .topLeading)
-        .onAppear { monitor.acquire() }
-        .onDisappear { monitor.release() }
+        .onAppear {
+            monitor.acquire()
+            startProcessSampling()
+        }
+        .onDisappear {
+            monitor.release()
+            processTask?.cancel()
+            processTask = nil
+        }
+    }
+
+    private func startProcessSampling() {
+        processTask?.cancel()
+        processTask = Task.detached(priority: .utility) {
+            while !Task.isCancelled {
+                let list = TopProcessReader.read(limit: 3)
+                await MainActor.run { topProcesses = list }
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+            }
+        }
     }
 
     private func meter(_ title: Text, fraction: Double, detail: String) -> some View {

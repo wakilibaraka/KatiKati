@@ -310,6 +310,21 @@ final class DockWingModelsTests: XCTestCase {
         let high = MemoryUsage(used: 15 * 1_073_741_824, total: 16 * 1_073_741_824)
         XCTAssertEqual(high.pressureLevel, .critical)
         XCTAssertEqual(high.pressureLabel, "Crit")
+
+        var telemetry = DockTelemetryState()
+        XCTAssertNil(telemetry.batteryHealthSummary)
+        XCTAssertNil(telemetry.batteryRemainingSummary)
+        XCTAssertNil(telemetry.batteryCardSubtitle)
+
+        telemetry.batteryCharging = true
+        telemetry.batteryWatts = 24
+        telemetry.batterySecondsRemaining = 2700
+        telemetry.batteryHealthPercent = 94
+        telemetry.batteryCycleCount = 88
+        XCTAssertEqual(telemetry.batteryHealthSummary, "94% · 88c")
+        XCTAssertNotNil(telemetry.batteryRemainingSummary)
+        XCTAssertEqual(telemetry.batteryCardSubtitle?.contains("24W"), true)
+        XCTAssertEqual(telemetry.batteryCardSubtitle?.contains("94% · 88c"), true)
     }
 
     func testLivecheckWingsAcrossAllLayoutModesAndPlacements() {

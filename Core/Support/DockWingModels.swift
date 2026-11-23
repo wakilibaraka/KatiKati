@@ -628,6 +628,38 @@ struct DockTelemetryState: Equatable, Sendable {
     var batteryFraction: Double? = nil
     var batteryCharging: Bool = false
     var batteryWatts: Double? = nil
+    var batterySecondsRemaining: Int? = nil
+    var batteryCycleCount: Int? = nil
+    var batteryHealthPercent: Int? = nil
+
+    var batteryRemainingSummary: String? {
+        guard let remaining = PowerFacts.durationText(batterySecondsRemaining) else { return nil }
+        return batteryCharging
+            ? "\(remaining) \(String(localized: "to full"))"
+            : "\(remaining) \(String(localized: "left"))"
+    }
+
+    var batteryHealthSummary: String? {
+        var parts: [String] = []
+        if let health = batteryHealthPercent {
+            parts.append("\(health)%")
+        }
+        if let cycles = batteryCycleCount {
+            parts.append("\(cycles)c")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    var batteryCardSubtitle: String? {
+        let parts = [
+            batteryCharging ? String(localized: "Charging") : nil,
+            batteryRemainingSummary,
+            batteryWatts.map { String(format: "%.0fW", $0) },
+            batteryHealthSummary,
+            thermalState != .nominal ? thermalState.name : nil
+        ].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
 }
 
 enum DockSpotifyTrackKey {

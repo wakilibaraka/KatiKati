@@ -434,6 +434,7 @@ private struct ThermalSparklineCanvas: View {
 
 private struct DockTelemetryPreviewCard: View {
     @ObservedObject private var feed = DockTelemetryFeed.shared
+    @AppStorage("com.katikati.dockII.telemetryIOHIDEnabled") private var iohidEnabled = false
     var onOpenActivityMonitor: () -> Void = {}
 
     var body: some View {
@@ -466,7 +467,9 @@ private struct DockTelemetryPreviewCard: View {
                     metricCell(
                         Text("Battery"),
                         value: state.batteryFraction.map { SystemMonitorFormat.percent($0) } ?? "AC",
-                        detail: state.batteryWatts.map { String(format: "%.0fW", $0) }
+                        detail: [state.batteryRemainingSummary,
+                                 state.batteryWatts.map { String(format: "%.0fW", $0) },
+                                 state.batteryHealthSummary].compactMap { $0 }.joined(separator: " · ").nilIfEmpty
                     )
                     metricCell(
                         Text("GPU"),
@@ -474,6 +477,14 @@ private struct DockTelemetryPreviewCard: View {
                         detail: "↓ \(DockVpnRateFormat.formatted(state.downBytesPerSec))"
                     )
                 }
+
+                Divider().opacity(0.25)
+
+                Toggle("Apple Silicon Thermal Sensors (IOHID)", isOn: $iohidEnabled)
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                    .font(.system(size: 10.5))
+                    .onChange(of: iohidEnabled) { _, _ in feed.refreshSensorsNow() }
 
                 Divider().opacity(0.25)
 
@@ -547,10 +558,7 @@ private struct BatteryPeripheralsPopoverCard: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("This Mac")
                             .font(.system(size: 12.5, weight: .medium))
-                        let sub = [overview.macCharging ? String(localized: "Charging") : nil,
-                                   telemetryState.batteryWatts.map { String(format: "%.0fW", $0) },
-                                   telemetryState.thermalState.name].compactMap { $0 }.joined(separator: " · ")
-                        if !sub.isEmpty {
+                        if let sub = telemetryState.batteryCardSubtitle {
                             Text(verbatim: sub).dockCaption()
                         }
                     }
@@ -621,4 +629,8 @@ private struct BatteryPeripheralsPopoverCard: View {
             .frame(width: 284)
         }
     }
+}
+
+private extension String {
+    var nilIfEmpty: String? { isEmpty ? nil : self }
 }
