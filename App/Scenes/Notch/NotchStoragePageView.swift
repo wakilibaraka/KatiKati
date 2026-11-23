@@ -9,6 +9,7 @@ import SwiftUI
 struct NotchStoragePageView: View {
     @ObservedObject private var scanner = StorageScanService.shared
     @ObservedObject private var cleaner = CleanerService.shared
+    @State private var leftoverCandidates: [CleanupCandidate] = []
 
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
@@ -74,6 +75,26 @@ struct NotchStoragePageView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .contextMenu {
+                    Button(String(localized: "Reveal")) {
+                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: item.path)])
+                    }
+                    Button(String(localized: "Copy Path")) {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(item.path, forType: .string)
+                    }
+                    Button(String(localized: "Move to Trash"), role: .destructive) {
+                        do {
+                            try FileManager.default.trashItem(at: URL(fileURLWithPath: item.path), resultingItemURL: nil)
+                        } catch {
+                            let alert = NSAlert()
+                            alert.messageText = String(localized: "Move to Trash is unavailable on this volume.")
+                            alert.informativeText = error.localizedDescription
+                            alert.addButton(withTitle: String(localized: "OK"))
+                            alert.runModal()
+                        }
+                    }
+                }
             }
         }
     }
@@ -92,21 +113,55 @@ struct NotchStoragePageView: View {
 
     private var reviewLeftovers: some View {
         Button {
-            let userHome = FileManager.default.homeDirectoryForCurrentUser.path
-            let candidates = AppLeftoverScanPlan.expectedCandidatePaths(home: userHome, bundleID: "com.spotify.client", appName: "Spotify")
-            let alert = NSAlert()
-            alert.messageText = String(localized: "Scan App Leftovers")
-            let preview = candidates.prefix(4).map { "• " + URL(fileURLWithPath: $0).lastPathComponent }.joined(separator: "\n")
-            alert.informativeText = String(format: String(localized: "Scanned %d potential leftover locations in ~/Library.\n\n%@"), candidates.count, preview)
-            alert.addButton(withTitle: String(localized: "OK"))
+            let panel = NSOpenPanel()
+            panel.allowedContentTypes = [.application]
+            panel.canChooseFiles = true
+            panel.canChooseDirectories = false
+            panel.allowsMultipleSelection = false
+            panel.message = String(localized: "Scan App Leftovers")
             NSApp.activate(ignoringOtherApps: true)
-            alert.runModal()
+            guard panel.runModal() == .OK, let appURL = panel.url else { return }
+            cleaner.scanLeftovers(forAppAt: appURL) {
+                leftoverCandidates = cleaner.leftoverCandidates
+                showLeftoverReview()
+            }
         } label: {
-            Text(verbatim: "Leftovers…")
+            cleaner.isScanningLeftovers ? Text("Scanning…") : Text(verbatim: "Leftovers…")
         }
         .buttonStyle(.plain)
         .font(.system(size: 10.5, weight: .semibold, design: .rounded))
         .foregroundStyle(.white.opacity(0.85))
+        .disabled(cleaner.isScanningLeftovers)
+    }
+
+    private func showLeftoverReview() {
+        guard !leftoverCandidates.isEmpty else {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "No Apps Found")
+            alert.informativeText = String(localized: "Nothing to Clean")
+            alert.addButton(withTitle: String(localized: "OK"))
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+            return
+        }
+        let preview = leftoverCandidates.prefix(8).map {
+            "• \($0.name) — \(ByteCountFormatter.string(fromByteCount: $0.bytes, countStyle: .file))"
+        }.joined(separator: "\n")
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Move to Trash?")
+        alert.informativeText = String(format: String(localized: "Scanned %d potential leftover locations in ~/Library.\n\n%@"),
+                                       leftoverCandidates.count, preview)
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Move to Trash"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        let outcome = cleaner.clean(leftoverCandidates)
+        let done = NSAlert()
+        done.messageText = String(localized: "Move to Trash")
+        done.informativeText = "\(outcome.moved) moved, \(outcome.failed) failed."
+        done.addButton(withTitle: String(localized: "OK"))
+        done.runModal()
     }
 
     private func reviewCachesTapped() {

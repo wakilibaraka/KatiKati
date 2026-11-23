@@ -15,7 +15,9 @@ final class CleanerService: ObservableObject {
     }
 
     @Published private(set) var candidates: [CleanupCandidate] = []
+    @Published private(set) var leftoverCandidates: [CleanupCandidate] = []
     @Published private(set) var isScanning = false
+    @Published private(set) var isScanningLeftovers = false
 
     func scan(completion: (() -> Void)? = nil) {
         guard !isScanning else { return }
@@ -36,11 +38,48 @@ final class CleanerService: ObservableObject {
                     let bytes = StorageScanService.size(of: child.path)
                     found.append(CleanupCandidate(path: child.path, bytes: bytes, lastModified: modified))
                 }
+
             }
             let plan = CleanupPlan.candidates(from: found)
             await MainActor.run {
                 self?.candidates = plan
                 self?.isScanning = false
+                completion?()
+            }
+        }
+
+    }
+
+    func scanLeftovers(forAppAt appURL: URL, completion: (() -> Void)? = nil) {
+        guard !isScanningLeftovers,
+              let bundle = Bundle(url: appURL),
+              let bundleID = bundle.bundleIdentifier,
+              !AppLeftoverScanPlan.isProtected(bundleID: bundleID) else { return }
+        let appName = (bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
+            ?? (bundle.object(forInfoDictionaryKey: "CFBundleName") as? String)
+            ?? appURL.deletingPathExtension().lastPathComponent
+        isScanningLeftovers = true
+        leftoverCandidates = []
+        Task.detached(priority: .utility) { [weak self] in
+            let home = NSHomeDirectory()
+            let existing = AppLeftoverScanPlan.targetDirectories(home: home).flatMap { root in
+                (try? FileManager.default.contentsOfDirectory(atPath: root))?.map {
+                    (root as NSString).appendingPathComponent($0)
+                } ?? []
+            }
+            let paths = AppLeftoverScanPlan.candidatePaths(
+                home: home, existingPaths: existing, bundleID: bundleID, appName: appName)
+            let keys: Set<URLResourceKey> = [.contentModificationDateKey]
+            let found = paths.compactMap { path -> CleanupCandidate? in
+                let url = URL(fileURLWithPath: path)
+                guard let modified = try? url.resourceValues(forKeys: keys).contentModificationDate else { return nil }
+                return CleanupCandidate(path: path, bytes: StorageScanService.size(of: path), lastModified: modified)
+            }.filter { $0.bytes > 0 }
+            await MainActor.run {
+                self?.leftoverCandidates = found.sorted {
+                    $0.bytes != $1.bytes ? $0.bytes > $1.bytes : $0.path < $1.path
+                }
+                self?.isScanningLeftovers = false
                 completion?()
             }
         }
