@@ -13,6 +13,53 @@ extension EnvironmentValues {
     }
 }
 
+struct DockProfileActions {
+    var summaries: () -> [BarProfileSummary]
+    var save: (String) -> BarProfile?
+    var apply: (String) -> Void
+    var delete: (String) -> Void
+}
+
+private struct DockProfilesCard: View {
+    let actions: DockProfileActions
+    @State private var name = ""
+
+    var body: some View {
+        SettingsCard(Text("Dock Layout")) {
+            if actions.summaries().isEmpty {
+                Text("None").foregroundStyle(.secondary)
+            } else {
+                ForEach(actions.summaries()) { profile in
+                    SettingsRow(Text(profile.name)) {
+                        Button("Apply") { actions.apply(profile.id) }.controlSize(.small)
+                        Button("Delete") { actions.delete(profile.id) }.controlSize(.small)
+                    }
+                    SettingsDivider()
+                }
+            }
+            SettingsRow(Text("Save")) {
+                TextField("Name", text: $name).textFieldStyle(.roundedBorder).frame(width: 160)
+                Button("Save") {
+                    if actions.save(name) != nil { name = "" }
+                }
+                .controlSize(.small)
+                .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+        }
+    }
+}
+
+private struct DockProfileActionsKey: EnvironmentKey {
+    static let defaultValue: DockProfileActions? = nil
+}
+
+extension EnvironmentValues {
+    var dockProfileActions: DockProfileActions? {
+        get { self[DockProfileActionsKey.self] }
+        set { self[DockProfileActionsKey.self] = newValue }
+    }
+}
+
 // The Widgets mode of `SettingsLayoutPane`; state lives in the main file.
 extension SettingsLayoutPane {
     @ViewBuilder
@@ -75,6 +122,10 @@ extension SettingsLayoutPane {
             }
         }
 
+        if let actions = dockProfileActions {
+            DockProfilesCard(actions: actions)
+        }
+
         // The widget-look block is composed by the Widgets tab instead: its controls live in the
         // app-only `SettingsWindowView`, and this pane also compiles into the test target.
         SettingsCard(Text("Dock Layout")) {
@@ -113,6 +164,18 @@ extension SettingsLayoutPane {
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Mid-Dock Utilities"),
+                isOn: Binding(
+                    get: { store.dockSlotLayout.groupAdjacentUtilities },
+                    set: { store.setDockSlotLayout(DockSlotLayout(
+                        items: store.dockSlotLayout.items,
+                        trailingCapsule: store.dockSlotLayout.trailingCapsule,
+                        groupAdjacentUtilities: $0
+                    )) }
+                )
+            )
             let slotEntries = store.dockSlotLayout.items.filter { $0.item != .drawer }
             ForEach(Array(slotEntries.enumerated()), id: \.element.item) { index, entry in
                 SettingsDivider()
@@ -152,21 +215,6 @@ extension SettingsLayoutPane {
                     .disabled(index == slotEntries.count - 1)
                 }
             }
-            SettingsDivider()
-            SettingsToggleRow(Text("Show Shelf"), isOn: Binding(
-                get: { store.showShelf },
-                set: { store.setShowShelf($0) }
-            ))
-            SettingsDivider()
-            SettingsToggleRow(Text("Show Trash"), isOn: Binding(
-                get: { store.showTrash },
-                set: { store.setShowTrash($0) }
-            ))
-            SettingsDivider()
-            SettingsToggleRow(Text("Background Apps"), isOn: Binding(
-                get: { store.showBackgroundApps },
-                set: { store.setShowBackgroundApps($0) }
-            ))
             // Slice B: the system Dock's pinned apps, adopted into the bar's kept list.
             if let importDockPins {
                 SettingsDivider()
@@ -182,33 +230,6 @@ extension SettingsLayoutPane {
                     }
                     .controlSize(.small)
                     .disabled(importedDockPinCount > 0)
-                }
-            }
-            SettingsDivider()
-            SettingsRow(Text("Mid-Dock Utilities")) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(store.dockUtilities.order) { kind in
-                            let on = !store.dockUtilities.hidden.contains(kind)
-                            HStack(spacing: 3) {
-                                Button {
-                                    store.setDockUtilityVisible(kind, !on)
-                                } label: {
-                                    Label(kind.title, systemImage: kind.symbolName)
-                                        .font(.caption)
-                                }
-                                .buttonStyle(.plain)
-                                Button { store.moveDockUtility(kind, by: -1) } label: {
-                                    Image(systemName: "chevron.left").font(.system(size: 8.5, weight: .bold))
-                                }.buttonStyle(.plain)
-                                Button { store.moveDockUtility(kind, by: 1) } label: {
-                                    Image(systemName: "chevron.right").font(.system(size: 8.5, weight: .bold))
-                                }.buttonStyle(.plain)
-                            }
-                            .padding(.horizontal, 7).padding(.vertical, 3)
-                            .background(Capsule().fill(on ? Color.accentColor.opacity(0.22) : Color.primary.opacity(0.06)))
-                        }
-                    }
                 }
             }
             SettingsDivider()

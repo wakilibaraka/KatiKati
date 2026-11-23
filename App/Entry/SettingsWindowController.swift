@@ -11,6 +11,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let onShowWelcomeGuide: () -> Void
     /// Slice B (OpenTaskbar behavior, MIT): copies the system Dock's pins into the kept apps.
     private let onImportDockPins: (() -> Int)?
+    private let dockProfileActions: DockProfileActions?
     private var window: NSWindow?
     private var hostingView: NSHostingView<SettingsWindowView>?
     private var sessionSubscriptions: Set<AnyCancellable> = []
@@ -23,12 +24,14 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         store: AppSettingsStore,
         coordinator: SettingsCoordinator,
         onShowWelcomeGuide: @escaping () -> Void,
-        onImportDockPins: (() -> Int)?
+        onImportDockPins: (() -> Int)?,
+        dockProfileActions: DockProfileActions?
     ) {
         self.store = store
         self.coordinator = coordinator
         self.onShowWelcomeGuide = onShowWelcomeGuide
         self.onImportDockPins = onImportDockPins
+        self.dockProfileActions = dockProfileActions
     }
 
     func present() {
@@ -39,7 +42,8 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
                 coordinator: coordinator,
                 tabState: tabState,
                 onShowWelcomeGuide: onShowWelcomeGuide,
-                onImportDockPins: onImportDockPins
+                onImportDockPins: onImportDockPins,
+                dockProfileActions: dockProfileActions
             )
         )
         // The sidebar draws under the titlebar; the hosting view's safe area keeps content clear of it.

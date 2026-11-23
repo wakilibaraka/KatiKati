@@ -768,15 +768,18 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             addItemsMenu.addItem(item)
         }
         addItemsMenu.addItem(Self.headerItem(String(localized: "Widgets")))
-        let layout = store.widgetLayout
+        let layout = store.dockSlotLayout
         for s in BarSection.canonicalOrder where s != .launcher && s != .apps {
-            addRow(WidgetCatalog.localizedTitle(for: s), raw: s.rawValue, visible: layout.instance(for: s).isVisible, action: #selector(toggleWidgetSectionFromMenu(_:)))
+            let slotVisible = layout.items.contains { $0.item.section == s && !$0.isHidden }
+            addRow(WidgetCatalog.localizedTitle(for: s), raw: s.rawValue, visible: slotVisible, action: #selector(toggleWidgetSectionFromMenu(_:)))
         }
         addItemsMenu.addItem(.separator())
         addItemsMenu.addItem(Self.headerItem(String(localized: "Utilities")))
-        let hidden = store.dockUtilities.hidden
+        let utilityLayout = store.dockSlotLayout
         for k in DockUtilityKind.allCases {
-            addRow(k.title, raw: k.rawValue, visible: !hidden.contains(k), action: #selector(toggleUtilityFromMenu(_:)))
+            guard let item = DockSlotItem(rawValue: k.rawValue) else { continue }
+            let visible = utilityLayout.visibleItems.contains(item)
+            addRow(k.title, raw: k.rawValue, visible: visible, action: #selector(toggleUtilityFromMenu(_:)))
         }
     }
 
@@ -821,11 +824,14 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
     @objc private func toggleWidgetSectionFromMenu(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String, let s = BarSection(rawValue: raw) else { return }
-        store.setWidgetVisible(!store.widgetLayout.instance(for: s).isVisible, for: s)
+        guard let item = store.dockSlotLayout.items.first(where: { $0.item.section == s })?.item else { return }
+        let visible = store.dockSlotLayout.visibleItems.contains(item)
+        store.setDockSlotItem(item, hidden: visible)
     }
     @objc private func toggleUtilityFromMenu(_ sender: NSMenuItem) {
         guard let raw = sender.representedObject as? String, let k = DockUtilityKind(rawValue: raw) else { return }
-        store.setDockUtilityVisible(k, store.dockUtilities.hidden.contains(k))
+        guard let item = DockSlotItem(rawValue: k.rawValue) else { return }
+        store.setDockSlotItem(item, hidden: store.dockSlotLayout.visibleItems.contains(item))
     }
     @objc private func toggleDockEditMode() {
         menu.cancelTrackingWithoutAnimation()

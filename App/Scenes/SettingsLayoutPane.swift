@@ -69,6 +69,7 @@ struct SettingsLayoutPane: View {
     @AppStorage(DockPressAnimationStyle.defaultsKey) var pressAnimationRaw = DockPressAnimationStyle.tactileSquish.rawValue
     @AppStorage(DockRunningIndicatorStyle.defaultsKey) var runningIndicatorRaw = DockRunningIndicatorStyle.macDot.rawValue
     @Environment(\.importDockPins) var importDockPins
+    @Environment(\.dockProfileActions) var dockProfileActions
     @Environment(\.settingsStageVisible) var stageVisible
 
 

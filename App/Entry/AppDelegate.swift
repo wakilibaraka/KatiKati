@@ -86,7 +86,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 入口 2026-09-01 从状态栏菜单搬进设置卡「通用」页（owner 拍板）；直通这一点不变。
         onShowWelcomeGuide: { [weak self] in self?.showWelcomeWindow() },
         // Slice B: the Dock Items page's Import row writes through the same store the strip draws.
-        onImportDockPins: { [keptAppStore] in keptAppStore.importDockPins() }
+        onImportDockPins: { [keptAppStore] in keptAppStore.importDockPins() },
+        dockProfileActions: DockProfileActions(
+            summaries: { [weak self] in self?.barProfileService.summaries() ?? [] },
+            save: { [weak self] name in self?.barProfileService.saveCurrent(named: name) },
+            apply: { [weak self] id in _ = self?.barProfileService.apply(id: id) },
+            delete: { [weak self] id in self?.barProfileService.delete(id: id) }
+        )
     )
     /// 常驻切换全局快捷键。回调只切设置（经 settingsStore），不经过 panelCoordinator——
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
@@ -917,7 +923,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             notchSkin: settingsStore.notchSkin,
             onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) },
             initialVisibleSections: Set(settingsStore.widgetLayout.visibleOrder),
-            onToggleSection: { [weak self] section, on in self?.settingsStore.setWidgetVisible(on, for: section) },
+            onToggleSection: { [weak self] section, on in
+                guard let item: DockSlotItem = {
+                    switch section {
+                    case .weather: return .weather
+                    case .media: return .music
+                    case .clock: return .clockCalendar
+                    case .dictionary: return .dictionary
+                    case .terminal: return .terminal
+                    case .ai: return .aiTracking
+                    default: return nil
+                    }
+                }() else { return }
+                self?.settingsStore.setDockSlotItem(item, hidden: !on)
+            },
             initialWings: settingsStore.dockWings,
             onPickWing: { [weak self] placement, preset in self?.settingsStore.setDockWing(preset, placement: placement) },
             // DP-8: the three-step guide writes these live too.

@@ -21,6 +21,7 @@ struct SettingsWindowView: View {
     /// Slice B: the Dock-pin importer, injected by `SettingsWindowController` and handed to the Dock Items
     /// page through the environment (that pane also compiles into the test target).
     let onImportDockPins: (() -> Int)?
+    let dockProfileActions: DockProfileActions?
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -66,6 +67,7 @@ struct SettingsWindowView: View {
         .environment(\.dockAccent, DockAccentEnvironment.resolve(spec: store.dockAccent,
                                                                  wallpaperAccent: WallpaperEngine.shared.accentHexes))
         .environment(\.importDockPins, onImportDockPins)
+        .environment(\.dockProfileActions, dockProfileActions)
         .frame(minWidth: SettingsMetrics.minWindowWidth, minHeight: SettingsMetrics.minWindowHeight)
     }
 }
