@@ -1436,9 +1436,20 @@ struct DockStripView: View {
     /// Slice E: the two closures live here rather than inline, or the view body's type-check times out.
     private func wheelResolver(projection: StripProjection) -> (StripWheelScroll.Input, CGFloat) -> WheelAction {
         let target = wheelTarget(projection: projection)
+        let overPagedWidget = isHoveredMultiPageWidget(projection: projection)
         return { input, overflow in
-            WheelActionMap.action(for: input, target: target, stripOverflows: overflow > 0)
+            if overPagedWidget, !input.isOptionPressed, abs(input.deltaY) >= abs(input.deltaX) {
+                return .ignore
+            }
+            return WheelActionMap.action(for: input, target: target, stripOverflows: overflow > 0)
         }
+    }
+
+    private func isHoveredMultiPageWidget(projection: StripProjection) -> Bool {
+        guard let hoveredEntryID,
+              let entry = projection.entries.first(where: { $0.id == hoveredEntryID }),
+              case let .sectionPlaceholder(section) = entry else { return false }
+        return section == .weather || section == .media
     }
 
     private func wheelPerformer(projection: StripProjection) -> (WheelAction) -> Void {

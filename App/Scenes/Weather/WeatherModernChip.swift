@@ -14,7 +14,22 @@ struct WeatherModernChip: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
     @State private var naturalHeight: CGFloat = 0
-    @State private var pageIndex = 0
+    @AppStorage("com.katikati.weather.modernChip.page") private var storedPageIndex: Int = 0
+
+    private var pageIndex: Int {
+        WidgetPageCycle.clamped(storedPageIndex, count: 3)
+    }
+
+    private func stepPage(_ delta: Int) {
+        let next = WidgetPageCycle.next(current: pageIndex, count: 3, delta: delta)
+        if reduceMotion {
+            storedPageIndex = next
+        } else {
+            withAnimation(.snappy(duration: 0.22)) {
+                storedPageIndex = next
+            }
+        }
+    }
 
     private static let ink = Color(white: 0.96)
     private var accent: Color {
@@ -50,9 +65,7 @@ struct WeatherModernChip: View {
         .dockTileChrome(isHovered: isHovered, fill: plate)
         .overlay(
             VerticalWheelScrollNSViewRepresentable { step in
-                withAnimation(.snappy(duration: 0.22)) {
-                    pageIndex = (pageIndex + step + 3) % 3
-                }
+                stepPage(step)
             }
         )
         .onHover { isHovered = $0 }
@@ -64,16 +77,14 @@ struct WeatherModernChip: View {
     }
 
     private var pagerDots: some View {
-        VStack(spacing: 3) {
-            ForEach(0..<3, id: \.self) { idx in
-                Circle()
-                    .fill(idx == pageIndex ? Self.ink : Self.ink.opacity(0.32))
-                    .frame(width: idx == pageIndex ? 4 : 3.5, height: idx == pageIndex ? 4 : 3.5)
-                    .contentShape(Rectangle().inset(by: -3))
-                    .onTapGesture {
-                        withAnimation(.snappy(duration: 0.22)) { pageIndex = idx }
-                    }
-            }
+        WidgetPagerDotsStrip(
+            pageCount: 3,
+            currentPage: pageIndex,
+            axis: .vertical,
+            activeColor: Self.ink,
+            inactiveColor: Self.ink.opacity(0.32)
+        ) {
+            stepPage(1)
         }
     }
 

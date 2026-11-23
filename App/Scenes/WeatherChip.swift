@@ -355,8 +355,24 @@ struct WeatherNoPlaceHint: View {
 struct RailWeatherTile: View {
     @EnvironmentObject var weatherService: WeatherService
     @AppStorage(WeatherChipPreset.storageKey) private var chipPreset: WeatherChipPreset = .modern
+    @AppStorage("com.katikati.weather.railTile.page") private var storedPageIndex: Int = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
-    @State private var pageIndex = 0
+
+    private var pageIndex: Int {
+        WidgetPageCycle.clamped(storedPageIndex, count: 3)
+    }
+
+    private func stepPage(_ delta: Int) {
+        let next = WidgetPageCycle.next(current: pageIndex, count: 3, delta: delta)
+        if reduceMotion {
+            storedPageIndex = next
+        } else {
+            withAnimation(.snappy(duration: 0.2)) {
+                storedPageIndex = next
+            }
+        }
+    }
 
     var body: some View {
         let state = weatherService.currentState
@@ -399,42 +415,28 @@ struct RailWeatherTile: View {
                     .foregroundStyle(inkColor).lineLimit(1).minimumScaleFactor(0.7)
             }
             if state.hasData {
-                HStack(spacing: 2.5) {
-                    ForEach(0..<3, id: \.self) { idx in
-                        Circle()
-                            .fill(inkColor.opacity(idx == pageIndex ? 0.92 : 0.28))
-                            .frame(width: 2.5, height: 2.5)
-                    }
+                WidgetPagerDotsStrip(
+                    pageCount: 3,
+                    currentPage: pageIndex,
+                    axis: .horizontal,
+                    activeColor: inkColor.opacity(0.95),
+                    inactiveColor: inkColor.opacity(0.30),
+                    compact: true
+                ) {
+                    stepPage(1)
                 }
-                .padding(.top, 1)
             }
         }
         .frame(width: BarSection.railTileSize, height: BarSection.railTileSize)
         .dockTileChrome(isHovered: isHovered, fill: sky)
-        .overlay(RailWeatherScrollHost { step in
+        .overlay(VerticalWheelScrollNSViewRepresentable { step in
             guard state.hasData else { return }
-            withAnimation(.snappy(duration: 0.2)) { pageIndex = (pageIndex + step + 3) % 3 }
+            stepPage(step)
         })
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
         .onTapGesture { WidgetPanelController.weather.toggle() }
         .dockHoverPreview { WeatherPreviewCard().environmentObject(weatherService) }
-    }
-}
-
-private struct RailWeatherScrollHost: NSViewRepresentable {
-    let onStep: (Int) -> Void
-    func makeNSView(context: Context) -> ScrollNSView { let v = ScrollNSView(); v.onStep = onStep; return v }
-    func updateNSView(_ v: ScrollNSView, context: Context) { v.onStep = onStep }
-    final class ScrollNSView: NSView {
-        var onStep: ((Int) -> Void)?
-        private var lastFire = Date.distantPast
-        override func hitTest(_ point: NSPoint) -> NSView? { nil }
-        override func scrollWheel(with event: NSEvent) {
-            guard abs(event.scrollingDeltaY) > 1.5, Date().timeIntervalSince(lastFire) > 0.18 else { return }
-            lastFire = Date()
-            onStep?(event.scrollingDeltaY > 0 ? -1 : 1)
-        }
     }
 }
 

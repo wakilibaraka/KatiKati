@@ -6900,3 +6900,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 - `Core/Support/StripWheelScroll.swift`: added `WidgetPageCycle` (`next` / `clamped`), `WidgetPageScrollPhase`, `WidgetPageScrollInput`, and phase-aware `WidgetPageScrollEngine` (28 pt trackpad detent locking 1 page per swipe, momentum ignore, discrete wheel cooldown).
 - `Tests/Unit/StripWheelScrollTests.swift`: added wrapping/clamping, trackpad swipe-lock + momentum-ignore, and discrete cooldown unit tests (7/7 passed in 0.004 s, 0 warnings). Zero `project.pbxproj` edits.
+
+### DO-7b — Multi-Page In-Dock Widgets UI Wiring (landed 2026-11-23)
+
+- `App/Scenes/ExpandedMediaCardView.swift`: upgraded `VerticalWheelNSView` to drive `WidgetPageScrollEngine` with AppKit phase/momentum detection, added tactile `WidgetPagerDotsStrip` (spring pulse + alignment haptic + generous hit padding), and persisted last page on `ExpandedMediaCardView`.
+- `App/Scenes/Weather/WeatherModernChip.swift` & `App/Scenes/WeatherChip.swift`: wired `WidgetPagerDotsStrip`, `@AppStorage` page persistence, and `VerticalWheelScrollNSViewRepresentable` onto `WeatherModernChip` and `RailWeatherTile`, retiring `RailWeatherScrollHost`.
+- `App/Scenes/DockStripView.swift`: ignored strip-level vertical wheel capture over hovered `.weather` / `.media` widgets so widget paging receives trackpad swipes cleanly without triggering strip pan. Zero `project.pbxproj` edits.

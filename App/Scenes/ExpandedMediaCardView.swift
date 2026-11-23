@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -28,13 +29,30 @@ struct ExpandedMediaCardView: View {
     @State private var isHovered = false
     @State private var timelineNow = Date()
     @AppStorage("com.katikati.media.preset") private var mediaPreset: NowPlayingPreset = .accentCard
-    @State private var currentPage: Int = 0
+    @AppStorage("com.katikati.media.expandedCard.page") private var storedPage: Int = 0
     @State private var scrollDirection: Int = 1
     @State private var showPopup = false
     @State private var armingAlarm = false
     @State private var alarmDraft = Date()
     @Environment(\.widgetSize) private var widgetSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    private var currentPage: Int {
+        WidgetPageCycle.clamped(storedPage, count: 5)
+    }
+
+    private func stepPage(_ delta: Int) {
+        scrollDirection = delta >= 0 ? 1 : -1
+        let next = WidgetPageCycle.next(current: currentPage, count: 5, delta: delta)
+        if reduceMotion {
+            storedPage = next
+        } else {
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                storedPage = next
+            }
+        }
+    }
 
     var body: some View {
         let state = feed.nowPlayingState
@@ -85,22 +103,9 @@ struct ExpandedMediaCardView: View {
             .frame(maxWidth: .infinity)
             .clipped()
 
-            // Vertical Pagination Dots (Apple-style interactive indicator)
-            VStack(spacing: 3) {
-                ForEach(0..<5) { page in
-                    Capsule(style: .continuous)
-                        .fill(currentPage == page ? Color.white : Color.white.opacity(0.28))
-                        .frame(width: 3, height: currentPage == page ? 8 : 3)
-                        .scaleEffect(currentPage == page ? 1.1 : 1.0)
-                        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: currentPage)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            scrollDirection = page >= currentPage ? 1 : -1
-                            withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
-                                currentPage = page
-                            }
-                        }
-                }
+            // Vertical Pagination Dots (tactile click cycles to next page & remembers last page)
+            WidgetPagerDotsStrip(pageCount: 5, currentPage: currentPage, axis: .vertical) {
+                stepPage(1)
             }
             .padding(.trailing, 1)
         }
@@ -118,12 +123,7 @@ struct ExpandedMediaCardView: View {
         .onHover { isHovered = $0 }
         .overlay(
             VerticalWheelScrollNSViewRepresentable { direction in
-                let target = min(max(currentPage + direction, 0), 4)
-                guard target != currentPage else { return }
-                scrollDirection = direction
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
-                    currentPage = target
-                }
+                stepPage(direction)
             }
             .allowsHitTesting(true)
         )
@@ -784,32 +784,123 @@ struct VerticalWheelScrollNSViewRepresentable: NSViewRepresentable {
 
 final class VerticalWheelNSView: NSView {
     var onStep: ((Int) -> Void)?
-    private var lastScrollTime: TimeInterval = 0
-    private var accumulatedDelta: CGFloat = 0
+    private var scrollState = WidgetPageScrollEngine.State()
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        // Only intercept scrollWheel events so standard mouse clicks pass directly to buttons beneath!
-        if let event = NSApp.currentEvent, event.type == .scrollWheel {
-            return self
-        }
-        return nil
+        guard super.hitTest(point) != nil,
+              let event = NSApp.currentEvent,
+              event.type == .scrollWheel else { return nil }
+        // Let predominantly horizontal swipes fall through to pan an overflowing horizontal dock;
+        // own vertical swipes and gesture phase boundaries (.began/.ended/.cancelled).
+        let isVerticalOrBoundary = abs(event.scrollingDeltaY) >= abs(event.scrollingDeltaX)
+            || event.phase.contains(.ended) || event.phase.contains(.cancelled)
+        return isVerticalOrBoundary ? self : nil
     }
 
     override func scrollWheel(with event: NSEvent) {
-        let delta = event.scrollingDeltaY
-        let now = CACurrentMediaTime()
+        let input = WidgetPageScrollInput(
+            deltaX: event.scrollingDeltaX,
+            deltaY: event.scrollingDeltaY,
+            hasPreciseDeltas: event.hasPreciseScrollingDeltas,
+            isMomentum: !event.momentumPhase.isEmpty,
+            phase: Self.mapPhase(event),
+            timestamp: event.timestamp
+        )
+        if let step = WidgetPageScrollEngine.consume(input, state: &scrollState) {
+            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+            onStep?(step)
+        }
+    }
 
-        accumulatedDelta += delta
+    private static func mapPhase(_ event: NSEvent) -> WidgetPageScrollPhase {
+        guard event.hasPreciseScrollingDeltas else { return .discrete }
+        if event.phase.contains(.began) || event.phase.contains(.mayBegin) { return .began }
+        if event.phase.contains(.ended) { return .ended }
+        if event.phase.contains(.cancelled) { return .cancelled }
+        if event.phase.contains(.changed) { return .changed }
+        return event.momentumPhase.isEmpty ? .discrete : .changed
+    }
+}
 
-        // Hysteresis cooldown (0.24s) prevents erratic multiple skips
-        if now - lastScrollTime > 0.24 && abs(accumulatedDelta) > 1.2 {
-            if accumulatedDelta > 0 {
-                onStep?(-1) // scroll up -> previous page
-            } else {
-                onStep?(1)  // scroll down -> next page
+/// Tactile multi-page dot strip: clicking anywhere on the strip cycles to the next page with a
+/// spring pulse + alignment haptic, and expands the hit box without inflating widget layout.
+struct WidgetPagerDotsStrip: View {
+    let pageCount: Int
+    let currentPage: Int
+    var axis: Axis = .vertical
+    var activeColor: Color = .white
+    var inactiveColor: Color = Color.white.opacity(0.30)
+    var compact: Bool = false
+    let onAdvance: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
+    @State private var pulseScale: CGFloat = 1.0
+
+    private var dotSpacing: CGFloat {
+        compact ? 2.5 : (axis == .vertical && pageCount > 3 ? 2.2 : 3)
+    }
+
+    private var horizontalPadding: CGFloat {
+        compact ? 4 : (axis == .vertical ? 4 : 5)
+    }
+
+    private var verticalPadding: CGFloat {
+        if compact { return 2 }
+        if axis == .vertical { return pageCount > 3 ? 1.5 : 4 }
+        return 3
+    }
+
+    var body: some View {
+        Button(action: triggerAdvance) {
+            Group {
+                if axis == .vertical {
+                    VStack(spacing: dotSpacing) { dots }
+                } else {
+                    HStack(spacing: dotSpacing) { dots }
+                }
             }
-            lastScrollTime = now
-            accumulatedDelta = 0
+            .padding(.horizontal, horizontalPadding)
+            .padding(.vertical, verticalPadding)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(activeColor.opacity(isHovered ? 0.14 : 0))
+            )
+            .contentShape(Rectangle().inset(by: -3))
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+        .accessibilityValue(Text(verbatim: "\(currentPage + 1)/\(max(pageCount, 1))"))
+    }
+
+    @ViewBuilder
+    private var dots: some View {
+        ForEach(0..<max(pageCount, 0), id: \.self) { page in
+            let isActive = page == currentPage
+            let long: CGFloat = compact ? 6 : 8
+            let short: CGFloat = compact ? 2.5 : 3
+            Capsule(style: .continuous)
+                .fill(isActive ? activeColor : inactiveColor)
+                .frame(
+                    width: axis == .vertical ? short : (isActive ? long : short),
+                    height: axis == .vertical ? (isActive ? long : short) : short
+                )
+                .scaleEffect(isActive ? pulseScale : 1.0)
+                .animation(reduceMotion ? nil : .spring(response: 0.25, dampingFraction: 0.7), value: currentPage)
+        }
+    }
+
+    private func triggerAdvance() {
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
+        onAdvance()
+        guard !reduceMotion else { return }
+        withAnimation(.spring(response: 0.16, dampingFraction: 0.45)) {
+            pulseScale = 1.28
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+            withAnimation(.spring(response: 0.24, dampingFraction: 0.65)) {
+                pulseScale = 1.0
+            }
         }
     }
 }
