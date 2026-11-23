@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795381275.8337615,
-    "seen": 1795381458.3443289,
-    "ast_hash": "f4dc5120532e71feb767b742d2e75a44",
+    "mtime": 1795432313.8497593,
+    "seen": 1795432375.9337442,
+    "ast_hash": "1b3a2920ebb0fbf23efab26b6257a174",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1314,9 +1314,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1795432307.3129454,
-    "seen": 1795432308.589685,
-    "ast_hash": "78a7837af52a5b4b4c7e99f6a3a32f22",
+    "mtime": 1795432311.2626405,
+    "seen": 1795432375.933942,
+    "ast_hash": "cf3545221cbefaae8d42c95615f7833a",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795432180.8934288,
-    "seen": 1795432308.590417,
-    "ast_hash": "684bec1c435307aa3b3ba5a29903d1fa",
+    "mtime": 1795432315.6479173,
+    "seen": 1795432375.934688,
+    "ast_hash": "8b5733eab5fe37b8da2bdabf3a7f4a73",
     "semantic_hash": ""
   },
   "README.md": {
