@@ -158,9 +158,9 @@ The following 5 files **MUST NOT BE MODIFIED** during `LQ-1`–`LQ-6`:
 - [x] **LQ-3.3 (`≤ 150` LOC):** Pure unit tests in `Tests/Unit/LiquidAgentHookTests.swift` for JSON hook install/uninstall round-trip, backup preservation of user hooks, and socket payload parsing. — `DONE — 7a00d462` (in `AgentApprovalTests.swift`)
 
 ### Wave `LQ-4` — Activities, 3D AirPods, Draggable HUD & Double-Click Tray
-- [ ] **LQ-4.1 (`≤ 280` LOC):** Port `LiquidActivityViews.swift` (charging/low battery, next meeting + Join, camera light, Focus, timers, downloads, screen recording, `+N` overflow) wired to `CalendarService`, `SystemStatusService`, `CameraMirrorService`, and `DownloadManagerService`.
-- [ ] **LQ-4.2 (`≤ 250` LOC):** Port AirPods battery card (`BudsStage` 3D SceneKit or SwiftUI fallback) wired to `BluetoothDeviceReader` + draggable Volume/Brightness HUD (`LiquidHUDView.swift`) wired to `SystemStatusService`.
-- [ ] **LQ-4.3 (`≤ 250` LOC):** Port double-click tools tray (`LiquidTrayView.swift`) wired to `ShelfStore`, `ClipboardMonitor`, `FocusTimerController`, and Shortcuts.
+- [x] **LQ-4.1 (`≤ 280` LOC):** Port `LiquidActivityViews.swift` (charging/low battery, next meeting + Join, camera light, Focus, timers, downloads, screen recording, `+N` overflow) wired to `CalendarService`, `SystemStatusService`, `CameraMirrorService`, and `DownloadManagerService`. — `DONE — 32b8c784`
+- [x] **LQ-4.2 (`≤ 250` LOC):** Port AirPods battery card (`BudsStage` 3D SceneKit or SwiftUI fallback) wired to `BluetoothDeviceReader` + draggable Volume/Brightness HUD (`LiquidHUDView.swift`) wired to `SystemStatusService`. — `DONE — 32b8c784`
+- [x] **LQ-4.3 (`≤ 250` LOC):** Port double-click tools tray (`LiquidTrayView.swift`) wired to `ShelfStore`, `ClipboardMonitor`, `FocusTimerController`, and Shortcuts. — `DONE — 32b8c784`
 
 ### Wave `LQ-5` — Opt-In Extras (Sports, Video-in-Island, Lock Screen, Notifications)
 - [ ] **LQ-5.1 (`≤ 250` LOC):** Port `SportsFeedService.swift` + `LiquidExtrasViews.swift` (ESPN Football, NFL, NBA, MLB, NHL live score balls & cards, off by default).

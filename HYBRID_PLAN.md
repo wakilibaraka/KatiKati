@@ -7046,3 +7046,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LQ-3` — Liquid Notch Interactive Claude Code & Codex Permission Balls (`7a00d462`, `20d34755`, 2026-11-24)
 
 - `Core/Support/AgentUsage/AgentApproval.swift`, `Tests/Unit/AgentApprovalTests.swift`, `App/Scenes/Notch/Island/IslandPresets.swift`, `App/Scenes/LiveIslandSettingsBlock.swift`, `Resources/Localizable.xcstrings`: added `LiquidHookInstaller` (fail-open `agent-hook.sh` + timestamped `~/.claude/settings.json` & `~/.codex/hooks.json` backup/restore preserving user hooks) + `LiquidAgentHookLine` socket parser + unit tests (`7a00d462`), and wired `LiquidAgentHub` Unix socket server, detached agent balls, interactive Allow/Deny/Answer card, and opt-in `Watch Claude & Codex` toggle (`false` by default) (`20d34755`; 35 unit tests + 12-locale localization gate passing, zero `project.pbxproj` edits).
+
+### `LQ-4` — Liquid Notch Activities, 3D AirPods, Draggable HUD & Double-Click Tray (`32b8c784`, 2026-11-24)
+
+- `Resources/LiquidNotch/{airpods-4.usdz,studio.hdr,airpods-buds.png}`, `KatiKati.xcodeproj/project.pbxproj`, `NOTICE`, `App/Scenes/Notch/Island/IslandPresets.swift`, `Resources/Localizable.xcstrings`: bundled 3D AirPods assets with MIT/CC BY 4.0/CC0 attributions in `NOTICE` and `LiquidBudsStage` SceneKit renderer + PNG fallback, added `LiquidHUDView` draggable Volume/Brightness/Keyboard HUD, `activityEarsRow` wired to `LiveActivityFeed`, and double-click `LiquidTrayView` (`32b8c784`; 27 unit tests + 12-locale localization gate passing).
