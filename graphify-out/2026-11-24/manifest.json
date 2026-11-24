@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795551195.6025724,
-    "seen": 1795551324.717911,
-    "ast_hash": "24e7b7ec5b56b6eee74ddd23b0cbc684",
+    "mtime": 1795551330.7108812,
+    "seen": 1795551390.533099,
+    "ast_hash": "11ff4dc2157323393f4005f40ee05428",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
