@@ -1311,7 +1311,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         applyDockIconPreference()
         presentWelcomeGuideIfNeeded()
         runCheatSheetLiveCheckIfRequested()
-        nativeDockPreferencesService.reapplyDesiredIfNeeded()
+        nativeDockPreferencesService.scheduleReapplyDesiredIfNeeded()
         syncDesktopCanvasState()
         desktopDefaultsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,

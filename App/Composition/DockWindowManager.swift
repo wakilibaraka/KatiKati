@@ -88,6 +88,8 @@ public final class DockWindowManager: ObservableObject {
     // MARK: Stability & Concurrency Primitives
     private let axQueue = DispatchQueue(label: "com.katikati.ax.serial", qos: .userInteractive)
     private var axObservers: [pid_t: AXObserver] = [:]
+    private var axAttachInFlightPIDs: Set<pid_t> = []
+    private var lastRelativeOrderSignature: (wid: CGWindowID, panelCount: Int, level: Int)?
     private var workspaceCancellables = Set<AnyCancellable>()
     private var globalMouseMonitor: Any?
     private var localMouseMonitor: Any?
@@ -120,6 +122,8 @@ public final class DockWindowManager: ObservableObject {
 
     public func stop() {
         isStarted = false
+        lastRelativeOrderSignature = nil
+        axAttachInFlightPIDs.removeAll()
         workspaceCancellables.removeAll()
         stopEdgeSensor()
         stopOverlapWatch()
@@ -257,6 +261,14 @@ public final class DockWindowManager: ObservableObject {
         }
     }
 
+    static func shouldApplySkyLightWindowOrder(
+        connectionID: CGSConnectionID,
+        windowNumber: Int,
+        targetWID: CGWindowID = 1
+    ) -> Bool {
+        connectionID != 0 && windowNumber > 0 && targetWID != 0
+    }
+
     /// Sets the AppKit `NSWindow.Level` and optionally reinforces it via private SkyLight `CGSSetWindowLevel`
     /// so WindowServer immediately updates compositing order without waiting for an AppKit flush.
     ///
@@ -275,11 +287,13 @@ public final class DockWindowManager: ObservableObject {
         for panel in bgPanels + dockPanels + capsulePanels where panel.level != level {
             panel.level = level
             changed = true
-            if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
+            if useSkyLightFallbackReinforcement,
+               Self.shouldApplySkyLightWindowOrder(connectionID: cid, windowNumber: panel.windowNumber) {
                 CGSSetWindowLevel(cid, CGWindowID(panel.windowNumber), Int32(level.rawValue))
             }
         }
         guard changed else { return }
+        lastRelativeOrderSignature = nil
 
         if orderAbove {
             for panel in dockPanels where panel.isVisible {
@@ -298,16 +312,31 @@ public final class DockWindowManager: ObservableObject {
 
     /// Visible panels only, for the same reason as `applyDockLevel`: ordering a hidden panel shows it.
     private func applySameLevelOrderBelow(coveringWID: CGWindowID) {
+        guard coveringWID != 0 else { return }
         let dockPanels = managedPanelsProvider?() ?? []
         let bgPanels = managedBackgroundPanelsProvider?() ?? []
+        let visiblePanels = (dockPanels + bgPanels).filter(\.isVisible)
+        let normalLevelRaw = MacDockWindowLevel.normalWindow.rawValue
+        let needsUpdate = lastRelativeOrderSignature?.wid != coveringWID
+            || lastRelativeOrderSignature?.panelCount != visiblePanels.count
+            || lastRelativeOrderSignature?.level != normalLevelRaw
+            || visiblePanels.contains { $0.level != MacDockWindowLevel.normalWindow }
+        guard needsUpdate else { return }
+
+        lastRelativeOrderSignature = (wid: coveringWID, panelCount: visiblePanels.count, level: normalLevelRaw)
         let cid = useSkyLightFallbackReinforcement ? CGSMainConnectionID() : 0
 
-        for panel in dockPanels + bgPanels where panel.isVisible {
+        for panel in visiblePanels {
             panel.level = MacDockWindowLevel.normalWindow
             panel.order(.below, relativeTo: Int(coveringWID))
-            if useSkyLightFallbackReinforcement, panel.windowNumber > 0 {
+            if useSkyLightFallbackReinforcement,
+               Self.shouldApplySkyLightWindowOrder(
+                   connectionID: cid,
+                   windowNumber: panel.windowNumber,
+                   targetWID: coveringWID
+               ) {
                 let wid = CGWindowID(panel.windowNumber)
-                CGSSetWindowLevel(cid, wid, Int32(MacDockWindowLevel.normalWindow.rawValue))
+                CGSSetWindowLevel(cid, wid, Int32(normalLevelRaw))
                 CGSOrderWindow(cid, wid, kCGSOrderBelow, coveringWID)
             }
         }
@@ -664,6 +693,8 @@ public final class DockWindowManager: ObservableObject {
     private func stopOverlapWatch() {
         overlapPollTimer?.invalidate()
         overlapPollTimer = nil
+        axAttachInFlightPIDs.removeAll()
+        lastRelativeOrderSignature = nil
         for pid in Array(axObservers.keys) {
             removeAXObserver(for: pid)
         }
@@ -680,6 +711,10 @@ public final class DockWindowManager: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: work)
     }
 
+    private struct UncheckedSendableBox<T>: @unchecked Sendable {
+        let value: T
+    }
+
     private func setupAccessibilityObserversForRunningApps() {
         guard AXIsProcessTrusted() else { return }
         for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
@@ -690,42 +725,57 @@ public final class DockWindowManager: ObservableObject {
     private func attachAXObserver(for pid: pid_t) {
         guard layeringMode.watchesWindowOverlap, AXIsProcessTrusted(),
               pid != ProcessInfo.processInfo.processIdentifier,
-              axObservers[pid] == nil else { return }
+              axObservers[pid] == nil,
+              axAttachInFlightPIDs.insert(pid).inserted else { return }
 
-        var observer: AXObserver?
-        let callback: AXObserverCallback = { _, _, _, refcon in
-            guard let refcon = refcon else { return }
-            let manager = Unmanaged<DockWindowManager>.fromOpaque(refcon).takeUnretainedValue()
-            Task { @MainActor in
-                manager.evaluateWindowLayering()
+        let selfBox = UncheckedSendableBox(value: Unmanaged.passUnretained(self).toOpaque())
+        axQueue.async { [weak self] in
+            let callback: AXObserverCallback = { _, _, _, refcon in
+                guard let refcon = refcon else { return }
+                let manager = Unmanaged<DockWindowManager>.fromOpaque(refcon).takeUnretainedValue()
+                Task { @MainActor in
+                    manager.evaluateWindowLayering()
+                }
+            }
+
+            var observer: AXObserver?
+            guard AXObserverCreate(pid, callback, &observer) == .success,
+                  let axObserver = observer else {
+                DispatchQueue.main.async {
+                    self?.axAttachInFlightPIDs.remove(pid)
+                }
+                return
+            }
+
+            let appElement = AXUIElementCreateApplication(pid)
+            AXUIElementSetMessagingTimeout(appElement, AXMessagingPolicy.defaultTimeoutSeconds)
+
+            let notifications = [
+                kAXWindowMovedNotification,
+                kAXWindowResizedNotification,
+                kAXFocusedWindowChangedNotification,
+                kAXWindowMiniaturizedNotification,
+                kAXWindowDeminiaturizedNotification
+            ]
+
+            for notif in notifications {
+                AXObserverAddNotification(axObserver, appElement, notif as CFString, selfBox.value)
+            }
+
+            let observerBox = UncheckedSendableBox(value: axObserver)
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.axAttachInFlightPIDs.remove(pid)
+                guard self.isStarted, self.layeringMode.watchesWindowOverlap,
+                      self.axObservers[pid] == nil else { return }
+                CFRunLoopAddSource(
+                    CFRunLoopGetMain(),
+                    AXObserverGetRunLoopSource(observerBox.value),
+                    .commonModes
+                )
+                self.axObservers[pid] = observerBox.value
             }
         }
-
-        guard AXObserverCreate(pid, callback, &observer) == .success,
-              let axObserver = observer else { return }
-
-        let appElement = AXUIElementCreateApplication(pid)
-        AXUIElementSetMessagingTimeout(appElement, 0.25)
-        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
-
-        let notifications = [
-            kAXWindowMovedNotification,
-            kAXWindowResizedNotification,
-            kAXFocusedWindowChangedNotification,
-            kAXWindowMiniaturizedNotification,
-            kAXWindowDeminiaturizedNotification
-        ]
-
-        for notif in notifications {
-            AXObserverAddNotification(axObserver, appElement, notif as CFString, selfPtr)
-        }
-
-        CFRunLoopAddSource(
-            CFRunLoopGetMain(),
-            AXObserverGetRunLoopSource(axObserver),
-            .commonModes
-        )
-        axObservers[pid] = axObserver
     }
 
     private func removeAXObserver(for pid: pid_t) {

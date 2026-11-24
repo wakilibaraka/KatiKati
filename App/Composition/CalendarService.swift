@@ -49,14 +49,26 @@ final class CalendarService: ObservableObject {
     /// edge flyout both call `start()` on appear), so concurrent requests collapse into one.
     private var isRequestingEvents = false
     private var isRequestingReminders = false
+    private var storeChangeDebounce: DispatchWorkItem?
 
     init() {
         observer = NotificationCenter.default.addObserver(forName: .EKEventStoreChanged, object: store, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.refreshAll() }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.storeChangeDebounce?.cancel()
+                let work = DispatchWorkItem { [weak self] in
+                    Task { @MainActor in self?.refreshAll() }
+                }
+                self.storeChangeDebounce = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
+            }
         }
     }
 
-    deinit { if let observer { NotificationCenter.default.removeObserver(observer) } }
+    deinit {
+        storeChangeDebounce?.cancel()
+        if let observer { NotificationCenter.default.removeObserver(observer) }
+    }
 
     /// What a surface asks for when the user asked for the calendar: events only. Reminders are a
     /// second grant with a second prompt, so they get their own call — a surface that is built at

@@ -296,4 +296,12 @@ final class DockWindowManagerTests: XCTestCase {
         XCTAssertEqual(keys, NativeDockPiggybackKeys(orientation: "bottom", autohide: true, tilesize: 48, magnification: nil),
                        "a number is not a boolean")
     }
+
+    func testSkyLightWindowOrderGuardRejectsInvalidIDsAndZeroWindowNumbers() {
+        XCTAssertFalse(DockWindowManager.shouldApplySkyLightWindowOrder(connectionID: 0, windowNumber: 42, targetWID: 99))
+        XCTAssertFalse(DockWindowManager.shouldApplySkyLightWindowOrder(connectionID: 1, windowNumber: 0, targetWID: 99))
+        XCTAssertFalse(DockWindowManager.shouldApplySkyLightWindowOrder(connectionID: 1, windowNumber: -1, targetWID: 99))
+        XCTAssertFalse(DockWindowManager.shouldApplySkyLightWindowOrder(connectionID: 1, windowNumber: 42, targetWID: 0))
+        XCTAssertTrue(DockWindowManager.shouldApplySkyLightWindowOrder(connectionID: 1, windowNumber: 42, targetWID: 99))
+    }
 }

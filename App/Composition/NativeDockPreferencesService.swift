@@ -303,6 +303,28 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
         try? apply(delay: delay)
     }
 
+    /// Runs launch-time Dock autohide re-application (`defaults write` + `killall Dock`) off the main thread.
+    func scheduleReapplyDesiredIfNeeded() {
+        guard isAvailable, !hasCapturedOriginal,
+              let delay = defaults.object(forKey: Self.desiredDelayKey) as? Double else { return }
+        let autohideReader = autohideReader
+        let readerQueue = readerQueue
+        let commands = Self.commands(for: delay)
+        readerQueue.async { [weak self] in
+            let original = delay <= AppSettingsStore.neverHideDelay ? nil : autohideReader()
+            if let original,
+               let data = try? JSONEncoder().encode(NativeDockOriginal(original)) {
+                DispatchQueue.main.async {
+                    guard let self, !self.hasCapturedOriginal else { return }
+                    self.defaults.set(data, forKey: Self.originalKey)
+                }
+            }
+            for command in commands {
+                try? Self.runProcess(executable: command.executable, arguments: command.arguments)
+            }
+        }
+    }
+
     static let restartDockCommand: (executable: String, arguments: [String]) = ("/usr/bin/killall", ["Dock"])
 
     // MARK: - Piggyback layering mode (confirmed by the user in Settings before it is selected)
@@ -459,7 +481,7 @@ final class NativeDockPreferencesService: NativeDockPreferencesServicing {
         ]
     }
 
-    private static func runProcess(executable: String, arguments: [String]) throws {
+    nonisolated private static func runProcess(executable: String, arguments: [String]) throws {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
