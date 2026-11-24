@@ -39,8 +39,13 @@ final class FocusFollowService {
         }
     }
 
+    private var lastHoverSampleAt: TimeInterval = 0
+
     private func handleMove() {
         guard AXIsProcessTrusted() else { stop(); return }
+        let nowUptime = ProcessInfo.processInfo.systemUptime
+        guard nowUptime - lastHoverSampleAt >= 0.04 else { return }
+        lastHoverSampleAt = nowUptime
         let target = Self.windowUnderPointer(Self.pointerInAccessibilitySpace())
         let now = Date()
         guard let target,
@@ -53,6 +58,7 @@ final class FocusFollowService {
                                  now: now) else { return }
         policy.lastRaiseAt = now
         NSRunningApplication(processIdentifier: target.pid)?.activate()
+        AXMessagingPolicy.applyTimeout(target.window)
         if AXUIElementPerformAction(target.window, kAXRaiseAction as CFString) != .success {
             log.debug("raise failed pid=\(target.pid)")
         }
@@ -81,9 +87,11 @@ final class FocusFollowService {
     /// The AX window under `point`: hit-test the element there, then walk up to its `AXWindow` ancestor.
     nonisolated static func windowUnderPointer(_ point: CGPoint) -> Target? {
         var element: AXUIElement?
-        guard AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(), Float(point.x), Float(point.y), &element) == .success,
+        let sysWide = AXMessagingPolicy.applyTimeout(AXUIElementCreateSystemWide())
+        guard AXUIElementCopyElementAtPosition(sysWide, Float(point.x), Float(point.y), &element) == .success,
               var current = element else { return nil }
         for _ in 0..<12 {
+            AXMessagingPolicy.applyTimeout(current)
             var role: CFTypeRef?
             if AXUIElementCopyAttributeValue(current, kAXRoleAttribute as CFString, &role) == .success,
                (role as? String) == kAXWindowRole {

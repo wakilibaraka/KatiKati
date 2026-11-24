@@ -105,8 +105,7 @@ final class NotificationMoveService: ObservableObject {
             log.error("Could not create the NotificationCenter AXObserver")
             return
         }
-        let element = AXUIElementCreateApplication(app.processIdentifier)
-        _ = AXUIElementSetMessagingTimeout(element, 0.5)
+        let element = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(app.processIdentifier))
         let refcon = Unmanaged.passUnretained(self).toOpaque()
         CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(newObserver), .commonModes)
         AXObserverAddNotification(newObserver, element, kAXWindowCreatedNotification as CFString, refcon)
@@ -157,6 +156,7 @@ final class NotificationMoveService: ObservableObject {
     /// One window: bounded walk for a recognised banner, then a single position write. Anything we
     /// do not positively recognise is left alone (and a window we already moved is put back).
     private func move(_ window: AXUIElement) {
+        AXMessagingPolicy.applyTimeout(window)
         var observed = NotificationUIObservation(
             windowFrameReadable: axFrame(of: window) != nil,
             positionSettable: isSettable(window, attribute: kAXPositionAttribute as CFString)

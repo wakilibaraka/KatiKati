@@ -918,6 +918,8 @@ final class KeyGuardShared: @unchecked Sendable {
         doubleTapDetector.registerInterveningKey()
     }
 
+    private static let audioQueue = DispatchQueue(label: "com.katikati.keyguard.audio", qos: .userInteractive)
+
     func handleKeyAudio(event: KeyGuardEvent) {
         lock.lock()
         let enabled = keyAudioEnabled
@@ -925,15 +927,25 @@ final class KeyGuardShared: @unchecked Sendable {
         let paused = state.paused
         lock.unlock()
 
-        guard KeyAudioPolicy.shouldTrigger(
+        guard KeyAudioPolicy.shouldPreflightOnTap(
             event: event,
             enabled: enabled,
-            isSecureInput: IsSecureEventInputEnabled(),
             isCallActive: callActive,
             isPaused: paused
         ) else { return }
 
-        AudioServicesPlaySystemSound(1104)
+        DispatchQueue.main.async {
+            guard KeyAudioPolicy.shouldTrigger(
+                event: event,
+                enabled: enabled,
+                isSecureInput: IsSecureEventInputEnabled(),
+                isCallActive: callActive,
+                isPaused: paused
+            ) else { return }
+            Self.audioQueue.async {
+                AudioServicesPlaySystemSound(1104)
+            }
+        }
     }
 }
 

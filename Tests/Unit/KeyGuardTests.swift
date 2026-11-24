@@ -507,6 +507,16 @@ final class KeyAudioPolicyTests: XCTestCase {
             isPaused: false
         ))
     }
+
+    func testPreflightChecksFlagsBeforeSecureInputOrAudio() {
+        let down = KeyGuardEvent.keyDown(keyCode: 0, modifiers: [])
+        let up = KeyGuardEvent.keyUp(keyCode: 0, modifiers: [])
+        XCTAssertFalse(KeyAudioPolicy.shouldPreflightOnTap(event: down, enabled: false, isCallActive: false, isPaused: false))
+        XCTAssertFalse(KeyAudioPolicy.shouldPreflightOnTap(event: down, enabled: true, isCallActive: true, isPaused: false))
+        XCTAssertFalse(KeyAudioPolicy.shouldPreflightOnTap(event: down, enabled: true, isCallActive: false, isPaused: true))
+        XCTAssertFalse(KeyAudioPolicy.shouldPreflightOnTap(event: up, enabled: true, isCallActive: false, isPaused: false))
+        XCTAssertTrue(KeyAudioPolicy.shouldPreflightOnTap(event: down, enabled: true, isCallActive: false, isPaused: false))
+    }
 }
 
 final class KeyModifierDoubleTapDetectorTests: XCTestCase {

@@ -55,7 +55,7 @@ final class AppWindowObserver {
         let result = AXObserverCreate(pid, appWindowObserverCallback, &obs)
         guard result == .success, let obs else { return }
 
-        let appElement = AXUIElementCreateApplication(pid)
+        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
 
         AXObserverAddNotification(obs, appElement, kAXWindowCreatedNotification as CFString, selfPtr)
@@ -82,6 +82,7 @@ final class AppWindowObserver {
     /// retry is only returned as a candidate, never run here (`performRetry`).
     func registerWindow(_ element: AXUIElement, cgWindowID: CGWindowID) -> Registration {
         guard let obs = observer else { return .none }
+        AXMessagingPolicy.applyTimeout(element)
         let key = AXElementKey(e: element)
         let now = clock()
         guard let kind = subscriptions.attemptKind(cgWindowID: cgWindowID, element: key, now: now) else {

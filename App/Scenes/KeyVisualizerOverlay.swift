@@ -13,15 +13,26 @@ final class KeyVisualizerController {
     private var panel: NSPanel?
     private let model = KeyVisualizerModel()
     private var moveObserver: NSObjectProtocol?
+    private var lastPresentedSymbols: [String] = []
+    private var lastPresentedConfig: KeyVisualizerConfig?
 
     /// Ordered oldest → newest, matching `KeyVisualizerBuffer.items`. Empty hides unless unlocked.
     func show(_ symbols: [String], config: KeyVisualizerConfig = KeyVisualizerConfig()) {
-        model.symbols = symbols
-        model.config = config
         if symbols.isEmpty && !config.isPositionUnlocked {
+            lastPresentedSymbols = []
+            lastPresentedConfig = config
             panel?.orderOut(nil)
             return
         }
+        if panel?.isVisible == true,
+           lastPresentedSymbols == symbols,
+           lastPresentedConfig == config {
+            return
+        }
+        lastPresentedSymbols = symbols
+        lastPresentedConfig = config
+        model.symbols = symbols
+        model.config = config
         let panel = self.panel ?? makePanel()
         applyInteractionMode(panel, unlocked: config.isPositionUnlocked)
         if !config.isPositionUnlocked { position(panel) }
@@ -46,7 +57,10 @@ final class KeyVisualizerController {
         if let panel { position(panel) }
     }
 
-    func hide() { panel?.orderOut(nil) }
+    func hide() {
+        lastPresentedSymbols = []
+        panel?.orderOut(nil)
+    }
 
     private func applyInteractionMode(_ panel: NSPanel, unlocked: Bool) {
         panel.ignoresMouseEvents = !unlocked

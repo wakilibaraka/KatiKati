@@ -453,6 +453,15 @@ enum KeyAudioPolicy {
             return false
         }
     }
+
+    static func shouldPreflightOnTap(
+        event: KeyGuardEvent,
+        enabled: Bool,
+        isCallActive: Bool,
+        isPaused: Bool
+    ) -> Bool {
+        shouldTrigger(event: event, enabled: enabled, isSecureInput: false, isCallActive: isCallActive, isPaused: isPaused)
+    }
 }
 
 // MARK: - SuperCmd v2 / Droppy-Inspired Slice 2.1: Modifier Double-Tap Detector

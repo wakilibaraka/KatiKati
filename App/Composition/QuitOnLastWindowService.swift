@@ -341,11 +341,12 @@ final class QuitOnLastWindowService: ObservableObject {
 
     /// `nil` means the read failed (no Accessibility, app gone, AX not ready) — never treated as zero.
     nonisolated static func windows(of pid: pid_t) -> [AXUIElement]? {
-        let app = AXUIElementCreateApplication(pid)
+        let app = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
         var value: CFTypeRef?
         guard AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &value) == .success else { return nil }
         let raw = (value as? [AXUIElement]) ?? []
         return raw.filter { window in
+            AXMessagingPolicy.applyTimeout(window)
             var subroleRef: CFTypeRef?
             let subrole = AXUIElementCopyAttributeValue(window, kAXSubroleAttribute as CFString, &subroleRef) == .success
                 ? (subroleRef as? String)

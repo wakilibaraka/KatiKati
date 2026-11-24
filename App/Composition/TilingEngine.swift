@@ -949,6 +949,7 @@ final class TilingEngine: ObservableObject {
     private func writeFrame(_ quartz: CGRect, pid: pid_t, cgWindowID: CGWindowID) {
         guard let element = AXElementCache.shared.element(pid: pid, cgWindowID: cgWindowID)
                 ?? axElement(for: pid, cgWindowID: cgWindowID) else { return }
+        AXMessagingPolicy.applyTimeout(element)
         var origin = quartz.origin
         var size = quartz.size
         guard let point = AXValueCreate(.cgPoint, &origin),
@@ -961,7 +962,7 @@ final class TilingEngine: ObservableObject {
 
     private func axElement(for pid: pid_t, cgWindowID: CGWindowID) -> AXUIElement? {
         guard pid > 0 else { return nil }
-        let app = AXUIElementCreateApplication(pid)
+        let app = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
         var windowsRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(app, kAXWindowsAttribute as CFString, &windowsRef) == .success,
               let list = windowsRef as? [AXUIElement] else { return nil }

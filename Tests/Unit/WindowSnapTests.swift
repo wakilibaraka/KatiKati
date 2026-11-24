@@ -346,4 +346,10 @@ final class QuitAppRulesTests: XCTestCase {
         rules.remove("com.apple.Safari")
         XCTAssertTrue(rules.rows.isEmpty, "removing an app that is not there is a no-op")
     }
+
+    func testAXMessagingPolicyHasBoundedTimeoutAndAppliesToElement() {
+        XCTAssertEqual(AXMessagingPolicy.defaultTimeoutSeconds, 0.15, accuracy: 1e-6)
+        let app = AXUIElementCreateApplication(ProcessInfo.processInfo.processIdentifier)
+        XCTAssertTrue(AXMessagingPolicy.applyTimeout(app) === app)
+    }
 }

@@ -1,6 +1,16 @@
 import AppKit
 import ApplicationServices
 
+enum AXMessagingPolicy {
+    static let defaultTimeoutSeconds: Float = 0.15
+
+    @discardableResult
+    static func applyTimeout(_ element: AXUIElement, seconds: Float = defaultTimeoutSeconds) -> AXUIElement {
+        _ = AXUIElementSetMessagingTimeout(element, seconds)
+        return element
+    }
+}
+
 /// Moves the frontmost other app's focused window into a zone through the Accessibility API. The deck panels are
 /// non-activating, so the app the user was working in is still frontmost when a zone button is pressed.
 @MainActor
@@ -19,12 +29,12 @@ enum WindowSnapService {
         guard AXIsProcessTrusted() else { return .needsAccessibility }
         guard let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return .noWindow }
-        let appElement = AXUIElementCreateApplication(app.processIdentifier)
+        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(app.processIdentifier))
         var windowRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute as CFString, &windowRef) == .success,
               let windowRef, CFGetTypeID(windowRef) == AXUIElementGetTypeID(),
               let primary = NSScreen.screens.first?.frame else { return .noWindow }
-        let window = windowRef as! AXUIElement
+        let window = AXMessagingPolicy.applyTimeout(windowRef as! AXUIElement)
         guard let screen = screenContaining(window, primaryMaxY: primary.maxY) ?? NSScreen.main else { return .noWindow }
 
         guard isTileable(window) else { return .noWindow }
@@ -64,9 +74,10 @@ enum WindowSnapService {
               let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return .noWindow }
         var ref: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(AXUIElementCreateApplication(app.processIdentifier), kAXFocusedWindowAttribute as CFString, &ref) == .success,
+        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(app.processIdentifier))
+        guard AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute as CFString, &ref) == .success,
               let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else { return .noWindow }
-        let window = ref as! AXUIElement
+        let window = AXMessagingPolicy.applyTimeout(ref as! AXUIElement)
         guard isTileable(window), let f = frame(of: window), let from = screenContaining(window, primaryMaxY: primary.maxY),
               let index = screens.firstIndex(of: from) else { return .noWindow }
         let to = screens[DisplayMove.destination(from: index, count: screens.count, step: step)]
@@ -110,7 +121,8 @@ enum WindowSnapService {
         // off while laying out and restore it (the snapper cited in NOTICE §9).
         var pid: pid_t = 0
         AXUIElementGetPid(window, &pid)
-        let appElement = AXUIElementCreateApplication(pid)
+        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
+        _ = AXMessagingPolicy.applyTimeout(window)
         let enhancedKey = "AXEnhancedUserInterface" as CFString
         var enhancedRef: CFTypeRef?
         let hadEnhanced = AXUIElementCopyAttributeValue(appElement, enhancedKey, &enhancedRef) == .success
@@ -162,11 +174,12 @@ enum WindowSnapService {
               let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return nil }
         var ref: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(AXUIElementCreateApplication(app.processIdentifier),
+        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(app.processIdentifier))
+        guard AXUIElementCopyAttributeValue(appElement,
                                             kAXFocusedWindowAttribute as CFString, &ref) == .success,
               let ref, CFGetTypeID(ref) == AXUIElementGetTypeID(),
               let primary = NSScreen.screens.first?.frame.maxY,
-              let quartz = frame(of: ref as! AXUIElement) else { return nil }
+              let quartz = frame(of: AXMessagingPolicy.applyTimeout(ref as! AXUIElement)) else { return nil }
         return CGRect(x: quartz.minX, y: primary - quartz.maxY, width: quartz.width, height: quartz.height)
     }
 
@@ -176,10 +189,11 @@ enum WindowSnapService {
               let app = NSWorkspace.shared.frontmostApplication,
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return nil }
         var ref: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(AXUIElementCreateApplication(app.processIdentifier),
+        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(app.processIdentifier))
+        guard AXUIElementCopyAttributeValue(appElement,
                                             kAXFocusedWindowAttribute as CFString, &ref) == .success,
               let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else { return nil }
-        return AXWindowReader.cgWindowID(for: ref as! AXUIElement)
+        return AXWindowReader.cgWindowID(for: AXMessagingPolicy.applyTimeout(ref as! AXUIElement))
     }
 }
 
