@@ -388,17 +388,6 @@ extension SettingsLayoutPane {
                     Button("Reset Position") { keyGuard.resetVisualizerPosition() }
                         .buttonStyle(SettingsGelButtonStyle())
                 }
-                SettingsDivider()
-                // 2026-11: the key was stored but no page ever wrote it, so a recording could never
-                // show the pointer. It sits with the visualizer it draws on, not on Mouse.
-                SettingsToggleRow(
-                    Text("Show Mouse Clicks"),
-                    isOn: Binding(
-                        get: { keyGuard.visualizerMouseClicks },
-                        set: { keyGuard.setVisualizerMouseClicks($0) }
-                    ),
-                    info: String(localized: "Draws each click and scroll on the key overlay, so a recording shows what the pointer did. It never records where you clicked.")
-                )
             }
             if keyGuard.isVisualizerEnabled, !KeyGuardService.hasPermission {
                 SettingsDivider()

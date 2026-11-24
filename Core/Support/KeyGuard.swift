@@ -76,6 +76,11 @@ struct KeyGuardState: Equatable, Sendable {
     var snippetsActive = false
     /// macOS Secure Input is active (password fields / auth prompts): SlowQuit must not intercept keys.
     var secureInputActive = false
+
+    /// Only SlowQuit needs a live `IsSecureEventInputEnabled()` query on the key-decision path.
+    var needsSecureInputCheck: Bool {
+        !paused && slowQuitEnabled && slowQuitApplies && !slowQuitPassthrough
+    }
 }
 
 enum KeyGuardPipeline {
@@ -316,7 +321,6 @@ struct KeyVisualizerConfig: Equatable, Sendable {
     var lingerDuration: TimeInterval = 1.5
     var fadeDuration: TimeInterval = 0.15
     var fontSize: Double = 15
-    var showMouseClicks: Bool = false
     var isPositionUnlocked: Bool = false
 }
 

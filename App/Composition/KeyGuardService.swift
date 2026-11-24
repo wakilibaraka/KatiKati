@@ -27,7 +27,6 @@ final class KeyGuardService: ObservableObject {
     static let visualizerStyleKey = "com.katikati.keyguard.visualizerStyle"
     static let visualizerLingerKey = "com.katikati.keyguard.visualizerLinger"
     static let visualizerFontSizeKey = "com.katikati.keyguard.visualizerFontSize"
-    static let visualizerMouseClicksKey = "com.katikati.keyguard.visualizerMouseClicks"
     static let capsProtectionKey = "com.katikati.keyguard.capsHold"
     static let capsProtectionModeKey = "com.katikati.keyguard.capsMode"
     static let capsProtectionThresholdKey = "com.katikati.keyguard.capsThreshold"
@@ -77,7 +76,6 @@ final class KeyGuardService: ObservableObject {
         let stored = UserDefaults.standard.double(forKey: KeyGuardService.visualizerFontSizeKey)
         return stored > 0 ? min(max(stored, 12), 28) : 15
     }()
-    @Published private(set) var visualizerMouseClicks = UserDefaults.standard.bool(forKey: KeyGuardService.visualizerMouseClicksKey)
     @Published var visualizerPositionUnlocked = false
     /// 53a: a quick Caps Lock tap does nothing, a short hold (or double-tap) toggles. Off by default.
     @Published private(set) var isCapsProtectionEnabled = UserDefaults.standard.bool(forKey: KeyGuardService.capsProtectionKey)
@@ -302,13 +300,6 @@ final class KeyGuardService: ObservableObject {
         refreshKeycaps()
     }
 
-    func setVisualizerMouseClicks(_ on: Bool) {
-        guard on != visualizerMouseClicks else { return }
-        visualizerMouseClicks = on
-        UserDefaults.standard.set(on, forKey: Self.visualizerMouseClicksKey)
-        refresh()
-    }
-
     func setVisualizerPositionUnlocked(_ unlocked: Bool) {
         visualizerPositionUnlocked = unlocked
         let overlay = keyOverlay ?? KeyVisualizerController()
@@ -326,7 +317,6 @@ final class KeyGuardService: ObservableObject {
             style: visualizerStyle,
             lingerDuration: visualizerLinger,
             fontSize: visualizerFontSize,
-            showMouseClicks: visualizerMouseClicks,
             isPositionUnlocked: visualizerPositionUnlocked
         )
     }
@@ -479,6 +469,7 @@ final class KeyGuardService: ObservableObject {
                 }
             }
         }
+        shared.tapRecovery.reset()
         let thread = Thread { [shared, weak self] in
             let mask: CGEventMask = (1 << CGEventType.keyDown.rawValue) |
                                    (1 << CGEventType.keyUp.rawValue) |
@@ -521,6 +512,7 @@ final class KeyGuardService: ObservableObject {
             self.frontmostObserver = nil
         }
         frontmostBundleID = nil
+        shared.tapRecovery.reset()
         shared.reset()
     }
 
@@ -717,6 +709,7 @@ final class KeyGuardShared: @unchecked Sendable {
     var isCallActive: Bool = false
     /// Marks the caps events we post ourselves so they pass back through this tap untouched.
     static let syntheticTag: Int64 = 0x4B41544931 // "KATI1"
+    let tapRecovery = EventTapRecoveryBox()
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
     var onGlobalPaste: (() -> Void)?
@@ -867,7 +860,7 @@ final class KeyGuardShared: @unchecked Sendable {
     func decide(_ event: KeyGuardEvent, isRepeat: Bool = false) -> (decision: KeyGuardDecision, state: KeyGuardState) {
         lock.lock(); defer { lock.unlock() }
         var effectiveState = state
-        effectiveState.secureInputActive = IsSecureEventInputEnabled()
+        if effectiveState.needsSecureInputCheck { effectiveState.secureInputActive = IsSecureEventInputEnabled() }
         let outcome = KeyGuardPipeline.reduce(event, state: effectiveState, isRepeat: isRepeat)
         state = outcome.state
         guard state.finderKeysActive else {
@@ -957,7 +950,7 @@ private func keyGuardTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     guard let refcon else { return Unmanaged.passUnretained(event) }
     let shared = Unmanaged<KeyGuardShared>.fromOpaque(refcon).takeUnretainedValue()
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-        if let port = shared.port { CGEvent.tapEnable(tap: port, enable: true) }
+        _ = shared.tapRecovery.handleDisable(port: shared.port)
         return Unmanaged.passUnretained(event)
     }
     if type == .flagsChanged {

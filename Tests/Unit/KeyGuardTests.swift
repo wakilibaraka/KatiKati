@@ -76,6 +76,13 @@ final class KeyGuardPipelineTests: XCTestCase {
         XCTAssertEqual(KeyGuardPipeline.reduce(.keyDown(keyCode: q, modifiers: [.command]), state: state).decision, .passThrough)
     }
 
+    func testSecureInputProbeGatedToActiveSlowQuit() {
+        XCTAssertFalse(KeyGuardState().needsSecureInputCheck)
+        XCTAssertFalse(KeyGuardState(paused: true, slowQuitEnabled: true, slowQuitApplies: true).needsSecureInputCheck)
+        XCTAssertFalse(KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true, slowQuitPassthrough: true).needsSecureInputCheck)
+        XCTAssertTrue(KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true).needsSecureInputCheck)
+    }
+
     func testSlowQuitDoubleTapTiming() {
         var timing = SlowQuitDoubleTapTiming(window: 0.5)
         let t0 = Date(timeIntervalSince1970: 1000)
