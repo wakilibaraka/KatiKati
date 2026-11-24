@@ -116,6 +116,28 @@ enum AgentCodexParser {
         }
         return 0
     }
+
+    /// Extracts optional `rate_limits` percentages from Codex rollout events (`primary_used_percent` or `primary.used_percent`).
+    static func parseRateLimit(from line: String) -> (sessionPercent: Double?, weeklyPercent: Double?)? {
+        guard line.contains("rate_limits"),
+              let data = line.data(using: .utf8),
+              let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+              let rl = findRateLimits(in: json) else { return nil }
+        let p = (rl["primary_used_percent"] as? NSNumber)?.doubleValue
+            ?? ((rl["primary"] as? [String: Any])?["used_percent"] as? NSNumber)?.doubleValue
+        let s = (rl["secondary_used_percent"] as? NSNumber)?.doubleValue
+            ?? ((rl["secondary"] as? [String: Any])?["used_percent"] as? NSNumber)?.doubleValue
+        guard p != nil || s != nil else { return nil }
+        return (p, s)
+    }
+
+    private static func findRateLimits(in node: [String: Any]) -> [String: Any]? {
+        if let rl = node["rate_limits"] as? [String: Any] { return rl }
+        for value in node.values {
+            if let dict = value as? [String: Any], let found = findRateLimits(in: dict) { return found }
+        }
+        return nil
+    }
 }
 
 // MARK: - SLICE NL-1: Universal Loadout Core Engine (Multi-Agent)

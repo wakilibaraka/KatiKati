@@ -279,6 +279,8 @@ final class AgentUsageService: ObservableObject {
             var codexRead = false
             var codexDay = AgentProviderDay()
             var codexHadRows = false
+            var codexSessionPct: Double?
+            var codexWeeklyPct: Double?
             for subdir in ["sessions", "archived_sessions"] {
                 let dir = codexHome.appendingPathComponent(subdir)
                 guard let codexFiles = FileManager.default.enumerator(at: dir, includingPropertiesForKeys: [.contentModificationDateKey], options: [.skipsHiddenFiles]) else {
@@ -300,6 +302,10 @@ final class AgentUsageService: ObservableObject {
                         try? fileHandle.close()
                         if let content = String(data: data, encoding: .utf8) {
                             for line in content.components(separatedBy: .newlines) where !line.isEmpty {
+                                if let rl = AgentCodexParser.parseRateLimit(from: line) {
+                                    if let sp = rl.sessionPercent { codexSessionPct = sp }
+                                    if let wp = rl.weeklyPercent { codexWeeklyPct = wp }
+                                }
                                 if let parsed = AgentCodexParser.parseJSONLLine(line) {
                                     codexHadRows = true
                                     let modelName = parsed.model ?? "codex"
@@ -338,6 +344,12 @@ final class AgentUsageService: ObservableObject {
             if codexHadRows {
                 codexDay.costIsStoreReported = false
                 newSnapshot.providerToday[.codex] = codexDay
+            }
+            if codexSessionPct != nil || codexWeeklyPct != nil {
+                var windows: [AgentLimitWindow] = []
+                if let sp = codexSessionPct { windows.append(AgentLimitWindow(id: "codex.session.5h", kind: .session, minutes: 300, scope: nil, usedPercent: sp, resetsAt: nil)) }
+                if let wp = codexWeeklyPct { windows.append(AgentLimitWindow(id: "codex.weekly.7d", kind: .weekly, minutes: 10_080, scope: nil, usedPercent: wp, resetsAt: nil)) }
+                newSnapshot.limits[.codex] = AgentLimits(provider: .codex, windows: windows, observedAt: now)
             }
 
             // 5. Check Copilot's store. It keeps message text, not accounting — checked, never counted.

@@ -195,8 +195,8 @@ Additionally, keep Notch (`App/Scenes/Notch/*`), `WallpaperEngine`, and Launcher
 
 ### Wave `IS-2` — Static Finish Baker, Runtime Metal Shaders & Two-Tier Cache
 - [x] **IS-2.1 (`≤ 280` LOC):** `AppIconResolver.highResIcon`, `IconAssetLoader` (PNG/ICNS/`.icon` bundle), `IconBakeActor` (Tier-2 disk PNG cache + CoreImage recolor & 11 static finishes), and `IconStudioController` (Tier-1 plain dictionary cache + persistence) in `App/Scenes/{ContentView,DockTheme}.swift` + test in `Tests/Unit/IconSetTests.swift` (zero `pbxproj` churn). — `DONE — 6c776150`
-- [ ] **IS-2.2 (`≤ 280` LOC):** Add `App/Scenes/IconStudio/IconShaderEngine.swift` using `MTLDevice.makeLibrary(source:options:)` (same pattern as `LiquidRenderer` in `IslandPresets.swift:813`) for hover/active shaders (`Holographic Foil`, `VHS`, `CRT`, `Lava Lamp`, `Neon Sign`) with paused-at-rest `CADisplayLink` + unit tests in `Tests/Unit/IconStudioBakeTests.swift` (cache hit/invalidation, asset decode, idle pause policy).
-- [ ] **IS-2.3 (`≤ 220` LOC):** Add `App/Scenes/IconStudio/IconStudioIconView.swift` and wire Tier-1 custom icon lookup into `AppIconResolver` (`App/Scenes/ContentView.swift:437`), `ChipView.swift:506`, and `LauncherChip.swift:220` with zero visual or CPU regression when unconfigured.
+- [x] **IS-2.2 (`≤ 280` LOC):** `IconShaderEngine` (`MTLDevice.makeLibrary(source:options:)`, 5 animated shaders + zero-idle `CADisplayLink`), `IconStudioIconView`, and Dock `ChipView`/`LauncherChip` wiring (`2cc40f87`). — `DONE — 2cc40f87`
+- [x] **IS-2.3 (`≤ 220` LOC):** Folded into `IS-2.2` (`2cc40f87`: `ChipView.swift:506` & `LauncherChip.swift:220`). — `DONE — 2cc40f87`
 
 ### Wave `IS-3` — AI & Now Playing Live Icons (Highest ROI)
 - [ ] **IS-3.1 (`≤ 250` LOC):** Add `Core/Support/IconStudio/LiveIconMetrics.swift` (Used vs Remaining fill %, weekly reset fraction, `-0:18` countdown formatter, pause-angle accumulator), extend `AgentCodexParser` (`AgentStoreParsers.swift:50`) for optional `rate_limits` %, add local Cursor usage/budget model in `AgentUsageModels.swift` / `AgentUsageService.swift`, and add synchronous tests in `Tests/Unit/LiveIconMetricsTests.swift`.

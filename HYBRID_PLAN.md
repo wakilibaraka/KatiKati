@@ -7070,3 +7070,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-1` & `IS-2.1` — Icon Studio Core Models, Persistence, Static Baker & Cache (`9d5fbffa`, `b5145929`, `6c776150`, 2026-11-24)
 
 - `Core/Support/IconSet.swift`, `App/Scenes/{ContentView,DockTheme}.swift`, `Tests/Unit/IconSetTests.swift`: added pure Core `IconStudio` models/persistence (`IS-1`) and off-main-thread `IconAssetLoader`, `IconBakeActor` (11 static finishes + Tier-2 PNG disk cache), and `IconStudioController` Tier-1 lookup (`6c776150`; 11/11 `IconSetTests` passing, zero `pbxproj` churn).
+
+### `IS-2.2` — Icon Studio Runtime Metal Shaders & Dock Chip Wiring (`2cc40f87`, 2026-11-24)
+
+- `App/Scenes/{DockTheme,ContentView,ChipView,LauncherChip}.swift`, `Tests/Unit/IconSetTests.swift`: added runtime-compiled MSL `IconShaderEngine` (5 hover/active shaders with paused `CADisplayLink`) and `IconStudioIconView` wired into `ChipView` & `LauncherChip` (`2cc40f87`; 12/12 `IconSetTests` passing).

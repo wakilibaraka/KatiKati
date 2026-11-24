@@ -326,3 +326,46 @@ enum IconStudioPersistence {
         try encode(state).write(to: url, options: .atomic)
     }
 }
+
+// MARK: - IS-3.1 Live Icon Metrics & Local Estimators
+
+enum LiveIconMetrics {
+    static func usageFillFraction(usedPercent: Double?, mode: LiveIconUsageMode) -> Double? {
+        guard mode != .none, let usedPercent, usedPercent.isFinite else { return nil }
+        let clamped = min(1, max(0, usedPercent / 100.0))
+        return mode == .used ? clamped : (1.0 - clamped)
+    }
+
+    static func formattedPercentage(_ fraction: Double) -> String {
+        let pct = Int((min(1, max(0, fraction)) * 100.0).rounded())
+        return "\(pct)%"
+    }
+
+    static func weeklyResetFraction(now: Date, resetsAt: Date?, windowSeconds: TimeInterval = 7 * 86_400) -> Double? {
+        guard let resetsAt, windowSeconds > 0 else { return nil }
+        let remaining = resetsAt.timeIntervalSince(now)
+        return min(1, max(0, 1.0 - remaining / windowSeconds))
+    }
+}
+
+struct VinylAngleAccumulator: Equatable, Sendable {
+    var degrees: Double = 0
+    var lastTimestamp: Date?
+
+    mutating func advance(to now: Date, isPlaying: Bool, degreesPerSecond: Double = 45.0) -> Double {
+        defer { lastTimestamp = isPlaying ? now : nil }
+        guard isPlaying, let prev = lastTimestamp else { return degrees }
+        let dt = max(0, min(1.0, now.timeIntervalSince(prev)))
+        degrees = (degrees + dt * degreesPerSecond).truncatingRemainder(dividingBy: 360.0)
+        return degrees
+    }
+}
+
+enum CursorBudgetEstimator {
+    static let defaultDailyBudgetUSD: Double = 5.0
+
+    static func estimatedUsedPercent(todayCostUSD: Double, dailyBudgetUSD: Double = defaultDailyBudgetUSD) -> Double {
+        guard dailyBudgetUSD > 0, todayCostUSD.isFinite, todayCostUSD > 0 else { return 0 }
+        return min(100.0, (todayCostUSD / dailyBudgetUSD) * 100.0)
+    }
+}

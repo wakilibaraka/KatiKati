@@ -226,4 +226,31 @@ final class IconSetTests: XCTestCase {
             XCTAssertNotNil(IconShaderEngine.shared)
         }
     }
+
+    func testLiveIconMetricsVinylAccumulatorAndCodexRateLimits() {
+        XCTAssertNil(LiveIconMetrics.usageFillFraction(usedPercent: 40, mode: .none))
+        XCTAssertEqual(LiveIconMetrics.usageFillFraction(usedPercent: 52, mode: .used) ?? -1, 0.52, accuracy: 0.001)
+        XCTAssertEqual(LiveIconMetrics.usageFillFraction(usedPercent: 52, mode: .remaining) ?? -1, 0.48, accuracy: 0.001)
+        XCTAssertEqual(LiveIconMetrics.formattedPercentage(0.654), "65%")
+
+        let now = Date(timeIntervalSince1970: 1_000_000)
+        XCTAssertEqual(LiveIconMetrics.weeklyResetFraction(now: now, resetsAt: now.addingTimeInterval(3.5 * 86_400)) ?? -1, 0.5, accuracy: 0.01)
+
+        var vinyl = VinylAngleAccumulator()
+        _ = vinyl.advance(to: now, isPlaying: true, degreesPerSecond: 90)
+        let rotated = vinyl.advance(to: now.addingTimeInterval(1.0), isPlaying: true, degreesPerSecond: 90)
+        XCTAssertEqual(rotated, 90.0, accuracy: 0.01)
+        let paused = vinyl.advance(to: now.addingTimeInterval(2.0), isPlaying: false, degreesPerSecond: 90)
+        XCTAssertEqual(paused, 90.0, accuracy: 0.01)
+        let stillPaused = vinyl.advance(to: now.addingTimeInterval(3.0), isPlaying: false, degreesPerSecond: 90)
+        XCTAssertEqual(stillPaused, 90.0, accuracy: 0.01)
+
+        XCTAssertEqual(CursorBudgetEstimator.estimatedUsedPercent(todayCostUSD: 2.5, dailyBudgetUSD: 5.0), 50.0, accuracy: 0.01)
+
+        let rl1 = AgentCodexParser.parseRateLimit(from: #"{"type":"event_msg","payload":{"type":"token_count","info":null,"rate_limits":{"primary_used_percent":12,"secondary_used_percent":38}}}"#)
+        XCTAssertEqual(rl1?.sessionPercent, 12)
+        XCTAssertEqual(rl1?.weeklyPercent, 38)
+        let rl2 = AgentCodexParser.parseRateLimit(from: #"{"rate_limits":{"primary":{"used_percent":61}}}"#)
+        XCTAssertEqual(rl2?.sessionPercent, 61)
+    }
 }
