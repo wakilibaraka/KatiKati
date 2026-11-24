@@ -437,6 +437,7 @@ enum MusicCardLayout: String, CaseIterable, Codable, Sendable, Identifiable {
 /// §5.7 — scrubber shapes with deterministic, seeded bar heights: same track, same shape, no audio tap.
 enum MusicScrubberStyle: String, CaseIterable, Codable, Sendable, Identifiable {
     case slim
+    case pill
     case dotted
     case waveform
 
@@ -444,9 +445,18 @@ enum MusicScrubberStyle: String, CaseIterable, Codable, Sendable, Identifiable {
 
     var barCount: Int {
         switch self {
-        case .slim: return 1
+        case .slim, .pill: return 1
         case .dotted: return 24
         case .waveform: return 32
+        }
+    }
+
+    /// Atmospheric draws a thick rounded pill (5 pt) rather than the 3 pt hairline.
+    var trackHeight: CGFloat {
+        switch self {
+        case .pill: return 5
+        case .slim: return 3
+        case .dotted, .waveform: return 14
         }
     }
 
@@ -480,6 +490,8 @@ enum MusicScrubberStyle: String, CaseIterable, Codable, Sendable, Identifiable {
 
 /// §5.7 — how the wallpaper paints the same theme full-bleed.
 enum MusicWallpaperStyle: String, CaseIterable, Codable, Sendable, Identifiable {
+    case atmosphericMesh
+    case fullBleedFade
     case blurredAlbum
     case adaptiveTint
     case oledBlack
@@ -490,6 +502,8 @@ enum MusicWallpaperStyle: String, CaseIterable, Codable, Sendable, Identifiable 
 
     var blurRadius: Double {
         switch self {
+        case .atmosphericMesh: return 64
+        case .fullBleedFade: return 58
         case .blurredAlbum: return 55
         case .heroArtwork: return 42
         case .adaptiveTint: return 30
@@ -498,11 +512,14 @@ enum MusicWallpaperStyle: String, CaseIterable, Codable, Sendable, Identifiable 
         }
     }
 
+    /// The two Atmospheric styles paint their own artwork treatment in the renderer.
+    var isAtmospheric: Bool { self == .atmosphericMesh || self == .fullBleedFade }
+
     /// Crisp-art styles keep the artwork readable; the others are washes.
     var keepsArtworkCrisp: Bool {
         switch self {
-        case .oledBlack, .crispLight, .heroArtwork: return true
-        case .blurredAlbum, .adaptiveTint: return false
+        case .oledBlack, .crispLight, .heroArtwork, .fullBleedFade: return true
+        case .blurredAlbum, .adaptiveTint, .atmosphericMesh: return false
         }
     }
 
@@ -513,12 +530,20 @@ enum MusicWallpaperStyle: String, CaseIterable, Codable, Sendable, Identifiable 
         case .oledBlack: return 0.42
         case .crispLight: return 0
         case .heroArtwork: return 0.12
+        case .atmosphericMesh: return 0.16
+        case .fullBleedFade: return 0.10
         }
     }
 
     var brighten: Double { self == .crispLight ? 0.10 : 0 }
 
-    var tintMix: Double { self == .adaptiveTint ? 0.30 : 0 }
+    var tintMix: Double {
+        switch self {
+        case .adaptiveTint: return 0.30
+        case .atmosphericMesh: return 0.24
+        default: return 0
+        }
+    }
 }
 
 /// A single shared style, optionally overridden per surface (§5.8).
@@ -528,7 +553,9 @@ struct MusicSurfaceStyle: Equatable, Codable, Sendable {
     var layout: MusicCardLayout
     var wallpaperStyle: MusicWallpaperStyle
 
-    static let standard = MusicSurfaceStyle(theme: .semiGlass, scrubber: .slim, layout: .full, wallpaperStyle: .blurredAlbum)
+    /// Atmospheric (Full-Bleed) is the default on all four surfaces; every earlier style stays selectable.
+    static let standard = MusicSurfaceStyle(theme: .semiGlass, scrubber: .pill, layout: .full,
+                                            wallpaperStyle: .atmosphericMesh)
 }
 
 struct MusicStyleSelection: Equatable, Codable, Sendable {
@@ -913,5 +940,230 @@ struct LockScreenWallpaperBackup: Equatable, Codable, Sendable {
     mutating func cancel() {
         originalURL = nil
         state = .idle
+    }
+}
+
+
+// MARK: - Atmospheric (Full-Bleed) — ML-7 pure core
+
+/// The three interactive views every Atmospheric surface switches between.
+enum MusicViewMode: String, CaseIterable, Codable, Sendable, Identifiable {
+    case nowPlaying
+    case lyrics
+    case queue
+
+    var id: String { rawValue }
+
+    var symbolName: String {
+        switch self {
+        case .nowPlaying: return "play.square"
+        case .lyrics: return "quote.bubble"
+        case .queue: return "list.bullet"
+        }
+    }
+
+    /// The three-mode bar walks the ring in this order.
+    var next: MusicViewMode {
+        switch self {
+        case .nowPlaying: return .lyrics
+        case .lyrics: return .queue
+        case .queue: return .nowPlaying
+        }
+    }
+}
+
+/// Pear-desktop's exponential volume curve, kept pure so the card, the wings and the settings preview
+/// agree on what "half way" means. 0 → silence, 1 → unity gain, three decades of usable travel.
+enum MusicVolumeCurve {
+    static let decades: Double = 3
+
+    static func gain(forPosition position: Double) -> Double {
+        let clamped = min(max(position, 0), 1)
+        let span = pow(10, decades) - 1
+        return (pow(10, decades * clamped) - 1) / span
+    }
+
+    static func position(forGain gain: Double) -> Double {
+        let clamped = min(max(gain, 0), 1)
+        let span = pow(10, decades) - 1
+        return log10(1 + clamped * span) / decades
+    }
+
+    /// System volume is a 0…1 scalar gain, so the control maps it through the curve in both directions.
+    static func percent(forPosition position: Double) -> Int {
+        Int((gain(forPosition: position) * 100).rounded())
+    }
+
+    static func position(forPercent percent: Int) -> Double {
+        position(forGain: Double(min(max(percent, 0), 100)) / 100)
+    }
+}
+
+/// One row of the Queue / History drawer. The key is the same normalisation Favorites uses.
+struct MusicQueueEntry: Identifiable, Equatable, Codable, Sendable {
+    var title: String
+    var artist: String?
+    var artworkSignature: String?
+
+    var key: String {
+        "\(title.lowercased())|\(artist?.lowercased() ?? "")"
+    }
+
+    var id: String { key }
+}
+
+enum MusicQueueKind: String, CaseIterable, Sendable, Identifiable {
+    case upcoming
+    case history
+    case favorites
+
+    var id: String { rawValue }
+
+    var symbolName: String {
+        switch self {
+        case .upcoming: return "text.line.first.and.arrowtriangle.forward"
+        case .history: return "clock.arrow.circlepath"
+        case .favorites: return "star.fill"
+        }
+    }
+}
+
+struct MusicQueueSection: Identifiable, Equatable, Sendable {
+    var kind: MusicQueueKind
+    var entries: [MusicQueueEntry]
+
+    var id: String { kind.rawValue }
+}
+
+/// Session history plus local favourites: the zero-permission fallback the plan promises. `upcoming` is
+/// only ever filled by the opt-in AppleScript reader, so it stays empty when that is off or unsupported.
+struct MusicQueueModel: Equatable, Codable, Sendable {
+    var history: [MusicQueueEntry] = []
+    var capacity: Int = 24
+    var isShuffled: Bool = false
+    var repeatsTrack: Bool = false
+    var autoplay: Bool = true
+
+    mutating func record(title: String?, artist: String?) {
+        guard let title = title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { return }
+        let entry = MusicQueueEntry(title: title, artist: artist)
+        history.removeAll { $0.key == entry.key }
+        history.insert(entry, at: 0)
+        if history.count > capacity { history = Array(history.prefix(capacity)) }
+    }
+
+    func sections(upcoming: [MusicQueueEntry] = [], favorites: [MusicQueueEntry] = []) -> [MusicQueueSection] {
+        var result: [MusicQueueSection] = []
+        if !upcoming.isEmpty { result.append(MusicQueueSection(kind: .upcoming, entries: upcoming)) }
+        if !history.isEmpty { result.append(MusicQueueSection(kind: .history, entries: history)) }
+        if !favorites.isEmpty { result.append(MusicQueueSection(kind: .favorites, entries: favorites)) }
+        return result
+    }
+}
+
+/// One coloured stop of the Atmospheric mesh. Positions and radii are fractions of the painted surface, so
+/// the renderer and any preview draw the same field at any size.
+struct MusicMeshStop: Equatable, Sendable {
+    var r: Double
+    var g: Double
+    var b: Double
+    var x: Double
+    var y: Double
+    var radius: Double
+
+    init(color: MusicRGB, x: Double, y: Double, radius: Double) {
+        self.r = color.r
+        self.g = color.g
+        self.b = color.b
+        self.x = x
+        self.y = y
+        self.radius = radius
+    }
+}
+
+/// Multi-stop adaptive mesh derived from the album palette in one pass — no per-frame sampling.
+enum MusicMeshStops {
+    static func stops(for palette: MusicArtworkPalette) -> [MusicMeshStop] {
+        let base: MusicRGB = palette.isDark ? MusicRGB(0.05, 0.05, 0.08) : MusicRGB(0.97, 0.97, 0.99)
+        func mix(_ a: MusicRGB, _ b: MusicRGB, _ t: Double) -> MusicRGB {
+            MusicRGB(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t)
+        }
+        return [
+            MusicMeshStop(color: palette.accent, x: 0.18, y: 0.18, radius: 0.95),
+            MusicMeshStop(color: palette.secondary, x: 0.84, y: 0.28, radius: 0.85),
+            MusicMeshStop(color: mix(palette.accent, base, 0.55), x: 0.50, y: 0.92, radius: 1.05),
+            MusicMeshStop(color: mix(palette.secondary, base, 0.30), x: 0.10, y: 0.74, radius: 0.70),
+            MusicMeshStop(color: base, x: 0.96, y: 0.96, radius: 1.10)
+        ]
+    }
+}
+
+/// Wing / card transport metrics. Small wings drop the volume row and the device label rather than shrinking
+/// every glyph into illegibility.
+struct MusicTransportLayout: Equatable, Sendable {
+    var glyphSize: CGFloat
+    var playDiameter: CGFloat
+    var spacing: CGFloat
+    var artworkSide: CGFloat
+    var lyricLines: Int
+    var showsScrubber: Bool
+    var showsVolume: Bool
+    var showsDeviceLabel: Bool
+
+    init(size: WidgetSize) {
+        switch size {
+        case .small:
+            glyphSize = 10
+            playDiameter = 24
+            spacing = 6
+            artworkSide = 28
+            lyricLines = 1
+            showsScrubber = false
+            showsVolume = false
+            showsDeviceLabel = false
+        case .medium:
+            glyphSize = 13
+            playDiameter = 30
+            spacing = 10
+            artworkSide = 36
+            lyricLines = 2
+            showsScrubber = true
+            showsVolume = true
+            showsDeviceLabel = true
+        case .large:
+            glyphSize = 16
+            playDiameter = 38
+            spacing = 14
+            artworkSide = 52
+            lyricLines = 3
+            showsScrubber = true
+            showsVolume = true
+            showsDeviceLabel = true
+        }
+    }
+}
+
+/// Real romanization through ICU (`kCFStringTransformToLatin`): Japanese kana, Korean Hangul, Han and
+/// Cyrillic all transliterate. A line in a script this cannot help with reports unsupported, so the 🌐 pill
+/// is hidden instead of being shown inert.
+enum MusicRomanizer {
+    static func supports(_ text: String) -> Bool {
+        text.unicodeScalars.contains { scalar in
+            let value = scalar.value
+            return (0x3040...0x30FF).contains(value)      // kana
+                || (0x3400...0x9FFF).contains(value)      // Han
+                || (0xAC00...0xD7AF).contains(value)      // Hangul syllables
+                || (0x1100...0x11FF).contains(value)      // Hangul jamo
+                || (0x0400...0x04FF).contains(value)      // Cyrillic
+        }
+    }
+
+    static func romanize(_ text: String) -> String? {
+        guard supports(text) else { return nil }
+        let mutable = NSMutableString(string: text)
+        CFStringTransform(mutable, nil, kCFStringTransformToLatin, false)
+        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
+        let latin = String(mutable)
+        return latin == text ? nil : latin
     }
 }

@@ -181251,6 +181251,312 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "Copertina" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "앨범 아트" } }
       }
+    },
+    "Queue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Queue" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "播放队列" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "播放佇列" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "キュー" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Warteschlange" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "File d’attente" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cola" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cola" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fila" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fila" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Coda" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "대기열" } }
+      }
+    },
+    "More" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "More" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更多" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "更多" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "その他" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mehr" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Plus" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Más" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Más" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mais" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mais" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Altro" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "더 보기" } }
+      }
+    },
+    "Autoplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Autoplay" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自动播放" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自動播放" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "自動再生" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Automatisch" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Lecture auto" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reproducción automática" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reproducción automática" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reprodução automática" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Reprodução automática" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Riproduzione automatica" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "자동 재생" } }
+      }
+    },
+    "Romanization" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Romanization" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "罗马化" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "羅馬化" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ローマ字表記" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Romanisierung" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Romanisation" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Romanización" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Romanización" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Romanização" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Romanização" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Romanizzazione" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로마자 표기" } }
+      }
+    },
+    "History" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "历史记录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "歷史記錄" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "履歴" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verlauf" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Historique" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Historial" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Histórico" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Histórico" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cronologia" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록" } }
+      }
+    },
+    "Music Atmospheric" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Music Atmospheric" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "音乐（氛围）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "音樂（氛圍）" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音楽（アトモスフェリック）" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Musik Atmosphärisch" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Musique atmosphérique" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Música atmosférica" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Música atmosférica" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Música atmosférica" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Música atmosférica" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Musica atmosferica" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "음악 (애트모스페릭)" } }
+      }
+    },
+    "Music Lyrics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Music Lyrics" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "音乐（歌词）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "音樂（歌詞）" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音楽（歌詞）" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Musik Songtext" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Paroles de musique" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Letras de música" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Letras de música" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Letras de música" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Letras de música" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Testi musicali" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "음악 (가사)" } }
+      }
+    },
+    "Music Queue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Music Queue" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "音乐（队列）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "音樂（佇列）" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音楽（キュー）" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Musik Warteschlange" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "File d’attente musicale" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cola de música" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cola de música" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fila de música" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fila de música" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Coda musicale" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "음악 (대기열)" } }
+      }
+    },
+    "No synced lyrics for this track" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No synced lyrics for this track" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "此曲目没有同步歌词" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "此曲目沒有同步歌詞" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "この曲の同期歌詞はありません" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine synchronisierten Songtexte für diesen Titel" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune parole synchronisée pour ce titre" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No hay letras sincronizadas para esta canción" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "No hay letras sincronizadas para esta canción" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sem letras sincronizadas para esta faixa" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sem letras sincronizadas para esta faixa" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun testo sincronizzato per questo brano" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이 곡의 동기화된 가사가 없습니다" } }
+      }
+    },
+    "Nothing played yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing played yet" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "尚无播放记录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "尚無播放紀錄" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだ再生されていません" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch nichts abgespielt" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rien n’a encore été lu" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no se ha reproducido nada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Aún no se ha reproducido nada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nada reproduzido ainda" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nada reproduzido ainda" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Non è ancora stato riprodotto nulla" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아직 재생된 항목이 없습니다" } }
+      }
+    },
+    "Pill" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pill" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "胶囊" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "膠囊" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピル" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Pille" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pilule" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Píldora" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Píldora" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pílula" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pílula" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pillola" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "필" } }
+      }
+    },
+    "Atmospheric Mesh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Atmospheric Mesh" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "氛围网格" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "氛圍網格" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アトモスフェリックメッシュ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Atmosphärisches Netz" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Maillage atmosphérique" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Malla atmosférica" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Malla atmosférica" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Malha atmosférica" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Malha atmosférica" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mesh atmosferico" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "애트모스페릭 메시" } }
+      }
+    },
+    "Full-Bleed Fade" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full-Bleed Fade" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全出血渐变" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "全出血漸層" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フルブリードフェード" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Randloser Verlauf" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fondu bord à bord" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fundido a sangre" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Fundido a sangre" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fusão total" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fusão total" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dissolvenza full-bleed" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "풀블리드 페이드" } }
+      }
+    },
+    "Lock Screen Widgets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock Screen Widgets" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "锁定屏幕小组件" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "鎖定畫面小工具" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ロック画面ウィジェット" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sperrbildschirm-Widgets" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de l’écran verrouillé" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de pantalla bloqueada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Widgets de pantalla bloqueada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Widgets da tela de bloqueio" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Widgets do ecrã bloqueado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Widget di schermata di blocco" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠금 화면 위젯" } }
+      }
+    },
+    "Show the volume slider" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show the volume slider" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示音量滑块" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示音量滑桿" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音量スライダーを表示" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Lautstärkeregler anzeigen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher le curseur de volume" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar el control de volumen" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar el control de volumen" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar o controle de volume" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar o controlo de volume" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra il cursore del volume" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "음량 슬라이더 표시" } }
+      }
+    },
+    "Lock Screen Layout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock Screen Layout" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "锁定屏幕布局" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "鎖定畫面佈局" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ロック画面レイアウト" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sperrbildschirm-Layout" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Disposition de l’écran verrouillé" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Disposición de pantalla bloqueada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Disposición de pantalla bloqueada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Layout da tela de bloqueio" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Disposição do ecrã bloqueado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Layout schermata di blocco" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠금 화면 레이아웃" } }
+      }
+    },
+    "Puts the full-width volume row under the transport, like the lock widget in the sample." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Puts the full-width volume row under the transport, like the lock widget in the sample." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在播放控制下方显示全宽音量行，与示例中的锁定组件一致。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在播放控制下方顯示全寬音量列，與範例中的鎖定小工具一致。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再生コントロールの下に全幅の音量行を表示します（サンプルのロックウィジェットと同じ）。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zeigt die vollbreite Lautstärkezeile unter den Wiedergabetasten, wie im Beispiel-Widget." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Place la ligne de volume pleine largeur sous les commandes, comme le widget verrouillé de l’exemple." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Muestra la fila de volumen a todo el ancho bajo los controles, como el widget del ejemplo." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Muestra la fila de volumen a todo el ancho bajo los controles, como el widget del ejemplo." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostra a linha de volume de largura total sob os controles, como no exemplo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostra a linha de volume de largura total sob os controlos, como no exemplo." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra la riga del volume a tutta larghezza sotto i controlli, come nel widget di esempio." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "재생 컨트롤 아래에 전체 폭 음량 행을 표시합니다(예시 잠금 위젯과 동일)." } }
+      }
+    },
+    "The same glass card as the desktop widget, drawn over your wallpaper while the Mac is locked." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The same glass card as the desktop widget, drawn over your wallpaper while the Mac is locked." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "与桌面小组件相同的玻璃卡片，在 Mac 锁定时绘制在壁纸之上。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "與桌面小工具相同的玻璃卡片，在 Mac 鎖定時繪製於桌布之上。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デスクトップウィジェットと同じガラスカードを、Mac ロック時に壁紙の上へ描画します。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dieselbe Glaskarte wie das Desktop-Widget, über dem Hintergrundbild, während der Mac gesperrt ist." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La même carte vitrée que le widget de bureau, dessinée sur votre fond d’écran lorsque le Mac est verrouillé." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La misma tarjeta de cristal que el widget de escritorio, dibujada sobre el fondo cuando el Mac está bloqueado." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "La misma tarjeta de cristal que el widget de escritorio, dibujada sobre el fondo cuando el Mac está bloqueado." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O mesmo cartão de vidro do widget da área de trabalho, desenhado sobre o papel de parede com o Mac bloqueado." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "O mesmo cartão de vidro do widget do ambiente de trabalho, desenhado sobre o papel de parede com o Mac bloqueado." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "La stessa scheda in vetro del widget desktop, disegnata sullo sfondo mentre il Mac è bloccato." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Mac 잠금 시 배경화면 위에 데스크톱 위젯과 동일한 유리 카드를 표시합니다." } }
+      }
     }
   },
   "version" : "1.0"

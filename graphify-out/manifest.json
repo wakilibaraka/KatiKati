@@ -456,9 +456,9 @@
     "semantic_hash": "257c404d0125274cc9f11ed78385e0f2"
   },
   "App/Composition/WallpaperEngine.swift": {
-    "mtime": 1795470679.235107,
-    "seen": 1795470702.066568,
-    "ast_hash": "307080a9bea98bb0ab09ea71103d8303",
+    "mtime": 1795530561.0985663,
+    "seen": 1795530574.113029,
+    "ast_hash": "3e172d24add96e4bee8d60aa3ada3cc3",
     "semantic_hash": ""
   },
   "App/Composition/WeatherService.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795470679.236525,
-    "seen": 1795470702.066602,
-    "ast_hash": "d96c00c9e24a47033e069eb716dec08e",
+    "mtime": 1795530552.9451618,
+    "seen": 1795530574.113065,
+    "ast_hash": "813b58cfaf479ac1761a3bee90094326",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1795474056.2023184,
-    "seen": 1795474154.666267,
-    "ast_hash": "740bbd05c9f50bcfd3a1cefe1adda1db",
+    "mtime": 1795530561.1016111,
+    "seen": 1795530574.113188,
+    "ast_hash": "30b32e029c756f87f9289f9a1e39984f",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
@@ -2130,15 +2130,15 @@
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingProgress.swift": {
-    "mtime": 1794847539.6548471,
-    "seen": 1794847660.5882618,
-    "ast_hash": "fadce49213008ef530dc386eb7104446",
+    "mtime": 1795530561.1046648,
+    "seen": 1795530574.1133928,
+    "ast_hash": "269373b58afdc9c813297ee0f9cce9cc",
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
-    "mtime": 1795515364.2824945,
-    "seen": 1795515680.190794,
-    "ast_hash": "82c296bca9e9e7575ea91111ca1d44f9",
+    "mtime": 1795530552.9501917,
+    "seen": 1795530574.113394,
+    "ast_hash": "4024ca66c3a8c78785c8b2c070d296a5",
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
@@ -2928,9 +2928,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/AudioOutputSwitcher.swift": {
-    "mtime": 1795445985.5107613,
-    "seen": 1795446252.08017,
-    "ast_hash": "ec22768f6f5b1e28d6c602d47c1d1c3c",
+    "mtime": 1795530552.951815,
+    "seen": 1795530574.113549,
+    "ast_hash": "7836d504253e59e6b76a76ed72ff36d8",
     "semantic_hash": ""
   },
   "Platform/SystemStatus/BluetoothDeviceReader.swift": {
@@ -3888,9 +3888,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1795516906.094962,
-    "seen": 1795517152.4165602,
-    "ast_hash": "12caaba02ce6a8b05eb16e1c93dc27d5",
+    "mtime": 1795530561.128697,
+    "seen": 1795530574.1138718,
+    "ast_hash": "ae86f3688957382c8c3bd5bd9730ffc6",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795478587.5135956,
-    "seen": 1795479142.721049,
-    "ast_hash": "4a19ab16307f27218c62bcae5b297a57",
+    "mtime": 1795530548.0237908,
+    "seen": 1795530574.11416,
+    "ast_hash": "e0db08375521d0ebd02aeff137c6034b",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5460,15 +5460,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1795478590.1326308,
-    "seen": 1795479142.721161,
-    "ast_hash": "dab5c74945e0c34ca6e56897fe866b15",
+    "mtime": 1795530548.0236595,
+    "seen": 1795530574.1144378,
+    "ast_hash": "88a10b851bea9feeade764771538fb2b",
     "semantic_hash": ""
   },
   "README.zh-CN.md": {
-    "mtime": 1795478592.8741722,
-    "seen": 1795479142.721162,
-    "ast_hash": "e3fcbc30d4bf801a998f41e4787d0e02",
+    "mtime": 1795530548.0234802,
+    "seen": 1795530574.11444,
+    "ast_hash": "0406678dc915f055f0f44ba3c895d599",
     "semantic_hash": ""
   },
   "STANDING_RULES.md": {
@@ -7476,9 +7476,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockSpotifyWidgetView.swift": {
-    "mtime": 1795018570.9294376,
-    "seen": 1795018623.830888,
-    "ast_hash": "0ea4cd9b5df2eea7d7ab03c28b7d5e7f",
+    "mtime": 1795530561.100982,
+    "seen": 1795530574.11311,
+    "ast_hash": "c5e8ec1e046cc949c306954f3580628f",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift": {
@@ -7494,15 +7494,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1795307787.2850027,
-    "seen": 1795308984.385241,
-    "ast_hash": "3057bb763378884885b2c9dee3e9b706",
+    "mtime": 1795530561.1012673,
+    "seen": 1795530574.1131132,
+    "ast_hash": "6e045e30259e4ca4373a0560a3cf75ed",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795444607.8363402,
-    "seen": 1795444918.6889,
-    "ast_hash": "5954475cbdce639182457684b17b00ce",
+    "mtime": 1795530561.1032445,
+    "seen": 1795530574.113317,
+    "ast_hash": "95ecfbf46b883bb18954baa2370d4ec6",
     "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
@@ -7536,9 +7536,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopBoxModel.swift": {
-    "mtime": 1795470679.2438192,
-    "seen": 1795470702.066825,
-    "ast_hash": "d9a48f59916b45493ef0c5f66c032ede",
+    "mtime": 1795530561.1019068,
+    "seen": 1795530574.1132932,
+    "ast_hash": "2eb1b2838f2036f2377bdf421f076ad2",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/DesktopFolderOrdering.swift": {
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795088420.5267284,
-    "seen": 1795089049.73278,
-    "ast_hash": "624fb68548b317811ab0c7633ca6038a",
+    "mtime": 1795530561.0993493,
+    "seen": 1795530574.1130419,
+    "ast_hash": "8d2b4e8e1b00589815bbe2da5876c927",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
@@ -7776,9 +7776,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopVinylBoxView.swift": {
-    "mtime": 1795088386.530441,
-    "seen": 1795089049.732835,
-    "ast_hash": "3a29078b4350126c1abdf1b627d5c303",
+    "mtime": 1795530561.1004903,
+    "seen": 1795530574.1130939,
+    "ast_hash": "6fe14e4c376c0fdcf2c7d271fd2c071b",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWeatherBoxView.swift": {
@@ -8063,12 +8063,6 @@
     "ast_hash": "d1191734c750e619c1997bd067243bf1",
     "semantic_hash": ""
   },
-  "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.3.md": {
-    "mtime": 1795478585.980317,
-    "seen": 1795479142.7211552,
-    "ast_hash": "189de73d945506a75c21830443c9955b",
-    "semantic_hash": ""
-  },
   "Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md": {
     "mtime": 1795515723.1023078,
     "seen": 1795516002.288486,
@@ -8085,6 +8079,12 @@
     "mtime": 1795517452.6874561,
     "seen": 1795517761.2201889,
     "ast_hash": "6d656970017297720c4e120f09f424a3",
+    "semantic_hash": ""
+  },
+  "Docs/Plans/MUSIC_WALLPAPER_LOCKSCREEN_PLAN.md": {
+    "mtime": 1795530552.9510252,
+    "seen": 1795530574.114412,
+    "ast_hash": "14faddd498b1b8ff55616bb7b1eddd08",
     "semantic_hash": ""
   }
 }

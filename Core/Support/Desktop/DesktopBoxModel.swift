@@ -115,6 +115,9 @@ enum MusicSurfaceConfig {
     static let discordPresenceKey = "com.katikati.music.discordPresence"
     static let discordClientIDKey = "com.katikati.music.discordClientId"
     static let edgeVolumeKey = "com.katikati.music.edgeVolume"
+    static let viewModeKey = "com.katikati.music.viewMode"
+    static let lockVolumeKey = "com.katikati.music.lockVolume"
+    static let queueHistoryKey = "com.katikati.music.queueHistory"
 
     /// §5.7/§5.8 — one persisted selection, decoded once per read. Falls back to the shipped style.
     static func styleSelection(defaults: UserDefaults = .standard) -> MusicStyleSelection {
@@ -128,6 +131,31 @@ enum MusicSurfaceConfig {
         guard let data = try? JSONEncoder().encode(selection) else { return }
         defaults.set(data, forKey: styleSelectionKey)
         notifyChange()
+    }
+
+    /// Atmospheric's Now Playing / Synced Lyrics / Queue-History switcher, remembered per surface.
+    static func viewMode(for surface: MusicSurface = .desktop, defaults: UserDefaults = .standard) -> MusicViewMode {
+        let raw = defaults.string(forKey: viewModeKey + "." + surface.rawValue)
+        return raw.flatMap(MusicViewMode.init(rawValue:)) ?? .nowPlaying
+    }
+
+    static func saveViewMode(_ mode: MusicViewMode, for surface: MusicSurface = .desktop,
+                             defaults: UserDefaults = .standard) {
+        defaults.set(mode.rawValue, forKey: viewModeKey + "." + surface.rawValue)
+        notifyChange()
+    }
+
+    /// Session history survives launches: it is the only "queue" macOS gives us without Automation.
+    static func queueModel(defaults: UserDefaults = .standard) -> MusicQueueModel {
+        guard let data = defaults.data(forKey: queueHistoryKey),
+              let model = try? JSONDecoder().decode(MusicQueueModel.self, from: data)
+        else { return MusicQueueModel() }
+        return model
+    }
+
+    static func saveQueueModel(_ model: MusicQueueModel, defaults: UserDefaults = .standard) {
+        guard let data = try? JSONEncoder().encode(model) else { return }
+        defaults.set(data, forKey: queueHistoryKey)
     }
 
     static func theme(for surface: MusicSurface = .desktop, defaults: UserDefaults = .standard) -> MusicSurfaceTheme {
@@ -150,6 +178,11 @@ enum MusicSurfaceConfig {
 
     static func wallpaperStyle(defaults: UserDefaults = .standard) -> MusicWallpaperStyle {
         styleSelection(defaults: defaults).wallpaperStyle(for: .wallpaper)
+    }
+
+    /// The lock-screen card shows the volume row unless the user turns it off (the sample lock widget has one).
+    static var isLockVolumeEnabled: Bool {
+        (UserDefaults.standard.object(forKey: lockVolumeKey) as? Bool) ?? true
     }
 
     static var isMenuBarLyricsEnabled: Bool {
