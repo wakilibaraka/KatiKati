@@ -182373,6 +182373,261 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca su macOSicons…" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons 검색…" } }
       }
+    },
+    "Shaders" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shaders" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "着色器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "著色器" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "シェーダー" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Shader" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Shaders" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sombreadores" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Shaders" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Shaders" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Shaders" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Shader" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "셰이더" } }
+      }
+    },
+    "Show Dock and Command-Tab" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Dock and Command-Tab" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在程序坞和 ⌘+Tab 中显示" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在 Dock 與 ⌘+Tab 中顯示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dock と Command-Tab に表示" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "In Dock und ⌘+Tab anzeigen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher dans le Dock et Command-Tab" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar en Dock y Command-Tab" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar en Dock y Command-Tab" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar no Dock e Command-Tab" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar na Dock e Command-Tab" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra in Dock e Command-Tab" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock 및 Command-Tab 표시" } }
+      }
+    },
+    "Show Dock badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Dock badge" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示程序坞角标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示 Dock 角標" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dock バッジを表示" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dock-Kennzeichen anzeigen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher la pastille du Dock" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar globo del Dock" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar globo del Dock" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar aviso no Dock" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar emblema da Dock" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra badge del Dock" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock 배지 표시" } }
+      }
+    },
+    "Show countdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show countdown" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示倒计时" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示倒數計時" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カウントダウンを表示" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Countdown anzeigen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher le compte à rebours" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar cuenta atrás" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar cuenta regresiva" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar contagem regressiva" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar contagem decrescente" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra conto alla rovescia" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "카운트다운 표시" } }
+      }
+    },
+    "Show percentage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show percentage" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示百分比" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示百分比" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "パーセンテージを表示" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Prozentwert anzeigen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher le pourcentage" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar porcentaje" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar porcentaje" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar porcentagem" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar percentagem" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra percentuale" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "백분율 표시" } }
+      }
+    },
+    "Show weekly reset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show weekly reset" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示每周重置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示每週重置" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "週間リセットを表示" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wöchentlichen Reset anzeigen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher la réinitialisation hebdo" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar reinicio semanal" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar reinicio semanal" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar reinício semanal" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar reposição semanal" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra azzeramento settimanale" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "주간 초기화 표시" } }
+      }
+    },
+    "Stage Backdrop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stage Backdrop" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "舞台背景" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "舞台背景" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ステージ背景" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bühnenhintergrund" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Arrière-plan de scène" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fondo de vista previa" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Fondo de vista previa" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fundo de visualização" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fundo de pré-visualização" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sfondo anteprima" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "미리보기 배경" } }
+      }
+    },
+    "Strength" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Strength" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "强度" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "強度" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "強さ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Stärke" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Intensité" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Intensidad" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Intensidad" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Intensidade" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Intensidade" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Intensità" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "강도" } }
+      }
+    },
+    "Style Dock and Command-Tab icons with custom artwork, shaders, badge effects, and live data." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Style Dock and Command-Tab icons with custom artwork, shaders, badge effects, and live data." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用自定义图稿、着色器、角标特效和实时数据装扮程序坞与 ⌘+Tab 图标。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "使用自訂圖稿、著色器、角標特效與即時資料裝扮 Dock 與 ⌘+Tab 圖示。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カスタムアートワーク、シェーダー、バッジ効果、ライブデータで Dock と Command-Tab のアイコンを彩ります。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gestalte Dock- und Command-Tab-Symbole mit eigenen Bildern, Shadern, Effekten und Live-Daten." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Personnalisez les icônes du Dock et de Command-Tab avec vos images, shaders, effets et données en direct." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Personaliza los iconos del Dock y Command-Tab con ilustraciones, shaders, efectos y datos en vivo." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Personaliza los íconos del Dock y Command-Tab con ilustraciones, shaders, efectos y datos en vivo." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estilize ícones do Dock e Command-Tab com artes, shaders, efeitos e dados ao vivo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Estilize ícones da Dock e Command-Tab com artes, shaders, efeitos e dados em tempo real." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Personalizza le icone di Dock e Command-Tab con grafiche, shader, effetti e dati live." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "사용자 아트워크, 셰이더, 배지 효과, 실시간 데이터로 Dock 및 Command-Tab 아이콘을 꾸며보세요." } }
+      }
+    },
+    "Tracer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tracer" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "描边追踪" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "描邊追蹤" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "トレーサー" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Tracer" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Traceur" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Trazador" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Trazador" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Traçador" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Traçador" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tracciante" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "트레이서" } }
+      }
+    },
+    "Try an example percentage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try an example percentage" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "试用示例百分比" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "試用範例百分比" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サンプルパーセントを試す" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Beispielprozentsatz testen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tester un pourcentage exemple" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Probar porcentaje de ejemplo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Probar porcentaje de ejemplo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Testar porcentagem de exemplo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Testar percentagem de exemplo" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Prova una percentuale di esempio" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "예시 백분율 테스트" } }
+      }
+    },
+    "Vertical" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vertical" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "垂直位置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "垂直位置" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "垂直位置" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vertikal" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vertical" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Vertical" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Vertical" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Vertical" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Vertical" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Verticale" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "세로 위치" } }
+      }
+    },
+    "Vinyl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vinyl" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "黑胶唱片" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "黑膠唱片" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "レコード" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vinyl" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vinyle" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Vinilo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Vinilo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Vinil" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Vinil" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Vinile" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "바이닐" } }
+      }
+    },
+    "Water" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Water" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "水位波纹" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "水位波紋" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ウォーター" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wasser" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Eau" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Agua" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Agua" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Água" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Água" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Acqua" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "물결" } }
+      }
+    },
+    "macOSicons API Key (Optional)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons API Key (Optional)" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons API 密钥（可选）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons API 金鑰（選用）" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons API キー（任意）" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons-API-Schlüssel (Optional)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Clé API macOSicons (facultatif)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Clave API de macOSicons (opcional)" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Clave API de macOSicons (opcional)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Chave de API do macOSicons (opcional)" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Chave de API do macOSicons (opcional)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Chiave API macOSicons (facoltativa)" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons API 키 (선택 사항)" } }
+      }
     }
   },
   "version" : "1.0"
