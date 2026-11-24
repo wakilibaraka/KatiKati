@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LauncherView.swift": {
-    "mtime": 1795479785.9696183,
-    "seen": 1795479864.423303,
-    "ast_hash": "322eea808e21ce876857ce8c53c652a4",
+    "mtime": 1795479979.2169821,
+    "seen": 1795480045.847848,
+    "ast_hash": "cccedc2f71271e92f47b832b731a7c87",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795479787.7920797,
-    "seen": 1795479864.424104,
-    "ast_hash": "2df33ce97e32e82ff95f089bcae607d6",
+    "mtime": 1795479892.8366902,
+    "seen": 1795480045.84869,
+    "ast_hash": "8f3442af44edcd909c201944239107c1",
     "semantic_hash": ""
   },
   "README.md": {
