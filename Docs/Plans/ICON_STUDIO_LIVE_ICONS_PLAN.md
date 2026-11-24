@@ -200,8 +200,8 @@ Additionally, keep Notch (`App/Scenes/Notch/*`), `WallpaperEngine`, and Launcher
 
 ### Wave `IS-3` — AI & Now Playing Live Icons (Highest ROI)
 - [x] **IS-3.1 (`≤ 250` LOC):** `LiveIconMetrics`, `VinylAngleAccumulator`, `CursorBudgetEstimator` in `Core/Support/IconSet.swift`, `AgentCodexParser.parseRateLimit` + `AgentUsageService` `.codex` limits wiring, and synchronous tests in `Tests/Unit/IconSetTests.swift` (`79995944`). — `DONE — 79995944`
-- [ ] **IS-3.2 (`≤ 280` LOC):** Add `App/Scenes/IconStudio/AILiveIconViews.swift` wired to `AgentUsageService.shared`: **Claude** (usage fill + soft `Fade tide` strictly while `activeTurn?.isActive == true`), **ChatGPT/Codex** (usage fill + continuous white glyph tracer strictly while active), **Cursor** (`Water` / `Color fill` + `%` + weekly reset + pointer/hover tilt).
-- [ ] **IS-3.3 (`≤ 260` LOC):** Add `App/Scenes/IconStudio/MusicLiveIconViews.swift` wired to `NowPlayingService`: **Apple Music** (spinning vinyl record with live album art, elapsed/remaining time, exact angle hold on pause) and **Spotify** (`CD jewel case` or spinning prismatic disc + `-0:18` countdown / progress bar, `0.0%` idle CPU when paused).
+- [x] **IS-3.2 (`≤ 280` LOC):** `AILiveIconOverlay` (Claude fade tide, Codex white glyph tracer, Cursor water/color fill + hover tilt) & `MusicLiveIconOverlay` (Apple Music vinyl + pause-angle hold, Spotify CD jewel case / prismatic disc + `MusicTimecode` countdown) in `App/Scenes/ChipBadgeView.swift`, wired in `ContentView.swift` (`5378bf0c`). — `DONE — 5378bf0c`
+- [x] **IS-3.3 (`≤ 260` LOC):** Folded into `IS-3.2` (`5378bf0c`). — `DONE — 5378bf0c`
 
 ### Wave `IS-4` — Unread Badge Effects, Dress Up & Finder Companion
 - [ ] **IS-4.1 (`≤ 240` LOC):** Extend `App/Entry/AppDelegate.swift:1176-1192` and `App/Composition/BadgeStore.swift` to include `iconStudioBadgeEligibleBundleIDs` in targeted `AXStatusLabel` reads, and add `App/Scenes/IconStudio/IconBadgeEffectView.swift` (`Fire`, `Sunlight`, `Wax seal`, `Glint`) wrapping `ChipBadgeView.swift` strictly when `unreadCount >= minUnreadCount`.

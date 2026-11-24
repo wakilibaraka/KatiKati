@@ -494,6 +494,7 @@ struct IconStudioIconView: View {
     let bundleID: String
     let size: CGFloat
     var isHovered: Bool = false
+    var badgeText: String? = nil
     var isLiveActiveOverride: Bool? = nil
     var previewPercentOverride: Double? = nil
 
@@ -542,5 +543,10 @@ struct IconStudioIconView: View {
                 }
             }
             .dockIconMask(size: size)
+            .overlay {
+                if let decorations = look?.decorations, !decorations.isEmpty {
+                    IconDressUpOverlayView(decorations: decorations, size: size, isHovered: isHovered)
+                }
+            }
     }
 }

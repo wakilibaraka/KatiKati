@@ -253,7 +253,11 @@ struct ChipView: View {
         // （owner 2026-08-17 报「图标变大后数字红点是不是也要有变化」）。
         .overlay(alignment: .topTrailing) {
             if let badgeText {
-                ChipBadgeView(text: badgeText, scale: scale)
+                ChipBadgeView(
+                    text: badgeText,
+                    scale: scale,
+                    effect: IconStudioController.shared.badgeEffect(for: item.bundleIdentifier ?? item.appID)
+                )
             }
         }
         // 安静档的悬停反馈：整块轻微放大。放在运行点 overlay **之后**，图标和点一起放大；
@@ -387,7 +391,11 @@ struct ChipView: View {
                 // 同样挂在两个缩放之前，随悬停 / 按压 / 档位一起动。
                 .overlay(alignment: .topTrailing) {
                     if let badgeText {
-                        ChipBadgeView(text: badgeText, scale: scale * ChipPillMetrics.titledCardBadgeScale)
+                        ChipBadgeView(
+                            text: badgeText,
+                            scale: scale * ChipPillMetrics.titledCardBadgeScale,
+                            effect: IconStudioController.shared.badgeEffect(for: item.bundleIdentifier ?? item.appID)
+                        )
                     }
                 }
             titleLabel(capturedDisplayTitle, color: titleColor)
@@ -507,7 +515,8 @@ struct ChipView: View {
         IconStudioIconView(
             bundleID: item.bundleIdentifier ?? item.appID,
             size: size,
-            isHovered: isHovered && !isDragCarrierSnapshot
+            isHovered: isHovered && !isDragCarrierSnapshot,
+            badgeText: badgeText
         )
             // 我们**不额外加**外投影（owner 2026-08-19）：加过的那层是净多出来的，
             // 条上量到图标正下方比两侧空隙暗 18–24。中转格方块、文件夹封面同此。

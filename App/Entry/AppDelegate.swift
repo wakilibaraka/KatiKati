@@ -1173,20 +1173,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 「消息应用刚启动、新磁贴上出角标」靠这条在 ~1s 内补上。订阅先于 badgeStore.start()，
         // 首次读取前上下文已就位（@Published 订阅即发当前值）。
         // `isMessagingApp` 回读 store：这里有 receive(on:) 异步派发，发布早已完成，读到的是新值。
-        badgeContextSubscription = Publishers.CombineLatest3(
+        badgeContextSubscription = Publishers.CombineLatest4(
             messagingStore.$bundleIDs,
             drawerStore.$bundleIDs,
-            runningApplicationStore.$runningBundleIDs
+            runningApplicationStore.$runningBundleIDs,
+            IconStudioController.shared.$state
         )
         .receive(on: DispatchQueue.main)
-        .sink { [weak self] _, drawer, running in
+        .sink { [weak self] _, drawer, running, studioState in
             guard let self else { return }
+            let messaging = AppMembershipProjection.badgeEligibleIDs(
+                isMessagingApp: { self.messagingStore.isMessagingApp($0) },
+                drawerIDs: drawer,
+                runningIDs: running
+            )
+            let drawerSet = Set(drawer)
+            let studioIDs = studioState.badgeEligibleBundleIDs.filter { running.contains($0) && !drawerSet.contains($0) }
             self.badgeStore.updateMessagingContext(
-                visibleMessagingIDs: AppMembershipProjection.badgeEligibleIDs(
-                    isMessagingApp: { self.messagingStore.isMessagingApp($0) },
-                    drawerIDs: drawer,
-                    runningIDs: running
-                ),
+                visibleMessagingIDs: Array(Set(messaging).union(studioIDs)).sorted(),
                 runningBundleIDs: running
             )
         }

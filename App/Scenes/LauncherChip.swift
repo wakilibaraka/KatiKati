@@ -147,7 +147,11 @@ struct LauncherChip: View {
         // 未读角标：**必须挂在两个缩放之前**（owner 2026-08-17）。见 `ChipBadgeView`。
         .overlay(alignment: .topTrailing) {
             if let badgeText {
-                ChipBadgeView(text: badgeText, scale: scale)
+                ChipBadgeView(
+                    text: badgeText,
+                    scale: scale,
+                    effect: IconStudioController.shared.badgeEffect(for: bundleID)
+                )
             }
         }
         // 运行点原本挂在放大**之后**（点不跟着放大），和 `ChipView.bareIconChip` 不一致；
@@ -221,7 +225,8 @@ struct LauncherChip: View {
         let shaped = IconStudioIconView(
             bundleID: bundleID,
             size: size,
-            isHovered: isHovering && !isDragCarrierSnapshot
+            isHovered: isHovering && !isDragCarrierSnapshot,
+            badgeText: badgeText
         )
 
         shaped

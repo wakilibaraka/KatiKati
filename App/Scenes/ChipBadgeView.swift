@@ -19,8 +19,15 @@ struct ChipBadgeView: View {
     let text: String
     /// 档位系数。**故意不给默认值**——同 `scale` / `hoverStyle` 那条铁律。
     let scale: CGFloat
+    var effect: IconBadgeEffectSpec = .init()
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        let triggered = effect.isTriggered(byBadgeText: text)
+        let bgColor: Color = (triggered && effect.kind == .waxSeal)
+            ? Color(red: 0.68, green: 0.10, blue: 0.14)
+            : Color(red: 1.0, green: 0.23, blue: 0.19)
         Text(text)
             .font(.system(size: ChipPillMetrics.badgeFontSize * scale, weight: .bold, design: .rounded))
             .foregroundStyle(.white)
@@ -28,17 +35,136 @@ struct ChipBadgeView: View {
             .padding(.horizontal, ChipPillMetrics.badgeHorizontalPadding * scale)
             .frame(minWidth: ChipPillMetrics.badgeMinimumSize * scale,
                    minHeight: ChipPillMetrics.badgeMinimumSize * scale)
-            .background(
-                Capsule().fill(Color(red: 1.0, green: 0.23, blue: 0.19))   // Apple badge red
-            )
+            .background(Capsule().fill(bgColor))
             .overlay(
                 // 0.5pt 是发丝线，和分隔线同理，不随档位缩放。
-                Capsule().strokeBorder(.black.opacity(0.25), lineWidth: 0.5)
+                Capsule().strokeBorder(
+                    triggered && effect.kind == .waxSeal ? Color(red: 0.95, green: 0.72, blue: 0.45).opacity(0.6) : .black.opacity(0.25),
+                    lineWidth: triggered && effect.kind == .waxSeal ? 1.2 : 0.5
+                )
             )
+            .background {
+                if triggered {
+                    IconBadgeEffectView(kind: effect.kind, scale: scale, reduceMotion: reduceMotion)
+                }
+            }
             // 原生的角标大部分压在图标上，只稍稍探出圆角：卡片 40×54、可见图标方块 32.5，
             // 这个下推量让角标中心正好落在图标右上角内侧。
             .offset(x: 0, y: ChipPillMetrics.badgeTopOffset * scale)
             .allowsHitTesting(false)
+    }
+}
+
+struct IconBadgeEffectView: View {
+    let kind: IconBadgeEffectKind
+    let scale: CGFloat
+    let reduceMotion: Bool
+
+    var body: some View {
+        let animates = !reduceMotion && kind != .none && kind != .waxSeal
+        TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: !animates)) { context in
+            let t = animates ? context.date.timeIntervalSinceReferenceDate : 0
+            switch kind {
+            case .none:
+                EmptyView()
+            case .fire:
+                let flicker = animates ? (0.86 + 0.14 * sin(t * 9.0)) : 0.95
+                ZStack {
+                    Circle()
+                        .fill(RadialGradient(colors: [.yellow.opacity(0.85), .orange.opacity(0.65), .red.opacity(0)], center: .bottom, startRadius: 1, endRadius: 14 * scale))
+                        .frame(width: 24 * scale, height: 24 * scale)
+                        .offset(y: -5 * scale)
+                        .scaleEffect(x: 1.0, y: flicker, anchor: .bottom)
+                }
+            case .sunlight:
+                let spin = animates ? t * 24.0 : 0
+                ZStack {
+                    ForEach(0..<8, id: \.self) { idx in
+                        Capsule()
+                            .fill(Color.yellow.opacity(0.65))
+                            .frame(width: 2 * scale, height: 7 * scale)
+                            .offset(y: -11 * scale)
+                            .rotationEffect(.degrees(Double(idx) * 45.0 + spin))
+                    }
+                }
+            case .waxSeal:
+                Circle()
+                    .strokeBorder(Color(red: 0.55, green: 0.06, blue: 0.10), style: StrokeStyle(lineWidth: 3 * scale, dash: [3 * scale, 2 * scale]))
+                    .frame(width: 20 * scale, height: 20 * scale)
+            case .glint:
+                let sweep = animates ? ((t.truncatingRemainder(dividingBy: 2.2) / 2.2) * 2.0 - 1.0) : 0.0
+                Capsule()
+                    .fill(LinearGradient(colors: [.clear, .white.opacity(0.85), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 18 * scale, height: 14 * scale)
+                    .offset(x: CGFloat(sweep) * 8 * scale)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+struct IconDressUpOverlayView: View {
+    let decorations: [IconDecoration]
+    let size: CGFloat
+    let isHovered: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack {
+            ForEach(decorations) { deco in
+                decorationView(deco)
+                    .position(x: size * deco.anchorX, y: size * deco.anchorY)
+            }
+        }
+        .frame(width: size, height: size)
+        .allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private func decorationView(_ deco: IconDecoration) -> some View {
+        let s = CGFloat(deco.scale)
+        switch deco.kind {
+        case .stringLights:
+            let count = max(3, min(9, Int((3 + (1.0 - deco.spacing) * 6).rounded())))
+            HStack(spacing: max(1, (size * 0.72 / CGFloat(count)) * 0.35)) {
+                ForEach(0..<count, id: \.self) { i in
+                    let colors: [Color] = [.yellow, .red, .green, .cyan, .orange]
+                    Circle()
+                        .fill(colors[i % colors.count])
+                        .frame(width: max(3, size * 0.09 * s), height: max(3, size * 0.09 * s))
+                        .shadow(color: colors[i % colors.count].opacity(0.75), radius: max(1.5, size * 0.04))
+                        .offset(y: sin(Double(i) / Double(max(1, count - 1)) * .pi) * size * 0.07)
+                }
+            }
+            .frame(width: size * 0.88)
+        case .pine:
+            HStack(spacing: -size * 0.05) {
+                Image(systemName: "leaf.fill").foregroundStyle(Color(red: 0.14, green: 0.56, blue: 0.24)).rotationEffect(.degrees(-25))
+                Circle().fill(Color.red).frame(width: max(3, size * 0.09 * s), height: max(3, size * 0.09 * s))
+                Image(systemName: "leaf.fill").foregroundStyle(Color(red: 0.10, green: 0.45, blue: 0.18)).rotationEffect(.degrees(25))
+            }
+            .font(.system(size: max(8, size * 0.24 * s)))
+        case .snowGlobe:
+            let snow = isHovered && !reduceMotion
+            ZStack {
+                RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
+                    .strokeBorder(LinearGradient(colors: [.white.opacity(0.75), .cyan.opacity(0.35), .white.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: max(1.2, size * 0.04))
+                if snow {
+                    TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: !snow)) { context in
+                        let t = context.date.timeIntervalSinceReferenceDate
+                        Canvas { ctx, sz in
+                            for idx in 0..<8 {
+                                let x = sz.width * (0.12 + 0.76 * Double((idx * 37) % 10) / 10.0)
+                                let y = (sz.height * (Double(idx) * 0.18 + t * 0.45)).truncatingRemainder(dividingBy: sz.height)
+                                ctx.fill(Path(ellipseIn: CGRect(x: x, y: y, width: max(1.5, size * 0.04), height: max(1.5, size * 0.04))), with: .color(.white.opacity(0.85)))
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(width: size * 0.96, height: size * 0.96)
+        }
     }
 }
 

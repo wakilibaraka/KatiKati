@@ -7078,3 +7078,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-3.1` — Icon Studio Live Metrics, Codex `rate_limits` & Cursor Estimator (`79995944`, 2026-11-24)
 
 - `Core/Support/{IconSet,AgentUsage/AgentStoreParsers}.swift`, `App/Composition/AgentUsageService.swift`, `Tests/Unit/IconSetTests.swift`: added `LiveIconMetrics`, `VinylAngleAccumulator`, `CursorBudgetEstimator`, and Codex `rate_limits` parsing (`79995944`; 46/46 `IconSetTests` + `AgentUsageTests` passing).
+
+### `IS-3.2` — Icon Studio AI & Now Playing Live Overlays (`5378bf0c`, 2026-11-24)
+
+- `App/Scenes/{ChipBadgeView,ContentView}.swift`: added `AILiveIconOverlay` (`Claude`, `Codex`, `Cursor`) and `MusicLiveIconOverlay` (`Apple Music` vinyl + pause angle hold, `Spotify` CD jewel case / prismatic disc reusing `MusicTimecode` + `NowPlayingProgress`) wired into `IconStudioIconView` (`5378bf0c`).
