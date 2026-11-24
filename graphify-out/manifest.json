@@ -8068,5 +8068,11 @@
     "seen": 1795479142.7211552,
     "ast_hash": "189de73d945506a75c21830443c9955b",
     "semantic_hash": ""
+  },
+  "Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md": {
+    "mtime": 1795512846.8397279,
+    "seen": 1795512903.573917,
+    "ast_hash": "d85b3e93ea88c1d4df771276077c2165",
+    "semantic_hash": ""
   }
 }
