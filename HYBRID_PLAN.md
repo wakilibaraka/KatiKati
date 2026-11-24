@@ -6999,3 +6999,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LN-3a` — `Linux Menu` Preset UI, `90 ms` Hover-Intent Rail & Grid/List View (2026-11-24)
 
 - `App/Scenes/LauncherView.swift`: added `linuxMenuBody` with `176 pt` left category sidebar (`Favorites` → `System`), `90 ms` hover-intent debounce (`hoverCategoryTask`, cancelled on exit/disappear), density-aware Grid/List toggle, running-app dots, and shared `launcherFooterBar`. Updated 12-locale `Resources/Localizable.xcstrings`. Zero `project.pbxproj` edits.
+
+### `LN-3b` — Cross-Preset Keyboard Flow, Unified Search & Rich App Context Menu (2026-11-24)
+
+- `App/Scenes/LauncherView.swift`: wired `Tab`/`⇧Tab` cycling, `⌘⏎` reveal-in-Finder, `⌥⏎` quit running app, `Esc` step-back, `LauncherFocus.moveFlat` vertical arrow traversal, unified `BarMacro` / App Group / Recent Files search sections respecting `prefs.searchScope`, and rich right-click context menu (`Keep in Dock`, `Add to App Group`, `Quit`, `Pin`/`Unpin`, `Reveal`, `Hide`). Zero `project.pbxproj` edits.

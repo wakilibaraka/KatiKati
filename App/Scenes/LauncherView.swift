@@ -78,7 +78,37 @@ struct LauncherView: View {
     }
 
     private var matches: [LauncherApp] {
-        LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
+        guard model.prefs.searchScope.apps else { return [] }
+        return LauncherSearch.search(model.query, in: indexer.apps, usage: model.state.usage)
+    }
+
+    private var matchingActions: [BarMacro] {
+        guard model.prefs.searchScope.systemActions, !model.query.isEmpty else { return [] }
+        return LauncherActionSearch.matching(model.query, limit: 4)
+    }
+
+    private var matchingFolders: [LauncherFolder] {
+        guard model.prefs.searchScope.appGroups, !model.query.isEmpty else { return [] }
+        return model.state.folders.filter { LauncherMatch.score(query: model.query, name: $0.name) != nil }
+    }
+
+    private var matchingFiles: [LauncherRecentItem] {
+        guard model.prefs.searchScope.recentFiles, !model.query.isEmpty else { return [] }
+        let q = model.query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return [] }
+        var out = model.recentFiles.filter { LauncherMatch.score(query: q, name: $0.name) != nil }
+        var seen = Set(out.map(\.path))
+        let terms = q.split(separator: " ").map(String.init)
+        for f in FileIndexService.shared.search(terms: terms, extensions: [], imageOnly: false, limit: 4) ?? [] where !seen.contains(f.path) {
+            seen.insert(f.path)
+            out.append(LauncherRecentItem(name: f.name, path: f.path, subtitle: URL(fileURLWithPath: f.path).deletingLastPathComponent().lastPathComponent))
+            if out.count >= 4 { break }
+        }
+        return Array(out.prefix(4))
+    }
+
+    private var hasAnySearchResult: Bool {
+        !matches.isEmpty || !answers.isEmpty || isRunnable || !matchingActions.isEmpty || !matchingFolders.isEmpty || !matchingFiles.isEmpty
     }
 
     /// Phase 21b: math/web answer rows for a routed query (`=2+2`, `@swift news`).
@@ -179,18 +209,30 @@ struct LauncherView: View {
                                     if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
                                     else if let answer = answers.first { run(answer) }
                                     else if isRunnable { _ = LauncherRunner.run(routed) }
+                                    else if let macro = matchingActions.first, matches.isEmpty { actions.runMacro(macro) }
                                     else if let first = matches.first { actions.launch(first) }
+                                    else if let folder = matchingFolders.first { model.openFolderID = folder.id }
+                                    else if let file = matchingFiles.first { actions.openPlace(URL(fileURLWithPath: file.path)) }
                                     else if let q = LauncherQuickAction.resolve(model.query) { actions.quickAction(q) }
+                                },
+                                onCommandSubmit: {
+                                    if let target = keyboardTargetApp { actions.reveal(target) }
+                                },
+                                onOptionSubmit: {
+                                    if let target = keyboardTargetApp, model.runningIDs.contains(target.bundleID) {
+                                        actions.quitApp(target)
+                                    }
                                 },
                                 onCancel: {
                                     if model.openFolderID != nil { model.openFolderID = nil }
                                     else if model.showingAllApps { model.showingAllApps = false }
                                     else if model.editing { model.editing = false }
+                                    else if !model.query.isEmpty { model.query = "" }
                                     else { actions.close() }
                                 },
-                                onPage: { model.pageTurns.send($0) },
+                                onTab: { delta in handleTab(delta) },
                                 onArrow: { arrow(dx: $0, dy: $1) })
-                .frame(maxWidth: model.presentation == .windowsStart ? .infinity : model.searchPosition.fieldWidth)
+                .frame(maxWidth: model.presentation == .windowsStart || model.presentation == .linuxMenu ? .infinity : model.searchPosition.fieldWidth)
                 .frame(height: 28)
             Button {
                 actions.quickAction(.askAI(model.query))
@@ -320,7 +362,7 @@ struct LauncherView: View {
                         .frame(maxWidth: .infinity)
                     }
                 }
-            } else if matches.isEmpty && answers.isEmpty && !isRunnable {
+            } else if !hasAnySearchResult {
                 noResults
             } else {
                 let _ = recordSearchLayout(matches, columns: m.columns)
@@ -328,6 +370,7 @@ struct LauncherView: View {
                     VStack(alignment: .leading, spacing: 18) {
                         if !answers.isEmpty { answerSection }
                         commandSection
+                        unifiedSearchExtras
                         if !matches.isEmpty { grid(matches, m, reorderable: false) }
                     }
                     .padding(.horizontal, 56).padding(.bottom, 80)
@@ -554,11 +597,92 @@ struct LauncherView: View {
 
     private func arrow(dx: Int, dy: Int) -> Bool {
         if model.openFolderID != nil { return false }
-        guard let pos = LauncherFocus.move(pages: model.layoutPages, columns: model.layoutColumns, from: model.focusedID,
-                                           currentPage: model.pageIndex, dx: dx, dy: dy) else { return false }
-        model.focusedID = pos.id
-        if model.query.isEmpty, model.scrollDirection == .horizontal { model.pageIndex = pos.page }
+        let isPaged = (model.presentation == .centred || model.presentation == .fullscreen)
+            && model.query.isEmpty && model.scrollDirection == .horizontal
+        if isPaged {
+            guard let pos = LauncherFocus.move(pages: model.layoutPages, columns: model.layoutColumns, from: model.focusedID,
+                                               currentPage: model.pageIndex, dx: dx, dy: dy) else { return false }
+            model.focusedID = pos.id
+            model.pageIndex = pos.page
+            return true
+        }
+        let ids = model.layoutPages.flatMap { $0 }.flatMap { $0 }
+        guard let next = LauncherFocus.moveFlat(ids: ids, columns: model.layoutColumns, from: model.focusedID, dx: dx, dy: dy) else {
+            return false
+        }
+        model.focusedID = next
         return true
+    }
+
+    private func handleTab(_ delta: Int) {
+        switch model.presentation {
+        case .linuxMenu where model.query.isEmpty:
+            model.selectedCategory = LauncherFocus.cycleCategory(current: model.selectedCategory, delta: delta)
+            model.focusedID = nil
+        case .windowsStart where model.query.isEmpty:
+            model.showingAllApps.toggle()
+            model.focusedID = nil
+        default:
+            if model.query.isEmpty { model.pageTurns.send(delta) }
+        }
+    }
+
+    private var keyboardTargetApp: LauncherApp? {
+        if let id = model.focusedID, let item = model.layoutItems[id], !LauncherFolders.isFolderID(item.bundleID) {
+            return item
+        }
+        return matches.first
+    }
+
+    @ViewBuilder private var unifiedSearchExtras: some View {
+        if !matchingActions.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("System Actions").font(.system(size: 11.5, weight: .semibold)).foregroundColor(.secondary)
+                ForEach(matchingActions, id: \.keyword) { macro in
+                    Button { actions.runMacro(macro) } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: macro.symbol).font(.system(size: 14, weight: .semibold)).foregroundColor(.accentColor).frame(width: 24)
+                            Text(verbatim: macro.title).font(.system(size: 13, weight: .medium))
+                            Spacer(minLength: 0)
+                            Text(verbatim: macro.subtitle).font(.system(size: 11)).foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 12).padding(.vertical, 7)
+                        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.08)))
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        if !matchingFolders.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("App Groups").font(.system(size: 11.5, weight: .semibold)).foregroundColor(.secondary)
+                HStack(spacing: 8) {
+                    ForEach(matchingFolders) { folder in
+                        Button { model.openFolderID = folder.id } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "folder.fill").font(.system(size: 12)).foregroundColor(.accentColor)
+                                Text(verbatim: folder.name).font(.system(size: 12, weight: .medium))
+                            }
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.08)))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+        if !matchingFiles.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Recent Files").font(.system(size: 11.5, weight: .semibold)).foregroundColor(.secondary)
+                ForEach(matchingFiles) { item in
+                    Button { actions.openPlace(URL(fileURLWithPath: item.path)) } label: {
+                        recommendedRow(icon: NSWorkspace.shared.icon(forFile: item.path), title: item.name, subtitleVerbatim: item.subtitle)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
     }
 
     private func activate(_ app: LauncherApp) {
@@ -697,32 +821,40 @@ struct LauncherView: View {
     @ViewBuilder private func menu(_ app: LauncherApp, reorderable: Bool) -> some View {
         let pinned = model.state.pinned.contains(app.bundleID)
         let hidden = model.state.hidden.contains(app.bundleID)
+        let kept = actions.isKeptInDock(app.bundleID)
+        let running = model.runningIDs.contains(app.bundleID)
         if LauncherFolders.isFolderID(app.bundleID) {
             Button("Open") { model.openFolderID = app.bundleID }
             Button("Delete Folder") {
                 model.state.folders = LauncherFolders.delete(model.state.folders, id: app.bundleID); actions.persist()
             }
         } else {
-        Button("Open") { actions.launch(app) }
-        Button("Show in Finder") { actions.reveal(app) }
-        Button("Copy Path") { actions.copyPath(app) }
-        Divider()
-        if pinned { Button("Unpin") { actions.togglePin(app) } } else { Button("Pin") { actions.togglePin(app) } }
-        if reorderable { Button("Move to Start") { actions.move(app.bundleID, nil) } }
-        Divider()
-        if hidden { Button("Show in Launcher") { actions.toggleHidden(app) } } else { Button("Hide from Launcher") { actions.toggleHidden(app) } }
-        Divider()
-        Menu {
-            Button("New Folder") { actions.newFolder(app) }
-            ForEach(model.state.folders) { f in
-                Button { model.state.folders = LauncherFolders.add(model.state.folders, appID: app.bundleID, to: f.id); actions.persist() } label: {
-                    Text(verbatim: f.name)
+            Button("Open") { actions.launch(app) }
+            if running { Button("Quit") { actions.quitApp(app) } }
+            Button("Show in Finder") { actions.reveal(app) }
+            Button("Copy Path") { actions.copyPath(app) }
+            Divider()
+            if pinned { Button("Unpin") { actions.togglePin(app) } } else { Button("Pin") { actions.togglePin(app) } }
+            if kept { Button("Remove from Dock") { actions.toggleKeepInDock(app) } } else { Button("Keep in Dock") { actions.toggleKeepInDock(app) } }
+            if reorderable { Button("Move to Start") { actions.move(app.bundleID, nil) } }
+            Divider()
+            Menu {
+                Button("New App Group") { actions.newFolder(app) }
+                ForEach(model.state.folders) { f in
+                    Button { model.state.folders = LauncherFolders.add(model.state.folders, appID: app.bundleID, to: f.id); actions.persist() } label: {
+                        Text(verbatim: f.name)
+                    }
                 }
-            }
-        } label: { Text("Add to Folder") }
-        Divider()
-        Button("Uninstall…") { actions.uninstall(app) }
-        Button("Delete Data…") { actions.deleteData(app) }
+                ForEach(DockAppGroupStore.shared.groups) { g in
+                    Button { DockAppGroupStore.shared.addApp(app.bundleID, to: g.id) } label: {
+                        Text(verbatim: g.name)
+                    }
+                }
+            } label: { Text("Add to App Group") }
+            if hidden { Button("Show in Launcher") { actions.toggleHidden(app) } } else { Button("Hide from Launcher") { actions.toggleHidden(app) } }
+            Divider()
+            Button("Uninstall…") { actions.uninstall(app) }
+            Button("Delete Data…") { actions.deleteData(app) }
         }
     }
 }
@@ -765,8 +897,10 @@ struct LauncherSearchField: NSViewRepresentable {
     @Binding var text: String
     let focusNonce: Int
     let onSubmit: () -> Void
+    var onCommandSubmit: () -> Void = {}
+    var onOptionSubmit: () -> Void = {}
     let onCancel: () -> Void
-    let onPage: (Int) -> Void
+    let onTab: (Int) -> Void
     /// Arrow keys over the grid; return false to let the field handle the key (caret movement).
     let onArrow: (_ dx: Int, _ dy: Int) -> Bool
 
@@ -802,14 +936,17 @@ struct LauncherSearchField: NSViewRepresentable {
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy selector: Selector) -> Bool {
             switch selector {
-            case #selector(NSResponder.insertNewline(_:)): parent.onSubmit(); return true
+            case #selector(NSResponder.insertNewline(_:)):
+                let flags = NSApp.currentEvent?.modifierFlags ?? []
+                if flags.contains(.command) { parent.onCommandSubmit() }
+                else if flags.contains(.option) { parent.onOptionSubmit() }
+                else { parent.onSubmit() }
+                return true
             case #selector(NSResponder.cancelOperation(_:)): parent.onCancel(); return true
             case #selector(NSResponder.insertTab(_:)):
-                guard parent.text.isEmpty else { return false }
-                parent.onPage(1); return true
+                parent.onTab(1); return true
             case #selector(NSResponder.insertBacktab(_:)):
-                guard parent.text.isEmpty else { return false }
-                parent.onPage(-1); return true
+                parent.onTab(-1); return true
             case #selector(NSResponder.moveRight(_:)):
                 guard parent.text.isEmpty else { return false }
                 return parent.onArrow(1, 0)
@@ -950,7 +1087,7 @@ private extension LauncherView {
                                     else if model.editing { model.editing = false }
                                     else { actions.close() }
                                 },
-                                onPage: { _ in },
+                                onTab: { _ in },
                                 onArrow: { arrow(dx: $0, dy: $1) })
                 .frame(maxWidth: .infinity)
                 .frame(height: 28)
@@ -1032,7 +1169,7 @@ private extension LauncherView {
                 }
                 .padding(14)
             }
-        } else if matches.isEmpty && answers.isEmpty && !isRunnable {
+        } else if !hasAnySearchResult {
             noResults
             Spacer(minLength: 0)
         } else {
@@ -1041,6 +1178,7 @@ private extension LauncherView {
                 VStack(alignment: .leading, spacing: 12) {
                     if !answers.isEmpty { answerSection }
                     commandSection
+                    unifiedSearchExtras
                     if !matches.isEmpty { drawerCollection(matches, reorderable: false) }
                 }
                 .padding(14)
@@ -1182,12 +1320,13 @@ private extension LauncherView {
     }
 
     @ViewBuilder private var windowsStartSearchContent: some View {
-        if matches.isEmpty && answers.isEmpty && !isRunnable { noResults } else {
+        if !hasAnySearchResult { noResults } else {
             let _ = recordSearchLayout(matches, columns: 6)
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     if !answers.isEmpty { answerSection }
                     commandSection
+                    unifiedSearchExtras
                     if !matches.isEmpty {
                         LazyVGrid(columns: sixColumns, spacing: 14) {
                             ForEach(matches, id: \.bundleID) { cell($0, icon: 44, reorderable: false) }
@@ -1432,7 +1571,7 @@ private extension LauncherView {
                         Divider().opacity(0.24)
                     }
 
-                    if !model.query.isEmpty && displayed.isEmpty && answers.isEmpty && !isRunnable {
+                    if !model.query.isEmpty && !hasAnySearchResult {
                         noResults.frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         ScrollView {
@@ -1440,6 +1579,7 @@ private extension LauncherView {
                                 if !model.query.isEmpty {
                                     if !answers.isEmpty { answerSection }
                                     commandSection
+                                    unifiedSearchExtras
                                 }
                                 if model.prefs.viewMode == .list {
                                     LazyVStack(spacing: 3) {
