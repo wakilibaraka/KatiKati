@@ -182635,7 +182635,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 mit Lautstärkezeile, 208 ohne, 316 für das Hero-Layout."
           }
         },
         "en" : {
@@ -182647,61 +182647,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 con la fila de volumen, 208 sin ella, 316 para el formato grande."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 con la fila de volumen, 208 sin ella, 316 para el formato grande."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 avec la ligne de volume, 208 sans, 316 pour le grand format."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 con la riga del volume, 208 senza, 316 per il formato grande."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "音量行ありで 340 × 224、なしで 208、ヒーローレイアウトは 316。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "볼륨 행 포함 340 × 224, 미포함 208, 히어로 레이아웃 316."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 com a linha de volume, 208 sem ela, 316 para o formato grande."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "340 × 224 com a linha de volume, 208 sem ela, 316 para o formato grande."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "含音量控制 340 × 224，不含 208，主视觉版式 316。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "340 × 224 with the volume row, 208 without, 316 for the hero layout."
+            "value" : "含音量控制 340 × 224，不含 208，主視覺版面 316。"
           }
         }
       }
@@ -182712,7 +182712,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Eine Musikfläche auf der Schreibtisch-Ebene. Sie verdeckt nie ein App-Fenster und ändert nie dein Schreibtischbild."
           }
         },
         "en" : {
@@ -182724,61 +182724,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Una superficie musical en la capa del escritorio. Nunca cubre la ventana de una app ni cambia tu fondo de pantalla."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Una superficie musical en la capa del escritorio. Nunca cubre la ventana de una app ni cambia tu fondo de pantalla."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Une surface musicale au niveau du bureau. Elle ne recouvre jamais une fenêtre d’app et ne modifie jamais votre fond d’écran."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Una superficie musicale al livello della scrivania. Non copre mai la finestra di un’app e non cambia mai lo sfondo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "デスクトップ階層に置かれる音楽サーフェス。App ウインドウを覆うことも、壁紙を変えることもありません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "데스크탑 레이어에 놓이는 음악 서피스입니다. 앱 윈도우를 가리지 않으며 배경화면도 바꾸지 않습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Uma superfície musical na camada da área de trabalho. Ela nunca cobre a janela de um app nem altera seu papel de parede."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "Uma superfície musical na camada da área de trabalho. Nunca cobre a janela de uma app nem altera o seu papel de parede."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "位于桌面层的音乐表面。它绝不会遮挡 App 窗口，也不会改变你的壁纸。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper."
+            "value" : "位於桌面層的音樂介面。它絕不會遮住 App 視窗，也不會改變你的桌布。"
           }
         }
       }
@@ -182789,7 +182789,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Ein schmaler Balken mit Titel, Scrubber und Steuerung, an der Unterkante angedockt."
           }
         },
         "en" : {
@@ -182801,61 +182801,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Una barra fina con título, barra de progreso y controles, anclada al borde inferior."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Una barra fina con título, barra de progreso y controles, anclada al borde inferior."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Une fine barre avec titre, curseur et commandes, ancrée au bord inférieur."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Una barra sottile con titolo, barra di avanzamento e controlli, ancorata al bordo inferiore."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "タイトル、シークバー、再生コントロールを備えた細いバーを画面下端に固定します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "제목, 탐색 막대, 재생 컨트롤이 있는 얇은 바를 화면 아래쪽 가장자리에 붙입니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Uma barra fina com título, barra de progresso e controles, ancorada na borda inferior."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "Uma barra fina com título, barra de progresso e controlos, fixa à margem inferior."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "一条细长条，包含标题、进度条和播放控制，停靠在屏幕底边。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thin bar with title, scrubber and transport, docked to the bottom edge."
+            "value" : "一條細長條，包含標題、進度列和播放控制，停靠在螢幕底邊。"
           }
         }
       }
@@ -182866,7 +182866,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Hintergrund, Animation & Design"
           }
         },
         "en" : {
@@ -182878,61 +182878,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Fondo, animación y tema"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Fondo, animación y tema"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Arrière-plan, animation et thème"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Sfondo, animazione e tema"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "背景・アニメーション・テーマ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "배경, 애니메이션 및 테마"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Plano de fundo, animação e tema"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "Fundo, animação e tema"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "背景、动画与主题"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backdrop, animation & theme"
+            "value" : "背景、動畫與主題"
           }
         }
       }
@@ -182943,7 +182943,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Karte"
           }
         },
         "en" : {
@@ -182955,61 +182955,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Tarjeta"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Tarjeta"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Carte"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Scheda"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "カード"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "카드"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Cartão"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "Cartão"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "卡片"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card"
+            "value" : "卡片"
           }
         }
       }
@@ -183020,7 +183020,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Kartengröße"
           }
         },
         "en" : {
@@ -183032,61 +183032,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Tamaño de la tarjeta"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Tamaño de la tarjeta"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Taille de la carte"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Dimensione scheda"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "カードサイズ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "카드 크기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Tamanho do cartão"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "Tamanho do cartão"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "卡片尺寸"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Card Size"
+            "value" : "卡片尺寸"
           }
         }
       }
@@ -183097,7 +183097,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Musik-Widget für den Schreibtisch"
           }
         },
         "en" : {
@@ -183109,61 +183109,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Widget musical de escritorio"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Widget musical de escritorio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Widget musical du bureau"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Widget musicale della scrivania"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "デスクトップミュージックウィジェット"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "데스크탑 음악 위젯"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Widget de música da área de trabalho"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "Widget de música da área de trabalho"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "桌面音乐小组件"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Music Widget"
+            "value" : "桌面音樂小工具"
           }
         }
       }
@@ -183174,7 +183174,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Wiedergabe-Widget für den Schreibtisch"
           }
         },
         "en" : {
@@ -183186,61 +183186,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Widget Reproduciendo de escritorio"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Widget Reproduciendo de escritorio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Widget À l’écoute du bureau"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Widget In riproduzione della scrivania"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "デスクトップ再生中ウィジェット"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "데스크탑 지금 재생 중 위젯"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Widget Tocando agora da área de trabalho"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "Widget A reproduzir da área de trabalho"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "桌面正在播放小组件"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desktop Now Playing Widget"
+            "value" : "桌面正在播放小工具"
           }
         }
       }
@@ -183251,7 +183251,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Vollbild-Artwork hinter deinen Symbolen. Klicks gehen hindurch, daher funktionieren Symbole, Rechtsklick und Auswahl per Ziehen weiterhin."
           }
         },
         "en" : {
@@ -183263,61 +183263,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Portada a pantalla completa tras los iconos. Deja pasar los clics, así que iconos, clic derecho y selección por arrastre siguen funcionando."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Portada a pantalla completa tras los iconos. Deja pasar los clics, así que iconos, clic derecho y selección por arrastre siguen funcionando."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Pochette plein écran derrière vos icônes. Les clics la traversent : icônes, clic droit et sélection par glisser fonctionnent toujours."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Copertina a tutto schermo dietro le icone. I clic passano oltre: icone, clic destro e selezione a trascinamento continuano a funzionare."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "アイコンの後ろに全画面アート。クリックは透過するので、アイコン、右クリック、範囲選択はそのまま使えます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "아이콘 뒤의 전체 화면 아트. 클릭이 통과되므로 아이콘, 오른쪽 클릭, 드래그 선택이 모두 그대로 작동합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Arte em tela cheia atrás dos ícones. Os cliques atravessam, então ícones, clique com o botão direito e seleção por arrasto continuam funcionando."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "Arte em ecrã inteiro atrás dos ícones. Os cliques atravessam, pelo que ícones, clique com o botão direito e seleção por arrasto continuam a funcionar."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "图标背后的全屏封面。支持点击穿透，图标、右键操作和拖拽框选都照常可用。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working."
+            "value" : "圖示背後的全螢幕封面。支援點擊穿透，圖示、右鍵操作和拖曳框選都照常可用。"
           }
         }
       }
@@ -183328,7 +183328,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "Die halbe Bildschirmfläche: Artwork, Titel, Scrubber und Steuerung. Über den Symbolen, unter jedem App-Fenster."
           }
         },
         "en" : {
@@ -183340,61 +183340,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "Media pantalla: portada, título, barra de progreso y controles. Sobre los iconos y bajo cualquier ventana de app."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "Media pantalla: portada, título, barra de progreso y controles. Sobre los iconos y bajo cualquier ventana de app."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "La moitié de l’écran : pochette, titre, curseur et commandes. Au-dessus des icônes, sous toutes les fenêtres d’app."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "Metà dello schermo: copertina, titolo, barra di avanzamento e controlli. Sopra le icone, sotto ogni finestra di app."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "画面の半分にアート、タイトル、シークバー、再生コントロール。アイコンの上、すべての App ウインドウの下に表示します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "화면 절반에 아트, 제목, 탐색 막대, 재생 컨트롤. 아이콘 위, 모든 앱 윈도우 아래에 표시됩니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "Metade da tela: arte, título, barra de progresso e controles. Acima dos ícones e abaixo de todas as janelas de app."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "Metade do ecrã: arte, título, barra de progresso e controlos. Acima dos ícones e abaixo de todas as janelas de apps."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "占据半个屏幕：封面、标题、进度条和播放控制。位于图标之上、所有 App 窗口之下。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Half the screen: art, title, scrubber and transport. Above the icons, below every app window."
+            "value" : "佔據半個螢幕：封面、標題、進度列和播放控制。位於圖示之上、所有 App 視窗之下。"
           }
         }
       }
@@ -183405,7 +183405,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Musik-Karte"
           }
         },
         "en" : {
@@ -183417,61 +183417,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Tarjeta Música"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Tarjeta Música"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Carte Musique"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Scheda Musica"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "ミュージックカード"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "음악 카드"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Cartão Música"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "Cartão Música"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "音乐卡片"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Music Card"
+            "value" : "音樂卡片"
           }
         }
       }
@@ -183482,7 +183482,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Ein Panel pro Bildschirm, das sich merkt, wo du es lässt."
           }
         },
         "en" : {
@@ -183494,61 +183494,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Un panel por pantalla, que recuerda dónde lo dejas."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Un panel por pantalla, que recuerda dónde lo dejas."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Un panneau par écran, mémorisé là où vous le laissez."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Un pannello per schermo, memorizzato dove lo lasci."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "ディスプレイごとに 1 枚のパネル。置いた場所を覚えます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "디스플레이마다 패널 하나. 놓아둔 위치를 기억합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Um painel por tela, que lembra onde você o deixa."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "Um painel por ecrã, que memoriza onde o deixa."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "每个显示器一个面板，会记住你放置的位置。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "One panel per display, remembered where you leave it."
+            "value" : "每個顯示器一個面板，會記住你放置的位置。"
           }
         }
       }
@@ -183559,7 +183559,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Musik öffnen"
           }
         },
         "en" : {
@@ -183571,61 +183571,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Abrir Música"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Abrir Música"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Ouvrir Musique"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Apri Musica"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "ミュージックを開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "음악 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Abrir Música"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "Abrir Música"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "打开音乐"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Music"
+            "value" : "開啟音樂"
           }
         }
       }
@@ -183636,7 +183636,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Tapete öffnen"
           }
         },
         "en" : {
@@ -183648,61 +183648,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Abrir Fondo de pantalla"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Abrir Fondo de pantalla"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Ouvrir Fond d’écran"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Apri Sfondo"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "壁紙を開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "배경화면 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Abrir Papel de parede"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "Abrir Papel de parede"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "打开壁纸"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Wallpaper"
+            "value" : "開啟桌布"
           }
         }
       }
@@ -183713,7 +183713,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Widget-Flügel öffnen"
           }
         },
         "en" : {
@@ -183725,61 +183725,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Abrir Alas de widgets"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Abrir Alas de widgets"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Ouvrir Ailes de widgets"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Apri Ali widget"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "ウィジェットウィングを開く"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "위젯 윙 열기"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Abrir Asas de Widgets"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "Abrir Asas de Widgets"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "打开小组件侧翼"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Widget Wings"
+            "value" : "開啟小工具側翼"
           }
         }
       }
@@ -183790,7 +183790,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Plakat"
           }
         },
         "en" : {
@@ -183802,61 +183802,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Póster"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Póster"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Affiche"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Manifesto"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "ポスター"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "포스터"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Cartaz"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "Cartaz"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "海报"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Poster"
+            "value" : "海報"
           }
         }
       }
@@ -183867,7 +183867,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Auf dem Schreibtisch anzeigen"
           }
         },
         "en" : {
@@ -183879,61 +183879,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Mostrar en el escritorio"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Mostrar en el escritorio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Afficher sur le bureau"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Mostra sulla scrivania"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "デスクトップに表示"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "데스크탑에 표시"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Mostrar na área de trabalho"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "Mostrar na área de trabalho"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "在桌面显示"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show on Desktop"
+            "value" : "在桌面顯示"
           }
         }
       }
@@ -183944,7 +183944,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Bühne"
           }
         },
         "en" : {
@@ -183956,61 +183956,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Escenario"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Escenario"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Scène"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Palco"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "ステージ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "스테이지"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Palco"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "Palco"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "舞台"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stage"
+            "value" : "舞台"
           }
         }
       }
@@ -184021,7 +184021,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Leiste"
           }
         },
         "en" : {
@@ -184033,61 +184033,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Banda"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Banda"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Bandeau"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Striscia"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "バー"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "바"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Faixa"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "Faixa"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "长条"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strip"
+            "value" : "長條"
           }
         }
       }
@@ -184098,7 +184098,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Stile, Layout & Liedtext"
           }
         },
         "en" : {
@@ -184110,61 +184110,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Estilos, disposición y letra"
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Estilos, disposición y letra"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Styles, disposition et paroles"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Stili, layout e testi"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "スタイル・レイアウト・歌詞"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "스타일, 레이아웃 및 가사"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Estilos, layout e letras"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "Estilos, disposição e letras"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "样式、布局与歌词"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Styles, Layout & Lyrics"
+            "value" : "樣式、佈局與歌詞"
           }
         }
       }
@@ -184175,7 +184175,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "Die Karte in den Schreibtisch-Boxen, unverändert."
           }
         },
         "en" : {
@@ -184187,61 +184187,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "La tarjeta dentro de las cajas de escritorio, sin cambios."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "La tarjeta dentro de las cajas de escritorio, sin cambios."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "La carte dans les boîtes du bureau, inchangée."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "La scheda nei riquadri sulla Scrivania, invariata."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "デスクトップボックス内のカード、変更なし。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "데스크톱 상자 안의 카드, 변경 없음."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "O cartão dentro das Caixas da Mesa, sem alterações."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "O cartão dentro das Caixas da Mesa, sem alterações."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "桌面收纳盒里的卡片，保持不变。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The card inside the desktop boxes, unchanged."
+            "value" : "桌面收納盒裡的卡片，維持不變。"
           }
         }
       }
@@ -184252,7 +184252,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "Die kompakte Karte in der Ecke. Über den Symbolen, unter jedem App-Fenster."
           }
         },
         "en" : {
@@ -184264,61 +184264,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "La tarjeta compacta en la esquina. Sobre los iconos y bajo cualquier ventana de app."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "La tarjeta compacta en la esquina. Sobre los iconos y bajo cualquier ventana de app."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "La carte compacte dans le coin. Au-dessus des icônes, sous toutes les fenêtres d’app."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "La scheda compatta nell’angolo. Sopra le icone, sotto ogni finestra di app."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "隅に置くコンパクトなカード。アイコンの上、すべての App ウインドウの下に表示します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "모서리의 작은 카드. 아이콘 위, 모든 앱 윈도우 아래에 표시됩니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "O cartão compacto no canto. Acima dos ícones e abaixo de todas as janelas de app."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "O cartão compacto no canto. Acima dos ícones e abaixo de todas as janelas de apps."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "角落里的小巧卡片。位于图标之上、所有 App 窗口之下。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The compact card in the corner. Above the icons, below every app window."
+            "value" : "角落裡的小巧卡片。位於圖示之上、所有 App 視窗之下。"
           }
         }
       }
@@ -184329,7 +184329,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "Das Musik-Widget für den Schreibtisch, seine Voreinstellung, die Sperrbildschirm-Karte und das Albumcover."
           }
         },
         "en" : {
@@ -184341,61 +184341,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "El widget musical de escritorio, su ajuste preestablecido, la tarjeta de pantalla bloqueada y la portada del álbum."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "El widget musical de escritorio, su ajuste preestablecido, la tarjeta de pantalla bloqueada y la portada del álbum."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "Le widget musical du bureau, son préréglage, la carte de l’écran verrouillé et la pochette."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "Il widget musicale della scrivania, il suo predefinito, la scheda di schermata di blocco e la copertina."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "デスクトップミュージックウィジェット、そのプリセット、ロック画面カード、アルバムアート。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "데스크탑 음악 위젯, 사전 설정, 잠금 화면 카드, 앨범 아트."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "O widget de música da área de trabalho, sua predefinição, o cartão da tela de bloqueio e a capa do álbum."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "O widget de música da área de trabalho, a sua predefinição, o cartão do ecrã bloqueado e a capa do álbum."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "桌面音乐小组件、其预设、锁屏卡片以及专辑封面。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its preset, the lock card, and album art."
+            "value" : "桌面音樂小工具、其預設、鎖定畫面卡片以及專輯封面。"
           }
         }
       }
@@ -184406,7 +184406,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "Das Musik-Widget für den Schreibtisch, seine Voreinstellungen und die Sperrbildschirm-Karte haben jetzt eine eigene Seite."
           }
         },
         "en" : {
@@ -184418,61 +184418,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "El widget musical de escritorio, sus ajustes preestablecidos y la tarjeta de pantalla bloqueada ya tienen su propia página."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "El widget musical de escritorio, sus ajustes preestablecidos y la tarjeta de pantalla bloqueada ya tienen su propia página."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "Le widget musical du bureau, ses préréglages et la carte de l’écran verrouillé ont désormais leur propre page."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "Il widget musicale della scrivania, i suoi predefiniti e la scheda di schermata di blocco ora hanno una pagina dedicata."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "デスクトップミュージックウィジェット、そのプリセット、ロック画面カードは専用ページに移動しました。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "데스크탑 음악 위젯과 사전 설정, 잠금 화면 카드가 이제 전용 페이지로 이동했습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "O widget de música da área de trabalho, suas predefinições e o cartão da tela de bloqueio agora têm uma página própria."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "O widget de música da área de trabalho, as suas predefinições e o cartão do ecrã bloqueado têm agora uma página própria."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "桌面音乐小组件、它的各项预设和锁屏卡片现在有了独立页面。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The desktop music widget, its presets and the lock-screen card now live on their own page."
+            "value" : "桌面音樂小工具、它的各項預設和鎖定畫面卡片現在有了獨立頁面。"
           }
         }
       }
@@ -184483,7 +184483,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "Dieselbe Glaskarte auf jeder Fläche: Designs, Layout und Liedtext findest du in den Widget-Flügeln."
           }
         },
         "en" : {
@@ -184495,61 +184495,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "La misma tarjeta de cristal en cada superficie: temas, disposición y letra están en Alas de widgets."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "La misma tarjeta de cristal en cada superficie: temas, disposición y letra están en Alas de widgets."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "La même carte en verre sur chaque surface : thèmes, disposition et paroles se trouvent dans Ailes de widgets."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "La stessa scheda in vetro su ogni superficie: temi, layout e testi sono in Ali widget."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "どのサーフェスでも同じガラスカード。テーマ、レイアウト、歌詞はウィジェットウィングにあります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "모든 서피스에서 같은 글래스 카드. 테마, 레이아웃, 가사는 위젯 윙에 있습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "O mesmo cartão de vidro em todas as superfícies: temas, layout e letras ficam em Asas de Widgets."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "O mesmo cartão de vidro em todas as superfícies: temas, disposição e letras estão em Asas de Widgets."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "每个表面都是同一张玻璃卡片：主题、布局和歌词都在小组件侧翼中设置。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The same glass card on every surface: themes, layout and lyrics live on Widget Wings."
+            "value" : "每個介面都是同一張玻璃卡片：主題、佈局和歌詞都在小工具側翼中設定。"
           }
         }
       }
@@ -184560,7 +184560,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Nutzt dein Schreibtischbild. Empfohlen ist das Widget oben; diese Option bleibt für alle, die die volle Fläche wollen."
           }
         },
         "en" : {
@@ -184572,61 +184572,61 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Usa tu imagen de escritorio. Se recomienda el widget de arriba; esta opción queda para quien quiera el efecto a pantalla completa."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Usa tu imagen de escritorio. Se recomienda el widget de arriba; esta opción queda para quien quiera el efecto a pantalla completa."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Utilise votre image de bureau. Le widget ci-dessus est recommandé ; cette option reste pour ceux qui veulent le rendu plein écran."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Usa l’immagine della scrivania. Consigliato il widget qui sopra; questa opzione resta per chi vuole l’effetto a tutto schermo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "デスクトップピクチャを使います。上のウィジェットがおすすめです。全面に広げたい人のためにこの項目は残しています。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "데스크탑 그림을 사용합니다. 위의 위젯을 권장하며, 화면 전체를 채우고 싶은 분을 위해 이 옵션은 남겨 둡니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Usa sua imagem da área de trabalho. O widget acima é recomendado; esta opção fica para quem quer o efeito de tela cheia."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "Usa a sua imagem da área de trabalho. O widget acima é recomendado; esta opção fica para quem quer o efeito em ecrã inteiro."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "使用你的桌面图片。推荐使用上面的小组件；这一项留给想要整幅铺满的用户。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash."
+            "value" : "使用你的桌面圖片。推薦使用上方的小工具；這一項留給想要整幅鋪滿的使用者。"
           }
         }
       }
