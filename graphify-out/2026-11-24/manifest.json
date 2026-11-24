@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795551199.2889416,
-    "seen": 1795551324.7178829,
-    "ast_hash": "3d2f687a92f9fa0cbce6b8b87f36853c",
+    "mtime": 1795551703.4749856,
+    "seen": 1795551831.794189,
+    "ast_hash": "284b80e2e2bbd6d8967f35d72eb3954d",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -2172,9 +2172,9 @@
     "semantic_hash": ""
   },
   "Core/Support/QuickToggles.swift": {
-    "mtime": 1795551457.825049,
-    "seen": 1795551614.990769,
-    "ast_hash": "7bbbdefe4ab024d9da405308013fc4ad",
+    "mtime": 1795551691.356605,
+    "seen": 1795551831.794538,
+    "ast_hash": "716fc1347d7e1cee8424e4a3a68a2ade",
     "semantic_hash": ""
   },
   "Core/Support/RadialDialGeometry.swift": {
@@ -2898,9 +2898,9 @@
     "semantic_hash": ""
   },
   "Platform/Pinboard/QuickToggleEngine.swift": {
-    "mtime": 1795445980.1756353,
-    "seen": 1795534644.45757,
-    "ast_hash": "f674c98e0e768e2b1696e5d2e0694105",
+    "mtime": 1795551702.076863,
+    "seen": 1795551831.7946649,
+    "ast_hash": "b1f87ba6237410a4d776845ed1f8d860",
     "semantic_hash": ""
   },
   "Platform/ScreenTime/ScreenTimeController.swift": {
@@ -2952,9 +2952,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/SystemStatusService.swift": {
-    "mtime": 1795551026.8543165,
-    "seen": 1795551085.141697,
-    "ast_hash": "c4b97699f10658da3c1873104362303a",
+    "mtime": 1795551695.5789242,
+    "seen": 1795551831.7946749,
+    "ast_hash": "868f1e19195fcc6713e2f193b4efe123",
     "semantic_hash": ""
   },
   "Platform/Tasks/TasksController.swift": {
@@ -3954,9 +3954,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/QuickTogglesTests.swift": {
-    "mtime": 1795551460.167622,
-    "seen": 1795551614.9911108,
-    "ast_hash": "a47157e3f16cb027e56677ad8f3bd6cc",
+    "mtime": 1795551693.3836777,
+    "seen": 1795551831.794858,
+    "ast_hash": "0e9477e7a2cbcdce8621681d28ba72b2",
     "semantic_hash": ""
   },
   "Tests/Unit/RadialDialGeometryTests.swift": {
@@ -4644,9 +4644,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
-    "mtime": 1792297460.3675175,
-    "seen": 1795534644.457246,
-    "ast_hash": "8159e195274b0d939d632d11d0258d94",
+    "mtime": 1795551692.2993624,
+    "seen": 1795551831.7943401,
+    "ast_hash": "90f0dc40268307266f3beee371c5ffa0",
     "semantic_hash": ""
   },
   "Core/Support/NotchBehavior.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795551461.8673317,
-    "seen": 1795551614.991325,
-    "ast_hash": "0bad4a616bcee60fb4db2a38508cfe58",
+    "mtime": 1795551705.267214,
+    "seen": 1795551831.7950568,
+    "ast_hash": "229b1c20a19b291e19b67f6f292a740b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795551461.0071428,
-    "seen": 1795551614.991314,
-    "ast_hash": "26e2c50c079fa453274cd2b5c310b1a1",
+    "mtime": 1795551704.3028367,
+    "seen": 1795551831.795048,
+    "ast_hash": "2bb8111d3b770908dbe981c5b5037b50",
     "semantic_hash": ""
   }
 }
