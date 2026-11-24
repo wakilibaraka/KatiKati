@@ -373,6 +373,28 @@ struct FullscreenEventTapRecoveryPolicy: Equatable {
     }
 }
 
+/// Thread-safe 3-strike timeout recovery circuit breaker shared by `.defaultTap` callbacks.
+final class EventTapRecoveryBox: @unchecked Sendable {
+    private var lock = os_unfair_lock_s()
+    private var policy = FullscreenEventTapRecoveryPolicy()
+
+    @discardableResult
+    func handleDisable(port: CFMachPort?) -> Bool {
+        os_unfair_lock_lock(&lock)
+        let allowed = policy.recordDisable(at: ProcessInfo.processInfo.systemUptime)
+        os_unfair_lock_unlock(&lock)
+        guard allowed, let port else { return false }
+        CGEvent.tapEnable(tap: port, enable: true)
+        return true
+    }
+
+    func reset() {
+        os_unfair_lock_lock(&lock)
+        policy = FullscreenEventTapRecoveryPolicy()
+        os_unfair_lock_unlock(&lock)
+    }
+}
+
 final class FullscreenIntentHandoffGate {
     enum State: Equatable {
         case pending

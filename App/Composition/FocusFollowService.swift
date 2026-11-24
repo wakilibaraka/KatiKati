@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import OSLog
+import os.lock
 
 /// 54e — raises the window under the pointer. Off by default and inert without Accessibility: the AX hit
 /// test fails without the grant, so the monitor is never even installed and the Settings row says why.
@@ -12,6 +13,9 @@ final class FocusFollowService {
     private let log = Logger(subsystem: "com.katikati.app", category: "focusFollow")
     private var monitor: Any?
     private var policy = FocusFollowPolicy()
+    private let axQueue = DispatchQueue(label: "com.katikati.focusFollow.ax", qos: .userInteractive)
+    private var coalescerLock = os_unfair_lock_s()
+    private var coalescer = FocusFollowCoalescer()
 
     var isEnabled: Bool { UserDefaults.standard.bool(forKey: Self.enabledKey) }
 
@@ -29,6 +33,9 @@ final class FocusFollowService {
     func stop() {
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
+        os_unfair_lock_lock(&coalescerLock)
+        coalescer.reset()
+        os_unfair_lock_unlock(&coalescerLock)
     }
 
     private func start() {
@@ -46,10 +53,33 @@ final class FocusFollowService {
         let nowUptime = ProcessInfo.processInfo.systemUptime
         guard nowUptime - lastHoverSampleAt >= 0.04 else { return }
         lastHoverSampleAt = nowUptime
-        let target = Self.windowUnderPointer(Self.pointerInAccessibilitySpace())
+        let axPoint = Self.pointerInAccessibilitySpace()
+        os_unfair_lock_lock(&coalescerLock)
+        let firstPoint = coalescer.submit(axPoint)
+        os_unfair_lock_unlock(&coalescerLock)
+        if let firstPoint { dispatchLookup(at: firstPoint) }
+    }
+
+    private func dispatchLookup(at point: CGPoint) {
+        axQueue.async { [weak self] in
+            guard let self else { return }
+            let target = Self.windowUnderPointer(point)
+            os_unfair_lock_lock(&self.coalescerLock)
+            let nextPoint = self.coalescer.complete()
+            os_unfair_lock_unlock(&self.coalescerLock)
+            if let target {
+                DispatchQueue.main.async { [weak self] in
+                    MainActor.assumeIsolated { self?.applyLookupResult(target) }
+                }
+            }
+            if let nextPoint { self.dispatchLookup(at: nextPoint) }
+        }
+    }
+
+    private func applyLookupResult(_ target: Target) {
+        guard monitor != nil else { return }
         let now = Date()
-        guard let target,
-              policy.allowsRaise(targetPID: target.pid,
+        guard policy.allowsRaise(targetPID: target.pid,
                                  frontmostPID: NSWorkspace.shared.frontmostApplication?.processIdentifier,
                                  ownPID: getpid(),
                                  mouseButtonDown: NSEvent.pressedMouseButtons != 0,
@@ -79,7 +109,7 @@ final class FocusFollowService {
                                                 primaryMaxY: NSScreen.screens.first?.frame.maxY ?? 0)
     }
 
-    struct Target {
+    struct Target: @unchecked Sendable {
         var pid: pid_t
         var window: AXUIElement
     }

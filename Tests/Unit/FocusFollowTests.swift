@@ -36,4 +36,14 @@ final class FocusFollowPolicyTests: XCTestCase {
         XCTAssertTrue(allows(lastRaise: now.addingTimeInterval(-0.12)))
         XCTAssertTrue(allows(lastRaise: now.addingTimeInterval(-2)))
     }
+
+    func testCoalescerKeepsLatestSampleWhileQueryIsInFlight() {
+        var coalescer = FocusFollowCoalescer()
+        XCTAssertEqual(coalescer.submit(CGPoint(x: 10, y: 10)), CGPoint(x: 10, y: 10))
+        XCTAssertNil(coalescer.submit(CGPoint(x: 20, y: 20)))
+        XCTAssertNil(coalescer.submit(CGPoint(x: 30, y: 30)))
+        XCTAssertEqual(coalescer.complete(), CGPoint(x: 30, y: 30), "only most recent sample drains next")
+        XCTAssertNil(coalescer.complete())
+        XCTAssertFalse(coalescer.inFlight)
+    }
 }

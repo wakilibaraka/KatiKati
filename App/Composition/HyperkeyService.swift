@@ -84,6 +84,7 @@ final class HyperkeyService {
         }
         applyRemap()
         observeFrontmostApp()
+        shared.tapRecovery.reset()
         shared.onFire = { [weak self] code in
             DispatchQueue.main.async { MainActor.assumeIsolated { self?.fire(code) } }
         }
@@ -121,6 +122,7 @@ final class HyperkeyService {
         if let loop = tapRunLoop { CFRunLoopStop(loop) }
         tap = nil; tapRunLoop = nil; tapThread = nil
         shared.port = nil // a late tapDisabled callback must not revive a tap we stopped
+        shared.tapRecovery.reset()
         shared.reset()
         restoreRemap()
     }
@@ -216,6 +218,7 @@ final class HyperkeyShared: @unchecked Sendable {
     private var boundKeys = Set<UInt16>()
     private var config = HyperkeyConfig(forwardToSystem: true)
     private var frontmostExcluded = false
+    let tapRecovery = EventTapRecoveryBox()
     var port: CFMachPort?
     var onFire: (UInt16) -> Void = { _ in }
     var onTapAlone: (HyperkeyTapAction) -> Void = { _ in }
@@ -247,7 +250,7 @@ private func hyperkeyTapCallback(proxy: CGEventTapProxy, type: CGEventType, even
     guard let refcon else { return Unmanaged.passUnretained(event) }
     let shared = Unmanaged<HyperkeyShared>.fromOpaque(refcon).takeUnretainedValue()
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-        if let port = shared.port { CGEvent.tapEnable(tap: port, enable: true) }
+        _ = shared.tapRecovery.handleDisable(port: shared.port)
         return Unmanaged.passUnretained(event)
     }
     guard type == .keyDown || type == .keyUp else { return Unmanaged.passUnretained(event) }

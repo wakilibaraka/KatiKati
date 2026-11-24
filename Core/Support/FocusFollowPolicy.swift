@@ -17,3 +17,24 @@ struct FocusFollowPolicy: Equatable, Sendable {
         return true
     }
 }
+
+/// Coalesces `.mouseMoved` probes so at most one background AX hit-test runs at a time,
+/// overwriting any older queued pointer sample while IPC is in flight.
+struct FocusFollowCoalescer: Equatable, Sendable {
+    private(set) var inFlight = false
+    private(set) var pendingPoint: CGPoint?
+
+    mutating func submit(_ point: CGPoint) -> CGPoint? {
+        if inFlight { pendingPoint = point; return nil }
+        inFlight = true
+        return point
+    }
+
+    mutating func complete() -> CGPoint? {
+        guard let next = pendingPoint else { inFlight = false; return nil }
+        pendingPoint = nil
+        return next
+    }
+
+    mutating func reset() { inFlight = false; pendingPoint = nil }
+}

@@ -283,6 +283,7 @@ enum ShelfActions {
         let mouse = NSEvent.mouseLocation
         let anchor = NSWindow(contentRect: NSRect(x: mouse.x, y: mouse.y, width: 1, height: 1), styleMask: .borderless, backing: .buffered, defer: false)
         anchor.backgroundColor = .clear
+        anchor.ignoresMouseEvents = true
         anchor.level = .popUpMenu
         anchor.isReleasedWhenClosed = false
         anchor.orderFrontRegardless()
