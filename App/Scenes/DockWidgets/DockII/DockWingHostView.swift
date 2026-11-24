@@ -132,13 +132,6 @@ struct DockWingHostView: View {
                     value: isHovered
                 )
                 .onHover { isHovered = $0 }
-                .dockShadow(
-                    theme.stripShadow,
-                    visible: DockLiquidGlassConfiguration.stripShadowVisible(
-                        usesLiquidGlass: usesLiquidGlass,
-                        usesSystemVariant: DockGlassPresentation.usesSystemVariant
-                    )
-                )
                 .padding(PanelCoordinator.shadowPadding)
                 .environment(\.widgetSize, activeSize)
                 .environment(\.dockWingVertical, isVertical)

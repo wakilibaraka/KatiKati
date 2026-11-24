@@ -52,4 +52,38 @@ final class NotchGeometryTests: XCTestCase {
         XCTAssertEqual(NotchGeometry.closedCapsuleSize(m, showsActivity: false).width, 185)
         XCTAssertEqual(NotchGeometry.closedCapsuleSize(m, showsActivity: true).width, 185 + NotchGeometry.sneakSide * 2)
     }
+
+    func testStageSizeShrinksLiquidAndDynamicIslandWhenClosed() {
+        let notched = NotchMetrics(closedSize: CGSize(width: 185, height: 38), hasHardwareNotch: true)
+        let flat = NotchMetrics(closedSize: CGSize(width: 185, height: 24), hasHardwareNotch: false)
+        let closedCapsule = NotchGeometry.closedCapsuleSize(notched, showsActivity: true)
+
+        let liquidIdle = NotchGeometry.stageSize(
+            for: .liquid, isExpanded: false, isWide: false, metrics: notched,
+            closedSize: closedCapsule, openSize: NotchGeometry.liquidOpenSize, hasCompactActivity: false
+        )
+        let liquidCompact = NotchGeometry.stageSize(
+            for: .liquid, isExpanded: false, isWide: false, metrics: notched,
+            closedSize: closedCapsule, openSize: NotchGeometry.liquidOpenSize, hasCompactActivity: true
+        )
+        let liquidExpanded = NotchGeometry.stageSize(
+            for: .liquid, isExpanded: true, isWide: false, metrics: notched,
+            closedSize: closedCapsule, openSize: NotchGeometry.liquidOpenSize, hasCompactActivity: true
+        )
+        XCTAssertLessThanOrEqual(liquidIdle.height, 60)
+        XCTAssertLessThanOrEqual(liquidCompact.height, 60)
+        XCTAssertGreaterThanOrEqual(liquidExpanded.height, 220)
+        XCTAssertLessThan(liquidIdle.width, liquidExpanded.width)
+
+        let islandClosed = NotchGeometry.stageSize(
+            for: .dynamicIsland, isExpanded: false, isWide: false, metrics: flat,
+            closedSize: flat.closedSize, openSize: NotchGeometry.dynamicIslandOpenSize
+        )
+        let islandExpanded = NotchGeometry.stageSize(
+            for: .dynamicIsland, isExpanded: true, isWide: false, metrics: flat,
+            closedSize: flat.closedSize, openSize: NotchGeometry.dynamicIslandOpenSize
+        )
+        XCTAssertLessThanOrEqual(islandClosed.height, 60)
+        XCTAssertEqual(islandExpanded.height, 240)
+    }
 }

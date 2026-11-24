@@ -225,6 +225,23 @@ final class ManualPanelHostTests: XCTestCase {
         XCTAssertEqual(delivered, [height])
     }
 
+    func testShadowRingHitInsetPassesClicksOutsideVisiblePlate() {
+        let panel = makePanel(size: NSSize(width: 240, height: 86))
+        let content = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 86))
+        _ = ManualPanelHost(contentView: content, in: panel, hitInset: 20)
+        panel.layoutIfNeeded()
+
+        // Points inside the 20pt outer shadowPadding ring must return nil from hitTest.
+        XCTAssertNil(panel.contentView?.hitTest(NSPoint(x: 120, y: 10)))
+        XCTAssertNil(panel.contentView?.hitTest(NSPoint(x: 120, y: 76)))
+        XCTAssertNil(panel.contentView?.hitTest(NSPoint(x: 10, y: 43)))
+        XCTAssertNil(panel.contentView?.hitTest(NSPoint(x: 230, y: 43)))
+
+        // Points inside the inner 200x46 visible plate hit normally.
+        XCTAssertNotNil(panel.contentView?.hitTest(NSPoint(x: 120, y: 43)))
+        XCTAssertNotNil(panel.contentView?.hitTest(NSPoint(x: 21, y: 21)))
+    }
+
     private func drainMainQueue() async {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async { continuation.resume() }

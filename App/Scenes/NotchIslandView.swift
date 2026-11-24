@@ -123,9 +123,11 @@ struct NotchIslandView: View {
                 tintsPlate: !metrics.hasHardwareNotch,
                 tokens: DockThemeStyleTokens.resolve(style: .obsidianDark, appearance: .dark)
             )
-            IslandSurfaceView(driver: bridge.driver, registry: bridge.registry, themeResolution: resolution) {
-                NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                    .frame(maxWidth: .infinity, maxHeight: 140)
+            Color.clear.overlay(alignment: .top) {
+                IslandSurfaceView(driver: bridge.driver, registry: bridge.registry, themeResolution: resolution) {
+                    NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                        .frame(maxWidth: .infinity, maxHeight: 140)
+                }
             }
         } else {
             legacyNotchBody

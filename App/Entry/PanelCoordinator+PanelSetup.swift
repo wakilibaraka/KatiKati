@@ -27,6 +27,11 @@ extension PanelCoordinator {
         // 缩窗口会让这一整批坐标一起错位。
         let panel = makeFloatingPanel(contentRect: legacyInitialFrame, usesLiquidGlass: usesLiquidGlass, keyable: true)
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
+        let castsShadow = DockLiquidGlassConfiguration.stripShadowVisible(
+            usesLiquidGlass: usesLiquidGlass,
+            usesSystemVariant: DockGlassPresentation.usesSystemVariant
+        )
+        panel.hasShadow = !usesLiquidGlass && castsShadow
 
         let hosting = FirstMouseHostingView(rootView: DockStripView(
             usesLiquidGlass: usesLiquidGlass,
@@ -90,10 +95,11 @@ extension PanelCoordinator {
         // Prevent NSHostingView from adding its own opaque background over the blur
         hosting.wantsLayer = true
         hosting.layer?.backgroundColor = NSColor(white: 1.0, alpha: 0.0).cgColor
-        dockContentHost = ManualPanelHost(contentView: hosting, in: panel)
+        dockContentHost = ManualPanelHost(contentView: hosting, in: panel, hitInset: Self.shadowPadding)
         dockPanel = panel
 
         if let (backgroundPanel, backgroundView) = glassBackground {
+            backgroundPanel.hasShadow = castsShadow
             dockGlassBackgroundPanel = backgroundPanel
             dockGlassBackgroundView = backgroundView
         }
@@ -225,6 +231,10 @@ extension PanelCoordinator {
             usesLiquidGlass: usesLiquidGlass
         )
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
+        panel.hasShadow = DockLiquidGlassConfiguration.stripShadowVisible(
+            usesLiquidGlass: usesLiquidGlass,
+            usesSystemVariant: DockGlassPresentation.usesSystemVariant
+        )
         let hosting = FirstMouseHostingView(rootView:
             DrawerCapsuleButton(
                 onRequestTaskbarMenu: { [weak self] event, view in
@@ -248,7 +258,7 @@ extension PanelCoordinator {
         )
         hosting.wantsLayer = true
         hosting.layer?.backgroundColor = NSColor(white: 1.0, alpha: 0.0).cgColor
-        capsuleContentHost = ManualPanelHost(contentView: hosting, in: panel)
+        capsuleContentHost = ManualPanelHost(contentView: hosting, in: panel, hitInset: Self.shadowPadding)
         capsulePanel = panel
     }
 
@@ -312,8 +322,13 @@ extension PanelCoordinator {
         }
         let sizeModel = placement == .leftWing ? leftWingSizeModel : rightWingSizeModel
         let initialRect = NSRect(origin: .zero, size: CGSize(width: 220, height: windowHeight))
+        let castsWingShadow = DockLiquidGlassConfiguration.stripShadowVisible(
+            usesLiquidGlass: usesLiquidGlass,
+            usesSystemVariant: DockGlassPresentation.usesSystemVariant
+        )
         if dockGlassBackgroundPanel != nil,
            let (bgPanel, bgView) = makeTaskbarGlassBackground(contentPanelFrame: initialRect) {
+            bgPanel.hasShadow = castsWingShadow
             switch placement {
             case .leftWing:
                 leftWingGlassBackgroundPanel = bgPanel
@@ -328,6 +343,7 @@ extension PanelCoordinator {
             usesLiquidGlass: usesLiquidGlass
         )
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: true)
+        panel.hasShadow = !usesLiquidGlass && castsWingShadow
         let root = DockWingHostView(
             placement: placement,
             usesLiquidGlass: usesLiquidGlass,
@@ -340,7 +356,7 @@ extension PanelCoordinator {
         let hosting = FirstMouseHostingView(rootView: root)
         hosting.wantsLayer = true
         hosting.layer?.backgroundColor = NSColor(white: 1.0, alpha: 0.0).cgColor
-        let host = ManualPanelHost(contentView: hosting, in: panel)
+        let host = ManualPanelHost(contentView: hosting, in: panel, hitInset: Self.shadowPadding)
         switch placement {
         case .leftWing:
             leftWingHost = host

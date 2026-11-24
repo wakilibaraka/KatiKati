@@ -51,8 +51,18 @@ struct PanelHeightResizeModifier: ViewModifier {
 /// Container view that accepts the very first mouse click without requiring the non-activating panel
 /// to steal focus or require an activating click from the user.
 final class FirstMouseContainerView: NSView {
+    var hitInset: CGFloat = 0
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        if hitInset > 0 {
+            let local = superview != nil ? convert(point, from: superview) : point
+            guard bounds.insetBy(dx: hitInset, dy: hitInset).contains(local) else { return nil }
+        }
+        return super.hitTest(point)
     }
 }
 
@@ -69,12 +79,13 @@ public final class FirstMouseHostingView<Content: View>: NSHostingView<Content> 
 final class ManualPanelHost {
     let contentView: NSView
 
-    init(contentView: NSView, in panel: NSPanel) {
+    init(contentView: NSView, in panel: NSPanel, hitInset: CGFloat = 0) {
         self.contentView = contentView
 
         let initialSize = panel.contentView?.bounds.size
             ?? panel.contentRect(forFrameRect: panel.frame).size
         let container = FirstMouseContainerView(frame: NSRect(origin: .zero, size: initialSize))
+        container.hitInset = hitInset
         panel.contentView = container
 
         contentView.frame = container.bounds

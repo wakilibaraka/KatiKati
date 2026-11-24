@@ -86,4 +86,74 @@ enum NotchGeometry {
     static func closedCapsuleSize(_ metrics: NotchMetrics, showsActivity: Bool) -> CGSize {
         CGSize(width: metrics.closedSize.width + (showsActivity ? sneakSide * 2 : 0), height: metrics.closedSize.height)
     }
+
+    /// Backing `NSPanel` size for any skin: full stage while expanded, compact (`<= 60 pt` tall) while closed
+    /// so a `CAMetalLayer` or non-activating panel never sits over app toolbars below the menu bar.
+    static func stageSize(
+        for skin: LiveIslandSkin,
+        isExpanded: Bool,
+        isWide: Bool,
+        metrics: NotchMetrics,
+        closedSize: CGSize,
+        openSize: CGSize,
+        hasCompactActivity: Bool = true
+    ) -> CGSize {
+        switch skin {
+        case .liquid:
+            if isExpanded {
+                return CGSize(width: max(600, openSize.width + 160), height: openSize.height + 80)
+            }
+            let baseWidth = metrics.hasHardwareNotch ? metrics.closedSize.width : 148
+            let baseHeight = metrics.hasHardwareNotch ? metrics.closedSize.height : 28
+            let width = isWide
+                ? openSize.width
+                : (hasCompactActivity ? max(closedSize.width, baseWidth + 140) : baseWidth + 12)
+            let height = min(60, baseHeight + (hasCompactActivity ? 16 : 6))
+            return CGSize(width: width, height: height)
+        case .dynamicIsland:
+            if isExpanded {
+                return CGSize(width: max(560, openSize.width + 64), height: 240)
+            }
+            let width = isWide ? openSize.width : max(closedSize.width, 320)
+            let height = min(60, max(44, metrics.closedSize.height + 14))
+            return CGSize(width: width, height: height)
+        case .boring, .classic:
+            return isExpanded ? openSize : closedSize
+        }
+    }
+
+    /// Backing `NSPanel` frame on `screenBounds` for the given skin and expansion state.
+    static func stageFrame(
+        for skin: LiveIslandSkin,
+        isExpanded: Bool,
+        isWide: Bool,
+        metrics: NotchMetrics,
+        closedSize: CGSize,
+        openSize: CGSize,
+        screenBounds: CGRect,
+        topInset: CGFloat,
+        menuBarHeight: CGFloat,
+        hasCompactActivity: Bool = true
+    ) -> CGRect {
+        if skin != .liquid, skin != .dynamicIsland, !isWide, !metrics.hasHardwareNotch {
+            return NotchGeometryCalculator.calculate(
+                screenBounds: screenBounds,
+                topInset: topInset,
+                menuBarHeight: menuBarHeight,
+                closedSize: closedSize,
+                openSize: openSize,
+                isExpanded: isExpanded
+            ).panelFrame
+        }
+        let size = stageSize(
+            for: skin,
+            isExpanded: isExpanded,
+            isWide: isWide,
+            metrics: metrics,
+            closedSize: closedSize,
+            openSize: openSize,
+            hasCompactActivity: hasCompactActivity
+        )
+        return panelFrame(size: size, in: screenBounds)
+    }
 }

@@ -100,6 +100,7 @@ final class NotchPanelController: LiveEventSink {
         startBatteryBuddy()
 
         LiveActivityFeed.shared.$activity.map(\.kind).removeDuplicates().sink { [weak self] _ in self?.activityChanged() }.store(in: &cancellables)
+        LiquidAgentHub.shared.$sessions.map(\.isEmpty).removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         statusService.$status.map(\.volume).removeDuplicates().dropFirst()
             .sink { [weak self] volume in
                 let icon = volume.isMuted ? "speaker.slash.fill" : (volume.level > 0.66 ? "speaker.wave.3.fill" : (volume.level > 0.33 ? "speaker.wave.2.fill" : "speaker.wave.1.fill"))
@@ -196,6 +197,7 @@ final class NotchPanelController: LiveEventSink {
         model.event = nil; model.isOpen = false
         LiveActivityFeed.shared.isNotchExpanded = false
         hover.forceClose()
+        panel?.ignoresMouseEvents = true
         panel?.orderOut(nil)
         panel = nil
         if holdsFeed { LiveActivityFeed.shared.release(); holdsFeed = false }
@@ -423,6 +425,7 @@ final class NotchPanelController: LiveEventSink {
             createdAt: now
         )
         model.activityQueue.enqueue(item, now: now)
+        syncWindow()
         scheduleHUDExpiration()
     }
 
@@ -434,36 +437,40 @@ final class NotchPanelController: LiveEventSink {
         let work = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.model.activityQueue.pruneExpired(at: Date())
+            self.syncWindow()
             self.scheduleHUDExpiration()
         }
         hudExpireWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
+    private var hasCompactLiquidActivity: Bool {
+        let nowPlaying = LiveActivityFeed.shared.nowPlayingState
+        let hasMusic = !(nowPlaying.title ?? "").isEmpty || LiveActivityFeed.shared.activity.kind == .music
+        return hasMusic
+            || LiveActivityFeed.shared.activity.kind != .clock
+            || model.activeHUDItem != nil
+            || model.event != nil
+            || !LiquidAgentHub.shared.sessions.isEmpty
+    }
+
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
     /// clips while it animates open) and shrinks only after the close spring has finished.
     private func windowFrame(on screen: NSScreen, expanded: Bool? = nil) -> CGRect {
-        if skin == .liquid {
-            let stageSize = CGSize(width: max(600, model.openSize.width + 160), height: model.openSize.height + 80)
-            return NotchGeometry.panelFrame(size: stageSize, in: screen.frame)
-        }
-        if skin == .dynamicIsland {
-            let stageSize = CGSize(width: max(560, model.openSize.width + 64), height: 240)
-            return NotchGeometry.panelFrame(size: stageSize, in: screen.frame)
-        }
-        let isExpanded = expanded ?? model.isExpanded
-        if !isWide && !metrics.hasHardwareNotch {
-            return NotchGeometryCalculator.calculate(
-                screenBounds: screen.frame,
-                topInset: screen.safeAreaInsets.top,
-                menuBarHeight: screen.frame.maxY - screen.visibleFrame.maxY,
-                closedSize: model.closedSize,
-                openSize: model.openSize,
-                isExpanded: isExpanded
-            ).panelFrame
-        }
-        let size = isExpanded ? model.openSize : model.closedSize
-        return NotchGeometry.panelFrame(size: size, in: screen.frame)
+        let islandExpanded = skin == .dynamicIsland && islandBridge.driver.scene.presentation == .expanded
+        let isExpanded = (expanded ?? model.isExpanded) || islandExpanded
+        return NotchGeometry.stageFrame(
+            for: skin,
+            isExpanded: isExpanded,
+            isWide: isWide,
+            metrics: metrics,
+            closedSize: model.closedSize,
+            openSize: model.openSize,
+            screenBounds: screen.frame,
+            topInset: screen.safeAreaInsets.top,
+            menuBarHeight: screen.frame.maxY - screen.visibleFrame.maxY,
+            hasCompactActivity: hasCompactLiquidActivity
+        )
     }
 
     private func syncWindow(immediate: Bool = false) {
@@ -561,6 +568,7 @@ final class NotchPanelController: LiveEventSink {
             islandStateSubscription?.cancel()
             islandStateSubscription = nil
             removeIslandOutsideClickMonitor()
+            panel?.ignoresMouseEvents = false
             return
         }
         if panel != nil {
@@ -573,18 +581,37 @@ final class NotchPanelController: LiveEventSink {
         driver.keylineSetting = topology.keylineSetting(userEnabled: keylineEnabled)
         driver.stageWidth = max(560, Double(model.openSize.width + 64))
         driver.updateDisplayTopology(topology, touchEnabled: touchEnabled, nonNotchBehavior: nonNotchBehavior)
+        syncDynamicIslandPanelInteraction()
 
         if islandStateSubscription == nil {
             islandStateSubscription = driver.$scene
+                .combineLatest(driver.$snapshot)
                 .receive(on: RunLoop.main)
-                .sink { [weak self] scene in
+                .sink { [weak self] scene, _ in
                     guard let self else { return }
+                    self.syncDynamicIslandPanelInteraction()
+                    self.syncWindow(immediate: scene.presentation == .expanded)
                     if scene.presentation == .expanded {
                         self.installIslandOutsideClickMonitor()
                     } else {
                         self.removeIslandOutsideClickMonitor()
                     }
                 }
+        }
+    }
+
+    private func syncDynamicIslandPanelInteraction() {
+        guard skin == .dynamicIsland else {
+            panel?.ignoresMouseEvents = false
+            return
+        }
+        let driver = islandBridge.driver
+        let hidesAtRest = driver.topology.hidesAtRest(
+            activeCount: driver.snapshot.activities.count,
+            nonNotchBehavior: driver.nonNotchIdleBehavior
+        ) && driver.scene.presentation == .idle
+        if panel?.ignoresMouseEvents != hidesAtRest {
+            panel?.ignoresMouseEvents = hidesAtRest
         }
     }
 

@@ -94,16 +94,13 @@ struct DrawerCapsuleButton: View {
                       lineWidth: theme.panelRimLineWidth,
                       usesLiquidGlass: usesLiquidGlass,
                       visible: !fluidTheme)
-        // No stash glow here any more: the stash target is the drawer pop chip (`PopChip`).
-        .dockShadow(theme.stripShadow,
-                    visible: DockLiquidGlassConfiguration.stripShadowVisible(
-                        usesLiquidGlass: usesLiquidGlass,
-                        usesSystemVariant: DockGlassPresentation.usesSystemVariant))
-        .padding(PanelCoordinator.shadowPadding)
         .overlay { capsuleOverlayButton(for: capsuleSlot) }
         // MenuHostNSView takes only right / Control-clicks and lets left clicks and scroll wheel
         // events through, so a right click anywhere on the capsule opens the taskbar menu.
         .overlay(NativeMenuHost(popUpHandler: onRequestTaskbarMenu))
+        // Padding stays outermost (and shadow lives on WindowServer `hasShadow`) so the 20pt halo
+        // has zero alpha and no interactive overlay inside it.
+        .padding(PanelCoordinator.shadowPadding)
         // 4c: pinned style for any themed descendant (the backdrop above already reads the store
         // directly); re-injected on every body run, so a theme change lands without a rebuild.
         .environment(\.dockThemeStyle, settingsStore.themeMaterial)
