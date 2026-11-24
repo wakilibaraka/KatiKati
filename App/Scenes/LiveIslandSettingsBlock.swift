@@ -41,13 +41,48 @@ struct LiveIslandSettingsBlock: View {
                 }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
-            .help(Text("Full uses a multi-panel layout; Compact uses a simpler player card."))
-            if store.notchSkin == .liquid {
+            .help(Text("Liquid uses metaball physics and detached balls; Full and Compact preserve classic layouts."))
+            if store.notchSkin == .boring || store.notchSkin == .classic {
                 SettingsDivider()
+                NotchAnimationPicker()
+            }
+            SettingsDivider()
+            SettingsRow(Text("Event Alerts")) {
+                Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
+                    ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            .help(Text("Choose where Dynamic Notch event alerts appear."))
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("System Banners"),
+                isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) })
+            )
+            .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Focus"),
+                isOn: $timeTravel.focusDeferralEnabled
+            )
+            .help(Text("Focus"))
+            SettingsRow(Text("Suggestions")) {
+                Button("Reset") {
+                    timeTravel.resetSuggestionBackoff()
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        if store.notchSkin == .liquid {
+            SettingsCard(
+                Text("Liquid Notch"),
+                note: Text("Optional modules stay off until enabled for zero idle CPU.")
+            ) {
                 LiquidExtrasSettingsRows()
             }
-            if store.notchSkin == .dynamicIsland {
-                SettingsDivider()
+        }
+        if store.notchSkin == .dynamicIsland {
+            SettingsCard(Text("Dynamic Island")) {
                 SettingsRow(Text("Touch Optimization")) {
                     Picker(
                         "Touch Optimization",
@@ -87,41 +122,15 @@ struct LiveIslandSettingsBlock: View {
                     IslandPlaygroundSheet(store: store)
                 }
             }
-            SettingsDivider()
-            NotchAnimationPicker()
-            SettingsDivider()
-            SettingsRow(Text("Event Alerts")) {
-                Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
-                    ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            .help(Text("Choose where Dynamic Notch event alerts appear."))
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("System Banners"),
-                isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) })
-            )
-            .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("Focus"),
-                isOn: $timeTravel.focusDeferralEnabled
-            )
-            .help(Text("Focus"))
-            SettingsRow(Text("Suggestions")) {
-                Button("Reset") {
-                    timeTravel.resetSuggestionBackoff()
-                }
-                .buttonStyle(.bordered)
-            }
         }
-        NotchAppearanceCard()
-        NotchLayoutCard()
         NotchBehaviorCard()
-        NotchPagesCard(store: store)
-        DroppyCustomizationCard()
-        NotchActivityCard()
+        if store.notchSkin == .boring || store.notchSkin == .classic {
+            NotchAppearanceCard()
+            NotchLayoutCard()
+            NotchPagesCard(store: store)
+            DroppyCustomizationCard()
+            NotchActivityCard()
+        }
     }
 
     private static func title(for route: LiveEventRoute) -> Text {

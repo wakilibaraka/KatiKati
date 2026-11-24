@@ -1,6 +1,234 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Liquid Notch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid Notch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流体刘海"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流體瀏海"
+          }
+        }
+      }
+    },
+    "Liquid uses metaball physics and detached balls; Full and Compact preserve classic layouts." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid nutzt Metaball-Physik und gelöste Bälle; Voll und Kompakt bewahren klassische Layouts."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid uses metaball physics and detached balls; Full and Compact preserve classic layouts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid usa física metaball y burbujas separadas; Completo y Compacto conservan el diseño clásico."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid usa física metaball y burbujas separadas; Completo y Compacto conservan el diseño clásico."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid utilise une physique métaballe et des bulles détachées ; Complet et Compact gardent les dispositions classiques."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid usa fisica metaball e sfere separate; Completo e Compatto mantengono i layout classici."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid はメタボール物理と分離ボールを使用し、フルとコンパクトは従来のレイアウトを保持します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid는 메타볼 물리 효과와 분리형 볼을 사용하며 전체 및 컴팩트는 기존 레이아웃을 유지합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid usa física metaball e esferas separadas; Completo e Compacto mantêm os layouts clássicos."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liquid usa física metaball e esferas separadas; Completo e Compacto mantêm os esquemas clássicos."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流体使用融球物理与独立活动球；完整与紧凑保留经典布局。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "流體使用融球物理與獨立活動球；完整與精簡保留經典版面。"
+          }
+        }
+      }
+    },
+    "Optional modules stay off until enabled for zero idle CPU." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optionale Module bleiben deaktiviert, bis sie für null Leerlauf-CPU eingeschaltet werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional modules stay off until enabled for zero idle CPU."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los módulos opcionales permanecen desactivados hasta activarse para mantener 0 % de CPU en reposo."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los módulos opcionales permanecen desactivados hasta activarse para mantener 0 % de CPU en reposo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les modules optionnels restent désactivés jusqu’à leur activation pour une CPU nulle au repos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I moduli opzionali restano disattivati finché non vengono abilitati per zero CPU a riposo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オプションモジュールは有効化するまでオフのままで、アイドル時 CPU 負荷ゼロを維持します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택 모듈은 활성화할 때까지 꺼져 있어 유휴 CPU 사용량을 0으로 유지합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Módulos opcionais permanecem desligados até serem ativados para manter CPU ociosa em zero."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os módulos opcionais permanecem desligados até serem ativados para manter a CPU inativa a zero."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选模块默认关闭，启用前零后台 CPU 占用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可選模組預設關閉，啟用前零背景 CPU 佔用。"
+          }
+        }
+      }
+    },
     "Sports Scores" : {
       "localizations" : {
         "de" : {
@@ -61237,83 +61465,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "完整視窗"
-          }
-        }
-      }
-    },
-    "Full uses a multi-panel layout; Compact uses a simpler player card." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Voll nutzt mehrere Bereiche, Kompakt eine einfache Player-Karte."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Full uses a multi-panel layout; Compact uses a simpler player card."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Completo usa varios paneles; Compacto usa una tarjeta de reproducción sencilla."
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Completo usa varios paneles; Compacto usa una tarjeta de reproducción sencilla."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Complet utilise plusieurs panneaux ; Compact une carte de lecture simplifiée."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Completo usa più pannelli; Compatto usa una scheda player più semplice."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "フルは複数パネル、コンパクトはシンプルなプレーヤーカードです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "전체는 여러 패널을, 간결은 단순한 플레이어 카드를 사용합니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Completo usa vários painéis; Compacto usa um cartão de reprodução simples."
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Completo usa vários painéis; Compacto usa um cartão de reprodução simples."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "完整样式使用多面板布局；紧凑样式使用简洁的播放器卡片。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "完整樣式使用多面板版面；精簡樣式使用簡潔的播放器卡片。"
           }
         }
       }
