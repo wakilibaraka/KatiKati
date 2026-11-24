@@ -1932,9 +1932,9 @@
     "semantic_hash": ""
   },
   "Core/Support/LauncherAppIndex.swift": {
-    "mtime": 1793835642.3251145,
-    "seen": 1793835649.022075,
-    "ast_hash": "2dbd3a601018fad8a9116494d0aa39ea",
+    "mtime": 1795479150.2783873,
+    "seen": 1795479339.612362,
+    "ast_hash": "bcde806e3a6e20047ebde5572ea1a407",
     "semantic_hash": ""
   },
   "Core/Support/LauncherAppearance.swift": {
@@ -1956,9 +1956,9 @@
     "semantic_hash": "c240bcc15346162354cb603ce03a4b17"
   },
   "Core/Support/LauncherFolders.swift": {
-    "mtime": 1795427640.5198681,
-    "seen": 1795427777.0471911,
-    "ast_hash": "5b776e09b759352c46544b48e124898c",
+    "mtime": 1795479151.5956318,
+    "seen": 1795479339.612366,
+    "ast_hash": "9e909dbd3a1cf15f480bbe7d71f30ee5",
     "semantic_hash": ""
   },
   "Core/Support/LauncherLayout.swift": {
@@ -3642,9 +3642,9 @@
     "semantic_hash": "7b2f6d50c3dd6e28e38a71e7e8ec10e3"
   },
   "Tests/Unit/LauncherAppIndexTests.swift": {
-    "mtime": 1793835825.0720448,
-    "seen": 1793835846.9225621,
-    "ast_hash": "0f8dcd3301e955e77c570bd747659f28",
+    "mtime": 1795479283.1887553,
+    "seen": 1795479339.612687,
+    "ast_hash": "3d2bd39e93414c27c30ddb6976646685",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherAppearanceTests.swift": {
@@ -3666,9 +3666,9 @@
     "semantic_hash": "0e813973d4d600bd768cf98c8d873096"
   },
   "Tests/Unit/LauncherFoldersTests.swift": {
-    "mtime": 1795427642.0389872,
-    "seen": 1795427777.0475368,
-    "ast_hash": "fdc0b0d63d451f42630a1232c7966be3",
+    "mtime": 1795479154.3282912,
+    "seen": 1795479339.61269,
+    "ast_hash": "13d369404e1031e0c9ac85660a06cb65",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherLayoutTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795478885.0559812,
-    "seen": 1795479142.721159,
-    "ast_hash": "a7d57cdeb5c00faba15efb8926c1bb24",
+    "mtime": 1795479155.3624601,
+    "seen": 1795479339.612946,
+    "ast_hash": "dd0f899869474ab33e4decbdf321be1a",
     "semantic_hash": ""
   },
   "README.md": {
