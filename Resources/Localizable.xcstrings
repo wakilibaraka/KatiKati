@@ -179650,6 +179650,70 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出登录" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "登出" } }
       }
+    },
+    "Productivity" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Produktivität" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Productivity" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Productividad" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Productividad" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Productivité" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Produttività" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "仕事効率化" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "생산성" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Produtividade" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Produtividade" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "效率" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "生產力" } }
+      }
+    },
+    "Developer" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Entwicklung" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Developer" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desarrollo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Desarrollo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Développement" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sviluppo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "開発" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "개발" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desenvolvimento" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Desenvolvimento" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开发" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "開發" } }
+      }
+    },
+    "Internet" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "インターネット" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "인터넷" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Internet" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "网络" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "網路" } }
+      }
+    },
+    "Media" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Medien" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Media" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Multimedia" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Multimedia" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Médias" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Media" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "メディア" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "미디어" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mídia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Multimédia" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "媒体" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "媒體" } }
+      }
     }
   },
   "version" : "1.0"

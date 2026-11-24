@@ -6995,3 +6995,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LN-2b` — `Windows Start` Preset UI, Shared Footer Bar & Label/Header Fixes (2026-11-24)
 
 - `App/Scenes/LauncherView.swift`: added `windowsStartBody` (rounded glass search bar, compact 6-column `Pinned` grid + `All Apps ▸` A–Z jump list with quick-letter rail, `Recommended` 2-column frecency/recent files grid, and `launcherFooterBar` with user profile, optional gated telemetry, Quick Places, and Power menu), fixed `classicBody` header/search collision, and upgraded app cells to 2-line centered labels (`11.5 pt`). Zero `project.pbxproj` edits.
+
+### `LN-3a` — `Linux Menu` Preset UI, `90 ms` Hover-Intent Rail & Grid/List View (2026-11-24)
+
+- `App/Scenes/LauncherView.swift`: added `linuxMenuBody` with `176 pt` left category sidebar (`Favorites` → `System`), `90 ms` hover-intent debounce (`hoverCategoryTask`, cancelled on exit/disappear), density-aware Grid/List toggle, running-app dots, and shared `launcherFooterBar`. Updated 12-locale `Resources/Localizable.xcstrings`. Zero `project.pbxproj` edits.

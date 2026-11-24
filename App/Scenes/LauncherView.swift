@@ -69,6 +69,7 @@ struct LauncherView: View {
     @State private var dragX: CGFloat = 0
     @State private var showGear = false
     @State private var holdsTelemetry = false
+    @State private var hoverCategoryTask: Task<Void, Never>?
     @AppStorage("com.katikati.launcher.drawerStyle") private var drawerStyleRaw: String = LauncherDrawerViewStyle.grid.rawValue
 
     private enum LauncherDrawerViewStyle: String { case grid, list }
@@ -94,6 +95,8 @@ struct LauncherView: View {
             switch model.presentation {
             case .windowsStart:
                 windowsStartBody
+            case .linuxMenu:
+                linuxMenuBody
             case .drawer:
                 drawerBody
             default:
@@ -103,7 +106,11 @@ struct LauncherView: View {
         .background(pageShortcuts)
         .onAppear { syncTelemetrySampling(model.prefs.showFooterTelemetry) }
         .onChange(of: model.prefs.showFooterTelemetry) { syncTelemetrySampling($0) }
-        .onDisappear { syncTelemetrySampling(false) }
+        .onDisappear {
+            hoverCategoryTask?.cancel()
+            hoverCategoryTask = nil
+            syncTelemetrySampling(false)
+        }
         .accessibilityLabel(Text("Launcher"))
     }
 
@@ -1341,5 +1348,169 @@ private extension LauncherView {
         .buttonStyle(.plain)
         .help(Text(help))
         .accessibilityLabel(Text(help))
+    }
+
+    // MARK: Linux Menu Preset (KDE Kickoff / Whisker)
+
+    private var linuxGridColumns: Int {
+        switch model.prefs.density {
+        case .compact: return 6
+        case .standard: return 5
+        case .spacious: return 4
+        }
+    }
+
+    private var linuxIconSize: CGFloat {
+        let base: CGFloat = switch model.prefs.density {
+        case .compact: 36
+        case .standard: 44
+        case .spacious: 52
+        }
+        return base * model.prefs.iconScale
+    }
+
+    private func categoryLabel(_ category: LauncherSidebarCategory) -> Text {
+        switch category {
+        case .favorites: return Text("Favorites")
+        case .allApps: return Text("All Apps")
+        case .productivity: return Text("Productivity")
+        case .developer: return Text("Developer")
+        case .internet: return Text("Internet")
+        case .media: return Text("Media")
+        case .utilities: return Text("Utilities")
+        case .system: return Text("System")
+        }
+    }
+
+    @ViewBuilder var linuxMenuBody: some View {
+        let visibleApps = indexer.apps.filter { !model.state.hidden.contains($0.bundleID) }
+        let pinnedSet = Set(model.keptIDs + model.state.pinned)
+        let filtered = LauncherSort.apply(
+            model.prefs.sort,
+            to: LauncherSidebarCategory.filter(model.selectedCategory, apps: visibleApps, pinnedIDs: pinnedSet),
+            usage: model.state.usage,
+            order: model.state.order
+        )
+        let displayed = model.query.isEmpty ? filtered : matches
+        let cols = model.prefs.viewMode == .list ? 1 : linuxGridColumns
+        let _ = recordLayout([[LauncherPageSection(kind: .allApps, apps: displayed, showsHeader: false)]], columns: cols)
+
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 8) {
+                    searchFieldCluster
+                    Button {
+                        model.prefs.viewMode = model.prefs.viewMode == .grid ? .list : .grid
+                    } label: {
+                        Image(systemName: model.prefs.viewMode == .grid ? "list.bullet" : "square.grid.2x2")
+                            .font(.system(size: 12.5, weight: .semibold))
+                            .frame(width: 28, height: 28)
+                            .background(Circle().fill(Color.primary.opacity(0.09)))
+                    }
+                    .buttonStyle(.plain)
+                    .help(model.prefs.viewMode == .grid ? Text("List") : Text("Grid"))
+                    .accessibilityLabel(model.prefs.viewMode == .grid ? Text("List") : Text("Grid"))
+                }
+                .padding(.horizontal, 14).padding(.vertical, 8)
+                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.primary.opacity(0.12), lineWidth: 1))
+                .padding(.horizontal, 18).padding(.top, 16).padding(.bottom, 10)
+
+                Divider().opacity(0.24)
+
+                HStack(spacing: 0) {
+                    if model.prefs.showCategorySidebar && model.query.isEmpty {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 3) {
+                                ForEach(LauncherSidebarCategory.allCases) { cat in
+                                    linuxCategoryRow(cat)
+                                }
+                            }
+                            .padding(10)
+                        }
+                        .frame(width: 176)
+                        Divider().opacity(0.24)
+                    }
+
+                    if !model.query.isEmpty && displayed.isEmpty && answers.isEmpty && !isRunnable {
+                        noResults.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 12) {
+                                if !model.query.isEmpty {
+                                    if !answers.isEmpty { answerSection }
+                                    commandSection
+                                }
+                                if model.prefs.viewMode == .list {
+                                    LazyVStack(spacing: 3) {
+                                        ForEach(displayed, id: \.bundleID) { linuxListRow($0) }
+                                    }
+                                } else {
+                                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(minimum: 68, maximum: 120), spacing: 10, alignment: .top), count: linuxGridColumns), spacing: 12) {
+                                        ForEach(displayed, id: \.bundleID) { cell($0, icon: linuxIconSize, reorderable: false) }
+                                    }
+                                }
+                            }
+                            .padding(14)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+                launcherFooterBar
+            }
+            if let folder = openFolder { folderOverlay(folder) }
+        }
+    }
+
+    private func linuxCategoryRow(_ category: LauncherSidebarCategory) -> some View {
+        let active = model.selectedCategory == category
+        return Button {
+            hoverCategoryTask?.cancel()
+            model.selectedCategory = category
+            model.focusedID = nil
+        } label: {
+            HStack(spacing: 9) {
+                Image(systemName: category.symbolName)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(active ? .accentColor : .secondary)
+                    .frame(width: 18)
+                categoryLabel(category)
+                    .font(.system(size: 12.5, weight: active ? .semibold : .medium))
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 10).padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(active ? Color.accentColor.opacity(0.18) : Color.clear))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            hoverCategoryTask?.cancel()
+            guard hovering, model.selectedCategory != category else { return }
+            hoverCategoryTask = Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 90_000_000)
+                guard !Task.isCancelled else { return }
+                model.selectedCategory = category
+                model.focusedID = nil
+            }
+        }
+    }
+
+    private func linuxListRow(_ app: LauncherApp) -> some View {
+        Button { activate(app) } label: {
+            HStack(spacing: 10) {
+                cellImage(app, icon: 28)
+                Text(verbatim: app.name).font(.system(size: 13, weight: .medium)).lineLimit(1)
+                Spacer(minLength: 0)
+                if model.prefs.showRunningDot, model.runningIDs.contains(app.bundleID) {
+                    Circle().fill(Color.accentColor).frame(width: 5, height: 5)
+                }
+            }
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(Color.accentColor, lineWidth: model.focusedID == app.bundleID ? 2 : 0))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu { menu(app, reorderable: false) }
     }
 }
