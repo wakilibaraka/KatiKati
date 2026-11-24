@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "App/Composition/BarActionService.swift": {
-    "mtime": 1795470776.4945254,
-    "seen": 1795534644.4570072,
-    "ast_hash": "4bb1cb72433c1c0aacb7f0e930b604fa",
+    "mtime": 1795546018.4150317,
+    "seen": 1795546201.531776,
+    "ast_hash": "69d2cf42260c74cb802c63d1f6342d89",
     "semantic_hash": ""
   },
   "App/Composition/BookmarkService.swift": {
@@ -264,9 +264,9 @@
     "semantic_hash": "dcb577c924888cb7f03ed42e7bb0eac5"
   },
   "App/Composition/LiveActivityFeed.swift": {
-    "mtime": 1795473856.8731139,
-    "seen": 1795534644.4570591,
-    "ast_hash": "2c0df7cc15fe58ad714e60575ca5a5ad",
+    "mtime": 1795546016.070877,
+    "seen": 1795546201.531832,
+    "ast_hash": "b0bc990cdf9f5ad41b1918ce874fa05f",
     "semantic_hash": ""
   },
   "App/Composition/LiveEventBannerPoster.swift": {
@@ -618,9 +618,9 @@
     "semantic_hash": ""
   },
   "App/Entry/RadialDialPanelController.swift": {
-    "mtime": 1794918525.822556,
-    "seen": 1795534644.457119,
-    "ast_hash": "3a90505ab1ed9d29276c8127b48eb64f",
+    "mtime": 1795546020.42066,
+    "seen": 1795546201.531895,
+    "ast_hash": "af790a07ab8c58b0d4d68347e37c9d5d",
     "semantic_hash": ""
   },
   "App/Entry/ScreenTimeAlertPresenter.swift": {
@@ -654,9 +654,9 @@
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
-    "mtime": 1795443274.0147007,
-    "seen": 1795534644.457124,
-    "ast_hash": "2189c69eeed99955c67f8f8873307a11",
+    "mtime": 1795546022.9906623,
+    "seen": 1795546201.5319,
+    "ast_hash": "2a63eb276b998b5939ad631c4e33ed4c",
     "semantic_hash": ""
   },
   "App/Entry/TeleprompterWindowController.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795446007.6563876,
-    "seen": 1795534644.4571872,
-    "ast_hash": "4b34dd4950cd4a23593a9769536962c5",
+    "mtime": 1795546017.1317146,
+    "seen": 1795546201.531969,
+    "ast_hash": "c720c8b13bcafa75639f409c7cf9b8dd",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -2136,9 +2136,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
-    "mtime": 1795530552.9501917,
-    "seen": 1795534644.457433,
-    "ast_hash": "4024ca66c3a8c78785c8b2c070d296a5",
+    "mtime": 1795546014.7659793,
+    "seen": 1795546201.532234,
+    "ast_hash": "b572f73acfb93e19f6940c61883be871",
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
@@ -2928,9 +2928,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/AudioOutputSwitcher.swift": {
-    "mtime": 1795530552.951815,
-    "seen": 1795534644.457576,
-    "ast_hash": "7836d504253e59e6b76a76ed72ff36d8",
+    "mtime": 1795546024.190942,
+    "seen": 1795546201.5323882,
+    "ast_hash": "39d810df3a0230dff5a354e312e5420e",
     "semantic_hash": ""
   },
   "Platform/SystemStatus/BluetoothDeviceReader.swift": {
@@ -3894,10 +3894,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
-    "mtime": 1794908625.7151906,
-    "seen": 1795534644.45775,
-    "ast_hash": "52c07ff03b860d17eed002105e1985f0",
-    "semantic_hash": "52c07ff03b860d17eed002105e1985f0"
+    "mtime": 1795546026.909528,
+    "seen": 1795546201.532573,
+    "ast_hash": "e6d789fd779878cd1a1bea3b43a86be5",
+    "semantic_hash": ""
   },
   "Tests/Unit/PDFReducePlanTests.swift": {
     "mtime": 1795013076.4726675,
@@ -7476,9 +7476,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockSpotifyWidgetView.swift": {
-    "mtime": 1795530561.100982,
-    "seen": 1795534644.4571671,
-    "ast_hash": "c5e8ec1e046cc949c306954f3580628f",
+    "mtime": 1795546025.492953,
+    "seen": 1795546201.531947,
+    "ast_hash": "c1d1b870d4fbba0b4099e7f882bc6698",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift": {
@@ -7776,9 +7776,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopVinylBoxView.swift": {
-    "mtime": 1795545050.9855552,
-    "seen": 1795545180.3406022,
-    "ast_hash": "732372dd59860844a10965652bda6caa",
+    "mtime": 1795546048.355688,
+    "seen": 1795546201.5319302,
+    "ast_hash": "1f9b7af3b2ac9819711d5f150bc657f9",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWeatherBoxView.swift": {
