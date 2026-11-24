@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795519683.1627307,
-    "seen": 1795534644.457003,
-    "ast_hash": "6592dc6c52ecd4e6df19f4d253c4f0aa",
+    "mtime": 1795543993.8441026,
+    "seen": 1795544360.830435,
+    "ast_hash": "c63ac241cedc103c7358598a648f5070",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -744,22 +744,22 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockGlassBackdrop.swift": {
-    "mtime": 1793190233.6075125,
-    "seen": 1795534644.457155,
-    "ast_hash": "5cd2abde0ce48a972014594742dcfb8e",
+    "mtime": 1795544241.7476726,
+    "seen": 1795544360.830847,
+    "ast_hash": "a6ad4eb68320e9be7594ca32b84e1496",
     "semantic_hash": ""
   },
   "App/Scenes/DockGlassRuntimeBridge.h": {
-    "mtime": 1791999130.7863333,
-    "seen": 1795534644.4571562,
+    "mtime": 1795544236.7741,
+    "seen": 1795544360.830849,
     "ast_hash": "9fb93dd3b00d8a1129d0925ca9ca80a9",
     "semantic_hash": "9fb93dd3b00d8a1129d0925ca9ca80a9"
   },
   "App/Scenes/DockGlassRuntimeBridge.m": {
-    "mtime": 1791999130.7916298,
-    "seen": 1795534644.4571571,
-    "ast_hash": "6b4c10242a927738cfda6aa4593e031b",
-    "semantic_hash": "6b4c10242a927738cfda6aa4593e031b"
+    "mtime": 1795544238.4989905,
+    "seen": 1795544360.830851,
+    "ast_hash": "397712ef7ee6797888743d508de7ddb8",
+    "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Actions.swift": {
     "mtime": 1795427824.2992404,
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1795519759.4145894,
-    "seen": 1795534644.4572,
-    "ast_hash": "86c51a2ade80905a5cf3929f138e2a2b",
+    "mtime": 1795543995.3382158,
+    "seen": 1795544360.8309739,
+    "ast_hash": "79d5cebd76e1504156e383a84ce277e0",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1710,10 +1710,10 @@
     "semantic_hash": "b3a1a35a1dc71d074fdb46cde624e3d7"
   },
   "Core/Support/DockLiquidGlassConfiguration.swift": {
-    "mtime": 1791999130.7395942,
-    "seen": 1795534644.457354,
-    "ast_hash": "cea1d405fd13dbe4b1068f855ab83633",
-    "semantic_hash": "cea1d405fd13dbe4b1068f855ab83633"
+    "mtime": 1795544239.7481637,
+    "seen": 1795544360.8313978,
+    "ast_hash": "27595050c09ccdb36e97eff5cf500c28",
+    "semantic_hash": ""
   },
   "Core/Support/DockPanelRimPlan.swift": {
     "mtime": 1791999130.7446973,
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795519685.7162962,
-    "seen": 1795534644.457618,
-    "ast_hash": "2645076e7f81c757ffc11eeff0104ea7",
+    "mtime": 1795544022.2193701,
+    "seen": 1795544360.832112,
+    "ast_hash": "3c9fd3cbc612fa728cc78281313daa43",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -3354,10 +3354,10 @@
     "semantic_hash": "80f523be9bab117d884fa919250c3145"
   },
   "Tests/Unit/DockLiquidGlassConfigurationTests.swift": {
-    "mtime": 1791999130.9286044,
-    "seen": 1795534644.4576619,
-    "ast_hash": "8ccd20341fa4e499f0430854cdeaaef1",
-    "semantic_hash": "8ccd20341fa4e499f0430854cdeaaef1"
+    "mtime": 1795544244.294803,
+    "seen": 1795544360.832254,
+    "ast_hash": "7e128323774948a65709311d37d8a35f",
+    "semantic_hash": ""
   },
   "Tests/Unit/DockPanelRimPlanTests.swift": {
     "mtime": 1791999130.9551437,
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795543761.850909,
-    "seen": 1795543905.083013,
-    "ast_hash": "e522cd1c099cfad4522b8255a54a3d6d",
+    "mtime": 1795543999.048517,
+    "seen": 1795544360.830705,
+    "ast_hash": "7531d0880e665885fbbac08c37efeb20",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
