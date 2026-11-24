@@ -789,6 +789,9 @@
 		A000000000000000000019D5 /* LauncherMembershipItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A000000000000000000019D3 /* LauncherMembershipItem.swift */; };
 		A00000000000000000001F10 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000F10 /* Localizable.xcstrings */; };
 		A00000000000000000001F11 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000F11 /* InfoPlist.xcstrings */; };
+		L1Q400000000000000000002 /* airpods-4.usdz in Resources */ = {isa = PBXBuildFile; fileRef = L1Q400000000000000000001 /* airpods-4.usdz */; };
+		L1Q400000000000000000004 /* studio.hdr in Resources */ = {isa = PBXBuildFile; fileRef = L1Q400000000000000000003 /* studio.hdr */; };
+		L1Q400000000000000000006 /* airpods-buds.png in Resources */ = {isa = PBXBuildFile; fileRef = L1Q400000000000000000005 /* airpods-buds.png */; };
 		A00000000000000000005011 /* StripOrderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000005010 /* StripOrderStore.swift */; };
 		A00000000000000000005012 /* StripOrderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000005010 /* StripOrderStore.swift */; };
 		A00000000000000000006011 /* DragController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000006010 /* DragController.swift */; };
@@ -2031,6 +2034,9 @@
 		A00000000000000000000F04 /* FinderAppleEventMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderAppleEventMatcherTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000F10 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A00000000000000000000F11 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		L1Q400000000000000000001 /* airpods-4.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; name = "airpods-4.usdz"; path = "LiquidNotch/airpods-4.usdz"; sourceTree = "<group>"; };
+		L1Q400000000000000000003 /* studio.hdr */ = {isa = PBXFileReference; lastKnownFileType = file; name = "studio.hdr"; path = "LiquidNotch/studio.hdr"; sourceTree = "<group>"; };
+		L1Q400000000000000000005 /* airpods-buds.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "airpods-buds.png"; path = "LiquidNotch/airpods-buds.png"; sourceTree = "<group>"; };
 		A000000000000000000019B0 /* MessagingAppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingAppStore.swift; sourceTree = "<group>"; };
 		A000000000000000000019B1 /* LauncherChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherChip.swift; sourceTree = "<group>"; };
 		A000000000000000000019B2 /* BadgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeStore.swift; sourceTree = "<group>"; };
@@ -2602,6 +2608,9 @@
 				A00000000000000000000016 /* Resources/Info.plist */,
 				A00000000000000000000F10 /* Localizable.xcstrings */,
 				A00000000000000000000F11 /* InfoPlist.xcstrings */,
+				L1Q400000000000000000001 /* airpods-4.usdz */,
+				L1Q400000000000000000003 /* studio.hdr */,
+				L1Q400000000000000000005 /* airpods-buds.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -3371,6 +3380,9 @@
 				A1C0A1C0A1C0000000000002 /* AppIcon.icon in Resources */,
 				A00000000000000000001F10 /* Localizable.xcstrings in Resources */,
 				A00000000000000000001F11 /* InfoPlist.xcstrings in Resources */,
+				L1Q400000000000000000002 /* airpods-4.usdz in Resources */,
+				L1Q400000000000000000004 /* studio.hdr in Resources */,
+				L1Q400000000000000000006 /* airpods-buds.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

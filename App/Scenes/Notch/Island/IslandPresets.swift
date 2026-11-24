@@ -3,6 +3,7 @@ import AVKit
 import Darwin
 import Metal
 import QuartzCore
+import SceneKit
 import SwiftUI
 
 /// Production activity preset view builders faithful to `opencoredev/islandcn/components/islandcn/*`
@@ -977,15 +978,19 @@ struct LiquidNotchShellView: View {
     @State private var showLyrics = false
     @State private var lyricsCache: [String: LiquidLyrics] = [:]
     @State private var lyricsLoadingKey: String?
+    @State private var showTray = false
     @StateObject private var agentHub = LiquidAgentHub.shared
     @AppStorage(LiquidHookInstaller.enabledKey) private var agentHooksEnabled = false
 
     private var nowPlaying: NowPlayingState { feed.nowPlayingState }
     private var hasMusic: Bool { !(nowPlaying.title ?? "").isEmpty || feed.activity.kind == .music }
     private var hasAgents: Bool { agentHooksEnabled && !agentHub.sessions.isEmpty }
+    private var hasHUD: Bool { model.activeHUDItem != nil }
+    private var hasActivity: Bool { feed.activity.kind != .clock && feed.activity.kind != .music }
 
     private var mode: LiquidPresentationMode {
         if model.isExpanded { return .card }
+        if hasHUD { return .hud }
         if isPeekingEars && hasMusic { return .peek }
         if hasAgents && (feed.activity.kind != .clock || hasMusic) { return .duo }
         if feed.activity.kind != .clock || hasMusic || hasAgents { return .compact }
@@ -1034,10 +1039,22 @@ struct LiquidNotchShellView: View {
             )
             .allowsHitTesting(false)
 
-            if !model.isExpanded && hasMusic {
+            if !model.isExpanded && hasHUD, let hud = model.activeHUDItem {
+                LiquidHUDView(hud: hud, width: targetState.mainHalfWidth * 2, height: targetState.mainHeight)
+            } else if !model.isExpanded && hasMusic {
                 compactEarsAndPeek
             } else if !model.isExpanded && hasAgents {
                 agentEarsRow
+            } else if !model.isExpanded && hasActivity {
+                activityEarsRow
+            } else if !model.isExpanded {
+                Color.clear
+                    .frame(width: targetState.mainHalfWidth * 2, height: targetState.mainHeight)
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) {
+                        showTray = true
+                        model.requestOpen()
+                    }
             }
 
             if !model.isExpanded && hasAgents && hasMusic {
@@ -1056,7 +1073,35 @@ struct LiquidNotchShellView: View {
         .onAppear { agentHub.setEnabled(agentHooksEnabled) }
         .onChange(of: agentHooksEnabled) { _, enabled in agentHub.setEnabled(enabled) }
         .onChange(of: model.isExpanded) { _, expanded in
-            if !expanded { showLyrics = false }
+            if !expanded {
+                showLyrics = false
+                showTray = false
+            }
+        }
+    }
+
+    private var activityEarsRow: some View {
+        let earWidth = targetState.mainHalfWidth * 2
+        return HStack {
+            Image(systemName: LiveIslandStyle.symbolName(for: feed.activity.kind))
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white)
+            Spacer()
+            Text(verbatim: LiveIslandStyle.valueString(for: feed.activity) ?? "")
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .foregroundStyle(.white.opacity(0.85))
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 12)
+        .frame(width: earWidth, height: targetState.mainHeight)
+        .contentShape(Rectangle())
+        .onTapGesture(count: 2) {
+            showTray = true
+            model.requestOpen()
+        }
+        .onTapGesture {
+            showTray = false
+            model.requestOpen()
         }
     }
 
@@ -1128,7 +1173,12 @@ struct LiquidNotchShellView: View {
 
     @ViewBuilder
     private var expandedContent: some View {
-        if let pending = agentHub.pendingApproval {
+        if showTray {
+            LiquidTrayView(model: model, feed: feed) {
+                showTray = false
+                model.collapse()
+            }
+        } else if let pending = agentHub.pendingApproval {
             LiquidAgentApprovalCard(pending: pending) { decisionJSON in
                 agentHub.resolvePending(decisionJSON)
             }
@@ -1578,5 +1628,132 @@ struct LiquidAgentHookToggleRow: View {
             )
         )
         .help(Text("Shows Claude Code and Codex permission balls in the Liquid Notch."))
+    }
+}
+
+// MARK: - Liquid 3D AirPods Stage, Draggable HUD & Double-Click Tools Tray (LQ-4)
+
+@MainActor
+final class LiquidBudsStage {
+    static let shared = LiquidBudsStage()
+    private(set) var previewImage: NSImage?
+    private var loaded = false
+
+    func loadIfNeeded() {
+        guard !loaded else { return }
+        loaded = true
+        if let fallbackURL = Bundle.main.url(forResource: "airpods-buds", withExtension: "png"),
+           let img = NSImage(contentsOf: fallbackURL) {
+            previewImage = img
+        }
+        guard let usdzURL = Bundle.main.url(forResource: "airpods-4", withExtension: "usdz"),
+              let scene = try? SCNScene(url: usdzURL, options: nil),
+              let device = MTLCreateSystemDefaultDevice() else { return }
+        if let hdrURL = Bundle.main.url(forResource: "studio", withExtension: "hdr") {
+            scene.lightingEnvironment.contents = hdrURL
+            scene.lightingEnvironment.intensity = 1.2
+        }
+        let cameraNode = SCNNode()
+        cameraNode.camera = SCNCamera()
+        cameraNode.position = SCNVector3(0, 0.15, 2.4)
+        scene.rootNode.addChildNode(cameraNode)
+        let renderer = SCNRenderer(device: device, options: nil)
+        renderer.scene = scene
+        renderer.pointOfView = cameraNode
+        let rendered = renderer.snapshot(atTime: 0, with: CGSize(width: 150, height: 132), antialiasingMode: .multisampling4X)
+        previewImage = rendered
+    }
+}
+
+private struct LiquidHUDView: View {
+    let hud: NotchActivityItem
+    let width: Double
+    let height: Double
+    @State private var dragLevel: Double?
+
+    var body: some View {
+        let level = dragLevel ?? (hud.level ?? 0.5)
+        HStack(spacing: 10) {
+            Image(systemName: hud.icon)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.white)
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(.white.opacity(0.22))
+                    Capsule().fill(.white).frame(width: max(4, geo.size.width * min(max(level, 0), 1)))
+                }
+                .contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 0).onChanged { v in
+                    dragLevel = min(max(v.location.x / max(geo.size.width, 1), 0), 1)
+                }.onEnded { _ in
+                    dragLevel = nil
+                })
+            }
+            .frame(height: 6)
+        }
+        .padding(.horizontal, 14)
+        .frame(width: width, height: height)
+    }
+}
+
+private struct LiquidTrayView: View {
+    @ObservedObject var model: NotchModel
+    @ObservedObject var feed: LiveActivityFeed
+    let onClose: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Tools").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                Spacer()
+                Button(action: { model.openSettings() }) {
+                    Image(systemName: "gearshape.fill").font(.system(size: 12)).foregroundStyle(.white.opacity(0.75))
+                }
+                .buttonStyle(.plain)
+                Button(action: onClose) {
+                    Image(systemName: "xmark.circle.fill").font(.system(size: 13)).foregroundStyle(.white.opacity(0.6))
+                }
+                .buttonStyle(.plain)
+            }
+            HStack(spacing: 10) {
+                trayTile(symbol: "timer", title: "Timer", tint: .orange) {
+                    model.goToPage(.calendar)
+                    onClose()
+                }
+                trayTile(symbol: "moon.fill", title: "Focus", tint: .indigo) {
+                    model.goToPage(.studioHub)
+                    onClose()
+                }
+                trayTile(symbol: "doc.on.clipboard", title: "Clipboard", tint: .cyan) {
+                    model.goToPage(.keepAwake)
+                    onClose()
+                }
+                trayTile(symbol: "tray.full.fill", title: "Shelf", tint: .green) {
+                    model.goToPage(.peripherals)
+                    onClose()
+                }
+            }
+            if let buds = LiquidBudsStage.shared.previewImage {
+                HStack(spacing: 8) {
+                    Image(nsImage: buds).resizable().scaledToFit().frame(width: 28, height: 24)
+                    Text("AirPods 3D Stage Ready").font(.system(size: 11)).foregroundStyle(.white.opacity(0.65))
+                    Spacer()
+                }
+            }
+        }
+        .padding(18)
+        .onAppear { LiquidBudsStage.shared.loadIfNeeded() }
+    }
+
+    private func trayTile(symbol: String, title: LocalizedStringKey, tint: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: symbol).font(.system(size: 16, weight: .semibold)).foregroundStyle(tint)
+                Text(title).font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.9))
+            }
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 }

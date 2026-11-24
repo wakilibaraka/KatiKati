@@ -190,3 +190,16 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+---
+
+Liquid Notch components (MIT License)
+Copyright (c) 2026 Fellipe Gonçalves Leite (https://github.com/fellipegoncalvesleite/liquid-notch)
+Used for the Liquid Notch Metal shader, SDF/spring geometry, synced lyrics, agent socket hooks, and UI shells.
+
+AirPods 4 3D Model (CC BY 4.0)
+"AirPods 4" by Falah3D (https://sketchfab.com/3dFalah), licensed under Creative Commons Attribution 4.0 International (https://creativecommons.org/licenses/by/4.0/).
+
+Studio Lighting HDRI (CC0)
+"Studio Small 08" from Poly Haven (https://polyhaven.com), dedicated to the public domain under CC0.
