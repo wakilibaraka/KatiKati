@@ -97,6 +97,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 常驻切换全局快捷键。回调只切设置（经 settingsStore），不经过 panelCoordinator——
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
+    private lazy var menuBarStatusCoordinator = MenuBarStatusCoordinator()
     private lazy var menuBarSystem = MenuBarSystemItem()
     /// DiskView's menu-bar item: drives with their capacity bars (off until the Settings › Advanced
     /// Menu Bar row turns it on).
@@ -346,6 +347,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             toggleHideAll: { [weak self] in self?.toggleDesktopHideAll() },
             autoOrganizeFolder: { [weak self] in self?.presentDesktopAutoOrganize() },
             openSettings: { [weak self] in self?.openDesktopBoxesSettings() }
+        ),
+        menuBarHub: StatusMenuController.MenuBarHubHooks(
+            onToggleHub: { [weak self] _ in self?.controlCenterPanel.toggle() },
+            onShowAbout: {
+                NSApp.activate(ignoringOtherApps: true)
+                NSApp.orderFrontStandardAboutPanel(nil)
+            },
+            statusTrioImage: { [weak self] button, hasUpdate in
+                self?.menuBarStatusCoordinator.renderStatusBarIcon(for: button, hasUpdateDot: hasUpdate)
+            },
+            toggleState: { [weak self] token in
+                if token == "muteOutput" { return self?.menuBarStatusCoordinator.isOutputMuted ?? false }
+                guard let id = QuickToggleID(rawValue: token) else { return false }
+                return QuickToggleEngine.shared.states[id] ?? false
+            },
+            performToggle: { [weak self] token in
+                if token == "muteOutput" { _ = self?.menuBarStatusCoordinator.toggleOutputMute(); return }
+                guard let id = QuickToggleID(rawValue: token) else { return }
+                QuickToggleEngine.shared.perform(id)
+            },
+            refreshToggleStates: { QuickToggleEngine.shared.refresh() }
         )
     )
 
@@ -713,6 +735,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DownloadManagerService.shared.restoreTorrentSession()
 
             _ = statusMenuController
+            menuBarStatusCoordinator.onIconChanged = { [weak self] in
+                self?.statusMenuController.refreshStatusIcon()
+            }
+            menuBarStatusCoordinator.start()
 
             // 自动更新只在正常安装的副本上跑。挂载在 DMG 里的临时副本更新自己毫无意义
             // ——它卸载就没了——和上面不给它注册全局热键、不向系统申请权限是同一条理由。

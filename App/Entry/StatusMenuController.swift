@@ -96,6 +96,18 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         var openSettings: @MainActor () -> Void = {}
     }
     private let desktopBoxes: DesktopBoxesMenuHooks
+    /// MB-3: Left-click Creative Hub + live Status Trio icon + customizable right-click menu hooks
+    /// (closures keep `StatusMenuController` compilable inside `KatiKatiTests` without `Platform/`).
+    struct MenuBarHubHooks {
+        var onToggleHub: @MainActor (NSStatusBarButton) -> Void = { _ in }
+        var onShowAbout: @MainActor () -> Void = {}
+        var statusTrioImage: @MainActor (NSStatusBarButton?, Bool) -> NSImage? = { _, _ in nil }
+        var toggleState: @MainActor (String) -> Bool = { _ in false }
+        var performToggle: @MainActor (String) -> Void = { _ in }
+        var refreshToggleStates: @MainActor () -> Void = {}
+    }
+    private let menuBarHub: MenuBarHubHooks
+    private let menuBarContextMenu = NSMenu()
     private let desktopBoxesItem = NSMenuItem(title: String(localized: "Desktop Boxes"), action: nil, keyEquivalent: "")
     private let desktopBoxesMenu = NSMenu()
     /// Hat and row of the taskbar height slider; the same value as the grip on the bar.
@@ -117,7 +129,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onRequestAccessibility: @escaping () -> Void = {},
          onQuit: @escaping () -> Void,
          connectedScreens: @escaping () -> [(uuid: String, title: String)] = { [] },
-         desktopBoxes: DesktopBoxesMenuHooks = DesktopBoxesMenuHooks()) {
+         desktopBoxes: DesktopBoxesMenuHooks = DesktopBoxesMenuHooks(),
+         menuBarHub: MenuBarHubHooks = MenuBarHubHooks()) {
         self.store = store
         self.settingsCoordinator = settingsCoordinator
         self.isAccessibilityTrusted = isAccessibilityTrusted
@@ -134,6 +147,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.onQuit = onQuit
         self.connectedScreens = connectedScreens
         self.desktopBoxes = desktopBoxes
+        self.menuBarHub = menuBarHub
         super.init()
         configureStatusItem()
         HoverTrace.statusItem(site: "statusMenuController", length: statusItem.length, square: true,
@@ -182,9 +196,108 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     private func configureStatusItem() {
-        statusItem.button?.image = Self.statusItemImage(badged: false, iconSet: store.iconSet)
-        statusItem.menu = menu
+        statusItem.menu = nil
+        statusItem.button?.target = self
+        statusItem.button?.action = #selector(handleStatusItemClick(_:))
+        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        menuBarContextMenu.delegate = self
+        refreshStatusItemBadge()
         installMenuBarLyric()
+    }
+
+    func refreshStatusIcon() {
+        refreshStatusItemBadge()
+    }
+
+    @objc private func handleStatusItemClick(_ sender: NSStatusBarButton) {
+        let event = NSApp.currentEvent
+        let isRightClick = event?.type == .rightMouseUp
+            || event?.type == .rightMouseDown
+            || (event?.modifierFlags.contains(.control) ?? false)
+        if isRightClick {
+            presentMenuBarContextMenu(from: sender)
+        } else {
+            menuBarHub.onToggleHub(sender)
+        }
+    }
+
+    private func presentMenuBarContextMenu(from button: NSStatusBarButton) {
+        menuBarHub.refreshToggleStates()
+        rebuildMenuBarContextMenu()
+        statusItem.menu = menuBarContextMenu
+        button.performClick(nil)
+        statusItem.menu = nil
+    }
+
+    private func rebuildMenuBarContextMenu() {
+        menuBarContextMenu.removeAllItems()
+        if !isAccessibilityTrusted() {
+            let warn = NSMenuItem(title: String(localized: "Grant Accessibility for Full Functionality…"),
+                                  action: #selector(openAccessibilitySettings), keyEquivalent: "")
+            warn.target = self
+            warn.image = NSImage(systemSymbolName: "exclamationmark.triangle.fill", accessibilityDescription: String(localized: "Warning"))
+            menuBarContextMenu.addItem(warn)
+            menuBarContextMenu.addItem(.separator())
+        }
+        let tokens = MenuBarRightClickConfig.toggleTokens()
+        for token in tokens {
+            let item = NSMenuItem(title: Self.rightClickToggleTitle(token),
+                                  action: #selector(performMenuBarRightClickToggle(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = token
+            item.state = menuBarHub.toggleState(token) ? .on : .off
+            menuBarContextMenu.addItem(item)
+        }
+        if !tokens.isEmpty { menuBarContextMenu.addItem(.separator()) }
+        let hubItem = NSMenuItem(title: String(localized: "Quick Settings"), action: #selector(openCreativeHubFromMenu), keyEquivalent: "")
+        hubItem.target = self
+        menuBarContextMenu.addItem(hubItem)
+        let settings = NSMenuItem(title: String(localized: "KatiKati Settings…"), action: #selector(showSettings), keyEquivalent: ",")
+        settings.target = self
+        settings.keyEquivalentModifierMask = [.command]
+        menuBarContextMenu.addItem(settings)
+        let about = NSMenuItem(title: String(localized: "About"), action: #selector(showAboutFromMenu), keyEquivalent: "")
+        about.target = self
+        menuBarContextMenu.addItem(about)
+        if let version = settingsCoordinator.pendingUpdateVersion {
+            let update = NSMenuItem(title: String(format: String(localized: "Install %@…"), version),
+                                    action: #selector(installPendingUpdate), keyEquivalent: "")
+            update.target = self
+            update.attributedTitle = Self.pendingUpdateTitle(update.title)
+            menuBarContextMenu.addItem(update)
+        }
+        menuBarContextMenu.addItem(.separator())
+        let quitItem = NSMenuItem(title: String(localized: "Quit KatiKati"), action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self
+        menuBarContextMenu.addItem(quitItem)
+    }
+
+    @objc private func performMenuBarRightClickToggle(_ sender: NSMenuItem) {
+        guard let token = sender.representedObject as? String else { return }
+        menuBarHub.performToggle(token)
+    }
+
+    @objc private func openCreativeHubFromMenu() {
+        guard let button = statusItem.button else { return }
+        DispatchQueue.main.async { [menuBarHub] in menuBarHub.onToggleHub(button) }
+    }
+
+    @objc private func showAboutFromMenu() {
+        DispatchQueue.main.async { [menuBarHub] in menuBarHub.onShowAbout() }
+    }
+
+    private static func rightClickToggleTitle(_ token: String) -> String {
+        switch token {
+        case "keepAwake": return String(localized: "Keep Awake")
+        case "darkMode": return String(localized: "Dark Mode")
+        case "hideDesktopIcons": return String(localized: "Hide Desktop")
+        case "muteOutput": return String(localized: "Muted")
+        case "muteMic": return String(localized: "Mute Mic")
+        case "nightShift": return String(localized: "Night Shift")
+        case "dockAutoHide": return String(localized: "Dock Auto-hide")
+        case "showHiddenFiles": return String(localized: "Hidden Files")
+        default: return token
+        }
     }
 
     // MARK: - ML-5: optional synced lyric in the menu bar
@@ -207,7 +320,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             statusItem.length = NSStatusItem.variableLength
             statusItem.button?.title = " " + line
         } else {
-            statusItem.length = NSStatusItem.squareLength
+            let wideImage = (statusItem.button?.image?.size.width ?? 0) > 22
+            statusItem.length = wideImage ? NSStatusItem.variableLength : NSStatusItem.squareLength
             statusItem.button?.title = ""
         }
     }
@@ -339,6 +453,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     func menuDidClose(_ menu: NSMenu) {
+        if menu === menuBarContextMenu {
+            statusItem.menu = nil
+            onMenuVisibilityChanged(false)
+            return
+        }
         isMenuOpen = false
         isPresentedFromTaskbar = false
         // A menu dismissed mid-drag must not leave the bars in the resize transaction.
@@ -349,6 +468,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     func menuWillOpen(_ menu: NSMenu) {
+        if menu === menuBarContextMenu {
+            onMenuVisibilityChanged(true)
+            return
+        }
         isMenuOpen = true
         onMenuVisibilityChanged(true)
         if !isPreparedForTaskbarPresentation {
@@ -581,10 +704,14 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// **必须和菜单项分开刷**——菜单项只在菜单将开时同步，而这个点的全部意义就是
     /// 「菜单没打开时也看得见」。所以它挂在 `settingsCoordinator` 的变更订阅上。
     private func refreshStatusItemBadge() {
-        statusItem.button?.image = Self.statusItemImage(
-            badged: settingsCoordinator.pendingUpdateVersion != nil,
-            iconSet: store.iconSet
-        )
+        let hasUpdate = settingsCoordinator.pendingUpdateVersion != nil
+        let image = menuBarHub.statusTrioImage(statusItem.button, hasUpdate)
+            ?? Self.statusItemImage(badged: hasUpdate, iconSet: store.iconSet)
+        statusItem.button?.image = image
+        let hasLyric = !(lastMenuBarLyric?.isEmpty ?? true)
+        statusItem.length = (hasLyric || (image?.size.width ?? 0) > 22)
+            ? NSStatusItem.variableLength
+            : NSStatusItem.squareLength
     }
 
     /// 状态栏图标。`badged` 时在右上角画一个小圆点。

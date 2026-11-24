@@ -435,3 +435,63 @@ enum StatusTrioIconRenderer {
         key.hasUpdateDot ? String(localized: "KatiKati — update available") : "KatiKati"
     }
 }
+
+/// Event-driven coordinator driving KatiKati's primary Status Trio menu-bar icon (0% idle CPU).
+@MainActor
+final class MenuBarStatusCoordinator {
+    private let statusService = SystemStatusService()
+    private var statusSink: AnyCancellable?
+    private var defaultsObserver: NSObjectProtocol?
+    var onIconChanged: () -> Void = {}
+
+    var isOutputMuted: Bool { statusService.status.volume.isMuted }
+
+    func start() {
+        guard defaultsObserver == nil else { return }
+        defaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.syncObservation()
+                self?.onIconChanged()
+            }
+        }
+        syncObservation()
+        onIconChanged()
+    }
+
+    @discardableResult
+    func toggleOutputMute() -> Bool {
+        if !statusService.isRunning { statusService.acquire() }
+        return statusService.toggleMute()
+    }
+
+    func renderStatusBarIcon(for button: NSStatusBarButton?, hasUpdateDot: Bool) -> NSImage? {
+        guard MenuBarIconMode.current() == .statusTrio else { return nil }
+        let appearance = button?.effectiveAppearance ?? NSApp.effectiveAppearance
+        let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let defaults = UserDefaults.standard
+        let showBT = (defaults.object(forKey: MenuBarHubPrefs.bluetoothInRingKey) as? Bool) ?? true
+        let key = StatusTrioRenderKey(
+            status: statusService.status,
+            stroke: .current(defaults),
+            semanticColor: defaults.bool(forKey: MenuBarHubPrefs.semanticAlertsKey),
+            showCompactReadout: defaults.bool(forKey: MenuBarHubPrefs.compactReadoutKey),
+            showBluetoothAudio: showBT,
+            isDarkMenuBar: isDark,
+            hasUpdateDot: hasUpdateDot
+        )
+        return StatusTrioIconRenderer.image(for: key)
+    }
+
+    private func syncObservation() {
+        let wantsRing = MenuBarIconMode.current() == .statusTrio
+        if wantsRing, statusSink == nil {
+            statusService.acquire()
+            statusSink = statusService.$status.sink { [weak self] _ in self?.onIconChanged() }
+        } else if !wantsRing, statusSink != nil {
+            statusSink = nil
+            statusService.release()
+        }
+    }
+}

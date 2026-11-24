@@ -12,7 +12,7 @@
 ## Slice Roadmap
 - [x] **`MB-1` (`Core`):** `NetworkLinkKind`, `MenuBarIconMode`, `StatusTrioStrokeWeight`, `StatusTrioRenderKey`, `MenuBarHubTab`, `HubActionSlotID`, `MenuBarRightClickConfig` + unit tests + `NOTICE`.
 - [x] **`MB-2` (`Platform/Renderer`):** Event-driven `NWPathMonitor` link status + `toggleMute()` in `SystemStatusService` + cached `StatusTrioIconRenderer` in `MenuBarSystemItem`.
-- [ ] **`MB-3` (`Menu Bar Split`):** Left-click vs customizable right-click `NSMenu` in `StatusMenuController` (keeping `popUpFromTaskbar` untouched).
+- [x] **`MB-3` (`Menu Bar Split`):** Left-click vs customizable right-click `NSMenu` in `StatusMenuController` (keeping `popUpFromTaskbar` untouched) + `MenuBarStatusCoordinator`.
 - [ ] **`MB-4` (`Core`):** `.muteOutput` / `.cleanKeyboard`, `HubSwitchID`, `EvolutionItem` codec, `HubScheduleRule` + unit tests.
 - [ ] **`MB-5` (`Platform`):** `ShortcutsCatalogRunner` (`/usr/bin/shortcuts`, 5 s watchdog), `EvolutionRunner`, `HubScheduleCoordinator`.
 - [ ] **`MB-6` (`UI`):** `MenuBarHubPanelController` + `MenuBarCreativeHubView` (2×2 grid, `Switches` + AirPods pill, `Status & Audio`).
