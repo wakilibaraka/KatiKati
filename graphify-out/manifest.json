@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795551330.7108812,
-    "seen": 1795551390.533099,
-    "ast_hash": "11ff4dc2157323393f4005f40ee05428",
+    "mtime": 1795552715.9680035,
+    "seen": 1795552844.132916,
+    "ast_hash": "17089a34fe033eb5dc715b0b96723a76",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795535065.0183167,
-    "seen": 1795539171.3455648,
-    "ast_hash": "4769e2cdb7b9b2773419881970661b03",
+    "mtime": 1795552712.181529,
+    "seen": 1795552844.133051,
+    "ast_hash": "536e2088d344ee606a3b50da946d75be",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795552529.0368066,
-    "seen": 1795552593.8399491,
-    "ast_hash": "59acf63b7196b420318287011005ebfd",
+    "mtime": 1795552719.0913634,
+    "seen": 1795552844.133787,
+    "ast_hash": "292d52c350d1e47a7dba3ec935d924df",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8106,9 +8106,15 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795552527.9273055,
-    "seen": 1795552593.8399382,
-    "ast_hash": "d528e937c1b92fb157a667ab9b731147",
+    "mtime": 1795552717.9818556,
+    "seen": 1795552844.133776,
+    "ast_hash": "7278352a2ad96917f0cc6eaf5bfee17d",
+    "semantic_hash": ""
+  },
+  "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
+    "mtime": 1795552678.2170517,
+    "seen": 1795552844.133774,
+    "ast_hash": "d96c36ef64628271c1a1e37d11700175",
     "semantic_hash": ""
   }
 }
