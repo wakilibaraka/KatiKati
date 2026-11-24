@@ -7027,6 +7027,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 - `Core/Support/WindowSnap.swift`, `Platform/Windows/WindowSnapService.swift`, `App/Scenes/RadialDial/RadialSnapPreviewPanelController.swift`, `App/Scenes/BehaviourSettingsBlock.swift`, `Tests/Unit/WindowSnapTests.swift`, `Resources/Localizable.xcstrings`: added `SnapGaps` (`outerGap` / `innerGap`) to `SnapPosition.frame(in:gaps:)` and `SnapZonePlanner`, wired `DockReserve.workArea` + `SnapGaps.current()` into `WindowSnapService`, `SnapDragMonitor`, and `RadialSnapPreviewPanelController`, and added Outer/Inner Gap sliders in Snap Preview settings. Zero `project.pbxproj` edits.
 
-### Livecheck Fix — Skip Uninstalled/Stopped Spotify/Music AppleScript Probe (2026-11-24)
+### Livecheck Fix — Skip Uninstalled/Stopped Spotify/Music AppleScript Probe (`870cea0f`, 2026-11-24)
 
 - `Core/Support/{AppleScriptNowPlaying,NowPlayingService}.swift`, `Tests/Unit/NowPlayingProgressTests.swift`: gated `AppleScriptNowPlaying.source(includeSpotify:includeMusic:)` and `MediaSessions.source(includeSpotify:includeMusic:)` behind running-app bundle checks in `NowPlayingService` so launching without Spotify installed no longer pops a blocking `"Where is Spotify?" Choose Application` modal.
+
+### Livecheck & Visual Polish — `T1.1`, `T1.2`, `T1.5` (2026-11-24)
+
+- `Platform/Clipboard/ClipboardMonitor.swift`, `App/Composition/MenuBarSystemItem.swift`, `App/Scenes/{SettingsWindowView,UtilitySettingsBlock}.swift`: seeded `ClipboardMonitor.linkCleanerEnabled` from `com.katikati.linkCleaner` at init and moved poll timer to `RunLoop.Mode.common`; upgraded `MenuBarSystemItem` battery pill charging bolt to native SF Symbol vector, improved vertical optical centering & `.iconOnly` dispatch, and added per-metric `NSImage` cache; made `MenuBarMetricRow` `@AppStorage`-reactive and added dividers/indentation + `Volume` slider under Clipboard audio cues. Zero `project.pbxproj` edits.

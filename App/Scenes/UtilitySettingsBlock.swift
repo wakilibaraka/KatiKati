@@ -837,6 +837,7 @@ struct ClipboardSettingsPane: View {
     @AppStorage(ClipboardSettingsKeys.soundOnPaste) private var soundOnPaste = true
     @AppStorage(ClipboardSettingsKeys.soundOnHistoryUpdated) private var soundOnHistoryUpdated = true
     @AppStorage(ClipboardSettingsKeys.soundOnLinkCleaned) private var soundOnLinkCleaned = true
+    @AppStorage(ClipboardSettingsKeys.soundVolume) private var soundVolume = Double(ClipboardAudioPolicy.defaultVolume)
     @AppStorage(ClipboardMonitor.notchToastKey) private var toast = ClipboardToastDefaults.enabledByDefault
     @AppStorage(ClipboardToastBadge.dockTileKey) private var dockTile = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var patterns = ""
@@ -894,6 +895,9 @@ struct ClipboardSettingsPane: View {
                 Text(verbatim: "100 ms").tag(100)
                 Text(verbatim: "250 ms").tag(250)
                 Text(verbatim: "500 ms").tag(500)
+            }
+            .onChange(of: pollingIntervalMS) { _, _ in
+                ProductivityServices.shared.clipboard.refreshPollingInterval()
             }
             SettingsDivider()
             SettingsToggleRow(
@@ -960,10 +964,23 @@ struct ClipboardSettingsPane: View {
             SettingsDivider()
             SettingsToggleRow(Text("Copy & Paste Sounds"), isOn: $sounds)
             if sounds {
-                SettingsToggleRow(Text("Copy"), isOn: $soundOnCopy)
-                SettingsToggleRow(Text("Paste"), isOn: $soundOnPaste)
-                SettingsToggleRow(Text("History Updated"), isOn: $soundOnHistoryUpdated)
-                SettingsToggleRow(Text("Link Cleaned"), isOn: $soundOnLinkCleaned)
+                SettingsDivider()
+                SettingsToggleRow(Text("Copy"), isOn: $soundOnCopy).padding(.leading, 12)
+                SettingsDivider()
+                SettingsToggleRow(Text("Paste"), isOn: $soundOnPaste).padding(.leading, 12)
+                SettingsDivider()
+                SettingsToggleRow(Text("History Updated"), isOn: $soundOnHistoryUpdated).padding(.leading, 12)
+                SettingsDivider()
+                SettingsToggleRow(Text("Link Cleaned"), isOn: $soundOnLinkCleaned).padding(.leading, 12)
+                SettingsDivider()
+                SettingsSliderRow(
+                    Text("Volume"),
+                    value: soundVolume,
+                    range: Double(ClipboardAudioPolicy.volumeRange.lowerBound)...Double(ClipboardAudioPolicy.volumeRange.upperBound),
+                    step: 0.05,
+                    valueText: "\(Int((soundVolume * 100).rounded()))%"
+                ) { soundVolume = $0 }
+                .padding(.leading, 12)
             }
             SettingsDivider()
             SettingsToggleRow(Text("Copy & Paste Glimpse Notifications"), isOn: $toast)

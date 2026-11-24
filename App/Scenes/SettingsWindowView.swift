@@ -285,27 +285,7 @@ struct SettingsWindowContent: View {
     /// One menu-bar metric: what it shows and whether it shows — both on the row, so the
     /// state is never implied (`Docs/SETTINGS.md` rule 7).
     private func metricRow(_ metric: MenuBarMetric) -> some View {
-        let styles = MenuBarStatModel.styles(for: metric)
-        return SettingsRow(Text(MenuBarStatModel.displayName(metric))) {
-            HStack(spacing: 8) {
-                if !styles.isEmpty {
-                    Picker(MenuBarStatModel.displayName(metric), selection: Binding(
-                        get: { MenuBarStatModel.style(UserDefaults.standard.string(forKey: MenuBarStatModel.styleKey(metric)), for: metric).rawValue },
-                        set: { UserDefaults.standard.set($0, forKey: MenuBarStatModel.styleKey(metric)) }
-                    )) {
-                        ForEach(styles, id: \.self) { style in
-                            Text(MenuBarStatModel.displayName(style)).tag(style.rawValue)
-                        }
-                    }
-                    .labelsHidden().pickerStyle(.menu).frame(width: 145, alignment: .trailing)
-                }
-                Toggle(MenuBarStatModel.displayName(metric), isOn: Binding(
-                    get: { MenuBarStatModel.isEnabled(metric) },
-                    set: { UserDefaults.standard.set($0, forKey: MenuBarStatModel.enabledKey(metric)) }
-                ))
-                .labelsHidden().toggleStyle(.switch)
-            }
-        }
+        MenuBarMetricRow(metric: metric)
     }
 
     private var aiTrackingPane: some View {
@@ -1011,5 +991,39 @@ extension SettingsWindowContent {
               let layout = ManagedSpaceLayoutReader.layout(forDisplayUUID: uuid) else { return [] }
         let ordered = layout.orderedSpaceIDs.filter { !layout.fullscreenSpaceIDs.contains($0) }
         return ordered.enumerated().map { (String($0.element), $0.offset + 1) }
+    }
+}
+
+private struct MenuBarMetricRow: View {
+    let metric: MenuBarMetric
+    @AppStorage private var isEnabled: Bool
+    @AppStorage private var styleRaw: String
+
+    init(metric: MenuBarMetric) {
+        self.metric = metric
+        _isEnabled = AppStorage(wrappedValue: MenuBarStatModel.defaultEnabled(metric), MenuBarStatModel.enabledKey(metric))
+        _styleRaw = AppStorage(wrappedValue: MenuBarStatModel.defaultStyle(for: metric).rawValue, MenuBarStatModel.styleKey(metric))
+    }
+
+    var body: some View {
+        let styles = MenuBarStatModel.styles(for: metric)
+        let activeRaw = MenuBarStatModel.style(styleRaw, for: metric).rawValue
+        SettingsRow(Text(MenuBarStatModel.displayName(metric))) {
+            HStack(spacing: 8) {
+                if !styles.isEmpty {
+                    Picker(MenuBarStatModel.displayName(metric), selection: Binding(
+                        get: { activeRaw },
+                        set: { styleRaw = $0 }
+                    )) {
+                        ForEach(styles, id: \.self) { style in
+                            Text(MenuBarStatModel.displayName(style)).tag(style.rawValue)
+                        }
+                    }
+                    .labelsHidden().pickerStyle(.menu).frame(width: 145, alignment: .trailing)
+                }
+                Toggle(MenuBarStatModel.displayName(metric), isOn: $isEnabled)
+                    .labelsHidden().toggleStyle(.switch)
+            }
+        }
     }
 }

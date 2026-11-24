@@ -10,8 +10,18 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     /// The master switch; same key the old single CPU/MEM readout used.
     static let enabledKey = MenuBarStatModel.masterEnabledKey
 
+    private struct RenderKey: Equatable {
+        let style: MenuBarMetricStyle
+        let pillLabel: String
+        let tone: MenuBarBatteryPillTone?
+        let charging: Bool
+        let bucket: Int?
+        let symbol: String?
+    }
+
     private let monitor = SystemMonitorController.shared
     private var items: [MenuBarMetric: NSStatusItem] = [:]
+    private var imageCache: [MenuBarMetric: (key: RenderKey, image: NSImage?)] = [:]
     private var sink: AnyCancellable?
     private var observer: NSObjectProtocol?
     private var lastValues = MenuBarStatValues()
@@ -36,6 +46,7 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
         for (metric, item) in items where !wanted.contains(metric) {
             NSStatusBar.system.removeStatusItem(item)
             items[metric] = nil
+            imageCache[metric] = nil
         }
         for metric in wanted where items[metric] == nil {
             let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -82,18 +93,40 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     }
 
     private func image(metric: MenuBarMetric, style: MenuBarMetricStyle, values: MenuBarStatValues) -> NSImage? {
+        let key: RenderKey
+        switch style {
+        case .nestedPill:
+            key = RenderKey(
+                style: style,
+                pillLabel: MenuBarStatModel.batteryPillLabel(values.battery),
+                tone: MenuBarStatModel.batteryPillTone(values.battery),
+                charging: values.battery?.isCharging == true,
+                bucket: nil,
+                symbol: nil
+            )
+        case .barGraph, .pieChart:
+            let bucket = Int(((MenuBarStatModel.imageFraction(metric: metric, values: values) ?? 0) * 100).rounded())
+            key = RenderKey(style: style, pillLabel: "", tone: nil, charging: false, bucket: bucket, symbol: nil)
+        case .iconOnly, .percentage, .available, .used, .remainingTime, .watts:
+            let symbol = MenuBarStatModel.symbolName(metric: metric, values: values)
+            key = RenderKey(style: style, pillLabel: "", tone: nil, charging: false, bucket: nil, symbol: symbol)
+        }
+        if let cached = imageCache[metric], cached.key == key {
+            return cached.image
+        }
+        let rendered: NSImage?
         switch style {
         case .barGraph:
-            return Self.barImage(MenuBarStatModel.imageFraction(metric: metric, values: values))
+            rendered = Self.barImage(MenuBarStatModel.imageFraction(metric: metric, values: values))
         case .pieChart:
-            return Self.pieImage(MenuBarStatModel.imageFraction(metric: metric, values: values))
-        case .iconOnly:
-            return NSImage(systemSymbolName: MenuBarStatModel.batterySymbol(values.battery), accessibilityDescription: nil)
+            rendered = Self.pieImage(MenuBarStatModel.imageFraction(metric: metric, values: values))
+        case .iconOnly, .percentage, .available, .used, .remainingTime, .watts:
+            rendered = key.symbol.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: nil) }
         case .nestedPill:
-            return Self.nestedBatteryPillImage(values.battery)
-        case .percentage, .available, .used, .remainingTime, .watts:
-            return NSImage(systemSymbolName: MenuBarStatModel.symbolName(metric: metric, values: values), accessibilityDescription: nil)
+            rendered = Self.nestedBatteryPillImage(values.battery)
         }
+        imageCache[metric] = (key, rendered)
+        return rendered
     }
 
     // MARK: - Click menu (rebuilt on every open, so the readings are never stale)
@@ -146,9 +179,20 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
         }()
         let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: textColor]
         let textSize = (label as NSString).size(withAttributes: attrs)
-        let bodyWidth = ceil(max(26, textSize.width + (charging ? 15 : 8)))
-        let totalWidth = bodyWidth + 3
+        let boltImage: NSImage? = charging
+            ? NSImage(systemSymbolName: "bolt.fill", accessibilityDescription: nil)?
+                .withSymbolConfiguration(
+                    NSImage.SymbolConfiguration(pointSize: 8.5, weight: .bold)
+                        .applying(.init(hierarchicalColor: textColor))
+                )
+            : nil
+        let boltWidth = boltImage?.size.width ?? 0
+        let boltGap: CGFloat = boltWidth > 0 ? 1.5 : 0
+        let contentWidth = textSize.width + boltGap + boltWidth
+        let bodyWidth = ceil(max(26, contentWidth + 8))
+        let totalWidth = bodyWidth + 2.5
         let image = NSImage(size: NSSize(width: totalWidth, height: 16), flipped: false) { _ in
+            NSGraphicsContext.current?.shouldAntialias = true
             let bodyRect = NSRect(x: 0.5, y: 1.5, width: bodyWidth - 1, height: 13)
             let shell = NSBezierPath(roundedRect: bodyRect, xRadius: 3.5, yRadius: 3.5)
             fillColor.withAlphaComponent(0.92).setFill()
@@ -157,27 +201,25 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
             shell.lineWidth = 1
             shell.stroke()
 
-            let nubRect = NSRect(x: bodyWidth + 0.5, y: 5.5, width: 1.5, height: 5)
+            let nubRect = NSRect(x: bodyWidth, y: 5.5, width: 1.5, height: 5)
             fillColor.withAlphaComponent(0.85).setFill()
             NSBezierPath(roundedRect: nubRect, xRadius: 0.75, yRadius: 0.75).fill()
 
-            let boltWidth: CGFloat = charging ? 7 : 0
-            let contentWidth = textSize.width + boltWidth + (charging ? 1 : 0)
             let textOrigin = NSPoint(
                 x: ((bodyWidth - contentWidth) / 2).rounded(.toNearestOrAwayFromZero),
-                y: ((16 - textSize.height) / 2).rounded(.toNearestOrAwayFromZero)
+                y: (bodyRect.midY + font.descender - font.capHeight / 2).rounded(.toNearestOrAwayFromZero)
             )
             (label as NSString).draw(at: textOrigin, withAttributes: attrs)
 
-            if charging,
-               let bolt = NSImage(systemSymbolName: "bolt.fill", accessibilityDescription: nil) {
-                let tinted = NSImage(size: NSSize(width: 7, height: 10), flipped: false) { rect in
-                    bolt.draw(in: rect)
-                    textColor.setFill()
-                    rect.fill(using: .sourceAtop)
-                    return true
-                }
-                tinted.draw(in: NSRect(x: textOrigin.x + textSize.width + 1, y: 3, width: 7, height: 10))
+            if let boltImage {
+                let boltSize = boltImage.size
+                let boltRect = NSRect(
+                    x: textOrigin.x + textSize.width + boltGap,
+                    y: bodyRect.midY - boltSize.height / 2,
+                    width: boltSize.width,
+                    height: boltSize.height
+                )
+                boltImage.draw(in: boltRect)
             }
             return true
         }

@@ -6,6 +6,7 @@ import AppKit
 @MainActor
 final class ClipboardMonitor: ObservableObject {
     static let enabledKey = "com.katikati.clipboard.enabled"
+    static let linkCleanerKey = "com.katikati.linkCleaner"
     static let soundsKey = "com.katikati.clipboard.sounds"
     static let notchToastKey = "com.katikati.clipboard.notchToast"
     static let ignorePatternsKey = "com.katikati.clipboard.ignorePatterns"
@@ -35,6 +36,7 @@ final class ClipboardMonitor: ObservableObject {
         self.pasteboard = pasteboard
         lastChange = pasteboard.changeCount
         isRecording = defaults.bool(forKey: Self.enabledKey)
+        linkCleanerEnabled = defaults.bool(forKey: Self.linkCleanerKey)
         syncTimer()
     }
 
@@ -134,12 +136,20 @@ final class ClipboardMonitor: ObservableObject {
         }
     }
 
+    func refreshPollingInterval() {
+        if isRecording || linkCleanerEnabled {
+            startTimer()
+        }
+    }
+
     private func startTimer() {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
+        let scheduled = Timer(timeInterval: pollInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
         }
-        timer?.tolerance = min(0.3, pollInterval / 2)
+        scheduled.tolerance = min(0.3, pollInterval / 2)
+        RunLoop.main.add(scheduled, forMode: .common)
+        timer = scheduled
     }
 
     /// MC-3: the Clipboard page's Polling Interval (100/250/500 ms), 0.7 s when unset.
