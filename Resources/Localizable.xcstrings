@@ -125014,81 +125014,21 @@
         }
       }
     },
-    "Search Apps" : {
+    "Search Apps, Files & Actions" : {
       "extractionState" : "manual",
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apps suchen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search Apps"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buscar apps"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buscar apps"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rechercher des apps"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cerca app"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appを検索"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱 검색"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buscar apps"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pesquisar apps"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜索应用"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜尋 App"
-          }
-        }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Apps, Dateien & Aktionen suchen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search Apps, Files & Actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar apps, archivos y acciones" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar apps, archivos y acciones" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher apps, fichiers et actions" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca app, file e azioni" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "App、ファイル、アクションを検索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱, 파일 및 동작 검색" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar apps, arquivos e ações" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pesquisar apps, ficheiros e ações" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索应用、文件与操作" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋 App、檔案與動作" } }
       }
     },
     "Search Everything" : {
@@ -179613,6 +179553,102 @@
             "value" : "Smart Pause"
           }
         }
+      }
+    },
+    "Recommended" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Empfohlen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recommended" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recomendado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Recomendado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recommandé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Consigliati" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "おすすめ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "추천" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Recomendados" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Recomendados" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "推荐" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "推薦" } }
+      }
+    },
+    "Power" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ein/Aus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Power" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Energía" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Energía" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alimentation" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Alimentazione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "電源" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "전원" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Energia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Energia" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "电源" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "電源" } }
+      }
+    },
+    "Sleep" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ruhezustand" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sleep" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reposo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reposo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suspendre l’activité" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Stop" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スリープ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠자기" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Repouso" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pausa" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "睡眠" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "睡眠" } }
+      }
+    },
+    "Restart Mac" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mac neu starten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restart Mac" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar Mac" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar Mac" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Redémarrer le Mac" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Riavvia il Mac" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Macを再起動" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Mac 재시동" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar o Mac" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar o Mac" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新启动 Mac" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "重新啟動 Mac" } }
+      }
+    },
+    "Shut Down" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ausschalten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shut Down" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apagar" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Apagar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Éteindre" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Spegni" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システム終了" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "시스템 종료" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desligar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Desligar" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关机" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "關機" } }
+      }
+    },
+    "Log Out" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abmelden" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Log Out" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar sesión" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar sesión" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fermer la session" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Esci" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ログアウト" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로그아웃" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Finalizar Sessão" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Terminar sessão" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出登录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "登出" } }
       }
     }
   },
