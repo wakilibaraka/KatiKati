@@ -540,15 +540,15 @@
     "semantic_hash": "3bb20fb229da4dfac836e9e0af88a49e"
   },
   "App/Entry/NonConstrainingPanel.swift": {
-    "mtime": 1794907187.3428233,
-    "seen": 1795534644.457109,
-    "ast_hash": "55b903b80848010ef2d8ee1466fefa85",
+    "mtime": 1795556321.5388665,
+    "seen": 1795556636.2706869,
+    "ast_hash": "2df84f954829fa620b6c623e814b102a",
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795545386.4418757,
-    "seen": 1795545595.291121,
-    "ast_hash": "c1ea2f0c692ff8cabeed4f4c6e993f26",
+    "mtime": 1795556319.3200085,
+    "seen": 1795556636.270688,
+    "ast_hash": "b9ae7c7cbb0999026561fe5f2fb93cb7",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
-    "mtime": 1795428128.013076,
-    "seen": 1795534644.457113,
-    "ast_hash": "4850e31ec9adb04c0728a0c73cc24752",
+    "mtime": 1795556375.038149,
+    "seen": 1795556636.270693,
+    "ast_hash": "ebf94c6fa8cf574725a7c0018aeab106",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795477650.8652122,
-    "seen": 1795534644.457161,
-    "ast_hash": "c243335b788d378cef90ceb20d8b8f16",
+    "mtime": 1795556329.2981813,
+    "seen": 1795556636.270753,
+    "ast_hash": "1e79c7facb32dc7789449d5aa7e43ebc",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -816,9 +816,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DrawerCapsuleButton.swift": {
-    "mtime": 1795426588.8468158,
-    "seen": 1795534644.457175,
-    "ast_hash": "404c8d204b76463dbb9f231ad32f4aac",
+    "mtime": 1795556330.344297,
+    "seen": 1795556636.2707698,
+    "ast_hash": "264bf522210c4b6716c3b950a6b52a23",
     "semantic_hash": ""
   },
   "App/Scenes/DrawerView.swift": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1795516558.7248478,
-    "seen": 1795534644.457223,
-    "ast_hash": "35472ac444837ba5642a723f5978ea8a",
+    "mtime": 1795556320.3958051,
+    "seen": 1795556636.270839,
+    "ast_hash": "bf13f4423c4e1e6dd0a80ea8d64db90a",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -2052,9 +2052,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
-    "mtime": 1795516461.8292327,
-    "seen": 1795534644.45742,
-    "ast_hash": "64453adc82ba0603f443be870e7664ca",
+    "mtime": 1795556314.3631666,
+    "seen": 1795556636.271103,
+    "ast_hash": "ace11b193e33dbc00acf2bb1fb8d13ab",
     "semantic_hash": ""
   },
   "Core/Support/NotchGestureSupport.swift": {
@@ -3732,10 +3732,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ManualPanelHostTests.swift": {
-    "mtime": 1791999130.9575155,
-    "seen": 1795534644.4577239,
-    "ast_hash": "794dc88d72452f4a3ff5940f77a0196c",
-    "semantic_hash": "794dc88d72452f4a3ff5940f77a0196c"
+    "mtime": 1795556333.9863656,
+    "seen": 1795556636.2714932,
+    "ast_hash": "ba0055984790fb9eb7d2ff4c8ca570e7",
+    "semantic_hash": ""
   },
   "Tests/Unit/MenuBarSystemTitleTests.swift": {
     "mtime": 1791999130.9476204,
@@ -3816,10 +3816,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchGeometryTests.swift": {
-    "mtime": 1792039121.2790272,
-    "seen": 1795534644.457737,
-    "ast_hash": "174a605a5b88ccc5e11bd5c249a09090",
-    "semantic_hash": "174a605a5b88ccc5e11bd5c249a09090"
+    "mtime": 1795556332.9229388,
+    "seen": 1795556636.271511,
+    "ast_hash": "be5208aa37f7be2b447f69eb9bbdc34f",
+    "semantic_hash": ""
   },
   "Tests/Unit/NotchGestureTests.swift": {
     "mtime": 1795443274.0487802,
@@ -7494,9 +7494,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockWingHostView.swift": {
-    "mtime": 1795530561.1012673,
-    "seen": 1795534644.45717,
-    "ast_hash": "6e045e30259e4ca4373a0560a3cf75ed",
+    "mtime": 1795556331.6169772,
+    "seen": 1795556636.270764,
+    "ast_hash": "6912bd0ce9b6d2ffaef3523d5b98bdc4",
     "semantic_hash": ""
   },
   "Core/Support/DockWingModels.swift": {

@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795554427.1861053,
-    "seen": 1795554598.8300228,
-    "ast_hash": "f32114e66ea72e89542e519529d9d4de",
+    "mtime": 1795554988.5343137,
+    "seen": 1795555326.842103,
+    "ast_hash": "7ae87fff1a49a28ac767062a1b7e4ea5",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795552715.9680035,
-    "seen": 1795552844.132916,
-    "ast_hash": "17089a34fe033eb5dc715b0b96723a76",
+    "mtime": 1795555133.7759361,
+    "seen": 1795555326.842168,
+    "ast_hash": "c7bc3ae6f3e8bd500a8698a4b4d11384",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795554468.4297686,
-    "seen": 1795554598.8301508,
-    "ast_hash": "a637f7336046895112bbcc44bacb7ac5",
+    "mtime": 1795555023.4891024,
+    "seen": 1795555326.842237,
+    "ast_hash": "3bc0c217dc6614659d37e0472dff02e1",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795553381.5483768,
-    "seen": 1795554024.9965749,
-    "ast_hash": "ffea6a33631aa5dc6d5c25f1e1d6d3f7",
+    "mtime": 1795554976.830847,
+    "seen": 1795555326.842484,
+    "ast_hash": "1f7dbd209a096f7612c7517d91a1fc8c",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6384,9 +6384,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795553647.091446,
-    "seen": 1795554024.99689,
-    "ast_hash": "41a1cbb428fcacc0c312c803d9cbf124",
+    "mtime": 1795555024.2882893,
+    "seen": 1795555326.842824,
+    "ast_hash": "44fa5c174ef797b44543a2a8e8d01600",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
