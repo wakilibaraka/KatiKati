@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795474085.8986423,
-    "seen": 1795474154.6662788,
-    "ast_hash": "3893422209e31085eb755b38cbec363f",
+    "mtime": 1795481163.636884,
+    "seen": 1795482232.101281,
+    "ast_hash": "f33a3d72c8ed3e016b31bcf8c7df61f9",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -4626,9 +4626,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Launcher.swift": {
-    "mtime": 1795480147.7278144,
-    "seen": 1795480404.79982,
-    "ast_hash": "a12e6f1d9c2a748f3756841930b74a0c",
+    "mtime": 1795481165.6717863,
+    "seen": 1795482232.101273,
+    "ast_hash": "f41b3f270d9d0c93395573ad19553d47",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795480087.6184952,
-    "seen": 1795480404.800586,
-    "ast_hash": "c1b3a7f729b2bc5cf9e747ff04f49b47",
+    "mtime": 1795482199.044012,
+    "seen": 1795482232.1020858,
+    "ast_hash": "f7cd494ec04f69e5c5bf440b1b3d26d9",
     "semantic_hash": ""
   },
   "README.md": {
