@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1795517228.5292017,
-    "seen": 1795517433.341113,
-    "ast_hash": "13d5b3e8f8e1b63e2ced81ebcd4e094c",
+    "mtime": 1795518313.888562,
+    "seen": 1795518356.068776,
+    "ast_hash": "a85877c1724f93a351e73e168bc766e0",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -2070,9 +2070,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchLayoutSpec.swift": {
-    "mtime": 1795516881.9654675,
-    "seen": 1795517152.415831,
-    "ast_hash": "3986007617238d7eb9d234c6931c5de3",
+    "mtime": 1795517928.1110814,
+    "seen": 1795518356.0702138,
+    "ast_hash": "0dad716d0a29d6963ee941311e09734f",
     "semantic_hash": ""
   },
   "Core/Support/NotchMotionSpec.swift": {
@@ -3834,9 +3834,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchLayoutSpecTests.swift": {
-    "mtime": 1795516487.546303,
-    "seen": 1795516791.793134,
-    "ast_hash": "39d5070f77b53aedc27b6485b16af6da",
+    "mtime": 1795517929.3768792,
+    "seen": 1795518356.071266,
+    "ast_hash": "a90a227fcba477a2c3731e2fbea8e4f6",
     "semantic_hash": ""
   },
   "Tests/Unit/NoteDocumentTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795517748.2695742,
-    "seen": 1795517761.2200692,
-    "ast_hash": "ab137ce2252db1e2bb4e65da3593e91c",
+    "mtime": 1795518270.740125,
+    "seen": 1795518356.0720682,
+    "ast_hash": "10163f9bbdcd17491e47568f262dfa7b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -7350,9 +7350,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPresets.swift": {
-    "mtime": 1795517608.0173612,
-    "seen": 1795517761.219286,
-    "ast_hash": "b0ff1f3812227989544657220b45b29f",
+    "mtime": 1795517969.4942713,
+    "seen": 1795518356.068792,
+    "ast_hash": "d7bc42ac50869cddbf18a0b5d2056329",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPrimitives.swift": {
@@ -8076,9 +8076,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/LIQUID_NOTCH_PORT_PLAN.md": {
-    "mtime": 1795517747.2170253,
-    "seen": 1795517761.2200599,
-    "ast_hash": "2dd9373dac4fc761e28c9e64bccf0ce0",
+    "mtime": 1795518269.4541004,
+    "seen": 1795518356.072038,
+    "ast_hash": "94215cbaf02323ef5c28dcfba8bb4780",
     "semantic_hash": ""
   },
   "Resources/LiquidNotch/airpods-buds.png": {
