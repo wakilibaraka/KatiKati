@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795552229.7850559,
-    "seen": 1795552280.895215,
-    "ast_hash": "08b2679deb192fda0d9931d6b615cf53",
+    "mtime": 1795552294.6119423,
+    "seen": 1795552356.810098,
+    "ast_hash": "8b359a0deeca2e267166cf165d9cd186",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -4644,9 +4644,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutSupport.swift": {
-    "mtime": 1795552068.620435,
-    "seen": 1795552204.4790862,
-    "ast_hash": "90f0dc40268307266f3beee371c5ffa0",
+    "mtime": 1795552289.349679,
+    "seen": 1795552356.810164,
+    "ast_hash": "5fa58c543ed6c7db4b502ac44c33302d",
     "semantic_hash": ""
   },
   "Core/Support/NotchBehavior.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795552027.1979177,
-    "seen": 1795552204.479828,
-    "ast_hash": "070dc19ca9ff606f8a71f4ad12209cd6",
+    "mtime": 1795552296.7916977,
+    "seen": 1795552356.810951,
+    "ast_hash": "d5a5bcf8d8d16c226c24529316a29b29",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795552026.4004793,
-    "seen": 1795552204.4798179,
-    "ast_hash": "184932dd28fc1fff00cb833db6e86ee4",
+    "mtime": 1795552295.823058,
+    "seen": 1795552356.810941,
+    "ast_hash": "13827ad64cb0a950a87a14350198d693",
     "semantic_hash": ""
   }
 }
