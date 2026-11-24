@@ -5,8 +5,9 @@ extension SettingsLayoutPane {
     @ViewBuilder
     var launcherSections: some View {
         SettingsCard(Text("Preset & Placement")) {
-            SettingsRow(Text("Preset")) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Preset")
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 5), spacing: 8) {
                     presetCard(.windowsStart, symbol: "square.grid.2x2.topleft.filled", title: Text("Windows Start"))
                     presetCard(.linuxMenu, symbol: "rectangle.split.2x1", title: Text("Linux Menu"))
                     presetCard(.drawer, symbol: "rectangle.bottomthird.inset.filled", title: Text("Drawer"))
@@ -14,6 +15,9 @@ extension SettingsLayoutPane {
                     presetCard(.fullscreen, symbol: "rectangle.inset.filled", title: Text("Fullscreen"))
                 }
             }
+            .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .settingsFindable(Text("Preset"))
             SettingsRowPair(
                 left: {
                     SettingsPickerRow(Text("Anchor"), selection: prefsBinding(\.anchorMode)) {
@@ -29,41 +33,40 @@ extension SettingsLayoutPane {
                     ), note: Text("A small glass orb over your windows; click it to open the launcher, drag it anywhere."))
                 }
             )
-            SettingsRow(Text("Launcher Icon")) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Launcher Icon")
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                     ForEach(LauncherIconStyle.allCases, id: \.self) { style in
                         Button { store.setLauncherIcon(style) } label: {
                             VStack(spacing: 4) {
-                                LauncherIconView(style: style, size: 36)
-                                iconName(style).font(.caption)
+                                LauncherIconView(style: style, size: 32)
+                                iconName(style).font(.caption).lineLimit(1)
                             }
-                            .padding(5)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
                             .background(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor, lineWidth: store.launcherIcon == style ? 2 : 0))
                         }
                         .buttonStyle(.plain)
                     }
                 }
             }
+            .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .settingsFindable(Text("Launcher Icon"))
         }
 
         SettingsCard(Text("Grid, Sections & Footer")) {
-            SettingsRowPair(
-                left: {
-                    SettingsSegmentedRow(Text("Navigation"), selection: Binding(
-                        get: { store.launcherScrollDirection },
-                        set: { store.setLauncherScrollDirection($0) }
-                    )) {
-                        Text("Vertical Scroll").tag(LauncherScrollDirection.vertical)
-                        Text("Paged Dots").tag(LauncherScrollDirection.horizontal)
-                    }
-                },
-                right: {
-                    SettingsSegmentedRow(Text("View Mode"), selection: prefsBinding(\.viewMode)) {
-                        Text("Grid").tag(LauncherViewMode.grid)
-                        Text("List").tag(LauncherViewMode.list)
-                    }
-                }
-            )
+            SettingsSegmentedRow(Text("Navigation"), selection: Binding(
+                get: { store.launcherScrollDirection },
+                set: { store.setLauncherScrollDirection($0) }
+            )) {
+                Text("Vertical Scroll").tag(LauncherScrollDirection.vertical)
+                Text("Paged Dots").tag(LauncherScrollDirection.horizontal)
+            }
+            SettingsSegmentedRow(Text("View Mode"), selection: prefsBinding(\.viewMode)) {
+                Text("Grid").tag(LauncherViewMode.grid)
+                Text("List").tag(LauncherViewMode.list)
+            }
             SettingsRowPair(
                 left: {
                     SettingsPickerRow(Text("Density"), selection: prefsBinding(\.density)) {
@@ -163,9 +166,12 @@ extension SettingsLayoutPane {
                 Image(systemName: symbol)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(selected ? .accentColor : .secondary)
-                title.font(.system(size: 11, weight: selected ? .semibold : .regular)).lineLimit(1)
+                title.font(.system(size: 11, weight: selected ? .semibold : .regular))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
             }
-            .frame(width: 92, height: 50)
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .padding(.horizontal, 4)
             .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(selected ? Color.accentColor.opacity(0.14) : Color.primary.opacity(0.04)))
             .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(selected ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: selected ? 1.5 : 1))
         }

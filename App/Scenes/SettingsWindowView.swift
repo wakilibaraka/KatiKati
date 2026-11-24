@@ -341,11 +341,9 @@ struct SettingsWindowContent: View {
     /// 「启动器」页: the launcher appearance/apps and the launcher's own rows (`LauncherSettingsBlock`).
     /// Control Center now lives on its own dedicated tab (`SettingsTab.controlCenter`),
     /// and the command bar has its own page (`SettingsTab.commandBar`).
-    @ViewBuilder
     private var launcherPane: some View {
-        SettingsBentoSplit {
+        VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
             SettingsLayoutPane(store: store, mode: .launcher)
-        } trailing: {
             LauncherSettingsBlock()
         }
     }
