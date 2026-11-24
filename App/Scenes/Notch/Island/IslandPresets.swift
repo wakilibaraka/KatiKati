@@ -1,5 +1,6 @@
 import AppKit
 import AVKit
+import Darwin
 import Metal
 import QuartzCore
 import SwiftUI
@@ -976,14 +977,18 @@ struct LiquidNotchShellView: View {
     @State private var showLyrics = false
     @State private var lyricsCache: [String: LiquidLyrics] = [:]
     @State private var lyricsLoadingKey: String?
+    @StateObject private var agentHub = LiquidAgentHub.shared
+    @AppStorage(LiquidHookInstaller.enabledKey) private var agentHooksEnabled = false
 
     private var nowPlaying: NowPlayingState { feed.nowPlayingState }
     private var hasMusic: Bool { !(nowPlaying.title ?? "").isEmpty || feed.activity.kind == .music }
+    private var hasAgents: Bool { agentHooksEnabled && !agentHub.sessions.isEmpty }
 
     private var mode: LiquidPresentationMode {
         if model.isExpanded { return .card }
         if isPeekingEars && hasMusic { return .peek }
-        if feed.activity.kind != .clock || hasMusic { return .compact }
+        if hasAgents && (feed.activity.kind != .clock || hasMusic) { return .duo }
+        if feed.activity.kind != .clock || hasMusic || hasAgents { return .compact }
         return .idle
     }
 
@@ -998,7 +1003,7 @@ struct LiquidNotchShellView: View {
             notchHalfWidth: Double(metrics.closedSize.width) / 2,
             notchHeight: Double(metrics.closedSize.height),
             hasHardwareNotch: metrics.hasHardwareNotch,
-            earExtent: (feed.activity.kind != .clock || hasMusic) ? 58 : 0,
+            earExtent: (feed.activity.kind != .clock || hasMusic || hasAgents) ? 58 : 0,
             cardSize: cardSize
         )
         if let aura = albumAuraLab {
@@ -1031,6 +1036,12 @@ struct LiquidNotchShellView: View {
 
             if !model.isExpanded && hasMusic {
                 compactEarsAndPeek
+            } else if !model.isExpanded && hasAgents {
+                agentEarsRow
+            }
+
+            if !model.isExpanded && hasAgents && hasMusic {
+                agentDetachedBall
             }
 
             if model.isExpanded {
@@ -1042,9 +1053,41 @@ struct LiquidNotchShellView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .onAppear { agentHub.setEnabled(agentHooksEnabled) }
+        .onChange(of: agentHooksEnabled) { _, enabled in agentHub.setEnabled(enabled) }
         .onChange(of: model.isExpanded) { _, expanded in
             if !expanded { showLyrics = false }
         }
+    }
+
+    private var agentEarsRow: some View {
+        let earWidth = targetState.mainHalfWidth * 2
+        let pending = agentHub.pendingApproval
+        return HStack {
+            Image(systemName: pending?.session.provider == .codex ? "hexagon" : "asterisk")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(pending?.session.provider == .codex ? .white : Color(red: 0.85, green: 0.47, blue: 0.34))
+            Spacer()
+            Text(verbatim: pending != nil ? "Allow?" : "\(agentHub.sessions.count)")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(pending != nil ? .orange : .white.opacity(0.8))
+        }
+        .padding(.horizontal, 12)
+        .frame(width: earWidth, height: targetState.mainHeight)
+        .contentShape(Rectangle())
+        .onTapGesture { model.requestOpen() }
+    }
+
+    private var agentDetachedBall: some View {
+        let pending = agentHub.pendingApproval
+        return Button { model.requestOpen() } label: {
+            Image(systemName: pending?.session.provider == .codex ? "hexagon" : "asterisk")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(pending != nil ? .orange : .white)
+                .frame(width: max(24, targetState.dropRadius * 2), height: max(24, targetState.dropRadius * 2))
+        }
+        .buttonStyle(.plain)
+        .offset(x: targetState.dropX, y: max(0, targetState.dropY - targetState.dropRadius))
     }
 
     private var compactEarsAndPeek: some View {
@@ -1085,7 +1128,11 @@ struct LiquidNotchShellView: View {
 
     @ViewBuilder
     private var expandedContent: some View {
-        if hasMusic && showLyrics {
+        if let pending = agentHub.pendingApproval {
+            LiquidAgentApprovalCard(pending: pending) { decisionJSON in
+                agentHub.resolvePending(decisionJSON)
+            }
+        } else if hasMusic && showLyrics {
             LiquidSyncedLyricsView(
                 nowPlaying: nowPlaying,
                 lyrics: lyricsCache[LiquidLyricsSource.key(title: nowPlaying.title ?? "", artist: nowPlaying.artist ?? "")],
@@ -1288,5 +1335,248 @@ private struct LiquidSyncedLyricsView: View {
             }
             .padding(.horizontal, 18).padding(.vertical, 14)
         }
+    }
+}
+
+// MARK: - Liquid Agent Socket Hub, Approval Card & Settings Toggle (LQ-3)
+
+@MainActor
+final class LiquidAgentHub: ObservableObject {
+    static let shared = LiquidAgentHub()
+
+    struct PendingApproval {
+        let session: LiquidAgentSession
+        let rawInput: [String: Any]
+        let reply: (String?) -> Void
+    }
+
+    @Published private(set) var sessions: [LiquidAgentSession] = []
+    @Published private(set) var pendingApproval: PendingApproval?
+
+    private var listener: Int32 = -1
+    private var source: DispatchSourceRead?
+    private var isEnabled = false
+
+    func setEnabled(_ enabled: Bool) {
+        guard enabled != isEnabled else { return }
+        isEnabled = enabled
+        if enabled { startSocket() } else { stopSocket() }
+    }
+
+    func resolvePending(_ responseJSON: String?) {
+        guard let pending = pendingApproval else { return }
+        pendingApproval = nil
+        pending.reply(responseJSON)
+        if let idx = sessions.firstIndex(where: { $0.id == pending.session.id }) {
+            sessions[idx].state = .working
+            sessions[idx].need = nil
+        }
+    }
+
+    private func startSocket() {
+        let path = LiquidHookInstaller.socketPath()
+        let dir = (path as NSString).deletingLastPathComponent
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        unlink(path)
+        let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+        guard fd >= 0 else { return }
+        var addr = sockaddr_un()
+        addr.sun_family = sa_family_t(AF_UNIX)
+        let ok = withUnsafeMutableBytes(of: &addr.sun_path) { buf in
+            let bytes = Array(path.utf8)
+            guard bytes.count < buf.count else { return false }
+            buf.copyBytes(from: bytes)
+            buf[bytes.count] = 0
+            return true
+        }
+        let size = socklen_t(MemoryLayout<sockaddr_un>.size)
+        guard ok, withUnsafePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { bind(fd, $0, size) } }) == 0,
+              listen(fd, 16) == 0 else { close(fd); return }
+        chmod(path, 0o600)
+        _ = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
+        listener = fd
+        let src = DispatchSource.makeReadSource(fileDescriptor: fd, queue: .main)
+        src.setEventHandler { [weak self] in MainActor.assumeIsolated { self?.accept() } }
+        src.resume()
+        source = src
+    }
+
+    private func stopSocket() {
+        pendingApproval?.reply(nil)
+        pendingApproval = nil
+        sessions.removeAll()
+        source?.cancel(); source = nil
+        if listener >= 0 { close(listener); listener = -1 }
+        unlink(LiquidHookInstaller.socketPath())
+    }
+
+    private func accept() {
+        while true {
+            let c = Darwin.accept(listener, nil, nil)
+            guard c >= 0 else { return }
+            readConnection(c)
+        }
+    }
+
+    private func readConnection(_ c: Int32) {
+        var tv = timeval(tv_sec: 2, tv_usec: 0)
+        setsockopt(c, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
+        var nosig: Int32 = 1
+        setsockopt(c, SOL_SOCKET, SO_NOSIGPIPE, &nosig, socklen_t(MemoryLayout<Int32>.size))
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            var data = Data(), buf = [UInt8](repeating: 0, count: 16_384)
+            while data.count < 1_000_000 {
+                let n = Darwin.read(c, &buf, buf.count)
+                if n <= 0 { break }
+                data.append(buf, count: n)
+                if buf[..<n].contains(10) { break }
+            }
+            let line = LiquidAgentHookLine.parse(data)
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    guard let self, let line else { close(c); return }
+                    if line.waits {
+                        var answered = false
+                        self.handle(line) { answer in
+                            guard !answered else { return }
+                            answered = true
+                            if let answer, let bytes = (answer + "\n").data(using: .utf8) {
+                                bytes.withUnsafeBytes { _ = write(c, $0.baseAddress, bytes.count) }
+                            }
+                            close(c)
+                        }
+                    } else {
+                        close(c)
+                        self.handle(line, reply: nil)
+                    }
+                }
+            }
+        }
+    }
+
+    private func handle(_ line: LiquidAgentHookLine, reply: ((String?) -> Void)?) {
+        guard let provider = LiquidAgentProvider(rawValue: line.provider) else { reply?(nil); return }
+        let j = line.json
+        guard let sid = j["session_id"] as? String, !sid.isEmpty else { reply?(nil); return }
+        let tool = j["tool_name"] as? String ?? ""
+        let input = j["tool_input"] as? [String: Any] ?? [:]
+        let detail = ["command", "file_path", "path", "url", "pattern", "description"].lazy.compactMap { input[$0] as? String }.first ?? ""
+
+        if line.event == "SessionEnd" {
+            sessions.removeAll { $0.id == sid }
+            reply?(nil)
+            return
+        }
+
+        var need: LiquidAgentNeed?
+        var state: LiquidAgentSessionState = .working
+        if line.event == "PermissionRequest" {
+            state = .needs
+            need = .permission(tool: tool, detail: String(detail.prefix(200)))
+        } else if line.event == "PreToolUse" && tool == "AskUserQuestion",
+                  let q = (input["questions"] as? [[String: Any]])?.first {
+            state = .needs
+            let prompt = q["question"] as? String ?? ""
+            let options = (q["options"] as? [[String: Any]] ?? []).compactMap { $0["label"] as? String }
+            need = .question(prompt: prompt, options: options)
+        } else if line.event == "Stop" {
+            state = .done
+        } else if line.event == "StopFailure" {
+            state = .error
+        }
+
+        let session = LiquidAgentSession(
+            id: sid, provider: provider, state: state, cwd: j["cwd"] as? String ?? "",
+            tool: tool, detail: detail, need: need, updatedAt: Date()
+        )
+        if let idx = sessions.firstIndex(where: { $0.id == sid }) {
+            sessions[idx] = session
+        } else {
+            sessions.append(session)
+        }
+        if let reply, need != nil {
+            pendingApproval?.reply(nil)
+            pendingApproval = PendingApproval(session: session, rawInput: input, reply: reply)
+        } else {
+            reply?(nil)
+        }
+    }
+}
+
+private struct LiquidAgentApprovalCard: View {
+    let pending: LiquidAgentHub.PendingApproval
+    let onResolve: (String?) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: pending.session.provider == .codex ? "hexagon" : "asterisk")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(pending.session.provider == .codex ? .white : Color(red: 0.85, green: 0.47, blue: 0.34))
+                Text(verbatim: pending.session.provider.displayName)
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                Spacer()
+                Text(verbatim: (pending.session.cwd as NSString).lastPathComponent)
+                    .font(.system(size: 11)).foregroundStyle(.white.opacity(0.5))
+            }
+            switch pending.session.need {
+            case .permission(let tool, let detail):
+                Text(verbatim: tool).font(.system(size: 12, weight: .bold)).foregroundStyle(.orange)
+                Text(verbatim: detail).font(.system(size: 11.5, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.85)).lineLimit(2)
+                Spacer(minLength: 0)
+                HStack(spacing: 10) {
+                    Button { onResolve(LiquidAgentHookLine.decisionJSON(allow: false)) } label: {
+                        Text("Deny").frame(maxWidth: .infinity).padding(.vertical, 6)
+                            .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+                    }
+                    Button { onResolve(LiquidAgentHookLine.decisionJSON(allow: true)) } label: {
+                        Text("Allow").frame(maxWidth: .infinity).padding(.vertical, 6)
+                            .background(Color.orange, in: RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                .buttonStyle(.plain).foregroundStyle(.white).font(.system(size: 12, weight: .semibold))
+            case .question(let prompt, let options):
+                Text(verbatim: prompt).font(.system(size: 12.5, weight: .medium)).foregroundStyle(.white).lineLimit(2)
+                Spacer(minLength: 0)
+                HStack(spacing: 8) {
+                    ForEach(options.prefix(3), id: \.self) { opt in
+                        Button {
+                            onResolve(LiquidAgentHookLine.answerJSON(input: pending.rawInput, question: prompt, option: opt))
+                        } label: {
+                            Text(verbatim: opt).lineLimit(1).padding(.horizontal, 10).padding(.vertical, 6)
+                                .background(Color.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }
+                .buttonStyle(.plain).foregroundStyle(.white).font(.system(size: 11.5, weight: .medium))
+            case nil:
+                EmptyView()
+            }
+        }
+        .padding(18)
+    }
+}
+
+struct LiquidAgentHookToggleRow: View {
+    @AppStorage(LiquidHookInstaller.enabledKey) private var enabled = false
+
+    var body: some View {
+        SettingsToggleRow(
+            Text("Watch Claude & Codex"),
+            isOn: Binding(
+                get: { enabled },
+                set: { next in
+                    enabled = next
+                    if next {
+                        try? LiquidHookInstaller.install()
+                    } else {
+                        try? LiquidHookInstaller.uninstall()
+                    }
+                    LiquidAgentHub.shared.setEnabled(next)
+                }
+            )
+        )
+        .help(Text("Shows Claude Code and Codex permission balls in the Liquid Notch."))
     }
 }

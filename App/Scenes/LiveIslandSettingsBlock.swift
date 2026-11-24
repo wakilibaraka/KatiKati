@@ -42,6 +42,10 @@ struct LiveIslandSettingsBlock: View {
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
             .help(Text("Full uses a multi-panel layout; Compact uses a simpler player card."))
+            if store.notchSkin == .liquid {
+                SettingsDivider()
+                LiquidAgentHookToggleRow()
+            }
             if store.notchSkin == .dynamicIsland {
                 SettingsDivider()
                 SettingsRow(Text("Touch Optimization")) {
