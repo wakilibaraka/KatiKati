@@ -153,9 +153,9 @@ The following 5 files **MUST NOT BE MODIFIED** during `LQ-1`–`LQ-6`:
 - [x] **LQ-2.3 (`≤ 150` LOC):** Pure unit tests in `Tests/Unit/LiquidLyricsTests.swift` for LRC timestamp parsing, active-line selection with output latency offset, and `NowPlayingService` → `LiquidDirector` state mapping. — `DONE — 61fa3d11` (in `NowPlayingProgressTests.swift`)
 
 ### Wave `LQ-3` — Interactive Claude Code & Codex Permission Balls
-- [ ] **LQ-3.1 (`≤ 280` LOC):** Port `AgentHookService.swift` (fail-open local Unix socket + `HookInstaller` with timestamped `~/.claude/settings.json` & `~/.codex/hooks.json` backup/restore) + `agent-hook.sh` resource, bridged into `AgentUsageService`.
-- [ ] **LQ-3.2 (`≤ 250` LOC):** Port `LiquidAgentViews.swift` (per-agent detached balls, Allow / Deny / Answer card actions, and `⌥Space` Quick Ask sheet).
-- [ ] **LQ-3.3 (`≤ 150` LOC):** Pure unit tests in `Tests/Unit/LiquidAgentHookTests.swift` for JSON hook install/uninstall round-trip, backup preservation of user hooks, and socket payload parsing.
+- [x] **LQ-3.1 (`≤ 280` LOC):** Port `AgentHookService.swift` (fail-open local Unix socket + `HookInstaller` with timestamped `~/.claude/settings.json` & `~/.codex/hooks.json` backup/restore) + `agent-hook.sh` resource, bridged into `AgentUsageService`. — `DONE — 7a00d462, 20d34755`
+- [x] **LQ-3.2 (`≤ 250` LOC):** Port `LiquidAgentViews.swift` (per-agent detached balls, Allow / Deny / Answer card actions, and `⌥Space` Quick Ask sheet). — `DONE — 20d34755` (Allow / Deny / Answer balls; `⌥Space` Quick Ask deferred to `LQ-4` Tray/Shortcuts)
+- [x] **LQ-3.3 (`≤ 150` LOC):** Pure unit tests in `Tests/Unit/LiquidAgentHookTests.swift` for JSON hook install/uninstall round-trip, backup preservation of user hooks, and socket payload parsing. — `DONE — 7a00d462` (in `AgentApprovalTests.swift`)
 
 ### Wave `LQ-4` — Activities, 3D AirPods, Draggable HUD & Double-Click Tray
 - [ ] **LQ-4.1 (`≤ 280` LOC):** Port `LiquidActivityViews.swift` (charging/low battery, next meeting + Join, camera light, Focus, timers, downloads, screen recording, `+N` overflow) wired to `CalendarService`, `SystemStatusService`, `CameraMirrorService`, and `DownloadManagerService`.
