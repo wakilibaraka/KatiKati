@@ -402,3 +402,50 @@ enum FinderCompanionGeometry {
         return (mod >= 0 ? mod : mod + interval) < duration
     }
 }
+
+// MARK: - IS-5.3 Opt-In macOSicons Query & Decoder
+
+struct MacOSIconsResult: Equatable, Identifiable, Codable, Sendable {
+    let id: String
+    let appName: String
+    let pngURL: String
+    let downloads: Int
+}
+
+enum MacOSIconsError: Error, Equatable, Sendable {
+    case missingAPIKey, emptyQuery, rateLimited, httpError(Int), invalidResponse
+}
+
+enum MacOSIconsQuery {
+    static let endpoint = URL(string: "https://api.macosicons.com/api/v1/search")!
+
+    static func makeSearchRequest(query: String, apiKey: String) throws -> URLRequest {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let k = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !k.isEmpty else { throw MacOSIconsError.missingAPIKey }
+        guard !q.isEmpty else { throw MacOSIconsError.emptyQuery }
+        var req = URLRequest(url: endpoint)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue(k, forHTTPHeaderField: "x-api-key")
+        req.httpBody = try JSONSerialization.data(withJSONObject: ["query": q, "hitsPerPage": 24])
+        return req
+    }
+
+    static func decodeSearchResponse(_ data: Data, statusCode: Int) throws -> [MacOSIconsResult] {
+        if statusCode == 429 { throw MacOSIconsError.rateLimited }
+        guard (200..<300).contains(statusCode) else { throw MacOSIconsError.httpError(statusCode) }
+        guard let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+            throw MacOSIconsError.invalidResponse
+        }
+        let rows = (root["hits"] as? [[String: Any]]) ?? (root["icons"] as? [[String: Any]]) ?? (root["data"] as? [[String: Any]]) ?? []
+        return rows.compactMap { row in
+            guard let id = (row["objectID"] as? String) ?? (row["id"] as? String),
+                  let url = (row["lowResPngUrl"] as? String) ?? (row["highResPngUrl"] as? String) ?? (row["icnsUrl"] as? String),
+                  !url.isEmpty else { return nil }
+            let name = (row["appName"] as? String) ?? (row["name"] as? String) ?? "App"
+            let downloads = (row["downloads"] as? NSNumber)?.intValue ?? 0
+            return MacOSIconsResult(id: id, appName: name, pngURL: url, downloads: downloads)
+        }
+    }
+}

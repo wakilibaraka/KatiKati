@@ -271,4 +271,21 @@ final class IconSetTests: XCTestCase {
         XCTAssertEqual(decoded?.kind, .finder)
         XCTAssertNil(decoded?.finderStyle)
     }
+
+    func testMacOSIconsQueryBuildsRequestAndDecodesResults() throws {
+        XCTAssertThrowsError(try MacOSIconsQuery.makeSearchRequest(query: "Slack", apiKey: " ")) { err in
+            XCTAssertEqual(err as? MacOSIconsError, .missingAPIKey)
+        }
+        let req = try MacOSIconsQuery.makeSearchRequest(query: "Slack", apiKey: "secret-key")
+        XCTAssertEqual(req.value(forHTTPHeaderField: "x-api-key"), "secret-key")
+        XCTAssertEqual(req.httpMethod, "POST")
+
+        let payload = Data(#"{"hits":[{"objectID":"id1","appName":"Slack","lowResPngUrl":"https://example.com/1.png","downloads":42}]}"#.utf8)
+        let decoded = try MacOSIconsQuery.decodeSearchResponse(payload, statusCode: 200)
+        XCTAssertEqual(decoded, [MacOSIconsResult(id: "id1", appName: "Slack", pngURL: "https://example.com/1.png", downloads: 42)])
+
+        XCTAssertThrowsError(try MacOSIconsQuery.decodeSearchResponse(Data(), statusCode: 429)) { err in
+            XCTAssertEqual(err as? MacOSIconsError, .rateLimited)
+        }
+    }
 }

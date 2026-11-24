@@ -7090,3 +7090,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-4.2` & `IS-5.1` — Finder Companion & 3-Column Icon Studio Shell (`45a0c9b8`, `ad3e1593`, 2026-11-24)
 
 - `Core/Support/IconSet.swift`, `App/Scenes/{ChipBadgeView,ContentView,WidgetLookSettingsBlock}.swift`, `Tests/Unit/IconSetTests.swift`: added `FinderCompanionStyle`/`FinderCompanionGeometry`/`FinderCompanionIconView` (`45a0c9b8`; 14/14 `IconSetTests` passing) and `IconStudioWindowController`/`IconStudioWindowView` (`ad3e1593`; clean `KatiKati` build).
+
+### `IS-5.2` — Icon Studio Inspector & Dock/Settings Launchers (`e27f34a7`, 2026-11-24)
+
+- `App/Scenes/{WidgetLookSettingsBlock,ChipView,LauncherChip}.swift`: added `IconStudioInspectorColumn` (`Save Look…`, `Looks`, `Badges`, `Artwork`, `Color`, `Shaders`, `Dress Up`, live controls), `AppIconsSettingsBlock` launch button, and `"Customize Icon…"` menu items (`e27f34a7`; clean `KatiKati` build).

@@ -728,12 +728,22 @@ final class IconStudioController: ObservableObject {
 
     func importArtwork(from url: URL, for bundleID: String) -> Bool {
         guard let cg = IconAssetLoader.loadCGImage(from: url), let png = IconAssetLoader.pngData(from: cg) else { return false }
+        return saveImportedPNG(png, source: { .localFile(relativePath: $0) }, for: bundleID)
+    }
+
+    func importRemotePNG(_ pngData: Data, iconID: String, for bundleID: String) -> Bool {
+        guard let cg = NSImage(data: pngData)?.cgImage(forProposedRect: nil, context: nil, hints: nil),
+              let cleanPNG = IconAssetLoader.pngData(from: cg) else { return false }
+        return saveImportedPNG(cleanPNG, source: { .macOSIcons(id: iconID, cachedRelativePath: $0) }, for: bundleID)
+    }
+
+    private func saveImportedPNG(_ png: Data, source: (String) -> IconArtworkSource, for bundleID: String) -> Bool {
         let assetsDir = stateURL.deletingLastPathComponent().appendingPathComponent("IconStudioAssets", isDirectory: true)
         let rel = "\(bundleID)-\(UUID().uuidString.prefix(8)).png"
         try? FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
         guard (try? png.write(to: assetsDir.appendingPathComponent(rel), options: .atomic)) != nil else { return false }
         var look = state.looksByBundleID[bundleID] ?? IconLook()
-        look.artwork = .localFile(relativePath: rel)
+        look.artwork = source(rel)
         setLook(look, for: bundleID)
         return true
     }

@@ -1187,10 +1187,95 @@ struct MacOSIconsSearchSheet: View {
     let bundleID: String
     @ObservedObject var studio: IconStudioController
     @Environment(\.dismiss) private var dismiss
+
+    @State private var query = ""
+    @State private var apiKey = UserDefaults.standard.string(forKey: IconStudioDefaultsKeys.macOSIconsAPIKey) ?? ""
+    @State private var results: [MacOSIconsResult] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+
     var body: some View {
-        VStack(spacing: 12) {
-            Text("macOSicons Search").font(.headline)
-            Button("Close") { dismiss() }
-        }.padding(20)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Search macOSicons").font(.headline)
+                Spacer()
+                Button("Close") { dismiss() }.keyboardShortcut(.cancelAction)
+            }
+            if apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                HStack(spacing: 8) {
+                    SecureField("Paste macOSicons x-api-key", text: $apiKey).textFieldStyle(.roundedBorder)
+                        .onChange(of: apiKey) { UserDefaults.standard.set($0, forKey: IconStudioDefaultsKeys.macOSIconsAPIKey) }
+                    Text("Free key via macosicons.com").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            HStack(spacing: 8) {
+                TextField("App name", text: $query).textFieldStyle(.roundedBorder).onSubmit { runSearch() }
+                Button("Search") { runSearch() }.buttonStyle(.borderedProminent).disabled(isLoading)
+            }
+            if let errorMessage {
+                Text(verbatim: errorMessage).font(.caption).foregroundStyle(.red)
+            }
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 10)], spacing: 10) {
+                    if isLoading {
+                        ForEach(0..<8, id: \.self) { _ in
+                            RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)).frame(height: 88)
+                        }
+                    } else if results.isEmpty {
+                        Text("Enter an app name to search community icons, or drop local artwork onto the stage.")
+                            .font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 12)
+                    } else {
+                        ForEach(results) { item in
+                            Button { applyResult(item) } label: {
+                                VStack(spacing: 4) {
+                                    AsyncImage(url: URL(string: item.pngURL)) { img in
+                                        img.resizable().aspectRatio(contentMode: .fit)
+                                    } placeholder: { RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.08)) }
+                                    .frame(width: 56, height: 56)
+                                    Text(verbatim: item.appName).font(.system(size: 10)).lineLimit(1)
+                                }.padding(6).background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .frame(width: 460, height: 280)
+        }
+        .padding(18)
+        .onAppear { if query.isEmpty { query = AppDisplayNameResolver.displayName(for: bundleID) } }
+    }
+
+    private func runSearch() {
+        errorMessage = nil
+        do {
+            let req = try MacOSIconsQuery.makeSearchRequest(query: query, apiKey: apiKey)
+            isLoading = true
+            Task {
+                do {
+                    let (data, resp) = try await URLSession.shared.data(for: req)
+                    let code = (resp as? HTTPURLResponse)?.statusCode ?? 0
+                    let decoded = try MacOSIconsQuery.decodeSearchResponse(data, statusCode: code)
+                    await MainActor.run { results = decoded; isLoading = false }
+                } catch {
+                    await MainActor.run { errorMessage = error.localizedDescription; isLoading = false }
+                }
+            }
+        } catch MacOSIconsError.missingAPIKey {
+            errorMessage = String(localized: "Enter your macOSicons API key first.")
+        } catch MacOSIconsError.emptyQuery {
+            errorMessage = String(localized: "Enter an app name to search.")
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func applyResult(_ item: MacOSIconsResult) {
+        guard let url = URL(string: item.pngURL) else { return }
+        Task {
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            await MainActor.run {
+                if studio.importRemotePNG(data, iconID: item.id, for: bundleID) { dismiss() }
+            }
+        }
     }
 }

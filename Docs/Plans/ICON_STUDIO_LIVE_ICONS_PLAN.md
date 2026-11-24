@@ -210,7 +210,7 @@ Additionally, keep Notch (`App/Scenes/Notch/*`), `WallpaperEngine`, and Launcher
 
 ### Wave `IS-5` — 3-Column Icon Studio Editor UI + `macOSicons` Search
 - [x] **IS-5.1 (`≤ 290` LOC):** `IconStudioWindowController` (`960×660` resizable) and `IconStudioWindowView` (left `Live icons`/`Custom icons`/`+ Add App` sidebar, center `Light`/`Dark`/`Wallpaper` stage, `152pt` + `40pt` dual preview, mini Dock preview, PNG/ICNS/`.icon` drop, example percentage slider, Dock badge preview toggle, `Restore Original Icon`, Export PNG) in `App/Scenes/WidgetLookSettingsBlock.swift` (`ad3e1593`). — `DONE — ad3e1593`
-- [ ] **IS-5.2 (`≤ 290` LOC):** Add `App/Scenes/IconStudio/IconStudioInspectorView.swift` (`Save Look…` / `Looks ▾`, `Badges`, `Artwork`, `Color`, `Shaders`, `Dress Up`, context-aware Live controls) and wire launch triggers in `App/Scenes/WidgetLookSettingsBlock.swift:245` (`AppIconsSettingsBlock`) plus `"Customize Icon…"` in `ChipView.swift` & `LauncherChip.swift`.
+- [x] **IS-5.2 (`≤ 290` LOC):** `IconStudioInspectorColumn` (`Save Look…`/`Looks`, `Badges`, `Artwork`, `Color`, `Shaders`, `Dress Up`, live controls) + `AppIconsSettingsBlock` launch card + `"Customize Icon…"` chip menu items (`e27f34a7`). — `DONE — e27f34a7`
 - [ ] **IS-5.3 (`≤ 240` LOC):** Add opt-in BYO API key `macOSicons` client (`App/Composition/IconStudio/MacOSIconsClient.swift`) + `MacOSIconsSearchSheet.swift` (skeleton loading, empty/quota/error states) + pure request/decoder tests in `Tests/Unit/MacOSIconsClientTests.swift`.
 
 ### Wave `IS-6` — Opt-In App Live Icons, `⌘+Tab` Parity, 12-Locale l10n & Livecheck
