@@ -204,8 +204,8 @@ Additionally, keep Notch (`App/Scenes/Notch/*`), `WallpaperEngine`, and Launcher
 - [x] **IS-3.3 (`≤ 260` LOC):** Folded into `IS-3.2` (`5378bf0c`). — `DONE — 5378bf0c`
 
 ### Wave `IS-4` — Unread Badge Effects, Dress Up & Finder Companion
-- [ ] **IS-4.1 (`≤ 240` LOC):** Extend `App/Entry/AppDelegate.swift:1176-1192` and `App/Composition/BadgeStore.swift` to include `iconStudioBadgeEligibleBundleIDs` in targeted `AXStatusLabel` reads, and add `App/Scenes/IconStudio/IconBadgeEffectView.swift` (`Fire`, `Sunlight`, `Wax seal`, `Glint`) wrapping `ChipBadgeView.swift` strictly when `unreadCount >= minUnreadCount`.
-- [ ] **IS-4.2 (`≤ 220` LOC):** Add `App/Scenes/IconStudio/IconDressUpOverlayView.swift` (`String lights` with configurable spacing, `Pine` sprig, `Snow globe` dome + hover snow) with normalized draggable anchor offsets.
+- [x] **IS-4.1 (`≤ 240` LOC):** `AppDelegate` + `BadgeStore` targeted union for `iconStudioBadgeEligibleBundleIDs`, `IconBadgeEffectView` (`fire`, `sunlight`, `waxSeal`, `glint`) + `IconDressUpOverlayView` (`stringLights`, `pine`, `snowGlobe`) in `ChipBadgeView.swift`, wired to `ChipView`/`LauncherChip`/`ContentView` (`c8eb78bd`). — `DONE — c8eb78bd`
+- [x] **IS-4.2 (`≤ 220` LOC):** Folded into `IS-4.1` (`c8eb78bd`). — `DONE — c8eb78bd`
 - [ ] **IS-4.3 (`≤ 280` LOC):** Add `Core/Support/IconStudio/FinderCompanionGeometry.swift` + `App/Scenes/IconStudio/FinderCompanionIconView.swift` (customizable eyes, button/classic nose, mouth, dual-tone colors; pointer-tracking eyes driven by Dock hover/pointer coordinates; low-frequency idle blink cancelled when Dock hides) + synchronous geometry tests in `Tests/Unit/FinderCompanionGeometryTests.swift`.
 
 ### Wave `IS-5` — 3-Column Icon Studio Editor UI + `macOSicons` Search

@@ -179,6 +179,7 @@ struct LiveIconConfig: Equatable, Hashable, Codable, Sendable {
     var musicStyle: LiveIconMusicStyle
     var showCountdown: Bool
     var optInActivityProbe: Bool
+    var finderStyle: FinderCompanionStyle? = nil
 
     static func `default`(for kind: LiveIconKind) -> LiveIconConfig {
         let usageStyle: LiveIconUsageStyle = kind == .claude ? .fadeTide : (kind == .codex ? .glyphTracer : .water)
@@ -367,5 +368,37 @@ enum CursorBudgetEstimator {
     static func estimatedUsedPercent(todayCostUSD: Double, dailyBudgetUSD: Double = defaultDailyBudgetUSD) -> Double {
         guard dailyBudgetUSD > 0, todayCostUSD.isFinite, todayCostUSD > 0 else { return 0 }
         return min(100.0, (todayCostUSD / dailyBudgetUSD) * 100.0)
+    }
+}
+
+// MARK: - IS-4.2 Finder Companion Style & Pure Geometry
+
+struct FinderCompanionStyle: Equatable, Hashable, Codable, Sendable {
+    enum EyeStyle: String, CaseIterable, Codable, Sendable { case classic, wide, focused }
+    enum NoseStyle: String, CaseIterable, Codable, Sendable { case classic, button, minimal }
+    enum MouthStyle: String, CaseIterable, Codable, Sendable { case smile, grin, calm }
+
+    var eyeStyle: EyeStyle = .classic
+    var noseStyle: NoseStyle = .classic
+    var mouthStyle: MouthStyle = .smile
+    var leftHex: String = "#57B9FF"
+    var rightHex: String = "#D6EEFF"
+    var featureHex: String = "#141A24"
+}
+
+enum FinderCompanionGeometry {
+    static func pupilOffset(normalizedX: Double, normalizedY: Double, maxTravel: Double = 1.0) -> (dx: Double, dy: Double) {
+        let clampedLimit = max(0, maxTravel)
+        let nx = normalizedX.isFinite ? normalizedX : 0
+        let ny = normalizedY.isFinite ? normalizedY : 0
+        let dist = hypot(nx, ny)
+        guard dist > 1.0, dist > 0 else { return (nx * clampedLimit, ny * clampedLimit) }
+        return ((nx / dist) * clampedLimit, (ny / dist) * clampedLimit)
+    }
+
+    static func shouldBlink(phaseSeconds: Double, interval: Double = 5.5, duration: Double = 0.14) -> Bool {
+        guard phaseSeconds.isFinite, interval > duration, duration > 0 else { return false }
+        let mod = phaseSeconds.truncatingRemainder(dividingBy: interval)
+        return (mod >= 0 ? mod : mod + interval) < duration
     }
 }

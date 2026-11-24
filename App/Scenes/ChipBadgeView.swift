@@ -168,6 +168,129 @@ struct IconDressUpOverlayView: View {
     }
 }
 
+// MARK: - IS-4.2 Finder Companion Live Icon
+
+struct FinderCompanionIconView: View {
+    let config: LiveIconConfig
+    let size: CGFloat
+    var isHovered: Bool = false
+    var isCopying: Bool = false
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var gaze: CGPoint = .zero
+    @State private var isBlinking = false
+    @State private var blinkTimer: Timer?
+
+    var body: some View {
+        let style = config.finderStyle ?? FinderCompanionStyle()
+        let leftColor = finderColor(style.leftHex, fallback: Color(red: 0.34, green: 0.73, blue: 1.0))
+        let rightColor = finderColor(style.rightHex, fallback: Color(red: 0.84, green: 0.93, blue: 1.0))
+        let ink = finderColor(style.featureHex, fallback: Color(red: 0.08, green: 0.10, blue: 0.14))
+        let offset = FinderCompanionGeometry.pupilOffset(normalizedX: gaze.x, normalizedY: gaze.y, maxTravel: size * 0.032)
+        let activeEye: FinderCompanionStyle.EyeStyle = isCopying ? .focused : style.eyeStyle
+
+        ZStack {
+            HStack(spacing: 0) {
+                leftColor
+                rightColor
+            }
+            // Classic split curve
+            Path { p in
+                p.move(to: CGPoint(x: size * 0.54, y: 0))
+                p.addQuadCurve(to: CGPoint(x: size * 0.48, y: size * 0.62), control: CGPoint(x: size * 0.42, y: size * 0.35))
+                p.addLine(to: CGPoint(x: size * 0.56, y: size * 0.62))
+                p.addQuadCurve(to: CGPoint(x: size * 0.54, y: size), control: CGPoint(x: size * 0.45, y: size * 0.82))
+                p.addLine(to: CGPoint(x: size, y: size))
+                p.addLine(to: CGPoint(x: size, y: 0))
+                p.closeSubpath()
+            }
+            .fill(rightColor)
+
+            // Eyes
+            HStack(spacing: size * 0.28) {
+                eyeView(style: activeEye, ink: ink, offset: offset)
+                eyeView(style: activeEye, ink: ink, offset: offset)
+            }
+            .offset(y: -size * 0.12)
+
+            // Nose
+            noseView(style: style.noseStyle, ink: ink)
+
+            // Mouth
+            Path { p in
+                let y = style.mouthStyle == .calm ? size * 0.70 : size * 0.66
+                let sag = style.mouthStyle == .grin ? size * 0.18 : (style.mouthStyle == .calm ? size * 0.02 : size * 0.12)
+                p.move(to: CGPoint(x: size * 0.25, y: y))
+                p.addQuadCurve(to: CGPoint(x: size * 0.75, y: y), control: CGPoint(x: size * 0.50, y: y + sag))
+            }
+            .stroke(ink, style: StrokeStyle(lineWidth: max(1.5, size * 0.065), lineCap: .round))
+        }
+        .frame(width: size, height: size)
+        .onContinuousHover { phase in
+            switch phase {
+            case .active(let pt):
+                let nx = (pt.x / max(1, size)) * 2.0 - 1.0
+                let ny = (pt.y / max(1, size)) * 2.0 - 1.0
+                gaze = CGPoint(x: nx, y: ny)
+            case .ended:
+                gaze = .zero
+            }
+        }
+        .onAppear { startBlinkIfNeeded() }
+        .onDisappear { blinkTimer?.invalidate(); blinkTimer = nil }
+        .onChange(of: reduceMotion) { _ in startBlinkIfNeeded() }
+    }
+
+    @ViewBuilder
+    private func eyeView(style: FinderCompanionStyle.EyeStyle, ink: Color, offset: (dx: Double, dy: Double)) -> some View {
+        let w = max(2.5, size * (style == .wide ? 0.12 : 0.08))
+        let h = isBlinking ? max(1.5, size * 0.02) : max(3, size * (style == .focused ? 0.09 : 0.17))
+        RoundedRectangle(cornerRadius: w * 0.5, style: .continuous)
+            .fill(ink)
+            .frame(width: w, height: h)
+            .offset(x: offset.dx, y: offset.dy)
+            .animation(.easeOut(duration: 0.09), value: isBlinking)
+    }
+
+    @ViewBuilder
+    private func noseView(style: FinderCompanionStyle.NoseStyle, ink: Color) -> some View {
+        switch style {
+        case .classic:
+            Path { p in
+                p.move(to: CGPoint(x: size * 0.49, y: size * 0.36))
+                p.addLine(to: CGPoint(x: size * 0.44, y: size * 0.57))
+                p.addLine(to: CGPoint(x: size * 0.54, y: size * 0.57))
+            }
+            .stroke(ink, style: StrokeStyle(lineWidth: max(1.3, size * 0.05), lineCap: .round, lineJoin: .round))
+        case .button:
+            Circle().fill(ink).frame(width: max(3, size * 0.12), height: max(3, size * 0.12)).offset(y: size * 0.06)
+        case .minimal:
+            Capsule().fill(ink).frame(width: max(2, size * 0.06), height: max(4, size * 0.14)).offset(y: size * 0.05)
+        }
+    }
+
+    private func startBlinkIfNeeded() {
+        blinkTimer?.invalidate(); blinkTimer = nil
+        guard !reduceMotion else { isBlinking = false; return }
+        let t = Timer.scheduledTimer(withTimeInterval: 5.5, repeats: true) { _ in
+            Task { @MainActor in
+                isBlinking = true
+                try? await Task.sleep(nanoseconds: 130_000_000)
+                isBlinking = false
+            }
+        }
+        t.tolerance = 0.8
+        blinkTimer = t
+    }
+
+    private func finderColor(_ hex: String, fallback: Color) -> Color {
+        var raw = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        if raw.hasPrefix("#") { raw.removeFirst() }
+        guard raw.count == 6, let v = UInt32(raw, radix: 16) else { return fallback }
+        return Color(red: Double((v >> 16) & 0xFF) / 255, green: Double((v >> 8) & 0xFF) / 255, blue: Double(v & 0xFF) / 255)
+    }
+}
+
 // MARK: - IS-3.2 AI & Now Playing Live Icon Overlays
 
 struct AILiveIconOverlay: View {

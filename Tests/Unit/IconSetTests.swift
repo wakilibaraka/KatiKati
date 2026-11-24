@@ -253,4 +253,22 @@ final class IconSetTests: XCTestCase {
         let rl2 = AgentCodexParser.parseRateLimit(from: #"{"rate_limits":{"primary":{"used_percent":61}}}"#)
         XCTAssertEqual(rl2?.sessionPercent, 61)
     }
+
+    func testFinderCompanionGeometryPupilClampingAndBlinkWindow() {
+        let inside = FinderCompanionGeometry.pupilOffset(normalizedX: 0.3, normalizedY: -0.4, maxTravel: 10)
+        XCTAssertEqual(inside.dx, 3.0, accuracy: 0.001)
+        XCTAssertEqual(inside.dy, -4.0, accuracy: 0.001)
+
+        let clamped = FinderCompanionGeometry.pupilOffset(normalizedX: 3.0, normalizedY: 4.0, maxTravel: 5)
+        XCTAssertEqual(hypot(clamped.dx, clamped.dy), 5.0, accuracy: 0.001)
+
+        XCTAssertTrue(FinderCompanionGeometry.shouldBlink(phaseSeconds: 0.05, interval: 5.5, duration: 0.14))
+        XCTAssertFalse(FinderCompanionGeometry.shouldBlink(phaseSeconds: 1.0, interval: 5.5, duration: 0.14))
+        XCTAssertTrue(FinderCompanionGeometry.shouldBlink(phaseSeconds: 5.55, interval: 5.5, duration: 0.14))
+
+        let legacyLiveJSON = Data(#"{"kind":"finder","isEnabled":true,"usageMode":"used","usageStyle":"water","showPercentage":true,"showWeeklyReset":false,"musicStyle":"cdJewelCase","showCountdown":true,"optInActivityProbe":false}"#.utf8)
+        let decoded = try? JSONDecoder().decode(LiveIconConfig.self, from: legacyLiveJSON)
+        XCTAssertEqual(decoded?.kind, .finder)
+        XCTAssertNil(decoded?.finderStyle)
+    }
 }

@@ -7082,3 +7082,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-3.2` — Icon Studio AI & Now Playing Live Overlays (`5378bf0c`, 2026-11-24)
 
 - `App/Scenes/{ChipBadgeView,ContentView}.swift`: added `AILiveIconOverlay` (`Claude`, `Codex`, `Cursor`) and `MusicLiveIconOverlay` (`Apple Music` vinyl + pause angle hold, `Spotify` CD jewel case / prismatic disc reusing `MusicTimecode` + `NowPlayingProgress`) wired into `IconStudioIconView` (`5378bf0c`).
+
+### `IS-4.1` — Unread Badge Effects, Dress Up & Targeted `BadgeStore` Union (`c8eb78bd`, 2026-11-24)
+
+- `App/Entry/AppDelegate.swift`, `App/Scenes/{ChipBadgeView,ChipView,LauncherChip,ContentView}.swift`: unioned `IconStudioController.shared.state.badgeEligibleBundleIDs` into targeted `BadgeStore` polling and added `IconBadgeEffectView` (`fire`, `sunlight`, `waxSeal`, `glint`) + `IconDressUpOverlayView` (`stringLights`, `pine`, `snowGlobe`) (`c8eb78bd`; 19/19 `IconSetTests` + `BadgeReadPlanTests` passing).

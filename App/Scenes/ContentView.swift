@@ -531,6 +531,8 @@ struct IconStudioIconView: View {
                         AILiveIconOverlay(config: live, size: size, isHovered: isHovered, previewPercentOverride: previewPercentOverride)
                     case .appleMusic, .spotify:
                         MusicLiveIconOverlay(config: live, size: size, previewPercentOverride: previewPercentOverride)
+                    case .finder:
+                        FinderCompanionIconView(config: live, size: size, isHovered: isHovered)
                     default:
                         EmptyView()
                     }
