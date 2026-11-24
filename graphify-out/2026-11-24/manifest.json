@@ -1662,9 +1662,9 @@
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
-    "mtime": 1794872151.9208648,
-    "seen": 1795534644.45733,
-    "ast_hash": "a9f274744d8c6e2b2b0e68acfbc12fc7",
+    "mtime": 1795551458.8731601,
+    "seen": 1795551614.9906502,
+    "ast_hash": "713e420ca0beea4df1b25b00e391cb9a",
     "semantic_hash": ""
   },
   "Core/Support/DailyHelpersRules.swift": {
@@ -2172,9 +2172,9 @@
     "semantic_hash": ""
   },
   "Core/Support/QuickToggles.swift": {
-    "mtime": 1795445971.520876,
-    "seen": 1795534644.457442,
-    "ast_hash": "6b09313d5695c36411fb148446d6b68a",
+    "mtime": 1795551457.825049,
+    "seen": 1795551614.990769,
+    "ast_hash": "7bbbdefe4ab024d9da405308013fc4ad",
     "semantic_hash": ""
   },
   "Core/Support/RadialDialGeometry.swift": {
@@ -3954,10 +3954,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/QuickTogglesTests.swift": {
-    "mtime": 1791999130.9304934,
-    "seen": 1795534644.457763,
-    "ast_hash": "01d129bbe5fe99483e8b38b21311ddd6",
-    "semantic_hash": "01d129bbe5fe99483e8b38b21311ddd6"
+    "mtime": 1795551460.167622,
+    "seen": 1795551614.9911108,
+    "ast_hash": "a47157e3f16cb027e56677ad8f3bd6cc",
+    "semantic_hash": ""
   },
   "Tests/Unit/RadialDialGeometryTests.swift": {
     "mtime": 1794921516.8559992,
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795551201.5369842,
-    "seen": 1795551324.7188008,
-    "ast_hash": "5451d163a19fd795bde91f937ac31310",
+    "mtime": 1795551461.8673317,
+    "seen": 1795551614.991325,
+    "ast_hash": "0bad4a616bcee60fb4db2a38508cfe58",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795551200.2061992,
-    "seen": 1795551324.7187898,
-    "ast_hash": "83bdc2fd05702b9f81de615480859ef8",
+    "mtime": 1795551461.0071428,
+    "seen": 1795551614.991314,
+    "ast_hash": "26e2c50c079fa453274cd2b5c310b1a1",
     "semantic_hash": ""
   }
 }
