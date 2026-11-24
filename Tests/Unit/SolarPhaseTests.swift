@@ -640,4 +640,31 @@ final class WallpaperMotionGuardTests: XCTestCase {
         XCTAssertFalse(active(enabled: true, lowPower: true, locked: true))
         XCTAssertEqual(WallpaperMotionGuard.coveredFraction, 0.98)
     }
+
+    func testRefreshPolicyIgnoresSleepAndAdvancesGenerationOnlyOnRepeatForce() {
+        XCTAssertFalse(WallpaperRefreshPolicy.shouldRefresh(forWake: false, isSleep: true))
+        XCTAssertFalse(WallpaperRefreshPolicy.shouldRefresh(forWake: true, isSleep: true))
+        XCTAssertTrue(WallpaperRefreshPolicy.shouldRefresh(forWake: true, isSleep: false))
+
+        XCTAssertEqual(WallpaperRefreshPolicy.nextGeneration(current: 3, force: false, keyAlreadyApplied: true, lowPower: false), 0)
+        XCTAssertEqual(WallpaperRefreshPolicy.nextGeneration(current: 3, force: true, keyAlreadyApplied: true, lowPower: false), 4)
+        XCTAssertEqual(WallpaperRefreshPolicy.nextGeneration(current: 3, force: true, keyAlreadyApplied: true, lowPower: true), 3)
+
+        XCTAssertFalse(WallpaperMotionGuard.isMusicSwapAllowed(
+            isEnabled: true, isAnimated: true, isPlaying: true,
+            screenLocked: true, isAsleep: false, desktopCovered: false
+        ))
+        XCTAssertFalse(WallpaperMotionGuard.isMusicSwapAllowed(
+            isEnabled: true, isAnimated: true, isPlaying: true,
+            screenLocked: false, isAsleep: true, desktopCovered: false
+        ))
+        XCTAssertFalse(WallpaperMotionGuard.isMusicSwapAllowed(
+            isEnabled: true, isAnimated: true, isPlaying: true,
+            screenLocked: false, isAsleep: false, desktopCovered: true
+        ))
+        XCTAssertTrue(WallpaperMotionGuard.isMusicSwapAllowed(
+            isEnabled: true, isAnimated: true, isPlaying: true,
+            screenLocked: false, isAsleep: false, desktopCovered: false
+        ))
+    }
 }

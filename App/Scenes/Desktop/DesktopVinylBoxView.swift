@@ -1,4 +1,5 @@
 import AppKit
+import CoreImage
 import SwiftUI
 #if canImport(Translation)
 import Translation
@@ -1323,8 +1324,17 @@ struct DesktopVinylBoxView: View {
         .onReceive(NotificationCenter.default.publisher(for: MusicSurfaceConfig.didChangeNotification)) { _ in
             selection = MusicSurfaceConfig.styleSelection()
         }
-        .onReceive(service.$state.map { MusicArtworkSignature.of($0.artworkData) }.removeDuplicates()) { _ in
-            palette = MusicArtworkPaletteCache.shared.palette(for: service.state.artworkData)
+        .task(id: MusicArtworkSignature.of(service.state.artworkData)) {
+            let data = service.state.artworkData
+            guard let data, !data.isEmpty else {
+                palette = .fallback
+                return
+            }
+            let resolved = await Task.detached(priority: .utility) {
+                MusicArtworkPaletteCache.shared.palette(for: data)
+            }.value
+            guard !Task.isCancelled else { return }
+            palette = resolved
         }
     }
 
@@ -1393,6 +1403,7 @@ struct MusicDesktopPresetView: View {
     var interaction: MusicDesktopWidgetInteraction?
     @State private var selection = MusicSurfaceConfig.styleSelection()
     @State private var palette: MusicArtworkPalette = MusicArtworkPaletteCache.shared.palette(for: nil)
+    @State private var backdropImage: NSImage?
     @State private var moveLastMouse: CGPoint?
     @State private var resizeLastMouse: CGPoint?
 
@@ -1434,8 +1445,23 @@ struct MusicDesktopPresetView: View {
         .onReceive(NotificationCenter.default.publisher(for: MusicSurfaceConfig.didChangeNotification)) { _ in
             selection = MusicSurfaceConfig.styleSelection()
         }
-        .onReceive(service.$state.map { MusicArtworkSignature.of($0.artworkData) }.removeDuplicates()) { _ in
-            palette = MusicArtworkPaletteCache.shared.palette(for: service.state.artworkData)
+        .task(id: "\(MusicArtworkSignature.of(service.state.artworkData))-\(preset.rawValue)") {
+            let data = service.state.artworkData
+            let needsBackdrop = preset == .poster || preset == .stage
+            let blurSigma = preset == .poster ? 24.0 : 16.0
+            guard let data, !data.isEmpty else {
+                palette = .fallback
+                backdropImage = nil
+                return
+            }
+            let result = await Task.detached(priority: .utility) {
+                let resolvedPalette = MusicArtworkPaletteCache.shared.palette(for: data)
+                let blurredCG = needsBackdrop ? Self.renderBlurredBackdrop(data: data, blurRadius: blurSigma) : nil
+                return (resolvedPalette, blurredCG)
+            }.value
+            guard !Task.isCancelled else { return }
+            palette = result.0
+            backdropImage = result.1.map { NSImage(cgImage: $0, size: NSSize(width: $0.width, height: $0.height)) }
         }
     }
 
@@ -1519,16 +1545,27 @@ struct MusicDesktopPresetView: View {
         )
     }
 
-    /// Art-derived wash for the two large presets: same palette the wallpaper used, never a picture write.
+    private static let backdropCIContext = CIContext(options: [.useSoftwareRenderer: false])
+
+    private nonisolated static func renderBlurredBackdrop(data: Data, blurRadius: Double) -> CGImage? {
+        guard let source = CIImage(data: data), source.extent.width > 1, source.extent.height > 1 else { return nil }
+        let targetSide: CGFloat = 256
+        let scale = targetSide / max(source.extent.width, source.extent.height)
+        let scaled = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        let crop = scaled.extent
+        let blurred = scaled.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: crop)
+        return backdropCIContext.createCGImage(blurred, from: crop)
+    }
+
+    /// Art-derived wash for the two large presets: pre-blurred off-main once per track.
     @ViewBuilder private var backdrop: some View {
         ZStack {
             LinearGradient(colors: [accent.opacity(0.9), Color.black.opacity(0.95)],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
-            if let data = service.state.artworkData, let image = NSImage(data: data) {
-                Image(nsImage: image)
+            if let backdropImage {
+                Image(nsImage: backdropImage)
                     .resizable()
                     .scaledToFill()
-                    .blur(radius: preset == .poster ? 60 : 36)
                     .opacity(0.5)
             }
             LinearGradient(colors: [.clear, .black.opacity(0.55)], startPoint: .top, endPoint: .bottom)

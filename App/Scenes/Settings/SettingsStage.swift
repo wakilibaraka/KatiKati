@@ -1,3 +1,4 @@
+import ImageIO
 import SwiftUI
 
 extension SettingsTab {
@@ -110,6 +111,7 @@ struct SettingsStage: View {
     var tab: SettingsTab = .appearance
     var onSelectQuery: ((String) -> Void)? = nil
     @State private var wallpaper: NSImage?
+    @State private var isLoadingWallpaper = false
 
     private static let screenAspect = LayoutThumbnailModel.referenceScreen.width / LayoutThumbnailModel.referenceScreen.height
 
@@ -394,9 +396,28 @@ struct SettingsStage: View {
     }
 
     private func loadWallpaper() {
-        guard wallpaper == nil, let screen = NSScreen.main,
+        guard wallpaper == nil, !isLoadingWallpaper, let screen = NSScreen.main,
               let url = NSWorkspace.shared.desktopImageURL(for: screen), !url.hasDirectoryPath else { return }
-        wallpaper = NSImage(contentsOf: url)
+        isLoadingWallpaper = true
+        Task.detached(priority: .utility) {
+            let cg = Self.loadPreviewWallpaper(url: url, maxPixelSize: 960)
+            await MainActor.run {
+                if let cg {
+                    wallpaper = NSImage(cgImage: cg, size: NSSize(width: cg.width, height: cg.height))
+                }
+                isLoadingWallpaper = false
+            }
+        }
+    }
+
+    private nonisolated static func loadPreviewWallpaper(url: URL, maxPixelSize: Int) -> CGImage? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+        ]
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
     }
 }
 

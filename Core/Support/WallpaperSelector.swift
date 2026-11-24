@@ -317,6 +317,22 @@ enum WallpaperMotionGuard {
         guard isEnabled, !reduceMotion, !lowPower, !screenLocked, !desktopCovered else { return false }
         return true
     }
+
+    static func isMusicSwapAllowed(isEnabled: Bool, isAnimated: Bool, isPlaying: Bool,
+                                   screenLocked: Bool, isAsleep: Bool, desktopCovered: Bool) -> Bool {
+        isEnabled && isAnimated && isPlaying && !screenLocked && !isAsleep && !desktopCovered
+    }
+}
+
+enum WallpaperRefreshPolicy {
+    static func shouldRefresh(forWake: Bool, isSleep: Bool) -> Bool {
+        forWake && !isSleep
+    }
+
+    static func nextGeneration(current: Int, force: Bool, keyAlreadyApplied: Bool, lowPower: Bool) -> Int {
+        guard force, keyAlreadyApplied else { return 0 }
+        return lowPower ? current : current &+ 1
+    }
 }
 
 // MARK: - DW-8 · celestial + atmospheric model
