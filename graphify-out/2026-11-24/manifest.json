@@ -3888,9 +3888,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1795542798.6068337,
-    "seen": 1795542896.311502,
-    "ast_hash": "6f74dd236a6cfc82415525585838e9c2",
+    "mtime": 1795542936.5650463,
+    "seen": 1795543022.393277,
+    "ast_hash": "7bd27a51d79423b9612c815099f3838c",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795542522.947324,
-    "seen": 1795542896.310816,
-    "ast_hash": "d322d8de95fb00f9b6eb72ff69a55829",
+    "mtime": 1795542937.9123082,
+    "seen": 1795543022.392618,
+    "ast_hash": "0c309073dc2f910facc89c31af1a7687",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
