@@ -1183,7 +1183,7 @@ enum MusicDesktopWidgetPreset: String, CaseIterable, Codable, Sendable, Identifi
     /// A thin strip with title, scrubber and transport.
     case strip
 
-    var id: String { rawValue }
+    var id: Self { self }
 
     static let standard: MusicDesktopWidgetPreset = .card
 }

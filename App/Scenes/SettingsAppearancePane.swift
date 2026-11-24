@@ -491,7 +491,7 @@ struct SettingsWallpaperPane: View {
                 get: { musicTheme },
                 set: { style in updateStyle { $0.theme = style } }
             )) {
-                ForEach(MusicSurfaceTheme.allCases) { style in
+                ForEach(MusicSurfaceTheme.allCases, id: \.self) { style in
                     themeTitle(style).tag(style)
                 }
             }
@@ -506,7 +506,7 @@ struct SettingsWallpaperPane: View {
             if !musicStyleMatches {
                 SettingsDivider()
                 SettingsSegmentedRow(Text("Edit Surface"), selection: $editSurface) {
-                    ForEach(MusicSurface.allCases) { surface in
+                    ForEach(MusicSurface.allCases, id: \.self) { surface in
                         surfaceTitle(surface).tag(surface)
                     }
                 }
@@ -517,7 +517,7 @@ struct SettingsWallpaperPane: View {
                     get: { musicScrubber },
                     set: { value in updateStyle { $0.scrubber = value } }
                 )) {
-                    ForEach(MusicScrubberStyle.allCases) { style in
+                    ForEach(MusicScrubberStyle.allCases, id: \.self) { style in
                         scrubberTitle(style).tag(style)
                     }
                 }
@@ -530,7 +530,7 @@ struct SettingsWallpaperPane: View {
                     get: { musicLayout },
                     set: { value in updateStyle { $0.layout = value } }
                 )) {
-                    ForEach(MusicCardLayout.allCases) { layout in
+                    ForEach(MusicCardLayout.allCases, id: \.self) { layout in
                         layoutTitle(layout).tag(layout)
                     }
                 }
@@ -543,7 +543,7 @@ struct SettingsWallpaperPane: View {
                     get: { musicWallpaperStyle },
                     set: { value in updateStyle { $0.wallpaperStyle = value } }
                 )) {
-                    ForEach(MusicWallpaperStyle.allCases) { style in
+                    ForEach(MusicWallpaperStyle.allCases, id: \.self) { style in
                         wallpaperStyleTitle(style).tag(style)
                     }
                 }
@@ -1053,9 +1053,13 @@ struct SettingsMusicPane: View {
                 SettingsDivider()
                 SettingsSegmentedRow(Text("Preset"), selection: Binding(
                     get: { preset },
-                    set: { MusicSurfaceConfig.setDesktopPreset($0) }
+                    set: { newValue in
+                        guard newValue != preset else { return }
+                        presetRaw = newValue.rawValue
+                        MusicSurfaceConfig.setDesktopPreset(newValue)
+                    }
                 )) {
-                    ForEach(MusicDesktopWidgetPreset.allCases) { value in
+                    ForEach(MusicDesktopWidgetPreset.allCases, id: \.self) { value in
                         Text(Self.title(value)).tag(value)
                     }
                 }
@@ -1125,20 +1129,46 @@ struct SettingsMusicPane: View {
             Text("Preview")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
-            ZStack(alignment: presetAlignment) {
-                LinearGradient(colors: [Color(red: 0.16, green: 0.19, blue: 0.28),
-                                        Color(red: 0.05, green: 0.06, blue: 0.10)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing)
-                icons
-                MusicDesktopPresetView(preset: preset)
-                    .frame(width: previewWidth, height: previewHeight, alignment: presetAlignment)
-                    .clipShape(RoundedRectangle(cornerRadius: preset == .poster ? 0 : 8, style: .continuous))
+            GeometryReader { proxy in
+                ZStack(alignment: presetAlignment) {
+                    LinearGradient(colors: [Color(red: 0.16, green: 0.19, blue: 0.28),
+                                            Color(red: 0.05, green: 0.06, blue: 0.10)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                    if preset != .poster { icons }
+                    scaledPreview(in: proxy.size)
+                        .frame(width: previewWidth, height: previewHeight, alignment: presetAlignment)
+                        .clipShape(RoundedRectangle(cornerRadius: preset == .poster ? 0 : 8, style: .continuous))
+                    if preset == .poster { icons }
+                }
+                .frame(width: proxy.size.width, height: proxy.size.height)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 210)
+            .clipped()
+            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .allowsHitTesting(false)
             .accessibilityIdentifier("musicPresetPreview")
         }
+    }
+
+    @ViewBuilder
+    private func scaledPreview(in canvas: CGSize) -> some View {
+        let scale: CGFloat = {
+            switch preset {
+            case .poster: return 0.52
+            case .stage: return 0.54
+            case .card: return 0.50
+            case .strip: return 0.72
+            }
+        }()
+        let virtualWidth = (previewWidth ?? canvas.width) / scale
+        let virtualHeight = (previewHeight ?? canvas.height) / scale
+        MusicDesktopPresetView(preset: preset)
+            .frame(width: virtualWidth, height: virtualHeight, alignment: presetAlignment)
+            .scaleEffect(scale, anchor: .center)
+            .frame(width: previewWidth ?? canvas.width,
+                   height: previewHeight ?? canvas.height)
     }
 
     private var icons: some View {

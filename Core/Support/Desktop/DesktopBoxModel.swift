@@ -108,7 +108,9 @@ enum MusicSurfaceConfig {
     }
 
     static func setDesktopPreset(_ preset: MusicDesktopWidgetPreset, defaults: UserDefaults = .standard) {
-        defaults.set(preset.rawValue, forKey: desktopPresetKey)
+        if defaults.string(forKey: desktopPresetKey) != preset.rawValue {
+            defaults.set(preset.rawValue, forKey: desktopPresetKey)
+        }
         notifyChange()
     }
 

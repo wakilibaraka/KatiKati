@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 import XCTest
 @testable import KatiKati
 
@@ -729,6 +730,96 @@ final class MusicDesktopWidgetPolicyTests: XCTestCase {
     func testCardIsTheDefaultPreset() {
         XCTAssertEqual(MusicDesktopWidgetPreset.standard, .card)
         XCTAssertEqual(MusicSurfaceConfig.desktopPreset(defaults: UserDefaults(suiteName: UUID().uuidString)!), .card)
+    }
+
+    func testDesktopPresetSwitchesFromPosterAndPersistsWithoutReverting() {
+        let suiteName = "musicdesk.preset.\(UUID().uuidString)"
+        let d = UserDefaults(suiteName: suiteName)!
+        defer { d.removePersistentDomain(forName: suiteName) }
+
+        MusicSurfaceConfig.setDesktopPreset(.poster, defaults: d)
+        XCTAssertEqual(MusicSurfaceConfig.desktopPreset(defaults: d), .poster)
+        XCTAssertEqual(d.string(forKey: MusicSurfaceConfig.desktopPresetKey), "poster")
+
+        for next in [MusicDesktopWidgetPreset.stage, .card, .strip] {
+            MusicSurfaceConfig.setDesktopPreset(next, defaults: d)
+            XCTAssertEqual(MusicSurfaceConfig.desktopPreset(defaults: d), next,
+                           "\(next.rawValue) must persist without reverting to poster")
+            XCTAssertEqual(d.string(forKey: MusicSurfaceConfig.desktopPresetKey), next.rawValue)
+        }
+
+        // Redundant write preserves stored preset.
+        MusicSurfaceConfig.setDesktopPreset(.strip, defaults: d)
+        XCTAssertEqual(MusicSurfaceConfig.desktopPreset(defaults: d), .strip)
+    }
+
+    @MainActor
+    func testSegmentedPickerForEachSwitchesFromPosterWithoutReverting() {
+        let suiteName = "musicdesk.segmented.\(UUID().uuidString)"
+        let d = UserDefaults(suiteName: suiteName)!
+        defer { d.removePersistentDomain(forName: suiteName) }
+
+        MusicSurfaceConfig.setDesktopPreset(.poster, defaults: d)
+
+        struct Harness: View {
+            let defaults: UserDefaults
+            @State private var preset: MusicDesktopWidgetPreset
+
+            init(defaults: UserDefaults) {
+                self.defaults = defaults
+                _preset = State(initialValue: MusicSurfaceConfig.desktopPreset(defaults: defaults))
+            }
+
+            var body: some View {
+                SettingsSegmentedRow(Text("Preset"), selection: Binding(
+                    get: { preset },
+                    set: { next in
+                        preset = next
+                        MusicSurfaceConfig.setDesktopPreset(next, defaults: defaults)
+                    }
+                )) {
+                    ForEach(MusicDesktopWidgetPreset.allCases) { value in
+                        Text(verbatim: value.rawValue).tag(value)
+                    }
+                }
+            }
+        }
+
+        let host = NSHostingView(rootView: Harness(defaults: d))
+        let window = NSWindow(
+            contentRect: NSRect(x: -5000, y: -5000, width: 520, height: 80),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        window.contentView = host
+        host.frame = NSRect(x: 0, y: 0, width: 520, height: 80)
+        window.layoutIfNeeded()
+        host.layoutSubtreeIfNeeded()
+
+        func findSegmented(_ view: NSView) -> NSSegmentedControl? {
+            if let seg = view as? NSSegmentedControl, seg.segmentCount == 4 { return seg }
+            for sub in view.subviews {
+                if let found = findSegmented(sub) { return found }
+            }
+            return nil
+        }
+
+        guard let segmented = findSegmented(host) else {
+            XCTFail("Expected 4-segment NSSegmentedControl for MusicDesktopWidgetPreset")
+            return
+        }
+        XCTAssertEqual(segmented.selectedSegment, 0, "poster starts at index 0")
+
+        let expected: [(Int, MusicDesktopWidgetPreset)] = [(1, .stage), (2, .card), (3, .strip)]
+        for (index, targetPreset) in expected {
+            segmented.selectedSegment = index
+            _ = segmented.sendAction(segmented.action, to: segmented.target)
+            host.layoutSubtreeIfNeeded()
+            XCTAssertEqual(MusicSurfaceConfig.desktopPreset(defaults: d), targetPreset,
+                           "Clicking segment \(index) must switch to \(targetPreset.rawValue), not stay on poster")
+            XCTAssertEqual(segmented.selectedSegment, index)
+        }
     }
 
     func testPosterSitsBelowTheIconsAndEverythingElseAtIconLevel() {
