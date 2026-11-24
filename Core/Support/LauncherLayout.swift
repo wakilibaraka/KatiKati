@@ -61,9 +61,6 @@ enum LauncherPresentation: String, CaseIterable, Sendable {
 
     static let `default`: LauncherPresentation = .windowsStart
 
-    /// Temporary alias removed in LN-4 once Settings UI switches to the 5-preset picker.
-    static var floatingDock: LauncherPresentation { .windowsStart }
-
     /// Legacy `"dock"` and `"popover"` stored strings auto-upgrade to `.windowsStart`.
     static func parse(_ stored: String?) -> LauncherPresentation {
         if stored == "dock" || stored == "popover" { return .windowsStart }

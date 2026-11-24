@@ -4,105 +4,103 @@ import SwiftUI
 extension SettingsLayoutPane {
     @ViewBuilder
     var launcherSections: some View {
-            SettingsCard(Text("Launcher")) {
-                SettingsRow(Text("Scroll Direction")) {
-                    Picker("Scroll Direction", selection: Binding(
+        SettingsCard(Text("Preset & Placement")) {
+            SettingsRow(Text("Preset")) {
+                HStack(spacing: 8) {
+                    presetCard(.windowsStart, symbol: "square.grid.2x2.topleft.filled", title: Text("Windows Start"))
+                    presetCard(.linuxMenu, symbol: "rectangle.split.2x1", title: Text("Linux Menu"))
+                    presetCard(.drawer, symbol: "rectangle.bottomthird.inset.filled", title: Text("Drawer"))
+                    presetCard(.centred, symbol: "macwindow", title: Text("Centered"))
+                    presetCard(.fullscreen, symbol: "rectangle.inset.filled", title: Text("Fullscreen"))
+                }
+            }
+            SettingsRowPair(
+                left: {
+                    SettingsPickerRow(Text("Anchor"), selection: prefsBinding(\.anchorMode)) {
+                        Text("Above Launcher Icon").tag(LauncherAnchorMode.aboveIcon)
+                        Text("Screen Center").tag(LauncherAnchorMode.screenCenter)
+                        Text("Follow Mouse").tag(LauncherAnchorMode.followMouse)
+                    }
+                },
+                right: {
+                    SettingsToggleRow(Text("Floating Orb"), isOn: Binding(
+                        get: { store.launcherOrbEnabled },
+                        set: { store.setLauncherOrbEnabled($0) }
+                    ), note: Text("A small glass orb over your windows; click it to open the launcher, drag it anywhere."))
+                }
+            )
+            SettingsRow(Text("Launcher Icon")) {
+                HStack(spacing: 6) {
+                    ForEach(LauncherIconStyle.allCases, id: \.self) { style in
+                        Button { store.setLauncherIcon(style) } label: {
+                            VStack(spacing: 4) {
+                                LauncherIconView(style: style, size: 36)
+                                iconName(style).font(.caption)
+                            }
+                            .padding(5)
+                            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor, lineWidth: store.launcherIcon == style ? 2 : 0))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+
+        SettingsCard(Text("Grid, Sections & Footer")) {
+            SettingsRowPair(
+                left: {
+                    SettingsSegmentedRow(Text("Navigation"), selection: Binding(
                         get: { store.launcherScrollDirection },
                         set: { store.setLauncherScrollDirection($0) }
                     )) {
-                        Text("Sideways").tag(LauncherScrollDirection.horizontal)
-                        Text("Down").tag(LauncherScrollDirection.vertical)
+                        Text("Vertical Scroll").tag(LauncherScrollDirection.vertical)
+                        Text("Paged Dots").tag(LauncherScrollDirection.horizontal)
                     }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
+                },
+                right: {
+                    SettingsSegmentedRow(Text("View Mode"), selection: prefsBinding(\.viewMode)) {
+                        Text("Grid").tag(LauncherViewMode.grid)
+                        Text("List").tag(LauncherViewMode.list)
+                    }
                 }
-                // 57b: how the launcher takes the screen. Fullscreen is the old behaviour and stays the default.
-                SettingsRow(Text("Presentation")) {
-                    Picker("Presentation", selection: Binding(
-                        get: { store.launcherPresentation },
-                        set: { store.setLauncherPresentation($0) }
+            )
+            SettingsRowPair(
+                left: {
+                    SettingsPickerRow(Text("Density"), selection: prefsBinding(\.density)) {
+                        Text("Compact").tag(LauncherDensity.compact)
+                        Text("Standard").tag(LauncherDensity.standard)
+                        Text("Spacious").tag(LauncherDensity.spacious)
+                    }
+                },
+                right: {
+                    SettingsPickerRow(Text("Columns"), selection: prefsBinding(\.columns)) {
+                        Text("Auto").tag(0)
+                        ForEach(LauncherPrefs.columnRange, id: \.self) { Text(verbatim: "\($0)").tag($0) }
+                    }
+                }
+            )
+            SettingsSliderRow(Text("Icon Size"), value: launcherPrefs.iconScale, range: LauncherPrefs.iconScaleRange, step: 0.05,
+                              valueText: "\(Int((launcherPrefs.iconScale * 100).rounded()))%") {
+                launcherPrefs.iconScale = $0; launcherPrefs.save()
+            }
+            SettingsRowPair(
+                left: {
+                    SettingsPickerRow(Text("Theme"), selection: Binding(
+                        get: { store.launcherTheme },
+                        set: { store.setLauncherTheme($0) }
                     )) {
-                        Text("Fullscreen").tag(LauncherPresentation.fullscreen)
-                        Text("Centred").tag(LauncherPresentation.centred)
-                        Text("Floating on dock").tag(LauncherPresentation.floatingDock)
-                        Text("Drawer").tag(LauncherPresentation.drawer)
+                        Text("System").tag(LauncherTheme.system)
+                        Text("Light").tag(LauncherTheme.light)
+                        Text("Dark").tag(LauncherTheme.dark)
+                        Text("Glass").tag(LauncherTheme.glass)
+                        Text("Desktop Picture").tag(LauncherTheme.desktop)
                     }
-                    .labelsHidden().pickerStyle(.segmented).fixedSize()
-                }
-                SettingsToggleRow(Text("Pinned Row"), isOn: Binding(
-                    get: { store.launcherPinnedRow },
-                    set: { store.setLauncherPinnedRow($0) }
-                ), note: Text("Show your pinned apps in a row above All Apps."))
-                // 57c: the orb that floats over other windows and opens the launcher on a click.
-                SettingsToggleRow(Text("Floating Orb"), isOn: Binding(
-                    get: { store.launcherOrbEnabled },
-                    set: { store.setLauncherOrbEnabled($0) }
-                ), note: Text("A small glass orb over your windows; click it to open the launcher, drag it anywhere."))
-                // Two narrow rows, one line (`Docs/SETTINGS.md` rule 5): the count/button row and
-                // the reset button were two lines, which with the rest of the page ran it 20 pt
-                // past the window (measured live 2026-10-15).
-                SettingsRowPair(
-                    left: {
-                        SettingsRow(Text("Hidden Apps")) {
-                            Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
-                            Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
-                                .disabled(launcherHiddenCount == 0)
-                        }
-                    },
-                    right: {
-                        SettingsButtonRow(Text("Reset App Order")) { updateLauncherState { $0.order = [] } }
-                    }
-                )
-                DisclosureGroup("Hide Rarely Used Apps") {
-                    HStack {
-                        Button("Hide All Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.hidingAll($0.hidden) } }
-                        Button("Restore Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.restoringAll($0.hidden) } }
-                    }
-                    SettingsGrid(LauncherHidePresets.entries, id: \.bundleID) { entry in
-                        SettingsCheckboxRow(Text(verbatim: entry.name), isOn: Binding(
-                            get: { launcherHiddenIDs.contains(entry.bundleID) },
-                            set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
-                        ))
-                    }
-                }
-                SettingsRowPair(
-                    left: {
-                        SettingsPickerRow(Text("Search Position"), selection: Binding(
-                            get: { store.launcherSearchPosition },
-                            set: { store.setLauncherSearchPosition($0) }
-                        )) {
-                            Text("Top").tag(LauncherSearchPosition.top)
-                            Text("Bottom").tag(LauncherSearchPosition.bottom)
-                            Text("Left").tag(LauncherSearchPosition.left)
-                            Text("Right").tag(LauncherSearchPosition.right)
-                        }
-                    },
-                    right: {
-                        SettingsPickerRow(Text("Theme"), selection: Binding(
-                            get: { store.launcherTheme },
-                            set: { store.setLauncherTheme($0) }
-                        )) {
-                            Text("System").tag(LauncherTheme.system)
-                            Text("Light").tag(LauncherTheme.light)
-                            Text("Dark").tag(LauncherTheme.dark)
-                            Text("Glass").tag(LauncherTheme.glass)
-                            Text("Desktop Picture").tag(LauncherTheme.desktop)
-                        }
-                    }
-                )
-                SettingsPickerRow(Text("Columns"), selection: Binding(
-                    get: { launcherPrefs.columns },
-                    set: { launcherPrefs.columns = $0; launcherPrefs.save() }
-                )) {
-                    Text("Auto").tag(0)
-                    ForEach(LauncherPrefs.columnRange, id: \.self) { Text(verbatim: "\($0)").tag($0) }
-                }
-                SettingsSliderRow(Text("Icon Size"), value: launcherPrefs.iconScale, range: LauncherPrefs.iconScaleRange, step: 0.05,
-                                  valueText: "\(Int((launcherPrefs.iconScale * 100).rounded()))%") {
-                    launcherPrefs.iconScale = $0; launcherPrefs.save()
-                }
-                SettingsDivider()
-                SettingsRow(Text("Tint")) {
-                    Picker("Tint", selection: Binding(get: { store.launcherTint }, set: { store.setLauncherTint($0) })) {
+                },
+                right: {
+                    SettingsPickerRow(Text("Tint"), selection: Binding(
+                        get: { store.launcherTint },
+                        set: { store.setLauncherTint($0) }
+                    )) {
                         Text("None").tag(LauncherTint.none)
                         Text("Blue").tag(LauncherTint.blue)
                         Text("Purple").tag(LauncherTint.purple)
@@ -110,25 +108,98 @@ extension SettingsLayoutPane {
                         Text("Orange").tag(LauncherTint.orange)
                         Text("Green").tag(LauncherTint.green)
                     }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
-                SettingsRow(Text("Launcher Icon")) {
-                    ForEach(LauncherIconStyle.allCases, id: \.self) { style in
-                        Button { store.setLauncherIcon(style) } label: {
-                            VStack(spacing: 4) {
-                                LauncherIconView(style: style, size: 38)
-                                iconName(style).font(.caption)
-                            }
-                            .padding(6)
-                            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.accentColor, lineWidth: store.launcherIcon == style ? 2 : 0))
-                        }
-                        .buttonStyle(.plain)
+            )
+            SettingsDivider()
+            SettingsGrid(LauncherToggleOption.allCases, id: \.self) { option in
+                SettingsCheckboxRow(option.label, isOn: toggleBinding(for: option))
+            }
+        }
+
+        SettingsCard(Text("Search & Curation")) {
+            SettingsGrid(LauncherScopeOption.allCases, id: \.self) { scope in
+                SettingsCheckboxRow(scope.label, isOn: scopeBinding(for: scope))
+            }
+            LauncherDockGroupSyncRow()
+            SettingsRowPair(
+                left: {
+                    SettingsRow(Text("Hidden Apps")) {
+                        Text(verbatim: "\(launcherHiddenCount)").foregroundStyle(.secondary)
+                        Button("Show All Hidden Apps") { updateLauncherState { $0.hidden = [] } }
+                            .disabled(launcherHiddenCount == 0)
                     }
+                },
+                right: {
+                    SettingsButtonRow(Text("Reset App Order")) { updateLauncherState { $0.order = [] } }
+                }
+            )
+            DisclosureGroup("Hidden Apps Manager") {
+                HStack {
+                    Button("Hide Clutter & Helpers") {
+                        Task { @MainActor in
+                            let scanned = await Task.detached(priority: .utility) { LauncherIndexer.scanDirectories() }.value
+                            updateLauncherState {
+                                let withPresets = LauncherHidePresets.hidingAll($0.hidden)
+                                $0.hidden = LauncherClutterFilter.hidingClutter(withPresets, apps: scanned)
+                            }
+                        }
+                    }
+                    Button("Restore Suggested") { updateLauncherState { $0.hidden = LauncherHidePresets.restoringAll($0.hidden) } }
+                }
+                SettingsGrid(LauncherHidePresets.entries, id: \.bundleID) { entry in
+                    SettingsCheckboxRow(Text(verbatim: entry.name), isOn: Binding(
+                        get: { launcherHiddenIDs.contains(entry.bundleID) },
+                        set: { _ in updateLauncherState { $0.hidden = LauncherOrdering.toggleHidden($0.hidden, entry.bundleID) } }
+                    ))
                 }
             }
+        }
     }
 
-    /// Custom layout: one row per shown item, Left / Right / Hidden.
+    private func presetCard(_ preset: LauncherPresentation, symbol: String, title: Text) -> some View {
+        let selected = store.launcherPresentation == preset
+        return Button { store.setLauncherPresentation(preset) } label: {
+            VStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(selected ? .accentColor : .secondary)
+                title.font(.system(size: 11, weight: selected ? .semibold : .regular)).lineLimit(1)
+            }
+            .frame(width: 92, height: 50)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(selected ? Color.accentColor.opacity(0.14) : Color.primary.opacity(0.04)))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(selected ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: selected ? 1.5 : 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func prefsBinding<T>(_ keyPath: WritableKeyPath<LauncherPrefs, T>) -> Binding<T> {
+        Binding(
+            get: { launcherPrefs[keyPath: keyPath] },
+            set: { launcherPrefs[keyPath: keyPath] = $0; launcherPrefs.save() }
+        )
+    }
+
+    private func toggleBinding(for option: LauncherToggleOption) -> Binding<Bool> {
+        switch option {
+        case .pinned: return Binding(get: { store.launcherPinnedRow }, set: { store.setLauncherPinnedRow($0) })
+        case .recommended: return prefsBinding(\.showRecommended)
+        case .categorySidebar: return prefsBinding(\.showCategorySidebar)
+        case .runningDots: return prefsBinding(\.showRunningDot)
+        case .quickPlaces: return prefsBinding(\.showQuickPlaces)
+        case .powerControls: return prefsBinding(\.showPowerControls)
+        case .footerTelemetry: return prefsBinding(\.showFooterTelemetry)
+        }
+    }
+
+    private func scopeBinding(for scope: LauncherScopeOption) -> Binding<Bool> {
+        switch scope {
+        case .apps: return prefsBinding(\.searchScope.apps)
+        case .appGroups: return prefsBinding(\.searchScope.appGroups)
+        case .recentFiles: return prefsBinding(\.searchScope.recentFiles)
+        case .systemActions: return prefsBinding(\.searchScope.systemActions)
+        }
+    }
+
     func iconName(_ style: LauncherIconStyle) -> Text {
         switch style {
         case .liquidBento: return Text("Liquid Bento")
@@ -142,7 +213,6 @@ extension SettingsLayoutPane {
         }
     }
 
-    /// Edits the launcher's saved arrangement (hidden apps, custom order); the launcher re-reads it each time it opens.
     func updateLauncherState(_ edit: (inout LauncherState) -> Void) {
         let launcherStore = LauncherStore(url: LauncherStore.defaultURL)
         var state = launcherStore.load()
@@ -150,5 +220,48 @@ extension SettingsLayoutPane {
         try? launcherStore.save(state)
         launcherHiddenCount = state.hidden.count
         launcherHiddenIDs = Set(state.hidden)
+    }
+}
+
+private enum LauncherToggleOption: CaseIterable {
+    case pinned, recommended, categorySidebar, runningDots, quickPlaces, powerControls, footerTelemetry
+
+    var label: Text {
+        switch self {
+        case .pinned: return Text("Pinned Row")
+        case .recommended: return Text("Recommended / Recent")
+        case .categorySidebar: return Text("Category Sidebar")
+        case .runningDots: return Text("Show Running Apps")
+        case .quickPlaces: return Text("Quick Places")
+        case .powerControls: return Text("Power Controls")
+        case .footerTelemetry: return Text("Footer Telemetry Strip")
+        }
+    }
+}
+
+private enum LauncherScopeOption: CaseIterable {
+    case apps, appGroups, recentFiles, systemActions
+
+    var label: Text {
+        switch self {
+        case .apps: return Text("Apps")
+        case .appGroups: return Text("App Groups")
+        case .recentFiles: return Text("Recent Files")
+        case .systemActions: return Text("System Actions")
+        }
+    }
+}
+
+private struct LauncherDockGroupSyncRow: View {
+    @ObservedObject private var groupStore = DockAppGroupStore.shared
+
+    var body: some View {
+        SettingsToggleRow(
+            Text("Sync Folders with Dock App Groups"),
+            isOn: Binding(
+                get: { groupStore.syncWithLauncherFolders },
+                set: { groupStore.setSyncWithLauncher($0) }
+            )
+        )
     }
 }

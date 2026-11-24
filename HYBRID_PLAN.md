@@ -7003,3 +7003,8 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LN-3b` — Cross-Preset Keyboard Flow, Unified Search & Rich App Context Menu (2026-11-24)
 
 - `App/Scenes/LauncherView.swift`: wired `Tab`/`⇧Tab` cycling, `⌘⏎` reveal-in-Finder, `⌥⏎` quit running app, `Esc` step-back, `LauncherFocus.moveFlat` vertical arrow traversal, unified `BarMacro` / App Group / Recent Files search sections respecting `prefs.searchScope`, and rich right-click context menu (`Keep in Dock`, `Add to App Group`, `Quit`, `Pin`/`Unpin`, `Reveal`, `Hide`). Zero `project.pbxproj` edits.
+
+### `LN-4` — Launcher Settings Overhaul & Legacy Alias Removal (2026-11-24)
+
+- `App/Scenes/SettingsLayoutPane+Launcher.swift`: redesigned around 3 `SettingsCard`s (`Preset & Placement`, `Grid, Sections & Footer`, `Search & Curation`) with visual 5-preset cards, Anchor mode, Navigation (`Vertical Scroll` / `Paged Dots`), View Mode, Density, Section/Footer grid, Search Scope grid, `Sync Folders with Dock App Groups`, and `Hidden Apps Manager` (`Hide Clutter & Helpers`).
+- `Core/Support/LauncherLayout.swift`: removed temporary `floatingDock` compatibility alias. Updated 12-locale `Resources/Localizable.xcstrings`. Zero `project.pbxproj` edits.
