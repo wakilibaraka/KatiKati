@@ -456,9 +456,9 @@
     "semantic_hash": "257c404d0125274cc9f11ed78385e0f2"
   },
   "App/Composition/WallpaperEngine.swift": {
-    "mtime": 1795545023.977247,
-    "seen": 1795545180.340535,
-    "ast_hash": "440b34813de850f0881c103b1c6633aa",
+    "mtime": 1795545318.6955094,
+    "seen": 1795545331.519968,
+    "ast_hash": "41cf6832b1d41a3d4516c503290a0f71",
     "semantic_hash": ""
   },
   "App/Composition/WeatherService.swift": {
