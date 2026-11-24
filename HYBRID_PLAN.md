@@ -7058,3 +7058,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LQ-6` — Liquid Notch Settings Unification, 12-Locale Gate & Verification (`e68cff73`, 2026-11-24)
 
 - `App/Scenes/LiveIslandSettingsBlock.swift`, `Resources/Localizable.xcstrings`: unified `LiquidExtrasSettingsRows` under `Settings › Notch` (`Watch Claude & Codex`, `Sports Scores`, `Video in Island`, `Lock Screen Card`, `Notch Notifications` — all off by default while keeping `.boring`/`.classic`/`.dynamicIsland`/`.wideBar` presets intact), updated all 12 locales (`2422/2422` keys), and verified 87/87 unit tests across 7 suites + `check_debug_switches.py` + `check_availability_warnings.py` (`e68cff73`).
+
+### Livecheck & `Settings › Notch` Preset Polish (`7a61be54`, 2026-11-24)
+
+- `App/Scenes/LiveIslandSettingsBlock.swift`, `Resources/Localizable.xcstrings`: organized `Settings › Notch` into dedicated preset-aware cards (`Liquid Notch` card for `.liquid`, `Dynamic Island` card for `.dynamicIsland`, `NotchAnimationPicker` + Classic cards gated to `.boring`/`.classic`, and `NotchBehaviorCard` always visible), updated 12-locale strings (`2424/2424` keys), verified 21/21 targeted tests, and livechecked `Debug` `KatiKati.app` (`PID 59404`, Metal Liquid Notch rendering cleanly at top of screen + `Settings › Notch` open, zero crashes).
