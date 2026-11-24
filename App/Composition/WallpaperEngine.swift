@@ -28,6 +28,7 @@ final class WallpaperEngine: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var stateCancellables = Set<AnyCancellable>()
     private var observers: [NSObjectProtocol] = []
+    private var distributedObservers: [NSObjectProtocol] = []
     private var boundaryTimer: Timer?
     private var pendingRefresh: DispatchWorkItem?
     private var lastApplied: [String: String] = [:]
@@ -36,7 +37,9 @@ final class WallpaperEngine: ObservableObject {
     private(set) var isRunning = false
     /// DW-10: the plan that last painted, so the overlay follows the same sky without re-planning.
     private var lastAtmosphere: SkyAtmosphere?
-    private var screenLocked = false
+    private(set) var screenLocked = false
+    private(set) var isAsleep = false
+    private(set) var desktopCovered = false
     /// ML-2: one capture of the user's original is shared by every writer (weather plan + album art).
     private var lease = WallpaperLease()
     /// The track currently painted by the music source, so a repeat publish never re-renders.
@@ -114,11 +117,22 @@ final class WallpaperEngine: ObservableObject {
                     self?.scheduleRefresh()
                 }
             })
-            for name in [NSWorkspace.didWakeNotification, NSWorkspace.screensDidSleepNotification] {
-                observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                    Task { @MainActor in self?.scheduleRefresh() }
-                })
-            }
+            observers.append(center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.isAsleep = false
+                    if WallpaperRefreshPolicy.shouldRefresh(forWake: true, isSleep: false) {
+                        self.scheduleRefresh()
+                    }
+                    self.refreshOverlay()
+                }
+            })
+            observers.append(center.addObserver(forName: NSWorkspace.screensDidSleepNotification, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    self?.isAsleep = true
+                    self?.refreshOverlay()
+                }
+            })
             observers.append(NotificationCenter.default.addObserver(
                 forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.refreshOverlay() }
@@ -134,7 +148,7 @@ final class WallpaperEngine: ObservableObject {
                 Task { @MainActor in self?.refreshOverlay() }
             })
             for (name, locked) in [("com.apple.screenIsLocked", true), ("com.apple.screenIsUnlocked", false)] {
-                observers.append(DistributedNotificationCenter.default.addObserver(
+                distributedObservers.append(DistributedNotificationCenter.default.addObserver(
                     forName: Notification.Name(name), object: nil, queue: .main) { [weak self] _ in
                     Task { @MainActor in self?.screenLocked = locked; self?.refreshOverlay() }
                 })
@@ -187,6 +201,8 @@ final class WallpaperEngine: ObservableObject {
         pendingRefresh?.cancel(); pendingRefresh = nil
         observers.forEach { NSWorkspace.shared.notificationCenter.removeObserver($0); NotificationCenter.default.removeObserver($0) }
         observers = []
+        distributedObservers.forEach { DistributedNotificationCenter.default().removeObserver($0) }
+        distributedObservers = []
         stateCancellables = []
     }
 
@@ -472,6 +488,22 @@ final class WallpaperEngine: ObservableObject {
 /// ML-2 — one cached, content-addressed blurred frame per track. The only per-track cost is this single
 /// CoreImage pass; afterwards the file is reused, so an unchanging track costs nothing.
 enum MusicWallpaperRenderer {
+    private static let ciContext = CIContext(options: [.useSoftwareRenderer: false])
+
+    private static func fittedImage(artwork: Data, target: CGRect, blur: Bool, blurRadius: Double) -> (blurred: CIImage, clear: CIImage)? {
+        guard let source = CIImage(data: artwork), source.extent.width > 1, source.extent.height > 1 else { return nil }
+        let scale = max(target.width / source.extent.width, target.height / source.extent.height)
+        var image = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        image = image.transformed(by: CGAffineTransform(
+            translationX: (target.width - image.extent.width) / 2,
+            y: (target.height - image.extent.height) / 2))
+        let clear = image.cropped(to: target)
+        let blurred = blur
+            ? clear.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: target)
+            : clear
+        return (blurred, clear)
+    }
+
     static func directory() -> URL? {
         guard let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
         let dir = WallpaperCache.generatedDirectory(in: base)
@@ -483,33 +515,23 @@ enum MusicWallpaperRenderer {
                             blur: Bool = true, blurRadius: Double = 55,
                             style: MusicWallpaperStyle = .blurredAlbum,
                             palette: MusicArtworkPalette = .fallback) -> URL? {
-        guard let dir = directory(), size.width >= 1, size.height >= 1,
-              let sourceImage = NSImage(data: artwork),
-              let tiff = sourceImage.tiffRepresentation,
-              let source = CIImage(data: tiff) else { return nil }
+        guard let dir = directory(), size.width >= 1, size.height >= 1 else { return nil }
         let width = Int(size.width.rounded()), height = Int(size.height.rounded())
         let name = "music-\(signature(trackKey))-\(width)x\(height)-\(blur ? "b" : "p")-\(style.rawValue)\(style.isAtmospheric ? "-" + paletteTag(palette) : "").png"
         let url = dir.appendingPathComponent(name)
         if FileManager.default.fileExists(atPath: url.path) { return url }
 
         let target = CGRect(x: 0, y: 0, width: width, height: height)
-        let scale = max(target.width / source.extent.width, target.height / source.extent.height)
-        var image = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-        image = image.transformed(by: CGAffineTransform(
-            translationX: (target.width - image.extent.width) / 2,
-            y: (target.height - image.extent.height) / 2))
-        image = image.cropped(to: target)
-        let clear = image.cropped(to: target)
-        if blur {
-            image = image.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: target)
-        }
-        image = painted(blurred: image, clear: clear, target: target, style: style, palette: palette)
-        let context = CIContext(options: [.useSoftwareRenderer: false])
-        guard let cgImage = context.createCGImage(image, from: target),
+        guard let fitted = fittedImage(artwork: artwork, target: target, blur: blur, blurRadius: blurRadius) else { return nil }
+        let image = painted(blurred: fitted.blurred, clear: fitted.clear, target: target, style: style, palette: palette)
+        guard let cgImage = ciContext.createCGImage(image, from: target),
               let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)
         else { return nil }
         CGImageDestinationAddImage(destination, cgImage, nil)
-        guard CGImageDestinationFinalize(destination) else { return nil }
+        guard CGImageDestinationFinalize(destination) else {
+            try? FileManager.default.removeItem(at: url)
+            return nil
+        }
         return url
     }
 
@@ -530,28 +552,15 @@ enum MusicWallpaperRenderer {
                                  blur: Bool, blurRadius: Double,
                                  style: MusicWallpaperStyle = .blurredAlbum,
                                  palette: MusicArtworkPalette = .fallback) -> URL? {
-        guard let dir = directory(), size.width >= 1, size.height >= 1,
-              let sourceImage = NSImage(data: artwork),
-              let tiff = sourceImage.tiffRepresentation,
-              let source = CIImage(data: tiff) else { return nil }
+        guard let dir = directory(), size.width >= 1, size.height >= 1 else { return nil }
         let width = Int(size.width.rounded()), height = Int(size.height.rounded())
-        // JPEG on purpose: an animated tick re-decodes the file in WindowServer, and a 30 MB PNG per tick
-        // is the difference between a quiet wallpaper and a busy one.
         let name = "music-\(signature(trackKey))-\(width)x\(height)-\(blur ? "ba" : "pa")\(index)-\(style.rawValue).jpg"
         let url = dir.appendingPathComponent(name)
         if FileManager.default.fileExists(atPath: url.path) { return url }
 
         let target = CGRect(x: 0, y: 0, width: width, height: height)
-        let scale = max(target.width / source.extent.width, target.height / source.extent.height)
-        var image = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-        image = image.transformed(by: CGAffineTransform(
-            translationX: (target.width - image.extent.width) / 2,
-            y: (target.height - image.extent.height) / 2))
-        image = image.cropped(to: target)
-        if blur {
-            image = image.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: target)
-        }
-        // One full sine cycle across the sequence, so frame 0 and frame N-1 meet seamlessly on loop.
+        guard let fitted = fittedImage(artwork: artwork, target: target, blur: blur, blurRadius: blurRadius) else { return nil }
+        var image = fitted.blurred
         let progress = CGFloat(index) / CGFloat(max(1, frameCount))
         let zoom = 1.05 + 0.05 * (0.5 - 0.5 * cos(2 * .pi * progress))
         let panX = 0.010 * sin(2 * .pi * progress)
@@ -563,13 +572,15 @@ enum MusicWallpaperRenderer {
                                                y: target.midY + panY * target.height))
             .cropped(to: target)
         image = painted(blurred: image, clear: image, target: target, style: style, palette: palette)
-        let context = CIContext(options: [.useSoftwareRenderer: false])
-        guard let cgImage = context.createCGImage(image, from: target),
+        guard let cgImage = ciContext.createCGImage(image, from: target),
               let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.jpeg.identifier as CFString, 1, nil)
         else { return nil }
         let options = [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary
         CGImageDestinationAddImage(destination, cgImage, options)
-        guard CGImageDestinationFinalize(destination) else { return url }
+        guard CGImageDestinationFinalize(destination) else {
+            try? FileManager.default.removeItem(at: url)
+            return nil
+        }
         return url
     }
 
@@ -800,6 +811,15 @@ final class MusicWallpaperController {
             stopAnimation()
             return
         }
+        let engine = WallpaperEngine.shared
+        guard WallpaperMotionGuard.isMusicSwapAllowed(
+            isEnabled: MusicSurfaceConfig.isWallpaperEnabled,
+            isAnimated: MusicSurfaceConfig.isAnimatedBackdrop,
+            isPlaying: service?.state.isPlaying == true,
+            screenLocked: engine.screenLocked,
+            isAsleep: engine.isAsleep,
+            desktopCovered: engine.desktopCovered
+        ) else { return }
         let length = frameSets.map(\.count).min() ?? 0
         guard length > 0 else { return }
         frameIndex = (frameIndex + 1) % length
@@ -876,12 +896,17 @@ enum TerrainWallpaperRenderer {
 
     /// The pre-DW-7 renders are retired once, after a frame exists in the new cache, and only when they carry
     /// this renderer's own names — the Sky pack beside them is the user's simple wallpapers.
+    private static let legacyLock = NSLock()
     private static var didCleanLegacy = false
     private static func cleanLegacyOnce() {
-        guard !didCleanLegacy,
+        let shouldClean = legacyLock.withLock {
+            guard !didCleanLegacy else { return false }
+            didCleanLegacy = true
+            return true
+        }
+        guard shouldClean,
               let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
         else { return }
-        didCleanLegacy = true
         WallpaperCache.removeLegacyRenders(in: WallpaperCache.legacyDirectory(in: base))
     }
 
@@ -1200,15 +1225,19 @@ final class WallpaperOverlay {
 final class MusicArtworkPaletteCache {
     static let shared = MusicArtworkPaletteCache()
 
+    private let lock = NSLock()
+    private static let ciContext = CIContext(options: [.useSoftwareRenderer: false])
     private var cache: [Int: MusicArtworkPalette] = [:]
 
     func palette(for data: Data?) -> MusicArtworkPalette {
         guard let data, !data.isEmpty else { return .fallback }
         let key = MusicArtworkSignature.of(data)
-        if let cached = cache[key] { return cached }
+        if let cached = lock.withLock({ cache[key] }) { return cached }
         let palette = Self.extract(data) ?? .fallback
-        if cache.count >= 24 { cache.removeAll(keepingCapacity: true) }
-        cache[key] = palette
+        lock.withLock {
+            if cache.count >= 24 { cache.removeAll(keepingCapacity: true) }
+            cache[key] = palette
+        }
         return palette
     }
 
@@ -1219,9 +1248,8 @@ final class MusicArtworkPaletteCache {
         let small = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         let bounds = CGRect(x: 0, y: 0, width: side, height: side)
         var pixels = [UInt8](repeating: 0, count: Int(side * side) * 4)
-        let context = CIContext(options: [.useSoftwareRenderer: false])
-        context.render(small, toBitmap: &pixels, rowBytes: Int(side) * 4, bounds: bounds,
-                       format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
+        ciContext.render(small, toBitmap: &pixels, rowBytes: Int(side) * 4, bounds: bounds,
+                         format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
         return MusicArtworkPalette(pixels: pixels)
     }
 }
