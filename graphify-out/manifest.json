@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795552089.274268,
-    "seen": 1795552204.478893,
-    "ast_hash": "3265adfcfb05b6764886ec2973b85751",
+    "mtime": 1795554427.1861053,
+    "seen": 1795554598.8300228,
+    "ast_hash": "f32114e66ea72e89542e519529d9d4de",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795552537.5909488,
-    "seen": 1795552593.839117,
-    "ast_hash": "fb31b0d01120787344ef730c0b795907",
+    "mtime": 1795554468.4297686,
+    "seen": 1795554598.8301508,
+    "ast_hash": "a637f7336046895112bbcc44bacb7ac5",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795552712.181529,
-    "seen": 1795552844.133051,
-    "ast_hash": "536e2088d344ee606a3b50da946d75be",
+    "mtime": 1795554467.177131,
+    "seen": 1795554598.830215,
+    "ast_hash": "54f4a4baf12e26a1d39ac13dca297e26",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -1470,9 +1470,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentUsageModels.swift": {
-    "mtime": 1795470679.2429886,
-    "seen": 1795534644.457299,
-    "ast_hash": "8811c7f0fbb3819f44ef2323a8c897b8",
+    "mtime": 1795553382.7858727,
+    "seen": 1795554024.996464,
+    "ast_hash": "890da734f7c0dd2d133197a2f5e197fa",
     "semantic_hash": ""
   },
   "Core/Support/AppDisplayNameCache.swift": {
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AppRemoval.swift": {
-    "mtime": 1794848720.3409548,
-    "seen": 1795534644.4573069,
-    "ast_hash": "b08601c299f2bc3794c2351b8918346a",
+    "mtime": 1795553383.2849948,
+    "seen": 1795554024.996471,
+    "ast_hash": "0b9c747132a819b4507cb6c4baf079aa",
     "semantic_hash": ""
   },
   "Core/Support/AppleScriptNowPlaying.swift": {
@@ -2364,9 +2364,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SystemStatus.swift": {
-    "mtime": 1795549776.285309,
-    "seen": 1795550095.884052,
-    "ast_hash": "deaefaccf54e3db1cd090aa2224d2ca6",
+    "mtime": 1795553415.4493895,
+    "seen": 1795554024.996641,
+    "ast_hash": "a853844d2093871494654e7b59f29f75",
     "semantic_hash": ""
   },
   "Core/Support/TaskList.swift": {
@@ -2928,9 +2928,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/AudioOutputSwitcher.swift": {
-    "mtime": 1795546024.190942,
-    "seen": 1795546201.5323882,
-    "ast_hash": "39d810df3a0230dff5a354e312e5420e",
+    "mtime": 1795554051.6336958,
+    "seen": 1795554598.830548,
+    "ast_hash": "842d59c87020743db84fd2fa4545ef63",
     "semantic_hash": ""
   },
   "Platform/SystemStatus/BluetoothDeviceReader.swift": {
@@ -3108,9 +3108,9 @@
     "semantic_hash": "a1be8ca227bf12eedd4e86ff89c62c04"
   },
   "Tests/Unit/AgentUsageTests.swift": {
-    "mtime": 1795470679.2620761,
-    "seen": 1795534644.45761,
-    "ast_hash": "d520a39339c60bb0aa9cbc5d01494914",
+    "mtime": 1795553647.6166778,
+    "seen": 1795554024.996775,
+    "ast_hash": "f3edf48d5abd222161aa289a42da07d0",
     "semantic_hash": ""
   },
   "Tests/Unit/AppFallbackChipDecisionTests.swift": {
@@ -3162,10 +3162,10 @@
     "semantic_hash": "edef81a6b10e8f2c77818eef3ff5d501"
   },
   "Tests/Unit/AppRemovalPlannerTests.swift": {
-    "mtime": 1791999130.9499924,
-    "seen": 1795534644.4576168,
-    "ast_hash": "0b2f3d421e2e2378afc8578eb728d045",
-    "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
+    "mtime": 1795553647.6132185,
+    "seen": 1795554024.996783,
+    "ast_hash": "8ad3d7d6b318c0141f07f81762015eb0",
+    "semantic_hash": ""
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
     "mtime": 1795544022.2193701,
@@ -4176,9 +4176,9 @@
     "semantic_hash": "831fd8e76e113bc1043a0e961dd7a974"
   },
   "Tests/Unit/SystemStatusTests.swift": {
-    "mtime": 1795550814.0485446,
-    "seen": 1795551085.141917,
-    "ast_hash": "bd2072b65e431bfeb7c828e0bd28f764",
+    "mtime": 1795553647.6096914,
+    "seen": 1795554024.9969668,
+    "ast_hash": "3aee3c4a0710c9404ef30ef5c1a2df5d",
     "semantic_hash": ""
   },
   "Tests/Unit/TabFoldDecisionTests.swift": {
@@ -4734,9 +4734,9 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1795535065.0207121,
-    "seen": 1795539171.34613,
-    "ast_hash": "4a19ab16307f27218c62bcae5b297a57",
+    "mtime": 1795553941.5979025,
+    "seen": 1795554024.997024,
+    "ast_hash": "43f0b11a7b74b53ac7f923f274a3f5dc",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795552719.0913634,
-    "seen": 1795552844.133787,
-    "ast_hash": "292d52c350d1e47a7dba3ec935d924df",
+    "mtime": 1795553940.5360215,
+    "seen": 1795554024.997132,
+    "ast_hash": "a8707fb2e6322d62582277e368d5fc80",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795550846.8365571,
-    "seen": 1795551085.141527,
-    "ast_hash": "7694d8a6525a91b598b63523c1ad8872",
+    "mtime": 1795553381.5483768,
+    "seen": 1795554024.9965749,
+    "ast_hash": "ffea6a33631aa5dc6d5c25f1e1d6d3f7",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6384,9 +6384,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795549779.9994202,
-    "seen": 1795550095.884321,
-    "ast_hash": "6bb946b3978cbf75052c5da8e71afac9",
+    "mtime": 1795553647.091446,
+    "seen": 1795554024.99689,
+    "ast_hash": "41a1cbb428fcacc0c312c803d9cbf124",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795552717.9818556,
-    "seen": 1795552844.133776,
-    "ast_hash": "7278352a2ad96917f0cc6eaf5bfee17d",
+    "mtime": 1795553942.1448286,
+    "seen": 1795554024.997122,
+    "ast_hash": "15f423503fbda6170a39fbd778bac99d",
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
