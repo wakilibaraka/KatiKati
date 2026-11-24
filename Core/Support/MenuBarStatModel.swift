@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 /// The menu-bar readout's pure model (Pass 2): which metrics exist, what styles each may show,
@@ -385,5 +386,27 @@ enum HubModule: String, CaseIterable, Identifiable, Sendable {
     /// Canonical order, so the key is stable whichever order the boxes were ticked in.
     static func serialize(_ modules: Set<HubModule>) -> String {
         allCases.filter(modules.contains).map(\.rawValue).joined(separator: ",")
+    }
+}
+
+/// Where the hub's pointer tip sits, in points from the panel's leading edge.
+///
+/// The tip tracks the status-item icon's centre so the panel visibly hangs off the icon in every
+/// icon preset (trio glyph, compact readout, classic symbol, lyric-width item). Near a screen edge
+/// the panel itself is pushed inside the visible frame, and the tip then stops at `edgeInset`
+/// instead of sliding onto the panel's corner fillet — it still points at the icon, never off-panel.
+enum HubCaretPlan {
+    /// Height of the pointer strip added above the 560 pt body; the body is untouched.
+    static let height: CGFloat = 10
+    /// Half the pointer's base width (22 pt base, the same visual weight as a 20 pt glyph).
+    static let halfWidth: CGFloat = 11
+    /// Keeps the base clear of the 20 pt corner radius so the pointer never sits on the fillet.
+    static let edgeInset: CGFloat = 22
+
+    static func centerX(iconCenter: CGFloat, panelWidth: CGFloat) -> CGFloat {
+        let minimum = halfWidth + edgeInset
+        let maximum = panelWidth - minimum
+        guard maximum >= minimum else { return panelWidth / 2 }
+        return min(max(iconCenter, minimum), maximum)
     }
 }

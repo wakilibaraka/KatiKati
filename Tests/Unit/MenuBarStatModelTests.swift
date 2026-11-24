@@ -157,4 +157,11 @@ final class HubModuleTests: XCTestCase {
         XCTAssertEqual(HubModule.enabled(raw), [.agents, .uninstaller])
         XCTAssertEqual(HubModule.serialize([]), "")
     }
+
+    func testCaretTracksIconCentreAndNeverLeavesThePanel() {
+        XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 190, panelWidth: 380), 190)
+        XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 0, panelWidth: 380), 33)
+        XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 400, panelWidth: 380), 347)
+        XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 10, panelWidth: 40), 20)
+    }
 }

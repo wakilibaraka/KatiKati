@@ -1157,6 +1157,11 @@ struct InlineQuickTogglePill: View {
 struct MenuBarCreativeHubView: View {
     var onDismiss: () -> Void = {}
     var onOpenSettings: () -> Void = {}
+    /// Pointer tip, in points from the panel's leading edge; the controller passes the icon centre.
+    var caretX: CGFloat = 190
+
+    static let panelWidth: CGFloat = 380
+    static let panelHeight: CGFloat = 560
 
     @ObservedObject private var engine = QuickToggleEngine.shared
     @ObservedObject private var scheduler = HubScheduleCoordinator.shared
@@ -1200,18 +1205,11 @@ struct MenuBarCreativeHubView: View {
     private var modules: Set<HubModule> { HubModule.enabled(modulesRaw) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            headerBar
-            actionBoxGrid
-            tabContent
+        VStack(spacing: 0) {
+            pointer
+            hubBody
         }
-        .padding(12)
-        .frame(width: 380, height: 560, alignment: .top)
-        .background {
-            DockPanelBackdrop(theme: theme, cornerRadius: 20, usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
-        }
-        .dockPanelRim(cornerRadius: 20, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth,
-                      usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite, highlighted: false)
+        .frame(width: Self.panelWidth, height: Self.panelHeight + HubCaretPlan.height, alignment: .top)
         .sheet(isPresented: $showUninstaller) { HubUninstallerSheet() }
         .onAppear {
             engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
@@ -1222,6 +1220,38 @@ struct MenuBarCreativeHubView: View {
             let all = await BluetoothDeviceReader.read()
             btAudioDevices = all.filter { $0.isConnected && $0.lowestBattery != nil }
         }
+    }
+
+    /// The pointer that ties the panel to its menu-bar icon. It only ever adds: the body below keeps
+    /// its exact 380×560 frame, backdrop and rim, so the established design is unchanged.
+    private var pointer: some View {
+        let center = HubCaretPlan.centerX(iconCenter: caretX, panelWidth: Self.panelWidth)
+        return HubCaretPointer(centerX: center)
+            .fill(.ultraThinMaterial)
+            .overlay {
+                HubCaretPointerOutline(centerX: center)
+                    .stroke(theme.panelRimStyle, lineWidth: theme.panelRimLineWidth)
+            }
+            .overlay {
+                HubCaretPointer(centerX: center)
+                    .fill(Color.primary.opacity(colorScheme == .dark ? 0.05 : 0.03))
+            }
+            .frame(width: Self.panelWidth, height: HubCaretPlan.height)
+    }
+
+    private var hubBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            headerBar
+            actionBoxGrid
+            tabContent
+        }
+        .padding(12)
+        .frame(width: Self.panelWidth, height: Self.panelHeight, alignment: .top)
+        .background {
+            DockPanelBackdrop(theme: theme, cornerRadius: 20, usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
+        }
+        .dockPanelRim(cornerRadius: 20, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth,
+                      usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite, highlighted: false)
     }
 
     private var headerBar: some View {
@@ -1968,5 +1998,40 @@ struct HubUninstallerSheet: View {
                                              appPath: entry.path, removal: .deleteData)
         plan.paths += residue.paths.filter { !plan.paths.contains($0) }
         return plan
+    }
+}
+
+/// The pointer under the menu-bar icon: a 22 pt base tapering to a rounded 1 pt tip over 10 pt.
+private struct HubCaretPointer: Shape {
+    var centerX: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let half = HubCaretPlan.halfWidth
+        let cx = min(max(centerX, rect.minX + half), rect.maxX - half)
+        var path = Path()
+        path.move(to: CGPoint(x: cx - half, y: rect.maxY))
+        path.addQuadCurve(to: CGPoint(x: cx, y: rect.minY),
+                          control: CGPoint(x: cx - half * 0.5, y: rect.minY + rect.height * 0.12))
+        path.addQuadCurve(to: CGPoint(x: cx + half, y: rect.maxY),
+                          control: CGPoint(x: cx + half * 0.5, y: rect.minY + rect.height * 0.12))
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// The pointer's two slanted edges only, so the rim never draws a line across the panel's top.
+private struct HubCaretPointerOutline: Shape {
+    var centerX: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let half = HubCaretPlan.halfWidth
+        let cx = min(max(centerX, rect.minX + half), rect.maxX - half)
+        var path = Path()
+        path.move(to: CGPoint(x: cx - half, y: rect.maxY))
+        path.addQuadCurve(to: CGPoint(x: cx, y: rect.minY),
+                          control: CGPoint(x: cx - half * 0.5, y: rect.minY + rect.height * 0.12))
+        path.addQuadCurve(to: CGPoint(x: cx + half, y: rect.maxY),
+                          control: CGPoint(x: cx + half * 0.5, y: rect.minY + rect.height * 0.12))
+        return path
     }
 }

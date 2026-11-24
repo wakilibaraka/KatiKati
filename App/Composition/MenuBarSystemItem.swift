@@ -278,8 +278,10 @@ enum StatusTrioIconRenderer {
         if let cached = cache[key] { return cached }
         if cache.count >= 12 { cache.removeAll(keepingCapacity: true) }
 
-        let iconSide: CGFloat = 18
-        let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+        // 20 pt inside the menu bar's fixed 22 pt working area: a 16 pt circular glyph matches
+        // system weight, and 18 was reading smaller than Wi-Fi/battery next to it.
+        let iconSide: CGFloat = 20
+        let font = NSFont.monospacedDigitSystemFont(ofSize: 11.5, weight: .medium)
         let primaryInk: NSColor = key.semanticColor
             ? (key.isDarkMenuBar ? NSColor.white.withAlphaComponent(0.92) : NSColor.black.withAlphaComponent(0.88))
             : .black
@@ -290,7 +292,7 @@ enum StatusTrioIconRenderer {
         let rendered = NSImage(size: NSSize(width: totalWidth, height: iconSide), flipped: false) { _ in
             NSGraphicsContext.current?.shouldAntialias = true
             let center = NSPoint(x: iconSide / 2, y: iconSide / 2)
-            let radius: CGFloat = 7.2
+            let radius: CGFloat = 8.0
             let lineWidth = CGFloat(key.stroke.lineWidth)
 
             drawBatteryArc(key: key, center: center, radius: radius, lineWidth: lineWidth, ink: primaryInk)
@@ -528,16 +530,20 @@ final class MenuBarHubPanelController {
 
         let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first
         let visible = (screen?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)).insetBy(dx: 8, dy: 8)
-        let size = CGSize(width: 380, height: 560)
+        let size = CGSize(width: MenuBarCreativeHubView.panelWidth,
+                          height: MenuBarCreativeHubView.panelHeight + HubCaretPlan.height)
         let x = min(max(buttonRect.midX - size.width / 2, visible.minX), visible.maxX - size.width)
-        let y = max(visible.minY, buttonRect.minY - 6 - size.height)
+        // No gap now: the pointer strip takes the old 6 pt gap and its tip touches the icon's edge.
+        let y = max(visible.minY, buttonRect.minY + 1 - size.height)
         let frame = CGRect(origin: CGPoint(x: x, y: y), size: size)
+        let caretX = operatorX(buttonRect: buttonRect, frame: frame)
 
         let p = panel ?? makePanel()
         panel = p
         let root = MenuBarCreativeHubView(
             onDismiss: { [weak self] in self?.hide() },
-            onOpenSettings: { [weak self] in self?.hide(); self?.onOpenSettings() }
+            onOpenSettings: { [weak self] in self?.hide(); self?.onOpenSettings() },
+            caretX: caretX
         )
         .environment(\.dockThemeStyle, themeStyle())
         .environment(\.themeTuning, themeTuning())
@@ -548,6 +554,11 @@ final class MenuBarHubPanelController {
         p.setFrame(frame, display: true)
         p.makeKeyAndOrderFront(nil)
         installOutsideMonitor()
+    }
+
+    /// The icon's centre expressed inside the panel, so a clamped panel still points at the icon.
+    private func operatorX(buttonRect: CGRect, frame: CGRect) -> CGFloat {
+        buttonRect.midX - frame.minX
     }
 
     func hide() {

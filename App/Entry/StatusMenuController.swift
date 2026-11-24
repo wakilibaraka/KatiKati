@@ -714,6 +714,16 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             : NSStatusItem.squareLength
     }
 
+    /// Status items live in a fixed 22 pt working area. Scale the classic symbol and the drawn
+    /// asset to the trio renderer's 20 pt height so switching presets doesn't change icon weight.
+    private static func scaledToMenuBarHeight(_ image: NSImage) -> NSImage? {
+        guard image.size.height > 0 else { return nil }
+        let copy = image.copy() as? NSImage ?? image
+        let height: CGFloat = 20
+        copy.size = NSSize(width: image.size.width * height / image.size.height, height: height)
+        return copy
+    }
+
     /// 状态栏图标。`badged` 时在右上角画一个小圆点。
     ///
     /// ⚠️ **整张图仍然是 template**（单色，由系统按明暗和高亮自动反色）。圆点做不成红色：
@@ -722,9 +732,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// 靠形状而不是颜色让人看见。
     private static func statusItemImage(badged: Bool, iconSet: IconSet) -> NSImage? {
         let drawn = iconSet != .classic ? NSImage(named: "MenuBarIcon") : nil
-        let base = drawn
-            ?? NSImage(systemSymbolName: iconSet == .classic ? IconSet.classicMenuBarSymbol : "rectangle.3.offgrid.fill",
-                       accessibilityDescription: "KatiKati")
+        let symbol = NSImage(systemSymbolName: iconSet == .classic ? IconSet.classicMenuBarSymbol : "rectangle.3.offgrid.fill",
+                             accessibilityDescription: "KatiKati")?
+            .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 16, weight: .regular))
+        let base = drawn.flatMap(Self.scaledToMenuBarHeight) ?? symbol
         guard let base else { return nil }
         base.isTemplate = true
         guard badged else {
