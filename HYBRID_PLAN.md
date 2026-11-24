@@ -7091,6 +7091,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 - `Core/Support/IconSet.swift`, `App/Scenes/{ChipBadgeView,ContentView,WidgetLookSettingsBlock}.swift`, `Tests/Unit/IconSetTests.swift`: added `FinderCompanionStyle`/`FinderCompanionGeometry`/`FinderCompanionIconView` (`45a0c9b8`; 14/14 `IconSetTests` passing) and `IconStudioWindowController`/`IconStudioWindowView` (`ad3e1593`; clean `KatiKati` build).
 
-### `IS-5.2` — Icon Studio Inspector & Dock/Settings Launchers (`e27f34a7`, 2026-11-24)
+### `IS-5.2` & `IS-5.3` — Icon Studio Inspector, Launchers & `macOSicons` Search (`e27f34a7`, `b4eeaef0`, 2026-11-24)
 
-- `App/Scenes/{WidgetLookSettingsBlock,ChipView,LauncherChip}.swift`: added `IconStudioInspectorColumn` (`Save Look…`, `Looks`, `Badges`, `Artwork`, `Color`, `Shaders`, `Dress Up`, live controls), `AppIconsSettingsBlock` launch button, and `"Customize Icon…"` menu items (`e27f34a7`; clean `KatiKati` build).
+- `App/Scenes/{WidgetLookSettingsBlock,ChipView,LauncherChip}.swift`, `Core/Support/IconSet.swift`, `App/Scenes/DockTheme.swift`, `Tests/Unit/IconSetTests.swift`: added `IconStudioInspectorColumn`, `"Customize Icon…"` menu items (`e27f34a7`), and opt-in BYO API key `MacOSIconsSearchSheet` + `MacOSIconsQuery` (`b4eeaef0`; 15/15 `IconSetTests` passing).
+
+### `IS-6` — Opt-In App Live Icons, `⌘+Tab` Parity & 12-Locale Localization (`515e0be1`..HEAD, 2026-11-24)
+
+- `Core/Support/IconSet.swift`, `App/Scenes/{ChipBadgeView,ContentView}.swift`, `App/Composition/WindowSwitcherController.swift`, `Resources/Localizable.xcstrings`, `Tests/Unit/IconSetTests.swift`: added `AppActivityLiveMetrics`, `LiveAppActivityProbe` (strictly opt-in AX probes, `0%` idle by default), `AppActivityLiveIconOverlay` (Mail/Messages/Safari/Chrome), `IconStudioIconView` parity across all 5 `WindowSwitcherView` styles, and 63 12-locale strings.

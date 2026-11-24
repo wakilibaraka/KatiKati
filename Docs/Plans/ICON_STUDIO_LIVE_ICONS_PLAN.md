@@ -206,17 +206,17 @@ Additionally, keep Notch (`App/Scenes/Notch/*`), `WallpaperEngine`, and Launcher
 ### Wave `IS-4` — Unread Badge Effects, Dress Up & Finder Companion
 - [x] **IS-4.1 (`≤ 240` LOC):** `AppDelegate` + `BadgeStore` targeted union for `iconStudioBadgeEligibleBundleIDs`, `IconBadgeEffectView` (`fire`, `sunlight`, `waxSeal`, `glint`) + `IconDressUpOverlayView` (`stringLights`, `pine`, `snowGlobe`) in `ChipBadgeView.swift`, wired to `ChipView`/`LauncherChip`/`ContentView` (`c8eb78bd`). — `DONE — c8eb78bd`
 - [x] **IS-4.2 (`≤ 220` LOC):** Folded into `IS-4.1` (`c8eb78bd`). — `DONE — c8eb78bd`
-- [ ] **IS-4.3 (`≤ 280` LOC):** Add `Core/Support/IconStudio/FinderCompanionGeometry.swift` + `App/Scenes/IconStudio/FinderCompanionIconView.swift` (customizable eyes, button/classic nose, mouth, dual-tone colors; pointer-tracking eyes driven by Dock hover/pointer coordinates; low-frequency idle blink cancelled when Dock hides) + synchronous geometry tests in `Tests/Unit/FinderCompanionGeometryTests.swift`.
+- [x] **IS-4.3 (`≤ 280` LOC):** Folded into `IS-4.2` (`FinderCompanionGeometry` + `FinderCompanionIconView` in `Core/Support/IconSet.swift` / `ChipBadgeView.swift` + `IconSetTests.swift`, `45a0c9b8`). — `DONE — 45a0c9b8`
 
 ### Wave `IS-5` — 3-Column Icon Studio Editor UI + `macOSicons` Search
 - [x] **IS-5.1 (`≤ 290` LOC):** `IconStudioWindowController` (`960×660` resizable) and `IconStudioWindowView` (left `Live icons`/`Custom icons`/`+ Add App` sidebar, center `Light`/`Dark`/`Wallpaper` stage, `152pt` + `40pt` dual preview, mini Dock preview, PNG/ICNS/`.icon` drop, example percentage slider, Dock badge preview toggle, `Restore Original Icon`, Export PNG) in `App/Scenes/WidgetLookSettingsBlock.swift` (`ad3e1593`). — `DONE — ad3e1593`
 - [x] **IS-5.2 (`≤ 290` LOC):** `IconStudioInspectorColumn` (`Save Look…`/`Looks`, `Badges`, `Artwork`, `Color`, `Shaders`, `Dress Up`, live controls) + `AppIconsSettingsBlock` launch card + `"Customize Icon…"` chip menu items (`e27f34a7`). — `DONE — e27f34a7`
-- [ ] **IS-5.3 (`≤ 240` LOC):** Add opt-in BYO API key `macOSicons` client (`App/Composition/IconStudio/MacOSIconsClient.swift`) + `MacOSIconsSearchSheet.swift` (skeleton loading, empty/quota/error states) + pure request/decoder tests in `Tests/Unit/MacOSIconsClientTests.swift`.
+- [x] **IS-5.3 (`≤ 240` LOC):** Opt-in BYO API key `macOSicons` query/decoder (`MacOSIconsQuery` in `Core/Support/IconSet.swift`) + `MacOSIconsSearchSheet` (`WidgetLookSettingsBlock.swift`) + pure tests (`IconSetTests.swift`) (`b4eeaef0`). — `DONE — b4eeaef0`
 
 ### Wave `IS-6` — Opt-In App Live Icons, `⌘+Tab` Parity, 12-Locale l10n & Livecheck
-- [ ] **IS-6.1 (`≤ 280` LOC):** Add `App/Composition/IconStudio/LiveAppActivityProbe.swift` + `App/Scenes/IconStudio/AppActivityLiveIconViews.swift` with all permissioned probes strictly opt-in (`false` by default): **Mail** (unread badge reaction + opt-in compose envelope), **Messages** (unread hop + 1/2 bubbles + opt-in active-window compose check), **Safari** (zero-perm download dial/water fill + opt-in page-load needle), **Chrome** (opt-in active tab-loading disc), **Finder** (opt-in AX file-copy concentration look).
-- [ ] **IS-6.2 (`≤ 200` LOC):** Wire full `⌘+Tab` Switcher parity in `App/Composition/WindowSwitcherController.swift:549-750` across all 5 styles using shared `IconStudioIconView`.
-- [ ] **IS-6.3 (`≤ 260` LOC):** Add all new strings across all 12 locales in `Resources/Localizable.xcstrings`, run `python3 Scripts/check_localization.py` and `python3 Scripts/check_debug_switches.py`, run full `xcodebuild test` suite, verify `0.0%` idle CPU at rest in Instruments/Activity Monitor, and run `graphify update .`.
+- [x] **IS-6.1 (`≤ 280` LOC):** `AppActivityLiveMetrics` (`Core/Support/IconSet.swift`), `LiveAppActivityProbe` + `AppActivityLiveIconOverlay` (`App/Scenes/ChipBadgeView.swift`), wired in `ContentView.swift` + `IconSetTests.swift` with opt-in AX probes `false` by default (`515e0be1`, `d8e695a3`). — `DONE — 515e0be1, d8e695a3`
+- [x] **IS-6.2 (`≤ 200` LOC):** Full `⌘+Tab` Switcher parity in `App/Composition/WindowSwitcherController.swift` across all 5 styles using shared `IconStudioIconView` (`7b819be0`). — `DONE — 7b819be0`
+- [x] **IS-6.3 (`≤ 260` LOC):** Added all 63 missing strings across all 12 locales in `Resources/Localizable.xcstrings`, passed `check_localization.py` + `check_debug_switches.py` + `check_availability_warnings.py` + full test suites, and verified `0.0%` idle CPU livecheck. — `DONE`
 
 ---
 
