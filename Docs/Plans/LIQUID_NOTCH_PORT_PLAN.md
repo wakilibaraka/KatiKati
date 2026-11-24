@@ -143,9 +143,9 @@ The following 5 files **MUST NOT BE MODIFIED** during `LQ-1`–`LQ-6`:
 ## 5. Atomic Slice Roadmap (`LQ-1` → `LQ-6`)
 
 ### Wave `LQ-1` — Preset Switcher & Liquid Shape Engine
-- [ ] **LQ-1.1 (`≤ 250` LOC):** Add `.liquid` preset to `LiveIslandSkin` / `NotchShellPreset` (new default for fresh installs, preserving existing presets) + pure `Core/Support/LiquidNotch/` state & SDF (`LiquidIslandState.swift`, `LiquidShapeSDF.swift`, `LiquidShapeState.swift`, `LiquidShapeTargets.swift`, `LiquidOKLab.swift`).
-- [ ] **LQ-1.2 (`≤ 250` LOC):** Pure unit tests in `Tests/Unit/LiquidNotchCoreTests.swift` covering `Arrangement` priority, `DesktopContext` hiding rules, `LiquidShapeSDF` hit-testing, and non-notch floating pill targets.
-- [ ] **LQ-1.3 (`≤ 300` LOC):** Port `LiquidShape.metal`, `LiquidRenderer.swift`, `LiquidSpring.swift`, `LiquidShapeAnimator.swift`, `LiquidFrameClock.swift` (with strict idle pause), and wire `.liquid` preset routing in `NotchPanelController.swift` + `NotchIslandView.swift`.
+- [x] **LQ-1.1 (`≤ 250` LOC):** Add `.liquid` preset to `LiveIslandSkin` / `NotchShellPreset` (new default for fresh installs, preserving existing presets) + pure `Core/Support/LiquidNotch/` state & SDF (`LiquidIslandState.swift`, `LiquidShapeSDF.swift`, `LiquidShapeState.swift`, `LiquidShapeTargets.swift`, `LiquidOKLab.swift`). — `DONE — 04c35271`
+- [x] **LQ-1.2 (`≤ 250` LOC):** Pure unit tests in `Tests/Unit/LiquidNotchCoreTests.swift` covering `Arrangement` priority, `DesktopContext` hiding rules, `LiquidShapeSDF` hit-testing, and non-notch floating pill targets. — `DONE — 04c35271`
+- [x] **LQ-1.3 (`≤ 300` LOC):** Port `LiquidShape.metal`, `LiquidRenderer.swift`, `LiquidSpring.swift`, `LiquidShapeAnimator.swift`, `LiquidFrameClock.swift` (with strict idle pause), and wire `.liquid` preset routing in `NotchPanelController.swift` + `NotchIslandView.swift`. — `DONE — 37266ac1`
 
 ### Wave `LQ-2` — Music Ears, Expanded Player & Synced Lyrics
 - [ ] **LQ-2.1 (`≤ 280` LOC):** Port `LiquidDirector.swift` & `LiquidContentView.swift` (cover-left / bars-right ears, hover-ear peek preview, click-to-expand player with seek/skip/AirPlay) wired to `NowPlayingService` + `LiveActivityFeed`.
