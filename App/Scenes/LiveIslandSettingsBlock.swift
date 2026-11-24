@@ -44,7 +44,7 @@ struct LiveIslandSettingsBlock: View {
             .help(Text("Full uses a multi-panel layout; Compact uses a simpler player card."))
             if store.notchSkin == .liquid {
                 SettingsDivider()
-                LiquidAgentHookToggleRow()
+                LiquidExtrasSettingsRows()
             }
             if store.notchSkin == .dynamicIsland {
                 SettingsDivider()
@@ -824,5 +824,28 @@ private struct IslandPlaygroundSheet: View {
         bridge.driver.stageWidth = 520
         bridge.driver.keylineSetting = topology.keylineSetting(userEnabled: store.islandKeylineEnabled)
         bridge.driver.updateDisplayTopology(topology, touchEnabled: touch, nonNotchBehavior: store.islandNonNotchBehavior)
+    }
+}
+
+private struct LiquidExtrasSettingsRows: View {
+    @AppStorage(LiquidExtrasKeys.sportsEnabled) private var sportsEnabled = false
+    @AppStorage(LiquidExtrasKeys.videoInIslandEnabled) private var videoInIslandEnabled = false
+    @AppStorage(LiquidExtrasKeys.lockScreenEnabled) private var lockScreenEnabled = false
+    @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = false
+
+    var body: some View {
+        LiquidAgentHookToggleRow()
+        SettingsDivider()
+        SettingsToggleRow(Text("Sports Scores"), isOn: $sportsEnabled)
+            .help(Text("Show live ESPN scoreboard balls for followed leagues."))
+        SettingsDivider()
+        SettingsToggleRow(Text("Video in Island"), isOn: $videoInIslandEnabled)
+            .help(Text("Allow mirroring browser video inside the Liquid Notch."))
+        SettingsDivider()
+        SettingsToggleRow(Text("Lock Screen Card"), isOn: $lockScreenEnabled)
+            .help(Text("Show Now Playing on the lock screen with automatic wallpaper backup."))
+        SettingsDivider()
+        SettingsToggleRow(Text("Notch Notifications"), isOn: $notificationsEnabled)
+            .help(Text("Show transient event alerts inside the Liquid Notch."))
     }
 }
