@@ -45,6 +45,34 @@ enum NotchDesign: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// Per-display Notch shell skin override (`Liquid`, `Full`, `Compact`, `Dynamic Island`).
+/// When absent for a display, that display inherits the global `Notch Style`.
+enum NotchDisplaySkin {
+    static let defaultsKey = "com.katikati.notch.displaySkins"
+
+    static func stored(_ d: UserDefaults = .standard) -> [String: LiveIslandSkin] {
+        (d.dictionary(forKey: defaultsKey) as? [String: String] ?? [:]).compactMapValues(LiveIslandSkin.init(rawValue:))
+    }
+
+    static func set(_ skin: LiveIslandSkin?, for display: String, _ d: UserDefaults = .standard) {
+        var raw = d.dictionary(forKey: defaultsKey) as? [String: String] ?? [:]
+        if let skin { raw[display] = skin.rawValue } else { raw.removeValue(forKey: display) }
+        d.set(raw, forKey: defaultsKey)
+    }
+
+    static func resolve(
+        display: String,
+        displayUUID: String? = nil,
+        fallback: LiveIslandSkin,
+        stored: [String: LiveIslandSkin]
+    ) -> LiveIslandSkin {
+        if let displayUUID, !displayUUID.isEmpty, let match = stored[displayUUID] {
+            return match
+        }
+        return stored[display] ?? fallback
+    }
+}
+
 /// 51h: which wide-bar items fit at a given width (the bar is as wide as the open panel: 544 compact, 640 standard, 768 spacious) (time is always kept).
 enum NotchWideBarSpec {
     enum Item: Sendable { case time, battery, status, nowPlaying, timer, weather, storage, system }

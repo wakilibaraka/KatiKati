@@ -232,8 +232,16 @@ final class NotchPanelController: LiveEventSink {
     private func evaluateHover(now: Date = Date()) {
         guard panel != nil, let screen = targetScreen() else { return }
         let cursor = NSEvent.mouseLocation
-        let closed = NotchGeometry.panelFrame(size: model.closedSize, in: screen.frame)
-        let open = NotchGeometry.panelFrame(size: model.openSize, in: screen.frame)
+        let closedSize = skin == .liquid
+            ? CGSize(width: max(model.closedSize.width, metrics.closedSize.width + 132), height: metrics.closedSize.height)
+            : model.closedSize
+        let closed = NotchGeometry.panelFrame(size: closedSize, in: screen.frame)
+        let open = skin == .liquid
+            ? NotchGeometry.panelFrame(
+                size: CGSize(width: max(model.openSize.width, 480), height: metrics.closedSize.height + 16 + max(model.openSize.height, 220)),
+                in: screen.frame
+              )
+            : NotchGeometry.panelFrame(size: model.openSize, in: screen.frame)
         let inTrigger = NotchHoverZones.trigger(closedFrame: closed).contains(cursor)
         hover.openDelay = NotchBehavior.hoverDelay()
         hover.closeDelay = NotchBehavior.closeDelay()
@@ -580,6 +588,16 @@ final class NotchPanelController: LiveEventSink {
         }
         container.shouldAcceptHit = { [weak self, weak container] point in
             guard let self, let container else { return true }
+            if self.skin == .liquid {
+                let topDownY = container.bounds.height - point.y
+                let centerX = container.bounds.width / 2
+                if self.model.isExpanded {
+                    return topDownY <= self.metrics.closedSize.height + 20 + max(self.model.openSize.height, 220) + 12
+                        && abs(point.x - centerX) <= max(self.model.openSize.width, 480) / 2 + 16
+                }
+                return topDownY <= self.metrics.closedSize.height + 18
+                    && abs(point.x - centerX) <= (self.metrics.closedSize.width / 2 + 96)
+            }
             guard self.skin == .dynamicIsland else { return true }
             let driver = self.islandBridge.driver
             let frame = driver.frame
@@ -626,10 +644,11 @@ final class NotchTrackingContainer: NSView {
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         trackingAreas.forEach(removeTrackingArea)
-        addTrackingArea(NSTrackingArea(rect: .zero, options: [.activeAlways, .mouseEnteredAndExited, .inVisibleRect], owner: self, userInfo: nil))
+        addTrackingArea(NSTrackingArea(rect: .zero, options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved, .inVisibleRect], owner: self, userInfo: nil))
     }
 
     override func mouseEntered(with event: NSEvent) { onEnter() }
+    override func mouseMoved(with event: NSEvent) { onEnter() }
 
     override func scrollWheel(with event: NSEvent) {
         if onScroll?(event) == true {
@@ -656,7 +675,7 @@ final class NotchPanelCoordinator: LiveEventSink {
     private var observers = Set<AnyCancellable>()
     var theme: () -> NowPlayingTheme = { .auto } { didSet { controllers.values.forEach { $0.theme = theme } } }
     var onOpenSettings: () -> Void = {} { didSet { controllers.values.forEach { $0.onOpenSettings = onOpenSettings } } }
-    var skin: LiveIslandSkin = .boring { didSet { controllers.values.forEach { $0.skin = skin } } }
+    var skin: LiveIslandSkin = .liquid { didSet { reconcile() } }
     var touchModeSetting: IslandTouchModeSetting = .automatic { didSet { controllers.values.forEach { $0.touchModeSetting = touchModeSetting } } }
     var nonNotchBehavior: IslandNonNotchIdleBehavior = .compactPill { didSet { controllers.values.forEach { $0.nonNotchBehavior = nonNotchBehavior } } }
     var keylineEnabled: Bool = true { didSet { controllers.values.forEach { $0.keylineEnabled = keylineEnabled } } }
@@ -697,9 +716,21 @@ final class NotchPanelCoordinator: LiveEventSink {
         }
         for (id, c) in controllers where wanted[id] != designs[id] { c.setEnabled(false); controllers[id] = nil }
         designs = wanted
-        for (id, design) in wanted where controllers[id] == nil {
+        let storedSkins = NotchDisplaySkin.stored()
+        for (id, design) in wanted {
+            let screen = NSScreen.screens.first { $0.displayID == id }
+            let displaySkin = NotchDisplaySkin.resolve(
+                display: String(id),
+                displayUUID: screen.flatMap { DisplayIdentity.uuidString(for: $0) },
+                fallback: skin,
+                stored: storedSkins
+            )
+            if let existing = controllers[id] {
+                if existing.skin != displaySkin { existing.skin = displaySkin }
+                continue
+            }
             let c = NotchPanelController(displayID: id, design: design)
-            c.theme = theme; c.onOpenSettings = onOpenSettings; c.skin = skin
+            c.theme = theme; c.onOpenSettings = onOpenSettings; c.skin = displaySkin
             c.touchModeSetting = touchModeSetting
             c.nonNotchBehavior = nonNotchBehavior
             c.keylineEnabled = keylineEnabled

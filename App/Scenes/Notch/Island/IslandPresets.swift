@@ -981,9 +981,9 @@ struct LiquidNotchShellView: View {
     @State private var showTray = false
     @StateObject private var agentHub = LiquidAgentHub.shared
     @StateObject private var sportsFeed = LiquidSportsFeed.shared
-    @AppStorage(LiquidHookInstaller.enabledKey) private var agentHooksEnabled = false
+    @AppStorage(LiquidHookInstaller.enabledKey) private var agentHooksEnabled = true
     @AppStorage(LiquidExtrasKeys.sportsEnabled) private var sportsEnabled = false
-    @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = false
+    @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = true
 
     private var nowPlaying: NowPlayingState { feed.nowPlayingState }
     private var hasMusic: Bool { !(nowPlaying.title ?? "").isEmpty || feed.activity.kind == .music }
@@ -1054,10 +1054,14 @@ struct LiquidNotchShellView: View {
                 activityEarsRow
             } else if !model.isExpanded {
                 Color.clear
-                    .frame(width: targetState.mainHalfWidth * 2, height: targetState.mainHeight)
+                    .frame(width: max(targetState.mainHalfWidth * 2, 180), height: max(targetState.mainHeight, 32))
                     .contentShape(Rectangle())
                     .onTapGesture(count: 2) {
                         showTray = true
+                        model.requestOpen()
+                    }
+                    .onTapGesture {
+                        showTray = false
                         model.requestOpen()
                     }
             }
@@ -1620,7 +1624,7 @@ private struct LiquidAgentApprovalCard: View {
 }
 
 struct LiquidAgentHookToggleRow: View {
-    @AppStorage(LiquidHookInstaller.enabledKey) private var enabled = false
+    @AppStorage(LiquidHookInstaller.enabledKey) private var enabled = true
 
     var body: some View {
         SettingsToggleRow(

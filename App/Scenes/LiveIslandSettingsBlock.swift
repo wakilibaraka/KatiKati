@@ -21,12 +21,6 @@ struct LiveIslandSettingsBlock: View {
                 NotchPreview(skin: store.notchSkin, isEnabled: store.notchIslandEnabled)
             }
             SettingsToggleRow(
-                Text("Show Dock Capsule"),
-                isOn: Binding(get: { store.dockIslandEnabled }, set: { store.setDockIslandEnabled($0) })
-            )
-            .help(Text("Shows the widget capsule on the dock."))
-            SettingsDivider()
-            SettingsToggleRow(
                 Text("Show on Notch"),
                 isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) })
             )
@@ -42,24 +36,14 @@ struct LiveIslandSettingsBlock: View {
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
             .help(Text("Liquid uses metaball physics and detached balls; Full and Compact preserve classic layouts."))
+            NotchStylePreviewGallery(
+                selected: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) }),
+                isEnabled: store.notchIslandEnabled
+            )
             if store.notchSkin == .boring || store.notchSkin == .classic {
                 SettingsDivider()
                 NotchAnimationPicker()
             }
-            SettingsDivider()
-            SettingsRow(Text("Event Alerts")) {
-                Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
-                    ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            .help(Text("Choose where Dynamic Notch event alerts appear."))
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("System Banners"),
-                isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) })
-            )
-            .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
             SettingsDivider()
             SettingsToggleRow(
                 Text("Focus"),
@@ -130,16 +114,6 @@ struct LiveIslandSettingsBlock: View {
             NotchPagesCard(store: store)
             DroppyCustomizationCard()
             NotchActivityCard()
-        }
-    }
-
-    private static func title(for route: LiveEventRoute) -> Text {
-        switch route {
-        case .automatic: return Text("Automatic")
-        case .notch: return Text("Notch")
-        case .dock: return Text("Dock")
-        case .both: return Text("Both")
-        case .off: return Text("Off")
         }
     }
 }
@@ -678,31 +652,64 @@ private struct DroppyCustomizationCard: View {
     }
 }
 
-/// 51g: one row per connected display — Notch, Wide bar or Off. Notch screens default to Notch, others to Wide bar.
+/// Per-display Notch preset: Default (follows global Notch Style), a specific Notch skin
+/// (`Liquid`, `Full`, `Compact`, `Dynamic Island`), `Wide bar`, or `Off`.
 private struct NotchDisplayRows: View {
     @State private var screens = NSScreen.screens
-    @State private var stored = NotchDesign.stored()
+    @State private var storedDesigns = NotchDesign.stored()
+    @State private var storedSkins = NotchDisplaySkin.stored()
 
     var body: some View {
         ForEach(screens, id: \.displayID) { screen in
             let id = String(screen.displayID ?? 0)
+            let uuid = DisplayIdentity.uuidString(for: screen)
             let notch = screen.safeAreaInsets.top > 0
             SettingsRow(Text(verbatim: screen.localizedName)) {
                 Picker(selection: Binding(
-                    get: { NotchDesign.resolve(display: id, hasHardwareNotch: notch, stored: stored).rawValue },
-                    set: { raw in
-                        guard let design = NotchDesign(rawValue: raw) else { return }
-                        NotchDesign.set(design, for: id)
-                        stored = NotchDesign.stored()
-                    })) {
-                    Text(verbatim: "Notch").tag(NotchDesign.notch.rawValue)
-                    Text(verbatim: "Wide bar").tag(NotchDesign.wideBar.rawValue)
-                    Text(verbatim: "Off").tag(NotchDesign.off.rawValue)
+                    get: { selectionTag(id: id, uuid: uuid, hasHardwareNotch: notch) },
+                    set: { applySelection($0, id: id) }
+                )) {
+                    Text("Default").tag("default")
+                    Divider()
+                    Text("Liquid").tag("skin.liquid")
+                    Text("Full").tag("skin.boring")
+                    Text("Compact").tag("skin.classic")
+                    Text("Dynamic Island").tag("skin.dynamicIsland")
+                    Divider()
+                    Text(verbatim: "Wide bar").tag("design.wideBar")
+                    Text(verbatim: "Off").tag("design.off")
                 } label: { Text(verbatim: screen.localizedName) }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in screens = NSScreen.screens }
+    }
+
+    private func selectionTag(id: String, uuid: String?, hasHardwareNotch: Bool) -> String {
+        let design = NotchDesign.resolve(display: id, displayUUID: uuid, hasHardwareNotch: hasHardwareNotch, stored: storedDesigns)
+        if design == .wideBar { return "design.wideBar" }
+        if design == .off { return "design.off" }
+        if let uuid, !uuid.isEmpty, let skin = storedSkins[uuid] { return "skin.\(skin.rawValue)" }
+        if let skin = storedSkins[id] { return "skin.\(skin.rawValue)" }
+        return "default"
+    }
+
+    private func applySelection(_ tag: String, id: String) {
+        if tag == "design.wideBar" {
+            NotchDesign.set(.wideBar, for: id)
+            NotchDisplaySkin.set(nil, for: id)
+        } else if tag == "design.off" {
+            NotchDesign.set(.off, for: id)
+            NotchDisplaySkin.set(nil, for: id)
+        } else if tag.hasPrefix("skin."), let skin = LiveIslandSkin(rawValue: String(tag.dropFirst(5))) {
+            NotchDesign.set(.notch, for: id)
+            NotchDisplaySkin.set(skin, for: id)
+        } else {
+            NotchDesign.set(.notch, for: id)
+            NotchDisplaySkin.set(nil, for: id)
+        }
+        storedDesigns = NotchDesign.stored()
+        storedSkins = NotchDisplaySkin.stored()
     }
 }
 
@@ -838,9 +845,9 @@ private struct IslandPlaygroundSheet: View {
 
 private struct LiquidExtrasSettingsRows: View {
     @AppStorage(LiquidExtrasKeys.sportsEnabled) private var sportsEnabled = false
-    @AppStorage(LiquidExtrasKeys.videoInIslandEnabled) private var videoInIslandEnabled = false
-    @AppStorage(LiquidExtrasKeys.lockScreenEnabled) private var lockScreenEnabled = false
-    @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = false
+    @AppStorage(LiquidExtrasKeys.videoInIslandEnabled) private var videoInIslandEnabled = true
+    @AppStorage(LiquidExtrasKeys.lockScreenEnabled) private var lockScreenEnabled = true
+    @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = true
 
     var body: some View {
         LiquidAgentHookToggleRow()
@@ -856,5 +863,115 @@ private struct LiquidExtrasSettingsRows: View {
         SettingsDivider()
         SettingsToggleRow(Text("Notch Notifications"), isOn: $notificationsEnabled)
             .help(Text("Show transient event alerts inside the Liquid Notch."))
+    }
+}
+
+private struct NotchStylePreviewGallery: View {
+    @Binding var selected: LiveIslandSkin
+    let isEnabled: Bool
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(LiveIslandSkin.allCases, id: \.self) { skin in
+                let active = selected == skin
+                Button {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) { selected = skin }
+                } label: {
+                    VStack(spacing: 6) {
+                        thumbnail(for: skin)
+                            .frame(height: 36)
+                        titleText(for: skin)
+                            .font(.system(size: 11, weight: active ? .semibold : .medium))
+                            .foregroundStyle(active ? .primary : .secondary)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(active ? Color.accentColor.opacity(0.14) : Color.primary.opacity(0.04))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(active ? Color.accentColor : Color.primary.opacity(0.08), lineWidth: active ? 1.5 : 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .opacity(isEnabled ? 1 : 0.45)
+        .padding(.top, 4)
+    }
+
+    @ViewBuilder
+    private func titleText(for skin: LiveIslandSkin) -> some View {
+        switch skin {
+        case .liquid: Text("Liquid")
+        case .boring: Text("Full")
+        case .classic: Text("Compact")
+        case .dynamicIsland: Text("Dynamic Island")
+        }
+    }
+
+    @ViewBuilder
+    private func thumbnail(for skin: LiveIslandSkin) -> some View {
+        switch skin {
+        case .liquid:
+            HStack(spacing: 4) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.black)
+                        .shadow(color: Color(red: 0.56, green: 0.42, blue: 0.96).opacity(0.55), radius: 4)
+                    HStack {
+                        RoundedRectangle(cornerRadius: 2).fill(Color.pink).frame(width: 8, height: 8)
+                        Spacer()
+                        HStack(spacing: 1) {
+                            Capsule().fill(Color.pink).frame(width: 1.5, height: 5)
+                            Capsule().fill(Color.pink).frame(width: 1.5, height: 9)
+                            Capsule().fill(Color.pink).frame(width: 1.5, height: 6)
+                        }
+                    }
+                    .padding(.horizontal, 5)
+                }
+                .frame(width: 56, height: 18)
+                Circle().fill(Color.black)
+                    .overlay(Circle().fill(Color.orange).frame(width: 5, height: 5))
+                    .frame(width: 14, height: 14)
+            }
+        case .boring:
+            VStack(spacing: 2) {
+                RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.black)
+                    .overlay(
+                        HStack(spacing: 3) {
+                            RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.22))
+                            RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.14))
+                        }
+                        .padding(4)
+                    )
+                    .frame(width: 68, height: 28)
+            }
+        case .classic:
+            RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.black)
+                .overlay(
+                    HStack(spacing: 4) {
+                        RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.25)).frame(width: 12, height: 12)
+                        RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.16)).frame(height: 6)
+                    }
+                    .padding(.horizontal, 6)
+                )
+                .frame(width: 60, height: 22)
+        case .dynamicIsland:
+            Capsule().fill(Color.black)
+                .overlay(Capsule().strokeBorder(.white.opacity(0.32), lineWidth: 1))
+                .overlay(
+                    HStack {
+                        Circle().fill(Color.pink.opacity(0.85)).frame(width: 7, height: 7)
+                        Spacer()
+                        Circle().fill(Color.green.opacity(0.85)).frame(width: 5, height: 5)
+                    }
+                    .padding(.horizontal, 6)
+                )
+                .frame(width: 58, height: 18)
+        }
     }
 }

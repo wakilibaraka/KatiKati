@@ -154,7 +154,32 @@ struct SettingsNotificationsPane: View {
         }
 
         // Where macOS puts its own banners — the section the Notch page used to carry.
+        SettingsCard(Text("Event Alerts")) {
+            SettingsRow(Text("Event Alerts")) {
+                Picker("Event Alerts", selection: Binding(get: { store.liveEventRoute }, set: { store.setLiveEventRoute($0) })) {
+                    ForEach(LiveEventRoute.allCases, id: \.self) { Self.title(for: $0).tag($0) }
+                }
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            .help(Text("Choose where Dynamic Notch event alerts appear."))
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("System Banners"),
+                isOn: Binding(get: { store.liveEventOSBanners }, set: { store.setLiveEventOSBanners($0) })
+            )
+            .help(Text("Also show Dynamic Notch alerts as macOS notifications."))
+        }
         SettingsLayoutPane(store: store, mode: .notifications)
+    }
+
+    private static func title(for route: LiveEventRoute) -> Text {
+        switch route {
+        case .automatic: return Text("Automatic")
+        case .notch: return Text("Notch")
+        case .dock: return Text("Dock")
+        case .both: return Text("Both")
+        case .off: return Text("Off")
+        }
     }
 
     private func milestone(_ level: Int) -> some View {

@@ -29,24 +29,24 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.stripPlacement(forDisplay: "D2"), .right)
     }
 
-    /// Live Island surfaces (8b-5): dock island on, notch island off, events auto-routed; all persist.
+    /// Live Island surfaces (8b-5): dock island off by default, notch island on, events auto-routed; all persist.
     func testLiveIslandSurfaceDefaultsAndPersistence() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertTrue(store.dockIslandEnabled)
+        XCTAssertFalse(store.dockIslandEnabled)
         XCTAssertTrue(store.notchIslandEnabled)
         XCTAssertEqual(store.liveEventRoute, .automatic)
-        XCTAssertFalse(store.liveEventOSBanners, "OS banners are opt-in")
+        XCTAssertTrue(store.liveEventOSBanners)
 
-        store.setLiveEventOSBanners(true)
-        store.setDockIslandEnabled(false)
+        store.setLiveEventOSBanners(false)
+        store.setDockIslandEnabled(true)
         store.setNotchIslandEnabled(true)
         store.setLiveEventRoute(.both)
         let reloaded = AppSettingsStore(defaults: defaults)
-        XCTAssertFalse(reloaded.dockIslandEnabled)
+        XCTAssertTrue(reloaded.dockIslandEnabled)
         XCTAssertTrue(reloaded.notchIslandEnabled)
         XCTAssertEqual(reloaded.liveEventRoute, .both)
-        XCTAssertTrue(reloaded.liveEventOSBanners)
+        XCTAssertFalse(reloaded.liveEventOSBanners)
     }
 
     /// An unknown stored route string must fall back to automatic, never crash or silence events.

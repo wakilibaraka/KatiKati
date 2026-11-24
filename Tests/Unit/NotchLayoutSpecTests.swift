@@ -129,6 +129,31 @@ final class NotchLayoutSpecTests: XCTestCase {
         XCTAssertNil(LiquidWallpaperBackup.consumeOriginalPath(in: tmp))
     }
 
+    func testNotchDisplaySkinPerDisplayResolution() {
+        let suite = "test.notchDisplaySkin.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        XCTAssertEqual(
+            NotchDisplaySkin.resolve(display: "1", fallback: .liquid, stored: NotchDisplaySkin.stored(defaults)),
+            .liquid
+        )
+        NotchDisplaySkin.set(.boring, for: "1", defaults)
+        NotchDisplaySkin.set(.dynamicIsland, for: "uuid-ext", defaults)
+        let stored = NotchDisplaySkin.stored(defaults)
+        XCTAssertEqual(NotchDisplaySkin.resolve(display: "1", fallback: .liquid, stored: stored), .boring)
+        XCTAssertEqual(
+            NotchDisplaySkin.resolve(display: "1", displayUUID: "uuid-ext", fallback: .liquid, stored: stored),
+            .dynamicIsland,
+            "UUID match takes precedence over numeric display ID"
+        )
+        NotchDisplaySkin.set(nil, for: "1", defaults)
+        XCTAssertEqual(
+            NotchDisplaySkin.resolve(display: "1", fallback: .liquid, stored: NotchDisplaySkin.stored(defaults)),
+            .liquid
+        )
+    }
+
     func testWeekStripCrossesMonthBoundary() {
         let now = utc.date(from: DateComponents(year: 2026, month: 4, day: 1))!
         let numbers = NotchLayoutSpec.weekStrip(now: now, calendar: utc).map(\.dayNumber)
