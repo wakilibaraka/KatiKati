@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import KatiKati
 
@@ -873,5 +874,215 @@ final class MusicDesktopWidgetPolicyTests: XCTestCase {
         MusicSurfaceConfig.ensureWallpaperDefaultMigrated(defaults: chosen)
         XCTAssertEqual(chosen.object(forKey: MusicSurfaceConfig.wallpaperEnabledKey) as? Bool, true)
         XCTAssertEqual(chosen.object(forKey: MusicSurfaceConfig.wallpaperDefaultMigratedKey) as? Bool, true)
+    }
+}
+
+// MARK: - §10 desktop music widget: the live move/resize path
+
+/// Drives the production placement object — the same one whose `interaction` closures the SwiftUI card holds —
+/// against a real `NSPanel` and its own per-display record, so a no-op move, a stale frame read or a wrong
+/// anchor would fail here and not just in the geometry math.
+@MainActor
+final class MusicDesktopWidgetInteractionTests: XCTestCase {
+    /// `NowPlayingProgress.swift` and the placement seam compile into this test target as well, so these tests
+    /// drive the same source the app runs, with this module's copy of the types.
+    private typealias WidgetPreset = MusicDesktopWidgetPreset
+    private typealias WidgetGeometry = MusicDesktopWidgetGeometry
+
+    private let surface = CGRect(x: 0, y: 0, width: 1728, height: 1080)
+    private let displayID = "display-under-test"
+    private var defaults: UserDefaults!
+    private var suiteName = ""
+    private let key = "test.frames"
+
+    override func setUp() {
+        super.setUp()
+        _ = NSApplication.shared
+        suiteName = "musicdesk.interaction.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+        super.tearDown()
+    }
+
+    func testDragMovesTheRealPanelAndCommitsItsFrame() {
+        let (panel, placement) = makePlacement(.card, frame: CGRect(x: 600, y: 400, width: 300, height: 224))
+
+        placement.interaction.move(CGSize(width: 40, height: -60))
+
+        XCTAssertEqual(panel.frame.origin.x, 640, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.origin.y, 340, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.size, CGSize(width: 300, height: 224), "a drag must not resize")
+
+        placement.interaction.commit()
+
+        let stored = committedFrame()
+        XCTAssertNotNil(stored)
+        assertFrame(stored, equals: panel.frame)
+        assertFrame(placement.restoredFrame, equals: panel.frame)
+    }
+
+    func testDragOffTheVisibleFrameIsClampedOnTheRealPanel() {
+        let (panel, placement) = makePlacement(.card, frame: CGRect(x: 600, y: 400, width: 300, height: 224))
+
+        placement.interaction.move(CGSize(width: 5000, height: 5000))
+
+        XCTAssertEqual(panel.frame.maxX, surface.maxX, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.maxY, surface.maxY, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.size, CGSize(width: 300, height: 224))
+
+        placement.interaction.move(CGSize(width: -5000, height: -5000))
+
+        XCTAssertEqual(panel.frame.minX, surface.minX, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.minY, surface.minY, accuracy: 0.5)
+
+        placement.interaction.commit()
+        assertFrame(committedFrame(), equals: panel.frame)
+    }
+
+    func testCornerGripResizeAnchorsTheTopLeadingCornerAndCommits() {
+        let (panel, placement) = makePlacement(.card, frame: CGRect(x: 600, y: 400, width: 300, height: 224))
+
+        placement.interaction.resize(CGSize(width: 80, height: 40))
+
+        XCTAssertEqual(panel.frame.width, 380, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.height, 264, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.minX, 600, accuracy: 0.5, "the left edge must hold still")
+        XCTAssertEqual(panel.frame.maxY, 624, accuracy: 0.5, "the top edge must hold still")
+
+        placement.interaction.commit()
+
+        let stored = committedFrame()
+        assertFrame(stored, equals: panel.frame)
+        XCTAssertEqual(stored?.width ?? 0, 380, accuracy: 0.5)
+        XCTAssertEqual(stored?.height ?? 0, 264, accuracy: 0.5)
+    }
+
+    func testResizeCannotShrinkBelowThePresetMinimum() {
+        for preset: WidgetPreset in [.card, .stage] {
+            let (panel, placement) = makePlacement(preset,
+                                                   frame: CGRect(x: 900, y: 500, width: 600, height: 500))
+
+            placement.interaction.resize(CGSize(width: -2000, height: -2000))
+
+            XCTAssertEqual(panel.frame.size, WidgetGeometry.minimumSize(for: preset),
+                           "\(preset.rawValue) shrank below its minimum")
+            XCTAssertEqual(panel.frame.minX, 900, accuracy: 0.5)
+            XCTAssertEqual(panel.frame.maxY, 1000, accuracy: 0.5)
+
+            placement.interaction.commit()
+            assertFrame(committedFrame(), equals: panel.frame)
+        }
+    }
+
+    func testStripGripChangesWidthOnly() {
+        let start = CGRect(x: 24, y: 24, width: 1680, height: WidgetGeometry.stripHeight)
+        let (panel, placement) = makePlacement(.strip, frame: start)
+
+        placement.interaction.resize(CGSize(width: -120, height: 120))
+
+        XCTAssertEqual(panel.frame.width, 1560, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.height, WidgetGeometry.stripHeight, accuracy: 0.5,
+                       "a strip must never grow taller")
+        XCTAssertEqual(panel.frame.minX, start.minX, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.maxY, start.maxY, accuracy: 0.5)
+
+        placement.interaction.commit()
+        assertFrame(committedFrame(), equals: panel.frame)
+    }
+
+    func testCommitSnapsTheRealPanelAndStoresTheSnappedFrame() {
+        // Nine points off the right edge: inside the snap threshold, so the widget settles flush.
+        let start = CGRect(x: surface.maxX - 300 - 9, y: 500, width: 300, height: 224)
+        let (panel, placement) = makePlacement(.card, frame: start)
+
+        placement.interaction.commit()
+
+        XCTAssertEqual(panel.frame.maxX, surface.maxX, accuracy: 0.5, "commit must snap the live panel")
+        assertFrame(committedFrame(), equals: panel.frame)
+    }
+
+    func testResizeOffTheSurfaceKeepsThePanelInsideIt() {
+        let (panel, placement) = makePlacement(.card, frame: CGRect(x: 600, y: 400, width: 300, height: 224))
+
+        placement.interaction.resize(CGSize(width: 5000, height: 5000))
+
+        XCTAssertLessThanOrEqual(panel.frame.maxX, surface.maxX + 0.5)
+        XCTAssertLessThanOrEqual(panel.frame.maxY, surface.maxY + 0.5)
+        XCTAssertEqual(panel.frame.minX, 600, accuracy: 0.5)
+        XCTAssertEqual(panel.frame.maxY, 624, accuracy: 0.5)
+
+        placement.interaction.commit()
+        assertFrame(committedFrame(), equals: panel.frame)
+    }
+
+    func testPosterIsClickThroughAndNeverResizes() {
+        let start = CGRect(x: 0, y: 0, width: 1728, height: 1080)
+        let (panel, placement) = makePlacement(.poster, frame: start)
+
+        placement.interaction.resize(CGSize(width: -400, height: -400))
+
+        XCTAssertEqual(panel.frame.size, start.size)
+    }
+
+    func testACommittedFrameIsWhatAFreshPlacementRestores() {
+        let (panel, placement) = makePlacement(.card, frame: CGRect(x: 600, y: 400, width: 300, height: 224))
+        placement.interaction.move(CGSize(width: -100, height: 50))
+        placement.interaction.resize(CGSize(width: 60, height: 30))
+        placement.interaction.commit()
+
+        let freshPanel = makePanel(frame: .zero)
+        let restored = MusicDesktopWidgetPlacement(panel: freshPanel,
+                                                   displayID: displayID,
+                                                   preset: .card,
+                                                   bounds: surface,
+                                                   store: store())
+        assertFrame(restored.restoredFrame, equals: panel.frame)
+    }
+
+    // MARK: helpers
+
+    private func makePanel(frame: CGRect) -> NSPanel {
+        let panel = NSPanel(contentRect: frame,
+                            styleMask: [.borderless, .nonactivatingPanel],
+                            backing: .buffered,
+                            defer: false)
+        panel.setFrame(frame, display: false)
+        return panel
+    }
+
+    private func makePlacement(_ preset: WidgetPreset, frame: CGRect)
+        -> (panel: NSPanel, placement: MusicDesktopWidgetPlacement) {
+        let panel = makePanel(frame: frame)
+        let placement = MusicDesktopWidgetPlacement(panel: panel,
+                                                    displayID: displayID,
+                                                    preset: preset,
+                                                    bounds: surface,
+                                                    store: store())
+        return (panel, placement)
+    }
+
+    private func store() -> MusicDesktopWidgetFrameStore {
+        MusicDesktopWidgetFrameStore(defaults: defaults, key: key)
+    }
+
+    /// Reads back what production wrote, not an in-memory copy.
+    private func committedFrame() -> CGRect? {
+        store().rect(for: displayID, in: surface)
+    }
+
+    private func assertFrame(_ actual: CGRect?, equals expected: CGRect,
+                             file: StaticString = #filePath, line: UInt = #line) {
+        guard let actual else {
+            XCTFail("no frame committed for \(displayID)", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(actual.origin.x, expected.origin.x, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(actual.origin.y, expected.origin.y, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(actual.width, expected.width, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(actual.height, expected.height, accuracy: 0.5, file: file, line: line)
     }
 }

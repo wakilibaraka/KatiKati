@@ -564,6 +564,8 @@
 		7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010E /* NowPlayingProgressTests.swift */; };
 		7B500000000000000000010A /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
 		7B500000000000000000010B /* NowPlayingProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010C /* NowPlayingProgress.swift */; };
+		7B5000000000000000000202 /* MusicDesktopWidgetPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000201 /* MusicDesktopWidgetPlacement.swift */; };
+		7B5000000000000000000203 /* MusicDesktopWidgetPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000201 /* MusicDesktopWidgetPlacement.swift */; };
 		7C5000000000000000A002 /* ArtworkAccent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A001 /* ArtworkAccent.swift */; };
 		7C5000000000000000A003 /* ArtworkAccent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A001 /* ArtworkAccent.swift */; };
 		7C5000000000000000A005 /* ArtworkAccentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5000000000000000A004 /* ArtworkAccentTests.swift */; };
@@ -1875,6 +1877,7 @@
 		FA33A0000000000000000171 /* DownloadManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerTests.swift; path = Tests/Unit/DownloadManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010E /* NowPlayingProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgressTests.swift; path = Tests/Unit/NowPlayingProgressTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010C /* NowPlayingProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgress.swift; path = Core/Support/NowPlayingProgress.swift; sourceTree = SOURCE_ROOT; };
+		7B5000000000000000000201 /* MusicDesktopWidgetPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MusicDesktopWidgetPlacement.swift; path = Core/Support/Desktop/MusicDesktopWidgetPlacement.swift; sourceTree = SOURCE_ROOT; };
 		7C5000000000000000A001 /* ArtworkAccent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ArtworkAccent.swift; path = Core/Support/ArtworkAccent.swift; sourceTree = SOURCE_ROOT; };
 		7C5000000000000000A004 /* ArtworkAccentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ArtworkAccentTests.swift; path = Tests/Unit/ArtworkAccentTests.swift; sourceTree = SOURCE_ROOT; };
 		7C5000000000000000A011 /* NowPlayingTapPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingTapPolicy.swift; path = Core/Support/NowPlayingTapPolicy.swift; sourceTree = SOURCE_ROOT; };
@@ -3898,6 +3901,7 @@
 				7B50000000000000000000F2 /* LiveEventDetector.swift in Sources */,
 				7B5000000000000000000101 /* LiveSurfaceRouting.swift in Sources */,
 				7B500000000000000000010A /* NowPlayingProgress.swift in Sources */,
+				7B5000000000000000000202 /* MusicDesktopWidgetPlacement.swift in Sources */,
 				7C5000000000000000A002 /* ArtworkAccent.swift in Sources */,
 				7C5000000000000000A012 /* NowPlayingTapPolicy.swift in Sources */,
 				7C5000000000000000A022 /* NotchMusicGlow.swift in Sources */,
@@ -4310,6 +4314,7 @@
 				7B5000000000000000003013 /* NotchLayoutSpec.swift in Sources */,
 				FB41A00000000000000E03 /* NotchPreview.swift in Sources */,
 				7B500000000000000000010B /* NowPlayingProgress.swift in Sources */,
+				7B5000000000000000000203 /* MusicDesktopWidgetPlacement.swift in Sources */,
 				7C5000000000000000A003 /* ArtworkAccent.swift in Sources */,
 				7C5000000000000000A013 /* NowPlayingTapPolicy.swift in Sources */,
 				7C5000000000000000A023 /* NotchMusicGlow.swift in Sources */,
