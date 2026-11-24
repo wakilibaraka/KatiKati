@@ -1159,6 +1159,7 @@ struct MenuBarCreativeHubView: View {
     var onOpenSettings: () -> Void = {}
 
     @ObservedObject private var engine = QuickToggleEngine.shared
+    @ObservedObject private var scheduler = HubScheduleCoordinator.shared
     @StateObject private var status = SystemStatusService()
     @State private var selectedTab: MenuBarHubTab = MenuBarHubTab.visibleTabs().first ?? .switches
     @State private var query = ""
@@ -1167,6 +1168,19 @@ struct MenuBarCreativeHubView: View {
     @State private var listeningMode: String? = AudioOutputSwitcher.bluetoothListeningMode()
     @State private var brightness: Double? = DisplayServicesBrightness.current()
     @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
+    @State private var shortcutNames: [String] = []
+    @State private var shortcutsLoaded = false
+    @State private var evolutions: [EvolutionItem] = EvolutionItem.parse(UserDefaults.standard.data(forKey: EvolutionItem.defaultsKey))
+    @State private var showAddEvolution = false
+    @State private var evoTitle = ""
+    @State private var evoScript = ""
+    @State private var evoShell: EvolutionItem.Shell = .sh
+    @State private var showAddSchedule = false
+    @State private var schedTarget: QuickToggleID = .keepAwake
+    @State private var schedDesiredState = true
+    @State private var schedIsDaily = false
+    @State private var schedMinutes = 30
+    @State private var schedTime = Date()
     @State private var surfaceVersion = 0
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
@@ -1278,9 +1292,8 @@ struct MenuBarCreativeHubView: View {
         switch selectedTab {
         case .switches: switchesBody
         case .statusAudio: statusAudioBody
-        default:
-            Text(verbatim: selectedTab.rawValue).font(.caption).foregroundStyle(inkSoft)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .shortcutsEvolutions: shortcutsEvolutionsBody
+        case .schedules: schedulesBody
         }
     }
 
@@ -1427,6 +1440,200 @@ struct MenuBarCreativeHubView: View {
             Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))").font(.system(size: 10)).monospacedDigit()
                 .foregroundStyle(inkSoft).frame(width: 24, alignment: .trailing)
         }
+    }
+
+    // MARK: - MB-7: Shortcuts & Evolutions + Schedules
+
+    private var shortcutsEvolutionsBody: some View {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let filteredEvos = q.isEmpty ? evolutions : evolutions.filter { $0.title.localizedCaseInsensitiveContains(q) }
+        let filteredSC = q.isEmpty ? shortcutNames : shortcutNames.filter { $0.localizedCaseInsensitiveContains(q) }
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Custom").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
+                    Spacer()
+                    Button { showAddEvolution.toggle() } label: {
+                        Label(String(localized: "Add"), systemImage: "plus").font(.system(size: 10.5, weight: .medium))
+                    }.buttonStyle(.plain).foregroundStyle(palette.primaryAccent)
+                }
+                if showAddEvolution { addEvolutionForm }
+                ForEach(filteredEvos) { evo in
+                    HStack(spacing: 8) {
+                        Image(systemName: evo.symbolName).font(.system(size: 11)).foregroundStyle(palette.primaryAccent).frame(width: 18)
+                        Text(verbatim: evo.title).font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink).lineLimit(1)
+                        Spacer()
+                        Button { Task { _ = await EvolutionRunner.run(evo) } } label: {
+                            Text("Run").font(.system(size: 10, weight: .semibold)).padding(.horizontal, 8).padding(.vertical, 3)
+                                .background(Capsule().fill(cardFill))
+                        }.buttonStyle(.plain)
+                        Button { deleteEvolution(evo.id) } label: {
+                            Image(systemName: "trash").font(.system(size: 10)).foregroundStyle(inkSoft)
+                        }.buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 9).padding(.vertical, 6)
+                    .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+                }
+
+                HStack {
+                    Text("Shortcuts").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
+                    Spacer()
+                    Button { Task { shortcutNames = await ShortcutsCatalogRunner.listNames() } } label: {
+                        Image(systemName: "arrow.clockwise").font(.system(size: 10.5)).foregroundStyle(inkSoft)
+                    }.buttonStyle(.plain).help(Text("Refresh"))
+                }.padding(.top, 2)
+
+                if filteredSC.isEmpty {
+                    Text("None").font(.system(size: 10.5)).foregroundStyle(inkSoft).padding(.vertical, 4)
+                } else {
+                    ForEach(filteredSC, id: \.self) { name in
+                        HStack(spacing: 8) {
+                            Image(systemName: "bolt.fill").font(.system(size: 11)).foregroundStyle(palette.primaryAccent).frame(width: 18)
+                            Text(verbatim: name).font(.system(size: 11.5)).foregroundStyle(ink).lineLimit(1)
+                            Spacer()
+                            Button { Task { _ = await ShortcutsCatalogRunner.runShortcut(named: name) } } label: {
+                                Text("Run").font(.system(size: 10, weight: .semibold)).padding(.horizontal, 8).padding(.vertical, 3)
+                                    .background(Capsule().fill(cardFill))
+                            }.buttonStyle(.plain)
+                        }
+                        .padding(.horizontal, 9).padding(.vertical, 6)
+                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+                    }
+                }
+            }
+        }
+        .task {
+            guard !shortcutsLoaded else { return }
+            shortcutsLoaded = true
+            shortcutNames = await ShortcutsCatalogRunner.listNames()
+        }
+    }
+
+    private var addEvolutionForm: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            TextField(String(localized: "Name"), text: $evoTitle).textFieldStyle(.roundedBorder).font(.system(size: 11))
+            TextField(String(localized: "Command"), text: $evoScript).textFieldStyle(.roundedBorder).font(.system(size: 11))
+            HStack {
+                Picker(selection: $evoShell) {
+                    Text(verbatim: "sh").tag(EvolutionItem.Shell.sh)
+                    Text(verbatim: "osascript").tag(EvolutionItem.Shell.appleScript)
+                } label: { EmptyView() }.labelsHidden().pickerStyle(.segmented).frame(width: 130)
+                Spacer()
+                Button("Cancel") { showAddEvolution = false }.font(.system(size: 10.5))
+                Button("Save") { saveEvolution() }
+                    .font(.system(size: 10.5, weight: .semibold))
+                    .disabled(evoTitle.trimmingCharacters(in: .whitespaces).isEmpty || evoScript.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+        .padding(8).background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+    }
+
+    private func saveEvolution() {
+        let item = EvolutionItem(title: evoTitle.trimmingCharacters(in: .whitespaces), shell: evoShell, runScript: evoScript)
+        evolutions.append(item)
+        UserDefaults.standard.set(EvolutionItem.encode(evolutions), forKey: EvolutionItem.defaultsKey)
+        evoTitle = ""; evoScript = ""; showAddEvolution = false
+    }
+
+    private func deleteEvolution(_ id: UUID) {
+        evolutions.removeAll { $0.id == id }
+        UserDefaults.standard.set(EvolutionItem.encode(evolutions), forKey: EvolutionItem.defaultsKey)
+    }
+
+    private var schedulesBody: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Schedule").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
+                    Spacer()
+                    Button { showAddSchedule.toggle() } label: {
+                        Label(String(localized: "Add"), systemImage: "plus").font(.system(size: 10.5, weight: .medium))
+                    }.buttonStyle(.plain).foregroundStyle(palette.primaryAccent)
+                }
+                if showAddSchedule { addScheduleForm }
+                if scheduler.rules.isEmpty {
+                    Text("None").font(.system(size: 10.5)).foregroundStyle(inkSoft).padding(.vertical, 4)
+                } else {
+                    ForEach(scheduler.rules) { rule in scheduleRow(rule) }
+                }
+            }
+        }
+        .onAppear { scheduler.reload() }
+    }
+
+    private var addScheduleForm: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Picker(selection: $schedTarget) {
+                    ForEach(QuickToggleID.allCases.filter { !$0.isAction }, id: \.self) { id in id.title.tag(id) }
+                } label: { EmptyView() }.labelsHidden().frame(maxWidth: .infinity)
+                Picker(selection: $schedDesiredState) {
+                    Text("On").tag(true); Text("Off").tag(false)
+                } label: { EmptyView() }.labelsHidden().pickerStyle(.segmented).frame(width: 84)
+            }
+            HStack {
+                Picker(selection: $schedIsDaily) {
+                    Text("Timer").tag(false); Text("Daily").tag(true)
+                } label: { EmptyView() }.labelsHidden().pickerStyle(.segmented).frame(width: 120)
+                Spacer()
+                if schedIsDaily {
+                    DatePicker(selection: $schedTime, displayedComponents: .hourAndMinute) { EmptyView() }.labelsHidden()
+                } else {
+                    Stepper(value: $schedMinutes, in: 5...240, step: 5) {
+                        Text(verbatim: "\(schedMinutes)m").font(.system(size: 11)).monospacedDigit()
+                    }
+                }
+            }
+            HStack {
+                Spacer()
+                Button("Cancel") { showAddSchedule = false }.font(.system(size: 10.5))
+                Button("Save") { saveSchedule() }.font(.system(size: 10.5, weight: .semibold))
+            }
+        }
+        .padding(8).background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+    }
+
+    private func scheduleRow(_ rule: HubScheduleRule) -> some View {
+        let title = HubSwitchID(token: rule.targetToken).map(switchLabel) ?? rule.targetToken
+        let kindLabel: String = {
+            switch rule.kind {
+            case .afterMinutes(let m): return "\(m)m"
+            case .daily(let h, let m): return String(format: "%02d:%02d", h, m)
+            }
+        }()
+        return HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(title) · \(rule.desiredState ? String(localized: "On") : String(localized: "Off"))")
+                    .font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink).lineLimit(1)
+                Text(verbatim: kindLabel).font(.system(size: 9.5)).monospacedDigit().foregroundStyle(inkSoft)
+            }
+            Spacer()
+            Toggle(isOn: Binding(get: { rule.isEnabled }, set: { next in
+                var list = scheduler.rules
+                if let idx = list.firstIndex(where: { $0.id == rule.id }) { list[idx].isEnabled = next }
+                scheduler.save(list)
+            })) { EmptyView() }.labelsHidden().toggleStyle(.switch).controlSize(.mini)
+            Button {
+                scheduler.save(scheduler.rules.filter { $0.id != rule.id })
+            } label: {
+                Image(systemName: "trash").font(.system(size: 10)).foregroundStyle(inkSoft)
+            }.buttonStyle(.plain)
+        }
+        .padding(.horizontal, 9).padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+    }
+
+    private func saveSchedule() {
+        let kind: HubScheduleRule.Kind
+        if schedIsDaily {
+            let c = Calendar.current.dateComponents([.hour, .minute], from: schedTime)
+            kind = .daily(hour: c.hour ?? 9, minute: c.minute ?? 0)
+        } else {
+            kind = .afterMinutes(schedMinutes)
+        }
+        let rule = HubScheduleRule(targetToken: HubSwitchID.system(schedTarget).token, desiredState: schedDesiredState, kind: kind)
+        scheduler.save(scheduler.rules + [rule])
+        showAddSchedule = false
     }
 
     // MARK: - Helpers
