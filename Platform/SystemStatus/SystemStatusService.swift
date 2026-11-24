@@ -16,9 +16,7 @@ final class SystemStatusService: ObservableObject {
 
     private var consumers = 0
     private var powerSource: CFRunLoopSource?
-    private var wifiClient: CWWiFiClient?
-    private var wifiDelegate: WiFiEventBridge?
-    private var wifiRefreshTask: Task<Void, Never>?
+    private var wifiObserverID: UUID?
     private var audioDevice = AudioObjectID(kAudioObjectUnknown)
     private var audioListenerQueue = DispatchQueue.main
     private var audioBlocks: [(AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)] = []
@@ -77,57 +75,23 @@ final class SystemStatusService: ObservableObject {
         update { $0.battery = battery }
     }
 
-    // MARK: Wi-Fi (CoreWLAN events)
+    // MARK: Wi-Fi (CoreWLAN events via shared ref-counted monitor)
 
     private func startWiFi() {
-        let client = CWWiFiClient.shared()
-        let bridge = WiFiEventBridge { [weak self] in
-            DispatchQueue.main.async { MainActor.assumeIsolated { self?.refreshWiFi() } }
+        guard wifiObserverID == nil else { return }
+        wifiObserverID = SharedWiFiMonitor.shared.addObserver { [weak self] nextWiFi in
+            self?.update { $0.wifi = nextWiFi }
         }
-        client.delegate = bridge
-        for event in [CWEventType.powerDidChange, .ssidDidChange, .linkDidChange, .linkQualityDidChange] {
-            try? client.startMonitoringEvent(with: event)
-        }
-        wifiClient = client
-        wifiDelegate = bridge
-        refreshWiFi()
     }
 
     private func stopWiFi() {
-        wifiRefreshTask?.cancel()
-        wifiRefreshTask = nil
-        try? wifiClient?.stopMonitoringAllEvents()
-        wifiClient?.delegate = nil
-        wifiClient = nil
-        wifiDelegate = nil
+        guard let id = wifiObserverID else { return }
+        wifiObserverID = nil
+        SharedWiFiMonitor.shared.removeObserver(id)
     }
 
     private func refreshWiFi() {
-        let delayInitial = wifiRefreshTask != nil
-        wifiRefreshTask?.cancel()
-        wifiRefreshTask = Task.detached(priority: .utility) { [weak self] in
-            if delayInitial {
-                try? await Task.sleep(nanoseconds: 150_000_000)
-                guard !Task.isCancelled else { return }
-            }
-            let nextWiFi: WiFiStatus
-            if let interface = CWWiFiClient.shared().interface() {
-                let rssi = interface.rssiValue()
-                nextWiFi = WiFiStatus(
-                    isPoweredOn: interface.powerOn(),
-                    ssid: interface.ssid(),
-                    rssi: rssi == 0 ? nil : rssi
-                )
-            } else {
-                nextWiFi = .off
-            }
-            guard !Task.isCancelled else { return }
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                self.wifiRefreshTask = nil
-                self.update { $0.wifi = nextWiFi }
-            }
-        }
+        SharedWiFiMonitor.shared.refresh()
     }
 
     // MARK: Volume (CoreAudio property listeners on the default output device)
@@ -249,6 +213,88 @@ final class SystemStatusService: ObservableObject {
             if AudioObjectGetPropertyData(device, &property, 0, nil, &size, &value) == noErr { return value }
         }
         return nil
+    }
+}
+
+/// Single ref-counted owner of `CWWiFiClient.shared().delegate` so multiple status clusters never
+/// overwrite or clear each other's CoreWLAN delegate callbacks.
+@MainActor
+private final class SharedWiFiMonitor {
+    static let shared = SharedWiFiMonitor()
+
+    private var observers: [UUID: (WiFiStatus) -> Void] = [:]
+    private var latest: WiFiStatus?
+    private var wifiClient: CWWiFiClient?
+    private var wifiDelegate: WiFiEventBridge?
+    private var refreshTask: Task<Void, Never>?
+
+    func addObserver(_ handler: @escaping (WiFiStatus) -> Void) -> UUID {
+        let id = UUID()
+        observers[id] = handler
+        if observers.count == 1 {
+            let client = CWWiFiClient.shared()
+            let bridge = WiFiEventBridge {
+                DispatchQueue.main.async { MainActor.assumeIsolated { SharedWiFiMonitor.shared.refresh() } }
+            }
+            client.delegate = bridge
+            for event in [CWEventType.powerDidChange, .ssidDidChange, .linkDidChange, .linkQualityDidChange] {
+                try? client.startMonitoringEvent(with: event)
+            }
+            wifiClient = client
+            wifiDelegate = bridge
+            refresh()
+        } else if let latest {
+            handler(latest)
+        } else {
+            refresh()
+        }
+        return id
+    }
+
+    func removeObserver(_ id: UUID) {
+        observers.removeValue(forKey: id)
+        guard observers.isEmpty else { return }
+        refreshTask?.cancel()
+        refreshTask = nil
+        try? wifiClient?.stopMonitoringAllEvents()
+        wifiClient?.delegate = nil
+        wifiClient = nil
+        wifiDelegate = nil
+    }
+
+    func refresh() {
+        guard !observers.isEmpty else { return }
+        let delayInitial = refreshTask != nil
+        refreshTask?.cancel()
+        refreshTask = Task.detached(priority: .utility) {
+            if delayInitial {
+                try? await Task.sleep(nanoseconds: 150_000_000)
+                guard !Task.isCancelled else { return }
+            }
+            let nextWiFi: WiFiStatus
+            if let interface = CWWiFiClient.shared().interface() {
+                let rssi = interface.rssiValue()
+                nextWiFi = WiFiStatus(
+                    isPoweredOn: interface.powerOn(),
+                    ssid: interface.ssid(),
+                    rssi: rssi == 0 ? nil : rssi
+                )
+            } else {
+                nextWiFi = .off
+            }
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                SharedWiFiMonitor.shared.apply(nextWiFi)
+            }
+        }
+    }
+
+    private func apply(_ nextWiFi: WiFiStatus) {
+        refreshTask = nil
+        latest = nextWiFi
+        for handler in observers.values {
+            handler(nextWiFi)
+        }
     }
 }
 
