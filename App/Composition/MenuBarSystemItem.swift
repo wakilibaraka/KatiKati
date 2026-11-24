@@ -266,3 +266,172 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
         return image
     }
 }
+
+// MARK: - MB-2: Status Trio Ring Menu Bar Renderer
+
+@MainActor
+enum StatusTrioIconRenderer {
+    private static var cache: [StatusTrioRenderKey: NSImage] = [:]
+
+    static func image(for key: StatusTrioRenderKey) -> NSImage {
+        if let cached = cache[key] { return cached }
+        if cache.count >= 12 { cache.removeAll(keepingCapacity: true) }
+
+        let iconSide: CGFloat = 18
+        let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+        let primaryInk: NSColor = key.semanticColor
+            ? (key.isDarkMenuBar ? NSColor.white.withAlphaComponent(0.92) : NSColor.black.withAlphaComponent(0.88))
+            : .black
+        let readoutAttrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: primaryInk]
+        let readoutSize = key.readoutText.map { ($0 as NSString).size(withAttributes: readoutAttrs) } ?? .zero
+        let totalWidth = iconSide + (key.readoutText == nil ? 0 : 3 + ceil(readoutSize.width))
+
+        let rendered = NSImage(size: NSSize(width: totalWidth, height: iconSide), flipped: false) { _ in
+            NSGraphicsContext.current?.shouldAntialias = true
+            let center = NSPoint(x: iconSide / 2, y: iconSide / 2)
+            let radius: CGFloat = 6.9
+            let lineWidth = CGFloat(key.stroke.lineWidth)
+
+            drawBatteryArc(key: key, center: center, radius: radius, lineWidth: lineWidth, ink: primaryInk)
+            drawCenterLink(key.link, center: center, stroke: lineWidth, ink: primaryInk)
+            drawVolumeDots(key: key, center: center, radius: radius, dotSize: lineWidth + 0.65, ink: primaryInk)
+
+            if let text = key.readoutText {
+                let origin = NSPoint(
+                    x: iconSide + 3,
+                    y: (iconSide / 2 + font.descender - font.capHeight / 2).rounded(.toNearestOrAwayFromZero)
+                )
+                (text as NSString).draw(at: origin, withAttributes: readoutAttrs)
+            }
+            if key.hasUpdateDot {
+                drawUpdateDot(iconSide: iconSide, semanticColor: key.semanticColor, ink: primaryInk)
+            }
+            return true
+        }
+        rendered.isTemplate = !key.semanticColor
+        rendered.accessibilityDescription = accessibilityLabel(for: key)
+        cache[key] = rendered
+        return rendered
+    }
+
+    private static func drawBatteryArc(
+        key: StatusTrioRenderKey, center: NSPoint, radius: CGFloat, lineWidth: CGFloat, ink: NSColor
+    ) {
+        let track = NSBezierPath()
+        track.lineWidth = lineWidth
+        track.lineCapStyle = .round
+        track.appendArc(withCenter: center, radius: radius, startAngle: 150, endAngle: 30, clockwise: true)
+        ink.withAlphaComponent(0.24).setStroke()
+        track.stroke()
+
+        let fraction = key.batteryBucket.map { Double($0) / 20.0 } ?? 1.0
+        guard fraction > 0 else { return }
+        let endAngle = 150 - 120 * fraction
+        let fill = NSBezierPath()
+        fill.lineWidth = lineWidth
+        fill.lineCapStyle = .round
+        fill.appendArc(withCenter: center, radius: radius, startAngle: 150, endAngle: endAngle, clockwise: true)
+        batteryColor(key: key, ink: ink).setStroke()
+        fill.stroke()
+
+        if key.isCharging {
+            let rad = endAngle * .pi / 180
+            let tip = NSPoint(x: center.x + cos(rad) * radius, y: center.y + sin(rad) * radius)
+            let dot = NSRect(x: tip.x - 1.3, y: tip.y - 1.3, width: 2.6, height: 2.6)
+            (key.semanticColor ? NSColor.systemGreen : ink).setFill()
+            NSBezierPath(ovalIn: dot).fill()
+        }
+    }
+
+    private static func drawCenterLink(_ link: NetworkLinkKind, center: NSPoint, stroke: CGFloat, ink: NSColor) {
+        switch link {
+        case .wifi(let steps):
+            let dotR: CGFloat = 0.85
+            ink.withAlphaComponent(steps > 0 ? 1 : 0.35).setFill()
+            NSBezierPath(ovalIn: NSRect(x: center.x - dotR, y: center.y - 2.3 - dotR, width: dotR * 2, height: dotR * 2)).fill()
+            for idx in 1...3 {
+                let arc = NSBezierPath()
+                arc.lineWidth = max(0.95, stroke * 0.72)
+                arc.lineCapStyle = .round
+                arc.appendArc(withCenter: NSPoint(x: center.x, y: center.y - 2.3),
+                              radius: CGFloat(idx) * 1.8, startAngle: 48, endAngle: 132, clockwise: false)
+                ink.withAlphaComponent(idx <= steps ? 1 : 0.25).setStroke()
+                arc.stroke()
+            }
+        case .ethernet:
+            let bar = NSBezierPath(roundedRect: NSRect(x: center.x - 3.2, y: center.y - 1.5, width: 6.4, height: 3.0),
+                                   xRadius: 0.9, yRadius: 0.9)
+            bar.lineWidth = max(0.95, stroke * 0.7)
+            ink.setStroke()
+            bar.stroke()
+        case .hotspot:
+            for dx in [-1.6, 1.6] as [CGFloat] {
+                let ring = NSBezierPath(ovalIn: NSRect(x: center.x + dx - 1.9, y: center.y - 1.9, width: 3.8, height: 3.8))
+                ring.lineWidth = max(0.95, stroke * 0.7)
+                ink.setStroke()
+                ring.stroke()
+            }
+        case .bluetoothAudio:
+            let glyph = NSImage(systemSymbolName: "airpodspro", accessibilityDescription: nil)
+            glyph?.isTemplate = true
+            glyph?.draw(in: NSRect(x: center.x - 3.8, y: center.y - 3.2, width: 7.6, height: 6.4))
+        case .offline:
+            ink.withAlphaComponent(0.35).setFill()
+            NSBezierPath(ovalIn: NSRect(x: center.x - 1.4, y: center.y - 1.4, width: 2.8, height: 2.8)).fill()
+            let slash = NSBezierPath()
+            slash.lineWidth = max(1.0, stroke * 0.72)
+            slash.lineCapStyle = .round
+            slash.move(to: NSPoint(x: center.x - 3.1, y: center.y - 2.6))
+            slash.line(to: NSPoint(x: center.x + 3.1, y: center.y + 2.6))
+            ink.withAlphaComponent(0.85).setStroke()
+            slash.stroke()
+        }
+    }
+
+    private static func drawVolumeDots(
+        key: StatusTrioRenderKey, center: NSPoint, radius: CGFloat, dotSize: CGFloat, ink: NSColor
+    ) {
+        let angles: [CGFloat] = [236, 270, 304]
+        for (idx, deg) in angles.enumerated() {
+            let rad = deg * .pi / 180
+            let pt = NSPoint(x: center.x + cos(rad) * radius, y: center.y + sin(rad) * radius)
+            let active = !key.isMuted && idx < key.volumeDots
+            ink.withAlphaComponent(active ? 1.0 : 0.25).setFill()
+            NSBezierPath(ovalIn: NSRect(x: pt.x - dotSize / 2, y: pt.y - dotSize / 2, width: dotSize, height: dotSize)).fill()
+        }
+        if key.isMuted {
+            let slash = NSBezierPath()
+            slash.lineWidth = max(1.0, CGFloat(key.stroke.lineWidth) * 0.72)
+            slash.lineCapStyle = .round
+            slash.move(to: NSPoint(x: center.x - 4.2, y: center.y - radius - 1.2))
+            slash.line(to: NSPoint(x: center.x + 4.2, y: center.y - radius + 1.2))
+            ink.withAlphaComponent(0.9).setStroke()
+            slash.stroke()
+        }
+    }
+
+    private static func drawUpdateDot(iconSide: CGFloat, semanticColor: Bool, ink: NSColor) {
+        let diameter: CGFloat = 4.0
+        let dot = NSRect(x: iconSide - diameter, y: iconSide - diameter, width: diameter, height: diameter)
+        if !semanticColor {
+            NSGraphicsContext.current?.compositingOperation = .clear
+            NSBezierPath(ovalIn: dot.insetBy(dx: -1.1, dy: -1.1)).fill()
+            NSGraphicsContext.current?.compositingOperation = .sourceOver
+            ink.setFill()
+        } else {
+            NSColor.systemRed.setFill()
+        }
+        NSBezierPath(ovalIn: dot).fill()
+    }
+
+    private static func batteryColor(key: StatusTrioRenderKey, ink: NSColor) -> NSColor {
+        guard key.semanticColor else { return ink }
+        if key.isCharging { return .systemGreen }
+        if key.isLowBattery { return .systemRed }
+        return ink
+    }
+
+    private static func accessibilityLabel(for key: StatusTrioRenderKey) -> String {
+        key.hasUpdateDot ? String(localized: "KatiKati — update available") : "KatiKati"
+    }
+}

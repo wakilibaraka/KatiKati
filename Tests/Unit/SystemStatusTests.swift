@@ -119,5 +119,10 @@ final class SystemStatusServiceTests: XCTestCase {
         XCTAssertTrue((0...1).contains(s.volume.level))
         if let level = s.battery.level { XCTAssertTrue((0...100).contains(level)) }
         XCTAssertTrue((0...3).contains(s.wifi.signalSteps))
+        XCTAssertTrue([NetworkLinkKind.offline, .ethernet, .hotspot, .bluetoothAudio]
+            .contains(s.activeLink(showBluetoothAudio: false)) || {
+                if case .wifi = s.activeLink(showBluetoothAudio: false) { return true }
+                return false
+            }())
     }
 }

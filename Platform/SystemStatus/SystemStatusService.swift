@@ -3,6 +3,7 @@ import AudioToolbox
 import Combine
 import CoreWLAN
 import IOKit.ps
+import Network
 
 /// Live battery / Wi-Fi / volume facts for the edge-bar status cluster (Phase 7A-4).
 ///
@@ -17,6 +18,7 @@ final class SystemStatusService: ObservableObject {
     private var consumers = 0
     private var powerSource: CFRunLoopSource?
     private var wifiObserverID: UUID?
+    private var pathMonitor: NWPathMonitor?
     private var audioDevice = AudioObjectID(kAudioObjectUnknown)
     private var audioListenerQueue = DispatchQueue.main
     private var audioBlocks: [(AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)] = []
@@ -29,6 +31,7 @@ final class SystemStatusService: ObservableObject {
         guard consumers == 1 else { return }
         startBattery()
         startWiFi()
+        startNetworkPath()
         startAudio()
     }
 
@@ -38,6 +41,7 @@ final class SystemStatusService: ObservableObject {
         guard consumers == 0 else { return }
         stopBattery()
         stopWiFi()
+        stopNetworkPath()
         stopAudio()
     }
 
@@ -92,6 +96,31 @@ final class SystemStatusService: ObservableObject {
 
     private func refreshWiFi() {
         SharedWiFiMonitor.shared.refresh()
+    }
+
+    // MARK: Network Path (event-driven Ethernet / Personal Hotspot detection)
+
+    private func startNetworkPath() {
+        guard pathMonitor == nil else { return }
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            let satisfied = path.status == .satisfied
+            let ethernet = satisfied && path.usesInterfaceType(.wiredEthernet)
+            let hotspot = satisfied && path.isExpensive && path.usesInterfaceType(.wifi)
+            Task { @MainActor [weak self] in
+                self?.update {
+                    $0.wiredEthernetConnected = ethernet
+                    $0.isHotspotActive = hotspot
+                }
+            }
+        }
+        monitor.start(queue: .main)
+        pathMonitor = monitor
+    }
+
+    private func stopNetworkPath() {
+        pathMonitor?.cancel()
+        pathMonitor = nil
     }
 
     // MARK: Volume (CoreAudio property listeners on the default output device)
@@ -174,6 +203,23 @@ final class SystemStatusService: ObservableObject {
                   AudioObjectIsPropertySettable(audioDevice, &property, &settable) == noErr, settable.boolValue else { continue }
             wrote = AudioObjectSetPropertyData(audioDevice, &property, 0, nil, UInt32(MemoryLayout<Float32>.size), &value) == noErr || wrote
         }
+        return wrote
+    }
+
+    /// Toggles output mute on the default audio device. Returns whether the mute property was written.
+    @discardableResult
+    func toggleMute() -> Bool {
+        guard audioDevice != kAudioObjectUnknown else { return false }
+        var muted: UInt32 = status.volume.isMuted ? 0 : 1
+        var wrote = false
+        for element in [kAudioObjectPropertyElementMain, 1, 2] {
+            var property = Self.address(kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput, element: element)
+            var settable: DarwinBoolean = false
+            guard AudioObjectHasProperty(audioDevice, &property),
+                  AudioObjectIsPropertySettable(audioDevice, &property, &settable) == noErr, settable.boolValue else { continue }
+            wrote = AudioObjectSetPropertyData(audioDevice, &property, 0, nil, UInt32(MemoryLayout<UInt32>.size), &muted) == noErr || wrote
+        }
+        if wrote { refreshVolume() }
         return wrote
     }
 

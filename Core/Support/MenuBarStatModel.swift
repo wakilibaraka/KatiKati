@@ -245,7 +245,7 @@ enum MenuBarHubPrefs {
     static let bluetoothInRingKey = "com.katikati.menuBar.statusTrio.bluetoothInRing"
 }
 
-struct StatusTrioRenderKey: Equatable, Sendable {
+struct StatusTrioRenderKey: Equatable, Hashable, Sendable {
     let batteryBucket: Int?
     let isCharging: Bool
     let isLowBattery: Bool
