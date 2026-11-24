@@ -167,3 +167,192 @@ enum AgentPermissionPolicy {
         enabled && isReadOnlyTool(toolName: request.toolName, summary: request.summary)
     }
 }
+
+// MARK: - Liquid Notch Agent Socket & Hook Installer (LQ-3, MIT: fellipegoncalvesleite/liquid-notch)
+
+enum LiquidAgentProvider: String, CaseIterable, Sendable {
+    case claude, codex
+    var displayName: String { self == .claude ? "Claude Code" : "Codex" }
+}
+
+enum LiquidAgentSessionState: String, Equatable, Sendable {
+    case working, needs, done, ready, error
+}
+
+enum LiquidAgentNeed: Equatable, Sendable {
+    case permission(tool: String, detail: String)
+    case question(prompt: String, options: [String])
+}
+
+struct LiquidAgentSession: Identifiable, Equatable, Sendable {
+    let id: String
+    let provider: LiquidAgentProvider
+    var state: LiquidAgentSessionState
+    var cwd: String
+    var tool: String
+    var detail: String
+    var need: LiquidAgentNeed?
+    var updatedAt: Date
+}
+
+struct LiquidAgentHookLine: Sendable {
+    let provider: String
+    let event: String
+    let host: String
+    let raw: Data
+
+    var json: [String: Any] { ((try? JSONSerialization.jsonObject(with: raw)) as? [String: Any]) ?? [:] }
+
+    var waits: Bool {
+        event == "PermissionRequest" || (event == "PreToolUse" && provider == "claude" && json["tool_name"] as? String == "AskUserQuestion")
+    }
+
+    static func parse(_ data: Data) -> LiquidAgentHookLine? {
+        guard let text = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) else { return nil }
+        let parts = text.split(separator: "\t", maxSplits: 3, omittingEmptySubsequences: false)
+        guard parts.count == 4, let body = String(parts[3]).data(using: .utf8),
+              (try? JSONSerialization.jsonObject(with: body)) is [String: Any] else { return nil }
+        return LiquidAgentHookLine(provider: String(parts[0]), event: String(parts[1]), host: String(parts[2]), raw: body)
+    }
+
+    static func decisionJSON(allow: Bool) -> String {
+        let decision: [String: Any] = allow ? ["behavior": "allow"]
+            : ["behavior": "deny", "message": "Denied from KatiKati."]
+        let out: [String: Any] = ["hookSpecificOutput": ["hookEventName": "PermissionRequest", "decision": decision]]
+        let data = (try? JSONSerialization.data(withJSONObject: out, options: [.sortedKeys])) ?? Data()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    static func answerJSON(input: [String: Any], question: String, option: String) -> String {
+        var updated = input
+        var answers = updated["answers"] as? [String: Any] ?? [:]
+        answers[question] = option
+        updated["answers"] = answers
+        let out: [String: Any] = ["hookSpecificOutput": ["hookEventName": "PreToolUse", "permissionDecision": "allow", "updatedInput": updated]]
+        let data = (try? JSONSerialization.data(withJSONObject: out, options: [.sortedKeys])) ?? Data()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+}
+
+enum LiquidHookInstaller {
+    static let enabledKey = "com.katikati.liquid.agentHooksEnabled"
+
+    struct Target {
+        let provider: String
+        let file: URL
+        let events: [String]
+    }
+
+    static func targets(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> [Target] {
+        [
+            Target(provider: "claude", file: home.appendingPathComponent(".claude/settings.json"),
+                   events: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest", "Notification", "Stop", "StopFailure", "SessionEnd"]),
+            Target(provider: "codex", file: home.appendingPathComponent(".codex/hooks.json"),
+                   events: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest", "Stop", "SessionEnd"]),
+        ]
+    }
+
+    static func supportDir(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> URL {
+        home.appendingPathComponent("Library/Application Support/KatiKati", isDirectory: true)
+    }
+
+    static func scriptURL(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> URL {
+        supportDir(home: home).appendingPathComponent("agent-hook.sh")
+    }
+
+    static func socketPath(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> String {
+        supportDir(home: home).appendingPathComponent("agents.sock").path
+    }
+
+    static let script = #"""
+    #!/bin/sh
+    # KatiKati Liquid Notch: fail-open local socket hook for Claude Code and Codex.
+    SOCK="$HOME/Library/Application Support/KatiKati/agents.sock"
+    [ -S "$SOCK" ] || exit 0
+    EVENT="$1"; PROVIDER="$2"
+    INPUT=$(tr -d '\n')
+    WAIT=0
+    [ "$EVENT" = PermissionRequest ] && WAIT=25
+    if [ "$EVENT" = PreToolUse ] && printf '%s' "$INPUT" | /usr/bin/grep -q '"tool_name"[[:space:]]*:[[:space:]]*"AskUserQuestion"'; then WAIT=600; fi
+    if [ "$WAIT" != 0 ]; then
+      printf '%s\t%s\t%s\t%s\n' "$PROVIDER" "$EVENT" "$__CFBundleIdentifier" "$INPUT" | /usr/bin/nc -U -w "$WAIT" "$SOCK" 2>/dev/null
+    else
+      ( printf '%s\t%s\t%s\t%s\n' "$PROVIDER" "$EVENT" "$__CFBundleIdentifier" "$INPUT" | /usr/bin/nc -U -w 1 "$SOCK" ) </dev/null >/dev/null 2>&1 &
+    fi
+    exit 0
+    """#
+
+    static func timeout(for event: String, provider: String) -> Int {
+        if event == "PermissionRequest" { return 30 }
+        if event == "PreToolUse" && provider == "claude" { return 610 }
+        return event == "SessionEnd" ? 2 : 5
+    }
+
+    static func installed(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> Bool {
+        targets(home: home).allSatisfy { contains($0, home: home) }
+    }
+
+    static func install(home: URL = FileManager.default.homeDirectoryForCurrentUser) throws {
+        let scriptFile = scriptURL(home: home)
+        try FileManager.default.createDirectory(at: scriptFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try script.write(to: scriptFile, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptFile.path)
+        do {
+            for t in targets(home: home) {
+                try edit(t, home: home) { hooks in
+                    for event in t.events {
+                        var groups = hooks[event] as? [[String: Any]] ?? []
+                        let cmd = "\"\(scriptFile.path)\" \(event) \(t.provider)"
+                        groups.append(["hooks": [["type": "command", "command": cmd, "timeout": timeout(for: event, provider: t.provider)]]])
+                        hooks[event] = groups
+                    }
+                }
+            }
+        } catch {
+            try? uninstall(home: home)
+            throw error
+        }
+    }
+
+    static func uninstall(home: URL = FileManager.default.homeDirectoryForCurrentUser) throws {
+        for t in targets(home: home) where contains(t, home: home) {
+            try edit(t, home: home) { _ in }
+        }
+        try? FileManager.default.removeItem(at: scriptURL(home: home))
+    }
+
+    private static func contains(_ target: Target, home: URL) -> Bool {
+        guard let data = try? Data(contentsOf: target.file),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let hooks = root["hooks"] as? [String: Any] else { return false }
+        return hooks.values.contains { ($0 as? [[String: Any]] ?? []).contains { isOurs($0, home: home) } }
+    }
+
+    private static func isOurs(_ group: [String: Any], home: URL) -> Bool {
+        let path = scriptURL(home: home).path
+        return (group["hooks"] as? [[String: Any]] ?? []).contains { ($0["command"] as? String ?? "").contains(path) }
+    }
+
+    private static func edit(_ target: Target, home: URL, mutate: (inout [String: Any]) -> Void) throws {
+        let fm = FileManager.default
+        var root: [String: Any] = [:]
+        if fm.fileExists(atPath: target.file.path) {
+            let data = try Data(contentsOf: target.file)
+            root = (try JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
+            let backup = target.file.deletingLastPathComponent()
+                .appendingPathComponent("\(target.file.lastPathComponent).katikati-backup-\(Int(Date().timeIntervalSince1970))")
+            try? data.write(to: backup, options: .atomic)
+        } else {
+            try fm.createDirectory(at: target.file.deletingLastPathComponent(), withIntermediateDirectories: true)
+        }
+        var hooks = root["hooks"] as? [String: Any] ?? [:]
+        for key in Array(hooks.keys) {
+            let filtered = (hooks[key] as? [[String: Any]] ?? []).filter { !isOurs($0, home: home) }
+            if filtered.isEmpty { hooks.removeValue(forKey: key) } else { hooks[key] = filtered }
+        }
+        mutate(&hooks)
+        if hooks.isEmpty { root.removeValue(forKey: "hooks") } else { root["hooks"] = hooks }
+        let out = try JSONSerialization.data(withJSONObject: root, options: [.prettyPrinted, .sortedKeys])
+        try out.write(to: target.file, options: .atomic)
+    }
+}

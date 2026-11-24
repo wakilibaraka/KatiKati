@@ -173,4 +173,40 @@ final class AgentApprovalTests: XCTestCase {
         session.checkWatchdog(now: t1.addingTimeInterval(200))
         XCTAssertEqual(session.state, .stuck(idleSeconds: 200))
     }
+
+    // MARK: - Liquid Notch Agent Socket & Hook Installer (LQ-3)
+
+    func testLiquidAgentSocketLineParsingAndResponses() {
+        let payload = #"{"session_id":"s1","tool_name":"Bash","tool_input":{"command":"ls"},"cwd":"/tmp"}"#
+        let raw = Data("claude\tPermissionRequest\tcom.anthropic.claudefordesktop\t\(payload)\n".utf8)
+        let line = LiquidAgentHookLine.parse(raw)
+        XCTAssertNotNil(line)
+        XCTAssertEqual(line?.provider, "claude")
+        XCTAssertEqual(line?.event, "PermissionRequest")
+        XCTAssertTrue(line?.waits ?? false)
+        XCTAssertTrue(LiquidAgentHookLine.decisionJSON(allow: true).contains("\"behavior\":\"allow\""))
+        XCTAssertTrue(LiquidAgentHookLine.decisionJSON(allow: false).contains("\"behavior\":\"deny\""))
+        let ans = LiquidAgentHookLine.answerJSON(input: [:], question: "Proceed?", option: "Yes")
+        XCTAssertTrue(ans.contains("\"Proceed?\":\"Yes\""))
+    }
+
+    func testLiquidHookInstallerRoundTripPreservesUserHooks() throws {
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("lq3-hook-test-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let claudeDir = tmp.appendingPathComponent(".claude")
+        try FileManager.default.createDirectory(at: claudeDir, withIntermediateDirectories: true)
+        let existing = #"{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"user-hook"}]}]}}"#
+        try Data(existing.utf8).write(to: claudeDir.appendingPathComponent("settings.json"))
+
+        XCTAssertFalse(LiquidHookInstaller.installed(home: tmp))
+        try LiquidHookInstaller.install(home: tmp)
+        XCTAssertTrue(LiquidHookInstaller.installed(home: tmp))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: LiquidHookInstaller.scriptURL(home: tmp).path))
+
+        try LiquidHookInstaller.uninstall(home: tmp)
+        XCTAssertFalse(LiquidHookInstaller.installed(home: tmp))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: LiquidHookInstaller.scriptURL(home: tmp).path))
+        let after = try String(contentsOf: claudeDir.appendingPathComponent("settings.json"), encoding: .utf8)
+        XCTAssertTrue(after.contains("user-hook"), "existing user hooks must be preserved")
+    }
 }
