@@ -1,4 +1,6 @@
 import AppKit
+import CoreImage
+import CoreImage.CIFilterBuiltins
 import SwiftUI
 
 // MARK: - DockThemeTokens 的 SwiftUI / AppKit 桥接
@@ -556,4 +558,220 @@ private struct DockShadowModifier: ViewModifier {
             content.shadow(color: shadow.tint.color, radius: shadow.radius, x: 0, y: shadow.y)
         }
     }
+}
+
+// MARK: - IS-2.1 Icon Studio Asset Loader, Static Finish Baker & Two-Tier Cache
+
+enum IconAssetLoader {
+    static func loadCGImage(from url: URL) -> CGImage? {
+        var isDir: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) else { return nil }
+        if isDir.boolValue || url.pathExtension.lowercased() == "icon" { return loadFromIconBundle(at: url) }
+        return NSImage(contentsOf: url)?.cgImage(forProposedRect: nil, context: nil, hints: nil)
+    }
+
+    private static func loadFromIconBundle(at bundleURL: URL) -> CGImage? {
+        let assetsURL = bundleURL.appendingPathComponent("Assets", isDirectory: true)
+        let searchDirs = FileManager.default.fileExists(atPath: assetsURL.path) ? [assetsURL, bundleURL] : [bundleURL]
+        let exts: Set<String> = ["png", "icns", "tiff", "tif", "jpg", "jpeg", "webp", "pdf"]
+        for dir in searchDirs {
+            guard let items = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { continue }
+            for file in items.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) where exts.contains(file.pathExtension.lowercased()) {
+                if let cg = NSImage(contentsOf: file)?.cgImage(forProposedRect: nil, context: nil, hints: nil) { return cg }
+            }
+        }
+        return nil
+    }
+
+    static func pngData(from cgImage: CGImage) -> Data? {
+        NSBitmapImageRep(cgImage: cgImage).representation(using: .png, properties: [:])
+    }
+}
+
+actor IconBakeActor {
+    static let shared = IconBakeActor()
+    private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
+    private let cacheDir: URL
+
+    init(cacheDir: URL? = nil) {
+        if let cacheDir { self.cacheDir = cacheDir }
+        else {
+            let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+                ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            self.cacheDir = caches.appendingPathComponent("com.katikati.app/IconStudio", isDirectory: true)
+        }
+    }
+
+    nonisolated func cacheFileURL(fingerprint: String) -> URL { cacheDir.appendingPathComponent("\(fingerprint).png", isDirectory: false) }
+
+    func bakeIfNeeded(fingerprint: String, sourceImageData: Data?, recolor: IconRecolorSpec, shader: IconShaderSpec, pixelSize: Int) -> Data? {
+        let outURL = cacheFileURL(fingerprint: fingerprint)
+        if let cached = try? Data(contentsOf: outURL), !cached.isEmpty { return cached }
+        guard let sourceImageData, let cg = NSImage(data: sourceImageData)?.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        let size = max(32, min(512, pixelSize))
+        var ci = CIImage(cgImage: cg)
+        ci = ci.transformed(by: CGAffineTransform(scaleX: CGFloat(size) / max(1, ci.extent.width), y: CGFloat(size) / max(1, ci.extent.height)))
+        if !recolor.isIdentity { ci = applyRecolor(ci, spec: recolor) }
+        if shader.preset.requiresStaticBake { ci = applyStaticFinish(ci, preset: shader.preset, strength: shader.strength, size: CGFloat(size)) }
+        guard let outCG = ciContext.createCGImage(ci, from: CGRect(x: 0, y: 0, width: size, height: size)),
+              let png = IconAssetLoader.pngData(from: outCG) else { return nil }
+        try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
+        try? png.write(to: outURL, options: .atomic)
+        return png
+    }
+
+    private func applyRecolor(_ input: CIImage, spec: IconRecolorSpec) -> CIImage {
+        let t = CGFloat(spec.intensity)
+        let c1 = ciColor(hex: spec.primaryHex) ?? CIColor(red: 0.25, green: 0.55, blue: 1.0)
+        let c2 = ciColor(hex: spec.secondaryHex) ?? CIColor(red: 0.1, green: 0.12, blue: 0.18)
+        switch spec.mode {
+        case .original: return input
+        case .monochrome:
+            return blend(base: input, overlay: input.applyingFilter("CIColorMonochrome", parameters: [kCIInputColorKey: c1, kCIInputIntensityKey: t]), alpha: t)
+        case .tint:
+            return blend(base: input, overlay: input.applyingFilter("CIColorMonochrome", parameters: [kCIInputColorKey: c1, kCIInputIntensityKey: t * 0.75]), alpha: t)
+        case .duotone:
+            let map = input.applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 0.0])
+                .applyingFilter("CIFalseColor", parameters: ["inputColor0": c2, "inputColor1": c1])
+            return blend(base: input, overlay: map, alpha: t)
+        }
+    }
+
+    private func applyStaticFinish(_ input: CIImage, preset: IconShaderPreset, strength: Double, size: CGFloat) -> CIImage {
+        let s = CGFloat(strength)
+        let extent = CGRect(x: 0, y: 0, width: size, height: size)
+        switch preset {
+        case .none, .holographicFoil, .vhs, .crt, .lavaLamp, .neonSign: return input
+        case .liquidGlass:
+            let glass = input.applyingFilter("CIGlassDistortion", parameters: [kCIInputScaleKey: 12 * s])
+                .applyingFilter("CIColorControls", parameters: [kCIInputBrightnessKey: 0.06 * s, kCIInputContrastKey: 1 + 0.14 * s])
+            return addTopSheen(to: blend(base: input, overlay: glass, alpha: 0.85 * s), extent: extent, opacity: 0.35 * s)
+        case .gloss:
+            return addTopSheen(to: input.applyingFilter("CIColorControls", parameters: [kCIInputContrastKey: 1 + 0.12 * s]), extent: extent, opacity: 0.48 * s)
+        case .gold:
+            let g = input.applyingFilter("CIColorMonochrome", parameters: [kCIInputColorKey: CIColor(red: 0.95, green: 0.75, blue: 0.25), kCIInputIntensityKey: 0.92])
+                .applyingFilter("CIColorControls", parameters: [kCIInputContrastKey: 1.25, kCIInputBrightnessKey: 0.04])
+            return addTopSheen(to: blend(base: input, overlay: g, alpha: s), extent: extent, opacity: 0.32 * s)
+        case .lightLeather, .tooledLeather:
+            let leather = CIColor(red: preset == .lightLeather ? 0.76 : 0.42, green: preset == .lightLeather ? 0.58 : 0.27, blue: preset == .lightLeather ? 0.40 : 0.17)
+            let base = input.applyingFilter("CIColorMonochrome", parameters: [kCIInputColorKey: leather, kCIInputIntensityKey: 0.78])
+            let noise = CIFilter.randomGenerator().outputImage?.cropped(to: extent)
+                .applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 0, kCIInputContrastKey: 0.35])
+            let embossed = noise.map { base.applyingFilter("CISoftLightBlendMode", parameters: [kCIInputBackgroundImageKey: $0]) } ?? base
+            return blend(base: input, overlay: embossed, alpha: s)
+        case .woodInlay:
+            return blend(base: input, overlay: input.applyingFilter("CISepiaTone", parameters: [kCIInputIntensityKey: 0.88]).applyingFilter("CIColorControls", parameters: [kCIInputContrastKey: 1.18]), alpha: s)
+        case .carvedMarble:
+            return blend(base: input, overlay: input.applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 0.12, kCIInputBrightnessKey: 0.14, kCIInputContrastKey: 1.15]), alpha: s)
+        case .embroidery:
+            return blend(base: input, overlay: input.applyingFilter("CIPixellate", parameters: [kCIInputScaleKey: max(2.0, size * 0.025)]), alpha: s * 0.85)
+        case .brushedMetal:
+            let metal = input.applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 0.08, kCIInputContrastKey: 1.22])
+                .applyingFilter("CIMotionBlur", parameters: [kCIInputRadiusKey: 2.2 * s, kCIInputAngleKey: 0])
+            return addTopSheen(to: blend(base: input, overlay: metal, alpha: s), extent: extent, opacity: 0.22 * s)
+        case .stainedGlass:
+            return blend(base: input, overlay: input.applyingFilter("CICrystallize", parameters: [kCIInputRadiusKey: max(4, size * 0.06)]).applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 1.35]), alpha: s * 0.9)
+        case .classicMac:
+            return blend(base: input, overlay: input.applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 0, kCIInputContrastKey: 1.65]), alpha: s)
+        }
+    }
+
+    private func addTopSheen(to base: CIImage, extent: CGRect, opacity: CGFloat) -> CIImage {
+        let grad = CIFilter.linearGradient()
+        grad.point0 = CGPoint(x: extent.midX, y: extent.maxY); grad.point1 = CGPoint(x: extent.midX, y: extent.midY * 0.85)
+        grad.color0 = CIColor(red: 1, green: 1, blue: 1, alpha: min(1, max(0, opacity))); grad.color1 = CIColor(red: 1, green: 1, blue: 1, alpha: 0)
+        guard let sheen = grad.outputImage?.cropped(to: extent) else { return base }
+        return sheen.applyingFilter("CISourceOverCompositing", parameters: [kCIInputBackgroundImageKey: base])
+            .applyingFilter("CISourceInCompositing", parameters: [kCIInputBackgroundImageKey: base])
+    }
+
+    private func blend(base: CIImage, overlay: CIImage, alpha: CGFloat) -> CIImage {
+        let scaled = overlay.applyingFilter("CIColorMatrix", parameters: ["inputAVector": CIVector(x: 0, y: 0, z: 0, w: min(1, max(0, alpha)))])
+        return scaled.applyingFilter("CISourceOverCompositing", parameters: [kCIInputBackgroundImageKey: base])
+    }
+
+    private func ciColor(hex: String?) -> CIColor? {
+        guard var raw = hex?.trimmingCharacters(in: .whitespacesAndNewlines) else { return nil }
+        if raw.hasPrefix("#") { raw.removeFirst() }
+        guard raw.count == 6, let val = UInt32(raw, radix: 16) else { return nil }
+        return CIColor(red: CGFloat((val >> 16) & 0xFF) / 255, green: CGFloat((val >> 8) & 0xFF) / 255, blue: CGFloat(val & 0xFF) / 255)
+    }
+}
+
+@MainActor
+final class IconStudioController: ObservableObject {
+    static let shared = IconStudioController()
+
+    @Published private(set) var state: IconStudioState
+    @Published private(set) var revision: Int = 0
+    @Published var liveOverrides: [String: Double] = [:]
+    @Published var previewBadgeOverride: Bool = false
+
+    private let stateURL: URL
+    private var fastCache: [String: NSImage] = [:]
+    private var inFlightKeys: Set<String> = []
+
+    init(stateURL: URL = IconStudioPersistence.defaultFileURL()) {
+        self.stateURL = stateURL
+        self.state = IconStudioPersistence.load(from: stateURL)
+    }
+
+    func look(for bundleID: String) -> IconLook? { state.looksByBundleID[bundleID] }
+    func badgeEffect(for bundleID: String) -> IconBadgeEffectSpec { state.looksByBundleID[bundleID]?.badgeEffect ?? .init() }
+    func setLook(_ look: IconLook, for bundleID: String) { state.setLook(look, for: bundleID); persistAndBump() }
+    func restoreOriginal(for bundleID: String) { state.restoreOriginal(for: bundleID); persistAndBump() }
+    func savePreset(name: String, from look: IconLook) { state.savePreset(name: name, from: look); persistAndBump() }
+    func applyPreset(_ preset: SavedIconLookPreset, to bundleID: String) { state.applyPreset(preset, to: bundleID); persistAndBump() }
+    func deletePreset(id: UUID) { state.deletePreset(id: id); persistAndBump() }
+
+    func importArtwork(from url: URL, for bundleID: String) -> Bool {
+        guard let cg = IconAssetLoader.loadCGImage(from: url), let png = IconAssetLoader.pngData(from: cg) else { return false }
+        let assetsDir = stateURL.deletingLastPathComponent().appendingPathComponent("IconStudioAssets", isDirectory: true)
+        let rel = "\(bundleID)-\(UUID().uuidString.prefix(8)).png"
+        try? FileManager.default.createDirectory(at: assetsDir, withIntermediateDirectories: true)
+        guard (try? png.write(to: assetsDir.appendingPathComponent(rel), options: .atomic)) != nil else { return false }
+        var look = state.looksByBundleID[bundleID] ?? IconLook()
+        look.artwork = .localFile(relativePath: rel)
+        setLook(look, for: bundleID)
+        return true
+    }
+
+    func artworkFileURL(for source: IconArtworkSource) -> URL? {
+        let base = stateURL.deletingLastPathComponent().appendingPathComponent("IconStudioAssets", isDirectory: true)
+        switch source {
+        case .original: return nil
+        case .localFile(let rel), .macOSIcons(_, let rel): return base.appendingPathComponent(rel)
+        }
+    }
+
+    func resolvedStaticImage(for bundleID: String, pixelSize: Int, fallbackArtwork: @escaping () -> Data? = { nil }) -> NSImage? {
+        guard let look = state.looksByBundleID[bundleID],
+              look.artwork.isCustom || !look.recolor.isIdentity || look.shader.preset.requiresStaticBake else { return nil }
+        let fp = look.staticBakeFingerprint(bundleID: bundleID, pixelSize: pixelSize)
+        if let hit = fastCache[fp] { return hit }
+        if !inFlightKeys.contains(fp) {
+            inFlightKeys.insert(fp)
+            let sourceData = artworkFileURL(for: look.artwork).flatMap { IconAssetLoader.loadCGImage(from: $0) }.flatMap { IconAssetLoader.pngData(from: $0) }
+                ?? fallbackArtwork()
+            let (recolor, shader) = (look.recolor, look.shader)
+            Task.detached(priority: .utility) {
+                let png = await IconBakeActor.shared.bakeIfNeeded(
+                    fingerprint: fp, sourceImageData: sourceData, recolor: recolor, shader: shader, pixelSize: pixelSize
+                )
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    self.inFlightKeys.remove(fp)
+                    if let png, let img = NSImage(data: png) {
+                        img.size = NSSize(width: CGFloat(pixelSize) / 2.0, height: CGFloat(pixelSize) / 2.0)
+                        if self.fastCache.count >= 512 { self.fastCache.removeAll() }
+                        self.fastCache[fp] = img
+                        self.revision &+= 1
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
+    private func persistAndBump() { try? IconStudioPersistence.save(state, to: stateURL); revision &+= 1 }
 }

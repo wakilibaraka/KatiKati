@@ -476,4 +476,14 @@ enum AppIconResolver {
         guard plated.count < icon.representations.count else { return }
         plated.forEach(icon.removeRepresentation)
     }
+
+    /// On-demand high-resolution icon lookup (`256pt` default) used strictly by Icon Studio baking & preview.
+    static func highResIcon(for bundleIdentifier: String, size: CGFloat = 256) -> NSImage {
+        let shared = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier)
+            .map { NSWorkspace.shared.icon(forFile: $0.path) }
+            ?? NSWorkspace.shared.icon(for: .applicationBundle)
+        let copy = (shared.copy() as? NSImage) ?? shared
+        copy.size = NSSize(width: size, height: size)
+        return copy
+    }
 }

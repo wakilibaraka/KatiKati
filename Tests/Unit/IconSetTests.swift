@@ -185,4 +185,31 @@ final class IconSetTests: XCTestCase {
 
         XCTAssertEqual(state.badgeEligibleBundleIDs, ["com.tinyspeck.slackmacgap", "com.apple.mail"])
     }
+
+    func testIconBakeActorProducesAndCachesDeterministicPNG() async {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("IconBakeTests-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let baker = IconBakeActor(cacheDir: dir)
+        let img = NSImage(size: NSSize(width: 32, height: 32))
+        img.lockFocus()
+        NSColor.systemBlue.setFill()
+        NSRect(x: 0, y: 0, width: 32, height: 32).fill()
+        img.unlockFocus()
+        guard let tiff = img.tiffRepresentation, let bmp = NSBitmapImageRep(data: tiff),
+              let srcPNG = bmp.representation(using: .png, properties: [:]) else {
+            XCTFail("Failed to create test PNG"); return
+        }
+        let fp = "testfp0123456789"
+        let out = await baker.bakeIfNeeded(
+            fingerprint: fp,
+            sourceImageData: srcPNG,
+            recolor: IconRecolorSpec(mode: .tint, primaryHex: "#FF5500", intensity: 0.6),
+            shader: IconShaderSpec(preset: .gold, strength: 0.8),
+            pixelSize: 64
+        )
+        XCTAssertNotNil(out)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: baker.cacheFileURL(fingerprint: fp).path))
+        let hit = await baker.bakeIfNeeded(fingerprint: fp, sourceImageData: nil, recolor: .init(), shader: .init(), pixelSize: 64)
+        XCTAssertEqual(out, hit)
+    }
 }
