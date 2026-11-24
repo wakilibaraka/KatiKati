@@ -107,6 +107,28 @@ final class NotchLayoutSpecTests: XCTestCase {
         XCTAssertEqual(roundTrip.y, 0, accuracy: 0.02)
     }
 
+    func testLiquidExtrasESPNParserAndWallpaperBackup() throws {
+        let json = """
+        {"events":[{"id":"401","status":{"type":{"state":"in","shortDetail":"Q3 4:12"}},"competitions":[{"competitors":[
+          {"homeAway":"home","score":"88","team":{"abbreviation":"LAL"}},
+          {"homeAway":"away","score":"84","team":{"abbreviation":"BOS"}}
+        ]}]}]}
+        """
+        let scores = LiquidESPNParser.parseScoreboard(Data(json.utf8), league: .nba)
+        XCTAssertEqual(scores.count, 1)
+        XCTAssertEqual(scores[0].homeAbbrev, "LAL")
+        XCTAssertEqual(scores[0].awayAbbrev, "BOS")
+        XCTAssertEqual(scores[0].homeScore, "88")
+        XCTAssertTrue(scores[0].isLive)
+
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("lq5-wp-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try LiquidWallpaperBackup.saveOriginalPath("/Library/Desktop Pictures/Sequoia.heic", in: tmp)
+        try LiquidWallpaperBackup.saveOriginalPath("/should/not/overwrite.heic", in: tmp)
+        XCTAssertEqual(LiquidWallpaperBackup.consumeOriginalPath(in: tmp), "/Library/Desktop Pictures/Sequoia.heic")
+        XCTAssertNil(LiquidWallpaperBackup.consumeOriginalPath(in: tmp))
+    }
+
     func testWeekStripCrossesMonthBoundary() {
         let now = utc.date(from: DateComponents(year: 2026, month: 4, day: 1))!
         let numbers = NotchLayoutSpec.weekStrip(now: now, calendar: utc).map(\.dayNumber)

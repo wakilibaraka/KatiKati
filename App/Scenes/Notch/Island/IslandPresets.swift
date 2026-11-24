@@ -980,11 +980,16 @@ struct LiquidNotchShellView: View {
     @State private var lyricsLoadingKey: String?
     @State private var showTray = false
     @StateObject private var agentHub = LiquidAgentHub.shared
+    @StateObject private var sportsFeed = LiquidSportsFeed.shared
     @AppStorage(LiquidHookInstaller.enabledKey) private var agentHooksEnabled = false
+    @AppStorage(LiquidExtrasKeys.sportsEnabled) private var sportsEnabled = false
+    @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = false
 
     private var nowPlaying: NowPlayingState { feed.nowPlayingState }
     private var hasMusic: Bool { !(nowPlaying.title ?? "").isEmpty || feed.activity.kind == .music }
     private var hasAgents: Bool { agentHooksEnabled && !agentHub.sessions.isEmpty }
+    private var hasSports: Bool { sportsEnabled && sportsFeed.liveScore != nil }
+    private var hasNotice: Bool { notificationsEnabled && model.event != nil }
     private var hasHUD: Bool { model.activeHUDItem != nil }
     private var hasActivity: Bool { feed.activity.kind != .clock && feed.activity.kind != .music }
 
@@ -992,8 +997,8 @@ struct LiquidNotchShellView: View {
         if model.isExpanded { return .card }
         if hasHUD { return .hud }
         if isPeekingEars && hasMusic { return .peek }
-        if hasAgents && (feed.activity.kind != .clock || hasMusic) { return .duo }
-        if feed.activity.kind != .clock || hasMusic || hasAgents { return .compact }
+        if (hasAgents || hasSports) && (feed.activity.kind != .clock || hasMusic) { return .duo }
+        if feed.activity.kind != .clock || hasMusic || hasAgents || hasSports || hasNotice { return .compact }
         return .idle
     }
 
@@ -1070,8 +1075,12 @@ struct LiquidNotchShellView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .onAppear { agentHub.setEnabled(agentHooksEnabled) }
+        .onAppear {
+            agentHub.setEnabled(agentHooksEnabled)
+            sportsFeed.setEnabled(sportsEnabled)
+        }
         .onChange(of: agentHooksEnabled) { _, enabled in agentHub.setEnabled(enabled) }
+        .onChange(of: sportsEnabled) { _, enabled in sportsFeed.setEnabled(enabled) }
         .onChange(of: model.isExpanded) { _, expanded in
             if !expanded {
                 showLyrics = false
@@ -1173,7 +1182,9 @@ struct LiquidNotchShellView: View {
 
     @ViewBuilder
     private var expandedContent: some View {
-        if showTray {
+        if let event = model.event, notificationsEnabled {
+            LiquidNoticeCard(event: event)
+        } else if showTray {
             LiquidTrayView(model: model, feed: feed) {
                 showTray = false
                 model.collapse()
@@ -1755,5 +1766,69 @@ private struct LiquidTrayView: View {
             .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Liquid Opt-In Extras: ESPN Sports Feed & Notice Card (LQ-5)
+
+@MainActor
+final class LiquidSportsFeed: ObservableObject {
+    static let shared = LiquidSportsFeed()
+    @Published private(set) var liveScore: LiquidSportsScore?
+    private var timer: Timer?
+    private var isEnabled = false
+
+    func setEnabled(_ enabled: Bool) {
+        guard enabled != isEnabled else { return }
+        isEnabled = enabled
+        timer?.invalidate()
+        timer = nil
+        if !enabled {
+            liveScore = nil
+            return
+        }
+        refresh()
+        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.refresh() }
+        }
+    }
+
+    private func refresh() {
+        guard isEnabled else { return }
+        Task.detached(priority: .utility) {
+            let league: LiquidSportLeague = .nba
+            guard let url = URL(string: "https://site.api.espn.com/apis/site/v2/sports/\(league.espnPath)/scoreboard"),
+                  let (data, resp) = try? await URLSession.shared.data(from: url),
+                  (resp as? HTTPURLResponse)?.statusCode == 200 else { return }
+            let scores = LiquidESPNParser.parseScoreboard(data, league: league)
+            let picked = scores.first(where: \.isLive) ?? scores.first
+            await MainActor.run {
+                if LiquidSportsFeed.shared.isEnabled {
+                    LiquidSportsFeed.shared.liveScore = picked
+                }
+            }
+        }
+    }
+}
+
+private struct LiquidNoticeCard: View {
+    let event: LiveEventPresentation
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: event.symbol)
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 36, height: 36)
+                .background(Color.white.opacity(0.14), in: Circle())
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: event.headline).font(.system(size: 13.5, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                if let detail = event.detail, !detail.isEmpty {
+                    Text(verbatim: detail).font(.system(size: 11.5)).foregroundStyle(.white.opacity(0.65)).lineLimit(2)
+                }
+            }
+            Spacer()
+        }
+        .padding(18)
     }
 }

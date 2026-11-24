@@ -548,3 +548,82 @@ enum LiquidLyricsSource {
         return out.sorted { $0.time < $1.time }
     }
 }
+
+// MARK: - Liquid Opt-In Extras (LQ-5: Sports, Video-in-Island, Lock Screen, Notifications — all off by default)
+
+enum LiquidExtrasKeys {
+    static let sportsEnabled = "com.katikati.liquid.sportsEnabled"
+    static let videoInIslandEnabled = "com.katikati.liquid.videoInIslandEnabled"
+    static let lockScreenEnabled = "com.katikati.liquid.lockScreenEnabled"
+    static let notificationsEnabled = "com.katikati.liquid.notificationsEnabled"
+}
+
+enum LiquidSportLeague: String, CaseIterable, Identifiable, Sendable {
+    case football, nfl, nba, mlb, nhl
+    var id: String { rawValue }
+    var espnPath: String {
+        switch self {
+        case .football: return "soccer/eng.1"
+        case .nfl: return "football/nfl"
+        case .nba: return "basketball/nba"
+        case .mlb: return "baseball/mlb"
+        case .nhl: return "hockey/nhl"
+        }
+    }
+}
+
+struct LiquidSportsScore: Equatable, Identifiable, Sendable {
+    let id: String
+    let league: LiquidSportLeague
+    let homeAbbrev: String
+    let awayAbbrev: String
+    let homeScore: String
+    let awayScore: String
+    let statusText: String
+    let isLive: Bool
+}
+
+enum LiquidESPNParser {
+    static func parseScoreboard(_ data: Data, league: LiquidSportLeague) -> [LiquidSportsScore] {
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let events = root["events"] as? [[String: Any]] else { return [] }
+        return events.compactMap { ev in
+            guard let id = ev["id"] as? String,
+                  let comp = (ev["competitions"] as? [[String: Any]])?.first,
+                  let competitors = comp["competitors"] as? [[String: Any]], competitors.count >= 2 else { return nil }
+            let home = competitors.first { ($0["homeAway"] as? String) == "home" } ?? competitors[0]
+            let away = competitors.first { ($0["homeAway"] as? String) == "away" } ?? competitors[1]
+            let homeAbbrev = ((home["team"] as? [String: Any])?["abbreviation"] as? String) ?? "HOM"
+            let awayAbbrev = ((away["team"] as? [String: Any])?["abbreviation"] as? String) ?? "AWY"
+            let homeScore = (home["score"] as? String) ?? "0"
+            let awayScore = (away["score"] as? String) ?? "0"
+            let statusType = ((ev["status"] as? [String: Any])?["type"] as? [String: Any]) ?? [:]
+            let state = (statusType["state"] as? String) ?? ""
+            let detail = (statusType["shortDetail"] as? String) ?? (statusType["description"] as? String) ?? ""
+            return LiquidSportsScore(
+                id: id, league: league, homeAbbrev: homeAbbrev, awayAbbrev: awayAbbrev,
+                homeScore: homeScore, awayScore: awayScore, statusText: detail, isLive: state == "in"
+            )
+        }
+    }
+}
+
+enum LiquidWallpaperBackup {
+    static func backupURL(in dir: URL) -> URL {
+        dir.appendingPathComponent("lock-wallpaper-backup.path")
+    }
+
+    static func saveOriginalPath(_ path: String, in dir: URL) throws {
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let file = backupURL(in: dir)
+        guard !FileManager.default.fileExists(atPath: file.path) else { return }
+        try path.write(to: file, atomically: true, encoding: .utf8)
+    }
+
+    static func consumeOriginalPath(in dir: URL) -> String? {
+        let file = backupURL(in: dir)
+        guard let path = try? String(contentsOf: file, encoding: .utf8) else { return nil }
+        try? FileManager.default.removeItem(at: file)
+        return path
+    }
+}
