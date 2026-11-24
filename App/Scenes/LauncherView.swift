@@ -16,6 +16,14 @@ enum LauncherIconCache {
     }
 }
 
+/// One recent file or Finder folder item surfaced in Recommended & search results.
+struct LauncherRecentItem: Equatable, Identifiable, Sendable {
+    var id: String { path }
+    let name: String
+    let path: String
+    let subtitle: String
+}
+
 /// What the user can do to an app from the launcher (right-click menu, drag to reorder).
 struct LauncherActions {
     let launch: (LauncherApp) -> Void
@@ -38,16 +46,20 @@ struct LauncherActions {
     let uninstall: (LauncherApp) -> Void
     /// Move the app's support files to the Trash (confirmed).
     let deleteData: (LauncherApp) -> Void
+    let runMacro: (BarMacro) -> Void
+    let quitApp: (LauncherApp) -> Void
+    let isKeptInDock: (String) -> Bool
+    let toggleKeepInDock: (LauncherApp) -> Void
+    let openPlace: (URL) -> Void
+    let openSettings: () -> Void
 }
 
-/// The launcher surface: a search field and one app grid, 8 icons across — a Most Used row (pins and usage, then
-/// presets), a Recently Installed row, then All Apps in your own order. Pages slide sideways by default (swipe, scroll,
-/// arrow keys, dots) or scroll down, per Settings. While searching, the grid shows one flat set of matches.
+/// The launcher surface: multi-preset app launcher (`Windows Start`, `Linux Menu`, `Drawer`, `Centered`, `Fullscreen`).
 struct LauncherView: View {
     @ObservedObject var indexer: LauncherIndexer
     @ObservedObject var model: LauncherModel
     let actions: LauncherActions
-    @StateObject private var monitor = SystemMonitorController()
+    @ObservedObject private var monitor = SystemMonitorController.shared
 
     private static let gap = 12.0
     private static let rowSpacing = 20.0
@@ -56,6 +68,7 @@ struct LauncherView: View {
     private static let dotsHeight = 36.0
     @State private var dragX: CGFloat = 0
     @State private var showGear = false
+    @State private var holdsTelemetry = false
     @AppStorage("com.katikati.launcher.drawerStyle") private var drawerStyleRaw: String = LauncherDrawerViewStyle.grid.rawValue
 
     private enum LauncherDrawerViewStyle: String { case grid, list }
@@ -98,9 +111,20 @@ struct LauncherView: View {
             }
         }
         .background(pageShortcuts)
-        .onAppear { monitor.acquire() }
-        .onDisappear { monitor.release() }
+        .onAppear { syncTelemetrySampling(model.prefs.showFooterTelemetry) }
+        .onChange(of: model.prefs.showFooterTelemetry) { syncTelemetrySampling($0) }
+        .onDisappear { syncTelemetrySampling(false) }
         .accessibilityLabel(Text("Launcher"))
+    }
+
+    private func syncTelemetrySampling(_ active: Bool) {
+        if active, !holdsTelemetry {
+            holdsTelemetry = true
+            monitor.acquire()
+        } else if !active, holdsTelemetry {
+            holdsTelemetry = false
+            monitor.release()
+        }
     }
 
     /// ⌘1–⌘9 jump to a page (invisible buttons; only the key equivalents matter).
@@ -168,7 +192,6 @@ struct LauncherView: View {
 
     private var toolbar: some View {
         HStack(spacing: 10) {
-            LauncherTelemetryPill(monitor: monitor)
             Button { model.editing.toggle(); model.openFolderID = nil } label: {
                 Group { if model.editing { Text("Done") } else { Text("Edit") } }
                     .font(.system(size: 12, weight: .semibold)).padding(.horizontal, 12).frame(height: 30)
@@ -680,7 +703,7 @@ final class LauncherModel: ObservableObject {
     var layoutItems: [String: LauncherApp] = [:]
     @Published var focusNonce = 0
     @Published var searchPosition: LauncherSearchPosition = .top
-    @Published var scrollDirection: LauncherScrollDirection = .horizontal
+    @Published var scrollDirection: LauncherScrollDirection = .vertical
     @Published var pinnedRow = true
     @Published var pageIndex = 0
     /// Page requests from the keyboard, scroll wheel and search field (the view clamps them to the page count).
@@ -694,6 +717,9 @@ final class LauncherModel: ObservableObject {
     @Published var stashedAppIDs: [String] = []
     @Published var presentation: LauncherPresentation = .default
     @Published var runningIDs: Set<String> = []
+    @Published var recentFiles: [LauncherRecentItem] = []
+    @Published var selectedCategory: LauncherSidebarCategory = .favorites
+    @Published var showingAllApps = false
 }
 
 /// AppKit search field so it can take first responder the moment the panel opens (macOS 12 has no `@FocusState`).

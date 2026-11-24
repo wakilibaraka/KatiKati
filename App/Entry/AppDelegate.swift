@@ -205,11 +205,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.panelCoordinator?.closeAllDrawersAndPopups()
         }
         panel.searchPosition = { [weak self] in self?.settingsStore.launcherSearchPosition ?? .top }
-        panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .horizontal }
+        panel.scrollDirection = { [weak self] in self?.settingsStore.launcherScrollDirection ?? .vertical }
         panel.pinnedRow = { [weak self] in self?.settingsStore.launcherPinnedRow ?? true }
         panel.look = { [weak self] in (self?.settingsStore.launcherTheme ?? .system, self?.settingsStore.launcherTint ?? .none) }
         panel.presentation = { [weak self] in self?.settingsStore.launcherPresentation ?? .default }
         panel.keptApps = { [weak self] in self?.keptAppStore.bundleIDs ?? [] }
+        panel.anchorRect = { [weak self] in self?.liveUtilityAnchorRect("launcher") }
+        panel.isKeptInDock = { [weak self] id in self?.keptAppStore.contains(id) ?? false }
+        panel.toggleKeepInDock = { [weak self] id in
+            guard let store = self?.keptAppStore else { return }
+            if store.contains(id) { store.remove(id) } else { store.add(id) }
+        }
+        panel.openSettings = { [weak self] in self?.openSettings(selecting: .launcher) }
         panel.stashedApps = { [weak self] in
             let popIDs = PopStore.shared.items.filter { $0.kind == .app }.map(\.reference)
             return popIDs + (self?.drawerStore.bundleIDs ?? [])

@@ -16,10 +16,10 @@ final class LauncherPanelController {
     private let store = LauncherStore(url: LauncherStore.defaultURL)
     /// Read at each summon so a Settings change applies immediately.
     var searchPosition: () -> LauncherSearchPosition = { .top }
-    var scrollDirection: () -> LauncherScrollDirection = { .horizontal }
+    var scrollDirection: () -> LauncherScrollDirection = { .vertical }
     /// Whether the start page shows the pinned row above All Apps.
     var pinnedRow: () -> Bool = { true }
-    /// 57b: fullscreen (default), a centred card or a popover under the summoning point. Read at each summon.
+    /// Windowed or fullscreen presentation. Read at each summon.
     var presentation: () -> LauncherPresentation = { .default }
     var look: () -> (theme: LauncherTheme, tint: LauncherTint) = { (.system, .none) }
     /// Height the KatiKati bottom bar occupies (it floats above `visibleFrame`), so the launcher never sits under it.
@@ -30,6 +30,11 @@ final class LauncherPanelController {
     var keptApps: () -> [String] = { [] }
     /// Stashed app bundle IDs from PopStore / DrawerStore so Launcher's Drawer preset surfaces them.
     var stashedApps: () -> [String] = { [] }
+    /// Live screen rect of the Dock's Launcher tile for `aboveIcon` anchoring.
+    var anchorRect: () -> CGRect? = { nil }
+    var isKeptInDock: (String) -> Bool = { _ in false }
+    var toggleKeepInDock: (String) -> Void = { _ in }
+    var openSettings: () -> Void = {}
     /// Called just before the launcher appears so competing floating panels (Quick Settings, Widgets, Drawers) dismiss cleanly.
     var onWillShow: () -> Void = {}
     private var backdrop: LauncherBackdrop?
@@ -47,7 +52,11 @@ final class LauncherPanelController {
     func show() {
         guard !isShown else { return }
         onWillShow()
-        let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) } ?? NSScreen.main
+        model.prefs = LauncherPrefs.load()
+        let anchor = anchorRect()
+        let mouseScreen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
+        let anchorScreen = anchor.flatMap { rect in NSScreen.screens.first { $0.frame.intersects(rect) } }
+        let screen = (model.prefs.anchorMode == .aboveIcon ? (anchorScreen ?? mouseScreen) : mouseScreen) ?? NSScreen.main
         guard let screen else { return }
         model.state = store.load()
         model.searchPosition = searchPosition()
@@ -55,35 +64,37 @@ final class LauncherPanelController {
         model.pinnedRow = pinnedRow()
         let mode = presentation()
         let rails = sideBarReserve()
+        let anchorX = model.prefs.anchorMode == .aboveIcon ? anchor?.midX : nil
         let frame = LauncherPanelFrame.rect(mode: mode, screen: screen.frame, visible: screen.visibleFrame,
                                             dockReserve: CGFloat(bottomBarReserve()),
-                                            leading: CGFloat(rails.leading), trailing: CGFloat(rails.trailing))
-        // Fullscreen still has to clear the menu bar and notch; a windowed card already sits inside `visibleFrame`.
+                                            leading: CGFloat(rails.leading), trailing: CGFloat(rails.trailing),
+                                            anchorX: anchorX, anchorMode: model.prefs.anchorMode)
+        // Only fullscreen spans the full screen and needs safe-area/bar insets; windowed cards already sit inside `visible`.
         model.presentation = mode
         model.screenInsets = mode == .fullscreen
             ? LauncherScreenInsets.compute(
                 frame: screen.frame, visible: screen.visibleFrame, safeTop: Double(screen.safeAreaInsets.top),
                 extraBottom: bottomBarReserve(),
                 extraLeading: rails.leading, extraTrailing: rails.trailing)
-            : (mode == .drawer
-               ? (top: 0, bottom: 0, leading: 0, trailing: 0)
-               : (top: 0, bottom: bottomBarReserve(),
-                  leading: rails.leading, trailing: rails.trailing))
+            : (top: 0, bottom: 0, leading: 0, trailing: 0)
         model.query = ""
         model.editing = false
         model.focusedID = nil
         model.openFolderID = nil
-        model.prefs = LauncherPrefs.load()
+        model.showingAllApps = false
+        model.selectedCategory = .favorites
         model.keptIDs = keptApps()
         model.stashedAppIDs = stashedApps()
         model.runningIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+        model.recentFiles = loadRecentFiles(usage: model.state.usage)
+        if model.prefs.searchScope.recentFiles { FileIndexService.shared.prepare() }
         indexer.start()
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let look = self.look()
         panel.appearance = backdrop?.apply(theme: look.theme, tint: look.tint, screen: screen)
         backdrop?.setBlurStrength(model.prefs.blur)
-        backdrop?.setCornerRadius(mode == .fullscreen ? 0 : (mode == .drawer ? 18 : 22))
+        backdrop?.setCornerRadius(mode == .fullscreen ? 0 : (mode == .drawer ? 18 : 20))
         panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
@@ -119,7 +130,8 @@ final class LauncherPanelController {
     }
 
     private func handleScroll(_ event: NSEvent) {
-        guard isShown, model.presentation != .drawer, model.query.isEmpty, model.scrollDirection == .horizontal else { return }
+        let pagedMode = model.presentation == .centred || model.presentation == .fullscreen
+        guard isShown, pagedMode, model.query.isEmpty, model.scrollDirection == .horizontal else { return }
         // Line-based wheel events may carry only the raw deltas.
         let dx = event.scrollingDeltaX != 0 ? event.scrollingDeltaX : event.deltaX
         let dy = event.scrollingDeltaY != 0 ? event.scrollingDeltaY : event.deltaY
@@ -239,6 +251,54 @@ final class LauncherPanelController {
         }
     }
 
+    private func runMacro(_ macro: BarMacro) {
+        if macro.needsConfirm {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Are you sure?")
+            alert.informativeText = macro.title
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: String(localized: "Continue"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+        }
+        dismiss()
+        BarActionService.run(macro)
+    }
+
+    private func quitApp(_ app: LauncherApp) {
+        let targets = NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleID)
+            .filter { $0.activationPolicy == .regular }
+        for running in targets { _ = running.terminate() }
+        model.runningIDs.remove(app.bundleID)
+    }
+
+    private func openPlace(_ url: URL) {
+        dismiss()
+        NSWorkspace.shared.open(url)
+    }
+
+    private func loadRecentFiles(usage: [String: LauncherUsage]) -> [LauncherRecentItem] {
+        var items: [LauncherRecentItem] = []
+        var seen = Set<String>()
+        let topApps = usage.sorted { $0.value.lastLaunched > $1.value.lastLaunched }.prefix(4).map(\.key)
+        for bid in topApps {
+            for url in RecentDocumentsReader.recentDocuments(for: bid, maxCount: 2) {
+                let path = url.path
+                guard !seen.contains(path), FileManager.default.fileExists(atPath: path) else { continue }
+                seen.insert(path)
+                let parent = url.deletingLastPathComponent().lastPathComponent
+                items.append(LauncherRecentItem(name: url.lastPathComponent, path: path, subtitle: parent))
+                if items.count >= 4 { return items }
+            }
+        }
+        for folder in RecentDocumentsReader.recentFinderFolders(maxCount: 4) where !seen.contains(folder.url.path) {
+            seen.insert(folder.url.path)
+            items.append(LauncherRecentItem(name: folder.title, path: folder.url.path, subtitle: String(localized: "Folder")))
+            if items.count >= 4 { break }
+        }
+        return items
+    }
+
     private func makePanel() -> NSPanel {
         let panel = LauncherPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
                                   backing: .buffered, defer: true)
@@ -263,7 +323,19 @@ final class LauncherPanelController {
             dropOnto: { [weak self] id, target in self?.dropOnto(id, target: target) },
             newFolder: { [weak self] in self?.newFolder($0) },
             uninstall: { [weak self] in self?.confirmRemoval($0, .uninstall) },
-            deleteData: { [weak self] in self?.confirmRemoval($0, .deleteData) })))
+            deleteData: { [weak self] in self?.confirmRemoval($0, .deleteData) },
+            runMacro: { [weak self] in self?.runMacro($0) },
+            quitApp: { [weak self] in self?.quitApp($0) },
+            isKeptInDock: { [weak self] in self?.isKeptInDock($0) ?? false },
+            toggleKeepInDock: { [weak self] app in
+                self?.toggleKeepInDock(app.bundleID)
+                self?.model.keptIDs = self?.keptApps() ?? []
+            },
+            openPlace: { [weak self] in self?.openPlace($0) },
+            openSettings: { [weak self] in
+                self?.dismiss()
+                self?.openSettings()
+            })))
         prefsObserver = model.$prefs.sink { [weak self] in self?.backdrop?.setBlurStrength($0.blur) }
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)

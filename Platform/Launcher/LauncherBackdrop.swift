@@ -28,12 +28,13 @@ final class LauncherBackdrop: NSView {
 
     required init?(coder: NSCoder) { fatalError("code-only") }
 
-    /// 57b: 0 keeps the fullscreen square edge; a windowed launcher is a rounded card instead.
+    /// 0 keeps the fullscreen square edge; a windowed launcher is a rounded card with a subtle rim.
     func setCornerRadius(_ radius: CGFloat) {
         wantsLayer = true
         layer?.cornerRadius = radius
         layer?.cornerCurve = .continuous
         layer?.masksToBounds = radius > 0
+        layer?.borderWidth = radius > 0 ? 1 : 0
     }
 
     /// 13g: 0…1 blur strength (1 = the full system blur). Lower values let the desktop show through.
@@ -63,11 +64,18 @@ final class LauncherBackdrop: NSView {
         }
         picture.isHidden = !showPicture
         blur.isHidden = showPicture
+        let isDark = theme == .dark || theme == .desktop ||
+            (theme != .light && NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua)
         if let c = tint.rgb {
             wash.layer?.backgroundColor = NSColor(srgbRed: c.r, green: c.g, blue: c.b, alpha: LauncherTint.washOpacity).cgColor
+        } else if showPicture {
+            wash.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.28).cgColor
+        } else if isDark {
+            wash.layer?.backgroundColor = NSColor.black.withAlphaComponent(theme == .glass ? 0.16 : 0.22).cgColor
         } else {
-            wash.layer?.backgroundColor = showPicture ? NSColor.black.withAlphaComponent(0.25).cgColor : nil
+            wash.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.12).cgColor
         }
+        layer?.borderColor = (isDark ? NSColor.white.withAlphaComponent(0.14) : NSColor.black.withAlphaComponent(0.10)).cgColor
         blur.appearance = appearance
         return appearance
     }

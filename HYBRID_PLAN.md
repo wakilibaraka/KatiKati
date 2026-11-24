@@ -6985,3 +6985,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/LauncherAppIndex.swift`: added `LauncherSidebarCategory` (8-rail UTI + path classification), `LauncherAlphaGroup` + `alphaGroups(_:)`, `recommendedApps(...)` via `CommandBarFrecency`, `LauncherClutterFilter`, and `LauncherActionSearch` (`BarMacro` matching).
 - `Core/Support/LauncherFolders.swift`: added `LauncherFocus.moveFlat(...)` and `LauncherFocus.cycleCategory(...)`.
 - `Tests/Unit/{LauncherAppIndexTests,LauncherFoldersTests}.swift`: added unit tests for category classification, A–Z grouping, frecency ordering, clutter filtering, system action search, and flat/category focus transitions. Zero `project.pbxproj` edits.
+
+### `LN-2a` — Panel Anchoring, Double-Inset Fix, Backdrop Contrast & Controller Wiring (2026-11-24)
+
+- `App/Entry/{AppDelegate,LauncherPanelController}.swift`: wired `anchorRect`, `keptAppStore`, `openSettings`, `runMacro` (`BarActionService`), `quitApp`, `openPlace`, and `recentFiles` (`RecentDocumentsReader`); fixed windowed double `bottomBarReserve()` inset bug and updated `scrollDirection` fallback to `.vertical`.
+- `Platform/Launcher/LauncherBackdrop.swift`: added subtle dark-glass scrim and adaptive card border rim for windowed cards.
+- `App/Scenes/LauncherView.swift`: switched to ref-counted `SystemMonitorController.shared` strictly gated on `prefs.showFooterTelemetry`, removed top overlapping `LauncherTelemetryPill`, and added `LauncherRecentItem` + `LauncherActions` / `LauncherModel` extensions. Zero `project.pbxproj` edits.
