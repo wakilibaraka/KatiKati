@@ -824,6 +824,15 @@ private final class LockScreenMusicCardPanel: NSPanel {
 
 // MARK: - §10 desktop music widget controller
 
+/// One panel's live move/resize channels, handed to the SwiftUI card. Bound weakly, so the view never keeps
+/// its own window alive.
+@MainActor
+struct MusicDesktopWidgetInteraction {
+    let move: @MainActor (CGSize) -> Void
+    let resize: @MainActor (CGSize) -> Void
+    let commit: @MainActor () -> Void
+}
+
 /// One remembered music panel per display. The panel is created at the level the preset policy allows —
 /// poster below the Finder icons (and click-through), everything else above the icons — and never above a
 /// normal app window. `.fullScreenNone` keeps it out of full-screen spaces, and its animations stop whenever
@@ -943,16 +952,48 @@ final class MusicDesktopWidgetController {
         panel.isMovable = preset != .poster
         panel.isMovableByWindowBackground = preset != .poster
         if panel.hostedPreset != preset {
-            let host = NSHostingView(rootView: MusicDesktopPresetView(preset: preset))
+            let interaction = preset == .poster ? nil : MusicDesktopWidgetInteraction(
+                move: { [weak panel] delta in
+                    guard let panel else { return }
+                    MusicDesktopWidgetController.shared.move(panel, by: delta)
+                },
+                resize: { [weak panel] delta in
+                    guard let panel else { return }
+                    MusicDesktopWidgetController.shared.resize(panel, by: delta)
+                },
+                commit: { [weak panel] in
+                    guard let panel else { return }
+                    MusicDesktopWidgetController.shared.persist(panel)
+                }
+            )
+            let host = NSHostingView(rootView: MusicDesktopPresetView(preset: preset, interaction: interaction))
             host.wantsLayer = true
             panel.contentView = host
             panel.hostedPreset = preset
         }
     }
 
+    /// A live drag from the card: the panel follows the pointer, held inside the display's visible frame.
+    private func move(_ panel: MusicSurfacePanel, by delta: CGSize) {
+        guard let bounds = Self.visibleFrame(for: panel) else { return }
+        let rect = MusicDesktopWidgetGeometry.moved(panel.frame, by: delta, into: bounds)
+        if rect != panel.frame { panel.setFrame(rect, display: true) }
+    }
+
+    /// A live resize from the corner grip: the top-leading corner holds still and the panel never shrinks
+    /// below the preset minimum (a strip keeps its height).
+    private func resize(_ panel: MusicSurfacePanel, by delta: CGSize) {
+        guard let bounds = Self.visibleFrame(for: panel), let preset = panel.hostedPreset else { return }
+        let rect = MusicDesktopWidgetGeometry.resized(panel.frame, by: delta, preset: preset, into: bounds)
+        if rect != panel.frame { panel.setFrame(rect, display: true) }
+    }
+
+    private static func visibleFrame(for panel: MusicSurfacePanel) -> CGRect? {
+        NSScreen.screens.first(where: { displayID(for: $0) == panel.displayID })?.visibleFrame
+    }
+
     private func persist(_ panel: MusicSurfacePanel) {
-        guard let screen = NSScreen.screens.first(where: { Self.displayID(for: $0) == panel.displayID }) else { return }
-        let bounds = screen.visibleFrame
+        guard let bounds = Self.visibleFrame(for: panel) else { return }
         let rect = MusicDesktopWidgetGeometry.snap(panel.frame, into: bounds)
         if rect != panel.frame { panel.setFrame(rect, display: true) }
         frames[panel.displayID] = MusicDesktopWidgetGeometry.normalized(rect, in: bounds)

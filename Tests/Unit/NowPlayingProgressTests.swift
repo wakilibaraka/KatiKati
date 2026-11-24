@@ -809,6 +809,42 @@ final class MusicDesktopWidgetPolicyTests: XCTestCase {
         XCTAssertEqual(MusicDesktopWidgetGeometry.snap(far, into: screen), far)
     }
 
+    func testMoveKeepsTheSizeAndStaysOnScreen() {
+        let start = CGRect(x: 600, y: 400, width: 300, height: 224)
+        let moved = MusicDesktopWidgetGeometry.moved(start, by: CGSize(width: 40, height: -60), into: screen)
+        XCTAssertEqual(moved.size, start.size)
+        XCTAssertEqual(moved.origin, CGPoint(x: 640, y: 340))
+
+        let pinned = MusicDesktopWidgetGeometry.moved(start, by: CGSize(width: 5000, height: 5000), into: screen)
+        XCTAssertEqual(pinned.size, start.size)
+        XCTAssertEqual(pinned.maxX, screen.maxX, accuracy: 0.5)
+        XCTAssertEqual(pinned.maxY, screen.maxY, accuracy: 0.5)
+    }
+
+    func testResizeAnchorsTheTopLeadingCornerAndHonoursTheMinimum() {
+        let start = CGRect(x: 600, y: 400, width: 300, height: 224)
+        let bigger = MusicDesktopWidgetGeometry.resized(start, by: CGSize(width: 80, height: 40),
+                                                        preset: .card, into: screen)
+        XCTAssertEqual(bigger.minX, start.minX, accuracy: 0.5)
+        XCTAssertEqual(bigger.maxY, start.maxY, accuracy: 0.5)
+        XCTAssertEqual(bigger.width, 380, accuracy: 0.5)
+        XCTAssertEqual(bigger.height, 264, accuracy: 0.5)
+
+        let minimum = MusicDesktopWidgetGeometry.minimumSize(for: .card)
+        let tiny = MusicDesktopWidgetGeometry.resized(start, by: CGSize(width: -400, height: -400),
+                                                       preset: .card, into: screen)
+        XCTAssertEqual(tiny.size, minimum)
+    }
+
+    func testStripResizeOnlyChangesWidth() {
+        let strip = MusicDesktopWidgetGeometry.rect(for: .strip, in: screen)
+        let resized = MusicDesktopWidgetGeometry.resized(strip, by: CGSize(width: -40, height: 90),
+                                                         preset: .strip, into: screen)
+        XCTAssertEqual(resized.height, MusicDesktopWidgetGeometry.stripHeight, accuracy: 0.5)
+        XCTAssertEqual(resized.width, strip.width - 40, accuracy: 0.5)
+        XCTAssertEqual(resized.minX, strip.minX, accuracy: 0.5)
+    }
+
     func testNormalizedPlacementRoundTripsPerDisplay() {
         let rect = MusicDesktopWidgetGeometry.rect(for: .card, in: screen)
         let normalized = MusicDesktopWidgetGeometry.normalized(rect, in: screen)

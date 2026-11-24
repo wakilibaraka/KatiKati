@@ -1388,12 +1388,20 @@ private struct MusicLyricsTranslationHost<Content: View>: View {
 struct MusicDesktopPresetView: View {
     var preset: MusicDesktopWidgetPreset
     @ObservedObject var service: NowPlayingService
+    /// Set only by the live desktop panel: dragging the card moves its window and the corner grip resizes it.
+    /// The Settings preview passes nil, so it never moves or resizes a real window.
+    var interaction: MusicDesktopWidgetInteraction?
     @State private var selection = MusicSurfaceConfig.styleSelection()
     @State private var palette: MusicArtworkPalette = MusicArtworkPaletteCache.shared.palette(for: nil)
+    @State private var moveTranslation: CGSize = .zero
+    @State private var resizeTranslation: CGSize = .zero
 
-    init(preset: MusicDesktopWidgetPreset, service: NowPlayingService = DesktopWidgetServices.nowPlaying) {
+    init(preset: MusicDesktopWidgetPreset,
+         service: NowPlayingService = DesktopWidgetServices.nowPlaying,
+         interaction: MusicDesktopWidgetInteraction? = nil) {
         self.preset = preset
         self.service = service
+        self.interaction = interaction
     }
 
     private var layout: MusicCardLayout {
@@ -1420,11 +1428,69 @@ struct MusicDesktopPresetView: View {
                 .padding(preset == .poster ? 36 : (preset == .stage ? 16 : 0))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .gesture(moveGesture)
+        .overlay(alignment: .top) { moveHint }
+        .overlay(alignment: preset == .strip ? .trailing : .bottomTrailing) { resizeGrip }
         .onReceive(NotificationCenter.default.publisher(for: MusicSurfaceConfig.didChangeNotification)) { _ in
             selection = MusicSurfaceConfig.styleSelection()
         }
         .onReceive(service.$state.map { MusicArtworkSignature.of($0.artworkData) }.removeDuplicates()) { _ in
             palette = MusicArtworkPaletteCache.shared.palette(for: service.state.artworkData)
+        }
+    }
+
+    // MARK: §10 move & resize
+
+    /// Dragging the card's own surface (not a control) moves the window. Buttons and the scrubber keep their
+    /// gestures, so this only fires where there is nothing to click.
+    private var moveGesture: some Gesture {
+        DragGesture(minimumDistance: 2, coordinateSpace: .global)
+            .onChanged { value in
+                guard let interaction else { return }
+                interaction.move(CGSize(width: value.translation.width - moveTranslation.width,
+                                        height: moveTranslation.height - value.translation.height))
+                moveTranslation = value.translation
+            }
+            .onEnded { _ in
+                moveTranslation = .zero
+                interaction?.commit()
+            }
+    }
+
+    private func resizeGesture(_ interaction: MusicDesktopWidgetInteraction) -> some Gesture {
+        DragGesture(minimumDistance: 1, coordinateSpace: .global)
+            .onChanged { value in
+                interaction.resize(CGSize(width: value.translation.width - resizeTranslation.width,
+                                          height: resizeTranslation.height - value.translation.height))
+                resizeTranslation = value.translation
+            }
+            .onEnded { _ in
+                resizeTranslation = .zero
+                interaction.commit()
+            }
+    }
+
+    /// A grabber on the card's top edge: the affordance for "this can be dragged", never a hit target.
+    @ViewBuilder private var moveHint: some View {
+        if interaction != nil, preset != .strip {
+            Capsule()
+                .fill(Color.white.opacity(0.25))
+                .frame(width: 34, height: 4)
+                .padding(.top, 6)
+                .allowsHitTesting(false)
+        }
+    }
+
+    /// Bottom-trailing grip for the card and the stage; a strip resizes from its trailing edge, width only.
+    @ViewBuilder private var resizeGrip: some View {
+        if let interaction {
+            let vertical = preset == .strip
+            Image(systemName: vertical ? "arrow.left.and.right" : "arrow.up.left.and.arrow.down.right")
+                .font(.system(size: 7, weight: .bold))
+                .foregroundStyle(Color.white.opacity(0.5))
+                .frame(width: vertical ? 14 : 16, height: vertical ? 44 : 16)
+                .contentShape(Rectangle())
+                .gesture(resizeGesture(interaction))
         }
     }
 

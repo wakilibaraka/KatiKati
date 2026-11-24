@@ -1339,6 +1339,41 @@ enum MusicDesktopWidgetGeometry {
         return result
     }
 
+    /// Smallest a user-resized widget may become; a strip keeps its single-row height.
+    static func minimumSize(for preset: MusicDesktopWidgetPreset) -> CGSize {
+        switch preset {
+        case .poster: return cardSize
+        case .stage, .card: return CGSize(width: 240, height: 160)
+        case .strip: return CGSize(width: 320, height: stripHeight)
+        }
+    }
+
+    /// A live drag: the rect keeps its size and only its origin moves, held inside the surface.
+    static func moved(_ rect: CGRect, by delta: CGSize, into bounds: CGRect) -> CGRect {
+        clamp(rect.offsetBy(dx: delta.width, dy: delta.height), into: bounds)
+    }
+
+    /// A live resize from the bottom-trailing grip: the top-leading corner stays put and the size stays
+    /// between the preset minimum and the surface. A strip only grows wider, never taller.
+    static func resized(
+        _ rect: CGRect,
+        by delta: CGSize,
+        preset: MusicDesktopWidgetPreset,
+        into bounds: CGRect
+    ) -> CGRect {
+        let minimum = minimumSize(for: preset)
+        let maxWidth = max(minimum.width, bounds.maxX - rect.minX)
+        let width = min(max(minimum.width, rect.width + delta.width), maxWidth)
+        let height: CGFloat
+        if preset == .strip {
+            height = stripHeight
+        } else {
+            let maxHeight = max(minimum.height, rect.maxY - bounds.minY)
+            height = min(max(minimum.height, rect.height + delta.height), maxHeight)
+        }
+        return clamp(CGRect(x: rect.minX, y: rect.maxY - height, width: width, height: height), into: bounds)
+    }
+
     /// Placement is remembered per display in the same normalized form `DesktopWidgetItem` already uses.
     static func normalized(_ rect: CGRect, in bounds: CGRect) -> NormalizedWidgetRect {
         guard bounds.width > 0, bounds.height > 0 else {
