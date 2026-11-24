@@ -504,12 +504,11 @@ struct ChipView: View {
 
     @ViewBuilder
     private func appIcon(size: CGFloat) -> some View {
-        let img = Image(nsImage: AppIconResolver.icon(for: item.bundleIdentifier ?? item.appID))
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size, height: size)
-
-        img.dockIconMask(size: size)
+        IconStudioIconView(
+            bundleID: item.bundleIdentifier ?? item.appID,
+            size: size,
+            isHovered: isHovered && !isDragCarrierSnapshot
+        )
             // 我们**不额外加**外投影（owner 2026-08-19）：加过的那层是净多出来的，
             // 条上量到图标正下方比两侧空隙暗 18–24。中转格方块、文件夹封面同此。
             //

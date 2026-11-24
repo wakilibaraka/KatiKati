@@ -1,3 +1,4 @@
+import Metal
 import XCTest
 
 final class IconSetTests: XCTestCase {
@@ -211,5 +212,18 @@ final class IconSetTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: baker.cacheFileURL(fingerprint: fp).path))
         let hit = await baker.bakeIfNeeded(fingerprint: fp, sourceImageData: nil, recolor: .init(), shader: .init(), pixelSize: 64)
         XCTAssertEqual(out, hit)
+    }
+
+    @MainActor
+    func testIconShaderEngineCompilesRuntimeMSLLibrary() {
+        XCTAssertEqual(IconShaderEngine.presetIndex(for: .holographicFoil), 0)
+        XCTAssertEqual(IconShaderEngine.presetIndex(for: .vhs), 1)
+        XCTAssertEqual(IconShaderEngine.presetIndex(for: .crt), 2)
+        XCTAssertEqual(IconShaderEngine.presetIndex(for: .lavaLamp), 3)
+        XCTAssertEqual(IconShaderEngine.presetIndex(for: .neonSign), 4)
+        XCTAssertNil(IconShaderEngine.presetIndex(for: .gold))
+        if MTLCreateSystemDefaultDevice() != nil {
+            XCTAssertNotNil(IconShaderEngine.shared)
+        }
     }
 }

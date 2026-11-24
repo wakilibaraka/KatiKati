@@ -218,14 +218,11 @@ struct LauncherChip: View {
 
     @ViewBuilder
     private func icon(size: CGFloat, bounceLift: CGFloat) -> some View {
-        let img = Image(nsImage: AppIconResolver.icon(for: bundleID))
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(width: size, height: size)
-
-        let shaped = Group {
-            img.dockIconMask(size: size)
-        }
+        let shaped = IconStudioIconView(
+            bundleID: bundleID,
+            size: size,
+            isHovered: isHovering && !isDragCarrierSnapshot
+        )
 
         shaped
             .modifier(DockIconHoverEffect(style: hoverAnimation, isActive: showsHover,

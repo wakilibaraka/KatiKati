@@ -487,3 +487,48 @@ enum AppIconResolver {
         return copy
     }
 }
+
+/// Unified Icon Studio view layered over `AppIconResolver` for Dock, `⌘+Tab`, and Studio previews.
+/// Fast-paths straight to `AppIconResolver.icon(for:)` when the app has no custom look configured.
+struct IconStudioIconView: View {
+    let bundleID: String
+    let size: CGFloat
+    var isHovered: Bool = false
+    var isLiveActiveOverride: Bool? = nil
+    var previewPercentOverride: Double? = nil
+
+    @ObservedObject private var studio = IconStudioController.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let look = studio.look(for: bundleID)
+        let pixelBucket = size > 64 ? 256 : 128
+        let resolved: NSImage = {
+            if let baked = studio.resolvedStaticImage(for: bundleID, pixelSize: pixelBucket, fallbackArtwork: {
+                let hr = AppIconResolver.highResIcon(for: bundleID, size: 256)
+                return hr.cgImage(forProposedRect: nil, context: nil, hints: nil).flatMap { IconAssetLoader.pngData(from: $0) }
+            }) {
+                return baked
+            }
+            return size > 64 ? AppIconResolver.highResIcon(for: bundleID, size: size) : AppIconResolver.icon(for: bundleID)
+        }()
+
+        let shouldAnimate = look?.shader.shouldAnimate(
+            isHovered: isHovered,
+            isLiveActive: isLiveActiveOverride ?? false,
+            reduceMotion: reduceMotion
+        ) ?? false
+
+        Image(nsImage: resolved)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: size, height: size)
+            .overlay {
+                if let shader = look?.shader, shader.preset.isAnimated, shouldAnimate {
+                    IconMetalShaderView(preset: shader.preset, strength: shader.strength, isAnimating: true)
+                        .allowsHitTesting(false)
+                }
+            }
+            .dockIconMask(size: size)
+    }
+}

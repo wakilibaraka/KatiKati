@@ -7066,3 +7066,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### Liquid Activation Fix, Non-Notch Relocation, Per-Display Presets & Live Previews (`4b255a7e`, 2026-11-24)
 
 - `Core/Support/NotchBehavior.swift`, `App/Composition/AppSettingsStore.swift`, `App/Entry/NotchPanelController.swift`, `App/Scenes/Notch/Island/IslandPresets.swift`, `App/Scenes/{LiveIslandSettingsBlock,SettingsNotificationsPane}.swift`, `App/Scenes/Settings/SettingsStage.swift`, `Resources/Localizable.xcstrings`, `Tests/Unit/{AppSettingsStoreTests,NotchLayoutSpecTests}.swift`: fixed `.liquid` hover/click hit-testing & mouse tracking, aligned out-of-the-box defaults (`dockIslandEnabled: false`, `liveEventOSBanners: true`, Liquid extras on except Sports), removed `Show Dock Capsule`, moved `Event Alerts` + `System Banners` to `Settings › Notifications`, added `NotchDisplaySkin` per-display preset picker, and added live `SettingsStage` + 4-type `NotchStylePreviewGallery` previews (`4b255a7e`; 173 unit tests + 12-locale gate passing + livechecked `PID 63906`).
+
+### `IS-1` & `IS-2.1` — Icon Studio Core Models, Persistence, Static Baker & Cache (`9d5fbffa`, `b5145929`, `6c776150`, 2026-11-24)
+
+- `Core/Support/IconSet.swift`, `App/Scenes/{ContentView,DockTheme}.swift`, `Tests/Unit/IconSetTests.swift`: added pure Core `IconStudio` models/persistence (`IS-1`) and off-main-thread `IconAssetLoader`, `IconBakeActor` (11 static finishes + Tier-2 PNG disk cache), and `IconStudioController` Tier-1 lookup (`6c776150`; 11/11 `IconSetTests` passing, zero `pbxproj` churn).

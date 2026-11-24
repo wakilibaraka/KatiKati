@@ -1,6 +1,8 @@
 import AppKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
+import Metal
+import QuartzCore
 import SwiftUI
 
 // MARK: - DockThemeTokens 的 SwiftUI / AppKit 桥接
@@ -774,4 +776,177 @@ final class IconStudioController: ObservableObject {
     }
 
     private func persistAndBump() { try? IconStudioPersistence.save(state, to: stateURL); revision &+= 1 }
+}
+
+// MARK: - IS-2.2 Runtime Metal Shader Engine & Zero-Idle Overlay
+
+struct IconShaderUniforms {
+    var time: Float
+    var strength: Float
+    var mode: Int32
+    var pad: Int32 = 0
+}
+
+@MainActor
+final class IconShaderEngine {
+    static let shared = IconShaderEngine()
+    let device: MTLDevice
+    private let queue: MTLCommandQueue
+    private let pipeline: MTLRenderPipelineState
+
+    static let mslSource = """
+    #include <metal_stdlib>
+    using namespace metal;
+    struct Uniforms { float time; float strength; int mode; int pad; };
+    struct VSOut { float4 pos [[position]]; float2 uv; };
+    vertex VSOut icon_vs(uint vid [[vertex_id]]) {
+        float2 p[3] = { float2(-1,-1), float2(3,-1), float2(-1,3) };
+        VSOut o; o.pos = float4(p[vid], 0, 1); o.uv = p[vid] * 0.5 + 0.5; return o;
+    }
+    fragment float4 icon_fs(VSOut in [[stage_in]], constant Uniforms& u [[buffer(0)]]) {
+        float2 uv = in.uv; float t = u.time; float s = clamp(u.strength, 0.0, 1.0);
+        float3 col = float3(0.0); float a = 0.0;
+        if (u.mode == 0) { // Holographic Foil
+            float phase = (uv.x * 3.6 + uv.y * 2.4) + t * 1.4;
+            col = 0.5 + 0.5 * cos(phase + float3(0.0, 2.09, 4.18));
+            float diag = smoothstep(0.15, 0.85, sin((uv.x + uv.y) * 5.0 - t * 2.2) * 0.5 + 0.5);
+            a = s * (0.28 + 0.24 * diag);
+        } else if (u.mode == 1) { // VHS
+            float band = smoothstep(0.88, 1.0, sin(uv.y * 28.0 - t * 6.0));
+            float scan = 0.5 + 0.5 * sin(uv.y * 120.0 + t * 20.0);
+            col = mix(float3(0.85, 0.25, 0.9), float3(0.2, 0.95, 0.95), scan);
+            a = s * (0.14 + 0.28 * band);
+        } else if (u.mode == 2) { // CRT
+            float scan = smoothstep(0.3, 0.9, sin(uv.y * 150.0));
+            float vig = smoothstep(0.75, 0.2, length(uv - 0.5));
+            col = mix(float3(0.08, 0.95, 0.45), float3(0.15, 0.22, 0.25), scan);
+            a = s * (0.16 + 0.14 * (1.0 - vig));
+        } else if (u.mode == 3) { // Lava Lamp
+            float2 c1 = float2(0.35 + 0.22 * sin(t * 0.9), 0.35 + 0.25 * cos(t * 1.1));
+            float2 c2 = float2(0.65 + 0.20 * cos(t * 0.8), 0.65 + 0.22 * sin(t * 1.2));
+            float b = exp(-10.0 * dot(uv - c1, uv - c1)) + exp(-9.0 * dot(uv - c2, uv - c2));
+            col = mix(float3(0.95, 0.22, 0.45), float3(1.0, 0.65, 0.15), clamp(b, 0.0, 1.0));
+            a = s * clamp(b * 0.45, 0.08, 0.55);
+        } else { // Neon Sign
+            float edge = max(abs(uv.x - 0.5), abs(uv.y - 0.5));
+            float ring = smoothstep(0.36, 0.48, edge) * (1.0 - smoothstep(0.48, 0.5, edge));
+            float pulse = 0.72 + 0.28 * sin(t * 4.0);
+            col = mix(float3(0.15, 0.85, 1.0), float3(1.0, 0.2, 0.75), uv.x);
+            a = s * ring * pulse * 0.85;
+        }
+        return float4(col * a, a);
+    }
+    """
+
+    static func presetIndex(for preset: IconShaderPreset) -> Int32? {
+        switch preset {
+        case .holographicFoil: return 0
+        case .vhs: return 1
+        case .crt: return 2
+        case .lavaLamp: return 3
+        case .neonSign: return 4
+        default: return nil
+        }
+    }
+
+    init?() {
+        guard let device = MTLCreateSystemDefaultDevice(),
+              let queue = device.makeCommandQueue(),
+              let lib = try? device.makeLibrary(source: Self.mslSource, options: nil) else { return nil }
+        let desc = MTLRenderPipelineDescriptor()
+        desc.vertexFunction = lib.makeFunction(name: "icon_vs")
+        desc.fragmentFunction = lib.makeFunction(name: "icon_fs")
+        let att = desc.colorAttachments[0]!
+        att.pixelFormat = .bgra8Unorm
+        att.isBlendingEnabled = true
+        att.sourceRGBBlendFactor = .one; att.destinationRGBBlendFactor = .oneMinusSourceAlpha
+        att.sourceAlphaBlendFactor = .one; att.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        guard let pipeline = try? device.makeRenderPipelineState(descriptor: desc) else { return nil }
+        self.device = device; self.queue = queue; self.pipeline = pipeline
+    }
+
+    func draw(to layer: CAMetalLayer, uniforms: IconShaderUniforms) {
+        guard let drawable = layer.nextDrawable(), let cb = queue.makeCommandBuffer() else { return }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = drawable.texture
+        pass.colorAttachments[0].loadAction = .clear
+        pass.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+        pass.colorAttachments[0].storeAction = .store
+        guard let enc = cb.makeRenderCommandEncoder(descriptor: pass) else { return }
+        var u = uniforms
+        enc.setRenderPipelineState(pipeline)
+        enc.setFragmentBytes(&u, length: MemoryLayout<IconShaderUniforms>.stride, index: 0)
+        enc.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        enc.endEncoding(); cb.commit(); drawable.present()
+    }
+}
+
+struct IconMetalShaderView: NSViewRepresentable {
+    let preset: IconShaderPreset
+    let strength: Double
+    let isAnimating: Bool
+
+    func makeNSView(context: Context) -> IconMetalShaderNSView {
+        IconMetalShaderNSView(preset: preset, strength: strength, isAnimating: isAnimating)
+    }
+
+    func updateNSView(_ nsView: IconMetalShaderNSView, context: Context) {
+        nsView.update(preset: preset, strength: strength, isAnimating: isAnimating)
+    }
+}
+
+@MainActor
+final class IconMetalShaderNSView: NSView {
+    private let metalLayer = CAMetalLayer()
+    private var link: CADisplayLink?
+    private var preset: IconShaderPreset
+    private var strength: Double
+    private var isAnimating: Bool
+    private var startTime = CACurrentMediaTime()
+
+    init(preset: IconShaderPreset, strength: Double, isAnimating: Bool) {
+        self.preset = preset; self.strength = strength; self.isAnimating = isAnimating
+        super.init(frame: .zero)
+        wantsLayer = true
+        metalLayer.device = IconShaderEngine.shared?.device
+        metalLayer.pixelFormat = .bgra8Unorm
+        metalLayer.isOpaque = false
+        layer = metalLayer
+    }
+
+    @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        link?.invalidate(); link = nil
+        guard window != nil else { return }
+        let l = displayLink(target: self, selector: #selector(tick))
+        l.isPaused = !isAnimating
+        l.add(to: .main, forMode: .common)
+        link = l
+        if isAnimating { drawFrame() }
+    }
+
+    override func layout() {
+        super.layout()
+        let s = window?.backingScaleFactor ?? 2
+        metalLayer.contentsScale = s
+        metalLayer.drawableSize = CGSize(width: max(1, bounds.width * s), height: max(1, bounds.height * s))
+    }
+
+    func update(preset: IconShaderPreset, strength: Double, isAnimating: Bool) {
+        let wasAnimating = self.isAnimating
+        self.preset = preset; self.strength = strength; self.isAnimating = isAnimating
+        if isAnimating && !wasAnimating { startTime = CACurrentMediaTime() }
+        link?.isPaused = !isAnimating
+        if isAnimating { drawFrame() }
+    }
+
+    @objc private func tick() { if isAnimating { drawFrame() } }
+
+    private func drawFrame() {
+        guard let mode = IconShaderEngine.presetIndex(for: preset), bounds.width > 1, bounds.height > 1 else { return }
+        let u = IconShaderUniforms(time: Float(CACurrentMediaTime() - startTime), strength: Float(strength), mode: mode)
+        IconShaderEngine.shared?.draw(to: metalLayer, uniforms: u)
+    }
 }
