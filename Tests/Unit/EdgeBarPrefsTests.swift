@@ -207,4 +207,14 @@ final class TendederoPolicyTests: XCTestCase {
         d.set(true, forKey: ClipboardSettingsKeys.notchToastKey)
         XCTAssertTrue(ClipboardToastDefaults.isEnabled(d))
     }
+
+    func testRestOptionGrabRejectsExpandedZoneOutsidePillFrame() {
+        let pillFrame = CGRect(x: 0, y: 300, width: 14, height: 100)
+        XCTAssertTrue(DeckGeometry.acceptsRestOptionGrab(mouse: CGPoint(x: 7, y: 350), pillFrame: pillFrame, optionDown: true))
+        XCTAssertFalse(DeckGeometry.acceptsRestOptionGrab(mouse: CGPoint(x: 7, y: 350), pillFrame: pillFrame, optionDown: false))
+        // Expanded restZone (`dx: -2, dy: -6`) covers (15, 350) and (7, 296); both must remain click-through.
+        XCTAssertFalse(DeckGeometry.acceptsRestOptionGrab(mouse: CGPoint(x: 15, y: 350), pillFrame: pillFrame, optionDown: true))
+        XCTAssertFalse(DeckGeometry.acceptsRestOptionGrab(mouse: CGPoint(x: 7, y: 296), pillFrame: pillFrame, optionDown: true))
+        XCTAssertFalse(DeckGeometry.acceptsRestOptionGrab(mouse: CGPoint(x: 7, y: 350), pillFrame: .zero, optionDown: true))
+    }
 }

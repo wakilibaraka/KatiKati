@@ -118,9 +118,6 @@ final class MissionControlSession {
     /// Set when the overlay is dismissed on purpose (Return raised a window), so the Dock-closing
     /// animation cannot immediately re-open it from an AX notification.
     private var suspendedUntil: Date?
-    /// Throttles the on-demand activation probe; Mission Control publishes no readable Dock AX
-    /// notification on macOS 26, so entry is recognised from the gesture/click/key that opens it.
-    private var nextActivationProbe = Date.distantPast
     private var configuration = MissionControlConfiguration()
     private var isActive = false
     /// Pure enter/exit rules, so a probe without a backdrop or without thumbnails is a teardown.
@@ -202,19 +199,6 @@ final class MissionControlSession {
             }
         }
 
-        if mouseMonitor == nil {
-            mouseMonitor = NSEvent.addGlobalMonitorForEvents(
-            matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
-        ) { [weak self] event in
-                MainActor.assumeIsolated { self?.handleMouse(event) }
-            }
-        }
-        if keyMonitor == nil {
-            keyMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] event in
-                MainActor.assumeIsolated { self?.handleKey(event) }
-            }
-        }
-
         refresh()
         startIdleProbe()
     }
@@ -236,16 +220,35 @@ final class MissionControlSession {
             NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver)
         }
         workspaceObserver = nil
-        if let mouseMonitor { NSEvent.removeMonitor(mouseMonitor) }
-        mouseMonitor = nil
-        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
-        keyMonitor = nil
+        removeActiveMonitors()
         if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) }
         screenObserver = nil
         hidePanels()
         interaction.close()
         isActive = false
         suspendedUntil = Date().addingTimeInterval(0.6)
+    }
+
+    private func installActiveMonitors() {
+        if mouseMonitor == nil {
+            mouseMonitor = NSEvent.addGlobalMonitorForEvents(
+                matching: [.mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
+            ) { [weak self] event in
+                MainActor.assumeIsolated { self?.handleMouse(event) }
+            }
+        }
+        if keyMonitor == nil {
+            keyMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] event in
+                MainActor.assumeIsolated { self?.handleKey(event) }
+            }
+        }
+    }
+
+    private func removeActiveMonitors() {
+        if let mouseMonitor { NSEvent.removeMonitor(mouseMonitor) }
+        mouseMonitor = nil
+        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
+        keyMonitor = nil
     }
 
     private static let observerCallback: AXObserverCallback = { _, _, _, refcon in
@@ -271,6 +274,7 @@ final class MissionControlSession {
             interaction.open(with: probe.frames)
             isActive = true
             showPanels()
+            installActiveMonitors()
             startExitWatchdog()
             updateHover(at: Self.pointerLocation())
         case .none:
@@ -380,15 +384,7 @@ final class MissionControlSession {
     // MARK: Pointer and keys
 
     private func handleMouse(_ event: NSEvent) {
-        guard isActive else {
-            switch event.type {
-            case .mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel:
-                scheduleActivationProbe()
-            default:
-                break
-            }
-            return
-        }
+        guard isActive else { return }
         switch event.type {
         case .mouseMoved:
             updateHover(at: Self.axLocation(of: event))
@@ -405,13 +401,7 @@ final class MissionControlSession {
     }
 
     private func handleKey(_ event: NSEvent) {
-        // Entry detection is not a keyboard-control opt-in: F3 / ⌃↑ must arm the probe even for a
-        // user who keeps KatiKati out of Mission Control's own keyboard handling. Otherwise a
-        // keyboard-opened overview was never decorated at all.
-        guard isActive else {
-            if Self.opensOverview(event) { scheduleActivationProbe() }
-            return
-        }
+        guard isActive else { return }
         // Every path *inside* the overlay is opt-in. Without it Mission Control keeps its own
         // keyboard handling and the overlay stays purely visual plus pointer actions.
         guard configuration.naming.keyboardEnabled else { return }
@@ -468,37 +458,6 @@ final class MissionControlSession {
         }
     }
 
-    /// Mission Control's opening gesture is not observable through the Dock on this macOS, so entry is
-    /// probed once shortly after the key, click, swipe or hot-corner that can open it. Probe calls are
-    /// throttled and there is no timer while the overview is closed.
-    private func scheduleActivationProbe() {
-        guard Date() >= nextActivationProbe else { return }
-        logger.info("[mission-control] activation probe scheduled")
-        nextActivationProbe = Date().addingTimeInterval(0.9)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
-            guard let self, !self.isActive else { return }
-            guard let suspendedUntil = self.suspendedUntil, Date() < suspendedUntil else {
-                self.refresh()
-                return
-            }
-            // A Raise dismiss suspends re-entry for 0.6 s; retry once after it instead of dropping the
-            // user's genuine re-open because it landed inside that window.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                guard let self, !self.isActive else { return }
-                self.refresh()
-            }
-        }
-    }
-
-    private static func opensOverview(_ event: NSEvent) -> Bool {
-        let modifiers = modifiers(of: event.modifierFlags)
-        switch event.keyCode {
-        case 99, 160: return true                                  // F3 / Mission Control key
-        case 126: return modifiers == [.control]                   // ⌃↑
-        default: return false
-        }
-    }
-
     /// Runs the pure interaction's answer: redraw from the new state, raise a window through AX and
     /// leave the overview, or dismiss it outright (Escape with no filter).
     private func apply(_ effects: [MissionControlInteraction.Effect]) {
@@ -522,6 +481,7 @@ final class MissionControlSession {
     /// point) and when the Dock leaves overview mode.
     private func dismiss() {
         stopExitWatchdog()
+        removeActiveMonitors()
         presence.close()
         hidePanels()
         interaction.close()

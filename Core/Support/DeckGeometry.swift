@@ -119,6 +119,12 @@ enum DeckGeometry {
         pointerX < screenFrame.midX ? .left : .right
     }
 
+    /// Only Option-presses directly over the resting pill window unlock mouse capture; the
+    /// expanded hover `zoneInset` outside `pillFrame` must remain click-through.
+    static func acceptsRestOptionGrab(mouse: CGPoint, pillFrame: CGRect, optionDown: Bool) -> Bool {
+        optionDown && !pillFrame.isEmpty && pillFrame.contains(mouse)
+    }
+
     private static func clamp01(_ v: CGFloat) -> CGFloat { min(max(v, 0), 1) }
 
     // MARK: Drag reorder

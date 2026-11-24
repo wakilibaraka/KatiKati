@@ -100,6 +100,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     /// (closures keep `StatusMenuController` compilable inside `KatiKatiTests` without `Platform/`).
     struct MenuBarHubHooks {
         var onToggleHub: @MainActor (NSStatusBarButton) -> Void = { _ in }
+        var onHideHub: @MainActor () -> Void = {}
         var onShowAbout: @MainActor () -> Void = {}
         var statusTrioImage: @MainActor (NSStatusBarButton?, Bool) -> NSImage? = { _, _ in nil }
         var toggleState: @MainActor (String) -> Bool = { _ in false }
@@ -195,11 +196,21 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         }
     }
 
+    enum StatusMenuClickAction: Equatable, Sendable { case toggleHub, contextMenu }
+
+    nonisolated static func clickAction(eventType: NSEvent.EventType?, modifierFlags: NSEvent.ModifierFlags) -> StatusMenuClickAction {
+        (eventType == .rightMouseDown || eventType == .rightMouseUp || modifierFlags.contains(.control)) ? .contextMenu : .toggleHub
+    }
+
+    nonisolated static func contextMenuAnchor(buttonBounds: CGRect, isFlipped: Bool) -> NSPoint {
+        NSPoint(x: 0, y: isFlipped ? buttonBounds.maxY + 4 : -4)
+    }
+
     private func configureStatusItem() {
         statusItem.menu = nil
         statusItem.button?.target = self
         statusItem.button?.action = #selector(handleStatusItemClick(_:))
-        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseDown])
         menuBarContextMenu.delegate = self
         refreshStatusItemBadge()
         installMenuBarLyric()
@@ -211,22 +222,23 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     @objc private func handleStatusItemClick(_ sender: NSStatusBarButton) {
         let event = NSApp.currentEvent
-        let isRightClick = event?.type == .rightMouseUp
-            || event?.type == .rightMouseDown
-            || (event?.modifierFlags.contains(.control) ?? false)
-        if isRightClick {
+        switch Self.clickAction(eventType: event?.type, modifierFlags: event?.modifierFlags ?? []) {
+        case .contextMenu:
             presentMenuBarContextMenu(from: sender)
-        } else {
+        case .toggleHub:
             menuBarHub.onToggleHub(sender)
         }
     }
 
     private func presentMenuBarContextMenu(from button: NSStatusBarButton) {
+        menuBarHub.onHideHub()
         menuBarHub.refreshToggleStates()
         rebuildMenuBarContextMenu()
-        statusItem.menu = menuBarContextMenu
-        button.performClick(nil)
         statusItem.menu = nil
+        button.highlight(true)
+        defer { button.highlight(false) }
+        let anchor = Self.contextMenuAnchor(buttonBounds: button.bounds, isFlipped: button.isFlipped)
+        menuBarContextMenu.popUp(positioning: nil, at: anchor, in: button)
     }
 
     private func rebuildMenuBarContextMenu() {

@@ -365,6 +365,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ),
         menuBarHub: StatusMenuController.MenuBarHubHooks(
             onToggleHub: { [weak self] button in self?.menuBarHubPanel.toggle(relativeTo: button) },
+            onHideHub: { [weak self] in self?.menuBarHubPanel.hide() },
             onShowAbout: {
                 NSApp.activate(ignoringOtherApps: true)
                 NSApp.orderFrontStandardAboutPanel(nil)

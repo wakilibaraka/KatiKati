@@ -153,7 +153,7 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
 
     @objc private func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
-        (NSApp.delegate as? AppDelegate)?.openSettings(selecting: .menuBar)
+        AppDelegate.shared?.openSettings(selecting: .menuBar)
     }
 
     @objc private func openActivityMonitor() {

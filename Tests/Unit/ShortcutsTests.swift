@@ -524,4 +524,25 @@ final class ShortcutCheatSheetTests: XCTestCase {
         XCTAssertEqual(filtered.map(\.title), ["KatiKati"])
         XCTAssertEqual(filtered.first?.items.map(\.title), ["Launcher"])
     }
+
+    func testModifierDoubleTapArmingWindowAndCancelMonitorPolicy() {
+        var policy = ShortcutMonitorPolicy(hasBindings: true)
+        XCTAssertTrue(policy.wantsFlagsMonitor)
+        XCTAssertNil(policy.cancelWindow(at: 0), "idle state keeps mouse/keyDown cancel monitors off")
+
+        _ = policy.detector.modifierChanged(keyCode: 55, isDown: true, time: 1.0)
+        XCTAssertEqual(policy.cancelWindow(at: 1.0), .infinity, "while held, disarm stays pending until release")
+
+        _ = policy.detector.modifierChanged(keyCode: 55, isDown: false, time: 1.05)
+        XCTAssertEqual(policy.cancelWindow(at: 1.25) ?? 0, 0.15, accuracy: 0.001)
+        XCTAssertNil(policy.cancelWindow(at: 1.45), "expired past 350 ms disarms cancel monitor")
+
+        policy.detector.pointerActivity()
+        XCTAssertNil(policy.cancelWindow(at: 1.20), "pointer chord immediately disarms cancel monitor")
+
+        _ = policy.detector.modifierChanged(keyCode: 55, isDown: true, time: 2.0)
+        policy.isMenuTracking = true
+        XCTAssertFalse(policy.wantsFlagsMonitor)
+        XCTAssertNil(policy.cancelWindow(at: 2.0), "menu tracking suspends all shortcut monitors")
+    }
 }

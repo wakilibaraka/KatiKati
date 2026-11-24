@@ -561,10 +561,30 @@ struct ModifierDoubleTapDetector {
         reset()
     }
 
+    /// Remaining cancel-monitor seconds (`nil` when idle; `.infinity` while a key is held).
+    func cancelWindow(at time: TimeInterval) -> TimeInterval? {
+        if downKey != nil { return .infinity }
+        return lastTapEnd.values.compactMap { end in
+            let elapsed = time - end
+            return (elapsed >= 0 && elapsed <= window) ? (window - elapsed) : nil
+        }.max()
+    }
+
     /// Any non-modifier key (or a modifier combination) breaks the sequence.
     mutating func reset() {
         downKey = nil
         lastTapEnd.removeAll()
+    }
+}
+
+/// Pure monitor gating for `ShortcutService`: arms key/mouse cancellation only while a tap/hold sequence is live.
+struct ShortcutMonitorPolicy {
+    var detector = ModifierDoubleTapDetector()
+    var hasBindings = false, isHolding = false, isMenuTracking = false
+    var wantsFlagsMonitor: Bool { hasBindings && !isMenuTracking }
+    func cancelWindow(at time: TimeInterval) -> TimeInterval? {
+        guard wantsFlagsMonitor else { return nil }
+        return isHolding ? .infinity : detector.cancelWindow(at: time)
     }
 }
 

@@ -14,9 +14,11 @@ final class ShortcutService {
     private var holdActions: [ShortcutTapKey: [ShortcutAction]] = [:]
     private var holdTimer: Timer?
     private var activeHoldKey: ShortcutTapKey?
-    private var detector = ModifierDoubleTapDetector()
-    private var globalMonitor: Any?
-    private var localMonitor: Any?
+    private var policy = ShortcutMonitorPolicy()
+    private var flagsMonitors: (global: Any?, local: Any?) = (nil, nil)
+    private var cancelMonitors: (global: Any?, local: Any?) = (nil, nil)
+    private var cancelDisarmWork: DispatchWorkItem?
+    private var menuObservers: [NSObjectProtocol] = []
     private var applied: [ShortcutAction: ShortcutTrigger]?
     private let log = Logger(subsystem: "com.katikati.app", category: "hotkey")
 
@@ -30,7 +32,7 @@ final class ShortcutService {
         tapActions = [:]
         holdActions = [:]
         cancelHold()
-        detector.reset()
+        policy.detector.reset()
         for action in ShortcutAction.allCases where action != .windowSwitcher {
             switch bindings[action] ?? .off {
             case .off: break
@@ -68,13 +70,20 @@ final class ShortcutService {
             }
         }
         ShortcutRegistrationState.shared.failures = failed
-        if !tapActions.isEmpty || !holdActions.isEmpty { installEventMonitors() }
+        policy.hasBindings = !tapActions.isEmpty || !holdActions.isEmpty
+        if policy.hasBindings {
+            installMenuObservers()
+            if policy.wantsFlagsMonitor { flagsMonitors = installMonitorPair(matching: [.flagsChanged]) }
+        }
     }
 
     func tearDown() {
         hotKeys.values.forEach { $0.stop() }
         hotKeys = [:]
         removeEventMonitors()
+        menuObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        menuObservers.removeAll()
+        policy = ShortcutMonitorPolicy()
         cancelHold()
         applied = nil
     }
@@ -99,37 +108,69 @@ final class ShortcutService {
                                     signature: 0x5467_4567, id: action.hotKeyID)
     }
 
-    private func installEventMonitors() {
-        // Slice MD-5: pointer events are watched only so they can break a tap in progress — `handle`
-        // resets on any kind that is not `flagsChanged`. A `⌘`+drag therefore never pairs with a tap.
-        let mask: NSEvent.EventTypeMask = [.flagsChanged, .keyDown,
-                                           .leftMouseDown, .rightMouseDown, .otherMouseDown,
-                                           .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask) { [weak self] event in
+    private func installMonitorPair(matching mask: NSEvent.EventTypeMask) -> (Any?, Any?) {
+        let global = NSEvent.addGlobalMonitorForEvents(matching: mask) { [weak self] event in
             let kind = event.type, code = event.keyCode, flags = event.modifierFlags, time = event.timestamp
             Task { @MainActor in self?.handle(kind: kind, keyCode: code, flags: flags, time: time) }
         }
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: mask) { [weak self] event in
+        let local = NSEvent.addLocalMonitorForEvents(matching: mask) { [weak self] event in
             self?.handle(kind: event.type, keyCode: event.keyCode, flags: event.modifierFlags, time: event.timestamp)
             return event
         }
+        return (global, local)
+    }
+
+    private func removeMonitorPair(_ pair: inout (global: Any?, local: Any?)) {
+        if let m = pair.global { NSEvent.removeMonitor(m) }
+        if let m = pair.local { NSEvent.removeMonitor(m) }
+        pair = (nil, nil)
     }
 
     private func removeEventMonitors() {
-        if let m = globalMonitor { NSEvent.removeMonitor(m) }
-        if let m = localMonitor { NSEvent.removeMonitor(m) }
-        globalMonitor = nil
-        localMonitor = nil
+        cancelDisarmWork?.cancel(); cancelDisarmWork = nil
+        removeMonitorPair(&cancelMonitors)
+        removeMonitorPair(&flagsMonitors)
+    }
+
+    private func installMenuObservers() {
+        guard menuObservers.isEmpty else { return }
+        menuObservers = [(NSMenu.didBeginTrackingNotification, true), (NSMenu.didEndTrackingNotification, false)].map { name, tracking in
+            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.policy.isMenuTracking = tracking
+                    if tracking { self.policy.detector.reset(); self.cancelHold(); self.removeEventMonitors() }
+                    else if self.policy.wantsFlagsMonitor, self.flagsMonitors.global == nil {
+                        self.flagsMonitors = self.installMonitorPair(matching: [.flagsChanged])
+                    }
+                }
+            }
+        }
+    }
+
+    private func syncCancelMonitors(at time: TimeInterval) {
+        cancelDisarmWork?.cancel(); cancelDisarmWork = nil
+        policy.isHolding = holdTimer != nil || activeHoldKey != nil
+        guard let window = policy.cancelWindow(at: time) else { removeMonitorPair(&cancelMonitors); return }
+        if cancelMonitors.global == nil {
+            cancelMonitors = installMonitorPair(matching: [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged])
+        }
+        guard window.isFinite else { return }
+        let work = DispatchWorkItem { [weak self] in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.cancelDisarmWork = nil; self.policy.detector.reset(); self.removeMonitorPair(&self.cancelMonitors)
+            }
+        }
+        cancelDisarmWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + window + 0.02, execute: work)
     }
 
     private func handle(kind: NSEvent.EventType, keyCode: UInt16, flags: NSEvent.ModifierFlags, time: TimeInterval) {
-        guard kind == .flagsChanged else {
-            // A key press, a click or a drag: none of them can be part of a double tap.
-            detector.pointerActivity()
-            cancelHold()
-            return
-        }
-        guard let key = ShortcutTapKey(keyCode: keyCode) else { detector.reset(); cancelHold(); return }
+        defer { syncCancelMonitors(at: time) }
+        guard policy.wantsFlagsMonitor else { return }
+        guard kind == .flagsChanged else { policy.detector.pointerActivity(); cancelHold(); return }
+        guard let key = ShortcutTapKey(keyCode: keyCode) else { policy.detector.reset(); cancelHold(); return }
         let family: NSEvent.ModifierFlags = {
             switch key {
             case .leftCommand, .rightCommand: return .command
@@ -141,9 +182,9 @@ final class ShortcutService {
         let active = flags.intersection([.command, .control, .option, .shift, .function])
         let isDown = active.contains(family)
         // A chord such as ⌘⇧ is neither a tap nor a hold.
-        if isDown, active != family { detector.reset(); cancelHold(); return }
+        if isDown, active != family { policy.detector.reset(); cancelHold(); return }
         if isDown, holdActions[key] != nil { startHold(key) } else { cancelHold() }
-        guard let fired = detector.modifierChanged(keyCode: keyCode, isDown: isDown, time: time),
+        guard let fired = policy.detector.modifierChanged(keyCode: keyCode, isDown: isDown, time: time),
               let actions = tapActions[fired] else { return }
         actions.forEach(onAction)
     }

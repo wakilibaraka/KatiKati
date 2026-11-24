@@ -278,7 +278,9 @@ final class EdgeBarPanelController {
         case .rest:
             let option = NSEvent.modifierFlags.contains(.option)
             // ⌥ over the pill = grab it (panel takes mouse events); otherwise hovering fans the deck.
-            if liveRatio == nil { panel?.ignoresMouseEvents = !(option && restZone().contains(mouse)) }
+            if liveRatio == nil {
+                panel?.ignoresMouseEvents = !DeckGeometry.acceptsRestOptionGrab(mouse: mouse, pillFrame: panel?.frame ?? .zero, optionDown: option)
+            }
             if liveRatio == nil, !option {
                 // 13a/13d: the pointer must rest on the pill for the open delay; one left sitting there after a fold is ignored.
                 let pressed = NSEvent.pressedMouseButtons & 1 != 0
