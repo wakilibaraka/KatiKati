@@ -94,6 +94,65 @@ final class WindowSnapTests: XCTestCase {
         XCTAssertEqual(SnapZonePlanner.dragLayout(optionDown: false), .edgesAndCorners)
         XCTAssertEqual(SnapZonePlanner.dragLayout(optionDown: true), .thirds)
     }
+
+    func testSnapGapsClampingAndDefaults() {
+        let clamped = SnapGaps(outer: -8, inner: 99)
+        XCTAssertEqual(clamped, SnapGaps(outer: 0, inner: 32))
+
+        let suiteName = "com.katikati.tests.snapgaps.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        XCTAssertEqual(SnapGaps.current(defaults: defaults), .zero)
+
+        defaults.set(14.0, forKey: SnapGaps.outerKey)
+        defaults.set(8.0, forKey: SnapGaps.innerKey)
+        XCTAssertEqual(SnapGaps.current(defaults: defaults), SnapGaps(outer: 14, inner: 8))
+    }
+
+    func testSnapPositionFrameWithOuterAndInnerGaps() {
+        let area = CGRect(x: 0, y: 40, width: 1000, height: 600)
+        let gaps = SnapGaps(outer: 10, inner: 12) // padded: (10, 50, 980, 580)
+
+        let maxFrame = SnapPosition.maximize.frame(in: area, gaps: gaps)
+        XCTAssertEqual(maxFrame, CGRect(x: 10, y: 50, width: 980, height: 580))
+
+        let left = SnapPosition.leftHalf.frame(in: area, gaps: gaps)
+        let right = SnapPosition.rightHalf.frame(in: area, gaps: gaps)
+        XCTAssertEqual(left, CGRect(x: 10, y: 50, width: 484, height: 580))
+        XCTAssertEqual(right, CGRect(x: 506, y: 50, width: 484, height: 580))
+        XCTAssertEqual(right.minX - left.maxX, 12)
+
+        let topLeft = SnapPosition.topLeft.frame(in: area, gaps: gaps)
+        let bottomRight = SnapPosition.bottomRight.frame(in: area, gaps: gaps)
+        XCTAssertEqual(topLeft, CGRect(x: 10, y: 346, width: 484, height: 284))
+        XCTAssertEqual(bottomRight, CGRect(x: 506, y: 50, width: 484, height: 284))
+        XCTAssertEqual(topLeft.minY - bottomRight.maxY, 12)
+
+        let twoThirds = SnapPosition.leftTwoThirds.frame(in: area, gaps: SnapGaps(outer: 10, inner: 0))
+        XCTAssertEqual(twoThirds, CGRect(x: 10, y: 50, width: 653, height: 580))
+    }
+
+    func testSnapZonePlannerAndDockClearanceParity() {
+        let screen = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        let visible = CGRect(x: 0, y: 0, width: 1440, height: 875)
+        let gaps = SnapGaps(outer: 8, inner: 10)
+
+        let bottomArea = DockReserve.workArea(visible: visible, screen: screen,
+                                              dock: CGRect(x: 320, y: 0, width: 800, height: 70))
+        let bottomZone = SnapZonePlanner.resolve(at: CGPoint(x: 2, y: 400), in: bottomArea,
+                                                 layout: .edgesAndCorners, edgeMargin: 12, gaps: gaps)
+        XCTAssertEqual(bottomZone?.position, .leftHalf)
+        XCTAssertEqual(bottomZone?.frame, SnapPosition.leftHalf.frame(in: bottomArea, gaps: gaps))
+        XCTAssertGreaterThanOrEqual(bottomZone?.frame.minY ?? 0, 78)
+
+        let leftArea = DockReserve.workArea(visible: visible, screen: screen,
+                                            dock: CGRect(x: 0, y: 150, width: 64, height: 600))
+        XCTAssertEqual(SnapPosition.leftHalf.frame(in: leftArea, gaps: gaps).minX, 72)
+
+        let rightArea = DockReserve.workArea(visible: visible, screen: screen,
+                                             dock: CGRect(x: 1376, y: 150, width: 64, height: 600))
+        XCTAssertEqual(SnapPosition.rightHalf.frame(in: rightArea, gaps: gaps).maxX, 1368)
+    }
 }
 
 /// 54a: a plain click keeps its old meaning; the modifiers are the only change.

@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 
 /// Window zones for the Windows flyout (Phase 7A-P6). The unit rectangles follow the window snapper cited in NOTICE §9 (MIT):
 /// fractions of a screen's visible area with a bottom-left origin.
@@ -28,14 +29,58 @@ enum SnapPosition: String, CaseIterable, Codable, Sendable {
         case .maximize: return CGRect(x: 0, y: 0, width: 1, height: 1)
         }
     }
+}
 
+/// Outer screen-edge margin and inner split-edge gap applied when computing snapped window frames.
+struct SnapGaps: Equatable, Sendable {
+    static let outerKey = "com.katikati.snap.outerGap"
+    static let innerKey = "com.katikati.snap.innerGap"
+    static let range: ClosedRange<CGFloat> = 0...32
+    static let zero = SnapGaps(outer: 0, inner: 0)
+
+    let outer: CGFloat
+    let inner: CGFloat
+
+    init(outer: CGFloat = 0, inner: CGFloat = 0) {
+        self.outer = min(max(outer, Self.range.lowerBound), Self.range.upperBound)
+        self.inner = min(max(inner, Self.range.lowerBound), Self.range.upperBound)
+    }
+
+    static func current(defaults: UserDefaults = .standard) -> SnapGaps {
+        SnapGaps(outer: CGFloat(defaults.double(forKey: outerKey)),
+                 inner: CGFloat(defaults.double(forKey: innerKey)))
+    }
+}
+
+extension SnapPosition {
     /// Target frame inside `visible` (Cocoa coordinates, bottom-left origin), whole points.
-    func frame(in visible: CGRect) -> CGRect {
+    func frame(in visible: CGRect, gaps: SnapGaps = .zero) -> CGRect {
         let u = unit
-        return CGRect(x: (visible.minX + u.minX * visible.width).rounded(),
-                      y: (visible.minY + u.minY * visible.height).rounded(),
-                      width: (u.width * visible.width).rounded(),
-                      height: (u.height * visible.height).rounded())
+        if gaps == .zero {
+            return CGRect(x: (visible.minX + u.minX * visible.width).rounded(),
+                          y: (visible.minY + u.minY * visible.height).rounded(),
+                          width: (u.width * visible.width).rounded(),
+                          height: (u.height * visible.height).rounded())
+        }
+        let outer = min(gaps.outer, min(visible.width, visible.height) / 4)
+        let padded = outer > 0 ? visible.insetBy(dx: outer, dy: outer) : visible
+        var minX = padded.minX + u.minX * padded.width
+        var maxX = padded.minX + u.maxX * padded.width
+        var minY = padded.minY + u.minY * padded.height
+        var maxY = padded.minY + u.maxY * padded.height
+        if gaps.inner > 0 && self != .center && self != .maximize {
+            let half = min(gaps.inner / 2, min(padded.width, padded.height) / 6)
+            if u.minX > 0.001 { minX += half }
+            if u.maxX < 0.999 { maxX -= half }
+            if u.minY > 0.001 { minY += half }
+            if u.maxY < 0.999 { maxY -= half }
+        }
+        let x = minX.rounded()
+        let y = minY.rounded()
+        return CGRect(x: x,
+                      y: y,
+                      width: max(0, maxX.rounded() - x),
+                      height: max(0, maxY.rounded() - y))
     }
 
     /// Cocoa frame → Accessibility coordinates (origin at the top-left of the primary screen).
@@ -85,7 +130,7 @@ enum SnapZonePlanner {
         let frame: CGRect
     }
 
-    static func zones(in area: CGRect, layout: Layout = .edgesAndCorners) -> [Zone] {
+    static func zones(in area: CGRect, layout: Layout = .edgesAndCorners, gaps: SnapGaps = .zero) -> [Zone] {
         let positions: [SnapPosition]
         switch layout {
         case .edgesAndCorners:
@@ -96,11 +141,11 @@ enum SnapZonePlanner {
         case .centerAndMaximize:
             positions = [.center, .maximize]
         }
-        return positions.map { Zone(position: $0, frame: previewFrame(for: $0, in: area)) }
+        return positions.map { Zone(position: $0, frame: previewFrame(for: $0, in: area, gaps: gaps)) }
     }
 
-    static func previewFrame(for position: SnapPosition, in area: CGRect) -> CGRect {
-        position.frame(in: area)
+    static func previewFrame(for position: SnapPosition, in area: CGRect, gaps: SnapGaps = .zero) -> CGRect {
+        position.frame(in: area, gaps: gaps)
     }
 
     /// Selects the drag-to-snap layout from modifier flags: holding Option (`⌥`) switches to horizontal thirds.
@@ -114,23 +159,24 @@ enum SnapZonePlanner {
     static func resolve(at point: CGPoint,
                         in area: CGRect,
                         layout: Layout = .edgesAndCorners,
-                        edgeMargin: CGFloat = 12) -> Zone? {
+                        edgeMargin: CGFloat = 12,
+                        gaps: SnapGaps = .zero) -> Zone? {
         guard area.width > 0, area.height > 0 else { return nil }
         switch layout {
         case .edgesAndCorners:
             guard let position = edgeZone(at: point, in: area, edgeMargin: edgeMargin) else { return nil }
-            return Zone(position: position, frame: previewFrame(for: position, in: area))
+            return Zone(position: position, frame: previewFrame(for: position, in: area, gaps: gaps))
         case .thirds:
             guard area.contains(point) else { return nil }
             let fraction = (point.x - area.minX) / area.width
             let position: SnapPosition = fraction < 1 / 3 ? .leftThird
                 : fraction > 2 / 3 ? .rightThird : .centerThird
-            return Zone(position: position, frame: previewFrame(for: position, in: area))
+            return Zone(position: position, frame: previewFrame(for: position, in: area, gaps: gaps))
         case .centerAndMaximize:
             guard area.contains(point) else { return nil }
-            let center = previewFrame(for: .center, in: area)
+            let center = previewFrame(for: .center, in: area, gaps: gaps)
             let position: SnapPosition = center.contains(point) ? .center : .maximize
-            return Zone(position: position, frame: previewFrame(for: position, in: area))
+            return Zone(position: position, frame: previewFrame(for: position, in: area, gaps: gaps))
         }
     }
 

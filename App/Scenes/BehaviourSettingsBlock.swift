@@ -254,6 +254,8 @@ struct WindowManagementSettingsPane: View {
     @ObservedObject var store: AppSettingsStore
     @AppStorage("com.katikati.windowManagement.pane") private var paneRaw = WindowManagementPane.switcher.rawValue
     @AppStorage("com.katikati.windowManagement.section") private var sectionRaw = WindowManagementSection.style.rawValue
+    @AppStorage(SnapGaps.outerKey) private var snapOuterGap = 0.0
+    @AppStorage(SnapGaps.innerKey) private var snapInnerGap = 0.0
     @State private var showsStyleSettings = false
     @State private var showsDockLayering = false
 
@@ -527,7 +529,16 @@ struct WindowManagementSettingsPane: View {
                                   valueText: "\(Int(store.snapEdgeMargin)) pt") { value in
                     store.setSnapEdgeMargin(value)
                 }
+                SettingsDivider()
+                SettingsSliderRow(Text("Outer Gap"), value: snapOuterGap,
+                                  range: 0...32, step: 1,
+                                  valueText: "\(Int(snapOuterGap)) pt") { snapOuterGap = $0 }
+                SettingsDivider()
+                SettingsSliderRow(Text("Inner Gap"), value: snapInnerGap,
+                                  range: 0...32, step: 1,
+                                  valueText: "\(Int(snapInnerGap)) pt") { snapInnerGap = $0 }
             }
+            SettingsNote(Text("Keeps snapped windows clear of screen edges, the Dock, and each other."))
             SettingsCard(Text("Snap Shortcuts")) {
                 SettingsButtonRow(Text("Edit Snap Shortcuts"),
                                   note: Text("Every snap zone is a normal shortcut action; this page never duplicates that editor.")) {

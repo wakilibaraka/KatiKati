@@ -52,7 +52,7 @@ final class RadialSnapPreviewPanelController {
 
     /// Displays or updates the snap zone preview on screen.
     func showPreview(for position: SnapPosition, on screen: NSScreen, theme: RadialDialTheme) {
-        let targetFrame = position.frame(in: screen.visibleFrame)
+        let targetFrame = position.frame(in: WindowSnapService.workArea(of: screen), gaps: SnapGaps.current())
         let panel = self.panel ?? makePanel(theme: theme)
         self.panel = panel
 

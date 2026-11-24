@@ -179392,6 +179392,22 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "链接已清理" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "連結已清理" } }
       }
+    },
+    "Keeps snapped windows clear of screen edges, the Dock, and each other." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hält eingerastete Fenster von Bildschirmrändern, dem Dock und anderen Fenstern frei." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keeps snapped windows clear of screen edges, the Dock, and each other." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mantiene las ventanas acopladas separadas de los bordes de la pantalla, del Dock y entre sí." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Mantiene las ventanas ajustadas separadas de los bordes de la pantalla, del Dock y entre sí." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Maintient les fenêtres ancrées à l'écart des bords de l'écran, du Dock et les unes des autres." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mantiene le finestre agganciate distanti dai bordi dello schermo, dal Dock e tra loro." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スナップしたウィンドウを画面端、Dock、および他のウィンドウから離して配置します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "스냅된 창이 화면 가장자리, Dock 및 서로와 간격을 유지하도록 합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mantém janelas encaixadas afastadas das bordas da tela, do Dock e umas das outras." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mantém as janelas ajustadas afastadas das margens do ecrã, da Dock e umas das outras." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使吸附的窗口与屏幕边缘、程序坞及彼此保持间距。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "使貼齊的視窗與螢幕邊緣、Dock 及彼此保持間距。" } }
+      }
     }
   },
   "version" : "1.0"

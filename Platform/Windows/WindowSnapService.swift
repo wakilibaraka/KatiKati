@@ -10,6 +10,10 @@ enum WindowSnapService {
     /// The solid dock's frame on a screen (nil when hidden/auto-hiding); zones stay clear of it.
     static var dockFrame: (NSScreen) -> CGRect? = { _ in nil }
 
+    static func workArea(of screen: NSScreen) -> CGRect {
+        DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
+    }
+
     @discardableResult
     static func apply(_ position: SnapPosition) -> Outcome {
         guard AXIsProcessTrusted() else { return .needsAccessibility }
@@ -24,8 +28,8 @@ enum WindowSnapService {
         guard let screen = screenContaining(window, primaryMaxY: primary.maxY) ?? NSScreen.main else { return .noWindow }
 
         guard isTileable(window) else { return .noWindow }
-        let area = DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame, dock: dockFrame(screen))
-        let target = position.frame(in: area)
+        let area = workArea(of: screen)
+        let target = position.frame(in: area, gaps: SnapGaps.current())
         let point = SnapPosition.accessibilityOrigin(of: target, primaryMaxY: primary.maxY)
         let quartzTarget = CGRect(origin: point, size: target.size)
         let quartzArea = CGRect(origin: SnapPosition.accessibilityOrigin(of: area, primaryMaxY: primary.maxY), size: area.size)
@@ -66,7 +70,7 @@ enum WindowSnapService {
         guard isTileable(window), let f = frame(of: window), let from = screenContaining(window, primaryMaxY: primary.maxY),
               let index = screens.firstIndex(of: from) else { return .noWindow }
         let to = screens[DisplayMove.destination(from: index, count: screens.count, step: step)]
-        func area(_ s: NSScreen) -> CGRect { DockReserve.workArea(visible: s.visibleFrame, screen: s.frame, dock: dockFrame(s)) }
+        func area(_ s: NSScreen) -> CGRect { workArea(of: s) }
         func quartz(_ r: CGRect) -> CGRect { CGRect(origin: SnapPosition.accessibilityOrigin(of: r, primaryMaxY: primary.maxY), size: r.size) }
         let a = quartz(area(from)), b = quartz(area(to))
         let w = min(f.width, b.width), h = min(f.height, b.height)
@@ -227,14 +231,15 @@ final class SnapDragMonitor {
             preview?.orderOut(nil)
             return
         }
-        let area = DockReserve.workArea(visible: screen.visibleFrame, screen: screen.frame,
-                                        dock: WindowSnapService.dockFrame(screen))
+        let area = WindowSnapService.workArea(of: screen)
+        let gaps = SnapGaps.current()
         let layout: SnapZonePlanner.Layout = NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners
         let previous = layout == .edgesAndCorners ? activeZone.flatMap {
             (![SnapPosition.leftThird, .centerThird, .rightThird].contains($0.position)
+             && $0.frame == SnapZonePlanner.previewFrame(for: $0.position, in: area, gaps: gaps)
              && $0.frame.insetBy(dx: -8, dy: -8).contains(mouse)) ? $0 : nil
         } : nil
-        guard let zone = previous ?? SnapZonePlanner.resolve(at: mouse, in: area, layout: layout, edgeMargin: edgeMargin) else {
+        guard let zone = previous ?? SnapZonePlanner.resolve(at: mouse, in: area, layout: layout, edgeMargin: edgeMargin, gaps: gaps) else {
             activeZone = nil
             preview?.orderOut(nil)
             return
