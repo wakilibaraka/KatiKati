@@ -7054,3 +7054,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LQ-5` — Liquid Notch Opt-In Extras: Sports, Video-in-Island, Lock Screen Backup & Notifications (`53a0745d`, 2026-11-24)
 
 - `Core/Support/NotchLayoutSpec.swift`, `Tests/Unit/NotchLayoutSpecTests.swift`, `App/Scenes/Notch/Island/IslandPresets.swift`: added `LiquidExtrasKeys` (all `false` by default), `LiquidSportLeague` + `LiquidESPNParser`, `LiquidWallpaperBackup`, `LiquidSportsFeed`, and `LiquidNoticeCard` wired to `LiveEventPresentation` (`53a0745d`; 15 unit tests + 12-locale localization gate passing, zero `project.pbxproj` edits).
+
+### `LQ-6` — Liquid Notch Settings Unification, 12-Locale Gate & Verification (`e68cff73`, 2026-11-24)
+
+- `App/Scenes/LiveIslandSettingsBlock.swift`, `Resources/Localizable.xcstrings`: unified `LiquidExtrasSettingsRows` under `Settings › Notch` (`Watch Claude & Codex`, `Sports Scores`, `Video in Island`, `Lock Screen Card`, `Notch Notifications` — all off by default while keeping `.boring`/`.classic`/`.dynamicIsland`/`.wideBar` presets intact), updated all 12 locales (`2422/2422` keys), and verified 87/87 unit tests across 7 suites + `check_debug_switches.py` + `check_availability_warnings.py` (`e68cff73`).

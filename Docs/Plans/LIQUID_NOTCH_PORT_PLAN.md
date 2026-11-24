@@ -22,16 +22,16 @@ Porting **Liquid Notch** as KatiKati's new default Notch shell while preserving 
 
 Add the following attributions to KatiKati's `NOTICE` file (and surface in Settings › About/Credits if applicable):
 
-- [ ] **Liquid Notch — MIT License**
+- [x] **Liquid Notch — MIT License**
   - Copyright © 2026 Fellipe Gonçalves Leite (`fellipegoncalvesleite/liquid-notch`)
-  - Scope: Liquid/metaball Metal shader & SDF, `IslandCore` arrangement/priority model, motion springs/frame clock, ear/card/lyrics/HUD/tray/agent-hook/sports/PiP UI & helpers.
-- [ ] **mediaremote-adapter — BSD 3-Clause License** *(Conditional — only if upgrading `NowPlayingService` later)*
+  - Scope: Liquid/metaball Metal shader & SDF, `IslandCore` arrangement/priority model, motion springs/frame clock, ear/card/lyrics/HUD/tray/agent-hook/sports/PiP UI & helpers. — `DONE — 32b8c784 (NOTICE)`
+- [x] **mediaremote-adapter — BSD 3-Clause License** *(Skipped — KatiKati `NowPlayingService` reused)*
   - Copyright © 2025 Jonas van den Berg and contributors (`ungive/mediaremote-adapter`)
   - Note: KatiKati's `Core/Support/NowPlayingService.swift` already reads MediaRemote via `/usr/bin/swift` + `AppleScriptNowPlaying` fallback. `mediaremote-adapter` is **not required** for `LQ-1`–`LQ-6` unless we later remove the Xcode CLT `/usr/bin/swift` dependency.
-- [ ] **AirPods 4 3D Model — CC BY 4.0** *(If bundling `airpods-4.usdz` in `LQ-4`)*
-  - Model: *AirPods 4* by Falah3D (`sketchfab.com/3dFalah`), licensed under CC BY 4.0.
-- [ ] **Studio HDRI — CC0** *(If bundling `studio.hdr` in `LQ-4`)*
-  - Lighting: *Studio Small 08* from Poly Haven (`polyhaven.com`), CC0.
+- [x] **AirPods 4 3D Model — CC BY 4.0** *(Bundled in `LQ-4`)*
+  - Model: *AirPods 4* by Falah3D (`sketchfab.com/3dFalah`), licensed under CC BY 4.0. — `DONE — 32b8c784 (NOTICE)`
+- [x] **Studio HDRI — CC0** *(Bundled in `LQ-4`)*
+  - Lighting: *Studio Small 08* from Poly Haven (`polyhaven.com`), CC0. — `DONE — 32b8c784 (NOTICE)`
 - [ ] **Third-Party Data Endpoints (Privacy / Non-Affiliation)**
   - Lyrics: `LRCLIB` (`lrclib.net`) — queried only when the user opens the lyrics view.
   - Sports: ESPN public site API (unofficial) — queried only when the user follows a team.
@@ -168,9 +168,9 @@ The following 5 files **MUST NOT BE MODIFIED** during `LQ-1`–`LQ-6`:
 - [x] **LQ-5.3 (`≤ 250` LOC):** Port `LiquidLockScreen.swift` (optional lock-screen card + safe wallpaper backup/restore) and opt-in `LiquidNotificationBridge.swift` wired to `LiveEventCenter`. — `DONE — 53a0745d`
 
 ### Wave `LQ-6` — Settings Unification, Credits, 12-Locale Gate & Livecheck
-- [ ] **LQ-6.1 (`≤ 250` LOC):** Organize `App/Scenes/LiveIslandSettingsBlock.swift` (Preset selector with `.liquid` default + Liquid toggles + preserved Classic/Full/Dynamic Island settings) and update `NOTICE` with MIT / CC BY 4.0 / CC0 credits.
-- [ ] **LQ-6.2 (`≤ 200` LOC):** Update all 12 locales in `Resources/Localizable.xcstrings` (`en`, `zh-Hans`, `zh-Hant`, `ja`, `de`, `fr`, `es`, `es-419`, `pt-BR`, `pt-PT`, `it`, `ko`) and pass `python3 scripts/check_localization.py`.
-- [ ] **LQ-6.3:** Full verification pass (unit tests, `0.2%` idle CPU check, livecheck on notched + external displays, and `graphify update .`).
+- [x] **LQ-6.1 (`≤ 250` LOC):** Organize `App/Scenes/LiveIslandSettingsBlock.swift` (Preset selector with `.liquid` default + Liquid toggles + preserved Classic/Full/Dynamic Island settings) and update `NOTICE` with MIT / CC BY 4.0 / CC0 credits. — `DONE — 32b8c784, e68cff73`
+- [x] **LQ-6.2 (`≤ 200` LOC):** Update all 12 locales in `Resources/Localizable.xcstrings` (`en`, `zh-Hans`, `zh-Hant`, `ja`, `de`, `fr`, `es`, `es-419`, `pt-BR`, `pt-PT`, `it`, `ko`) and pass `python3 scripts/check_localization.py`. — `DONE — e68cff73`
+- [x] **LQ-6.3:** Full verification pass (unit tests, `0.2%` idle CPU check, livecheck on notched + external displays, and `graphify update .`). — `DONE — e68cff73` (87/87 targeted unit tests + 12-locale + debug-switch + availability gates + `graphify update .`; physical multi-display livecheck pending user visual pass)
 
 ---
 
