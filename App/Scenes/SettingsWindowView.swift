@@ -263,6 +263,7 @@ struct SettingsWindowContent: View {
 
     @ViewBuilder
     private var menuBarPane: some View {
+        MenuBarHubSettingsBlock()
         SettingsCard(Text("Menu Bar")) {
             SettingsToggleRow(
                 Text("Menu bar icon"),
@@ -1026,5 +1027,129 @@ private struct MenuBarMetricRow: View {
                     .labelsHidden().toggleStyle(.switch)
             }
         }
+    }
+}
+
+private struct MenuBarHubSettingsBlock: View {
+    @AppStorage(MenuBarIconMode.defaultsKey) private var iconModeRaw = MenuBarIconMode.statusTrio.rawValue
+    @AppStorage(StatusTrioStrokeWeight.defaultsKey) private var strokeRaw = StatusTrioStrokeWeight.regular.rawValue
+    @AppStorage(MenuBarHubPrefs.semanticAlertsKey) private var semanticAlerts = false
+    @AppStorage(MenuBarHubPrefs.compactReadoutKey) private var compactReadout = false
+    @AppStorage(MenuBarHubPrefs.bluetoothInRingKey) private var bluetoothInRing = true
+    @AppStorage(HubActionSlotID.defaultsKey) private var boxGridRaw = HubActionSlotID.serialize(HubActionSlotID.defaultSlots)
+    @AppStorage(MenuBarHubTab.visibleTabsKey) private var visibleTabsRaw = MenuBarHubTab.serialize(MenuBarHubTab.allCases)
+    @AppStorage(MenuBarRightClickConfig.defaultsKey) private var rightClickRaw = MenuBarRightClickConfig.serialize(MenuBarRightClickConfig.defaultTokens)
+
+    var body: some View {
+        SettingsCard(Text("Menu Bar Icon")) {
+            SettingsSegmentedRow(Text("Style"), selection: $iconModeRaw) {
+                Text("Status Trio Ring").tag(MenuBarIconMode.statusTrio.rawValue)
+                Text("Classic").tag(MenuBarIconMode.classic.rawValue)
+            }
+            SettingsDivider()
+            SettingsSegmentedRow(Text("Ring Stroke"), selection: $strokeRaw) {
+                Text("Light").tag(StatusTrioStrokeWeight.light.rawValue)
+                Text("Regular").tag(StatusTrioStrokeWeight.regular.rawValue)
+                Text("Bold").tag(StatusTrioStrokeWeight.bold.rawValue)
+            }
+            SettingsDivider()
+            SettingsRowPair(
+                left: { SettingsToggleRow(Text("Semantic Alerts"), isOn: $semanticAlerts) },
+                right: { SettingsToggleRow(Text("Compact Readout"), isOn: $compactReadout) }
+            )
+            SettingsDivider()
+            SettingsToggleRow(Text("Bluetooth Audio in Ring"), isOn: $bluetoothInRing)
+        }
+
+        SettingsCard(Text("Left-Click Creative Hub")) {
+            SettingsRowPair(
+                left: { slotPicker(Text("Slot 1"), index: 0) },
+                right: { slotPicker(Text("Slot 2"), index: 1) }
+            )
+            SettingsDivider()
+            SettingsRowPair(
+                left: { slotPicker(Text("Slot 3"), index: 2) },
+                right: { slotPicker(Text("Slot 4"), index: 3) }
+            )
+            SettingsDivider()
+            SettingsGrid(MenuBarHubTab.allCases, id: \.self) { tab in
+                SettingsCheckboxRow(tabTitle(tab), isOn: Binding(
+                    get: { activeTabs.contains(tab) },
+                    set: { on in
+                        var next = activeTabs
+                        if on { if !next.contains(tab) { next.append(tab) } }
+                        else if next.count > 1 { next.removeAll { $0 == tab } }
+                        let ordered = MenuBarHubTab.allCases.filter { next.contains($0) }
+                        visibleTabsRaw = MenuBarHubTab.serialize(ordered)
+                    }
+                ))
+            }
+        }
+
+        SettingsCard(Text("Right-Click Menu")) {
+            SettingsGrid(MenuBarRightClickConfig.allowedTokens, id: \.self) { token in
+                SettingsCheckboxRow(rightClickTitle(token), isOn: Binding(
+                    get: { activeRightClickTokens.contains(token) },
+                    set: { on in
+                        var next = activeRightClickTokens
+                        if on { if !next.contains(token) { next.append(token) } }
+                        else { next.removeAll { $0 == token } }
+                        rightClickRaw = MenuBarRightClickConfig.serialize(next)
+                    }
+                ))
+            }
+        }
+    }
+
+    private var activeSlots: [HubActionSlotID] {
+        let parsed = boxGridRaw.split(separator: ",").compactMap { HubActionSlotID(rawValue: String($0)) }
+        var seen = Set<HubActionSlotID>()
+        var out = parsed.filter { seen.insert($0).inserted }
+        for fb in HubActionSlotID.defaultSlots + HubActionSlotID.allCases where out.count < 4 && seen.insert(fb).inserted { out.append(fb) }
+        return Array(out.prefix(4))
+    }
+
+    private var activeTabs: [MenuBarHubTab] {
+        let parsed = visibleTabsRaw.split(separator: ",").compactMap { MenuBarHubTab(rawValue: String($0)) }
+        return parsed.isEmpty ? MenuBarHubTab.allCases : parsed
+    }
+
+    private var activeRightClickTokens: [String] {
+        let parsed = rightClickRaw.split(separator: ",").map(String.init)
+        return parsed.filter { MenuBarRightClickConfig.allowedTokens.contains($0) }
+    }
+
+    private func slotPicker(_ label: Text, index: Int) -> some View {
+        SettingsPickerRow(label, selection: Binding(
+            get: { activeSlots[index] },
+            set: { next in
+                var slots = activeSlots
+                slots[index] = next
+                boxGridRaw = HubActionSlotID.serialize(slots)
+            }
+        )) {
+            ForEach(HubActionSlotID.allCases) { slot in slotTitle(slot).tag(slot) }
+        }
+    }
+
+    private func slotTitle(_ slot: HubActionSlotID) -> Text {
+        if slot == .captureOCR { return Text("Capture Area") }
+        if slot == .notchToggle { return Text("Notch") }
+        if slot == .muteOutput { return Text("Mute Audio") }
+        return QuickToggleID(rawValue: slot.rawValue)?.title ?? Text(verbatim: slot.rawValue)
+    }
+
+    private func tabTitle(_ tab: MenuBarHubTab) -> Text {
+        switch tab {
+        case .switches: return Text("Switches")
+        case .statusAudio: return Text("Status & Audio")
+        case .shortcutsEvolutions: return Text("Shortcuts & Evolutions")
+        case .schedules: return Text("Schedules")
+        }
+    }
+
+    private func rightClickTitle(_ token: String) -> Text {
+        if token == "muteOutput" { return Text("Mute Audio") }
+        return QuickToggleID(rawValue: token)?.title ?? Text(verbatim: token)
     }
 }

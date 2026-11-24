@@ -249,14 +249,14 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             menuBarContextMenu.addItem(item)
         }
         if !tokens.isEmpty { menuBarContextMenu.addItem(.separator()) }
-        let hubItem = NSMenuItem(title: String(localized: "Quick Settings"), action: #selector(openCreativeHubFromMenu), keyEquivalent: "")
+        let hubItem = NSMenuItem(title: String(localized: "Open Creative Hub"), action: #selector(openCreativeHubFromMenu), keyEquivalent: "")
         hubItem.target = self
         menuBarContextMenu.addItem(hubItem)
         let settings = NSMenuItem(title: String(localized: "KatiKati Settings…"), action: #selector(showSettings), keyEquivalent: ",")
         settings.target = self
         settings.keyEquivalentModifierMask = [.command]
         menuBarContextMenu.addItem(settings)
-        let about = NSMenuItem(title: String(localized: "About"), action: #selector(showAboutFromMenu), keyEquivalent: "")
+        let about = NSMenuItem(title: String(localized: "About KatiKati"), action: #selector(showAboutFromMenu), keyEquivalent: "")
         about.target = self
         menuBarContextMenu.addItem(about)
         if let version = settingsCoordinator.pendingUpdateVersion {
@@ -291,7 +291,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         case "keepAwake": return String(localized: "Keep Awake")
         case "darkMode": return String(localized: "Dark Mode")
         case "hideDesktopIcons": return String(localized: "Hide Desktop")
-        case "muteOutput": return String(localized: "Muted")
+        case "muteOutput": return String(localized: "Mute Audio")
         case "muteMic": return String(localized: "Mute Mic")
         case "nightShift": return String(localized: "Night Shift")
         case "dockAutoHide": return String(localized: "Dock Auto-hide")
