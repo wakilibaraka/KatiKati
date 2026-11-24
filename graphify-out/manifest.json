@@ -90,9 +90,9 @@
     "semantic_hash": "e3340978a32c952d8d52b586fb0c6d2d"
   },
   "App/Composition/DailyHelpersService.swift": {
-    "mtime": 1795309217.6223197,
-    "seen": 1795534644.4570198,
-    "ast_hash": "b3449a58afa95e232f2ad1127c8b5e29",
+    "mtime": 1795545471.5282578,
+    "seen": 1795545595.291028,
+    "ast_hash": "470ba79220b5393f879c9667aad70065",
     "semantic_hash": ""
   },
   "App/Composition/DiagnosticReport.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795535065.0131116,
-    "seen": 1795539171.3454232,
-    "ast_hash": "3929b89c36707d91e074b7fec52e15fb",
+    "mtime": 1795545394.1425993,
+    "seen": 1795545595.291109,
+    "ast_hash": "0e5e6581691652dbdae8e3e3b56d89fa",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795519716.177387,
-    "seen": 1795534644.45711,
-    "ast_hash": "686ffd47661d6d40e98c472175d6a3a2",
+    "mtime": 1795545386.4418757,
+    "seen": 1795545595.291121,
+    "ast_hash": "c1ea2f0c692ff8cabeed4f4c6e993f26",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -1302,15 +1302,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/WeatherGlanceView.swift": {
-    "mtime": 1792543476.366697,
-    "seen": 1795534644.457275,
-    "ast_hash": "6be4d37fc67f6207e123ca1c8bbf70d4",
+    "mtime": 1795545391.5286603,
+    "seen": 1795545595.2912939,
+    "ast_hash": "6358ba37efa8127da3d696779b6b7dff",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherPanelView.swift": {
-    "mtime": 1792545244.3703299,
-    "seen": 1795534644.4572759,
-    "ast_hash": "c3bf68b9e06fd25dec9db1fe9a5d81e4",
+    "mtime": 1795545393.0394466,
+    "seen": 1795545595.2912939,
+    "ast_hash": "b6da534b83c04662a46062ad15958170",
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
@@ -1350,9 +1350,9 @@
     "semantic_hash": "ca94c61fd900f56fab5ab3b7297946f4"
   },
   "App/Scenes/WidgetPanelController.swift": {
-    "mtime": 1794993958.386351,
-    "seen": 1795534644.457282,
-    "ast_hash": "e5f9b6f34da6ea3dbf4d000e950aad27",
+    "mtime": 1795545390.416064,
+    "seen": 1795545595.291301,
+    "ast_hash": "998be2c6bc93490b11ef1bb4a20f005c",
     "semantic_hash": ""
   },
   "App/Scenes/WidgetTileKit.swift": {
@@ -3828,9 +3828,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchHoverMachineTests.swift": {
-    "mtime": 1795443274.050114,
-    "seen": 1795534644.457739,
-    "ast_hash": "1f7cb12b9c523e4672f0c5132d27e16b",
+    "mtime": 1795545403.6892674,
+    "seen": 1795545595.291772,
+    "ast_hash": "6937ca209b405faae609f348c22f9082",
     "semantic_hash": ""
   },
   "Tests/Unit/NotchLayoutSpecTests.swift": {
@@ -4584,9 +4584,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsShell.swift": {
-    "mtime": 1795028733.6880765,
-    "seen": 1795534644.457236,
-    "ast_hash": "386c3389d22b2b567372cdcbaa49e11c",
+    "mtime": 1795545387.409177,
+    "seen": 1795545595.291254,
+    "ast_hash": "a9bdae99083da3fcc109a742e323f53f",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
@@ -4650,9 +4650,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchBehavior.swift": {
-    "mtime": 1795519681.6663456,
-    "seen": 1795534644.457417,
-    "ast_hash": "abbf17a56cbd5975d652378dc9da14a0",
+    "mtime": 1795545379.4873545,
+    "seen": 1795545595.291441,
+    "ast_hash": "017cdfa51381b6080f9af0e331ab0aa6",
     "semantic_hash": ""
   },
   "Core/Support/NotchEdgeStyle.swift": {
@@ -7626,9 +7626,9 @@
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
-    "mtime": 1795088440.8524377,
-    "seen": 1795534644.457021,
-    "ast_hash": "4a17503a7449823e75d975c1ad5db9d2",
+    "mtime": 1795545421.6693726,
+    "seen": 1795545595.29103,
+    "ast_hash": "a81f12c1b759091394fdd02beeac46ef",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopSettingsBlock.swift": {
