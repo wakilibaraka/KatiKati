@@ -1,4 +1,6 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Phase 12 — how the widget panes look (layout, colours, clock, glass, theme) and the style
 /// presets that go with them. The dock's own list moved to the Dock Items tab, and the weather
@@ -674,4 +676,264 @@ private struct DockIIConfigureSheet: View {
             }
         }
     }
+}
+
+// MARK: - IS-5.1 Icon Studio Window & 3-Column Stage
+
+enum IconStudioBackdropMode: String, CaseIterable, Identifiable {
+    case light, dark, wallpaper
+    var id: String { rawValue }
+}
+
+@MainActor
+final class IconStudioWindowController: NSObject, ObservableObject {
+    static let shared = IconStudioWindowController()
+    @Published var selectedBundleID: String = LiveIconKind.claude.defaultBundleID
+    private var window: NSWindow?
+
+    func open(selectedBundleID: String? = nil) {
+        if let selectedBundleID, !selectedBundleID.isEmpty { self.selectedBundleID = selectedBundleID }
+        if let existing = window { existing.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
+        let win = NSWindow(contentViewController: NSHostingController(rootView: IconStudioWindowView(controller: self)))
+        win.title = String(localized: "Icon Studio")
+        win.setContentSize(NSSize(width: 960, height: 660))
+        win.minSize = NSSize(width: 820, height: 560)
+        win.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        win.isReleasedWhenClosed = false
+        win.center(); win.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        self.window = win
+    }
+}
+
+struct IconStudioWindowView: View {
+    @ObservedObject var controller: IconStudioWindowController
+    @ObservedObject private var studio = IconStudioController.shared
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var searchText = ""
+    @State private var backdrop: IconStudioBackdropMode = .dark
+    @State private var showMiniDock = false
+    @State private var useExamplePct = false
+    @State private var examplePct: Double = 65
+    @State private var isDropTargeted = false
+    @State private var showPrefsPopover = false
+    @State private var apiKeyDraft = UserDefaults.standard.string(forKey: IconStudioDefaultsKeys.macOSIconsAPIKey) ?? ""
+
+    private var filteredLive: [LiveIconKind] {
+        LiveIconKind.allCases.filter {
+            searchText.isEmpty || AppDisplayNameResolver.displayName(for: $0.defaultBundleID).localizedCaseInsensitiveContains(searchText)
+                || $0.rawValue.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    private var customBundleIDs: [String] {
+        let liveSet = Set(LiveIconKind.allCases.map(\.defaultBundleID))
+        return studio.state.looksByBundleID.keys
+            .filter { !liveSet.contains($0) && (searchText.isEmpty || AppDisplayNameResolver.displayName(for: $0).localizedCaseInsensitiveContains(searchText)) }
+            .sorted()
+    }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            sidebarColumn.frame(width: 218)
+            Divider()
+            stageColumn.frame(minWidth: 340, maxWidth: .infinity)
+            Divider()
+            IconStudioInspectorColumn(bundleID: controller.selectedBundleID, studio: studio, examplePct: useExamplePct ? examplePct : nil)
+                .frame(width: 332)
+        }
+        .frame(minWidth: 820, minHeight: 560)
+        .background(.windowBackground)
+        .onChange(of: useExamplePct) { on in studio.liveOverrides[controller.selectedBundleID] = on ? examplePct : nil }
+        .onChange(of: examplePct) { val in if useExamplePct { studio.liveOverrides[controller.selectedBundleID] = val } }
+    }
+
+    private var sidebarColumn: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary).font(.system(size: 12))
+                TextField("Search apps", text: $searchText).textFieldStyle(.plain).font(.system(size: 12))
+            }
+            .padding(.horizontal, 10).padding(.vertical, 7)
+            .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .padding(10)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 5) {
+                            Text("Live").font(.system(size: 10, weight: .bold)).foregroundStyle(.white)
+                                .padding(.horizontal, 5).padding(.vertical, 1.5)
+                                .background(Color(red: 0.92, green: 0.22, blue: 0.22), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            Text("Live icons").font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        ForEach(filteredLive) { kind in
+                            sidebarRow(bundleID: kind.defaultBundleID, subtitle: kind.supportsOptInActivityProbe ? String(localized: "Opt-in activity") : String(localized: "Live data"))
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Custom icons").font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.horizontal, 8)
+                        if customBundleIDs.isEmpty {
+                            Text("Drop artwork or click + Add App to style any app icon.")
+                                .font(.system(size: 11)).foregroundStyle(.secondary).padding(.horizontal, 10).padding(.vertical, 6)
+                        } else {
+                            ForEach(customBundleIDs, id: \.self) { sidebarRow(bundleID: $0, subtitle: String(localized: "Customized")) }
+                        }
+                    }
+                }
+                .padding(.horizontal, 6).padding(.bottom, 10)
+            }
+            Divider()
+            HStack {
+                Button { pickAppFromDisk() } label: { Label("Add App", systemImage: "plus").font(.system(size: 12, weight: .medium)) }.buttonStyle(.borderless)
+                Spacer()
+                Button { showPrefsPopover.toggle() } label: { Image(systemName: "gearshape").font(.system(size: 12)) }.buttonStyle(.borderless)
+                    .popover(isPresented: $showPrefsPopover, arrowEdge: .top) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("macOSicons API Key (Optional)").font(.system(size: 12, weight: .semibold))
+                            SecureField("x-api-key", text: $apiKeyDraft).textFieldStyle(.roundedBorder).frame(width: 240)
+                                .onChange(of: apiKeyDraft) { UserDefaults.standard.set($0, forKey: IconStudioDefaultsKeys.macOSIconsAPIKey) }
+                            Text("Required only for online macOSicons search. PNG, ICNS, and .icon drop work offline.")
+                                .font(.system(size: 11)).foregroundStyle(.secondary).frame(width: 240, alignment: .leading)
+                        }
+                        .padding(12)
+                    }
+            }
+            .padding(.horizontal, 12).padding(.vertical, 8)
+        }
+        .background(Color.primary.opacity(colorScheme == .dark ? 0.04 : 0.03))
+    }
+
+    private func sidebarRow(bundleID: String, subtitle: String) -> some View {
+        let selected = controller.selectedBundleID == bundleID
+        return Button { controller.selectedBundleID = bundleID } label: {
+            HStack(spacing: 8) {
+                IconStudioIconView(bundleID: bundleID, size: 24)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: AppDisplayNameResolver.displayName(for: bundleID)).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                    Text(verbatim: subtitle).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 8).padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(selected ? Color.accentColor.opacity(0.18) : .clear))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var stageColumn: some View {
+        let bid = controller.selectedBundleID
+        let hasLook = studio.look(for: bid) != nil
+        return VStack(alignment: .leading, spacing: 12) {
+            Text(verbatim: AppDisplayNameResolver.displayName(for: bid)).font(.system(size: 20, weight: .bold))
+            ZStack(alignment: .topTrailing) {
+                stageCanvasBackdrop
+                    .overlay {
+                        VStack(spacing: 14) {
+                            IconStudioIconView(
+                                bundleID: bid, size: 152, isHovered: true,
+                                badgeText: studio.previewBadgeOverride ? "8" : nil,
+                                previewPercentOverride: useExamplePct ? examplePct : nil
+                            )
+                            .overlay(alignment: .topTrailing) {
+                                if studio.previewBadgeOverride { ChipBadgeView(text: "8", scale: 2.2, effect: studio.badgeEffect(for: bid)) }
+                            }
+                            HStack(spacing: 10) {
+                                IconStudioIconView(
+                                    bundleID: bid, size: 40, isHovered: true,
+                                    badgeText: studio.previewBadgeOverride ? "8" : nil,
+                                    previewPercentOverride: useExamplePct ? examplePct : nil
+                                )
+                                if showMiniDock {
+                                    HStack(spacing: 6) {
+                                        ForEach([LiveIconKind.claude.defaultBundleID, bid, LiveIconKind.spotify.defaultBundleID], id: \.self) {
+                                            IconStudioIconView(bundleID: $0, size: 28)
+                                        }
+                                    }
+                                    .padding(.horizontal, 10).padding(.vertical, 5)
+                                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                }
+                            }
+                        }
+                    }
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(isDropTargeted ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: isDropTargeted ? 2 : 1))
+                    .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in handleDrop(providers, for: bid) }
+
+                Button { exportCurrentIconPNG(bundleID: bid) } label: {
+                    Image(systemName: "square.and.arrow.up").font(.system(size: 12, weight: .medium)).padding(7).background(.ultraThinMaterial, in: Circle())
+                }
+                .buttonStyle(.plain).help(Text("Export PNG")).padding(10)
+            }
+            .frame(maxWidth: .infinity, minHeight: 270, maxHeight: 330)
+
+            Text("Drop a PNG, ICNS, or .icon here").font(.system(size: 11)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
+            Picker("Stage Backdrop", selection: $backdrop) {
+                Text("Light").tag(IconStudioBackdropMode.light)
+                Text("Dark").tag(IconStudioBackdropMode.dark)
+                Text("Wallpaper").tag(IconStudioBackdropMode.wallpaper)
+            }
+            .labelsHidden().pickerStyle(.segmented).frame(maxWidth: 260).frame(maxWidth: .infinity, alignment: .center)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle("Show Dock and Command-Tab", isOn: $showMiniDock).toggleStyle(.checkbox).font(.system(size: 12))
+                HStack(spacing: 8) {
+                    Toggle("Try an example percentage", isOn: $useExamplePct).toggleStyle(.checkbox).font(.system(size: 12))
+                    if useExamplePct {
+                        Slider(value: $examplePct, in: 0...100, step: 1).frame(width: 110)
+                        Text(verbatim: "\(Int(examplePct))%").font(.system(size: 11).monospacedDigit()).foregroundStyle(.secondary)
+                    }
+                }
+                Toggle("Show Dock badge", isOn: $studio.previewBadgeOverride).toggleStyle(.checkbox).font(.system(size: 12))
+            }
+            Spacer(minLength: 0)
+            Button("Restore Original Icon") { studio.restoreOriginal(for: bid) }.controlSize(.small).disabled(!hasLook)
+        }
+        .padding(16)
+    }
+
+    @ViewBuilder
+    private var stageCanvasBackdrop: some View {
+        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        switch backdrop {
+        case .light: shape.fill(Color(white: 0.94))
+        case .dark: shape.fill(Color(white: 0.08))
+        case .wallpaper:
+            if let screen = NSScreen.main, let url = NSWorkspace.shared.desktopImageURL(for: screen), let ns = NSImage(contentsOf: url) {
+                Image(nsImage: ns).resizable().aspectRatio(contentMode: .fill).clipShape(shape)
+            } else {
+                shape.fill(LinearGradient(colors: [.indigo.opacity(0.65), .purple.opacity(0.45), .black], startPoint: .topLeading, endPoint: .bottomTrailing))
+            }
+        }
+    }
+
+    private func pickAppFromDisk() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.applicationBundle]; panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        guard panel.runModal() == .OK, let url = panel.url, let bid = Bundle(url: url)?.bundleIdentifier else { return }
+        if studio.look(for: bid) == nil { studio.setLook(IconLook(shader: IconShaderSpec(preset: .gloss, strength: 0.5)), for: bid) }
+        controller.selectedBundleID = bid
+    }
+
+    private func handleDrop(_ providers: [NSItemProvider], for bundleID: String) -> Bool {
+        guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }) else { return false }
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+            guard let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+            Task { @MainActor in _ = studio.importArtwork(from: url, for: bundleID) }
+        }
+        return true
+    }
+
+    private func exportCurrentIconPNG(bundleID: String) {
+        let view = IconStudioIconView(bundleID: bundleID, size: 512, isHovered: true, previewPercentOverride: useExamplePct ? examplePct : nil)
+        let renderer = ImageRenderer(content: view); renderer.scale = 1
+        guard let cg = renderer.cgImage, let png = IconAssetLoader.pngData(from: cg) else { return }
+        let panel = NSSavePanel(); panel.allowedContentTypes = [.png]; panel.nameFieldStringValue = "\(AppDisplayNameResolver.displayName(for: bundleID))-Icon.png"
+        if panel.runModal() == .OK, let url = panel.url { try? png.write(to: url, options: .atomic) }
+    }
+}
+
+struct IconStudioInspectorColumn: View {
+    let bundleID: String
+    @ObservedObject var studio: IconStudioController
+    let examplePct: Double?
+    var body: some View { Color.clear }
 }
