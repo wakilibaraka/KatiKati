@@ -226,4 +226,34 @@ final class DockLiquidGlassConfigurationTests: XCTestCase {
             XCTAssertTrue(C.stripShadowVisible(usesLiquidGlass: glass, usesSystemVariant: variant))
         }
     }
+
+    func testBridgeNumericToleranceMatchesFloat32QuantizedGlassConstants() {
+        let constants = [
+            DockLiquidGlassConfiguration.dockInnerRefractionHeight,
+            DockLiquidGlassConfiguration.dockInnerRefractionAmount,
+            DockLiquidGlassConfiguration.diagonalKeyAngle,
+            DockLiquidGlassConfiguration.diagonalFillAngle,
+            DockLiquidGlassConfiguration.boostedHighlightAmount,
+        ]
+        for value in constants {
+            XCTAssertTrue(
+                DockLiquidGlassConfiguration.numbersMatch(Double(Float(value)), value),
+                "float32 quantization of \(value) must match without re-mutating filters"
+            )
+            XCTAssertFalse(DockLiquidGlassConfiguration.numbersMatch(value + 0.01, value))
+        }
+        XCTAssertFalse(DockLiquidGlassConfiguration.numbersMatch(.nan, 13.28))
+    }
+
+    func testKVOCircuitBreakerTripsAfterConsecutiveMutationsAndResetsOnNoOp() {
+        var count = 0
+        for _ in 0..<DockLiquidGlassConfiguration.maxKVOMutations {
+            XCTAssertTrue(DockLiquidGlassConfiguration.shouldAllowKVOUpdate(consecutiveMutations: count))
+            count = DockLiquidGlassConfiguration.nextKVOMutationCount(current: count, mutated: true)
+        }
+        XCTAssertFalse(DockLiquidGlassConfiguration.shouldAllowKVOUpdate(consecutiveMutations: count))
+        count = DockLiquidGlassConfiguration.nextKVOMutationCount(current: count, mutated: false)
+        XCTAssertEqual(count, 0)
+        XCTAssertTrue(DockLiquidGlassConfiguration.shouldAllowKVOUpdate(consecutiveMutations: count))
+    }
 }

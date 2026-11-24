@@ -363,6 +363,7 @@ private final class DockGlassRefractionObserver {
     private var refractionEnabled = false
     private var diagonalHighlightEnabled = false
     private var highlightAmount: Double?
+    private var consecutiveMutations = 0
 
     func attach(to view: NSView, refractionEnabled: Bool, diagonalHighlightEnabled: Bool,
                 highlightAmount: Double?) {
@@ -371,6 +372,7 @@ private final class DockGlassRefractionObserver {
             self.view = view
             viewObservation = view.observe(\.layer) { [weak self] _, _ in self?.scheduleRefresh() }
         }
+        consecutiveMutations = 0
         self.refractionEnabled = refractionEnabled
         self.diagonalHighlightEnabled = diagonalHighlightEnabled
         self.highlightAmount = highlightAmount
@@ -382,10 +384,12 @@ private final class DockGlassRefractionObserver {
         viewObservation = nil
         layerObservations.removeAll()
         effectObservations.removeAll()
+        consecutiveMutations = 0
     }
 
     private func scheduleRefresh() {
-        guard !refreshScheduled else { return }
+        guard !refreshScheduled,
+              DockLiquidGlassConfiguration.shouldAllowKVOUpdate(consecutiveMutations: consecutiveMutations) else { return }
         refreshScheduled = true
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -395,13 +399,15 @@ private final class DockGlassRefractionObserver {
     }
 
     private func refresh() {
-        guard let root = view?.layer else {
+        guard DockLiquidGlassConfiguration.shouldAllowKVOUpdate(consecutiveMutations: consecutiveMutations),
+              let root = view?.layer else {
             layerObservations.removeAll()
             effectObservations.removeAll()
             return
         }
         var pending = [root]
         var seen = Set<ObjectIdentifier>()
+        var mutated = false
         while let layer = pending.popLast() {
             let id = ObjectIdentifier(layer)
             guard seen.insert(id).inserted else { continue }
@@ -411,10 +417,11 @@ private final class DockGlassRefractionObserver {
                     layer.observe(\.filters) { [weak self] _, _ in self?.scheduleRefresh() }
                 ]
             }
-            if refractionEnabled {
-                _ = TEDockGlassSetRefraction(layer,
-                                            DockLiquidGlassConfiguration.dockInnerRefractionHeight,
-                                            DockLiquidGlassConfiguration.dockInnerRefractionAmount)
+            if refractionEnabled,
+               TEDockGlassSetRefraction(layer,
+                                        DockLiquidGlassConfiguration.dockInnerRefractionHeight,
+                                        DockLiquidGlassConfiguration.dockInnerRefractionAmount) {
+                mutated = true
             }
             if diagonalHighlightEnabled {
                 if effectObservations[id] == nil {
@@ -422,13 +429,19 @@ private final class DockGlassRefractionObserver {
                         self?.scheduleRefresh()
                     }
                 }
-                _ = TEDockGlassSetHighlight(layer,
+                if TEDockGlassSetHighlight(layer,
                                            DockLiquidGlassConfiguration.diagonalKeyAngle,
                                            DockLiquidGlassConfiguration.diagonalFillAngle,
-                                           highlightAmount.map { NSNumber(value: $0) })
+                                           highlightAmount.map { NSNumber(value: $0) }) {
+                    mutated = true
+                }
             }
             pending.append(contentsOf: layer.sublayers ?? [])
         }
+        consecutiveMutations = DockLiquidGlassConfiguration.nextKVOMutationCount(
+            current: consecutiveMutations,
+            mutated: mutated
+        )
         layerObservations = layerObservations.filter { seen.contains($0.key) }
         effectObservations = effectObservations.filter { diagonalHighlightEnabled && seen.contains($0.key) }
     }

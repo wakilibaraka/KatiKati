@@ -756,6 +756,7 @@ final class LockScreenMusicCardController {
         let distributed = DistributedNotificationCenter.default()
         observers.forEach { distributed.removeObserver($0) }
         observers = []
+        spaceHost?.tearDown()
         spaceHost = nil
     }
 
@@ -796,6 +797,7 @@ final class LockScreenMusicCardController {
 
     private func hide() {
         panel?.orderOut(nil)
+        panel?.contentView = nil
     }
 
     private func makePanel() -> NSPanel {

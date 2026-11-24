@@ -846,7 +846,7 @@ private struct IslandPlaygroundSheet: View {
 private struct LiquidExtrasSettingsRows: View {
     @AppStorage(LiquidExtrasKeys.sportsEnabled) private var sportsEnabled = false
     @AppStorage(LiquidExtrasKeys.videoInIslandEnabled) private var videoInIslandEnabled = true
-    @AppStorage(LiquidExtrasKeys.lockScreenEnabled) private var lockScreenEnabled = true
+    @AppStorage(LiquidExtrasKeys.lockScreenEnabled) private var lockScreenEnabled = false
     @AppStorage(LiquidExtrasKeys.notificationsEnabled) private var notificationsEnabled = true
 
     var body: some View {
@@ -858,7 +858,16 @@ private struct LiquidExtrasSettingsRows: View {
         SettingsToggleRow(Text("Video in Island"), isOn: $videoInIslandEnabled)
             .help(Text("Allow mirroring browser video inside the Liquid Notch."))
         SettingsDivider()
-        SettingsToggleRow(Text("Lock Screen Card"), isOn: $lockScreenEnabled)
+        SettingsToggleRow(
+            Text("Lock Screen Card"),
+            isOn: Binding(
+                get: { lockScreenEnabled },
+                set: { on in
+                    lockScreenEnabled = on
+                    if on { LockScreenMusicCardController.shared.start() } else { LockScreenMusicCardController.shared.stop() }
+                }
+            )
+        )
             .help(Text("Show Now Playing on the lock screen with automatic wallpaper backup."))
         SettingsDivider()
         SettingsToggleRow(Text("Notch Notifications"), isOn: $notificationsEnabled)

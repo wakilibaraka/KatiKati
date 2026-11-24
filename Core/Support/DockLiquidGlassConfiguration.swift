@@ -103,6 +103,21 @@ struct DockLiquidGlassConfiguration: Equatable {
     // Compensate for the long-edge falloff at the accepted diagonal angle.
     static let boostedHighlightAmount = 0.75
 
+    /// Pure loop/tolerance policy shared with the KVO observer and unit tests.
+    static let maxKVOMutations = 12
+
+    static func numbersMatch(_ stored: Double, _ target: Double, tolerance: Double = 1e-4) -> Bool {
+        stored.isFinite && target.isFinite && abs(stored - target) < tolerance
+    }
+
+    static func nextKVOMutationCount(current: Int, mutated: Bool) -> Int {
+        mutated ? current + 1 : 0
+    }
+
+    static func shouldAllowKVOUpdate(consecutiveMutations: Int) -> Bool {
+        consecutiveMutations < maxKVOMutations
+    }
+
     /// `DockPanelBackdrop`'s legacy 2pt outset + clip would cut off the variant plate's own rim.
     static func backdropOutset(usesLiquidGlass: Bool, usesSystemVariant: Bool) -> CGFloat {
         usesLiquidGlass && usesSystemVariant ? 0 : 2

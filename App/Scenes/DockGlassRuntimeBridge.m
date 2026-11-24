@@ -132,7 +132,10 @@ NSString *TEDockGlassDescribeVariant(NSInteger variant) {
         window.releasedWhenClosed = NO;
         NSView *glassView = [[glassClass alloc] initWithFrame:frame];
         [glassView setValue:[[NSView alloc] initWithFrame:frame] forKey:@"contentView"];
-        if (!TEDockGlassSetSystemVariant(glassView, variant)) return nil;
+        if (!TEDockGlassSetSystemVariant(glassView, variant)) {
+            [window close];
+            return nil;
+        }
         window.contentView = [[NSView alloc] initWithFrame:frame];
         [window.contentView addSubview:glassView];
         [window.contentView layoutSubtreeIfNeeded];
@@ -144,6 +147,11 @@ NSString *TEDockGlassDescribeVariant(NSInteger variant) {
     } @catch (__unused NSException *exception) {
         return nil;
     }
+}
+
+static BOOL TEDockGlassNumbersClose(id _Nullable value, double target) {
+    return [value isKindOfClass:NSNumber.class] && isfinite([value doubleValue]) &&
+        fabs([value doubleValue] - target) < 1e-4;
 }
 
 BOOL TEDockGlassSetRefraction(id candidate, double height, double amount) {
@@ -164,8 +172,8 @@ BOOL TEDockGlassSetRefraction(id candidate, double height, double amount) {
             NSString *heightKey = @"inputInnerRefractionHeight";
             NSString *amountKey = @"inputInnerRefractionAmount";
             if (![keys containsObject:heightKey] || ![keys containsObject:amountKey]) continue;
-            if ([[filter valueForKey:heightKey] isEqual:@(height)] &&
-                [[filter valueForKey:amountKey] isEqual:@(amount)]) continue;
+            if (TEDockGlassNumbersClose([filter valueForKey:heightKey], height) &&
+                TEDockGlassNumbersClose([filter valueForKey:amountKey], amount)) continue;
             id copy = [filter copy];
             [copy setValue:@(height) forKey:heightKey];
             [copy setValue:@(amount) forKey:amountKey];
@@ -206,10 +214,10 @@ BOOL TEDockGlassSetHighlight(id layer, double keyAngle, double fillAngle, NSNumb
                 if (![effect respondsToSelector:NSSelectorFromString(selectorName)]) return NO;
             }
         }
-        if ([[effect valueForKey:@"keyAngle"] isEqual:@(keyAngle)] &&
-            [[effect valueForKey:@"fillAngle"] isEqual:@(fillAngle)] &&
-            (amount == nil || ([[effect valueForKey:@"keyAmount"] isEqual:amount] &&
-                              [[effect valueForKey:@"fillAmount"] isEqual:amount]))) return NO;
+        if (TEDockGlassNumbersClose([effect valueForKey:@"keyAngle"], keyAngle) &&
+            TEDockGlassNumbersClose([effect valueForKey:@"fillAngle"], fillAngle) &&
+            (amount == nil || (TEDockGlassNumbersClose([effect valueForKey:@"keyAmount"], amount.doubleValue) &&
+                               TEDockGlassNumbersClose([effect valueForKey:@"fillAmount"], amount.doubleValue)))) return NO;
         id copy = [effect copy];
         [copy setValue:@(keyAngle) forKey:@"keyAngle"];
         [copy setValue:@(fillAngle) forKey:@"fillAngle"];

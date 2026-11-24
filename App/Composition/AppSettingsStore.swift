@@ -484,7 +484,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.islandNonNotchBehavior: IslandNonNotchIdleBehavior.compactPill.rawValue,
             Keys.islandKeylineEnabled: true,
             LiquidHookInstaller.enabledKey: true,
-            LiquidExtrasKeys.lockScreenEnabled: true,
+            LiquidExtrasKeys.lockScreenEnabled: false,
             LiquidExtrasKeys.notificationsEnabled: true,
             LiquidExtrasKeys.videoInIslandEnabled: true,
             LiquidExtrasKeys.sportsEnabled: false,

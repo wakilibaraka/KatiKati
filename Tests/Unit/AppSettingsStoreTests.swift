@@ -49,6 +49,12 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(reloaded.liveEventOSBanners)
     }
 
+    func testLockScreenCardDefaultsToStrictOptIn() {
+        let defaults = makeDefaults()
+        _ = AppSettingsStore(defaults: defaults)
+        XCTAssertFalse(defaults.bool(forKey: LiquidExtrasKeys.lockScreenEnabled))
+    }
+
     /// An unknown stored route string must fall back to automatic, never crash or silence events.
     func testUnknownLiveEventRouteFallsBackToAutomatic() {
         let defaults = makeDefaults()
