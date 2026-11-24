@@ -1165,6 +1165,8 @@ struct MenuBarCreativeHubView: View {
     @State private var boxSlots: [HubActionSlotID] = HubActionSlotID.slots()
     @State private var btAudioDevices: [BluetoothDevice] = []
     @State private var listeningMode: String? = AudioOutputSwitcher.bluetoothListeningMode()
+    @State private var brightness: Double? = DisplayServicesBrightness.current()
+    @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
     @State private var surfaceVersion = 0
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
@@ -1275,6 +1277,7 @@ struct MenuBarCreativeHubView: View {
     private var tabContent: some View {
         switch selectedTab {
         case .switches: switchesBody
+        case .statusAudio: statusAudioBody
         default:
             Text(verbatim: selectedTab.rawValue).font(.caption).foregroundStyle(inkSoft)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1340,6 +1343,90 @@ struct MenuBarCreativeHubView: View {
         }
         .padding(.horizontal, 9).padding(.vertical, 6)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+    }
+
+    private var statusAudioBody: some View {
+        let bat = status.status.battery
+        let wifi = status.status.wifi
+        let vol = status.status.volume
+        let outputs = AudioOutputSwitcher.devices(input: false)
+        return ScrollView {
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    telemetryCard(symbol: bat.symbolName, title: String(localized: "Battery"),
+                                  value: bat.level.map { "\($0)%" } ?? "–",
+                                  detail: bat.facts.summary ?? (bat.isCharging ? String(localized: "Charging") : String(localized: "On Battery")))
+                    telemetryCard(symbol: wifi.symbolName, title: String(localized: "Network"),
+                                  value: status.status.wiredEthernetConnected ? String(localized: "Network") : (wifi.ssid ?? (wifi.isConnected ? String(localized: "On") : String(localized: "Offline"))),
+                                  detail: wifi.rssi.map { "\($0) dBm" } ?? (wifi.isPoweredOn ? String(localized: "Not Connected") : String(localized: "Wi-Fi Off")))
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("Audio Output").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
+                        Spacer()
+                        Button { _ = status.toggleMute() } label: {
+                            Image(systemName: vol.symbolName).font(.system(size: 11)).foregroundStyle(vol.isMuted ? Color.red : inkSoft)
+                        }.buttonStyle(.plain)
+                    }
+                    ForEach(outputs) { dev in
+                        Button { _ = AudioOutputSwitcher.setDefault(dev.id, input: false); surfaceVersion += 1 } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: dev.isDefault ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 10.5)).foregroundStyle(dev.isDefault ? palette.primaryAccent : inkSoft)
+                                Text(verbatim: dev.name).font(.system(size: 11)).foregroundStyle(ink).lineLimit(1)
+                                Spacer()
+                            }
+                        }.buttonStyle(.plain)
+                    }
+                    hubSlider(icon: vol.symbolName, value: Binding(get: { Double(vol.level) }, set: { _ = status.setVolume(Float($0)) }))
+                    if let brightness {
+                        hubSlider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
+                    }
+                    if let keyLight {
+                        hubSlider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
+                    }
+                }
+                .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+                if !btAudioDevices.isEmpty {
+                    VStack(alignment: .leading, spacing: 5) {
+                        ForEach(btAudioDevices) { dev in
+                            HStack(spacing: 6) {
+                                Image(systemName: dev.symbolName).font(.system(size: 11)).foregroundStyle(inkSoft).frame(width: 16)
+                                Text(verbatim: dev.name).font(.system(size: 11)).foregroundStyle(ink).lineLimit(1)
+                                Spacer()
+                                if let lvl = dev.lowestBattery {
+                                    Text(verbatim: "\(lvl)%").font(.system(size: 10.5, weight: .semibold)).monospacedDigit()
+                                        .foregroundStyle(lvl <= 20 ? Color.red : inkSoft)
+                                }
+                            }
+                        }
+                    }
+                    .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+                }
+            }
+        }
+    }
+
+    private func telemetryCard(symbol: String, title: String, value: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Image(systemName: symbol).font(.system(size: 11)).foregroundStyle(palette.primaryAccent)
+                Text(verbatim: title).font(.system(size: 10.5, weight: .medium)).foregroundStyle(inkSoft)
+            }
+            Text(verbatim: value).font(.system(size: 14, weight: .bold)).monospacedDigit().foregroundStyle(ink).lineLimit(1)
+            Text(verbatim: detail).font(.system(size: 9.5)).foregroundStyle(inkSoft).lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading).padding(9)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+    }
+
+    private func hubSlider(icon: String, value: Binding<Double>) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: icon).font(.system(size: 11)).foregroundStyle(inkSoft).frame(width: 16)
+            Slider(value: value, in: 0...1).controlSize(.small).tint(palette.primaryAccent)
+            Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))").font(.system(size: 10)).monospacedDigit()
+                .foregroundStyle(inkSoft).frame(width: 24, alignment: .trailing)
+        }
     }
 
     // MARK: - Helpers
