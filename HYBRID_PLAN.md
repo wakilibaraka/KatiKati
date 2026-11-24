@@ -7098,3 +7098,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-6` — Opt-In App Live Icons, `⌘+Tab` Parity & 12-Locale Localization (`515e0be1`..HEAD, 2026-11-24)
 
 - `Core/Support/IconSet.swift`, `App/Scenes/{ChipBadgeView,ContentView}.swift`, `App/Composition/WindowSwitcherController.swift`, `Resources/Localizable.xcstrings`, `Tests/Unit/IconSetTests.swift`: added `AppActivityLiveMetrics`, `LiveAppActivityProbe` (strictly opt-in AX probes, `0%` idle by default), `AppActivityLiveIconOverlay` (Mail/Messages/Safari/Chrome), `IconStudioIconView` parity across all 5 `WindowSwitcherView` styles, and 63 12-locale strings.
+
+### Menu Bar Creative Hub (`MB-1` → `MB-11`, Plan: `Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md`)
+
+- **`MB-1` — Pure Status Trio & Hub Core Models + Unit Tests (2026-11-24):** `Core/Support/{SystemStatus,MenuBarStatModel}.swift`, `Tests/Unit/{SystemStatus,MenuBarStatModel}Tests.swift`, `NOTICE`, `Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md`: added `NetworkLinkKind`, `MenuBarIconMode`, `StatusTrioStrokeWeight`, `StatusTrioRenderKey`, `MenuBarHubTab`, 2×2 `HubActionSlotID`, and `MenuBarRightClickConfig`. Zero `project.pbxproj` edits; all 5 frozen files untouched.

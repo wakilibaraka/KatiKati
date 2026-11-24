@@ -65,6 +65,34 @@ final class SystemStatusTests: XCTestCase {
         XCTAssertEqual(VolumeStatus(level: 0.9, isMuted: true).percent, 0)
         XCTAssertEqual(VolumeStatus(level: 0.504, isMuted: false).percent, 50)
     }
+
+    func testNetworkLinkPriorityAndLowBatteryAlert() {
+        var status = SystemStatus(
+            battery: BatteryStatus(level: 19, isCharging: false, isPluggedIn: false),
+            wifi: WiFiStatus(isPoweredOn: true, ssid: "Home", rssi: -50),
+            volume: VolumeStatus(level: 0.5, isMuted: false),
+            wiredEthernetConnected: false,
+            isHotspotActive: false,
+            bluetoothAudioDeviceName: "AirPods Pro"
+        )
+        XCTAssertTrue(status.isBatteryLow)
+        XCTAssertEqual(status.activeLink(showBluetoothAudio: true), .bluetoothAudio)
+        XCTAssertEqual(status.activeLink(showBluetoothAudio: false), .wifi(steps: 3))
+
+        status.isHotspotActive = true
+        XCTAssertEqual(status.activeLink(showBluetoothAudio: false), .hotspot)
+
+        status.isHotspotActive = false
+        status.wiredEthernetConnected = true
+        XCTAssertEqual(status.activeLink(showBluetoothAudio: false), .ethernet)
+
+        status.wiredEthernetConnected = false
+        status.wifi = .off
+        XCTAssertEqual(status.activeLink(showBluetoothAudio: false), .offline)
+
+        status.battery = BatteryStatus(level: 15, isCharging: true, isPluggedIn: true)
+        XCTAssertFalse(status.isBatteryLow, "charging battery does not trigger low-battery alert")
+    }
 }
 
 @MainActor

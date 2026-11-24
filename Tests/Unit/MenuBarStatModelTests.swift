@@ -100,4 +100,40 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.45, isCharging: false)), .healthy)
         XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.10, isCharging: true)), .charging)
     }
+
+    func testStatusTrioRenderKeyAndHubConfigs() {
+        let defaults = cleanDefaults()
+        XCTAssertEqual(MenuBarIconMode.current(defaults), .statusTrio)
+        XCTAssertEqual(StatusTrioStrokeWeight.current(defaults), .regular)
+        XCTAssertEqual(StatusTrioStrokeWeight.bold.lineWidth, 2.0, accuracy: 0.01)
+
+        let s1 = SystemStatus(
+            battery: BatteryStatus(level: 81, isCharging: false, isPluggedIn: false),
+            wifi: WiFiStatus(isPoweredOn: true, ssid: "Office", rssi: -60),
+            volume: VolumeStatus(level: 0.5, isMuted: false)
+        )
+        let s2 = SystemStatus(
+            battery: BatteryStatus(level: 82, isCharging: false, isPluggedIn: false),
+            wifi: WiFiStatus(isPoweredOn: true, ssid: "Office", rssi: -62),
+            volume: VolumeStatus(level: 0.52, isMuted: false)
+        )
+        let k1 = StatusTrioRenderKey(status: s1, stroke: .regular, semanticColor: false, showCompactReadout: false, isDarkMenuBar: true, hasUpdateDot: false)
+        let k2 = StatusTrioRenderKey(status: s2, stroke: .regular, semanticColor: false, showCompactReadout: false, isDarkMenuBar: true, hasUpdateDot: false)
+        XCTAssertEqual(k1, k2, "5% battery buckets and 3-step volume dots avoid redundant menu bar redraws")
+        XCTAssertEqual(k1.volumeDots, 2)
+
+        XCTAssertEqual(HubActionSlotID.slots(defaults), [.keepAwake, .darkMode, .captureOCR, .notchToggle])
+        defaults.set("emptyTrash,bogus,emptyTrash,lockScreen", forKey: HubActionSlotID.defaultsKey)
+        XCTAssertEqual(HubActionSlotID.slots(defaults), [.emptyTrash, .lockScreen, .keepAwake, .darkMode])
+
+        XCTAssertEqual(MenuBarHubTab.visibleTabs(defaults), MenuBarHubTab.allCases)
+        defaults.set("schedules,switches", forKey: MenuBarHubTab.visibleTabsKey)
+        XCTAssertEqual(MenuBarHubTab.visibleTabs(defaults), [.schedules, .switches])
+
+        XCTAssertEqual(MenuBarRightClickConfig.toggleTokens(defaults), ["keepAwake", "darkMode", "hideDesktopIcons", "muteOutput"])
+        defaults.set("darkMode,unknown,muteOutput", forKey: MenuBarRightClickConfig.defaultsKey)
+        XCTAssertEqual(MenuBarRightClickConfig.toggleTokens(defaults), ["darkMode", "muteOutput"])
+        defaults.set("", forKey: MenuBarRightClickConfig.defaultsKey)
+        XCTAssertEqual(MenuBarRightClickConfig.toggleTokens(defaults), [])
+    }
 }

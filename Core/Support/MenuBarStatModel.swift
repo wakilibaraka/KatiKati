@@ -208,3 +208,154 @@ enum MenuBarStatModel {
 
     private static func clamp01(_ value: Double) -> Double { min(1, max(0, value)) }
 }
+
+// MARK: - MB-1: Status Trio ring, Left-Click Creative Hub & Right-Click Simple Menu
+
+enum MenuBarIconMode: String, CaseIterable, Sendable {
+    case statusTrio, classic
+
+    static let defaultsKey = "com.katikati.menuBar.iconMode"
+
+    static func current(_ defaults: UserDefaults = .standard) -> MenuBarIconMode {
+        defaults.string(forKey: defaultsKey).flatMap(MenuBarIconMode.init(rawValue:)) ?? .statusTrio
+    }
+}
+
+enum StatusTrioStrokeWeight: String, CaseIterable, Sendable {
+    case light, regular, bold
+
+    static let defaultsKey = "com.katikati.menuBar.statusTrio.stroke"
+
+    var lineWidth: Double {
+        switch self {
+        case .light: return 1.15
+        case .regular: return 1.55
+        case .bold: return 2.0
+        }
+    }
+
+    static func current(_ defaults: UserDefaults = .standard) -> StatusTrioStrokeWeight {
+        defaults.string(forKey: defaultsKey).flatMap(StatusTrioStrokeWeight.init(rawValue:)) ?? .regular
+    }
+}
+
+enum MenuBarHubPrefs {
+    static let semanticAlertsKey = "com.katikati.menuBar.statusTrio.semanticAlerts"
+    static let compactReadoutKey = "com.katikati.menuBar.statusTrio.compactReadout"
+    static let bluetoothInRingKey = "com.katikati.menuBar.statusTrio.bluetoothInRing"
+}
+
+struct StatusTrioRenderKey: Equatable, Sendable {
+    let batteryBucket: Int?
+    let isCharging: Bool
+    let isLowBattery: Bool
+    let link: NetworkLinkKind
+    let volumeDots: Int
+    let isMuted: Bool
+    let stroke: StatusTrioStrokeWeight
+    let semanticColor: Bool
+    let isDarkMenuBar: Bool
+    let hasUpdateDot: Bool
+    let readoutText: String?
+
+    init(
+        status: SystemStatus,
+        stroke: StatusTrioStrokeWeight,
+        semanticColor: Bool,
+        showCompactReadout: Bool,
+        showBluetoothAudio: Bool = true,
+        isDarkMenuBar: Bool,
+        hasUpdateDot: Bool
+    ) {
+        self.batteryBucket = status.battery.level.map { min(20, max(0, ($0 + 2) / 5)) }
+        self.isCharging = status.battery.isCharging
+        self.isLowBattery = status.isBatteryLow
+        self.link = status.activeLink(showBluetoothAudio: showBluetoothAudio)
+        self.volumeDots = Self.volumeDotCount(for: status.volume)
+        self.isMuted = status.volume.isMuted
+        self.stroke = stroke
+        self.semanticColor = semanticColor
+        self.isDarkMenuBar = isDarkMenuBar
+        self.hasUpdateDot = hasUpdateDot
+        self.readoutText = showCompactReadout ? Self.compactReadoutText(for: status) : nil
+    }
+
+    static func volumeDotCount(for volume: VolumeStatus) -> Int {
+        if volume.isMuted || volume.level <= 0.01 { return 0 }
+        if volume.level < 0.34 { return 1 }
+        if volume.level < 0.67 { return 2 }
+        return 3
+    }
+
+    static func compactReadoutText(for status: SystemStatus) -> String {
+        if let level = status.battery.level { return "\(level)%" }
+        return "\(status.volume.percent)%"
+    }
+}
+
+enum MenuBarHubTab: String, CaseIterable, Identifiable, Sendable {
+    case switches, statusAudio, shortcutsEvolutions, schedules
+
+    var id: String { rawValue }
+
+    var symbolName: String {
+        switch self {
+        case .switches: return "switch.2"
+        case .statusAudio: return "waveform.path.ecg"
+        case .shortcutsEvolutions: return "bolt.horizontal.fill"
+        case .schedules: return "calendar.badge.clock"
+        }
+    }
+
+    static let visibleTabsKey = "com.katikati.menuBarHub.visibleTabs"
+
+    static func visibleTabs(_ defaults: UserDefaults = .standard) -> [MenuBarHubTab] {
+        guard let raw = defaults.string(forKey: visibleTabsKey) else { return allCases }
+        var seen = Set<MenuBarHubTab>()
+        let parsed = raw.split(separator: ",").compactMap { MenuBarHubTab(rawValue: String($0)) }.filter { seen.insert($0).inserted }
+        return parsed.isEmpty ? allCases : parsed
+    }
+
+    static func serialize(_ tabs: [MenuBarHubTab]) -> String { tabs.map(\.rawValue).joined(separator: ",") }
+}
+
+enum HubActionSlotID: String, CaseIterable, Identifiable, Sendable {
+    case keepAwake, darkMode, captureOCR, notchToggle
+    case muteOutput, hideDesktopIcons, emptyTrash, lockScreen, nightShift, dockAutoHide
+
+    var id: String { rawValue }
+    static let defaultsKey = "com.katikati.menuBarHub.boxGrid"
+    static let defaultSlots: [HubActionSlotID] = [.keepAwake, .darkMode, .captureOCR, .notchToggle]
+
+    static func slots(_ defaults: UserDefaults = .standard) -> [HubActionSlotID] {
+        var seen = Set<HubActionSlotID>()
+        var result = (defaults.string(forKey: defaultsKey) ?? "")
+            .split(separator: ",")
+            .compactMap { HubActionSlotID(rawValue: String($0)) }
+            .filter { seen.insert($0).inserted }
+        for fallback in defaultSlots + allCases where result.count < 4 && seen.insert(fallback).inserted {
+            result.append(fallback)
+        }
+        return Array(result.prefix(4))
+    }
+
+    static func serialize(_ slots: [HubActionSlotID]) -> String { slots.prefix(4).map(\.rawValue).joined(separator: ",") }
+}
+
+enum MenuBarRightClickConfig {
+    static let defaultsKey = "com.katikati.menuBar.rightClickToggles"
+    static let defaultTokens = ["keepAwake", "darkMode", "hideDesktopIcons", "muteOutput"]
+    static let allowedTokens = ["keepAwake", "darkMode", "hideDesktopIcons", "muteOutput", "muteMic", "nightShift", "dockAutoHide", "showHiddenFiles"]
+
+    static func toggleTokens(_ defaults: UserDefaults = .standard) -> [String] {
+        guard let raw = defaults.string(forKey: defaultsKey) else { return defaultTokens }
+        var seen = Set<String>()
+        return raw.split(separator: ",").map(String.init)
+            .filter { allowedTokens.contains($0) && seen.insert($0).inserted }
+    }
+
+    static func serialize(_ tokens: [String]) -> String {
+        var seen = Set<String>()
+        return tokens.filter { allowedTokens.contains($0) && seen.insert($0).inserted }.joined(separator: ",")
+    }
+}

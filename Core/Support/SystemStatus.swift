@@ -98,8 +98,33 @@ struct VolumeStatus: Equatable, Sendable {
     var percent: Int { isMuted ? 0 : Int((level * 100).rounded()) }
 }
 
+/// Network / audio link state displayed in the Status Trio menu-bar ring center.
+enum NetworkLinkKind: Equatable, Hashable, Sendable {
+    case wifi(steps: Int)
+    case ethernet
+    case hotspot
+    case bluetoothAudio
+    case offline
+}
+
 struct SystemStatus: Equatable, Sendable {
     var battery: BatteryStatus = .noBattery
     var wifi: WiFiStatus = .off
     var volume: VolumeStatus = VolumeStatus(level: 0.5, isMuted: false)
+    var wiredEthernetConnected = false
+    var isHotspotActive = false
+    var bluetoothAudioDeviceName: String?
+
+    var isBatteryLow: Bool {
+        guard let level = battery.level else { return false }
+        return !battery.isCharging && level < 20
+    }
+
+    func activeLink(showBluetoothAudio: Bool = true) -> NetworkLinkKind {
+        if showBluetoothAudio, let name = bluetoothAudioDeviceName, !name.isEmpty { return .bluetoothAudio }
+        if isHotspotActive { return .hotspot }
+        if wiredEthernetConnected { return .ethernet }
+        if wifi.isConnected { return .wifi(steps: wifi.signalSteps) }
+        return .offline
+    }
 }
