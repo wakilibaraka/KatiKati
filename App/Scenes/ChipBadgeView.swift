@@ -1,4 +1,6 @@
 import AppKit
+import ApplicationServices
+import Combine
 import OSLog
 import SwiftUI
 import UniformTypeIdentifiers
@@ -176,6 +178,7 @@ struct FinderCompanionIconView: View {
     var isHovered: Bool = false
     var isCopying: Bool = false
 
+    @ObservedObject private var activityProbe = LiveAppActivityProbe.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var gaze: CGPoint = .zero
     @State private var isBlinking = false
@@ -187,7 +190,8 @@ struct FinderCompanionIconView: View {
         let rightColor = finderColor(style.rightHex, fallback: Color(red: 0.84, green: 0.93, blue: 1.0))
         let ink = finderColor(style.featureHex, fallback: Color(red: 0.08, green: 0.10, blue: 0.14))
         let offset = FinderCompanionGeometry.pupilOffset(normalizedX: gaze.x, normalizedY: gaze.y, maxTravel: size * 0.032)
-        let activeEye: FinderCompanionStyle.EyeStyle = isCopying ? .focused : style.eyeStyle
+        let copying = isCopying || (config.optInActivityProbe && activityProbe.finderCopyActive)
+        let activeEye: FinderCompanionStyle.EyeStyle = copying ? .focused : style.eyeStyle
 
         ZStack {
             HStack(spacing: 0) {
@@ -500,5 +504,261 @@ struct MusicLiveIconOverlay: View {
         .padding(size * 0.04)
         .rotationEffect(.degrees(angle))
         .background(Color.black.opacity(0.82))
+    }
+}
+
+// MARK: - IS-6.1 Opt-In App Activity Probe & Overlays
+
+@MainActor
+final class LiveAppActivityProbe: ObservableObject {
+    static let shared = LiveAppActivityProbe()
+
+    @Published private(set) var finderCopyActive = false
+    @Published private(set) var mailComposeActive = false
+    @Published private(set) var messagesComposeActive = false
+    @Published private(set) var safariPageLoading = false
+    @Published private(set) var chromeTabLoading = false
+
+    private var watchedBundleIDs: Set<String> = []
+    private var timer: Timer?
+    private var isScanning = false
+    private var cancellables: Set<AnyCancellable> = []
+
+    struct ProbeSnapshot: Sendable {
+        var finderCopy = false
+        var mailCompose = false
+        var messagesCompose = false
+        var safariLoading = false
+        var chromeLoading = false
+    }
+
+    private init() {
+        IconStudioController.shared.$state
+            .sink { [weak self] next in self?.reconcile(state: next) }
+            .store(in: &cancellables)
+        reconcile(state: IconStudioController.shared.state)
+    }
+
+    private func reconcile(state: IconStudioState) {
+        watchedBundleIDs = AppActivityLiveMetrics.activeProbeBundleIDs(in: state)
+        guard !watchedBundleIDs.isEmpty else {
+            timer?.invalidate(); timer = nil
+            apply(.init())
+            return
+        }
+        guard timer == nil else { return }
+        pollOnce()
+        let t = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.pollOnce() }
+        }
+        t.tolerance = 0.6
+        timer = t
+    }
+
+    private func pollOnce() {
+        guard !watchedBundleIDs.isEmpty, AXIsProcessTrusted(), !isScanning else {
+            if !AXIsProcessTrusted() { apply(.init()) }
+            return
+        }
+        var pids: [String: pid_t] = [:]
+        for app in NSWorkspace.shared.runningApplications {
+            if let bid = app.bundleIdentifier, watchedBundleIDs.contains(bid) {
+                pids[bid] = app.processIdentifier
+            }
+        }
+        guard !pids.isEmpty else { apply(.init()); return }
+        let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        isScanning = true
+        Task.detached(priority: .utility) { [pids, front] in
+            let snap = Self.scanAX(pids: pids, frontmostBundleID: front)
+            await MainActor.run { [weak self] in
+                self?.isScanning = false
+                self?.apply(snap)
+            }
+        }
+    }
+
+    private func apply(_ s: ProbeSnapshot) {
+        if finderCopyActive != s.finderCopy { finderCopyActive = s.finderCopy }
+        if mailComposeActive != s.mailCompose { mailComposeActive = s.mailCompose }
+        if messagesComposeActive != s.messagesCompose { messagesComposeActive = s.messagesCompose }
+        if safariPageLoading != s.safariLoading { safariPageLoading = s.safariLoading }
+        if chromeTabLoading != s.chromeLoading { chromeTabLoading = s.chromeLoading }
+    }
+
+    private nonisolated static func axAttr(_ el: AXUIElement, _ attr: String) -> AnyObject? {
+        var val: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(el, attr as CFString, &val) == .success else { return nil }
+        return val
+    }
+
+    private nonisolated static func axApp(_ pid: pid_t) -> AXUIElement {
+        let app = AXUIElementCreateApplication(pid)
+        AXUIElementSetMessagingTimeout(app, 0.12)
+        return app
+    }
+
+    private nonisolated static func windows(for pid: pid_t) -> [AXUIElement] {
+        (axAttr(axApp(pid), kAXWindowsAttribute) as? [AXUIElement]) ?? []
+    }
+
+    private nonisolated static func hasToolbarStopButton(_ win: AXUIElement) -> Bool {
+        guard let kids = axAttr(win, kAXChildrenAttribute) as? [AXUIElement] else { return false }
+        for child in kids where (axAttr(child, kAXRoleAttribute) as? String) == kAXToolbarRole {
+            for item in (axAttr(child, kAXChildrenAttribute) as? [AXUIElement]) ?? [] {
+                let desc = (axAttr(item, kAXDescriptionAttribute) as? String) ?? (axAttr(item, kAXTitleAttribute) as? String) ?? ""
+                if desc == "Stop" || desc.localizedCaseInsensitiveContains("Stop loading") { return true }
+            }
+        }
+        return false
+    }
+
+    private nonisolated static func scanAX(pids: [String: pid_t], frontmostBundleID: String?) -> ProbeSnapshot {
+        var out = ProbeSnapshot()
+        if let pid = pids["com.apple.finder"] {
+            out.finderCopy = windows(for: pid).contains { win in
+                let sub = (axAttr(win, kAXSubroleAttribute) as? String) ?? ""
+                let title = (axAttr(win, kAXTitleAttribute) as? String) ?? ""
+                return sub == kAXDialogSubrole || title.localizedCaseInsensitiveContains("Copy") || title.localizedCaseInsensitiveContains("Moving")
+            }
+        }
+        if let pid = pids["com.apple.mail"] {
+            out.mailCompose = windows(for: pid).contains { win in
+                let ident = (axAttr(win, kAXIdentifierAttribute) as? String) ?? ""
+                let title = (axAttr(win, kAXTitleAttribute) as? String) ?? ""
+                return ident == "ComposeWindow" || title.localizedCaseInsensitiveContains("New Message") || title == "Untitled"
+            }
+        }
+        if let pid = pids["com.apple.MobileSMS"], frontmostBundleID == "com.apple.MobileSMS",
+           let focused = axAttr(axApp(pid), kAXFocusedUIElementAttribute),
+           CFGetTypeID(focused) == AXUIElementGetTypeID() {
+            let el = focused as! AXUIElement
+            let role = (axAttr(el, kAXRoleAttribute) as? String) ?? ""
+            let value = (axAttr(el, kAXValueAttribute) as? String) ?? ""
+            out.messagesCompose = (role == kAXTextAreaRole) && !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        if let pid = pids["com.apple.Safari"], let w = windows(for: pid).first { out.safariLoading = hasToolbarStopButton(w) }
+        if let pid = pids["com.google.Chrome"], let w = windows(for: pid).first { out.chromeLoading = hasToolbarStopButton(w) }
+        return out
+    }
+}
+
+struct AppActivityLiveIconOverlay: View {
+    let config: LiveIconConfig
+    let size: CGFloat
+    var badgeText: String? = nil
+    var isHovered: Bool = false
+    var previewPercentOverride: Double? = nil
+
+    @ObservedObject private var probe = LiveAppActivityProbe.shared
+    @ObservedObject private var downloads = DownloadManagerService.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        switch config.kind {
+        case .mail: mailBody
+        case .messages: messagesBody
+        case .safari: safariBody
+        case .chrome: chromeBody
+        default: EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var mailBody: some View {
+        let compose = config.optInActivityProbe && probe.mailComposeActive
+        let isOpen = AppActivityLiveMetrics.mailEnvelopeOpen(composeActive: compose, previewPercentOverride: previewPercentOverride)
+        if isOpen {
+            ZStack(alignment: .top) {
+                Path { p in
+                    p.move(to: CGPoint(x: size * 0.18, y: size * 0.24))
+                    p.addLine(to: CGPoint(x: size * 0.50, y: size * 0.05))
+                    p.addLine(to: CGPoint(x: size * 0.82, y: size * 0.24))
+                    p.closeSubpath()
+                }
+                .fill(Color.white.opacity(0.92))
+                .shadow(color: .black.opacity(0.25), radius: 1.5, y: 1)
+            }
+            .frame(width: size, height: size).allowsHitTesting(false)
+        }
+    }
+
+    @ViewBuilder
+    private var messagesBody: some View {
+        let unread = IconUnreadBadgeParser.parseCount(badgeText)
+        let typing = (config.optInActivityProbe && probe.messagesComposeActive) || (previewPercentOverride ?? 0) >= 50
+        let bubbles = AppActivityLiveMetrics.messagesBubbleCount(unreadCount: unread)
+        if typing {
+            TimelineView(.animation(minimumInterval: 1.0 / 10.0, paused: reduceMotion)) { ctx in
+                let step = Int(ctx.date.timeIntervalSinceReferenceDate * 3.0) % 3
+                HStack(spacing: max(1.5, size * 0.04)) {
+                    ForEach(0..<3, id: \.self) { idx in
+                        Circle().fill(Color(red: 0.14, green: 0.56, blue: 0.24))
+                            .frame(width: max(2, size * 0.08), height: max(2, size * 0.08))
+                            .opacity(reduceMotion || idx == step ? 1.0 : 0.35)
+                    }
+                }
+                .padding(.horizontal, max(3, size * 0.09)).padding(.vertical, max(2, size * 0.05))
+                .background(Capsule().fill(Color.white.opacity(0.95)))
+                .frame(width: size, height: size, alignment: .bottomTrailing).padding(size * 0.08)
+            }
+            .allowsHitTesting(false)
+        } else if bubbles > 0 {
+            HStack(spacing: max(2, size * 0.05)) {
+                ForEach(0..<bubbles, id: \.self) { _ in
+                    Capsule().fill(Color.white.opacity(0.9)).frame(width: max(4, size * 0.14), height: max(3, size * 0.10))
+                }
+            }
+            .offset(y: (isHovered && !reduceMotion) ? -size * 0.05 : 0)
+            .animation(.spring(response: 0.28, dampingFraction: 0.65), value: isHovered)
+            .frame(width: size, height: size, alignment: .bottomTrailing).padding(size * 0.10)
+            .allowsHitTesting(false)
+        }
+    }
+
+    @ViewBuilder
+    private var safariBody: some View {
+        let dlPairs = downloads.items.filter { $0.state == .active }.map { ($0.bytesDownloaded, $0.totalBytes) }
+        let dlFrac = previewPercentOverride.map { min(1, max(0, $0 / 100.0)) } ?? AppActivityLiveMetrics.aggregateDownloadFraction(activePairs: dlPairs)
+        let loading = (config.optInActivityProbe && probe.safariPageLoading) || ((previewPercentOverride ?? 0) > 0 && isHovered)
+        ZStack(alignment: .bottom) {
+            if let dlFrac, dlFrac > 0 {
+                Rectangle().fill(Color.cyan.opacity(0.28))
+                    .frame(width: size, height: size * CGFloat(dlFrac))
+                Text(verbatim: LiveIconMetrics.formattedPercentage(dlFrac))
+                    .font(.system(size: max(7.5, size * 0.20), weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, max(3, size * 0.07)).padding(.vertical, 1)
+                    .background(Capsule().fill(Color.black.opacity(0.75)))
+                    .padding(.bottom, max(2, size * 0.06))
+            }
+            if loading {
+                TimelineView(.animation(minimumInterval: 1.0 / 24.0, paused: reduceMotion)) { ctx in
+                    let deg = reduceMotion ? 0 : (ctx.date.timeIntervalSinceReferenceDate * 150).truncatingRemainder(dividingBy: 360)
+                    Capsule().fill(Color.red.opacity(0.92))
+                        .frame(width: max(2, size * 0.06), height: size * 0.44)
+                        .rotationEffect(.degrees(deg))
+                        .frame(width: size, height: size)
+                }
+            }
+        }
+        .frame(width: size, height: size).allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private var chromeBody: some View {
+        let spinning = ((config.optInActivityProbe && probe.chromeTabLoading) || ((previewPercentOverride ?? 0) > 0 && isHovered)) && !reduceMotion
+        if config.optInActivityProbe && probe.chromeTabLoading || (previewPercentOverride ?? 0) > 0 {
+            TimelineView(.animation(minimumInterval: 1.0 / 24.0, paused: !spinning)) { ctx in
+                let deg = spinning ? (ctx.date.timeIntervalSinceReferenceDate * 180).truncatingRemainder(dividingBy: 360) : 0
+                Circle()
+                    .trim(from: 0.08, to: 0.85)
+                    .stroke(AngularGradient(colors: [.red, .yellow, .green, .blue, .red], center: .center),
+                            style: StrokeStyle(lineWidth: max(2, size * 0.075), lineCap: .round))
+                    .rotationEffect(.degrees(deg))
+                    .padding(size * 0.05)
+            }
+            .frame(width: size, height: size).allowsHitTesting(false)
+        }
     }
 }

@@ -533,8 +533,8 @@ struct IconStudioIconView: View {
                         MusicLiveIconOverlay(config: live, size: size, previewPercentOverride: previewPercentOverride)
                     case .finder:
                         FinderCompanionIconView(config: live, size: size, isHovered: isHovered)
-                    default:
-                        EmptyView()
+                    case .mail, .messages, .safari, .chrome:
+                        AppActivityLiveIconOverlay(config: live, size: size, badgeText: badgeText, isHovered: isHovered, previewPercentOverride: previewPercentOverride)
                     }
                 }
             }
