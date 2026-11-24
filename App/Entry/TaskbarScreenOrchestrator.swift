@@ -375,7 +375,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
     private var lastConnectedKeys: [String] = []
     /// Lazy (§1.7e): created on first need, observers only run while status content is shown.
     private lazy var statusService = SystemStatusService()
-    private lazy var nowPlayingService = NowPlayingService()
+    private var nowPlayingService: NowPlayingService { NowPlayingService.shared }
     private var statusServiceHeld = false
     private var notesControllerStorage: NotesController?
     private var notesUnavailable = false
@@ -446,7 +446,7 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         for key in desired {
             let controller = edgeControllers[key] ?? EdgeBarPanelController(slotKey: key, service: statusService, notes: { [weak self] in self?.notesController() },
                 notesPeek: { [weak self] in self?.notesControllerStorage },
-                nowPlaying: { [weak self] in self?.nowPlayingService ?? NowPlayingService() })
+                nowPlaying: { NowPlayingService.shared })
             edgeControllers[key] = controller
             let siblings = units.filter { $0.key == key.display }
             let visible = siblings.contains { $0.coordinator.isLogicallyVisible }

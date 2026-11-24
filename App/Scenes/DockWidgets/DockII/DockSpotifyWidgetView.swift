@@ -444,6 +444,7 @@ struct DockMusicAtmosphericWingView: View {
     @Environment(\.dockWingVertical) private var isVertical
     @ObservedObject private var service = DesktopWidgetServices.nowPlaying
     @ObservedObject private var localPlayer = LocalAudioPlayer.shared
+    @State private var defaultOutputName: String?
 
     private var state: NowPlayingState { localPlayer.isActive ? localPlayer.state : service.state }
     private var metrics: MusicTransportLayout { MusicTransportLayout(size: size) }
@@ -469,7 +470,7 @@ struct DockMusicAtmosphericWingView: View {
                     }
                     if !isVertical, metrics.showsDeviceLabel {
                         Spacer(minLength: 0)
-                        if let device = AudioOutputSwitcher.devices().first(where: \.isDefault)?.name {
+                        if let device = defaultOutputName {
                             Text(verbatim: device)
                                 .font(.system(size: 8, weight: .medium))
                                 .foregroundStyle(.white.opacity(0.5))
@@ -480,6 +481,12 @@ struct DockMusicAtmosphericWingView: View {
                 .padding(.horizontal, 8)
             }
             .padding(.bottom, 6)
+        }
+        .task(id: state.title ?? "") {
+            guard !isVertical, metrics.showsDeviceLabel else { return }
+            let name = await Task.detached(priority: .utility) { AudioOutputSwitcher.cachedDefaultOutputName() }.value
+            guard !Task.isCancelled else { return }
+            defaultOutputName = name
         }
     }
 

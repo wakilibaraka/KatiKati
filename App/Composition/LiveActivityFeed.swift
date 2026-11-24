@@ -51,13 +51,13 @@ final class LiveActivityFeed: ObservableObject {
 
     /// Injected for tests; defaults to the shared registry so the island wiring needs no arguments.
     init(
-        nowPlaying: NowPlayingService = NowPlayingService(),
+        nowPlaying: NowPlayingService? = nil,
         focus: FocusTimerController = ProductivityServices.shared.focus,
         timer: CountdownTimerController = ProductivityServices.shared.timer,
         stopwatch: StopwatchController = ProductivityServices.shared.stopwatch,
         countdowns: EventCountdownStore = ProductivityServices.shared.countdowns
     ) {
-        self.nowPlaying = nowPlaying
+        self.nowPlaying = nowPlaying ?? .shared
         self.focus = focus
         self.timer = timer
         self.stopwatch = stopwatch

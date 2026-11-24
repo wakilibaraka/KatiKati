@@ -358,11 +358,11 @@ final class RadialDialPanelController: ObservableObject {
                 NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
             }
         case .mediaPlayPause:
-            NowPlayingService().togglePlayPause()
+            NowPlayingService.shared.togglePlayPause()
         case .mediaNext:
-            NowPlayingService().nextTrack()
+            NowPlayingService.shared.nextTrack()
         case .mediaPrevious:
-            NowPlayingService().previousTrack()
+            NowPlayingService.shared.previousTrack()
         case .captureArea:
             CaptureController.captureAreaToClipboard()
         case .captureWindow:

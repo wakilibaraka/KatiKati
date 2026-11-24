@@ -1,6 +1,7 @@
 import AppKit
 import AVFoundation
 import Combine
+import Darwin
 import Foundation
 
 // MARK: - MediaRemote Declarations
@@ -156,6 +157,10 @@ final class NowPlayingHelper {
         task.standardError = FileHandle.nullDevice
         out.fileHandleForReading.readabilityHandler = { [weak self] handle in
             let chunk = handle.availableData
+            guard !Self.shouldClearReadabilityHandler(for: chunk) else {
+                handle.readabilityHandler = nil
+                return
+            }
             DispatchQueue.main.async { self?.consume(chunk) }
         }
         task.terminationHandler = { [weak self] _ in
@@ -175,7 +180,14 @@ final class NowPlayingHelper {
         try? input?.write(contentsOf: Data((line + "\n").utf8))
     }
 
+    static func shouldClearReadabilityHandler(for chunk: Data) -> Bool {
+        chunk.isEmpty
+    }
+
     private func consume(_ chunk: Data) {
+        if buffer.count + chunk.count > 4_194_304 {
+            buffer.removeAll(keepingCapacity: false)
+        }
         buffer.append(chunk)
         while let end = buffer.firstIndex(of: 10) {
             let line = buffer[buffer.startIndex..<end]
@@ -187,7 +199,10 @@ final class NowPlayingHelper {
 
 // MARK: - NowPlayingService
 
+@MainActor
 public final class NowPlayingService: ObservableObject {
+    public static let shared = NowPlayingService()
+
     @Published public private(set) var state: NowPlayingState = NowPlayingState(isPlaying: false)
     /// Whether a player can actually be read right now (Phase 45). `.refused` is the case the surfaces
     /// used to hide: a running Spotify/Music whose Automation grant is missing returned an error that was
@@ -562,10 +577,18 @@ public final class NowPlayingService: ObservableObject {
                     if self.state.title == reading.title { self.state.artworkData = data }
                 }
             }.resume()
-        } else if let file = reading.artworkFile, let data = try? Data(contentsOf: file), !data.isEmpty {
-            artworkCache[key] = data
-            state.artworkData = data
-            try? FileManager.default.removeItem(at: file)
+        } else if let file = reading.artworkFile {
+            let expectedTitle = reading.title
+            DispatchQueue.global(qos: .utility).async { [weak self] in
+                let data = try? Data(contentsOf: file)
+                try? FileManager.default.removeItem(at: file)
+                guard let data, !data.isEmpty else { return }
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.artworkCache[key] = data
+                    if self.state.title == expectedTitle { self.state.artworkData = data }
+                }
+            }
         }
     }
 
@@ -803,9 +826,11 @@ final class LocalAudioPlayer: NSObject, ObservableObject {
 /// Opt-in, event-driven, dependency-free. It connects to `discord-ipc-N` only when a track changes and an
 /// application id is configured, sends one SET_ACTIVITY frame, and closes. No polling, no reconnect loop, and
 /// a missing Discord is a silent no-op — never an error path the user has to see.
+@MainActor
 final class DiscordPresence {
     static let shared = DiscordPresence()
 
+    private let queue = DispatchQueue(label: "com.katikati.discord-ipc", qos: .utility)
     private var lastKey: String?
     private var cancellable: AnyCancellable?
 
@@ -823,36 +848,48 @@ final class DiscordPresence {
         let key = "\(state.title ?? "")|\(state.artist ?? "")|\(state.isPlaying)"
         guard key != lastKey else { return }
         lastKey = key
-        guard let fd = Self.connect() else { return }
-        defer { close(fd) }
-        Self.send(opcode: 0, payload: ["v": 1, "client_id": clientID], to: fd)
-        var activity: [String: Any] = ["instance": false]
-        if let title = state.title, !title.isEmpty {
-            activity["details"] = title
-            if let artist = state.artist, !artist.isEmpty { activity["state"] = artist }
-            activity["timestamps"] = state.isPlaying
-                ? ["start": Int(Date().timeIntervalSince1970 - (state.elapsed ?? 0))]
-                : [:]
-            activity["assets"] = ["large_text": title]
-            Self.send(opcode: 1, payload: ["cmd": "SET_ACTIVITY",
-                                           "args": ["pid": Int(ProcessInfo.processInfo.processIdentifier),
-                                                    "activity": activity],
-                                           "nonce": UUID().uuidString], to: fd)
-        } else {
-            Self.send(opcode: 1, payload: ["cmd": "SET_ACTIVITY",
-                                           "args": ["pid": Int(ProcessInfo.processInfo.processIdentifier)],
-                                           "nonce": UUID().uuidString], to: fd)
+        let title = state.title
+        let artist = state.artist
+        let isPlaying = state.isPlaying
+        let elapsed = state.elapsed
+        let pid = Int(ProcessInfo.processInfo.processIdentifier)
+        queue.async {
+            Self.deliver(clientID: clientID, title: title, artist: artist, isPlaying: isPlaying, elapsed: elapsed, pid: pid)
         }
     }
 
-    /// Discord exposes `discord-ipc-0…9` in the per-user temp directory; the first one that accepts a connect
-    /// wins. A miss returns nil and the caller simply does nothing.
-    private static func connect() -> Int32? {
+    nonisolated private static func deliver(clientID: String, title: String?, artist: String?,
+                                            isPlaying: Bool, elapsed: TimeInterval?, pid: Int) {
+        guard let fd = connect() else { return }
+        defer { close(fd) }
+        send(opcode: 0, payload: ["v": 1, "client_id": clientID], to: fd)
+        var activity: [String: Any] = ["instance": false]
+        if let title, !title.isEmpty {
+            activity["details"] = title
+            if let artist, !artist.isEmpty { activity["state"] = artist }
+            activity["timestamps"] = isPlaying ? ["start": Int(Date().timeIntervalSince1970 - (elapsed ?? 0))] : [:]
+            activity["assets"] = ["large_text": title]
+            send(opcode: 1, payload: ["cmd": "SET_ACTIVITY",
+                                      "args": ["pid": pid, "activity": activity],
+                                      "nonce": UUID().uuidString], to: fd)
+        } else {
+            send(opcode: 1, payload: ["cmd": "SET_ACTIVITY",
+                                      "args": ["pid": pid],
+                                      "nonce": UUID().uuidString], to: fd)
+        }
+    }
+
+    /// Discord exposes `discord-ipc-0…9` in the per-user temp directory; uses non-blocking `O_NONBLOCK` + `SO_NOSIGPIPE`.
+    nonisolated private static func connect() -> Int32? {
         let base = NSTemporaryDirectory()
         for index in 0..<10 {
             let path = (base as NSString).appendingPathComponent("discord-ipc-\(index)")
             let fd = socket(AF_UNIX, SOCK_STREAM, 0)
             guard fd >= 0 else { continue }
+            var nosigpipe: Int32 = 1
+            _ = setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &nosigpipe, socklen_t(MemoryLayout<Int32>.size))
+            let flags = fcntl(fd, F_GETFL, 0)
+            if flags >= 0 { _ = fcntl(fd, F_SETFL, flags | O_NONBLOCK) }
             var address = sockaddr_un()
             address.sun_family = sa_family_t(AF_UNIX)
             let capacity = MemoryLayout.size(ofValue: address.sun_path)
@@ -867,12 +904,20 @@ final class DiscordPresence {
                 pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { Darwin.connect(fd, $0, size) }
             }
             if result == 0 { return fd }
+            if errno == EINPROGRESS {
+                var pfd = pollfd(fd: fd, events: Int16(POLLOUT), revents: 0)
+                if Darwin.poll(&pfd, 1, 50) > 0, (pfd.revents & Int16(POLLOUT)) != 0 {
+                    var sockErr: Int32 = 0
+                    var len = socklen_t(MemoryLayout<Int32>.size)
+                    if getsockopt(fd, SOL_SOCKET, SO_ERROR, &sockErr, &len) == 0, sockErr == 0 { return fd }
+                }
+            }
             close(fd)
         }
         return nil
     }
 
-    private static func send(opcode: Int, payload: [String: Any], to fd: Int32) {
+    nonisolated private static func send(opcode: Int, payload: [String: Any], to fd: Int32) {
         guard let body = try? JSONSerialization.data(withJSONObject: payload) else { return }
         var frame = Data()
         var header = (UInt32(opcode) | (UInt32(body.count) << 8)).littleEndian
@@ -880,7 +925,17 @@ final class DiscordPresence {
         frame.append(body)
         frame.withUnsafeBytes { raw in
             guard let base = raw.baseAddress else { return }
-            _ = Darwin.send(fd, base, raw.count, 0)
+            var sent = 0
+            while sent < raw.count {
+                let n = Darwin.send(fd, base.advanced(by: sent), raw.count - sent, 0)
+                if n > 0 { sent += n; continue }
+                if n < 0, errno == EAGAIN || errno == EWOULDBLOCK {
+                    var pfd = pollfd(fd: fd, events: Int16(POLLOUT), revents: 0)
+                    guard Darwin.poll(&pfd, 1, 50) > 0 else { break }
+                    continue
+                }
+                break
+            }
         }
     }
 }

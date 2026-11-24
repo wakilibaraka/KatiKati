@@ -187,7 +187,7 @@ struct ControlCenterView: View {
     let widgetTiles: [TileKind]
     var style: ControlCenterStyle = .classic
     @StateObject private var status = SystemStatusService()
-    @StateObject private var nowPlaying = NowPlayingService()
+    @ObservedObject private var nowPlaying = NowPlayingService.shared
     @State private var confirming: QuickToggleID?
     /// Phase 16i: read once on appear; nil when the private API is unavailable (slider hidden).
     @State private var brightness: Double? = DisplayServicesBrightness.current()

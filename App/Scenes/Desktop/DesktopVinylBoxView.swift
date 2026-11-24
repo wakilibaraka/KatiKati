@@ -8,7 +8,7 @@ import Translation
 /// One shared system-wide now-playing reader for every music surface (created on first use).
 @MainActor
 enum DesktopWidgetServices {
-    static let nowPlaying = NowPlayingService()
+    static let nowPlaying = NowPlayingService.shared
 }
 
 // MARK: - Favourites (KatiKati-local, never a pretend player API)
@@ -487,8 +487,7 @@ struct MusicGlassCardView: View {
     @State private var showRomanization = false
     @State private var showTranslation = false
     @State private var translatedLines: [String: String] = [:]
-    @State private var volumePosition: Double = MusicVolumeCurve.position(
-        forGain: AudioOutputSwitcher.outputVolume() ?? 0.5)
+    @State private var volumePosition: Double = 0.5
     @State private var deviceName: String?
     @State private var queue = MusicSurfaceConfig.queueModel()
 
@@ -966,7 +965,14 @@ struct MusicGlassCardView: View {
     }
 
     private func refreshDeviceName() {
-        deviceName = AudioOutputSwitcher.devices().first(where: \.isDefault)?.name
+        Task.detached(priority: .utility) {
+            let name = AudioOutputSwitcher.cachedDefaultOutputName()
+            let gain = AudioOutputSwitcher.outputVolume()
+            await MainActor.run {
+                deviceName = name
+                if let gain { volumePosition = MusicVolumeCurve.position(forGain: gain) }
+            }
+        }
     }
 
     private func recordHistory() {

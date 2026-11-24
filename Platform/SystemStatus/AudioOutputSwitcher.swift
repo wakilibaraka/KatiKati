@@ -11,24 +11,49 @@ struct AudioOutputDevice: Identifiable, Equatable {
 }
 
 enum AudioOutputSwitcher {
+    private static let cacheLock = NSLock()
+    private static var deviceCache: [Bool: (timestamp: TimeInterval, devices: [AudioOutputDevice])] = [:]
+    private static let cacheTTL: TimeInterval = 3.0
+
+    static func invalidateCache() {
+        cacheLock.withLock { deviceCache.removeAll() }
+    }
+
+    static func cachedDefaultOutputName() -> String? {
+        devices(input: false).first(where: \.isDefault)?.name
+    }
+
     static func devices(input: Bool = false) -> [AudioOutputDevice] {
+        let now = ProcessInfo.processInfo.systemUptime
+        if let hit = cacheLock.withLock({ () -> [AudioOutputDevice]? in
+            guard let entry = deviceCache[input], now - entry.timestamp < cacheTTL else { return nil }
+            return entry.devices
+        }) {
+            return hit
+        }
         var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
         var size: UInt32 = 0
         guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size) == noErr, size > 0 else { return [] }
         var ids = [AudioObjectID](repeating: 0, count: Int(size) / MemoryLayout<AudioObjectID>.size)
         guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &ids) == noErr else { return [] }
         let current = defaultDevice(input: input)
-        return ids.compactMap { id in
+        let resolved: [AudioOutputDevice] = ids.compactMap { id in
             guard hasStreams(id, input: input), let name = name(of: id) else { return nil }
             return AudioOutputDevice(id: id, name: name, isDefault: id == current)
         }
+        cacheLock.withLock {
+            deviceCache[input] = (timestamp: ProcessInfo.processInfo.systemUptime, devices: resolved)
+        }
+        return resolved
     }
 
     @discardableResult
     static func setDefault(_ id: AudioObjectID, input: Bool = false) -> Bool {
         var address = AudioObjectPropertyAddress(mSelector: input ? kAudioHardwarePropertyDefaultInputDevice : kAudioHardwarePropertyDefaultOutputDevice, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
         var device = id
-        return AudioObjectSetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, UInt32(MemoryLayout<AudioObjectID>.size), &device) == noErr
+        let ok = AudioObjectSetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, UInt32(MemoryLayout<AudioObjectID>.size), &device) == noErr
+        if ok { invalidateCache() }
+        return ok
     }
 
     private static func defaultDevice(input: Bool) -> AudioObjectID {

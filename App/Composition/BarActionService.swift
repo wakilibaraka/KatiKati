@@ -4,7 +4,7 @@ import AppKit
 /// `QuickToggleEngine`; the rest are handled here (media keys, power, OCR, opening apps).
 @MainActor
 enum BarActionService {
-    private static let nowPlaying = NowPlayingService()
+    private static let nowPlaying = NowPlayingService.shared
     private static let capture = CaptureController()
 
     static func run(_ macro: BarMacro) {

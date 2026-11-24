@@ -1,6 +1,7 @@
 import XCTest
 @testable import KatiKati
 
+@MainActor
 final class NowPlayingServiceTests: XCTestCase {
     
     // MARK: - 4f3: Now Playing Service
@@ -27,5 +28,16 @@ final class NowPlayingServiceTests: XCTestCase {
         service.togglePlayPause()
         // No assertions possible without mocking MediaRemote, but this confirms
         // the function is callable.
+    }
+
+    func testSharedSingletonPipeEOFGuardAndAudioOutputCache() {
+        XCTAssertTrue(NowPlayingService.shared === NowPlayingService.shared)
+        XCTAssertTrue(NowPlayingHelper.shouldClearReadabilityHandler(for: Data()))
+        XCTAssertFalse(NowPlayingHelper.shouldClearReadabilityHandler(for: Data("{}".utf8)))
+
+        AudioOutputSwitcher.invalidateCache()
+        let first = AudioOutputSwitcher.devices(input: false)
+        let second = AudioOutputSwitcher.devices(input: false)
+        XCTAssertEqual(first, second)
     }
 }
