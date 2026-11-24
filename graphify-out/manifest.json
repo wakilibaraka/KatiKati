@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795444265.1770394,
-    "seen": 1795444367.024404,
-    "ast_hash": "da4860021a005762148307dafb81ee19",
+    "mtime": 1795513363.3921208,
+    "seen": 1795513588.438519,
+    "ast_hash": "8b08f08ed9f07374c22debe560f13cea",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795482199.044012,
-    "seen": 1795482232.1020858,
-    "ast_hash": "f7cd494ec04f69e5c5bf440b1b3d26d9",
+    "mtime": 1795513374.4404092,
+    "seen": 1795513588.439471,
+    "ast_hash": "6f0ad6a7d4ac7430a2f38e47ef10c5d9",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795444263.4387608,
-    "seen": 1795444367.0248141,
-    "ast_hash": "43d62e31a44d6bf51e0aac30cc6f95b9",
+    "mtime": 1795513359.805442,
+    "seen": 1795513588.438894,
+    "ast_hash": "b496998d468a3b4e8dc0b64119bbed6b",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6384,9 +6384,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795444270.3679338,
-    "seen": 1795444367.025186,
-    "ast_hash": "5e20f9ccce571708d63762cd1b784a53",
+    "mtime": 1795513368.351954,
+    "seen": 1795513588.439224,
+    "ast_hash": "c0743f988d3fad22ce16f025baeda732",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
@@ -8070,9 +8070,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md": {
-    "mtime": 1795512846.8397279,
-    "seen": 1795512903.573917,
-    "ast_hash": "d85b3e93ea88c1d4df771276077c2165",
+    "mtime": 1795513372.6513548,
+    "seen": 1795513588.4394612,
+    "ast_hash": "721cc0a520497213c779a605557188de",
     "semantic_hash": ""
   }
 }
