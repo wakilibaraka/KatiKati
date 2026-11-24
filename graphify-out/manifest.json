@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1795516569.9174893,
-    "seen": 1795516791.792535,
-    "ast_hash": "f02216e3cdc2bf06ad894f08dec4f62a",
+    "mtime": 1795517228.5292017,
+    "seen": 1795517433.341113,
+    "ast_hash": "13d5b3e8f8e1b63e2ced81ebcd4e094c",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795517123.3183844,
-    "seen": 1795517152.417191,
-    "ast_hash": "390006d1d3a7e35f5d6cfcda7f249e43",
+    "mtime": 1795517411.0086367,
+    "seen": 1795517433.3440058,
+    "ast_hash": "1c4382c1b78069aaaa25662aeabc05c5",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6924,9 +6924,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AgentUsage/AgentApproval.swift": {
-    "mtime": 1795001775.2043457,
-    "seen": 1795001785.561441,
-    "ast_hash": "1b459e413cdf7ba066b7dd8a91faff7a",
+    "mtime": 1795517199.994015,
+    "seen": 1795517433.341443,
+    "ast_hash": "286917b0947e7f4e953d48ad0f8eb89f",
     "semantic_hash": ""
   },
   "Core/Support/BarProfile.swift": {
@@ -6984,9 +6984,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/AgentApprovalTests.swift": {
-    "mtime": 1795001777.5424206,
-    "seen": 1795001785.561738,
-    "ast_hash": "5fb84423e7ee11c5f4cf629e7a10a43e",
+    "mtime": 1795517217.7913213,
+    "seen": 1795517433.342603,
+    "ast_hash": "8fe26b0618dc7ac8ea8286b26fad520f",
     "semantic_hash": ""
   },
   "Tests/Unit/BarProfileCommandTests.swift": {
@@ -7350,9 +7350,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPresets.swift": {
-    "mtime": 1795516908.3347971,
-    "seen": 1795517152.41503,
-    "ast_hash": "075fb125693cf754cc11d54afa9fc7c3",
+    "mtime": 1795517243.477751,
+    "seen": 1795517433.341129,
+    "ast_hash": "49be704d56c896e5dd4b8673ed4c1afd",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPrimitives.swift": {
@@ -8076,9 +8076,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/LIQUID_NOTCH_PORT_PLAN.md": {
-    "mtime": 1795517121.821308,
-    "seen": 1795517152.417162,
-    "ast_hash": "cb2b8f62355e1d58b02fc1b8c558d437",
+    "mtime": 1795517409.205286,
+    "seen": 1795517433.3439722,
+    "ast_hash": "6ad2742e928088a8717d137975221261",
     "semantic_hash": ""
   }
 }
