@@ -222,6 +222,17 @@ private struct ThemeName: View {
 struct SettingsWallpaperPane: View {
     @ObservedObject var store: AppSettingsStore
     @Environment(\.colorScheme) private var colorScheme
+    // ML-5: music surfaces. The values live in `MusicSurfaceConfig`, shared with the card and the engine.
+    @AppStorage(MusicSurfaceConfig.wallpaperEnabledKey) private var musicWallpaper = false
+    @AppStorage(MusicSurfaceConfig.wallpaperClassicKey) private var musicClassic = true
+    @AppStorage(MusicSurfaceConfig.wallpaperAnimatedKey) private var musicAnimated = false
+    @AppStorage(MusicSurfaceConfig.menuBarLyricsKey) private var menuBarLyrics = false
+    @AppStorage(MusicSurfaceConfig.discordPresenceKey) private var discordPresence = false
+    @State private var editSurface: MusicSurface = .desktop
+    @AppStorage(MusicSurfaceConfig.glassStyleKey) private var musicGlass = MusicSurfaceConfig.defaultGlassStyle.rawValue
+    @AppStorage(MusicSurfaceConfig.leftSlotKey) private var musicLeftSlot = MusicControlAssignment.defaultLeft.rawValue
+    @AppStorage(MusicSurfaceConfig.rightSlotKey) private var musicRightSlot = MusicControlAssignment.defaultRight.rawValue
+    @AppStorage(MusicSurfaceConfig.lockScreenCardKey) private var lockScreenCard = false
 
     @State private var followLiveTime = true
     @State private var previewHour = 12.0
@@ -236,6 +247,7 @@ struct SettingsWallpaperPane: View {
             dynamicCard
             accentCard
             restoreCard
+            musicCard
         }
         .onAppear(perform: loadDraft)
     }
@@ -430,6 +442,208 @@ struct SettingsWallpaperPane: View {
                     .accessibilityHidden(true)
             }
         }
+    }
+
+    private var musicCard: some View {
+        SettingsCard(
+            Text("Music"),
+            note: Text("Album art on the desktop, the glass card on the lock screen, and the desktop Now Playing widget.")
+        ) {
+            SettingsToggleRow(Text("Album Art Wallpaper"), isOn: Binding(get: { musicWallpaper }, set: { on in
+                musicWallpaper = on
+                if on {
+                    MusicWallpaperController.shared.start(service: DesktopWidgetServices.nowPlaying)
+                } else {
+                    MusicWallpaperController.shared.stop()
+                }
+                MusicSurfaceConfig.notifyChange()
+            }))
+            SettingsDivider()
+            SettingsToggleRow(Text("Classic Static Backdrop"), isOn: Binding(get: { musicClassic }, set: { on in
+                musicClassic = on
+                UserDefaults.standard.set(on, forKey: MusicSurfaceConfig.wallpaperClassicKey)
+            }), note: Text("One cached frame per track, no timers — no idle CPU."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Animated Album Art"), isOn: Binding(get: { musicAnimated }, set: { on in
+                musicAnimated = on
+                UserDefaults.standard.set(on, forKey: MusicSurfaceConfig.wallpaperAnimatedKey)
+                MusicSurfaceConfig.notifyChange()
+            }), note: Text("Slides and zooms the art on a slow loop. Frames are pre-rendered once per track, so playback stays cheap and pausing stops all of it."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Lock Screen Card"), isOn: Binding(get: { lockScreenCard }, set: { on in
+                lockScreenCard = on
+                if on { LockScreenMusicCardController.shared.start() } else { LockScreenMusicCardController.shared.stop() }
+            }), note: Text("Uses a private macOS space; hidden automatically when the system does not allow it."))
+            SettingsDivider()
+            SettingsSegmentedRow(Text("Theme"), selection: Binding(
+                get: { musicTheme },
+                set: { style in updateStyle { $0.theme = style } }
+            )) {
+                ForEach(MusicSurfaceTheme.allCases) { style in
+                    themeTitle(style).tag(style)
+                }
+            }
+            SettingsDivider()
+            SettingsToggleRow(Text("Match across Wallpaper, Lock Screen & Desktop"),
+                              isOn: Binding(get: { musicStyleMatches }, set: { on in
+                var selection = MusicSurfaceConfig.styleSelection()
+                selection.matchesAcrossSurfaces = on
+                MusicSurfaceConfig.saveStyleSelection(selection)
+            }),
+                              note: Text("One style for the wallpaper, the lock-screen card and the desktop widget. Turn off for per-surface overrides."))
+            if !musicStyleMatches {
+                SettingsDivider()
+                SettingsSegmentedRow(Text("Edit Surface"), selection: $editSurface) {
+                    ForEach(MusicSurface.allCases) { surface in
+                        surfaceTitle(surface).tag(surface)
+                    }
+                }
+            }
+            SettingsDivider()
+            SettingsRow(Text("Scrubber")) {
+                Picker("Scrubber", selection: Binding(
+                    get: { musicScrubber },
+                    set: { value in updateStyle { $0.scrubber = value } }
+                )) {
+                    ForEach(MusicScrubberStyle.allCases) { style in
+                        scrubberTitle(style).tag(style)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 150)
+            }
+            SettingsDivider()
+            SettingsRow(Text("Card Layout")) {
+                Picker("Card Layout", selection: Binding(
+                    get: { musicLayout },
+                    set: { value in updateStyle { $0.layout = value } }
+                )) {
+                    ForEach(MusicCardLayout.allCases) { layout in
+                        layoutTitle(layout).tag(layout)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 150)
+            }
+            SettingsDivider()
+            SettingsRow(Text("Wallpaper Style")) {
+                Picker("Wallpaper Style", selection: Binding(
+                    get: { musicWallpaperStyle },
+                    set: { value in updateStyle { $0.wallpaperStyle = value } }
+                )) {
+                    ForEach(MusicWallpaperStyle.allCases) { style in
+                        wallpaperStyleTitle(style).tag(style)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 150)
+            }
+            SettingsDivider()
+            SettingsToggleRow(Text("Menu Bar Synced Lyrics"), isOn: Binding(get: { menuBarLyrics }, set: { on in
+                menuBarLyrics = on
+                MusicSurfaceConfig.notifyChange()
+            }), note: Text("Shows the active lyric line next to the menu bar icon. Off by default."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Discord Rich Presence"), isOn: Binding(get: { discordPresence }, set: { on in
+                discordPresence = on
+                MusicSurfaceConfig.notifyChange()
+            }), note: Text("Shares the current track with Discord over a local socket. Requires a Discord application id; off by default."))
+            SettingsDivider()
+            SettingsRow(Text("Left Control")) { musicSlotPicker(.left) }
+            SettingsDivider()
+            SettingsRow(Text("Right Control")) { musicSlotPicker(.right) }
+        }
+    }
+
+    // MARK: - §5.7 style bindings
+
+    private var musicStyleMatches: Bool { MusicSurfaceConfig.styleSelection().matchesAcrossSurfaces }
+
+    private var musicTheme: MusicSurfaceTheme {
+        MusicSurfaceConfig.styleSelection().theme(for: editSurface)
+    }
+
+    private var musicScrubber: MusicScrubberStyle {
+        MusicSurfaceConfig.styleSelection().scrubber(for: editSurface)
+    }
+
+    private var musicLayout: MusicCardLayout {
+        MusicSurfaceConfig.styleSelection().layout(for: editSurface)
+    }
+
+    private var musicWallpaperStyle: MusicWallpaperStyle {
+        MusicSurfaceConfig.styleSelection().wallpaperStyle(for: editSurface)
+    }
+
+    private func updateStyle(_ mutate: (inout MusicSurfaceStyle) -> Void) {
+        var selection = MusicSurfaceConfig.styleSelection()
+        var style = selection.style(for: editSurface)
+        mutate(&style)
+        selection.set(style, for: editSurface)
+        MusicSurfaceConfig.saveStyleSelection(selection)
+    }
+
+    private func themeTitle(_ theme: MusicSurfaceTheme) -> Text {
+        switch theme {
+        case .clearGlass: return Text("Clear Glass")
+        case .semiGlass: return Text("Semi Glass")
+        case .tintedGlass: return Text("Tinted Glass")
+        case .oledBlack: return Text("OLED Black")
+        case .crispLight: return Text("Crisp Light")
+        }
+    }
+
+    private func scrubberTitle(_ style: MusicScrubberStyle) -> Text {
+        switch style {
+        case .slim: return Text("Slim")
+        case .dotted: return Text("Dotted")
+        case .waveform: return Text("Waveform")
+        }
+    }
+
+    private func layoutTitle(_ layout: MusicCardLayout) -> Text {
+        switch layout {
+        case .slim: return Text("Slim")
+        case .full: return Text("Full")
+        case .hero: return Text("Hero")
+        }
+    }
+
+    private func wallpaperStyleTitle(_ style: MusicWallpaperStyle) -> Text {
+        switch style {
+        case .blurredAlbum: return Text("Blurred Album")
+        case .adaptiveTint: return Text("Adaptive Tint")
+        case .oledBlack: return Text("OLED Black")
+        case .crispLight: return Text("Crisp Light")
+        case .heroArtwork: return Text("Hero Artwork")
+        }
+    }
+
+    private func surfaceTitle(_ surface: MusicSurface) -> Text {
+        switch surface {
+        case .wallpaper: return Text("Wallpaper")
+        case .lockScreen: return Text("Lock Screen")
+        case .desktop: return Text("Desktop")
+        }
+    }
+
+    private func musicSlotPicker(_ side: MusicControlSide) -> some View {
+        Picker("Left Control", selection: Binding(
+            get: { side == .left ? musicLeftSlot : musicRightSlot },
+            set: { raw in
+                var assignment = MusicSurfaceConfig.assignment()
+                if let slot = MusicControlSlot(rawValue: raw) { assignment.set(slot, on: side) }
+                musicLeftSlot = assignment.left.rawValue
+                musicRightSlot = assignment.right.rawValue
+                MusicSurfaceConfig.notifyChange()
+            }
+        )) {
+            ForEach(MusicControlSlot.allCases) { slot in
+                Text(slot.title).tag(slot.rawValue)
+            }
+        }
+        .labelsHidden()
+        .frame(width: 150)
     }
 
     private var restoreCard: some View {

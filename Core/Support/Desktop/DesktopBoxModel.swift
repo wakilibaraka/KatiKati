@@ -61,6 +61,123 @@ enum DesktopCanvasConfig {
     static let defaultSeedKinds: [DesktopWidgetKind] = [.todo, .quickCapture]
 }
 
+/// ML-1: one place for the music-surface preferences, so the card, the wallpaper source, and the Settings
+/// rows agree on keys and defaults. Values live in `UserDefaults` (no `AppSettingsStore` wiring until ML-5).
+enum MusicSurfaceConfig {
+    static let enabledKey = "com.katikati.music.widgetEnabled"
+    static let wallpaperEnabledKey = "com.katikati.music.wallpaperEnabled"
+    static let wallpaperClassicKey = "com.katikati.music.wallpaperClassic"
+    static let wallpaperAnimatedKey = "com.katikati.music.wallpaperAnimated"
+    static let glassStyleKey = "com.katikati.music.glassStyle"
+    static let leftSlotKey = "com.katikati.music.control.left"
+    static let rightSlotKey = "com.katikati.music.control.right"
+    static let slimKey = "com.katikati.music.widgetSlim"
+    static let stashEdgeKey = "com.katikati.music.widgetStashEdge"
+    static let favoritesKey = "com.katikati.music.favorites"
+    /// Same stored key the notch track uses for its lock-screen extra, so there is one switch in the app.
+    static let lockScreenCardKey = "com.katikati.liquid.lockScreenEnabled"
+    /// Posted after any of the keys above changes, so the wallpaper source and cards repaint without polling.
+    static let didChangeNotification = Notification.Name("com.katikati.music.surfaceDidChange")
+
+    static let defaultGlassStyle: MusicGlassStyle = .semi
+    static let defaultSlimHeight: CGFloat = 96
+    static let defaultFullHeight: CGFloat = 300
+
+    static func glassStyle(defaults: UserDefaults = .standard) -> MusicGlassStyle {
+        defaults.string(forKey: glassStyleKey).flatMap(MusicGlassStyle.init(rawValue:)) ?? defaultGlassStyle
+    }
+
+    static func assignment(defaults: UserDefaults = .standard) -> MusicControlAssignment {
+        MusicControlAssignment(leftRaw: defaults.string(forKey: leftSlotKey),
+                               rightRaw: defaults.string(forKey: rightSlotKey))
+    }
+
+    static func mode(defaults: UserDefaults = .standard) -> MusicWidgetMode {
+        defaults.bool(forKey: slimKey) ? .slim : .full
+    }
+
+    static func stashEdge(defaults: UserDefaults = .standard) -> MusicStashEdge? {
+        defaults.string(forKey: stashEdgeKey).flatMap(MusicStashEdge.init(rawValue:))
+    }
+
+    /// Classic (static, unblurred art) is the default; a missing key must not mean "animated".
+    static var isClassicBackdrop: Bool {
+        (UserDefaults.standard.object(forKey: wallpaperClassicKey) as? Bool) ?? true
+    }
+
+    /// Animated art is opt-in and only meaningful with the wallpaper on; it still yields to Classic.
+    static var isAnimatedBackdrop: Bool {
+        UserDefaults.standard.bool(forKey: wallpaperAnimatedKey)
+    }
+
+    static let styleSelectionKey = "com.katikati.music.styleSelection"
+    static let menuBarLyricsKey = "com.katikati.music.menuBarLyrics"
+    static let discordPresenceKey = "com.katikati.music.discordPresence"
+    static let discordClientIDKey = "com.katikati.music.discordClientId"
+    static let edgeVolumeKey = "com.katikati.music.edgeVolume"
+
+    /// §5.7/§5.8 — one persisted selection, decoded once per read. Falls back to the shipped style.
+    static func styleSelection(defaults: UserDefaults = .standard) -> MusicStyleSelection {
+        guard let data = defaults.data(forKey: styleSelectionKey),
+              let selection = try? JSONDecoder().decode(MusicStyleSelection.self, from: data)
+        else { return MusicStyleSelection() }
+        return selection
+    }
+
+    static func saveStyleSelection(_ selection: MusicStyleSelection, defaults: UserDefaults = .standard) {
+        guard let data = try? JSONEncoder().encode(selection) else { return }
+        defaults.set(data, forKey: styleSelectionKey)
+        notifyChange()
+    }
+
+    static func theme(for surface: MusicSurface = .desktop, defaults: UserDefaults = .standard) -> MusicSurfaceTheme {
+        let selection = styleSelection(defaults: defaults)
+        // A legacy glass choice still drives the shared theme until the user picks a newer preset.
+        if selection == MusicStyleSelection(),
+           let legacy = defaults.string(forKey: glassStyleKey).flatMap(MusicGlassStyle.init(rawValue:)) {
+            return MusicSurfaceTheme(legacy: legacy)
+        }
+        return selection.theme(for: surface)
+    }
+
+    static func scrubber(defaults: UserDefaults = .standard) -> MusicScrubberStyle {
+        styleSelection(defaults: defaults).scrubber(for: .desktop)
+    }
+
+    static func layout(defaults: UserDefaults = .standard) -> MusicCardLayout {
+        styleSelection(defaults: defaults).layout(for: .desktop)
+    }
+
+    static func wallpaperStyle(defaults: UserDefaults = .standard) -> MusicWallpaperStyle {
+        styleSelection(defaults: defaults).wallpaperStyle(for: .wallpaper)
+    }
+
+    static var isMenuBarLyricsEnabled: Bool {
+        UserDefaults.standard.bool(forKey: menuBarLyricsKey)
+    }
+
+    static var isDiscordPresenceEnabled: Bool {
+        UserDefaults.standard.bool(forKey: discordPresenceKey)
+    }
+
+    static var discordClientID: String? {
+        let id = UserDefaults.standard.string(forKey: discordClientIDKey)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (id?.isEmpty ?? true) ? nil : id
+    }
+
+    static var isWallpaperEnabled: Bool {
+        UserDefaults.standard.bool(forKey: wallpaperEnabledKey)
+    }
+
+    static var isWidgetEnabled: Bool {
+        (UserDefaults.standard.object(forKey: enabledKey) as? Bool) ?? true
+    }
+
+    static func notifyChange() {
+        NotificationCenter.default.post(name: didChangeNotification, object: nil)
+    }
+}
+
 enum DesktopWidgetKind: String, Codable, CaseIterable, Sendable {
     case folder, todo, quickCapture, glance, weather, music, search
 }

@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 import Combine
 
 @MainActor
@@ -49,6 +50,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private let permissionWarningItem = NSMenuItem(title: String(localized: "Grant Accessibility for Full Functionality…"), action: #selector(openAccessibilitySettings), keyEquivalent: "")
     private let permissionWarningSeparator = NSMenuItem.separator()
     private let settingsItem = NSMenuItem(title: String(localized: "KatiKati Settings…"), action: #selector(showSettings), keyEquivalent: ",")
+    /// ML-5: compact popover with the three music/desktop quick toggles.
+    private let musicQuickControlsItem = NSMenuItem(title: String(localized: "Music & Desktop…"), action: #selector(showMusicQuickControls), keyEquivalent: "")
     /// 登录项 2026-08-24 当天两度搬家：随菜单去重挪去设置窗口，owner 复议后**回到菜单做第一项**、
     /// 设置窗口不再放（仍不重复）。别再挪回设置窗口，除非 owner 再开口。
     private let launchAtLoginItem = NSMenuItem(title: String(localized: "Open at Login"), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
@@ -181,7 +184,36 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     private func configureStatusItem() {
         statusItem.button?.image = Self.statusItemImage(badged: false, iconSet: store.iconSet)
         statusItem.menu = menu
+        installMenuBarLyric()
     }
+
+    // MARK: - ML-5: optional synced lyric in the menu bar
+
+    /// The bridge (app side) owns the Now Playing and lyrics reads; this file only renders the string, so it
+    /// stays compilable by the unit-test target.
+    private func installMenuBarLyric() {
+        guard menuBarLyricObserver == nil else { return }
+        menuBarLyricObserver = NotificationCenter.default.addObserver(
+            forName: Notification.Name("com.katikati.music.menuBarLyric"), object: nil, queue: .main
+        ) { [weak self] note in
+            Task { @MainActor in self?.applyMenuBarLyric(note.object as? String) }
+        }
+    }
+
+    private func applyMenuBarLyric(_ line: String?) {
+        guard line != lastMenuBarLyric else { return }
+        lastMenuBarLyric = line
+        if let line, !line.isEmpty {
+            statusItem.length = NSStatusItem.variableLength
+            statusItem.button?.title = " " + line
+        } else {
+            statusItem.length = NSStatusItem.squareLength
+            statusItem.button?.title = ""
+        }
+    }
+
+    private var menuBarLyricObserver: NSObjectProtocol?
+    private var lastMenuBarLyric: String?
 
     private func configureMenu() {
         menu.delegate = self
@@ -669,6 +701,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     @objc private func showDebugConsole() { onShowDebugConsole() }
     @objc private func exportDebugSnapshot() { onExportDebugSnapshot() }
+    @objc private func showMusicQuickControls() {
+        guard let button = statusItem.button else { return }
+        MusicQuickControlsPopoverController.shared.show(relativeTo: button)
+    }
+
     @objc private func showSettings() {
         menu.cancelTrackingWithoutAnimation()
         DispatchQueue.main.async { [onShowSettings] in onShowSettings() }
@@ -939,5 +976,102 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     @objc private func openDesktopBoxesSettingsFromMenu() {
         menu.cancelTrackingWithoutAnimation()
         DispatchQueue.main.async { [desktopBoxes] in desktopBoxes.openSettings() }
+    }
+}
+
+
+// MARK: - ML-5: menu-bar quick controls
+
+/// Three circular toggles plus a Settings row. Flip the lock-screen switch posts the shared surface
+/// notification; the lock card controller lives in the app target and reacts to it, so this file stays
+/// dual-compiled with the test target.
+struct MusicQuickControlsView: View {
+    @AppStorage(DesktopCanvasConfig.enabledKey) private var desktopEnabled = true
+    @AppStorage(MusicSurfaceConfig.enabledKey) private var musicEnabled = true
+    @AppStorage(MusicSurfaceConfig.lockScreenCardKey) private var lockCardEnabled = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                toggle("Desktop", symbol: "macwindow.on.rectangle", isOn: $desktopEnabled)
+                toggle("Now Playing", symbol: "music.note", isOn: $musicEnabled)
+                toggle("Lock Screen", symbol: "lock.fill", isOn: $lockCardEnabled)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+
+            Divider()
+
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            } label: {
+                HStack {
+                    Text("Settings…")
+                    Spacer()
+                    Image(systemName: "gearshape")
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 11))
+        }
+        .padding(14)
+        .frame(width: 232)
+        .onChange(of: lockCardEnabled) { _, _ in
+            MusicSurfaceConfig.notifyChange()
+        }
+    }
+
+    private func toggle(_ title: String, symbol: String, isOn: Binding<Bool>) -> some View {
+        VStack(spacing: 4) {
+            Button {
+                isOn.wrappedValue.toggle()
+                MusicSurfaceConfig.notifyChange()
+            } label: {
+                Image(systemName: symbol)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(isOn.wrappedValue ? Color.accentColor : Color.secondary)
+                    .frame(width: 42, height: 42)
+                    .background(
+                        Circle().fill(isOn.wrappedValue ? Color.accentColor.opacity(0.18) : Color.primary.opacity(0.06))
+                    )
+                    .overlay(Circle().strokeBorder(.white.opacity(0.14), lineWidth: 0.5))
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(title))
+            Text(title)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            Text(isOn.wrappedValue ? String(localized: "On") : String(localized: "Off"))
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundStyle(isOn.wrappedValue ? Color.accentColor : .secondary)
+        }
+        .frame(width: 62)
+    }
+}
+
+@MainActor
+final class MusicQuickControlsPopoverController: NSObject, NSPopoverDelegate {
+    static let shared = MusicQuickControlsPopoverController()
+
+    private var popover: NSPopover?
+
+    func show(relativeTo button: NSStatusBarButton) {
+        let popover = popover ?? {
+            let created = NSPopover()
+            created.behavior = .transient
+            created.animates = true
+            created.contentViewController = NSHostingController(rootView: MusicQuickControlsView())
+            created.delegate = self
+            self.popover = created
+            return created
+        }()
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        popover = nil
     }
 }

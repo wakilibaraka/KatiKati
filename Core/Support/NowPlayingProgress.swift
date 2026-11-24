@@ -26,9 +26,18 @@ enum NowPlayingProgress {
 
 // MARK: - Phase 50g: Opt-in Synced Lyrics (lrclib.net)
 
+/// A word (or syllable, when the provider tags it that way) inside an enhanced-LRC line.
+struct LyricsWord: Equatable, Sendable {
+    var time: TimeInterval
+    var text: String
+}
+
 struct LyricsLine: Equatable, Sendable {
     var time: TimeInterval
     var text: String
+    /// Enhanced LRC only (`[00:12.50]<00:12.50>Hello <00:12.90>world`). Empty for plain LRC, so every
+    /// existing surface keeps its line-by-line behaviour.
+    var words: [LyricsWord] = []
 }
 
 enum LyricsTrack {
@@ -46,11 +55,58 @@ enum LyricsTrack {
                   let minutes = Double(parts[0]),
                   let seconds = Double(parts[1]),
                   minutes >= 0, seconds >= 0 else { continue }
-            let lyric = line[line.index(after: close)...].trimmingCharacters(in: .whitespaces)
+            let body = line[line.index(after: close)...].trimmingCharacters(in: .whitespaces)
+            let (lyric, words) = splitWordTags(body)
             guard !lyric.isEmpty else { continue }
-            out.append(LyricsLine(time: minutes * 60 + seconds, text: lyric))
+            out.append(LyricsLine(time: minutes * 60 + seconds, text: lyric, words: words))
         }
         return out.sorted { $0.time < $1.time }
+    }
+
+    /// Splits enhanced-LRC inline tags: `Hello <00:12.90>world` -> text `Hello world`, words
+    /// `[(12.9, "world")]`. A tag at the very start seeds the first word. Plain LRC returns no words, so
+    /// the line-by-line path stays the only path.
+    static func splitWordTags(_ body: String) -> (text: String, words: [LyricsWord]) {
+        guard body.contains("<") else { return (body, []) }
+        var words: [LyricsWord] = []
+        var plain = ""
+        var cursor = body.startIndex
+        var pending: TimeInterval?
+        while let open = body[cursor...].firstIndex(of: "<"),
+              let close = body[open...].firstIndex(of: ">") {
+            let chunk = body[cursor..<open]
+            let text = chunk.trimmingCharacters(in: .whitespaces)
+            if !text.isEmpty, let time = pending {
+                words.append(LyricsWord(time: time, text: text))
+                plain += (plain.isEmpty ? "" : " ") + text
+            } else if !text.isEmpty {
+                plain += (plain.isEmpty ? "" : " ") + text
+            }
+            let tag = body[body.index(after: open)..<close]
+            let parts = tag.split(separator: ":")
+            if parts.count == 2, let m = Double(parts[0]), let s = Double(parts[1]), m >= 0, s >= 0 {
+                pending = m * 60 + s
+            }
+            cursor = body.index(after: close)
+        }
+        let tail = body[cursor...].trimmingCharacters(in: .whitespaces)
+        if !tail.isEmpty {
+            if let time = pending {
+                words.append(LyricsWord(time: time, text: tail))
+            }
+            plain += (plain.isEmpty ? "" : " ") + tail
+        }
+        return (plain, words.sorted { $0.time < $1.time })
+    }
+
+    /// The word being sung at `elapsed`, or nil when the line carries no word tags.
+    static func activeWord(in line: LyricsLine, at elapsed: TimeInterval) -> String? {
+        guard !line.words.isEmpty else { return nil }
+        var current: String?
+        for word in line.words where word.time <= elapsed + 0.15 {
+            current = word.text
+        }
+        return current ?? line.words.first?.text
     }
 
     /// Returns the most recent lyric line whose timestamp is `<= elapsed`.
@@ -152,5 +208,710 @@ enum FloatingPlayerSize: String, CaseIterable, Sendable {
         case .player: return (280, 120)
         case .expanded: return (340, 280)
         }
+    }
+}
+
+
+// MARK: - ML-1: Music surfaces (pure, dual-compiled, no AppKit)
+
+/// The three Canapé glass treatments, mapped onto the desktop canvas' existing material enum so there is
+/// exactly one glass vocabulary in the app.
+enum MusicGlassStyle: String, CaseIterable, Codable, Sendable, Identifiable {
+    case clear
+    case semi
+    case tinted
+
+    var id: String { rawValue }
+
+    var material: DesktopBoxMaterialStyle {
+        switch self {
+        case .clear: return .clearMinimal
+        case .semi: return .frostedGlass
+        case .tinted: return .tintedGlass
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .clear: return String(localized: "Clear")
+        case .semi: return String(localized: "Semi")
+        case .tinted: return String(localized: "Tinted")
+        }
+    }
+}
+
+/// A colour in 0…1 components, so the palette can live in this AppKit-free file and be dual-compiled.
+struct MusicRGB: Equatable, Sendable {
+    var r: Double
+    var g: Double
+    var b: Double
+
+    init(_ r: Double, _ g: Double, _ b: Double) {
+        self.r = min(max(r, 0), 1)
+        self.g = min(max(g, 0), 1)
+        self.b = min(max(b, 0), 1)
+    }
+
+    var luminance: Double { 0.2126 * r + 0.7152 * g + 0.0722 * b }
+
+    /// Mix toward white (positive) or black (negative).
+    func shifted(by amount: Double) -> MusicRGB {
+        if amount >= 0 { return MusicRGB(r + (1 - r) * amount, g + (1 - g) * amount, b + (1 - b) * amount) }
+        let k = 1 + amount
+        return MusicRGB(r * k, g * k, b * k)
+    }
+}
+
+/// One dominant/secondary pair per track, derived from a tiny downsampled buffer. Pure on purpose: the
+/// CoreImage downsample lives in the renderer, the maths and the cache key live here and are testable.
+struct MusicArtworkPalette: Equatable, Sendable {
+    var accent: MusicRGB
+    var secondary: MusicRGB
+    var isDark: Bool
+
+    static let fallback = MusicArtworkPalette(
+        accent: MusicRGB(0.42, 0.46, 0.95),
+        secondary: MusicRGB(0.62, 0.38, 0.88),
+        isDark: true
+    )
+
+    init(accent: MusicRGB, secondary: MusicRGB, isDark: Bool) {
+        self.accent = accent
+        self.secondary = secondary
+        self.isDark = isDark
+    }
+
+    /// `pixels` is RGBA8. Colours are bucketed into a 4×4×4 grid, the two most-populated buckets that are
+    /// neither near-black nor near-white become accent and secondary. One pass, no k-means, no allocation
+    /// per pixel beyond two small arrays.
+    init(pixels: [UInt8]) {
+        guard pixels.count >= 4 else { self = .fallback; return }
+        var counts = [Int](repeating: 0, count: 64)
+        var sums = [(Double, Double, Double)](repeating: (0, 0, 0), count: 64)
+        var index = 0
+        while index + 3 < pixels.count {
+            let r = Double(pixels[index]) / 255
+            let g = Double(pixels[index + 1]) / 255
+            let b = Double(pixels[index + 2]) / 255
+            index += 4
+            let lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+            guard lum > 0.06, lum < 0.94 else { continue }
+            let bucket = (Int(r * 3.999) << 4) | (Int(g * 3.999) << 2) | Int(b * 3.999)
+            counts[bucket] += 1
+            sums[bucket].0 += r
+            sums[bucket].1 += g
+            sums[bucket].2 += b
+        }
+        let ranked = counts.indices.filter { counts[$0] > 0 }.sorted { counts[$0] > counts[$1] }
+        guard let first = ranked.first else { self = .fallback; return }
+        func colour(_ bucket: Int) -> MusicRGB {
+            let n = Double(max(counts[bucket], 1))
+            return MusicRGB(sums[bucket].0 / n, sums[bucket].1 / n, sums[bucket].2 / n)
+        }
+        let accent = colour(first)
+        let secondary = ranked.dropFirst().first.map(colour) ?? accent.shifted(by: 0.25)
+        self.init(accent: accent, secondary: secondary, isDark: accent.luminance < 0.62)
+    }
+}
+
+/// Which of the three places a shared style is being resolved for.
+enum MusicSurface: String, CaseIterable, Codable, Sendable, Identifiable {
+    case wallpaper
+    case lockScreen
+    case desktop
+
+    var id: String { rawValue }
+}
+
+/// §5.7 — one glass vocabulary for the card, the lock screen and the widget, mapped onto the canvas'
+/// existing material enum so there is still exactly one glass implementation in the app.
+enum MusicSurfaceTheme: String, CaseIterable, Codable, Sendable, Identifiable {
+    case clearGlass
+    case semiGlass
+    case tintedGlass
+    case oledBlack
+    case crispLight
+
+    var id: String { rawValue }
+
+    init(legacy: MusicGlassStyle) {
+        switch legacy {
+        case .clear: self = .clearGlass
+        case .semi: self = .semiGlass
+        case .tinted: self = .tintedGlass
+        }
+    }
+
+    var usesMaterial: Bool {
+        switch self {
+        case .semiGlass, .tintedGlass: return true
+        case .clearGlass, .oledBlack, .crispLight: return false
+        }
+    }
+
+    var material: DesktopBoxMaterialStyle {
+        switch self {
+        case .clearGlass: return .clearMinimal
+        case .semiGlass: return .frostedGlass
+        case .tintedGlass: return .tintedGlass
+        case .oledBlack, .crispLight: return .clearMinimal
+        }
+    }
+
+    /// Scrim painted over the material (or straight onto the desktop for the two solid presets).
+    var scrimOpacity: Double {
+        switch self {
+        case .clearGlass: return 0.22
+        case .semiGlass: return 0.16
+        case .tintedGlass: return 0.22
+        case .oledBlack: return 0.94
+        case .crispLight: return 0.82
+        }
+    }
+
+    var scrimIsLight: Bool { self == .crispLight }
+
+    var isDark: Bool { self != .crispLight }
+
+    var primaryTextOpacity: Double { isDark ? 1 : 0.9 }
+
+    var secondaryTextOpacity: Double { isDark ? 0.55 : 0.48 }
+
+    var rimOpacity: Double {
+        switch self {
+        case .clearGlass: return 0.38
+        case .semiGlass: return 0.34
+        case .tintedGlass: return 0.34
+        case .oledBlack: return 0.22
+        case .crispLight: return 0.5
+        }
+    }
+
+    /// How much of the artwork accent is mixed into the surface.
+    var accentMix: Double {
+        switch self {
+        case .clearGlass: return 0
+        case .semiGlass: return 0.04
+        case .tintedGlass: return 0.18
+        case .oledBlack: return 0.06
+        case .crispLight: return 0.10
+        }
+    }
+}
+
+/// §5.7 — the three card shapes. `.hero` is the Mooziac large-artwork card with the three lyric slots.
+enum MusicCardLayout: String, CaseIterable, Codable, Sendable, Identifiable {
+    case slim
+    case full
+    case hero
+
+    var id: String { rawValue }
+
+    var showsArtwork: Bool { self == .hero }
+
+    var showsScrubber: Bool { self != .slim }
+
+    var showsTransport: Bool { true }
+
+    var lyricSlots: Int { self == .hero ? 3 : 1 }
+
+    var artworkSide: CGFloat { self == .hero ? 92 : 0 }
+
+    /// Height the desktop panel should ask for. Pure, so the panel callback and the lock card agree.
+    func height(width: CGFloat) -> CGFloat {
+        switch self {
+        case .slim: return 96
+        case .full: return 300
+        case .hero: return max(320, artworkSide + 200)
+        }
+    }
+
+    static func from(mode: MusicWidgetMode, heroEnabled: Bool) -> MusicCardLayout {
+        switch mode {
+        case .slim: return .slim
+        case .full: return heroEnabled ? .hero : .full
+        }
+    }
+}
+
+/// §5.7 — scrubber shapes with deterministic, seeded bar heights: same track, same shape, no audio tap.
+enum MusicScrubberStyle: String, CaseIterable, Codable, Sendable, Identifiable {
+    case slim
+    case dotted
+    case waveform
+
+    var id: String { rawValue }
+
+    var barCount: Int {
+        switch self {
+        case .slim: return 1
+        case .dotted: return 24
+        case .waveform: return 32
+        }
+    }
+
+    /// FNV-1a over `title|artist` — the same hash family the wallpaper cache uses, so nothing here is random.
+    static func seed(title: String?, artist: String?) -> UInt64 {
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in "\(title ?? "")|\(artist ?? "")".utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return hash
+    }
+
+    /// Deterministic heights in `minimum…1`, derived only from the seed and the index.
+    static func barHeights(seed: UInt64, count: Int, minimum: CGFloat = 0.18) -> [CGFloat] {
+        guard count > 0 else { return [] }
+        var state = seed == 0 ? 0x9e3779b97f4a7c15 : seed
+        return (0..<count).map { _ in
+            state ^= state << 13
+            state ^= state >> 7
+            state ^= state << 17
+            let unit = CGFloat(state % 1000) / 1000
+            return minimum + (1 - minimum) * unit
+        }
+    }
+
+    func heights(title: String?, artist: String?) -> [CGFloat] {
+        Self.barHeights(seed: Self.seed(title: title, artist: artist), count: barCount)
+    }
+}
+
+/// §5.7 — how the wallpaper paints the same theme full-bleed.
+enum MusicWallpaperStyle: String, CaseIterable, Codable, Sendable, Identifiable {
+    case blurredAlbum
+    case adaptiveTint
+    case oledBlack
+    case crispLight
+    case heroArtwork
+
+    var id: String { rawValue }
+
+    var blurRadius: Double {
+        switch self {
+        case .blurredAlbum: return 55
+        case .heroArtwork: return 42
+        case .adaptiveTint: return 30
+        case .oledBlack: return 24
+        case .crispLight: return 18
+        }
+    }
+
+    /// Crisp-art styles keep the artwork readable; the others are washes.
+    var keepsArtworkCrisp: Bool {
+        switch self {
+        case .oledBlack, .crispLight, .heroArtwork: return true
+        case .blurredAlbum, .adaptiveTint: return false
+        }
+    }
+
+    var dim: Double {
+        switch self {
+        case .blurredAlbum: return 0
+        case .adaptiveTint: return 0.08
+        case .oledBlack: return 0.42
+        case .crispLight: return 0
+        case .heroArtwork: return 0.12
+        }
+    }
+
+    var brighten: Double { self == .crispLight ? 0.10 : 0 }
+
+    var tintMix: Double { self == .adaptiveTint ? 0.30 : 0 }
+}
+
+/// A single shared style, optionally overridden per surface (§5.8).
+struct MusicSurfaceStyle: Equatable, Codable, Sendable {
+    var theme: MusicSurfaceTheme
+    var scrubber: MusicScrubberStyle
+    var layout: MusicCardLayout
+    var wallpaperStyle: MusicWallpaperStyle
+
+    static let standard = MusicSurfaceStyle(theme: .semiGlass, scrubber: .slim, layout: .full, wallpaperStyle: .blurredAlbum)
+}
+
+struct MusicStyleSelection: Equatable, Codable, Sendable {
+    var base: MusicSurfaceStyle = .standard
+    /// On by default: one picker group drives wallpaper, lock screen and widget.
+    var matchesAcrossSurfaces: Bool = true
+    var overrides: [String: MusicSurfaceStyle] = [:]
+
+    func style(for surface: MusicSurface) -> MusicSurfaceStyle {
+        guard !matchesAcrossSurfaces, let override = overrides[surface.rawValue] else { return base }
+        return override
+    }
+
+    func theme(for surface: MusicSurface) -> MusicSurfaceTheme { style(for: surface).theme }
+    func scrubber(for surface: MusicSurface) -> MusicScrubberStyle { style(for: surface).scrubber }
+    func layout(for surface: MusicSurface) -> MusicCardLayout { style(for: surface).layout }
+    func wallpaperStyle(for surface: MusicSurface) -> MusicWallpaperStyle { style(for: surface).wallpaperStyle }
+
+    mutating func set(_ style: MusicSurfaceStyle, for surface: MusicSurface) {
+        guard !matchesAcrossSurfaces else { base = style; return }
+        overrides[surface.rawValue] = style
+    }
+}
+
+/// The two configurable slots either side of the transport row.
+enum MusicControlSlot: String, CaseIterable, Codable, Sendable, Identifiable {
+    case lyrics
+    case favorite
+    case shuffle
+    case repeatTrack = "repeat"
+    case output
+    case copy
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .lyrics: return String(localized: "Lyrics")
+        case .favorite: return String(localized: "Favorite")
+        case .shuffle: return String(localized: "Shuffle")
+        case .repeatTrack: return String(localized: "Repeat")
+        case .output: return String(localized: "Output")
+        case .copy: return String(localized: "Copy")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .lyrics: return "text.quote"
+        case .favorite: return "heart"
+        case .shuffle: return "shuffle"
+        case .repeatTrack: return "repeat"
+        case .output: return "airplayaudio"
+        case .copy: return "doc.on.doc"
+        }
+    }
+}
+
+/// What the current player can actually be asked to do. Slots the player cannot serve are hidden, never
+/// rendered as dead buttons.
+struct MusicControlCapabilities: Equatable, Sendable {
+    var canLyrics = true
+    var canFavorite = true
+    /// `NowPlayingService` has no player-agnostic shuffle/repeat command: offer them only when a caller
+    /// proves support.
+    var canShuffle = false
+    var canRepeat = false
+    var canOutput = true
+    var canCopy = true
+
+    static let standard = MusicControlCapabilities()
+
+    func offers(_ slot: MusicControlSlot) -> Bool {
+        switch slot {
+        case .lyrics: return canLyrics
+        case .favorite: return canFavorite
+        case .shuffle: return canShuffle
+        case .repeatTrack: return canRepeat
+        case .output: return canOutput
+        case .copy: return canCopy
+        }
+    }
+}
+
+enum MusicControlSide: String, CaseIterable, Sendable {
+    case left
+    case right
+}
+
+/// Left/right slot pair. Always distinct: assignment normalises, so a stored duplicate can never hide a
+/// control.
+struct MusicControlAssignment: Equatable, Sendable {
+    static let defaultLeft: MusicControlSlot = .lyrics
+    static let defaultRight: MusicControlSlot = .output
+
+    private(set) var left: MusicControlSlot
+    private(set) var right: MusicControlSlot
+
+    init(left: MusicControlSlot = MusicControlAssignment.defaultLeft,
+         right: MusicControlSlot = MusicControlAssignment.defaultRight) {
+        self.left = left
+        self.right = right == left ? Self.alternative(to: left) : right
+    }
+
+    init(leftRaw: String?, rightRaw: String?) {
+        let left = leftRaw.flatMap { MusicControlSlot(rawValue: $0) } ?? Self.defaultLeft
+        let right = rightRaw.flatMap { MusicControlSlot(rawValue: $0) } ?? Self.defaultRight
+        self.init(left: left, right: right)
+    }
+
+    /// The slot to draw on `side`, or nil when the player cannot serve it (the row then keeps the space
+    /// empty instead of showing a dead control).
+    func resolved(_ capabilities: MusicControlCapabilities) -> (left: MusicControlSlot?, right: MusicControlSlot?) {
+        (capabilities.offers(left) ? left : nil, capabilities.offers(right) ? right : nil)
+    }
+
+    mutating func set(_ slot: MusicControlSlot, on side: MusicControlSide) {
+        switch side {
+        case .left:
+            left = slot
+            if right == slot { right = Self.alternative(to: slot) }
+        case .right:
+            right = slot
+            if left == slot { left = Self.alternative(to: slot) }
+        }
+    }
+
+    /// Deterministic replacement when a duplicate is picked.
+    static func alternative(to slot: MusicControlSlot) -> MusicControlSlot {
+        switch slot {
+        case .lyrics: return .output
+        case .output: return .lyrics
+        case .favorite: return .copy
+        case .copy: return .favorite
+        case .shuffle: return .repeatTrack
+        case .repeatTrack: return .shuffle
+        }
+    }
+}
+
+/// Slim bar vs full controls.
+enum MusicWidgetMode: String, CaseIterable, Codable, Sendable {
+    case slim
+    case full
+}
+
+/// What a completed two-finger gesture asks the widget to do.
+enum MusicSwipeOutcome: Equatable, Sendable {
+    case resize(MusicWidgetMode)
+    case skip(forward: Bool)
+    case none
+}
+
+/// Which axis the gesture locked onto. Chosen once per gesture and never re-evaluated, so a diagonal can
+/// never both resize and skip.
+enum MusicSwipeAxis: String, Sendable {
+    case horizontal
+    case vertical
+}
+
+/// Two-finger gesture state machine: locks to one axis so a diagonal never both resizes and skips, fires
+/// once per gesture, and rate-limits repeats with a cooldown.
+struct MusicSwipeMachine: Sendable {
+    var threshold: CGFloat = 42
+    var velocityThreshold: CGFloat = 240
+    var cooldown: TimeInterval = 0.28
+
+    private(set) var axis: MusicSwipeAxis? = nil
+    private var accumulated: CGFloat = 0
+    private var lastFire: TimeInterval = -.infinity
+    private var firedThisGesture = false
+
+    init(threshold: CGFloat = 42, velocityThreshold: CGFloat = 240, cooldown: TimeInterval = 0.28) {
+        self.threshold = threshold
+        self.velocityThreshold = velocityThreshold
+        self.cooldown = cooldown
+    }
+
+    /// New gesture began (`scrollWheel` phase `.began`).
+    mutating func begin() {
+        accumulated = 0
+        axis = nil
+        firedThisGesture = false
+    }
+
+    /// Ignore events until the dominant axis clears the lock threshold; return nothing while deciding.
+    mutating func accumulate(deltaX: CGFloat, deltaY: CGFloat) {
+        guard !firedThisGesture else { return }
+        if axis == nil {
+            // 6 pt of dominance before locking, so a shaky finger does not pick the wrong axis.
+            if abs(deltaX) > abs(deltaY) + 6 { axis = .horizontal }
+            else if abs(deltaY) > abs(deltaX) + 6 { axis = .vertical }
+            else { return }
+        }
+        accumulated += (axis == .horizontal ? deltaX : deltaY)
+    }
+
+    /// Gesture ended (`scrollWheel` phase `.ended`). `mode` is the current size so a vertical swipe can
+    /// toggle either way.
+    mutating func end(velocity: CGFloat = 0, at now: TimeInterval, currentMode: MusicWidgetMode) -> MusicSwipeOutcome {
+        defer { accumulated = 0; axis = nil; firedThisGesture = false }
+        guard let axis, now - lastFire >= cooldown else { return .none }
+        guard abs(accumulated) >= threshold || abs(velocity) >= velocityThreshold else { return .none }
+        lastFire = now
+        firedThisGesture = true
+        switch axis {
+        case .horizontal:
+            // Natural scrolling inverts: a leftward two-finger move is a positive deltaX.
+            let forward = accumulated < 0
+            return .skip(forward: forward)
+        case .vertical:
+            let next: MusicWidgetMode
+            if abs(accumulated) >= threshold {
+                next = accumulated < 0 ? .full : .slim
+            } else {
+                next = currentMode == .full ? .slim : .full
+            }
+            return .resize(next)
+        }
+    }
+}
+
+/// Which display edge the widget tucks into.
+enum MusicStashEdge: String, CaseIterable, Codable, Sendable {
+    case left
+    case right
+}
+
+/// Edge-stash geometry. Pure so the clamping is unit-tested instead of eyeballed.
+enum MusicEdgeStash {
+    /// How much of the card stays on screen while stashed.
+    static let revealWidth: CGFloat = 16
+
+    /// Frame for a stashed card: flush with the chosen edge, only `reveal` points visible.
+    static func stashedFrame(_ frame: CGRect, in visible: CGRect, edge: MusicStashEdge,
+                             reveal: CGFloat = revealWidth) -> CGRect {
+        let clamped = frame.width > visible.width
+            ? CGRect(x: visible.minX, y: frame.minY, width: visible.width, height: frame.height)
+            : frame
+        let x: CGFloat
+        switch edge {
+        case .left: x = visible.minX - clamped.width + min(reveal, clamped.width)
+        case .right: x = visible.maxX - min(reveal, clamped.width)
+        }
+        return CGRect(x: x, y: clamped.minY, width: clamped.width, height: clamped.height)
+    }
+
+    /// Frame for a revealed card: fully back inside `visible`, never off the opposite edge.
+    static func revealedFrame(_ frame: CGRect, in visible: CGRect, edge: MusicStashEdge) -> CGRect {
+        let width = min(frame.width, visible.width)
+        let x: CGFloat
+        switch edge {
+        case .left: x = visible.minX
+        case .right: x = visible.maxX - width
+        }
+        return CGRect(x: x, y: frame.minY, width: width, height: frame.height)
+    }
+
+    /// How much of `frame` is actually on screen.
+    static func visibleWidth(of frame: CGRect, in visible: CGRect) -> CGFloat {
+        let clipped = frame.intersection(visible)
+        return clipped.isNull ? 0 : max(0, clipped.width)
+    }
+
+    /// A stashed panel that is entirely off screen (reveal 0) cannot be hovered — the panel-level stash
+    /// keeps at least `revealWidth` on screen for exactly this reason, and this predicate proves it.
+    static func isFullyHidden(_ frame: CGRect, in visible: CGRect) -> Bool {
+        visibleWidth(of: frame, in: visible) <= 0.5
+    }
+
+    /// Screen-space strip that reveals a stashed panel: from the screen edge to the sliver, over the
+    /// panel's own vertical span. A cursor entering from that edge hits it before the panel does.
+    static func revealZone(in frame: CGRect, edge: MusicStashEdge, visible: CGRect, reveal: CGFloat = revealWidth) -> CGRect {
+        let height = min(frame.height, visible.height)
+        let y = min(max(frame.minY, visible.minY), visible.maxY - height)
+        switch edge {
+        case .left:
+            return CGRect(x: visible.minX, y: y, width: max(2, frame.maxX + 4 - visible.minX), height: height)
+        case .right:
+            return CGRect(x: frame.minX - 4, y: y, width: max(2, visible.maxX - frame.minX + 4), height: height)
+        }
+    }
+
+    /// Hovering the visible sliver (or any part of a revealed card) reveals it. A left-stashed card sits
+    /// off the left edge, so its sliver is at its *right* edge — and vice versa.
+    static func isRevealed(mouseX: CGFloat, frame: CGRect, edge: MusicStashEdge,
+                           reveal: CGFloat = revealWidth) -> Bool {
+        switch edge {
+        case .left: return mouseX <= frame.maxX + 2
+        case .right: return mouseX >= frame.minX - 2
+        }
+    }
+}
+
+// MARK: - Wallpaper ownership
+
+/// Which feature is currently painting the desktop picture. Exactly one capture of the user's original is
+/// shared by all of them.
+enum WallpaperSource: String, CaseIterable, Sendable {
+    case weather
+    case music
+}
+
+/// The fix for a real corruption path: `WallpaperEngine` captures the original only when no capture
+/// exists and deletes it on restore, so a second writer used to make the *first* writer's next capture be
+/// album art. The lease captures once per chain and restores only when the last holder releases.
+struct WallpaperLease: Equatable, Sendable {
+    private(set) var holders: Set<WallpaperSource> = []
+    private(set) var isCaptured = false
+
+    var isEmpty: Bool { holders.isEmpty }
+
+    /// Returns true when the caller must capture the original now (first holder of a fresh chain).
+    mutating func acquire(_ source: WallpaperSource) -> Bool {
+        let needsCapture = holders.isEmpty && !isCaptured
+        holders.insert(source)
+        if needsCapture { isCaptured = true }
+        return needsCapture
+    }
+
+    /// Returns true when the caller must restore the original (last holder released).
+    mutating func release(_ source: WallpaperSource) -> Bool {
+        holders.remove(source)
+        guard holders.isEmpty, isCaptured else { return false }
+        isCaptured = false
+        return true
+    }
+
+    /// Adopt a capture left on disk by a previous run (crash recovery) without capturing again.
+    mutating func adoptCapture() {
+        isCaptured = true
+    }
+
+    /// Quit / "restore now": every holder drops and the capture is consumed.
+    @discardableResult
+    mutating func reset() -> Bool {
+        holders.removeAll()
+        guard isCaptured else { return false }
+        isCaptured = false
+        return true
+    }
+}
+
+/// Pure backup/restore machine for the lock-screen card's own wallpaper swaps, with a persisted
+/// `restorePending` marker so a crash mid-swap still restores on the next launch.
+struct LockScreenWallpaperBackup: Equatable, Codable, Sendable {
+    enum State: String, Codable, Sendable {
+        case idle
+        case held
+        case restorePending
+    }
+
+    private(set) var state: State = .idle
+    private(set) var originalURL: String?
+
+    var isHolding: Bool { state != .idle }
+
+    init() {}
+
+    /// Returns false when a capture is already held (never overwrite the user's real wallpaper).
+    mutating func capture(_ url: String) -> Bool {
+        guard state == .idle, !url.isEmpty else { return false }
+        originalURL = url
+        state = .held
+        return true
+    }
+
+    /// Called right before restoring, so a crash during the swap is still recoverable.
+    mutating func markRestorePending() {
+        guard state == .held else { return }
+        state = .restorePending
+    }
+
+    /// Consumes the pending original and returns to idle.
+    mutating func takeRestore() -> String? {
+        guard state != .idle, let url = originalURL else { return nil }
+        originalURL = nil
+        state = .idle
+        return url
+    }
+
+    mutating func cancel() {
+        originalURL = nil
+        state = .idle
     }
 }

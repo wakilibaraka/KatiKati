@@ -1,4 +1,4 @@
-# Music Wallpaper & Lock-Screen Plan (`ML-1` → `ML-5`)
+# Music Wallpaper & Lock-Screen Plan (`ML-1` → `ML-6`)
 
 > **Status:** Audit complete, zero-`pbxproj` refinement applied; awaiting sign-off to begin `ML-1`.
 > **Branch:** `feat/music-lockscreen-wallpaper` (worktree at `../KatiKati-music-lockscreen`, branched from `origin/main`).
@@ -101,9 +101,10 @@ A pure arbiter in `NowPlayingProgress.swift`, owned by `WallpaperEngine`:
 ## 5. Canapé parity spec (the actual UI contract)
 
 ### 5.1 Card (Lock Screen and Desktop use the same view)
-- Rounded liquid-glass surface, **Clear / Semi / Tinted** glass, plus a **dark tint** option; hairline specular rim (1 px inner highlight, no drop shadow inside the card).
+- Rounded liquid-glass surface driven by the shared `MusicSurfaceTheme` presets (§5.7): **Clear / Semi / Tinted** glass, **OLED Black**, **Crisp Light**; hairline specular rim (1 px inner highlight, no drop shadow inside the card).
+- Layout comes from the shared `MusicCardLayout` (§5.7): `.slim`, `.full`, or Mooziac-style `.hero` with the large rounded artwork and optional 3-line centred lyrics.
 - Header: bold track title above a secondary artist line, both single-line truncated.
-- **Right-aligned waveform bars** animated with `scaleY` only (never `height`), paused when not playing or under Reduce Motion / Low Power Mode.
+- **Right-aligned waveform bars** animated with `scaleY` only (never `height`), paused when not playing or under Reduce Motion / Low Power Mode; the scrubber itself can be Slim, Dotted or Waveform per `MusicScrubberStyle` (§5.7).
 - **Scrubbable progress bar** with elapsed `1:52` on the left and remaining `-1:52` on the right; drag seeks via `NowPlayingService.seek(to:)`, optimistic like every other KatiKati surface.
 - Transport row, exactly: `[Left Slot]  ⏮  ⏸/▶  ⏭  [Right Slot]`.
 - Lyrics view: active line highlighted from `LyricsStore`; when enhanced LRC word tags exist, the active word is emphasised, otherwise line-by-line — never both.
@@ -122,10 +123,40 @@ A pure arbiter in `NowPlayingProgress.swift`, owned by `WallpaperEngine`:
 Volume slider at the top, output device picker (`AudioOutputSwitcher`), AirPods Left/Right/Case battery (`BluetoothDeviceReader`), and a `Listening Mode` row (`Off`, `Transparency`, `Adaptive`, `Noise Cancellation`) rendered **only** when the runtime probe in §2.3 succeeds.
 
 ### 5.5 Classic backdrop (0.0% idle CPU)
-Static album art as the desktop picture: one CoreImage blur pass per track, written once into the generated cache, applied once per track change, **zero timers, zero display link, zero overlay**. Animated/blurred-live art is opt-in and off by default.
+Static album art as the desktop picture rendered from the shared `MusicWallpaperStyle` (§5.7: blurred album, adaptive tint, OLED black, crisp light, hero artwork): one CoreImage pass per track, written once into the generated cache, applied once per track change, **zero timers, zero display link, zero overlay**. Animated art is opt-in and off by default.
 
 ### 5.6 Menu Bar quick-control popover (ML-5)
 Compact popover with three circular icon toggles — `Desktop`, `Status Bar`, `Now Playing` — each showing `On`/`Off`, plus a `Settings…` row. Pure toggles of existing state; no new engine.
+
+### 5.7 Shared design system: one card, three surfaces (Canapé + Mooziac)
+
+Every visual decision is a **pure value in ML-1**, so the wallpaper (ML-2), the lock-screen card (ML-3) and the desktop widget (ML-4) render the same look from the same numbers. No surface invents its own theme, scrubber or layout; a surface may only *choose* which value to use.
+
+Port doctrine for `shirkeharsh/mooziac` (MIT): the **styling and the pure geometry** are ported and re-expressed in KatiKati patterns, never the app shell. Mooziac's playback client is out of scope (§5.9).
+
+**`MusicSurfaceTheme`** — `.clearGlass`, `.semiGlass`, `.tintedGlass`, `.oledBlack`, `.crispLight`. One preset resolves material, rim opacity, text tone, background luminance and whether the surface needs a dark backing. Applied as a single environment value, so `MusicGlassCardView` has no per-surface branches and the lock card and desktop card cannot drift apart.
+
+**`MusicCardLayout`** — `.slim`, `.full`, `.hero`.
+- `.slim`: one-line pill (title, scrubber, transport).
+- `.full`: header + scrubber + transport + lyrics drawer (§5.1).
+- `.hero`: Mooziac's large rounded artwork card, optional 3-line centred lyrics overlay (previous line faded, active line bold, next line faded), artwork scaling with available height.
+- Pure data: intrinsic heights, artwork side, lyric slot count. The desktop panel's height callback and the lock-screen card both read these, so a layout change is one number, not two implementations.
+
+**`MusicScrubberStyle`** — `.slim`, `.dotted`, `.waveform`.
+- Bar count and heights are generated **deterministically** from a seeded PRNG over `title|artist` (FNV-1a seed, same hash as the wallpaper cache key). No audio tap, no touch to the audio pipeline, same track ⇒ same shape every launch.
+- Elapsed/remaining is applied as an interpolation across the precomputed heights, so a progressing track never rerolls the shape and never rebuilds the array.
+
+**`MusicWallpaperStyle`** — `.blurredAlbum`, `.adaptiveTint`, `.oledBlack`, `.crispLight`, `.heroArtwork`. Consumed by `MusicWallpaperRenderer` (ML-2), so the wallpaper is literally the card's theme rendered full-bleed: `.heroArtwork` is the crisp art card over a blurred surround, `.oledBlack` is the art dimmed on black, `.crispLight` is a bright art plate.
+
+**Adaptive palette** — `MusicArtworkPalette` in ML-1: one CoreImage pass per **track change** (downsample to 24×24, bucket-cluster, pick accent/secondary, derive `isDark` and `textTone`), cached by artwork hash. Produced once by the track-change path and passed to wallpaper, lock card and widget; never per frame, never on a timer, never on a hover.
+
+### 5.8 Per-surface selection and the match toggle
+
+`MusicStyleSelection` holds theme + scrubber + layout + wallpaper style, plus an optional per-surface override map (`lockScreen`, `desktop`, `wallpaper`). Default is the **`Match across Wallpaper, Lock Screen & Desktop`** toggle **on**: one picker group drives all three. Switching it off reveals three compact pickers; overrides persist independently and the default values are the shipped ones, so an untouched install looks identical to the pre-Mooziac plan.
+
+### 5.9 Out of scope (explicitly not ported)
+
+From Mooziac: the YouTube / YouTube Music `WKWebView` client, the 4K video window, SponsorBlock, `yt-dlp`, network downloads, and any Google account/auth flow. KatiKati is not a streaming client, and §2.4 (do not become the Now Playing app) forbids the media-session hijack those features imply. **Ported in ML-6 instead:** the local audio player and the 1 mm multitouch trackpad edge volume slider.
 
 ---
 
@@ -152,6 +183,7 @@ The project has ~1026 explicit `PBXFileReference` entries and no `PBXFileSystemS
 | Widget UI | `App/Scenes/Desktop/DesktopVinylBoxView.swift` |
 | Panel-level stash | `App/Entry/DesktopWidgetPanelController.swift` |
 | Lock-screen card | `Platform/CoreGraphics/OverlaySpaceHost.swift` consumer code in existing `App/` files |
+| `MusicSurfaceTheme`, `MusicCardLayout`, `MusicScrubberStyle` + deterministic bar heights, `MusicWallpaperStyle`, `MusicArtworkPalette`, `MusicStyleSelection` | `Core/Support/NowPlayingProgress.swift` (ML-1, pure) |
 | Tests | `Tests/Unit/NowPlayingProgressTests.swift`, `Tests/Unit/DesktopBoxCoreTests.swift` |
 
 Consequence: ML-5's rebase touches no pbxproj, so it cannot conflict with the parallel agent's project-file edits.
@@ -165,13 +197,14 @@ All work happens in `../KatiKati-music-lockscreen` on `feat/music-lockscreen-wal
 
 | Slice | Deliverable | Files | Acceptance |
 | --- | --- | --- | --- |
-| **ML-1** | Pure core: slots + assignment validation, swipe machine (axis lock/threshold/velocity/cooldown), edge-stash clamp math, lease + backup state machines, `LyricsLine` word timings with line fallback | `Core/Support/NowPlayingProgress.swift`, `Core/Support/Desktop/DesktopBoxModel.swift`, `Tests/Unit/NowPlayingProgressTests.swift`, `Tests/Unit/DesktopBoxCoreTests.swift` | `xcodebuild test -only-testing:KatiKatiTests/NowPlayingProgressTests` and `…/DesktopBoxCoreTests` green; ≤300 diff lines |
-| **ML-2** | Music wallpaper: lease arbiter wired into `WallpaperEngine`, static album-art frame (Classic, cached blur), apply on track change only, restore on pause/stop/disable/quit, animated opt-in | `App/Composition/WallpaperEngine.swift` (+ core from ML-1) | Wallpaper returns to the user's original after every path in §4.2; idle sample shows no timer wakeups |
-| **ML-3** | Lock-screen card: private SkyLight space via `OverlaySpaceHost`, glass pill per §5.1, `LyricsStore` lyrics, opt-in through `com.katikati.liquid.lockScreenEnabled`, absorbs `LQ-5.3` | existing `App/` files + `Platform/CoreGraphics/OverlaySpaceHost.swift` consumer | Missing SkyLight symbol ⇒ no card, no error; card never becomes key; `LQ-5.3` marked superseded |
-| **ML-4** | Desktop widget: Slim/Full, two-finger resize + skip, edge stash, glass modes, slot picker, output/AirPods popover, lyrics drawer | `App/Scenes/Desktop/DesktopVinylBoxView.swift`, `App/Entry/DesktopWidgetPanelController.swift`, `App/Scenes/Desktop/DesktopWidgetChromeView.swift` (additive) | Gestures work with a trackpad; stash clamps to `visibleFrame`; Reduce Motion respected |
-| **ML-5** | Rebase + shared wiring: Settings toggles, three menu-bar toggles + popover, 12-locale strings, gates, livecheck, graph update | `App/Scenes/SettingsAppearancePane.swift`, `Core/Support/QuickToggles.swift`, `App/Scenes/AppMenuFragments.swift`, `Resources/Localizable.xcstrings` | All three `check_*.py` scripts pass; full test suite; measured idle CPU reported |
+| **ML-1** | Pure core: slots + assignment validation, swipe machine (axis lock/threshold/velocity/cooldown), edge-stash clamp math, lease + backup state machines, `LyricsLine` word timings with line fallback, **plus the shared design system (§5.7): `MusicSurfaceTheme`, `MusicCardLayout`, `MusicScrubberStyle` with deterministic seeded bar heights, `MusicWallpaperStyle`, `MusicArtworkPalette`, `MusicStyleSelection`** | `Core/Support/NowPlayingProgress.swift`, `Core/Support/Desktop/DesktopBoxModel.swift`, `Tests/Unit/NowPlayingProgressTests.swift`, `Tests/Unit/DesktopBoxCoreTests.swift` | `xcodebuild test -only-testing:KatiKatiTests/NowPlayingProgressTests` and `…/DesktopBoxCoreTests` green; ≤300 diff lines |
+| **ML-2** | Music wallpaper: lease arbiter wired into `WallpaperEngine`, static album-art frame rendered from `MusicWallpaperStyle` + `MusicArtworkPalette` (single cached CoreImage pass per track), apply on track change only, restore on pause/stop/disable/quit, animated opt-in | `App/Composition/WallpaperEngine.swift` (+ core from ML-1) | Wallpaper returns to the user's original after every path in §4.2; idle sample shows no timer wakeups |
+| **ML-3** | Lock-screen card: private SkyLight space via `OverlaySpaceHost`, shared `MusicSurfaceTheme` + `MusicScrubberStyle` + `MusicCardLayout` (compact pill or `.hero` with 3-line synced lyrics from `LyricsStore`), opt-in through `com.katikati.liquid.lockScreenEnabled`, absorbs `LQ-5.3` | existing `App/` files + `Platform/CoreGraphics/OverlaySpaceHost.swift` consumer | Missing SkyLight symbol ⇒ no card, no error; card never becomes key; `LQ-5.3` marked superseded |
+| **ML-4** | Desktop widget: identical shared card — theme, scrubber, layout including `.hero` + 3-line lyrics — plus Slim/Full, two-finger resize + skip, panel-level edge stash, slot picker, output/AirPods popover, lyrics drawer | `App/Scenes/Desktop/DesktopVinylBoxView.swift`, `App/Entry/DesktopWidgetPanelController.swift`, `App/Scenes/Desktop/DesktopWidgetChromeView.swift` (additive) | Gestures work with a trackpad; stash clamps to `visibleFrame`; Reduce Motion respected |
+| **ML-5** | Rebase + shared wiring: unified theme/scrubber/layout pickers with per-surface override and the match toggle (§5.8), Settings toggles, three menu-bar toggles + popover, optional Menu Bar Synced Lyrics (active `LyricsStore` line, off by default, redraws only on line change), optional Discord Rich Presence over the local `discord-ipc-0` Unix socket (event-driven, no dependency, silently absent when Discord is not running, off by default), 12-locale strings, MIT attribution for `shirkeharsh/mooziac` in `NOTICE`, gates, livecheck, graph update | `App/Scenes/SettingsAppearancePane.swift`, `Core/Support/QuickToggles.swift`, `App/Scenes/AppMenuFragments.swift`, `Resources/Localizable.xcstrings` | All three `check_*.py` scripts pass; full test suite; measured idle CPU reported |
+| **ML-6** | Local audio player + 1 mm multitouch edge volume slider: `AVAudioPlayer`-backed local-file playback registered as a **local source** inside `NowPlayingService` (never the system Now Playing app, §2.4), feeding the same state the other surfaces already read; a 1 mm dead-band–style trackpad edge strip on the card maps vertical travel to `AudioOutputSwitcher.setOutputVolume`, with a visible level HUD and no timer while idle | `App/Composition` local-source + `App/Scenes/Desktop/DesktopVinylBoxView.swift`, `Platform/SystemStatus/AudioOutputSwitcher.swift` | Local file plays and drives all three surfaces; edge slider changes volume without stepping; idle sample unchanged with the player loaded but stopped |
 
-Each slice ≤300 diff lines, pure core + synchronous `-only-testing:` tests first.
+Each slice ≤300 diff lines, pure core + synchronous `-only-testing:` tests first. ML-6 follows the same fence and the same rule: no new `.swift` file, so no `project.pbxproj` change.
 
 ---
 
@@ -195,7 +228,7 @@ python3 scripts/live_check_wallpapers.py
 graphify update .
 ```
 
-**Idle CPU is measured, not asserted:** sample `ps -o %cpu= -p <KatiKati pid>` (or `top -l 3 -pid`) with the card visible and playing stopped; a number is only reported when it was actually sampled.
+**Idle CPU is measured, not asserted:** take a real CPU-time delta (`ps -o cputime= -p <pid>` twice, 20–30 s apart) with the card visible and the music wallpaper applied, plus a sample of the animated path while playing. `top -l <n> -pid` is fine as a cross-check, but its first samples include process launch and overstate a quiet app; a number is only reported when it was actually sampled.
 
 ---
 
@@ -206,3 +239,6 @@ graphify update .
 - **`shuffle`/`repeat`** — no player-agnostic command exists in `NowPlayingService`; they are only offered where commandable, otherwise hidden.
 - **`favorite`** — KatiKati-local store by design (documented above), not a pretend player API.
 - **Canapé visual copy** — layout, spacing and motion are reproduced as behaviour; Canapé's name/marks are not used.
+- **Mooziac styling (MIT)** — themes, layouts, scrubber shapes and the hero lyrics treatment are re-expressed as pure KatiKati values with attribution in `NOTICE`; no app-shell code is copied. Its streaming client stays out of scope (§5.9).
+- **Palette extraction** — one pass per track change by design. If it ever moves to a frame or a tick, it becomes the 0% idle CPU bug; the cache key is the artwork hash, and the test asserts a second call for the same hash does no work.
+- **Discord Rich Presence** — the socket may not exist; the client is opt-in, event-driven, and its absence is silent, never a reconnect loop.

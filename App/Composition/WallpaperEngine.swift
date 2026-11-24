@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import CoreGraphics
+import CoreImage
 import ImageIO
 import UniformTypeIdentifiers
 
@@ -36,6 +37,11 @@ final class WallpaperEngine: ObservableObject {
     /// DW-10: the plan that last painted, so the overlay follows the same sky without re-planning.
     private var lastAtmosphere: SkyAtmosphere?
     private var screenLocked = false
+    /// ML-2: one capture of the user's original is shared by every writer (weather plan + album art).
+    private var lease = WallpaperLease()
+    /// The track currently painted by the music source, so a repeat publish never re-renders.
+    private(set) var musicArtworkKey: String?
+    private var musicSurfaceObserver: NSObjectProtocol?
 
     /// The three accent hues of the picture currently on screen, as hex — what the dock accent samples when
     /// the user chooses Wallpaper-Adaptive. Published so the strip repaints when the wallpaper moves on.
@@ -63,6 +69,27 @@ final class WallpaperEngine: ObservableObject {
             }
             .store(in: &cancellables)
         // DW-10: turning Small Animation on or off re-evaluates the overlay immediately, without repainting the frame.
+        // ML-2: the album-art source runs without the weather plan and shares the same capture.
+        if MusicSurfaceConfig.isWallpaperEnabled {
+            MusicWallpaperController.shared.start(service: DesktopWidgetServices.nowPlaying)
+            DiscordPresence.shared.start(service: DesktopWidgetServices.nowPlaying)
+            MusicMenuBarLyricsBridge.shared.start(service: DesktopWidgetServices.nowPlaying)
+        }
+        if LockScreenMusicCardController.isEnabled {
+            LockScreenMusicCardController.shared.start()
+        }
+        // Settings / menu-bar switches post this; start or stop the opt-in card without polling.
+        musicSurfaceObserver = NotificationCenter.default.addObserver(
+            forName: MusicSurfaceConfig.didChangeNotification, object: nil, queue: .main
+        ) { _ in
+            Task { @MainActor in
+                if LockScreenMusicCardController.isEnabled {
+                    LockScreenMusicCardController.shared.start()
+                } else {
+                    LockScreenMusicCardController.shared.stop()
+                }
+            }
+        }
         settings.$wallpaperAnimate
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -75,7 +102,7 @@ final class WallpaperEngine: ObservableObject {
     private func start() {
         if !isRunning {
             isRunning = true
-            captureOriginalIfNeeded()
+            _ = acquireWallpaperLease(.weather)
             let center = NSWorkspace.shared.notificationCenter
             // Space switches, sleep/wake and display changes all drop a Space's desktop picture on macOS; each
             // is re-applied after a short debounce so a burst (dock → display → wake) paints once, not three times.
@@ -131,21 +158,26 @@ final class WallpaperEngine: ObservableObject {
         screenLocked = false
         teardown()
         WallpaperOverlay.shared.hide()
-        restoreOriginal()
+        _ = releaseWallpaperLease(.weather)
         accentHexes = []
     }
 
     /// App quit: restore, but leave the setting on so the next launch resumes.
     func restoreForQuit() {
-        guard isRunning else { return }
+        guard isRunning || lease.isCaptured || musicArtworkKey != nil else { return }
+        isRunning = false
         screenLocked = false
         teardown()
         WallpaperOverlay.shared.hide()
+        lease.reset()
+        musicArtworkKey = nil
         restoreOriginal()
     }
 
     /// Menu/Settings "Restore Wallpaper" without turning the feature off.
     func restoreNow() {
+        lease.reset()
+        musicArtworkKey = nil
         restoreOriginal()
         lastApplied = [:]
     }
@@ -166,6 +198,91 @@ final class WallpaperEngine: ObservableObject {
         }
         pendingRefresh = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: work)
+    }
+
+    // MARK: - ML-2: shared wallpaper lease
+
+    /// Captures once per lease chain. Adopts a capture a previous run left behind, so a crash cannot make
+    /// the next launch treat album art as the user's wallpaper.
+    private func acquireWallpaperLease(_ source: WallpaperSource) -> Bool {
+        let mustCapture = lease.acquire(source)
+        captureOriginalIfNeeded()
+        if defaults.data(forKey: Self.savedKey) != nil { lease.adoptCapture() }
+        return mustCapture
+    }
+
+    /// Restores only when the last holder leaves; otherwise asks the weather plan to repaint so the desktop
+    /// never falls back to the user's original while another surface is still painting.
+    @discardableResult
+    private func releaseWallpaperLease(_ source: WallpaperSource) -> Bool {
+        guard lease.release(source) else {
+            if isRunning {
+                lastApplied = [:]
+                refresh(force: true)
+            }
+            return false
+        }
+        restoreOriginal()
+        return true
+    }
+
+    // MARK: - ML-2: album-art wallpaper
+
+    /// Paints the artwork as the desktop picture for every screen: one cached file per track, one
+    /// `setDesktopImageURL` per screen, no timer and no overlay. Returns false when nothing was applied.
+    @discardableResult
+    func applyMusicArtwork(_ data: Data, trackKey: String) -> Bool {
+        guard !data.isEmpty, !trackKey.isEmpty else { return false }
+        if !lease.holders.contains(.music) { _ = acquireWallpaperLease(.music) }
+        var applied = false
+        let classic = MusicSurfaceConfig.isClassicBackdrop
+        let screens = NSScreen.screens
+        for screen in screens {
+            let scale = max(screen.backingScaleFactor, 1)
+            let size = CGSize(width: min(screen.frame.width * scale, 5120),
+                              height: min(screen.frame.height * scale, 2880))
+            guard let url = MusicWallpaperRenderer.materialize(
+                artwork: data, trackKey: trackKey, size: size, blur: !classic,
+                style: MusicSurfaceConfig.wallpaperStyle(), palette: MusicArtworkPaletteCache.shared.palette(for: data)
+            ) else { continue }
+            do {
+                try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
+                lastApplied[Self.screenKey(screen)] = "music-\(trackKey)"
+                applied = true
+            } catch {
+                NSLog("WallpaperEngine: music artwork failed: \(error)")
+            }
+        }
+        if applied { musicArtworkKey = trackKey }
+        return applied
+    }
+
+    /// Animated path: the frames are already-rendered files, so a tick is one `setDesktopImageURL` per screen
+    /// and nothing else. No CoreImage work happens while the animation is running.
+    @discardableResult
+    func applyMusicFrame(urls: [URL], trackKey: String) -> Bool {
+        guard !urls.isEmpty else { return false }
+        if !lease.holders.contains(.music) { _ = acquireWallpaperLease(.music) }
+        var applied = false
+        for (index, screen) in NSScreen.screens.enumerated() where index < urls.count {
+            do {
+                try NSWorkspace.shared.setDesktopImageURL(urls[index], for: screen, options: [:])
+                lastApplied[Self.screenKey(screen)] = "music-\(trackKey)-\(urls[index].lastPathComponent)"
+                applied = true
+            } catch {
+                NSLog("WallpaperEngine: music frame failed: \(error)")
+            }
+        }
+        if applied { musicArtworkKey = trackKey }
+        return applied
+    }
+
+    /// Pause / stop / disable / quit: hand the desktop back (only the last holder actually restores).
+    func clearMusicArtwork() {
+        guard musicArtworkKey != nil || lease.holders.contains(.music) else { return }
+        musicArtworkKey = nil
+        lastApplied = lastApplied.filter { !$0.value.hasPrefix("music-") }
+        _ = releaseWallpaperLease(.music)
     }
 
     // MARK: - Apply
@@ -211,6 +328,10 @@ final class WallpaperEngine: ObservableObject {
             useGeneration = lowPower ? generation : generation &+ 1
             generation = useGeneration
         }
+
+        // ML-2: while the music lease owns the desktop, this loop must stay out of it. Otherwise every
+        // refresh tick repaints the sky over the album art, and the two sources trade the desktop all day.
+        guard !lease.holders.contains(.music) else { return }
 
         for screen in NSScreen.screens {
             let id = Self.screenKey(screen)
@@ -345,6 +466,293 @@ final class WallpaperEngine: ObservableObject {
             result[alias] = result[canonical]
         }
         return result
+    }
+}
+
+/// ML-2 — one cached, content-addressed blurred frame per track. The only per-track cost is this single
+/// CoreImage pass; afterwards the file is reused, so an unchanging track costs nothing.
+enum MusicWallpaperRenderer {
+    static func directory() -> URL? {
+        guard let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
+        let dir = WallpaperCache.generatedDirectory(in: base)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }
+
+    static func materialize(artwork: Data, trackKey: String, size: CGSize,
+                            blur: Bool = true, blurRadius: Double = 55,
+                            style: MusicWallpaperStyle = .blurredAlbum,
+                            palette: MusicArtworkPalette = .fallback) -> URL? {
+        guard let dir = directory(), size.width >= 1, size.height >= 1,
+              let sourceImage = NSImage(data: artwork),
+              let tiff = sourceImage.tiffRepresentation,
+              let source = CIImage(data: tiff) else { return nil }
+        let width = Int(size.width.rounded()), height = Int(size.height.rounded())
+        let name = "music-\(signature(trackKey))-\(width)x\(height)-\(blur ? "b" : "p")-\(style.rawValue).png"
+        let url = dir.appendingPathComponent(name)
+        if FileManager.default.fileExists(atPath: url.path) { return url }
+
+        let target = CGRect(x: 0, y: 0, width: width, height: height)
+        let scale = max(target.width / source.extent.width, target.height / source.extent.height)
+        var image = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        image = image.transformed(by: CGAffineTransform(
+            translationX: (target.width - image.extent.width) / 2,
+            y: (target.height - image.extent.height) / 2))
+        image = image.cropped(to: target)
+        let clear = image.cropped(to: target)
+        if blur {
+            image = image.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: target)
+        }
+        if style.keepsArtworkCrisp {
+            // The art stays readable: a crisp copy inset over the blurred base (no rounding: the card does that).
+            let inset = target.insetBy(dx: target.width * 0.19, dy: target.height * 0.19)
+            let factor = max(inset.width / max(clear.extent.width, 1), inset.height / max(clear.extent.height, 1))
+            var plate = clear.transformed(by: CGAffineTransform(scaleX: factor, y: factor))
+            plate = plate.transformed(by: CGAffineTransform(
+                translationX: inset.midX - plate.extent.midX, y: inset.midY - plate.extent.midY))
+            plate = plate.cropped(to: inset)
+            image = plate.composited(over: image)
+        }
+        if style.dim > 0 || style.brighten > 0 {
+            image = image.applyingFilter("CIColorControls", parameters: [
+                kCIInputBrightnessKey: style.brighten - style.dim
+            ]).cropped(to: target)
+        }
+        if style.tintMix > 0 {
+            let tint = CIImage(color: CIColor(red: palette.accent.r, green: palette.accent.g, blue: palette.accent.b))
+                .cropped(to: target)
+            image = tint.applyingFilter("CIColorMatrix", parameters: [
+                "inputAVector": CIVector(x: 0, y: 0, z: 0, w: style.tintMix)
+            ]).composited(over: image)
+        }
+        let context = CIContext(options: [.useSoftwareRenderer: false])
+        guard let cgImage = context.createCGImage(image, from: target),
+              let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)
+        else { return nil }
+        CGImageDestinationAddImage(destination, cgImage, nil)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return url
+    }
+
+    /// Animated sequence: `frameCount` frames of a slow zoom + drift around the same cached artwork.
+    /// Rendered once per track and size, then looped by swapping URLs — no per-frame CoreImage work.
+    static func materializeFrames(artwork: Data, trackKey: String, size: CGSize, frameCount: Int = 8,
+                                  blur: Bool = true, blurRadius: Double = 45,
+                                  style: MusicWallpaperStyle = .blurredAlbum,
+                                  palette: MusicArtworkPalette = .fallback) -> [URL] {
+        let count = max(2, frameCount)
+        return (0..<count).compactMap {
+            materializeFrame(artwork: artwork, trackKey: trackKey, size: size, index: $0, frameCount: count,
+                             blur: blur, blurRadius: blurRadius, style: style, palette: palette)
+        }
+    }
+
+    static func materializeFrame(artwork: Data, trackKey: String, size: CGSize, index: Int, frameCount: Int,
+                                 blur: Bool, blurRadius: Double,
+                                 style: MusicWallpaperStyle = .blurredAlbum,
+                                 palette: MusicArtworkPalette = .fallback) -> URL? {
+        guard let dir = directory(), size.width >= 1, size.height >= 1,
+              let sourceImage = NSImage(data: artwork),
+              let tiff = sourceImage.tiffRepresentation,
+              let source = CIImage(data: tiff) else { return nil }
+        let width = Int(size.width.rounded()), height = Int(size.height.rounded())
+        // JPEG on purpose: an animated tick re-decodes the file in WindowServer, and a 30 MB PNG per tick
+        // is the difference between a quiet wallpaper and a busy one.
+        let name = "music-\(signature(trackKey))-\(width)x\(height)-\(blur ? "ba" : "pa")\(index)-\(style.rawValue).jpg"
+        let url = dir.appendingPathComponent(name)
+        if FileManager.default.fileExists(atPath: url.path) { return url }
+
+        let target = CGRect(x: 0, y: 0, width: width, height: height)
+        let scale = max(target.width / source.extent.width, target.height / source.extent.height)
+        var image = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        image = image.transformed(by: CGAffineTransform(
+            translationX: (target.width - image.extent.width) / 2,
+            y: (target.height - image.extent.height) / 2))
+        image = image.cropped(to: target)
+        if blur {
+            image = image.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: target)
+        }
+        // One full sine cycle across the sequence, so frame 0 and frame N-1 meet seamlessly on loop.
+        let progress = CGFloat(index) / CGFloat(max(1, frameCount))
+        let zoom = 1.05 + 0.05 * (0.5 - 0.5 * cos(2 * .pi * progress))
+        let panX = 0.010 * sin(2 * .pi * progress)
+        let panY = 0.008 * cos(2 * .pi * progress)
+        image = image
+            .transformed(by: CGAffineTransform(translationX: -target.midX, y: -target.midY))
+            .transformed(by: CGAffineTransform(scaleX: zoom, y: zoom))
+            .transformed(by: CGAffineTransform(translationX: target.midX + panX * target.width,
+                                               y: target.midY + panY * target.height))
+            .cropped(to: target)
+        let context = CIContext(options: [.useSoftwareRenderer: false])
+        guard let cgImage = context.createCGImage(image, from: target),
+              let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.jpeg.identifier as CFString, 1, nil)
+        else { return nil }
+        let options = [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary
+        CGImageDestinationAddImage(destination, cgImage, options)
+        guard CGImageDestinationFinalize(destination) else { return url }
+        return url
+    }
+
+    /// Filename-safe, stable content key.
+    private static func signature(_ key: String) -> String {
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in key.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        return String(hash, radix: 16)
+    }
+}
+
+/// ML-2 — the only observer of `NowPlayingService` for wallpaper purposes. Deduped by track and artwork
+/// size, so a once-per-second position tick never touches the desktop.
+@MainActor
+final class MusicWallpaperController {
+    static let shared = MusicWallpaperController()
+
+    private var service: NowPlayingService?
+    private var stateCancellable: AnyCancellable?
+    private var changeObserver: NSObjectProtocol?
+    private var staticKey: String?
+    private var timer: Timer?
+    private var frameSets: [[URL]] = []
+    private var frameIndex = 0
+    private var animatedKey: String?
+    private var generation = 0
+    /// One swap every 4 s. Each swap makes WindowServer decode a frame, and that decode — not our code — is
+    /// what a tighter cadence would cost. 0.25 Hz still reads as a slow drift.
+    private let frameInterval: TimeInterval = 4
+    private let frameCount = 6
+
+    func start(service: NowPlayingService) {
+        guard self.service == nil else { return }
+        self.service = service
+        stateCancellable = service.$state
+            .removeDuplicates { lhs, rhs in
+                // Play state is part of the key: pause must stop the animation and resume must start it
+                // without waiting for a track change.
+                lhs.title == rhs.title && lhs.artist == rhs.artist
+                    && lhs.isPlaying == rhs.isPlaying
+                    && MusicArtworkSignature.of(lhs.artworkData) == MusicArtworkSignature.of(rhs.artworkData)
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.apply(state) }
+        changeObserver = NotificationCenter.default.addObserver(
+            forName: MusicSurfaceConfig.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.apply(self?.service?.state ?? NowPlayingState(isPlaying: false)) }
+        }
+        apply(service.state)
+    }
+
+    func stop() {
+        stopAnimation()
+        stateCancellable = nil
+        if let changeObserver { NotificationCenter.default.removeObserver(changeObserver) }
+        changeObserver = nil
+        service = nil
+        staticKey = nil
+        WallpaperEngine.shared.clearMusicArtwork()
+    }
+
+    private func apply(_ state: NowPlayingState) {
+        guard MusicSurfaceConfig.isWallpaperEnabled,
+              let data = state.artworkData, !data.isEmpty,
+              let title = state.title, !title.isEmpty else {
+            stopAnimation()
+            staticKey = nil
+            WallpaperEngine.shared.clearMusicArtwork()
+            return
+        }
+        // Content identity, not byte count: a re-send of the same art must not re-render frames.
+        let key = "\(title)|\(state.artist ?? "")|\(MusicArtworkSignature.of(data))"
+        // Off, paused, or not playing: the cached static frame is the whole picture. No timer survives this.
+        guard MusicSurfaceConfig.isAnimatedBackdrop, state.isPlaying else {
+            stopAnimation()
+            guard staticKey != key else { return }
+            if WallpaperEngine.shared.applyMusicArtwork(data, trackKey: key) { staticKey = key }
+            return
+        }
+        startAnimation(data: data, key: key)
+    }
+
+    /// Frames are pre-rendered off the main thread once per track, then looped at `frameInterval` (0.5 Hz).
+    private func startAnimation(data: Data, key: String) {
+        guard animatedKey != key || timer == nil else { return }
+        generation += 1
+        let generation = generation
+        timer?.invalidate()
+        timer = nil
+        frameSets = []
+        frameIndex = 0
+        animatedKey = key
+        staticKey = nil
+        let classic = MusicSurfaceConfig.isClassicBackdrop
+        let count = frameCount
+        // Point size, not backing size: these frames are blurred art shown full-bleed, and the smaller file
+        // is what keeps a 0.5 Hz swap cheap for WindowServer to decode.
+        let sizes = NSScreen.screens.map { screen -> CGSize in
+            CGSize(width: min(screen.frame.width, 5120), height: min(screen.frame.height, 2880))
+        }
+        Task.detached(priority: .utility) {
+            let sets = sizes.map {
+                MusicWallpaperRenderer.materializeFrames(
+                    artwork: data, trackKey: key, size: $0, frameCount: count, blur: !classic,
+                    style: MusicSurfaceConfig.wallpaperStyle(),
+                    palette: MusicArtworkPaletteCache.shared.palette(for: data)
+                )
+            }
+            await MainActor.run { [weak self] in
+                guard let self, self.generation == generation,
+                      sets.contains(where: { !$0.isEmpty }) else { return }
+                self.frameSets = sets
+                self.frameIndex = 0
+                self.applyFrame()
+                self.startTimer()
+            }
+        }
+    }
+
+    private func startTimer() {
+        timer?.invalidate()
+        let timer = Timer(timeInterval: frameInterval, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.advance() }
+        }
+        timer.tolerance = 0.5
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
+    }
+
+    private func advance() {
+        guard timer != nil, !frameSets.isEmpty,
+              MusicSurfaceConfig.isWallpaperEnabled,
+              MusicSurfaceConfig.isAnimatedBackdrop,
+              service?.state.isPlaying == true else {
+            stopAnimation()
+            return
+        }
+        let length = frameSets.map(\.count).min() ?? 0
+        guard length > 0 else { return }
+        frameIndex = (frameIndex + 1) % length
+        applyFrame()
+    }
+
+    private func applyFrame() {
+        guard !frameSets.isEmpty, let key = animatedKey else { return }
+        let urls = frameSets.compactMap { set -> URL? in
+            guard !set.isEmpty else { return nil }
+            return set[min(frameIndex, set.count - 1)]
+        }
+        _ = WallpaperEngine.shared.applyMusicFrame(urls: urls, trackKey: key)
+    }
+
+    private func stopAnimation() {
+        generation += 1
+        timer?.invalidate()
+        timer = nil
+        frameSets = []
+        frameIndex = 0
+        animatedKey = nil
     }
 }
 
@@ -715,5 +1123,82 @@ final class WallpaperOverlay {
         let center = CGPoint(x: size / 2, y: size / 4)
         ctx.drawRadialGradient(gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: CGFloat(size / 2), options: [])
         return ctx.makeImage()
+    }
+}
+
+/// §5.7 — one CoreImage downsample per artwork hash, then the pure `MusicArtworkPalette` maths. Cached so a
+/// card, the lock screen and the wallpaper all read the same accent without recomputing anything.
+final class MusicArtworkPaletteCache {
+    static let shared = MusicArtworkPaletteCache()
+
+    private var cache: [Int: MusicArtworkPalette] = [:]
+
+    func palette(for data: Data?) -> MusicArtworkPalette {
+        guard let data, !data.isEmpty else { return .fallback }
+        let key = MusicArtworkSignature.of(data)
+        if let cached = cache[key] { return cached }
+        let palette = Self.extract(data) ?? .fallback
+        if cache.count >= 24 { cache.removeAll(keepingCapacity: true) }
+        cache[key] = palette
+        return palette
+    }
+
+    private static func extract(_ data: Data) -> MusicArtworkPalette? {
+        guard let source = CIImage(data: data), source.extent.width > 1, source.extent.height > 1 else { return nil }
+        let side: CGFloat = 24
+        let scale = side / max(source.extent.width, source.extent.height)
+        let small = source.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        let bounds = CGRect(x: 0, y: 0, width: side, height: side)
+        var pixels = [UInt8](repeating: 0, count: Int(side * side) * 4)
+        let context = CIContext(options: [.useSoftwareRenderer: false])
+        context.render(small, toBitmap: &pixels, rowBytes: Int(side) * 4, bounds: bounds,
+                       format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
+        return MusicArtworkPalette(pixels: pixels)
+    }
+}
+
+/// ML-5 — menu-bar synced lyrics. The status item lives in a file the test target also compiles, so it only
+/// listens to this notification; the app-side bridge owns the Now Playing and lyrics reads.
+@MainActor
+final class MusicMenuBarLyricsBridge {
+    static let shared = MusicMenuBarLyricsBridge()
+    static let didChange = Notification.Name("com.katikati.music.menuBarLyric")
+    static let enabledKey = "com.katikati.music.menuBarLyrics"
+
+    private var cancellable: AnyCancellable?
+    private var lastLine: String?
+
+    func start(service: NowPlayingService) {
+        guard cancellable == nil else { return }
+        cancellable = service.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in self?.update(state) }
+        NotificationCenter.default.addObserver(
+            forName: MusicSurfaceConfig.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.update(service.state) }
+        }
+    }
+
+    private func update(_ state: NowPlayingState) {
+        guard UserDefaults.standard.bool(forKey: Self.enabledKey) else {
+            publish(nil)
+            return
+        }
+        guard let title = state.title, !title.isEmpty else {
+            publish(nil)
+            return
+        }
+        LyricsStore.shared.loadIfNeeded(title: title, artist: state.artist)
+        let lines = LyricsStore.shared.lines(title: title, artist: state.artist)
+        let elapsed = (state.elapsed ?? 0)
+            + (state.isPlaying ? Date().timeIntervalSince(state.elapsedAsOf ?? Date()) : 0)
+        publish(lines.last { $0.time <= elapsed + 0.1 }?.text)
+    }
+
+    private func publish(_ line: String?) {
+        guard line != lastLine else { return }
+        lastLine = line
+        NotificationCenter.default.post(name: Self.didChange, object: line)
     }
 }

@@ -17,6 +17,8 @@ struct DesktopWidgetPanelCallbacks {
     var onResizeStarted: () -> Void
     var onResizeChanged: (DesktopResizeHandle, CGSize) -> Void
     var onResizeEnded: (DesktopResizeHandle, CGSize) -> Void
+    /// ML-4: the music card's tuck button is owned by the panel, so the panel — not the card — leaves the screen.
+    var onMusicStashToggle: () -> Void = {}
 }
 
 @MainActor
@@ -146,7 +148,15 @@ private struct DesktopWidgetRootView: View {
                         DesktopWeatherBoxView(service: weather)
                     }
                 case .music:
-                    DesktopVinylBoxView(service: DesktopWidgetServices.nowPlaying)
+                    DesktopVinylBoxView(
+                        service: DesktopWidgetServices.nowPlaying,
+                        onRequestHeight: { height in
+                            var item = hostState.item
+                            item.frame.size.height = height
+                            callbacks.onUpdateItem(item)
+                        },
+                        onStashToggle: { callbacks.onMusicStashToggle() }
+                    )
                 case .search:
                     DesktopSearchPillView()
                 default:
@@ -280,7 +290,8 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             onDragEnded: callbacks.onDragEnded,
             onResizeStarted: callbacks.onResizeStarted,
             onResizeChanged: callbacks.onResizeChanged,
-            onResizeEnded: callbacks.onResizeEnded
+            onResizeEnded: callbacks.onResizeEnded,
+            onMusicStashToggle: { [weak self] in self?.toggleMusicStash() }
         )
         self.wrappedCallbacks = wrappedCallbacks
         installSurface(with: wrappedCallbacks)
@@ -334,6 +345,96 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     }
 
     var windowNumber: Int { panel.windowNumber }
+
+    // MARK: - ML-4: panel-level edge stash
+
+    private var musicStashEdge: MusicStashEdge?
+    private var musicStashRevealed = false
+    private var stashMonitor: Any?
+    private var stashRestashTask: Task<Void, Never>?
+
+    /// Tuck the whole panel off the nearest horizontal edge; a second call brings it back.
+    func toggleMusicStash() {
+        guard hostState.item.kind == .music else { return }
+        guard musicStashEdge == nil else { clearMusicStash(); return }
+        let visible = stashVisibleFrame()
+        musicStashEdge = panel.frame.midX < visible.midX ? .left : .right
+        musicStashRevealed = false
+        installStashMonitor()
+        applyStashFrame(animated: true)
+    }
+
+    func clearMusicStash() {
+        guard musicStashEdge != nil else { return }
+        musicStashEdge = nil
+        musicStashRevealed = false
+        removeStashMonitor()
+        stashRestashTask?.cancel()
+        stashRestashTask = nil
+        applyStashFrame(animated: true)
+    }
+
+    private func stashVisibleFrame() -> CGRect {
+        if hostState.visibleFrame.width > 100 { return hostState.visibleFrame }
+        return panel.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? panel.frame
+    }
+
+    /// The panel's own frame including the stash offset, so every caller agrees on where it lives.
+    private var stashedOuterFrame: CGRect {
+        let target = effectiveWidgetFrame(for: hostState.item, isExpanded: hostState.isTemporarilyExpanded)
+        let outer = Self.outerPanelFrame(for: target)
+        guard let edge = musicStashEdge else { return outer }
+        let visible = stashVisibleFrame()
+        return musicStashRevealed
+            ? MusicEdgeStash.revealedFrame(outer, in: visible, edge: edge)
+            : MusicEdgeStash.stashedFrame(outer, in: visible, edge: edge)
+    }
+
+    private func applyStashFrame(animated: Bool) {
+        let target = stashedOuterFrame
+        guard panel.frame != target else { return }
+        if animated { animateToOuterFrame(target) } else { panel.setFrame(target, display: true) }
+    }
+
+    /// A stashed panel only keeps `MusicEdgeStash.revealWidth` on screen, and it is not key, so it never sees
+    /// the cursor arrive from the screen edge. A global mouse monitor (mouse events need no permission) does.
+    private func installStashMonitor() {
+        removeStashMonitor()
+        stashMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { [weak self] _ in
+            Task { @MainActor in self?.revealStashIfNeeded() }
+        }
+    }
+
+    private func removeStashMonitor() {
+        if let stashMonitor { NSEvent.removeMonitor(stashMonitor) }
+        stashMonitor = nil
+    }
+
+    private func revealStashIfNeeded() {
+        guard let edge = musicStashEdge, !musicStashRevealed else { return }
+        let visible = stashVisibleFrame()
+        let zone = MusicEdgeStash.revealZone(in: panel.frame, edge: edge, visible: visible)
+        guard zone.contains(NSEvent.mouseLocation) else { return }
+        musicStashRevealed = true
+        applyStashFrame(animated: true)
+        scheduleRestash()
+    }
+
+    private func scheduleRestash() {
+        stashRestashTask?.cancel()
+        stashRestashTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 700_000_000)
+                guard let self, let edge = self.musicStashEdge, self.musicStashRevealed else { return }
+                let frame = self.panel.frame.insetBy(dx: -6, dy: -6)
+                if frame.contains(NSEvent.mouseLocation) { continue }
+                _ = edge
+                self.musicStashRevealed = false
+                self.applyStashFrame(animated: true)
+                return
+            }
+        }
+    }
     var currentFrame: CGRect {
         effectiveWidgetFrame(for: hostState.item, isExpanded: hostState.isTemporarilyExpanded)
     }
@@ -363,9 +464,13 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         if !visibleFrame.isEmpty { hostState.visibleFrame = visibleFrame }
 
         let targetFrame = effectiveWidgetFrame(for: group.activeItem, isExpanded: hostState.isTemporarilyExpanded)
-        let targetOuter = Self.outerPanelFrame(for: targetFrame)
-        if panel.frame != targetOuter {
-            panel.setFrame(targetOuter, display: true)
+        if musicStashEdge != nil {
+            applyStashFrame(animated: false)
+        } else {
+            let targetOuter = Self.outerPanelFrame(for: targetFrame)
+            if panel.frame != targetOuter {
+                panel.setFrame(targetOuter, display: true)
+            }
         }
         let targetBehavior = Self.collectionBehavior(showOnAllSpaces: showOnAllSpaces)
         if panel.collectionBehavior != targetBehavior {
@@ -380,9 +485,13 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         next.frame = frame
         hostState.item = next
         if let canvasBounds { hostState.canvasBounds = canvasBounds }
-        let outer = Self.outerPanelFrame(for: frame)
-        if panel.frame != outer {
-            panel.setFrame(outer, display: true)
+        if musicStashEdge != nil {
+            applyStashFrame(animated: false)
+        } else {
+            let outer = Self.outerPanelFrame(for: frame)
+            if panel.frame != outer {
+                panel.setFrame(outer, display: true)
+            }
         }
     }
 
@@ -409,13 +518,19 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
     }
 
     func contains(screenPoint: CGPoint) -> Bool {
+        guard panel.isVisible else { return false }
+        if musicStashEdge != nil { return panel.frame.contains(screenPoint) }
         let frame = effectiveWidgetFrame(for: hostState.item, isExpanded: hostState.isTemporarilyExpanded)
-        return panel.isVisible && frame.contains(screenPoint)
+        return frame.contains(screenPoint)
     }
 
     func tearDown() {
         collapseTask?.cancel()
         collapseTask = nil
+        removeStashMonitor()
+        stashRestashTask?.cancel()
+        stashRestashTask = nil
+        musicStashEdge = nil
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
         for model in tabModels.values { model.stop() }
@@ -477,8 +592,7 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
         collapseTask?.cancel()
         collapseTask = nil
         hostState.isTemporarilyExpanded = true
-        let targetFrame = effectiveWidgetFrame(for: hostState.item, isExpanded: true)
-        animateToOuterFrame(Self.outerPanelFrame(for: targetFrame))
+        animateToOuterFrame(stashedOuterFrame)
     }
 
     private func scheduleCollapse() {
@@ -596,4 +710,109 @@ final class DesktopWidgetPanelController: NSObject, QLPreviewPanelDataSource, QL
             ? [.canJoinAllSpaces, .stationary, .ignoresCycle]
             : [.stationary, .ignoresCycle]
     }
+}
+
+// MARK: - ML-3: lock-screen music card (opt-in, private SkyLight space)
+
+/// Draws the same `MusicGlassCardView` over the lock UI while the Mac is locked. There is no public API for
+/// this: the card is pinned into the app's private SkyLight space (`OverlaySpaceHost`) and, when any of
+/// those symbols is missing, the controller simply never shows anything. It is click-through because
+/// `loginwindow` refuses synthesized input in the auth context — the card is a glanceable control surface,
+/// never a way to drive the password prompt.
+@MainActor
+final class LockScreenMusicCardController {
+    static let shared = LockScreenMusicCardController()
+
+    private var panel: NSPanel?
+    private var spaceHost: OverlaySpaceHost?
+    private var observers: [NSObjectProtocol] = []
+    private var isRunning = false
+
+    private init() {}
+
+    static var isEnabled: Bool {
+        UserDefaults.standard.bool(forKey: MusicSurfaceConfig.lockScreenCardKey)
+    }
+
+    /// Idempotent. Refuses to run when the private space cannot be created.
+    func start() {
+        guard !isRunning, Self.isEnabled, OverlaySpaceHost.isEnabled else { return }
+        guard let host = OverlaySpaceHost.make() else { return }
+        spaceHost = host
+        isRunning = true
+        let distributed = DistributedNotificationCenter.default()
+        for (name, locked) in [("com.apple.screenIsLocked", true), ("com.apple.screenIsUnlocked", false)] {
+            observers.append(distributed.addObserver(forName: Notification.Name(name), object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    if locked { self?.show() } else { self?.hide() }
+                }
+            })
+        }
+    }
+
+    func stop() {
+        isRunning = false
+        hide()
+        let distributed = DistributedNotificationCenter.default()
+        observers.forEach { distributed.removeObserver($0) }
+        observers = []
+        spaceHost = nil
+    }
+
+    private func show() {
+        guard isRunning, let screen = NSScreen.main ?? NSScreen.screens.first else { return }
+        let selection = MusicSurfaceConfig.styleSelection()
+        let cardLayout = selection.layout(for: .lockScreen) == .slim ? .full : selection.layout(for: .lockScreen)
+        let card = MusicGlassCardView(
+            service: DesktopWidgetServices.nowPlaying,
+            theme: selection.theme(for: .lockScreen),
+            layout: cardLayout,
+            scrubber: selection.scrubber(for: .lockScreen),
+            palette: MusicArtworkPaletteCache.shared.palette(for: DesktopWidgetServices.nowPlaying.state.artworkData),
+            assignment: MusicSurfaceConfig.assignment(),
+            showsChrome: false
+        )
+        let size = CGSize(width: 340, height: cardLayout == .hero ? 300 : 208)
+        let frame = CGRect(
+            x: screen.frame.midX - size.width / 2,
+            y: screen.frame.minY + max(140, screen.frame.height * 0.16),
+            width: size.width,
+            height: size.height
+        )
+        let window = panel ?? makePanel()
+        window.contentView = NSHostingView(rootView: card)
+        window.setFrame(frame, display: true)
+        window.orderFrontRegardless()
+        // Best effort: the private space is what puts it over the lock UI. Read-back is the only proof.
+        if let spaceHost, window.windowNumber > 0 {
+            _ = spaceHost.pin(windowNumbers: [window.windowNumber])
+        }
+    }
+
+    private func hide() {
+        panel?.orderOut(nil)
+    }
+
+    private func makePanel() -> NSPanel {
+        let window = LockScreenMusicCardPanel(
+            contentRect: .zero,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.hasShadow = false
+        window.isReleasedWhenClosed = false
+        window.ignoresMouseEvents = true
+        window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.screenSaverWindow)))
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenAuxiliary]
+        panel = window
+        return window
+    }
+}
+
+private final class LockScreenMusicCardPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
 }
