@@ -148,9 +148,9 @@ The following 5 files **MUST NOT BE MODIFIED** during `LQ-1`–`LQ-6`:
 - [x] **LQ-1.3 (`≤ 300` LOC):** Port `LiquidShape.metal`, `LiquidRenderer.swift`, `LiquidSpring.swift`, `LiquidShapeAnimator.swift`, `LiquidFrameClock.swift` (with strict idle pause), and wire `.liquid` preset routing in `NotchPanelController.swift` + `NotchIslandView.swift`. — `DONE — 37266ac1`
 
 ### Wave `LQ-2` — Music Ears, Expanded Player & Synced Lyrics
-- [ ] **LQ-2.1 (`≤ 280` LOC):** Port `LiquidDirector.swift` & `LiquidContentView.swift` (cover-left / bars-right ears, hover-ear peek preview, click-to-expand player with seek/skip/AirPlay) wired to `NowPlayingService` + `LiveActivityFeed`.
-- [ ] **LQ-2.2 (`≤ 250` LOC):** Port `LyricsClient.swift` (`LRCLIB` on-demand fetch + LRC parser) + centered synced lyrics view on cover click, plus `LiquidAudioBars.swift` (with opt-in `LiquidAudioTap.swift` and animated fallback).
-- [ ] **LQ-2.3 (`≤ 150` LOC):** Pure unit tests in `Tests/Unit/LiquidLyricsTests.swift` for LRC timestamp parsing, active-line selection with output latency offset, and `NowPlayingService` → `LiquidDirector` state mapping.
+- [x] **LQ-2.1 (`≤ 280` LOC):** Port `LiquidDirector.swift` & `LiquidContentView.swift` (cover-left / bars-right ears, hover-ear peek preview, click-to-expand player with seek/skip/AirPlay) wired to `NowPlayingService` + `LiveActivityFeed`. — `DONE — f1e7e25a`
+- [x] **LQ-2.2 (`≤ 250` LOC):** Port `LyricsClient.swift` (`LRCLIB` on-demand fetch + LRC parser) + centered synced lyrics view on cover click, plus `LiquidAudioBars.swift` (with opt-in `LiquidAudioTap.swift` and animated fallback). — `DONE — 61fa3d11, f1e7e25a`
+- [x] **LQ-2.3 (`≤ 150` LOC):** Pure unit tests in `Tests/Unit/LiquidLyricsTests.swift` for LRC timestamp parsing, active-line selection with output latency offset, and `NowPlayingService` → `LiquidDirector` state mapping. — `DONE — 61fa3d11` (in `NowPlayingProgressTests.swift`)
 
 ### Wave `LQ-3` — Interactive Claude Code & Codex Permission Balls
 - [ ] **LQ-3.1 (`≤ 280` LOC):** Port `AgentHookService.swift` (fail-open local Unix socket + `HookInstaller` with timestamped `~/.claude/settings.json` & `~/.codex/hooks.json` backup/restore) + `agent-hook.sh` resource, bridged into `AgentUsageService`.
