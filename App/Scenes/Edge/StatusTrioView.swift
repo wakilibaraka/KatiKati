@@ -1151,3 +1151,156 @@ struct InlineQuickTogglePill: View {
         .buttonStyle(.plain)
     }
 }
+
+// MARK: - MB-6: Menu Bar Creative Hub (Hop 2x2 Box Grid + OnlySwitch Tabs)
+
+struct MenuBarCreativeHubView: View {
+    var onDismiss: () -> Void = {}
+    var onOpenSettings: () -> Void = {}
+
+    @ObservedObject private var engine = QuickToggleEngine.shared
+    @StateObject private var status = SystemStatusService()
+    @State private var selectedTab: MenuBarHubTab = MenuBarHubTab.visibleTabs().first ?? .switches
+    @State private var query = ""
+    @State private var boxSlots: [HubActionSlotID] = HubActionSlotID.slots()
+    @State private var surfaceVersion = 0
+
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
+    private var ink: Color { theme.labelActive.color }
+    private var inkSoft: Color { theme.labelSubtitle.color }
+    private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
+    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
+    private var tabs: [MenuBarHubTab] { MenuBarHubTab.visibleTabs() }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            headerBar
+            actionBoxGrid
+            tabContent
+        }
+        .padding(12)
+        .frame(width: 344, height: 472, alignment: .top)
+        .background {
+            DockPanelBackdrop(theme: theme, cornerRadius: 20, usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
+        }
+        .dockPanelRim(cornerRadius: 20, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth,
+                      usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite, highlighted: false)
+        .onAppear {
+            engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
+            if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
+        }
+        .onDisappear { status.release() }
+    }
+
+    private var headerBar: some View {
+        HStack(spacing: 6) {
+            HStack(spacing: 3) {
+                ForEach(tabs) { tab in
+                    let active = selectedTab == tab
+                    Button {
+                        withAnimation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.8)) { selectedTab = tab }
+                    } label: {
+                        Image(systemName: tab.symbolName).font(.system(size: 11.5, weight: .semibold))
+                            .foregroundStyle(active ? Color.white : inkSoft).frame(width: 28, height: 24)
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(active ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(Color.clear)))
+                    }.buttonStyle(.plain)
+                }
+            }
+            .padding(2).background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+
+            HStack(spacing: 4) {
+                Image(systemName: "magnifyingglass").font(.system(size: 10)).foregroundStyle(inkSoft)
+                TextField(String(localized: "Search"), text: $query).textFieldStyle(.plain).font(.system(size: 11)).foregroundStyle(ink)
+            }
+            .padding(.horizontal, 7).padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(cardFill))
+
+            Button(action: onOpenSettings) {
+                Image(systemName: "gearshape").font(.system(size: 12, weight: .medium)).foregroundStyle(inkSoft)
+                    .frame(width: 26, height: 26).background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(cardFill))
+            }.buttonStyle(.plain).help(Text("Open Settings…"))
+        }
+    }
+
+    private var actionBoxGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+            ForEach(Array(boxSlots.enumerated()), id: \.offset) { index, slot in boxTile(slot: slot, index: index) }
+        }
+    }
+
+    private func boxTile(slot: HubActionSlotID, index: Int) -> some View {
+        let on = boxState(slot)
+        return Button { performBox(slot) } label: {
+            HStack(spacing: 8) {
+                Image(systemName: boxSymbol(slot)).font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(on ? Color.white : ink).frame(width: 28, height: 28)
+                    .background(Circle().fill(on ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(cardFill)))
+                VStack(alignment: .leading, spacing: 1) {
+                    boxTitle(slot).font(.system(size: 11, weight: .semibold)).foregroundStyle(ink).lineLimit(1)
+                    Text(on ? String(localized: "On") : String(localized: "Off")).font(.system(size: 9.5, weight: .medium))
+                        .foregroundStyle(on ? palette.primaryAccent : inkSoft)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 9).padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(on ? palette.primaryAccent.opacity(0.16) : cardFill))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(on ? palette.primaryAccent.opacity(0.45) : cardStroke, lineWidth: 1))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .animation(reduceMotion ? nil : .spring(response: 0.22, dampingFraction: 0.72), value: on)
+        .contextMenu {
+            ForEach(HubActionSlotID.allCases) { candidate in
+                Button {
+                    var next = boxSlots; next[index] = candidate; boxSlots = next
+                    UserDefaults.standard.set(HubActionSlotID.serialize(next), forKey: HubActionSlotID.defaultsKey)
+                } label: { boxTitle(candidate) }
+            }
+        }
+    }
+
+    private var tabContent: some View {
+        Text(verbatim: selectedTab.rawValue).font(.caption).foregroundStyle(inkSoft)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Helpers
+
+    private func boxState(_ slot: HubActionSlotID) -> Bool {
+        _ = surfaceVersion
+        if slot == .muteOutput { return status.status.volume.isMuted }
+        if slot == .notchToggle { return UserDefaults.standard.bool(forKey: "com.katikati.liveIsland.notch") }
+        return QuickToggleID(rawValue: slot.rawValue).flatMap { engine.states[$0] } ?? false
+    }
+
+    private func performBox(_ slot: HubActionSlotID) {
+        if slot == .captureOCR { onDismiss(); BarActionService.run(.ocr); return }
+        if slot == .notchToggle {
+            let next = !(AppDelegate.shared?.settingsStore.notchIslandEnabled ?? UserDefaults.standard.bool(forKey: "com.katikati.liveIsland.notch"))
+            HubScheduleCoordinator.applySurface(.notch, enabled: next)
+            surfaceVersion += 1
+            return
+        }
+        if slot == .muteOutput { _ = status.toggleMute(); return }
+        if slot == .lockScreen { onDismiss() }
+        if let q = QuickToggleID(rawValue: slot.rawValue) { engine.perform(q) }
+    }
+
+    private func boxSymbol(_ slot: HubActionSlotID) -> String {
+        if slot == .captureOCR { return "text.viewfinder" }
+        if slot == .notchToggle { return KatiKatiSurfaceToggle.notch.symbolName }
+        return QuickToggleID(rawValue: slot.rawValue)?.symbolName ?? "bolt.fill"
+    }
+
+    private func boxTitle(_ slot: HubActionSlotID) -> Text {
+        if slot == .captureOCR { return Text("Capture Area") }
+        if slot == .notchToggle { return Text("Notch") }
+        return QuickToggleID(rawValue: slot.rawValue)?.title ?? Text(verbatim: slot.rawValue)
+    }
+}

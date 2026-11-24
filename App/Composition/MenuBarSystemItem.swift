@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import SwiftUI
 
 /// Pass 2 — the menu-bar readout is multi-metric (Stats-style): one status item per enabled
 /// metric, each with its own display style, and a click menu with every reading plus the usual
@@ -492,6 +493,91 @@ final class MenuBarStatusCoordinator {
         } else if !wantsRing, statusSink != nil {
             statusSink = nil
             statusService.release()
+        }
+    }
+}
+
+// MARK: - MB-6: Left-Click Creative Hub Glass Flyout Controller
+
+private final class HubFlyoutPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+    var onEscape: (() -> Void)?
+    override func cancelOperation(_ sender: Any?) { onEscape?() }
+}
+
+@MainActor
+final class MenuBarHubPanelController {
+    private var panel: HubFlyoutPanel?
+    private var outsideMonitor: Any?
+    private var anchorScreenRect: CGRect = .zero
+
+    var onWillShow: () -> Void = {}
+    var onOpenSettings: () -> Void = {}
+    var themeStyle: () -> DockThemeStyle = { .auto }
+    var themeTuning: () -> ThemeTuning = { .identity }
+    var isShown: Bool { panel?.isVisible ?? false }
+
+    func toggle(relativeTo button: NSStatusBarButton) { isShown ? hide() : show(relativeTo: button) }
+
+    func show(relativeTo button: NSStatusBarButton) {
+        onWillShow()
+        guard let window = button.window else { return }
+        let buttonRect = window.convertToScreen(button.convert(button.bounds, to: nil))
+        anchorScreenRect = buttonRect
+
+        let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first
+        let visible = (screen?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)).insetBy(dx: 8, dy: 8)
+        let size = CGSize(width: 344, height: 472)
+        let x = min(max(buttonRect.midX - size.width / 2, visible.minX), visible.maxX - size.width)
+        let y = max(visible.minY, buttonRect.minY - 6 - size.height)
+        let frame = CGRect(origin: CGPoint(x: x, y: y), size: size)
+
+        let p = panel ?? makePanel()
+        panel = p
+        let root = MenuBarCreativeHubView(
+            onDismiss: { [weak self] in self?.hide() },
+            onOpenSettings: { [weak self] in self?.hide(); self?.onOpenSettings() }
+        )
+        .environment(\.dockThemeStyle, themeStyle())
+        .environment(\.themeTuning, themeTuning())
+
+        let hosting = NSHostingView(rootView: root)
+        hosting.frame = CGRect(origin: .zero, size: size)
+        p.contentView = hosting
+        p.setFrame(frame, display: true)
+        p.makeKeyAndOrderFront(nil)
+        installOutsideMonitor()
+    }
+
+    func hide() {
+        panel?.orderOut(nil)
+        panel?.contentView = nil
+        if let m = outsideMonitor { NSEvent.removeMonitor(m); outsideMonitor = nil }
+    }
+
+    private func makePanel() -> HubFlyoutPanel {
+        let p = HubFlyoutPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        p.level = .floating
+        p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        p.isFloatingPanel = true
+        p.isMovable = false
+        p.isOpaque = false
+        p.backgroundColor = .clear
+        p.hasShadow = true
+        p.hidesOnDeactivate = false
+        p.onEscape = { [weak self] in self?.hide() }
+        return p
+    }
+
+    private func installOutsideMonitor() {
+        guard outsideMonitor == nil else { return }
+        outsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, let panel = self.panel else { return }
+                let pt = NSEvent.mouseLocation
+                if !panel.frame.contains(pt) && !self.anchorScreenRect.contains(pt) { self.hide() }
+            }
         }
     }
 }

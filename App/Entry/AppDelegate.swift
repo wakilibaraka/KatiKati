@@ -98,6 +98,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 后者在权限引导完成前是 nil，settingsStore 从 AppDelegate 构造起即存在。
     private var edgeToggleHotKey: GlobalHotKeyMonitor?
     private lazy var menuBarStatusCoordinator = MenuBarStatusCoordinator()
+    private lazy var menuBarHubPanel: MenuBarHubPanelController = {
+        let hub = MenuBarHubPanelController()
+        hub.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }
+        hub.themeTuning = { [weak self] in self?.settingsStore.themeTuning ?? .identity }
+        hub.onOpenSettings = { [weak self] in self?.openSettings(selecting: .menuBar) }
+        hub.onWillShow = { [weak self] in
+            self?.controlCenterPanel.hide()
+            self?.launcherPanel.dismiss()
+            WidgetPanelController.weather.close()
+            WidgetPanelController.calendar.close()
+            self?.panelCoordinator?.closeAllDrawersAndPopups()
+        }
+        return hub
+    }()
     private lazy var menuBarSystem = MenuBarSystemItem()
     /// DiskView's menu-bar item: drives with their capacity bars (off until the Settings › Advanced
     /// Menu Bar row turns it on).
@@ -169,6 +183,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // list, and the drawer capsule shares the dock's plate — put it back on top every time.
         panel.onSurfaceChanged = { [weak self] in self?.panelCoordinator?.reassertUtilitySurfaces() }
         panel.onWillShow = { [weak self] in
+            self?.menuBarHubPanel.hide()
             self?.launcherPanel.dismiss()
             WidgetPanelController.weather.close()
             WidgetPanelController.calendar.close()
@@ -349,7 +364,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             openSettings: { [weak self] in self?.openDesktopBoxesSettings() }
         ),
         menuBarHub: StatusMenuController.MenuBarHubHooks(
-            onToggleHub: { [weak self] _ in self?.controlCenterPanel.toggle() },
+            onToggleHub: { [weak self] button in self?.menuBarHubPanel.toggle(relativeTo: button) },
             onShowAbout: {
                 NSApp.activate(ignoringOtherApps: true)
                 NSApp.orderFrontStandardAboutPanel(nil)

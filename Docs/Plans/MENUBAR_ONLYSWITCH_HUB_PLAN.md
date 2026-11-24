@@ -15,7 +15,8 @@
 - [x] **`MB-3` (`Menu Bar Split`):** Left-click vs customizable right-click `NSMenu` in `StatusMenuController` (keeping `popUpFromTaskbar` untouched) + `MenuBarStatusCoordinator`.
 - [x] **`MB-4` (`Core`):** `KatiKatiSurfaceToggle`, `HubSwitchID` / `HubSwitchCatalog`, `EvolutionItem` codec, `HubScheduleRule` + unit tests.
 - [x] **`MB-5` (`Platform`):** `.muteOutput`/`.cleanKeyboard`, `ShortcutsCatalogRunner` (5 s watchdog), `EvolutionRunner`, `HubScheduleCoordinator`.
-- [ ] **`MB-6` (`UI`):** `MenuBarHubPanelController` + `MenuBarCreativeHubView` (2×2 grid, `Switches` + AirPods pill, `Status & Audio`).
+- [x] **`MB-6a` (`UI`):** `MenuBarHubPanelController` + `MenuBarCreativeHubView` shell (tab strip, search, customizable 2×2 action grid).
+- [ ] **`MB-6b` (`UI`):** `Switches` tab (AirPods ANC pill + searchable switchboard) & `Status & Audio` tab (`MB-6c`).
 - [ ] **`MB-7` (`UI`):** `Shortcuts & Evolutions` + `Schedules` tab views.
 - [ ] **`MB-8` (`Settings + L10n`):** `Settings › Menu Bar` customization UI + 12-locale `Localizable.xcstrings` + `CHANGELOG.md`.
 - [ ] **`MB-9`..`MB-11` (Tier B, Opt-In):** AI Agent switches (`MB-9`), macOS 14.2+ Per-App Audio Mixer (`MB-10`), App Uninstaller (`MB-11`).
