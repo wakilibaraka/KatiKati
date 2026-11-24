@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795515751.5916338,
-    "seen": 1795534644.457062,
-    "ast_hash": "de0d8d104bc34f3bc95f8e4c35c77baa",
+    "mtime": 1795550811.8691392,
+    "seen": 1795551085.141174,
+    "ast_hash": "61d46836e05954fb8cd1dd0d69d1d5da",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -2952,9 +2952,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/SystemStatusService.swift": {
-    "mtime": 1795546653.1392891,
-    "seen": 1795546853.738753,
-    "ast_hash": "7950a07e7589cedb066aaef981939cd2",
+    "mtime": 1795551026.8543165,
+    "seen": 1795551085.141697,
+    "ast_hash": "c4b97699f10658da3c1873104362303a",
     "semantic_hash": ""
   },
   "Platform/Tasks/TasksController.swift": {
@@ -4176,9 +4176,9 @@
     "semantic_hash": "831fd8e76e113bc1043a0e961dd7a974"
   },
   "Tests/Unit/SystemStatusTests.swift": {
-    "mtime": 1795549778.3740454,
-    "seen": 1795550095.884402,
-    "ast_hash": "68d800083cedfbb6315b43be22d7f900",
+    "mtime": 1795550814.0485446,
+    "seen": 1795551085.141917,
+    "ast_hash": "bd2072b65e431bfeb7c828e0bd28f764",
     "semantic_hash": ""
   },
   "Tests/Unit/TabFoldDecisionTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795549783.0746527,
-    "seen": 1795550095.884583,
-    "ast_hash": "9e4d8ec4c2c4fa67080de4d74a4be5c0",
+    "mtime": 1795550816.9174402,
+    "seen": 1795551085.14208,
+    "ast_hash": "d3af8aa3fc517b45cf64fb2adad1ed93",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795549776.9499269,
-    "seen": 1795550095.883986,
-    "ast_hash": "b12638b0b2714fccb3e8a7dec0595191",
+    "mtime": 1795550846.8365571,
+    "seen": 1795551085.141527,
+    "ast_hash": "7694d8a6525a91b598b63523c1ad8872",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795549784.1613264,
-    "seen": 1795550095.8845708,
-    "ast_hash": "0cbf468baf3ab83513b584578f072893",
+    "mtime": 1795550815.6345515,
+    "seen": 1795551085.14207,
+    "ast_hash": "9e699e967b511487aad51bd4ee169e26",
     "semantic_hash": ""
   }
 }

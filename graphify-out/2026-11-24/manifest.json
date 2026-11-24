@@ -2364,9 +2364,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SystemStatus.swift": {
-    "mtime": 1792686373.8935742,
-    "seen": 1795534644.4574761,
-    "ast_hash": "2a5dde68dda5206401baac3b8e2c06b6",
+    "mtime": 1795549776.285309,
+    "seen": 1795550095.884052,
+    "ast_hash": "deaefaccf54e3db1cd090aa2224d2ca6",
     "semantic_hash": ""
   },
   "Core/Support/TaskList.swift": {
@@ -4176,10 +4176,10 @@
     "semantic_hash": "831fd8e76e113bc1043a0e961dd7a974"
   },
   "Tests/Unit/SystemStatusTests.swift": {
-    "mtime": 1791999130.9531324,
-    "seen": 1795534644.457799,
-    "ast_hash": "0c591049226dc66060033636b7bf2126",
-    "semantic_hash": "0c591049226dc66060033636b7bf2126"
+    "mtime": 1795549778.3740454,
+    "seen": 1795550095.884402,
+    "ast_hash": "68d800083cedfbb6315b43be22d7f900",
+    "semantic_hash": ""
   },
   "Tests/Unit/TabFoldDecisionTests.swift": {
     "mtime": 1791999130.9321167,
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795534615.1966584,
-    "seen": 1795534644.4579608,
-    "ast_hash": "032f812d6f496deca1f8d5db840be708",
+    "mtime": 1795549783.0746527,
+    "seen": 1795550095.884583,
+    "ast_hash": "9e4d8ec4c2c4fa67080de4d74a4be5c0",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795513359.805442,
-    "seen": 1795534644.457411,
-    "ast_hash": "b496998d468a3b4e8dc0b64119bbed6b",
+    "mtime": 1795549776.9499269,
+    "seen": 1795550095.883986,
+    "ast_hash": "b12638b0b2714fccb3e8a7dec0595191",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6384,9 +6384,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795513368.351954,
-    "seen": 1795534644.4577239,
-    "ast_hash": "c0743f988d3fad22ce16f025baeda732",
+    "mtime": 1795549779.9994202,
+    "seen": 1795550095.884321,
+    "ast_hash": "6bb946b3978cbf75052c5da8e71afac9",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
@@ -8103,6 +8103,12 @@
     "mtime": 1795543762.8056433,
     "seen": 1795543905.083292,
     "ast_hash": "3d67e970b94e7066374dc22446b06b0a",
+    "semantic_hash": ""
+  },
+  "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
+    "mtime": 1795549784.1613264,
+    "seen": 1795550095.8845708,
+    "ast_hash": "0cbf468baf3ab83513b584578f072893",
     "semantic_hash": ""
   }
 }
