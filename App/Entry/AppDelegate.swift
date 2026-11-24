@@ -1318,7 +1318,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.syncDesktopCanvasState() }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let shouldRun = DesktopCanvasConfig.isFeatureEnabled() && self.panelCoordinator != nil
+                if shouldRun != (self.desktopCanvasCoordinator != nil) {
+                    self.syncDesktopCanvasState()
+                }
+            }
         }
         // 探针结论（2026-07-06,阶段0探针3）：访达窗口 AX 属性表虽列有 AXDocument 但恒无值
         // （kAXErrorNoValue），AXProxy/AXTitleUIElement 也只有文件夹名无路径——「拖任务条访达

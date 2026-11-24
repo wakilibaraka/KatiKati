@@ -5,6 +5,30 @@ import Combine
 // default-OFF key, started only while on and torn down when off, so a disabled helper costs nothing.
 // Pure rules live in `Core/Support/DailyHelpersRules.swift`.
 
+struct DailyHelperDefaultsSnapshot: Equatable, Sendable {
+    var hideFromCapture: Bool
+    var capsLock: Bool
+    var battery: Bool
+    var eject: Bool
+    var privacy: Bool
+    var hydrate: Bool
+    var pause: Bool
+    var automation: SmartDockAutomationSettings
+
+    static func capture(from defaults: UserDefaults = .standard) -> Self {
+        Self(
+            hideFromCapture: defaults.bool(forKey: DailyHelpersService.hideFromCaptureKey),
+            capsLock: defaults.bool(forKey: DailyHelpersService.capsLockKey),
+            battery: defaults.bool(forKey: DailyHelpersService.batteryKey),
+            eject: defaults.bool(forKey: DailyHelpersService.ejectKey),
+            privacy: defaults.bool(forKey: DailyHelpersService.privacyKey),
+            hydrate: WellnessDefaults.isEnabled(.waterReminder, defaults: defaults),
+            pause: WellnessDefaults.isEnabled(.pauseReminder, defaults: defaults),
+            automation: SmartDockAutomationSettings.current(defaults)
+        )
+    }
+}
+
 @MainActor
 final class DailyHelpersService {
     static let shared = DailyHelpersService()
@@ -20,6 +44,7 @@ final class DailyHelpersService {
     var deliver: (LiveEvent) -> Void = { _ in }
 
     private var defaultsObserver: NSObjectProtocol?
+    private var lastDefaultsSnapshot: DailyHelperDefaultsSnapshot?
     private var occlusionObserver: NSObjectProtocol?
     /// Windows this service hid, so turning the switch off restores exactly those (and no others).
     private var hidden = Set<Int>()
@@ -48,16 +73,19 @@ final class DailyHelpersService {
     }
 
     func refresh() {
-        applyCaptureHiding(UserDefaults.standard.bool(forKey: Self.hideFromCaptureKey))
-        applyCapsLock(UserDefaults.standard.bool(forKey: Self.capsLockKey))
-        applyBattery(UserDefaults.standard.bool(forKey: Self.batteryKey))
-        applyEject(UserDefaults.standard.bool(forKey: Self.ejectKey))
-        applyPrivacy(UserDefaults.standard.bool(forKey: Self.privacyKey))
+        let snapshot = DailyHelperDefaultsSnapshot.capture()
+        guard snapshot != lastDefaultsSnapshot else { return }
+        lastDefaultsSnapshot = snapshot
+        applyCaptureHiding(snapshot.hideFromCapture)
+        applyCapsLock(snapshot.capsLock)
+        applyBattery(snapshot.battery)
+        applyEject(snapshot.eject)
+        applyPrivacy(snapshot.privacy)
         // PHN: every wellness helper ships on, so an unset key means on (`bool(forKey:)` would read off).
-        applyReminder(.hydrate, WellnessDefaults.isEnabled(.waterReminder))
-        applyReminder(.pause, WellnessDefaults.isEnabled(.pauseReminder))
+        applyReminder(.hydrate, snapshot.hydrate)
+        applyReminder(.pause, snapshot.pause)
         applyWellnessProbe()
-        automationPolicy.settings = SmartDockAutomationSettings.current()
+        automationPolicy.settings = snapshot.automation
     }
 
     // MARK: 56e — water and break reminders

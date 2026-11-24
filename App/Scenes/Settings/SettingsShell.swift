@@ -184,15 +184,29 @@ final class SettingsDraft: ObservableObject {
     @Published private(set) var changedKeys: [String] = []
     private let baseline: [String: Any]
     private var observer: NSObjectProtocol?
+    private var refreshWork: DispatchWorkItem?
 
     init(defaults: UserDefaults = .standard) {
         baseline = Self.settingsValues(defaults)
         observer = NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: defaults, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh(defaults) }
+            MainActor.assumeIsolated { self?.scheduleRefresh(defaults) }
         }
     }
 
-    deinit { observer.map(NotificationCenter.default.removeObserver) }
+    deinit {
+        refreshWork?.cancel()
+        observer.map(NotificationCenter.default.removeObserver)
+    }
+
+    private func scheduleRefresh(_ defaults: UserDefaults) {
+        refreshWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.refreshWork = nil
+            self?.refresh(defaults)
+        }
+        refreshWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12, execute: work)
+    }
 
     private static func settingsValues(_ defaults: UserDefaults) -> [String: Any] {
         guard let id = Bundle.main.bundleIdentifier, let domain = defaults.persistentDomain(forName: id) else { return [:] }

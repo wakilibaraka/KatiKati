@@ -32,6 +32,9 @@ final class NotchPanelController: LiveEventSink {
     /// the project rules (they route every system mouse event through this process).
     private var hoverTimer: Timer?
     private var tickWork: DispatchWorkItem?
+    private var scheduledTickDeadline: Date?
+    private var defaultsCoalesceWork: DispatchWorkItem?
+    private var lastScreenFrame: CGRect?
     private var shrinkWork: DispatchWorkItem?
     private weak var shelfStore: ShelfStore?
     var theme: () -> NowPlayingTheme = { .auto }
@@ -92,6 +95,7 @@ final class NotchPanelController: LiveEventSink {
         statusService.acquire()
         holdsStatus = true
         window.setFrame(windowFrame(on: screen), display: true)
+        lastScreenFrame = screen.frame
         window.orderFrontRegardless()
         startBatteryBuddy()
 
@@ -117,13 +121,33 @@ final class NotchPanelController: LiveEventSink {
         // The display choice applies live; re-fit only when it actually points at another screen.
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
             .sink { [weak self] _ in
-                guard let self else { return }
-                let scale = NotchSizePreset.current()
-                if scale != self.lastSizeScale { self.lastSizeScale = scale; self.syncModelSizes(); self.syncWindow(immediate: true) }
-                guard let screen = self.targetScreen(), screen.frame != self.panel?.screen?.frame else { return }
-                self.panel?.setFrame(self.windowFrame(on: screen), display: true)
-                self.screensChanged()
+                self?.scheduleDefaultsReaction()
             }.store(in: &cancellables)
+    }
+
+    private func scheduleDefaultsReaction() {
+        defaultsCoalesceWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.defaultsCoalesceWork = nil
+            let scale = NotchSizePreset.current()
+            if scale != self.lastSizeScale {
+                self.lastSizeScale = scale
+                self.syncModelSizes()
+                self.syncWindow(immediate: true)
+            }
+            guard let screen = self.targetScreen(),
+                  NotchDefaultsReaction.shouldRebuildPanelForScreenChange(
+                      hasPanel: self.panel != nil,
+                      targetScreenFrame: screen.frame,
+                      lastKnownScreenFrame: self.lastScreenFrame
+                  ) else { return }
+            self.lastScreenFrame = screen.frame
+            self.panel?.setFrame(self.windowFrame(on: screen), display: true)
+            self.screensChanged()
+        }
+        defaultsCoalesceWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: work)
     }
 
     private let trackPill = NotchTrackPillController()
@@ -163,7 +187,9 @@ final class NotchPanelController: LiveEventSink {
         batteryTimer?.invalidate(); batteryTimer = nil
         cancellables.removeAll()
         stopHoverPolling()
-        tickWork?.cancel(); tickWork = nil
+        tickWork?.cancel(); tickWork = nil; scheduledTickDeadline = nil
+        defaultsCoalesceWork?.cancel(); defaultsCoalesceWork = nil
+        lastScreenFrame = nil
         shrinkWork?.cancel(); shrinkWork = nil
         eventWork?.cancel(); eventWork = nil
         hudExpireWork?.cancel(); hudExpireWork = nil
@@ -260,10 +286,22 @@ final class NotchPanelController: LiveEventSink {
 
     /// Wake the machine at its next deadline even if the cursor stops moving (dwell to open / grace to close).
     private func scheduleTick() {
+        guard let deadline = hover.nextDeadline else {
+            tickWork?.cancel(); tickWork = nil; scheduledTickDeadline = nil
+            return
+        }
+        if tickWork != nil,
+           NotchDefaultsReaction.shouldKeepScheduledTick(scheduled: scheduledTickDeadline, wanted: deadline) {
+            return
+        }
         tickWork?.cancel(); tickWork = nil
-        guard let deadline = hover.nextDeadline else { return }
-        let work = DispatchWorkItem { [weak self] in self?.evaluateHover() }
+        let work = DispatchWorkItem { [weak self] in
+            self?.tickWork = nil
+            self?.scheduledTickDeadline = nil
+            self?.evaluateHover()
+        }
         tickWork = work
+        scheduledTickDeadline = deadline
         DispatchQueue.main.asyncAfter(deadline: .now() + max(0.01, deadline.timeIntervalSinceNow + 0.005), execute: work)
     }
 
@@ -343,6 +381,7 @@ final class NotchPanelController: LiveEventSink {
 
     private func screensChanged() {
         guard panel != nil, let screen = targetScreen() else { return }
+        lastScreenFrame = screen.frame
         metrics = Self.metrics(for: screen)
         syncModelSizes()
         panel?.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme(), wideBar: isWide))

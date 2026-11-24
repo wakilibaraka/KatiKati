@@ -1,5 +1,26 @@
 import Combine
+import CoreGraphics
 import Foundation
+
+enum NotchDefaultsReaction {
+    static func shouldRebuildPanelForScreenChange(
+        hasPanel: Bool,
+        targetScreenFrame: CGRect,
+        lastKnownScreenFrame: CGRect?
+    ) -> Bool {
+        guard hasPanel else { return false }
+        return lastKnownScreenFrame != targetScreenFrame
+    }
+
+    static func shouldKeepScheduledTick(
+        scheduled: Date?,
+        wanted: Date?,
+        tolerance: TimeInterval = 0.01
+    ) -> Bool {
+        guard let scheduled, let wanted else { return false }
+        return abs(scheduled.timeIntervalSince(wanted)) <= tolerance
+    }
+}
 
 // Dynamic Island behavior choices (ported in spirit from vorssaint-utils, GPL-3.0): how the island opens,
 // how long it waits, and which design each screen gets. Pure and dual-compiled; the settings pane and

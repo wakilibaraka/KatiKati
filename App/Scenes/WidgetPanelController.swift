@@ -4,8 +4,11 @@ import SwiftUI
 /// Panel subclass that can take key focus without activating the app, so Esc (`cancelOperation`)
 /// dismisses it.
 final class WidgetFloatingPanel: NonConstrainingPanel {
+    var onCancel: (() -> Void)?
     override var canBecomeKey: Bool { true }
-    override func cancelOperation(_ sender: Any?) { orderOut(nil) }
+    override func cancelOperation(_ sender: Any?) {
+        if let onCancel { onCancel() } else { orderOut(nil) }
+    }
 }
 
 /// Visibility of one widget stack, published so animated content (weather effects) can pause while
@@ -219,6 +222,7 @@ final class WidgetPanelController {
         hosting.wantsLayer = true
         hosting.layer?.backgroundColor = NSColor.clear.cgColor
         panel.contentView = hosting
+        panel.onCancel = { [weak self] in self?.close() }
         self.panel = panel
         return panel
     }

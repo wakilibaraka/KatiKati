@@ -425,8 +425,18 @@ struct WeatherNoticeBar: View {
 struct WeatherLoadingTile: View {
     let env: TileEnv
     let width: CGFloat
+    var isAnimating: Bool = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var dim = false
+
+    private func syncPulse() {
+        if isAnimating && !reduceMotion {
+            guard !dim else { return }
+            withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) { dim = true }
+        } else {
+            withAnimation(.linear(duration: 0)) { dim = false }
+        }
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -439,7 +449,9 @@ struct WeatherLoadingTile: View {
         .frame(width: width)
         .tileSurface(env)
         .opacity(dim ? 0.6 : 1)
-        .onAppear { if !reduceMotion { withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) { dim = true } } }
+        .onAppear(perform: syncPulse)
+        .onChange(of: isAnimating) { _, _ in syncPulse() }
+        .onDisappear { dim = false }
         .accessibilityElement(children: .combine)
     }
 }

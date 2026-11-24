@@ -230,4 +230,37 @@ final class NotchHoverMachineTests: XCTestCase {
             .wideBar
         )
     }
+
+    func testDefaultsReactionDoesNotRebuildHiddenOrUnchangedScreenPanel() {
+        let screen = CGRect(x: 0, y: 0, width: 1728, height: 1117)
+        XCTAssertFalse(
+            NotchDefaultsReaction.shouldRebuildPanelForScreenChange(
+                hasPanel: false, targetScreenFrame: screen, lastKnownScreenFrame: nil
+            )
+        )
+        XCTAssertFalse(
+            NotchDefaultsReaction.shouldRebuildPanelForScreenChange(
+                hasPanel: true, targetScreenFrame: screen, lastKnownScreenFrame: screen
+            )
+        )
+        XCTAssertTrue(
+            NotchDefaultsReaction.shouldRebuildPanelForScreenChange(
+                hasPanel: true, targetScreenFrame: CGRect(x: 0, y: 0, width: 1920, height: 1080), lastKnownScreenFrame: screen
+            )
+        )
+
+        let base = Date(timeIntervalSince1970: 500)
+        XCTAssertTrue(NotchDefaultsReaction.shouldKeepScheduledTick(scheduled: base, wanted: base.addingTimeInterval(0.004)))
+        XCTAssertFalse(NotchDefaultsReaction.shouldKeepScheduledTick(scheduled: base, wanted: base.addingTimeInterval(0.04)))
+        XCTAssertFalse(NotchDefaultsReaction.shouldKeepScheduledTick(scheduled: nil, wanted: base))
+
+        let d = UserDefaults(suiteName: "DailyHelperSnapshotTests")!
+        d.removePersistentDomain(forName: "DailyHelperSnapshotTests")
+        let s1 = DailyHelperDefaultsSnapshot.capture(from: d)
+        let s2 = DailyHelperDefaultsSnapshot.capture(from: d)
+        XCTAssertEqual(s1, s2)
+        d.set(true, forKey: DailyHelpersService.capsLockKey)
+        let s3 = DailyHelperDefaultsSnapshot.capture(from: d)
+        XCTAssertNotEqual(s1, s3)
+    }
 }

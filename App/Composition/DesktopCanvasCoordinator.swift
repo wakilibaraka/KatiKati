@@ -49,6 +49,7 @@ final class DesktopCanvasCoordinator {
     private var pendingDisconnectWork: DispatchWorkItem?
     private var moveAllUndoPlan: MoveAllWidgetsUndoPlan?
     private var idleCleanupTimer: Timer?
+    private var defaultsCoalesceWork: DispatchWorkItem?
     private var lastDesktopInteraction = ProcessInfo.processInfo.systemUptime
     private var lastIdleCleanup = ProcessInfo.processInfo.systemUptime
 
@@ -104,7 +105,7 @@ final class DesktopCanvasCoordinator {
             self?.toggleHideAll()
         }
         observeDefaultNotification(UserDefaults.didChangeNotification) { [weak self] in
-            self?.handleDefaultsChanged()
+            self?.scheduleDefaultsChanged()
         }
         workspaceWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification,
@@ -126,6 +127,8 @@ final class DesktopCanvasCoordinator {
         idleCleanupTimer = nil
         pendingDisconnectWork?.cancel()
         pendingDisconnectWork = nil
+        defaultsCoalesceWork?.cancel()
+        defaultsCoalesceWork = nil
         ScreenIdentifyOverlayController.shared.dismiss()
         autoOrganizeWindowController?.close()
         autoOrganizeWindowController = nil
@@ -989,6 +992,16 @@ final class DesktopCanvasCoordinator {
         quickRevealKeyMonitor = nil
         quickRevealGlobalClickMonitor = nil
         quickRevealLocalClickMonitor = nil
+    }
+
+    private func scheduleDefaultsChanged() {
+        defaultsCoalesceWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.defaultsCoalesceWork = nil
+            self?.handleDefaultsChanged()
+        }
+        defaultsCoalesceWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: work)
     }
 
     private func handleDefaultsChanged() {
