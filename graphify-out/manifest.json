@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795516568.7314932,
-    "seen": 1795516791.7923179,
-    "ast_hash": "ac68e96b3b16580c7bcc73994acefe24",
+    "mtime": 1795519683.1627307,
+    "seen": 1795520723.864867,
+    "ast_hash": "6592dc6c52ecd4e6df19f4d253c4f0aa",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795516565.7616174,
-    "seen": 1795516791.792437,
-    "ast_hash": "516a79c093aa38a585642ec6580a15c1",
+    "mtime": 1795519716.177387,
+    "seen": 1795520723.864993,
+    "ast_hash": "686ffd47661d6d40e98c472175d6a3a2",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1795518853.866599,
-    "seen": 1795519275.352894,
-    "ast_hash": "05225d5b1ce028492e4c2719ae4515bb",
+    "mtime": 1795519759.4145894,
+    "seen": 1795520723.8650959,
+    "ast_hash": "86c51a2ade80905a5cf3929f138e2a2b",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -3168,9 +3168,9 @@
     "semantic_hash": "0b2f3d421e2e2378afc8578eb728d045"
   },
   "Tests/Unit/AppSettingsStoreTests.swift": {
-    "mtime": 1795478883.869728,
-    "seen": 1795479142.7207968,
-    "ast_hash": "6767f5b6b70d87eab20817138e2bd912",
+    "mtime": 1795519685.7162962,
+    "seen": 1795520723.865655,
+    "ast_hash": "2645076e7f81c757ffc11eeff0104ea7",
     "semantic_hash": ""
   },
   "Tests/Unit/AppTrackerDisplayAttributionTests.swift": {
@@ -3834,9 +3834,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NotchLayoutSpecTests.swift": {
-    "mtime": 1795517929.3768792,
-    "seen": 1795518356.071266,
-    "ast_hash": "a90a227fcba477a2c3731e2fbea8e4f6",
+    "mtime": 1795519687.2866075,
+    "seen": 1795520723.865798,
+    "ast_hash": "a23c333ab71965043b94a9dec43802dd",
     "semantic_hash": ""
   },
   "Tests/Unit/NoteDocumentTests.swift": {
@@ -4596,9 +4596,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1795431918.861762,
-    "seen": 1795432045.31235,
-    "ast_hash": "8518148f4b706aedd5d9bf0f410f6fe4",
+    "mtime": 1795519691.078989,
+    "seen": 1795520723.865141,
+    "ast_hash": "5fe185d5f7107f1a615551e2649c561b",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
@@ -4650,9 +4650,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchBehavior.swift": {
-    "mtime": 1795470679.2448792,
-    "seen": 1795470702.066911,
-    "ast_hash": "656b8931a8e458561642c2cdbfb52e6d",
+    "mtime": 1795519681.6663456,
+    "seen": 1795520723.86542,
+    "ast_hash": "abbf17a56cbd5975d652378dc9da14a0",
     "semantic_hash": ""
   },
   "Core/Support/NotchEdgeStyle.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795519262.7094738,
-    "seen": 1795519275.353726,
-    "ast_hash": "8ddaecb0de9e382e4141f040e6ac197b",
+    "mtime": 1795520694.7640467,
+    "seen": 1795520723.866178,
+    "ast_hash": "34da55d750bfc3c27095cbdd345fd72e",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6690,9 +6690,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsNotificationsPane.swift": {
-    "mtime": 1794868242.3648832,
-    "seen": 1794868311.478441,
-    "ast_hash": "2195b88836ad58a754bd3774f4e41d2f",
+    "mtime": 1795519689.161099,
+    "seen": 1795520723.865152,
+    "ast_hash": "8100e153870b240d21f4a9073713a497",
     "semantic_hash": ""
   },
   "Core/Support/PowerNotifications.swift": {
@@ -7350,9 +7350,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPresets.swift": {
-    "mtime": 1795517969.4942713,
-    "seen": 1795518356.068792,
-    "ast_hash": "d7bc42ac50869cddbf18a0b5d2056329",
+    "mtime": 1795519750.3701339,
+    "seen": 1795520723.865101,
+    "ast_hash": "88fcf5c06358f7927cf86e0c7878b914",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPrimitives.swift": {
