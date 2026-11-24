@@ -2130,9 +2130,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingProgress.swift": {
-    "mtime": 1795535065.0221188,
-    "seen": 1795539171.3457332,
-    "ast_hash": "27f976d785d8120a2aabf02d0ad1d4d6",
+    "mtime": 1795541047.464285,
+    "seen": 1795541384.944383,
+    "ast_hash": "03799e1ed98933c2681b3307169f6cb0",
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
@@ -3888,9 +3888,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1795535065.024363,
-    "seen": 1795539171.34603,
-    "ast_hash": "817e859a6a6d63c02dcaf72267775deb",
+    "mtime": 1795542798.6068337,
+    "seen": 1795542896.311502,
+    "ast_hash": "6f74dd236a6cfc82415525585838e9c2",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795538316.8436432,
-    "seen": 1795539171.345427,
-    "ast_hash": "1ed36a141d8c4e016d4ecc8ccae6252b",
+    "mtime": 1795542522.947324,
+    "seen": 1795542896.310816,
+    "ast_hash": "d322d8de95fb00f9b6eb72ff69a55829",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
@@ -7776,9 +7776,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopVinylBoxView.swift": {
-    "mtime": 1795535065.0150409,
-    "seen": 1795539171.345473,
-    "ast_hash": "9ae61d272f9a00ad194a9439ab204c73",
+    "mtime": 1795541301.604386,
+    "seen": 1795541384.9427998,
+    "ast_hash": "68effe32426838b21840a367a5b6c082",
     "semantic_hash": ""
   },
   "App/Scenes/Desktop/DesktopWeatherBoxView.swift": {
@@ -8097,6 +8097,12 @@
     "mtime": 1795530979.385077,
     "seen": 1795534644.457957,
     "ast_hash": "189de73d945506a75c21830443c9955b",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/MusicDesktopWidgetPlacement.swift": {
+    "mtime": 1795542521.5184577,
+    "seen": 1795542896.311084,
+    "ast_hash": "2eba23d7db8a8f0491ced2668f55a1af",
     "semantic_hash": ""
   }
 }

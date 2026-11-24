@@ -3888,9 +3888,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1795541261.9198954,
-    "seen": 1795541384.944878,
-    "ast_hash": "efa65be570e95eb03d79796055ff5d6d",
+    "mtime": 1795542936.5650463,
+    "seen": 1795543022.393277,
+    "ast_hash": "7bd27a51d79423b9612c815099f3838c",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
@@ -7620,9 +7620,9 @@
     "semantic_hash": ""
   },
   "App/Entry/DesktopWidgetPanelController.swift": {
-    "mtime": 1795541094.4266963,
-    "seen": 1795541384.940613,
-    "ast_hash": "97ede2dc974ea90191f74e0d5ae3c435",
+    "mtime": 1795542937.9123082,
+    "seen": 1795543022.392618,
+    "ast_hash": "0c309073dc2f910facc89c31af1a7687",
     "semantic_hash": ""
   },
   "App/Composition/DesktopCanvasCoordinator.swift": {
@@ -8097,6 +8097,12 @@
     "mtime": 1795530979.385077,
     "seen": 1795534644.457957,
     "ast_hash": "189de73d945506a75c21830443c9955b",
+    "semantic_hash": ""
+  },
+  "Core/Support/Desktop/MusicDesktopWidgetPlacement.swift": {
+    "mtime": 1795542521.5184577,
+    "seen": 1795542896.311084,
+    "ast_hash": "2eba23d7db8a8f0491ced2668f55a1af",
     "semantic_hash": ""
   }
 }
