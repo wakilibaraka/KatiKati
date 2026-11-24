@@ -3,6 +3,7 @@ import SwiftUI
 
 /// The small floating card for a limit heads-up or a reached limit (Phase 7B-W3). Non-activating, top-centre, never
 /// blocks the app underneath; a heads-up fades on its own, a reached limit waits for Snooze or OK.
+// INPUT-HYGIENE: INTERACTIVE — has Snooze/OK buttons; ignoresMouseEvents must remain false.
 @MainActor
 final class ScreenTimeAlertPresenter {
     private var panel: NSPanel?

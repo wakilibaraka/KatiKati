@@ -4,6 +4,7 @@ import SwiftUI
 // 50e (owner 2026-10-21): a new song announces itself as a small pill that drops out from under the
 // notch, like the USB eject pill, instead of opening the whole notch. It is its own panel so a click
 // can dismiss it, and it reads the live feed so artwork that arrives late still shows.
+// INPUT-HYGIENE: INTERACTIVE — tap-to-dismiss; ignoresMouseEvents must remain false.
 
 @MainActor
 final class NotchTrackPillController {

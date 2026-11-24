@@ -3,6 +3,7 @@ import SwiftUI
 
 // Phase 36c — the "eject" pill: a small clickable panel under the top edge when an external drive mounts.
 // It is its own panel (not a toast) because toasts are click-through. Dismisses itself after 8 s.
+// INPUT-HYGIENE: INTERACTIVE — has an Eject button; ignoresMouseEvents must remain false.
 
 @MainActor
 final class USBEjectPillController {
