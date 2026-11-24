@@ -6991,3 +6991,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `App/Entry/{AppDelegate,LauncherPanelController}.swift`: wired `anchorRect`, `keptAppStore`, `openSettings`, `runMacro` (`BarActionService`), `quitApp`, `openPlace`, and `recentFiles` (`RecentDocumentsReader`); fixed windowed double `bottomBarReserve()` inset bug and updated `scrollDirection` fallback to `.vertical`.
 - `Platform/Launcher/LauncherBackdrop.swift`: added subtle dark-glass scrim and adaptive card border rim for windowed cards.
 - `App/Scenes/LauncherView.swift`: switched to ref-counted `SystemMonitorController.shared` strictly gated on `prefs.showFooterTelemetry`, removed top overlapping `LauncherTelemetryPill`, and added `LauncherRecentItem` + `LauncherActions` / `LauncherModel` extensions. Zero `project.pbxproj` edits.
+
+### `LN-2b` — `Windows Start` Preset UI, Shared Footer Bar & Label/Header Fixes (2026-11-24)
+
+- `App/Scenes/LauncherView.swift`: added `windowsStartBody` (rounded glass search bar, compact 6-column `Pinned` grid + `All Apps ▸` A–Z jump list with quick-letter rail, `Recommended` 2-column frecency/recent files grid, and `launcherFooterBar` with user profile, optional gated telemetry, Quick Places, and Power menu), fixed `classicBody` header/search collision, and upgraded app cells to 2-line centered labels (`11.5 pt`). Zero `project.pbxproj` edits.

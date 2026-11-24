@@ -91,23 +91,13 @@ struct LauncherView: View {
 
     var body: some View {
         Group {
-            if model.presentation == .drawer {
+            switch model.presentation {
+            case .windowsStart:
+                windowsStartBody
+            case .drawer:
                 drawerBody
-            } else {
-                let inset = model.searchPosition.reservedInsets(sheetSide: .right, sheetWidth: 0)
-                ZStack {
-                    Color.black.opacity(0.001).onTapGesture(perform: actions.close)
-                    content
-                        .padding(.top, 50 + inset.top + model.screenInsets.top)
-                        .padding(.bottom, inset.bottom + model.screenInsets.bottom)
-                        .padding(.leading, inset.leading + model.screenInsets.leading)
-                        .padding(.trailing, inset.trailing + model.screenInsets.trailing)
-                    if let folder = openFolder { folderOverlay(folder) }
-                    toolbar
-                    searchField
-                        .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
-                        .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
-                }
+            default:
+                classicBody
             }
         }
         .background(pageShortcuts)
@@ -115,6 +105,39 @@ struct LauncherView: View {
         .onChange(of: model.prefs.showFooterTelemetry) { syncTelemetrySampling($0) }
         .onDisappear { syncTelemetrySampling(false) }
         .accessibilityLabel(Text("Launcher"))
+    }
+
+    @ViewBuilder private var classicBody: some View {
+        let inset = model.searchPosition.reservedInsets(sheetSide: .right, sheetWidth: 0)
+        ZStack {
+            Color.black.opacity(0.001).onTapGesture(perform: actions.close)
+            VStack(spacing: 0) {
+                HStack(spacing: 12) {
+                    if model.searchPosition == .top {
+                        Spacer(minLength: 0)
+                        searchFieldCluster
+                        Spacer(minLength: 0)
+                    } else {
+                        Spacer(minLength: 0)
+                    }
+                    toolbar
+                }
+                .padding(.top, 14 + model.screenInsets.top)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 6)
+
+                content
+                    .padding(.bottom, (model.searchPosition == .bottom ? inset.bottom : 0) + model.screenInsets.bottom)
+                    .padding(.leading, (model.searchPosition == .left ? inset.leading : 0) + model.screenInsets.leading)
+                    .padding(.trailing, (model.searchPosition == .right ? inset.trailing : 0) + model.screenInsets.trailing)
+            }
+            if model.searchPosition != .top {
+                searchField
+                    .padding(.top, model.screenInsets.top).padding(.bottom, model.screenInsets.bottom)
+                    .padding(.leading, model.screenInsets.leading).padding(.trailing, model.screenInsets.trailing)
+            }
+            if let folder = openFolder { folderOverlay(folder) }
+        }
     }
 
     private func syncTelemetrySampling(_ active: Bool) {
@@ -142,9 +165,8 @@ struct LauncherView: View {
         model.openFolderID.flatMap { id in model.state.folders.first { $0.id == id } }
     }
 
-    private var searchField: some View {
-        let p = model.searchPosition
-        return HStack(spacing: 8) {
+    private var searchFieldCluster: some View {
+        HStack(spacing: 8) {
             LauncherSearchField(text: $model.query, focusNonce: model.focusNonce,
                                 onSubmit: {
                                     if let id = model.focusedID, let item = model.layoutItems[id] { activate(item) }
@@ -155,12 +177,14 @@ struct LauncherView: View {
                                 },
                                 onCancel: {
                                     if model.openFolderID != nil { model.openFolderID = nil }
+                                    else if model.showingAllApps { model.showingAllApps = false }
                                     else if model.editing { model.editing = false }
                                     else { actions.close() }
                                 },
                                 onPage: { model.pageTurns.send($0) },
                                 onArrow: { arrow(dx: $0, dy: $1) })
-                .frame(width: p.fieldWidth, height: 28)
+                .frame(maxWidth: model.presentation == .windowsStart ? .infinity : model.searchPosition.fieldWidth)
+                .frame(height: 28)
             Button {
                 actions.quickAction(.askAI(model.query))
             } label: {
@@ -186,8 +210,13 @@ struct LauncherView: View {
             .help(Text("Voice Dictation"))
             .accessibilityLabel(Text("Voice Dictation"))
         }
-        .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
+    }
+
+    private var searchField: some View {
+        let p = model.searchPosition
+        return searchFieldCluster
+            .padding(p == .top ? .top : p == .bottom ? .bottom : p == .left ? .leading : .trailing, 28)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment(p))
     }
 
     private var toolbar: some View {
@@ -228,8 +257,6 @@ struct LauncherView: View {
             .buttonStyle(.plain).help(Text("Close"))
             .accessibilityLabel(Text("Close"))
         }
-        .padding(.top, 14 + model.screenInsets.top).padding(.trailing, 20 + model.screenInsets.trailing)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
     }
 
     private func alignment(_ p: LauncherSearchPosition) -> Alignment {
@@ -562,12 +589,16 @@ struct LauncherView: View {
     @ViewBuilder private func cell(_ app: LauncherApp, icon: CGFloat, reorderable: Bool) -> some View {
         let isFolder = LauncherFolders.isFolderID(app.bundleID)
         let base = Button { if model.editing && !isFolder { return }; activate(app) } label: {
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 cellImage(app, icon: icon)
-                Text(verbatim: app.name).font(.system(size: 13)).lineLimit(1).frame(maxWidth: icon + 36)
+                Text(verbatim: app.name)
+                    .font(.system(size: 11.5, weight: .medium))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(width: icon + 34, height: 30, alignment: .top)
                     .overlay(alignment: .bottom) {
                         if model.prefs.showRunningDot, model.runningIDs.contains(app.bundleID) {
-                            Circle().fill(Color.secondary).frame(width: 4, height: 4).offset(y: 7)
+                            Circle().fill(Color.accentColor.opacity(0.9)).frame(width: 4, height: 4).offset(y: 4)
                         }
                     }
             }
@@ -734,7 +765,7 @@ struct LauncherSearchField: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSSearchField {
         let field = NSSearchField()
-        field.placeholderString = String(localized: "Search Apps")
+        field.placeholderString = String(localized: "Search Apps, Files & Actions")
         field.delegate = context.coordinator
         field.focusRingType = .none
         field.font = .systemFont(ofSize: 15)
@@ -1094,5 +1125,221 @@ private extension LauncherView {
         } else {
             base
         }
+    }
+
+    // MARK: Windows Start Preset & Shared Footer
+
+    private var sixColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(minimum: 74, maximum: 112), spacing: 10, alignment: .top), count: 6)
+    }
+
+    private func pillButton(_ title: LocalizedStringKey, icon: String, trailing: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if !trailing { Image(systemName: icon).font(.system(size: 10, weight: .bold)) }
+                Text(title)
+                if trailing { Image(systemName: icon).font(.system(size: 10, weight: .bold)) }
+            }
+            .font(.system(size: 11.5, weight: .medium))
+            .padding(.horizontal, 10).padding(.vertical, 4)
+            .background(Capsule().fill(Color.primary.opacity(0.09)))
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder var windowsStartBody: some View {
+        let visibleApps = indexer.apps.filter { !model.state.hidden.contains($0.bundleID) }
+        let page = LauncherAppIndex.page(
+            apps: indexer.apps, usage: model.state.usage,
+            pinned: model.pinnedRow ? model.state.pinned : [],
+            columns: 6, now: Date(),
+            hidden: Set(model.state.hidden), order: model.state.order,
+            keptIDs: model.pinnedRow ? model.keptIDs : [], separatePinned: true,
+            sort: model.prefs.sort, groupByCategory: false, folders: model.state.folders
+        )
+        ZStack {
+            VStack(spacing: 0) {
+                searchFieldCluster
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.primary.opacity(0.12), lineWidth: 1))
+                    .padding(.horizontal, 22).padding(.top, 18).padding(.bottom, 12)
+                if !model.query.isEmpty { windowsStartSearchContent }
+                else if model.showingAllApps { windowsStartAllAppsContent(apps: visibleApps) }
+                else { windowsStartHomeContent(page: page, visibleApps: visibleApps) }
+                Spacer(minLength: 0)
+                launcherFooterBar
+            }
+            if let folder = openFolder { folderOverlay(folder) }
+        }
+    }
+
+    @ViewBuilder private var windowsStartSearchContent: some View {
+        if matches.isEmpty && answers.isEmpty && !isRunnable { noResults } else {
+            let _ = recordSearchLayout(matches, columns: 6)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    if !answers.isEmpty { answerSection }
+                    commandSection
+                    if !matches.isEmpty {
+                        LazyVGrid(columns: sixColumns, spacing: 14) {
+                            ForEach(matches, id: \.bundleID) { cell($0, icon: 44, reorderable: false) }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24).padding(.vertical, 8)
+            }
+        }
+    }
+
+    @ViewBuilder private func windowsStartHomeContent(page: LauncherPage, visibleApps: [LauncherApp]) -> some View {
+        let pinnedApps = page.pinned.isEmpty
+            ? Array(LauncherAppIndex.recommendedApps(apps: visibleApps, usage: model.state.usage, now: Date(), limit: 12))
+            : page.pinned
+        let recommended = LauncherAppIndex.recommendedApps(
+            apps: visibleApps, usage: model.state.usage, excluding: Set(pinnedApps.map(\.bundleID)), now: Date(), limit: 6
+        )
+        let _ = recordLayout([[LauncherPageSection(kind: .pinned, apps: Array(pinnedApps.prefix(18)), showsHeader: true)]], columns: 6)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text(page.pinned.isEmpty ? "Most Used" : "Pinned").font(.system(size: 13, weight: .semibold))
+                        Spacer()
+                        pillButton("All Apps", icon: "chevron.right", trailing: true) { model.showingAllApps = true }
+                    }
+                    LazyVGrid(columns: sixColumns, spacing: 12) {
+                        ForEach(pinnedApps.prefix(18), id: \.bundleID) { cell($0, icon: 44, reorderable: false) }
+                    }
+                }
+                if model.prefs.showRecommended && (!recommended.isEmpty || !model.recentFiles.isEmpty) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Recommended").font(.system(size: 13, weight: .semibold))
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 8) {
+                            ForEach(recommended.prefix(4), id: \.bundleID) { app in
+                                Button { actions.launch(app) } label: {
+                                    recommendedRow(icon: LauncherIconCache.icon(forPath: app.path), title: app.name, subtitleKey: "Most Used")
+                                }
+                                .buttonStyle(.plain).contextMenu { menu(app, reorderable: false) }
+                            }
+                            ForEach(model.recentFiles.prefix(max(0, 6 - min(4, recommended.count)))) { item in
+                                Button { actions.openPlace(URL(fileURLWithPath: item.path)) } label: {
+                                    recommendedRow(icon: NSWorkspace.shared.icon(forFile: item.path), title: item.name, subtitleVerbatim: item.subtitle)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 24).padding(.bottom, 14)
+        }
+    }
+
+    @ViewBuilder private func windowsStartAllAppsContent(apps: [LauncherApp]) -> some View {
+        let groups = LauncherAppIndex.alphaGroups(apps)
+        let _ = recordLayout([[LauncherPageSection(kind: .allApps, apps: groups.flatMap(\.apps), showsHeader: true)]], columns: 6)
+        VStack(spacing: 8) {
+            HStack {
+                Text("All Apps").font(.system(size: 13, weight: .semibold))
+                Spacer()
+                pillButton("Back", icon: "chevron.left", trailing: false) { model.showingAllApps = false }
+            }
+            .padding(.horizontal, 24)
+            ScrollViewReader { reader in
+                HStack(spacing: 0) {
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 14) {
+                            ForEach(groups) { group in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(verbatim: group.letter).font(.system(size: 12, weight: .bold, design: .rounded)).foregroundColor(.secondary).id(group.letter)
+                                    LazyVGrid(columns: sixColumns, spacing: 12) {
+                                        ForEach(group.apps, id: \.bundleID) { cell($0, icon: 44, reorderable: false) }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 24).padding(.bottom, 14)
+                    }
+                    VStack(spacing: 1) {
+                        ForEach(groups) { group in
+                            Button { withAnimation(.easeOut(duration: 0.16)) { reader.scrollTo(group.letter, anchor: .top) } } label: {
+                                Text(verbatim: group.letter).font(.system(size: 9.5, weight: .semibold, design: .rounded)).foregroundColor(.secondary).frame(width: 16, height: 13)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.trailing, 8)
+                }
+            }
+        }
+    }
+
+    private func recommendedRow(icon: NSImage, title: String, subtitleKey: LocalizedStringKey? = nil, subtitleVerbatim: String? = nil) -> some View {
+        HStack(spacing: 10) {
+            Image(nsImage: icon).resizable().interpolation(.high).frame(width: 30, height: 30)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: title).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                if let subtitleKey { Text(subtitleKey).font(.system(size: 10.5)).foregroundColor(.secondary).lineLimit(1) }
+                else if let subtitleVerbatim { Text(verbatim: subtitleVerbatim).font(.system(size: 10.5)).foregroundColor(.secondary).lineLimit(1) }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+        .contentShape(Rectangle())
+    }
+
+    var launcherFooterBar: some View {
+        VStack(spacing: 0) {
+            Divider().opacity(0.28)
+            HStack(spacing: 10) {
+                HStack(spacing: 7) {
+                    Image(systemName: "person.crop.circle.fill").font(.system(size: 18)).foregroundColor(.secondary)
+                    Text(verbatim: NSFullUserName().isEmpty ? NSUserName() : NSFullUserName()).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                }
+                if model.prefs.showFooterTelemetry { LauncherTelemetryPill(monitor: monitor) }
+                Spacer(minLength: 0)
+                if model.prefs.showQuickPlaces {
+                    HStack(spacing: 4) {
+                        footerPlaceButton("house", help: "Home", url: FileManager.default.homeDirectoryForCurrentUser)
+                        if let dl = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first { footerPlaceButton("arrow.down.circle", help: "Downloads", url: dl) }
+                        if let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first { footerPlaceButton("doc", help: "Documents", url: docs) }
+                        Button(action: actions.openSettings) {
+                            Image(systemName: "gearshape").font(.system(size: 13, weight: .medium)).frame(width: 28, height: 28)
+                                .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.primary.opacity(0.07)))
+                        }
+                        .buttonStyle(.plain).help(Text("Launcher Settings")).accessibilityLabel(Text("Launcher Settings"))
+                    }
+                }
+                if model.prefs.showPowerControls {
+                    Menu {
+                        Button { actions.runMacro(.lock) } label: { Label("Lock Screen", systemImage: "lock") }
+                        Button { actions.runMacro(.sleep) } label: { Label("Sleep", systemImage: "moon.zzz") }
+                        Divider()
+                        Button { actions.runMacro(.restart) } label: { Label("Restart Mac", systemImage: "arrow.clockwise") }
+                        Button { actions.runMacro(.shutdown) } label: { Label("Shut Down", systemImage: "power") }
+                        Button { actions.runMacro(.logout) } label: { Label("Log Out", systemImage: "rectangle.portrait.and.arrow.right") }
+                    } label: {
+                        Image(systemName: "power").font(.system(size: 13, weight: .semibold)).frame(width: 28, height: 28)
+                            .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.primary.opacity(0.09)))
+                    }
+                    .menuStyle(.borderlessButton).fixedSize().help(Text("Power")).accessibilityLabel(Text("Power"))
+                }
+            }
+            .padding(.horizontal, 20).padding(.vertical, 10)
+        }
+    }
+
+    private func footerPlaceButton(_ symbol: String, help: LocalizedStringKey, url: URL) -> some View {
+        Button { actions.openPlace(url) } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .medium))
+                .frame(width: 28, height: 28)
+                .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.primary.opacity(0.07)))
+        }
+        .buttonStyle(.plain)
+        .help(Text(help))
+        .accessibilityLabel(Text(help))
     }
 }
