@@ -449,3 +449,34 @@ enum MacOSIconsQuery {
         }
     }
 }
+
+// MARK: - IS-6.1 Opt-In App Activity Pure Metrics
+
+enum AppActivityLiveMetrics {
+    static func activeProbeBundleIDs(in state: IconStudioState) -> Set<String> {
+        Set(state.looksByBundleID.compactMap { bundleID, look in
+            guard let live = look.live, live.isEnabled, live.optInActivityProbe,
+                  live.kind.supportsOptInActivityProbe else { return nil }
+            return bundleID
+        })
+    }
+
+    static func messagesBubbleCount(unreadCount: Int) -> Int {
+        unreadCount >= 2 ? 2 : (unreadCount == 1 ? 1 : 0)
+    }
+
+    static func aggregateDownloadFraction(activePairs: [(downloaded: Int64, total: Int64)]) -> Double? {
+        var downloadedSum: Int64 = 0
+        var totalSum: Int64 = 0
+        for pair in activePairs where pair.total > 0 {
+            downloadedSum += max(0, pair.downloaded)
+            totalSum += pair.total
+        }
+        guard totalSum > 0 else { return nil }
+        return min(1.0, max(0.0, Double(downloadedSum) / Double(totalSum)))
+    }
+
+    static func mailEnvelopeOpen(composeActive: Bool, previewPercentOverride: Double?) -> Bool {
+        composeActive || (previewPercentOverride ?? 0) >= 50
+    }
+}

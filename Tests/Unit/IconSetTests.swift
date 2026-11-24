@@ -288,4 +288,24 @@ final class IconSetTests: XCTestCase {
             XCTAssertEqual(err as? MacOSIconsError, .rateLimited)
         }
     }
+
+    func testAppActivityLiveMetricsZeroDefaultAndDownloads() {
+        var state = IconStudioState()
+        state.setLook(IconLook(live: LiveIconConfig.default(for: .finder)), for: "com.apple.finder")
+        state.setLook(IconLook(live: LiveIconConfig.default(for: .safari)), for: "com.apple.Safari")
+        XCTAssertTrue(AppActivityLiveMetrics.activeProbeBundleIDs(in: state).isEmpty)
+
+        var mailCfg = LiveIconConfig.default(for: .mail)
+        mailCfg.optInActivityProbe = true
+        state.setLook(IconLook(live: mailCfg), for: "com.apple.mail")
+        XCTAssertEqual(AppActivityLiveMetrics.activeProbeBundleIDs(in: state), ["com.apple.mail"])
+
+        XCTAssertEqual(AppActivityLiveMetrics.messagesBubbleCount(unreadCount: 0), 0)
+        XCTAssertEqual(AppActivityLiveMetrics.messagesBubbleCount(unreadCount: 1), 1)
+        XCTAssertEqual(AppActivityLiveMetrics.messagesBubbleCount(unreadCount: 5), 2)
+        XCTAssertNil(AppActivityLiveMetrics.aggregateDownloadFraction(activePairs: []))
+        XCTAssertEqual(AppActivityLiveMetrics.aggregateDownloadFraction(activePairs: [(250, 500), (250, 500)]) ?? -1, 0.5, accuracy: 0.001)
+        XCTAssertTrue(AppActivityLiveMetrics.mailEnvelopeOpen(composeActive: false, previewPercentOverride: 60))
+        XCTAssertFalse(AppActivityLiveMetrics.mailEnvelopeOpen(composeActive: false, previewPercentOverride: 10))
+    }
 }
