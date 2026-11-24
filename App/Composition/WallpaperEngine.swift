@@ -31,6 +31,12 @@ final class WallpaperEngine: ObservableObject {
     private var distributedObservers: [NSObjectProtocol] = []
     private var boundaryTimer: Timer?
     private var pendingRefresh: DispatchWorkItem?
+    private var refreshTask: Task<Void, Never>?
+    private var refreshRevision = 0
+    private var musicRenderTask: Task<Void, Never>?
+    private var musicRenderRevision = 0
+    private var overlayCheckTask: Task<Void, Never>?
+    private var overlayCheckRevision = 0
     private var lastApplied: [String: String] = [:]
     /// Bumped whenever a *forced* re-apply has to hand macOS a different file URL for the same picture.
     private var generation = 0
@@ -148,7 +154,7 @@ final class WallpaperEngine: ObservableObject {
                 Task { @MainActor in self?.refreshOverlay() }
             })
             for (name, locked) in [("com.apple.screenIsLocked", true), ("com.apple.screenIsUnlocked", false)] {
-                distributedObservers.append(DistributedNotificationCenter.default.addObserver(
+                distributedObservers.append(DistributedNotificationCenter.default().addObserver(
                     forName: Notification.Name(name), object: nil, queue: .main) { [weak self] _ in
                     Task { @MainActor in self?.screenLocked = locked; self?.refreshOverlay() }
                 })
@@ -199,6 +205,9 @@ final class WallpaperEngine: ObservableObject {
     private func teardown() {
         boundaryTimer?.invalidate(); boundaryTimer = nil
         pendingRefresh?.cancel(); pendingRefresh = nil
+        refreshTask?.cancel(); refreshTask = nil
+        musicRenderTask?.cancel(); musicRenderTask = nil
+        overlayCheckTask?.cancel(); overlayCheckTask = nil
         observers.forEach { NSWorkspace.shared.notificationCenter.removeObserver($0); NotificationCenter.default.removeObserver($0) }
         observers = []
         distributedObservers.forEach { DistributedNotificationCenter.default().removeObserver($0) }
@@ -244,33 +253,68 @@ final class WallpaperEngine: ObservableObject {
 
     // MARK: - ML-2: album-art wallpaper
 
+    private func screenTargets() -> [(id: String, size: CGSize)] {
+        NSScreen.screens.map { screen in
+            let scale = max(screen.backingScaleFactor, 1)
+            return (
+                Self.screenKey(screen),
+                CGSize(width: min(screen.frame.width * scale, 5120),
+                       height: min(screen.frame.height * scale, 2880))
+            )
+        }
+    }
+
+    @discardableResult
+    private func applyRendered(_ rendered: [(id: String, url: URL)], appliedValue: String, label: String) -> Bool {
+        let screensByKey = Dictionary(NSScreen.screens.map { (Self.screenKey($0), $0) }, uniquingKeysWith: { first, _ in first })
+        var applied = false
+        for item in rendered {
+            guard let screen = screensByKey[item.id] else { continue }
+            do {
+                try NSWorkspace.shared.setDesktopImageURL(item.url, for: screen, options: [:])
+                lastApplied[item.id] = appliedValue
+                applied = true
+            } catch {
+                NSLog("WallpaperEngine: \(label) failed: \(error)")
+            }
+        }
+        return applied
+    }
+
     /// Paints the artwork as the desktop picture for every screen: one cached file per track, one
     /// `setDesktopImageURL` per screen, no timer and no overlay. Returns false when nothing was applied.
     @discardableResult
     func applyMusicArtwork(_ data: Data, trackKey: String) -> Bool {
         guard !data.isEmpty, !trackKey.isEmpty else { return false }
         if !lease.holders.contains(.music) { _ = acquireWallpaperLease(.music) }
-        var applied = false
         let classic = MusicSurfaceConfig.isClassicBackdrop
-        let screens = NSScreen.screens
-        for screen in screens {
-            let scale = max(screen.backingScaleFactor, 1)
-            let size = CGSize(width: min(screen.frame.width * scale, 5120),
-                              height: min(screen.frame.height * scale, 2880))
-            guard let url = MusicWallpaperRenderer.materialize(
-                artwork: data, trackKey: trackKey, size: size, blur: !classic,
-                style: MusicSurfaceConfig.wallpaperStyle(), palette: MusicArtworkPaletteCache.shared.palette(for: data)
-            ) else { continue }
-            do {
-                try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
-                lastApplied[Self.screenKey(screen)] = "music-\(trackKey)"
-                applied = true
-            } catch {
-                NSLog("WallpaperEngine: music artwork failed: \(error)")
+        let style = MusicSurfaceConfig.wallpaperStyle()
+        let screenSpecs = screenTargets()
+        guard !screenSpecs.isEmpty else { return false }
+        musicRenderTask?.cancel()
+        musicRenderRevision &+= 1
+        let rev = musicRenderRevision
+        musicRenderTask = Task.detached(priority: .utility) { [weak self] in
+            let palette = MusicArtworkPaletteCache.shared.palette(for: data)
+            var rendered: [(id: String, url: URL)] = []
+            for spec in screenSpecs {
+                if Task.isCancelled { return }
+                if let url = MusicWallpaperRenderer.materialize(
+                    artwork: data, trackKey: trackKey, size: spec.size, blur: !classic,
+                    style: style, palette: palette
+                ) {
+                    rendered.append((spec.id, url))
+                }
+            }
+            guard !Task.isCancelled else { return }
+            await MainActor.run { [weak self] in
+                guard let self, self.musicRenderRevision == rev, self.lease.holders.contains(.music) else { return }
+                if self.applyRendered(rendered, appliedValue: "music-\(trackKey)", label: "music artwork") {
+                    self.musicArtworkKey = trackKey
+                }
             }
         }
-        if applied { musicArtworkKey = trackKey }
-        return applied
+        return true
     }
 
     /// Animated path: the frames are already-rendered files, so a tick is one `setDesktopImageURL` per screen
@@ -295,6 +339,9 @@ final class WallpaperEngine: ObservableObject {
 
     /// Pause / stop / disable / quit: hand the desktop back (only the last holder actually restores).
     func clearMusicArtwork() {
+        musicRenderTask?.cancel()
+        musicRenderTask = nil
+        musicRenderRevision &+= 1
         guard musicArtworkKey != nil || lease.holders.contains(.music) else { return }
         musicArtworkKey = nil
         lastApplied = lastApplied.filter { !$0.value.hasPrefix("music-") }
@@ -311,8 +358,6 @@ final class WallpaperEngine: ObservableObject {
         let forced = WallpaperDebugOverride.parse(DebugSwitch.wallpaperPhase.value())
         let daylight = SolarDaylightEvaluator.sample(at: now, times: times)
         let mode = WallpaperMode(rawValue: settings.wallpaperMode) ?? .both
-        // Live Time off means the sky is painted as if the weather did not move; Live Weather off means the clock's
-        // sky is kept. The mood then either follows that pair (Auto) or locks its own, ignoring both.
         let liveSky = mode == .time ? WallpaperSky.clear : WallpaperSky(state.conditionFamily)
         let locked = settings.wallpaperMoodValue.resolve(weather: liveSky, phase: daylight.phase.solarPhase)
         let phase = forced?.phase ?? locked.phase
@@ -322,52 +367,54 @@ final class WallpaperEngine: ObservableObject {
         let scene = TerrainMimicCatalog.resolve(settings.wallpaperTerrainValue,
                                                 latitude: state.latitude, cityName: state.cityName)
         let environment = TerrainMimicCatalog.environment(scene: scene, phase: phase, sky: sky)
-        // DW-9: the sky's own model decides the stars, the moon, the clouds and the meteor; the renderer only draws it.
         let atmosphere = SkyAtmosphere.plan(phase: phase, sky: sky, date: now, seed: Self.meteorSeed(scene: scene),
                                             latitude: state.latitude, longitude: state.longitude)
         accentHexes = environment.accent.map { DockAccentColor(r: CGFloat($0.r), g: CGFloat($0.g), b: CGFloat($0.b)).hex }
         lastAtmosphere = atmosphere
         refreshOverlay()
 
-        // A custom folder is the only source that answers with its own files; without one the built-in scenes are
-        // painted, and their key names them so a cached file can never be confused with a pack file.
-        let custom = Self.pack(folder: settings.wallpaperFolder)
-        let terrainKey = "terrain-\(scene.rawValue)-\(phase.rawValue)-\(sky.rawValue)"
-        let key = custom.isEmpty ? terrainKey
-            : (WallpaperSelector.pick(phase: phase, sky: sky, mode: mode, available: Set(custom.keys)) ?? terrainKey)
-
-        // A forced re-apply (Space switch, wake, display change) asks macOS for the *same* picture again, and
-        // `setDesktopImageURL` ignores a URL it is already showing. Hand it a fresh generation of the same file.
-        var useGeneration = 0
-        if force, lastApplied.values.contains(key) {
-            let lowPower = settings.wallpaperRespectLowPower && ProcessInfo.processInfo.isLowPowerModeEnabled
-            useGeneration = lowPower ? generation : generation &+ 1
-            generation = useGeneration
-        }
-
-        // ML-2: while the music lease owns the desktop, this loop must stay out of it. Otherwise every
-        // refresh tick repaints the sky over the album art, and the two sources trade the desktop all day.
         guard !lease.holders.contains(.music) else { return }
-
-        for screen in NSScreen.screens {
-            let id = Self.screenKey(screen)
-            if !force, lastApplied[id] == key { continue }
-            let scale = max(screen.backingScaleFactor, 1)
-            let size = CGSize(width: min(screen.frame.width * scale, 5120),
-                              height: min(screen.frame.height * scale, 2880))
-            let url = custom[key]?()
-                ?? TerrainWallpaperRenderer.materialize(environment: environment, atmosphere: atmosphere, key: key,
-                                                        size: size, generation: useGeneration,
-                                                        latitude: state.latitude, longitude: state.longitude, date: now)
-            guard let url else { continue }
-            do {
-                try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [:])
-                lastApplied[id] = key
-            } catch {
-                NSLog("WallpaperEngine: setDesktopImageURL failed: \(error)")
+        let terrainKey = "terrain-\(scene.rawValue)-\(phase.rawValue)-\(sky.rawValue)"
+        let screenSpecs = screenTargets()
+        let lastAppliedSnapshot = lastApplied
+        let folder = settings.wallpaperFolder
+        let lowPower = settings.wallpaperRespectLowPower && ProcessInfo.processInfo.isLowPowerModeEnabled
+        let currentGen = generation
+        let lat = state.latitude
+        let lon = state.longitude
+        refreshTask?.cancel()
+        refreshRevision &+= 1
+        let rev = refreshRevision
+        refreshTask = Task.detached(priority: .utility) { [weak self] in
+            let custom = Self.pack(folder: folder)
+            let key = custom.isEmpty ? terrainKey
+                : (WallpaperSelector.pick(phase: phase, sky: sky, mode: mode, available: Set(custom.keys)) ?? terrainKey)
+            let useGeneration = WallpaperRefreshPolicy.nextGeneration(
+                current: currentGen, force: force,
+                keyAlreadyApplied: lastAppliedSnapshot.values.contains(key),
+                lowPower: lowPower
+            )
+            var rendered: [(id: String, url: URL)] = []
+            for spec in screenSpecs {
+                if Task.isCancelled { return }
+                if !force, lastAppliedSnapshot[spec.id] == key { continue }
+                let url = custom[key]?()
+                    ?? TerrainWallpaperRenderer.materialize(
+                        environment: environment, atmosphere: atmosphere, key: key,
+                        size: spec.size, generation: useGeneration,
+                        latitude: lat, longitude: lon, date: now
+                    )
+                if let url { rendered.append((spec.id, url)) }
+            }
+            if !Task.isCancelled { TerrainWallpaperRenderer.prune() }
+            guard !Task.isCancelled else { return }
+            await MainActor.run { [weak self] in
+                guard let self, self.isRunning, self.refreshRevision == rev,
+                      !self.lease.holders.contains(.music) else { return }
+                self.generation = useGeneration
+                self.applyRendered(rendered, appliedValue: key, label: "setDesktopImageURL")
             }
         }
-        TerrainWallpaperRenderer.prune()
     }
 
     /// One timer for the next sun-phase boundary; re-armed on every refresh. Not created when stopped.
@@ -412,39 +459,67 @@ final class WallpaperEngine: ObservableObject {
 
     /// DW-10: one guard decision per event, never per frame. Inactive hides the window *and* removes its animations.
     private func refreshOverlay() {
+        overlayCheckTask?.cancel()
+        overlayCheckRevision &+= 1
         guard isRunning, let atmosphere = lastAtmosphere, let settings else {
             WallpaperOverlay.shared.hide()
             return
         }
         let forcedPause = DebugSwitch.wallpaperAnimate.value() == "pause"
-        let active = WallpaperMotionGuard.isActive(
-            isEnabled: settings.wallpaperAnimate,
-            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
-            lowPower: ProcessInfo.processInfo.isLowPowerModeEnabled || forcedPause,
-            screenLocked: screenLocked,
-            desktopCovered: Self.desktopCovered()
-        )
-        WallpaperOverlay.shared.update(atmosphere: atmosphere, active: active)
+        let isEnabled = settings.wallpaperAnimate
+        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        let lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled || forcedPause
+        let locked = screenLocked || isAsleep
+        guard WallpaperMotionGuard.isActive(
+            isEnabled: isEnabled,
+            reduceMotion: reduceMotion,
+            lowPower: lowPower,
+            screenLocked: locked,
+            desktopCovered: false
+        ) else {
+            desktopCovered = false
+            WallpaperOverlay.shared.hide()
+            return
+        }
+        guard let screenFrame = (NSScreen.main ?? NSScreen.screens.first)?.frame else {
+            desktopCovered = false
+            WallpaperOverlay.shared.update(atmosphere: atmosphere, active: true)
+            return
+        }
+        let rev = overlayCheckRevision
+        overlayCheckTask = Task.detached(priority: .utility) { [weak self] in
+            let covered = Self.isDesktopCovered(in: screenFrame)
+            guard !Task.isCancelled else { return }
+            await MainActor.run { [weak self] in
+                guard let self, self.overlayCheckRevision == rev, self.isRunning,
+                      let currentAtmosphere = self.lastAtmosphere else { return }
+                self.desktopCovered = covered
+                let active = WallpaperMotionGuard.isActive(
+                    isEnabled: isEnabled, reduceMotion: reduceMotion,
+                    lowPower: lowPower, screenLocked: self.screenLocked || self.isAsleep,
+                    desktopCovered: covered
+                )
+                WallpaperOverlay.shared.update(atmosphere: currentAtmosphere, active: active)
+            }
+        }
     }
 
-    /// Is a normal app window covering ≥ 98 % of the main screen? Sampled on a 20×20 grid so overlapping windows
-    /// cannot double-count, and only asked when the desktop could have changed.
-    private static func desktopCovered() -> Bool {
-        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return false }
+    /// Is a normal app window covering ≥ 98 % of the main screen? Sampled on a 20×20 grid off `@MainActor`.
+    nonisolated private static func isDesktopCovered(in screenFrame: CGRect) -> Bool {
         guard let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements],
                                                     kCGNullWindowID) as? [[String: Any]] else { return false }
         var rects: [CGRect] = []
         for info in list where (info[kCGWindowLayer as String] as? Int) == 0 {
             guard let bounds = info[kCGWindowBounds as String] as? [String: Any],
                   let rect = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { continue }
-            if rect.intersects(screen.frame) { rects.append(rect) }
+            if rect.intersects(screenFrame) { rects.append(rect) }
         }
         guard !rects.isEmpty else { return false }
         var hits = 0
         for column in 0..<20 {
             for row in 0..<20 {
-                let point = CGPoint(x: screen.frame.minX + screen.frame.width * (CGFloat(column) + 0.5) / 20,
-                                    y: screen.frame.minY + screen.frame.height * (CGFloat(row) + 0.5) / 20)
+                let point = CGPoint(x: screenFrame.minX + screenFrame.width * (CGFloat(column) + 0.5) / 20,
+                                    y: screenFrame.minY + screenFrame.height * (CGFloat(row) + 0.5) / 20)
                 if rects.contains(where: { $0.contains(point) }) { hits += 1 }
             }
         }
@@ -470,7 +545,7 @@ final class WallpaperEngine: ObservableObject {
 
     /// key → lazily produced file URL, from a custom folder only. Empty when no folder is set (then the built-in
     /// scenes are painted by `TerrainWallpaperRenderer`), so a missing folder can never shadow the built-in look.
-    private static func pack(folder: String) -> [String: () -> URL?] {
+    nonisolated private static func pack(folder: String) -> [String: () -> URL?] {
         guard !folder.isEmpty,
               let files = try? FileManager.default.contentsOfDirectory(atPath: folder) else { return [:] }
         var result: [String: () -> URL?] = [:]
