@@ -624,10 +624,10 @@
     "semantic_hash": ""
   },
   "App/Entry/ScreenTimeAlertPresenter.swift": {
-    "mtime": 1791999130.7965338,
-    "seen": 1795534644.4571211,
-    "ast_hash": "b964370072f09f76bf1831eb1a7c3e30",
-    "semantic_hash": "b964370072f09f76bf1831eb1a7c3e30"
+    "mtime": 1795558568.1521103,
+    "seen": 1795558675.087273,
+    "ast_hash": "71f1608b0154cbd8da8236c8db7bbde5",
+    "semantic_hash": ""
   },
   "App/Entry/SettingsWindowController.swift": {
     "mtime": 1795470679.236223,
@@ -1284,10 +1284,10 @@
     "semantic_hash": "1e8b1f2919e82e44c487e4a042882514"
   },
   "App/Scenes/USBEjectPill.swift": {
-    "mtime": 1792038729.1856608,
-    "seen": 1795534644.457267,
-    "ast_hash": "cce3b50509e62e793a875bc5b2166d6c",
-    "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
+    "mtime": 1795558558.54022,
+    "seen": 1795558675.087438,
+    "ast_hash": "dc7bce48a0e983929947503b2964a563",
+    "semantic_hash": ""
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
     "mtime": 1795515791.9548442,
@@ -6474,9 +6474,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchTrackPill.swift": {
-    "mtime": 1794873491.3429818,
-    "seen": 1795534644.457221,
-    "ast_hash": "99bdbe7bf6987a13c011de055923e27d",
+    "mtime": 1795558563.869461,
+    "seen": 1795558675.0873861,
+    "ast_hash": "84c2531a9ec4ffb8ba158e70d60e3b64",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchWideBarView.swift": {
@@ -8115,6 +8115,18 @@
     "mtime": 1795552678.2170517,
     "seen": 1795552844.133774,
     "ast_hash": "d96c36ef64628271c1a1e37d11700175",
+    "semantic_hash": ""
+  },
+  "Scripts/check_input_hygiene.py": {
+    "mtime": 1795558545.9966772,
+    "seen": 1795558675.0878022,
+    "ast_hash": "aba21168650bc70ac9a306b22d134036",
+    "semantic_hash": ""
+  },
+  "Scripts/live_check_input_hygiene.py": {
+    "mtime": 1795558498.2608235,
+    "seen": 1795558675.0878122,
+    "ast_hash": "52ace7837343629057386ac0a470d33c",
     "semantic_hash": ""
   }
 }
