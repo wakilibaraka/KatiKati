@@ -26,6 +26,31 @@ extension QuickToggleID {
         case .screenMirroring: return Text("Screen Mirroring")
         }
     }
+
+    var localizedLabel: String {
+        switch self {
+        case .darkMode: return String(localized: "Dark Mode")
+        case .keepAwake: return String(localized: "Keep Awake")
+        case .hideDesktopIcons: return String(localized: "Hide Desktop")
+        case .showHiddenFiles: return String(localized: "Hidden Files")
+        case .dockAutoHide: return String(localized: "Dock Auto-hide")
+        case .pathBar: return String(localized: "Path Bar")
+        case .muteMic: return String(localized: "Mute Mic")
+        case .emptyTrash: return String(localized: "Empty Trash")
+        case .ejectDisks: return String(localized: "Eject Disks")
+        case .wifi: return String(localized: "Wi-Fi")
+        case .bluetooth: return String(localized: "Bluetooth")
+        case .nightShift: return String(localized: "Night Shift")
+        case .trueTone: return String(localized: "True Tone")
+        case .vpn: return String(localized: "VPN")
+        case .muteOutput: return String(localized: "Muted")
+        case .cleanKeyboard: return String(localized: "Clean Keyboard")
+        case .screenSaver: return String(localized: "Screen Saver")
+        case .lockScreen: return String(localized: "Lock Screen")
+        case .relaunchFinder: return String(localized: "Relaunch Finder")
+        case .screenMirroring: return String(localized: "Screen Mirroring")
+        }
+    }
 }
 
 /// Records one key combination (at least one of ⌃ ⌥ ⇧ ⌘). A local key monitor lives only while recording.

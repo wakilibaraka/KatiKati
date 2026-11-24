@@ -1163,6 +1163,8 @@ struct MenuBarCreativeHubView: View {
     @State private var selectedTab: MenuBarHubTab = MenuBarHubTab.visibleTabs().first ?? .switches
     @State private var query = ""
     @State private var boxSlots: [HubActionSlotID] = HubActionSlotID.slots()
+    @State private var btAudioDevices: [BluetoothDevice] = []
+    @State private var listeningMode: String? = AudioOutputSwitcher.bluetoothListeningMode()
     @State private var surfaceVersion = 0
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
@@ -1195,6 +1197,10 @@ struct MenuBarCreativeHubView: View {
             if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
         }
         .onDisappear { status.release() }
+        .task {
+            let all = await BluetoothDeviceReader.read()
+            btAudioDevices = all.filter { $0.isConnected && $0.lowestBattery != nil }
+        }
     }
 
     private var headerBar: some View {
@@ -1265,9 +1271,75 @@ struct MenuBarCreativeHubView: View {
         }
     }
 
+    @ViewBuilder
     private var tabContent: some View {
-        Text(verbatim: selectedTab.rawValue).font(.caption).foregroundStyle(inkSoft)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        switch selectedTab {
+        case .switches: switchesBody
+        default:
+            Text(verbatim: selectedTab.rawValue).font(.caption).foregroundStyle(inkSoft)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var switchesBody: some View {
+        let items = HubSwitchCatalog.filter(HubSwitchCatalog.orderedSwitches(), query: query) { switchLabel($0) }
+        return ScrollView {
+            VStack(spacing: 6) {
+                if let buds = btAudioDevices.first, let level = buds.lowestBattery {
+                    airPodsPill(device: buds, battery: level)
+                }
+                ForEach(items) { item in switchRow(item) }
+            }
+        }
+    }
+
+    private func airPodsPill(device: BluetoothDevice, battery: Int) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: device.symbolName).font(.system(size: 12, weight: .semibold)).foregroundStyle(palette.primaryAccent)
+                Text(verbatim: device.name).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink).lineLimit(1)
+                Spacer()
+                Text(verbatim: "\(battery)%").font(.system(size: 11, weight: .semibold)).monospacedDigit().foregroundStyle(battery <= 20 ? Color.red : ink)
+            }
+            if AudioOutputSwitcher.canSetBluetoothListeningMode() {
+                HStack(spacing: 4) {
+                    ForEach(BluetoothListeningMode.allCases) { mode in
+                        let active = listeningMode == mode.rawValue
+                        Button {
+                            if AudioOutputSwitcher.setBluetoothListeningMode(mode.rawValue) { listeningMode = mode.rawValue }
+                        } label: {
+                            Image(systemName: mode.symbolName).font(.system(size: 10.5, weight: .semibold))
+                                .foregroundStyle(active ? Color.white : inkSoft).frame(maxWidth: .infinity, minHeight: 22)
+                                .background(Capsule().fill(active ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(cardFill)))
+                        }.buttonStyle(.plain).help(Text(verbatim: mode.title))
+                    }
+                }
+            }
+        }
+        .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+    }
+
+    private func switchRow(_ item: HubSwitchID) -> some View {
+        let on = switchState(item)
+        return HStack(spacing: 9) {
+            Image(systemName: switchSymbol(item)).font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(on ? palette.primaryAccent : inkSoft).frame(width: 22)
+            Text(verbatim: switchLabel(item)).font(.system(size: 12, weight: .medium)).foregroundStyle(ink).lineLimit(1)
+            Spacer()
+            if case .system(let q) = item, q.isAction {
+                Button { engine.perform(q) } label: {
+                    Image(systemName: engine.flash == q ? "checkmark" : "play.fill").font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(ink).padding(.horizontal, 10).padding(.vertical, 4)
+                        .background(Capsule().fill(cardFill))
+                }.buttonStyle(.plain)
+            } else {
+                Toggle(isOn: Binding(get: { on }, set: { toggleSwitch(item, to: $0) })) { EmptyView() }
+                    .labelsHidden().toggleStyle(.switch).controlSize(.mini)
+            }
+        }
+        .padding(.horizontal, 9).padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
     }
 
     // MARK: - Helpers
@@ -1302,5 +1374,55 @@ struct MenuBarCreativeHubView: View {
         if slot == .captureOCR { return Text("Capture Area") }
         if slot == .notchToggle { return Text("Notch") }
         return QuickToggleID(rawValue: slot.rawValue)?.title ?? Text(verbatim: slot.rawValue)
+    }
+
+    private func switchState(_ id: HubSwitchID) -> Bool {
+        _ = surfaceVersion
+        switch id {
+        case .system(let q): return q == .muteOutput ? status.status.volume.isMuted : (engine.states[q] ?? false)
+        case .surface(let s):
+            let d = UserDefaults.standard
+            switch s {
+            case .notch: return AppDelegate.shared?.settingsStore.notchIslandEnabled ?? d.bool(forKey: "com.katikati.liveIsland.notch")
+            case .desktopBoxes: return DesktopCanvasConfig.isFeatureEnabled()
+            case .nowPlaying: return d.object(forKey: MusicSurfaceConfig.enabledKey) as? Bool ?? true
+            case .lockScreenCard: return d.bool(forKey: MusicSurfaceConfig.lockScreenCardKey)
+            case .metricsBar: return d.bool(forKey: MenuBarStatModel.masterEnabledKey)
+            }
+        case .shortcut, .evolution: return false
+        }
+    }
+
+    private func toggleSwitch(_ id: HubSwitchID, to on: Bool) {
+        switch id {
+        case .system(let q): if q == .muteOutput { _ = status.toggleMute() } else { engine.perform(q) }
+        case .surface(let s): HubScheduleCoordinator.applySurface(s, enabled: on); surfaceVersion += 1
+        case .shortcut, .evolution: break
+        }
+    }
+
+    private func switchSymbol(_ id: HubSwitchID) -> String {
+        switch id {
+        case .system(let q): return q.symbolName
+        case .surface(let s): return s.symbolName
+        case .shortcut: return "bolt.fill"
+        case .evolution: return "terminal"
+        }
+    }
+
+    private func switchLabel(_ id: HubSwitchID) -> String {
+        switch id {
+        case .system(let q): return q.localizedLabel
+        case .surface(let s):
+            switch s {
+            case .notch: return String(localized: "Notch")
+            case .desktopBoxes: return String(localized: "Desktop")
+            case .nowPlaying: return String(localized: "Now Playing")
+            case .lockScreenCard: return String(localized: "Lock Screen")
+            case .metricsBar: return String(localized: "Menu Bar")
+            }
+        case .shortcut(let name): return name
+        case .evolution(let uuid): return uuid.uuidString
+        }
     }
 }
