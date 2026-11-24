@@ -7,18 +7,27 @@ final class LauncherPresentationTests: XCTestCase {
     private let screen = CGRect(x: 0, y: 0, width: 1710, height: 1112)
     private let visible = CGRect(x: 0, y: 70, width: 1710, height: 1017)
 
-    func testStoredValueFallsBackToFloatingDock() {
-        XCTAssertEqual(LauncherPresentation.default, .floatingDock)
-        XCTAssertEqual(LauncherPresentation.parse(nil), .floatingDock)
-        XCTAssertEqual(LauncherPresentation.parse("nonsense"), .floatingDock)
+    func testStoredValueDefaultsToWindowsStartAndMigratesDock() {
+        XCTAssertEqual(LauncherPresentation.default, .windowsStart)
+        XCTAssertEqual(LauncherPresentation.parse(nil), .windowsStart)
+        XCTAssertEqual(LauncherPresentation.parse("nonsense"), .windowsStart)
+        XCTAssertEqual(LauncherPresentation.parse("windowsStart"), .windowsStart)
+        XCTAssertEqual(LauncherPresentation.parse("linuxMenu"), .linuxMenu)
         XCTAssertEqual(LauncherPresentation.parse("fullscreen"), .fullscreen)
         XCTAssertEqual(LauncherPresentation.parse("centred"), .centred)
-        XCTAssertEqual(LauncherPresentation.parse("dock"), .floatingDock)
+        XCTAssertEqual(LauncherPresentation.parse("dock"), .windowsStart)
         XCTAssertEqual(LauncherPresentation.parse("drawer"), .drawer)
     }
 
-    func testStoredPopoverKeepsAFloatingCard() {
-        XCTAssertEqual(LauncherPresentation.parse("popover"), .floatingDock)
+    func testStoredPopoverKeepsWindowsStart() {
+        XCTAssertEqual(LauncherPresentation.parse("popover"), .windowsStart)
+    }
+
+    func testScrollDirectionDefaultsToVertical() {
+        XCTAssertEqual(LauncherScrollDirection.default, .vertical)
+        XCTAssertEqual(LauncherScrollDirection.parse(nil), .vertical)
+        XCTAssertEqual(LauncherScrollDirection.parse("horizontal"), .horizontal)
+        XCTAssertEqual(LauncherScrollDirection.parse("vertical"), .vertical)
     }
 
     func testFullscreenIsExactlyTheScreen() {
@@ -43,28 +52,33 @@ final class LauncherPresentationTests: XCTestCase {
         XCTAssertEqual(rect.midY, small.midY)
     }
 
-    func testFloatingDockSitsBottomCentreAboveTheBottomBar() {
-        let rect = LauncherPanelFrame.rect(mode: .floatingDock, screen: screen, visible: visible, dockReserve: 64)
-        XCTAssertEqual(rect.width, LauncherPanelFrame.dockSize.width)
-        XCTAssertEqual(rect.height, LauncherPanelFrame.dockSize.height)
-        XCTAssertEqual(rect.midX, visible.midX, accuracy: 0.5)
-        XCTAssertEqual(rect.minY, visible.minY + 64 + LauncherPanelFrame.margin, "it clears the KatiKati bottom bar")
+    func testWindowsStartAnchorsAboveIconAndClampsToRails() {
+        let rect = LauncherPanelFrame.rect(mode: .windowsStart, screen: screen, visible: visible,
+                                           dockReserve: 64, anchorX: 520, anchorMode: .aboveIcon)
+        XCTAssertEqual(rect.width, LauncherPanelFrame.windowsStartSize.width)
+        XCTAssertEqual(rect.height, LauncherPanelFrame.windowsStartSize.height)
+        XCTAssertEqual(rect.midX, 520, accuracy: 0.5)
+        XCTAssertEqual(rect.minY, visible.minY + 64 + LauncherPanelFrame.margin)
         XCTAssertTrue(visible.contains(rect))
+
+        let clamped = LauncherPanelFrame.rect(mode: .windowsStart, screen: screen, visible: visible,
+                                              leading: 300, trailing: 300, anchorX: 50, anchorMode: .aboveIcon)
+        XCTAssertEqual(clamped.minX, visible.minX + 300 + LauncherPanelFrame.margin)
+        XCTAssertLessThanOrEqual(clamped.maxX, visible.maxX - 300 - LauncherPanelFrame.margin)
     }
 
-    func testFloatingDockClearsSideRails() {
-        let rect = LauncherPanelFrame.rect(mode: .floatingDock, screen: screen, visible: visible,
-                                           leading: 300, trailing: 300)
-        XCTAssertGreaterThanOrEqual(rect.minX, visible.minX + 300 + LauncherPanelFrame.margin)
-        XCTAssertLessThanOrEqual(rect.maxX, visible.maxX - 300 - LauncherPanelFrame.margin)
-        XCTAssertEqual(rect.midX, visible.midX, accuracy: 0.5)
-    }
+    func testLinuxMenuSupportsScreenCenterAndFitsTinyScreen() {
+        let centered = LauncherPanelFrame.rect(mode: .linuxMenu, screen: screen, visible: visible,
+                                               dockReserve: 64, anchorMode: .screenCenter)
+        XCTAssertEqual(centered.width, LauncherPanelFrame.linuxMenuSize.width)
+        XCTAssertEqual(centered.height, LauncherPanelFrame.linuxMenuSize.height)
+        XCTAssertEqual(centered.midX, visible.midX, accuracy: 0.5)
+        XCTAssertEqual(centered.midY, visible.minY + 64 + (visible.height - 64) / 2, accuracy: 0.5)
 
-    func testFloatingDockFitsATinyScreen() {
         let tiny = CGRect(x: 0, y: 0, width: 400, height: 300)
-        let rect = LauncherPanelFrame.rect(mode: .floatingDock, screen: tiny, visible: tiny, dockReserve: 64)
-        XCTAssertLessThanOrEqual(rect.width, tiny.width * 0.8 + 0.5)
-        XCTAssertLessThanOrEqual(rect.height, (tiny.height - 64) * 0.8 + 0.5)
+        let rect = LauncherPanelFrame.rect(mode: .linuxMenu, screen: tiny, visible: tiny, dockReserve: 64)
+        XCTAssertLessThanOrEqual(rect.width, tiny.width * 0.88 + 0.5)
+        XCTAssertLessThanOrEqual(rect.height, (tiny.height - 64) * 0.88 + 0.5)
         XCTAssertTrue(tiny.contains(rect))
     }
 

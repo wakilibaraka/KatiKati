@@ -6969,3 +6969,13 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - [x] **Quick Win #6 / Slice 2.4 Control Centre (`f9e9b0c1`)** — Added Microphone input device picker to `AudioOutputMenu`, `KeyboardBacklight` slider + audio output menu to `DockControlCenterSliderCard`, pre-mute mic volume preservation in `QuickToggleEngine`, and multi-VPN service context menu in `ControlCenterView`.
 - [x] **Quick Win #3 / Slice 2.2 Weather (`c301ec2e`)** — Surfaced `WarningsTile` popover in `WeatherModernPanel` and `WeatherFullScreenView`, added `MoonPhase` illumination card to `DetailGrid` and `WeatherFullScreenView.tiles`, and wired `WeatherUnits.degrees` + city stepping in `DesktopWeatherBoxView`.
 - [x] **Slice 4.4 — Persistent `WindowLayoutMemory` & Float/Retile Shortcuts (`808da9b7`)** — Conformed `WindowLayoutMemory` to `Codable` with atomic debounced persistence in `WindowLayoutRestoreController` (`window-layouts.json`, included in `SettingsBackup`), and added `.tilingFloatFocused`/`.tilingRetileAll` shortcuts plus `tile float`/`tile retile` Command Bar macros wired to `TilingEngine.shared`.
+
+---
+
+## Launcher Overhaul (`LN-1` → `LN-5`, started 2026-11-24)
+
+### `LN-1a` — Pure Core Presets, Anchor/Density/Scope Prefs & Panel Geometry (2026-11-24)
+
+- `Core/Support/LauncherLayout.swift`: added `.windowsStart` (new default; legacy `"dock"` / `"popover"` auto-migrate via `parse`), `.linuxMenu`, `LauncherAnchorMode`, `LauncherDensity`, `LauncherViewMode`, flipped `LauncherScrollDirection.default` to `.vertical`, and added `LauncherPanelFrame.anchored(...)` sizing/clamping for `windowsStartSize` (`660 × 620`) and `linuxMenuSize` (`740 × 560`).
+- `Core/Support/LauncherPlus.swift`: added `LauncherSearchScope` and backward-compatible `LauncherPrefs` fields (`anchorMode`, `viewMode`, `density`, section/footer toggles with `showFooterTelemetry = false` by default).
+- `Tests/Unit/{LauncherPresentationTests,LauncherPlusTests,AppSettingsStoreTests}.swift`: updated defaults and added unit coverage for preset migration, vertical-scroll default, legacy JSON decoding, and `windowsStart` / `linuxMenu` panel geometry. Zero `project.pbxproj` edits.

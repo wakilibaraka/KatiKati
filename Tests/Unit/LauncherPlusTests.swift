@@ -77,16 +77,30 @@ final class LauncherPlusTests: XCTestCase {
 
     // MARK: 13g prefs
 
-    func testPrefsClampAndRoundTrip() {
+    func testPrefsClampRoundTripAndLegacyDecode() throws {
         var p = LauncherPrefs()
+        XCTAssertFalse(p.showFooterTelemetry)
+        XCTAssertEqual(p.anchorMode, .aboveIcon)
+        XCTAssertEqual(p.density, .standard)
         p.blur = 7; p.columns = 2; p.rows = 99; p.iconScale = .nan
         let c = p.clamped()
         XCTAssertEqual(c.blur, 1); XCTAssertEqual(c.columns, 5); XCTAssertEqual(c.rows, 6); XCTAssertEqual(c.iconScale, 1)
         let d = UserDefaults(suiteName: "LauncherPlusTests.\(UUID())")!
         XCTAssertEqual(LauncherPrefs.load(d), LauncherPrefs())
-        var q = LauncherPrefs(); q.sort = .category; q.columns = 6; q.groupByCategory = true
+        var q = LauncherPrefs()
+        q.sort = .category; q.columns = 6; q.groupByCategory = true
+        q.anchorMode = .screenCenter; q.density = .compact; q.showFooterTelemetry = true
         q.save(d)
         XCTAssertEqual(LauncherPrefs.load(d), q)
+
+        let legacyJSON = #"{"blur":0.75,"columns":7,"rows":4,"iconScale":1.1,"sort":"name","groupByCategory":true,"showRunningDot":false}"#.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(LauncherPrefs.self, from: legacyJSON)
+        XCTAssertEqual(decoded.blur, 0.75)
+        XCTAssertEqual(decoded.sort, .name)
+        XCTAssertFalse(decoded.showRunningDot)
+        XCTAssertFalse(decoded.showFooterTelemetry)
+        XCTAssertEqual(decoded.anchorMode, .aboveIcon)
+        XCTAssertEqual(decoded.searchScope, LauncherSearchScope())
     }
 
     // MARK: 13h presets

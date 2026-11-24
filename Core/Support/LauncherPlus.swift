@@ -59,7 +59,30 @@ enum LauncherSort {
     }
 }
 
-/// Launcher look-and-layout preferences edited from the gear popover. One JSON blob in `com.katikati.launcher.prefs`.
+/// Which sources launcher search surfaces alongside apps.
+struct LauncherSearchScope: Equatable, Codable, Sendable {
+    var apps = true
+    var appGroups = true
+    var recentFiles = true
+    var systemActions = true
+
+    init(apps: Bool = true, appGroups: Bool = true, recentFiles: Bool = true, systemActions: Bool = true) {
+        self.apps = apps
+        self.appGroups = appGroups
+        self.recentFiles = recentFiles
+        self.systemActions = systemActions
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        apps = try c.decodeIfPresent(Bool.self, forKey: .apps) ?? true
+        appGroups = try c.decodeIfPresent(Bool.self, forKey: .appGroups) ?? true
+        recentFiles = try c.decodeIfPresent(Bool.self, forKey: .recentFiles) ?? true
+        systemActions = try c.decodeIfPresent(Bool.self, forKey: .systemActions) ?? true
+    }
+}
+
+/// Launcher look-and-layout preferences. One JSON blob in `com.katikati.launcher.prefs`.
 struct LauncherPrefs: Equatable, Codable, Sendable {
     static let key = "com.katikati.launcher.prefs"
     static let columnRange = 5...9
@@ -76,6 +99,37 @@ struct LauncherPrefs: Equatable, Codable, Sendable {
     var sort = LauncherSortMode.default
     var groupByCategory = false
     var showRunningDot = true
+    var anchorMode = LauncherAnchorMode.default
+    var viewMode = LauncherViewMode.default
+    var density = LauncherDensity.default
+    var showRecommended = true
+    var showCategorySidebar = true
+    var showQuickPlaces = true
+    var showPowerControls = true
+    var showFooterTelemetry = false
+    var searchScope = LauncherSearchScope()
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        blur = try c.decodeIfPresent(Double.self, forKey: .blur) ?? 1.0
+        columns = try c.decodeIfPresent(Int.self, forKey: .columns) ?? 0
+        rows = try c.decodeIfPresent(Int.self, forKey: .rows) ?? 0
+        iconScale = try c.decodeIfPresent(Double.self, forKey: .iconScale) ?? 1.0
+        sort = try c.decodeIfPresent(LauncherSortMode.self, forKey: .sort) ?? .default
+        groupByCategory = try c.decodeIfPresent(Bool.self, forKey: .groupByCategory) ?? false
+        showRunningDot = try c.decodeIfPresent(Bool.self, forKey: .showRunningDot) ?? true
+        anchorMode = try c.decodeIfPresent(LauncherAnchorMode.self, forKey: .anchorMode) ?? .default
+        viewMode = try c.decodeIfPresent(LauncherViewMode.self, forKey: .viewMode) ?? .default
+        density = try c.decodeIfPresent(LauncherDensity.self, forKey: .density) ?? .default
+        showRecommended = try c.decodeIfPresent(Bool.self, forKey: .showRecommended) ?? true
+        showCategorySidebar = try c.decodeIfPresent(Bool.self, forKey: .showCategorySidebar) ?? true
+        showQuickPlaces = try c.decodeIfPresent(Bool.self, forKey: .showQuickPlaces) ?? true
+        showPowerControls = try c.decodeIfPresent(Bool.self, forKey: .showPowerControls) ?? true
+        showFooterTelemetry = try c.decodeIfPresent(Bool.self, forKey: .showFooterTelemetry) ?? false
+        searchScope = try c.decodeIfPresent(LauncherSearchScope.self, forKey: .searchScope) ?? LauncherSearchScope()
+    }
 
     func clamped() -> LauncherPrefs {
         var p = self

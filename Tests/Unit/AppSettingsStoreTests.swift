@@ -270,14 +270,14 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertTrue(AppSettingsStore(defaults: defaults).launcherPinch)
     }
 
-    func testLauncherScrollDirectionDefaultsHorizontalAndPersists() {
+    func testLauncherScrollDirectionDefaultsVerticalAndPersists() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertEqual(store.launcherScrollDirection, .horizontal)
-        store.setLauncherScrollDirection(.vertical)
-        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherScrollDirection, .vertical)
-        defaults.set("bogus", forKey: "com.katikati.launcher.scroll")
+        XCTAssertEqual(store.launcherScrollDirection, .vertical)
+        store.setLauncherScrollDirection(.horizontal)
         XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherScrollDirection, .horizontal)
+        defaults.set("bogus", forKey: "com.katikati.launcher.scroll")
+        XCTAssertEqual(AppSettingsStore(defaults: defaults).launcherScrollDirection, .vertical)
     }
 
     @MainActor
