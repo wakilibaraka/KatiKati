@@ -46,7 +46,6 @@ struct WeatherFullScreenView: View {
             }
             .padding(wide ? 28 : 18)
             .foregroundStyle(.white)
-            .shadow(color: .black.opacity(0.18), radius: 6, y: 1)
         }
         .frame(width: width, height: height)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -136,9 +135,10 @@ struct WeatherFullScreenView: View {
                 .onContinuousHover { phase in
                     switch phase {
                     case .active(let p):
-                        let i = Int((p.x / max(geo.size.width, 1) * Double(hours.count - 1)).rounded())
-                        scrub = i <= 0 ? nil : min(i, hours.count - 1)
-                    case .ended: scrub = nil
+                        let next = WeatherRefreshPolicy.scrubHourIndex(x: p.x, width: geo.size.width, count: hours.count)
+                        if scrub != next { scrub = next }
+                    case .ended:
+                        if scrub != nil { scrub = nil }
                     }
                 }
             }

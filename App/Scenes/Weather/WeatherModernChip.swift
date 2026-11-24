@@ -5,9 +5,6 @@ struct WeatherModernChip: View {
     let state: WeatherState
     let size: WidgetSize
     @EnvironmentObject private var weatherService: WeatherService
-    @ObservedObject private var telemetry = DockTelemetryFeed.shared
-    @ObservedObject private var calendarFeed = DockCalendarFeed.shared
-    @ObservedObject private var focus = ProductivityServices.shared.focus
     @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
     @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
     @AppStorage(WeatherUnits.windKey) private var windUnit: WindSpeedUnit = .kmh
@@ -151,9 +148,9 @@ struct WeatherModernChip: View {
         case .hourlyCurve: hourlyCurveView
         case .savedCities: savedCitiesView
         case .conditionsDetail: conditionsDetailView
-        case .focusCompanion: focusCompanionView
-        case .systemVitals: systemVitalsView
-        case .nextCalendar: nextCalendarView
+        case .focusCompanion: WeatherModernFocusSlotView(accent: accent)
+        case .systemVitals: WeatherModernVitalsSlotView()
+        case .nextCalendar: WeatherModernCalendarSlotView(accent: accent)
         }
     }
 
@@ -230,10 +227,23 @@ struct WeatherModernChip: View {
         }
     }
 
-    private var focusCompanionView: some View {
+    private func cityNameForToken(_ token: String) -> String {
+        if case .city(let id) = WeatherLocationSelection(token: token),
+           let city = weatherService.savedCities.city(id: id) {
+            return city.name
+        }
+        return state.cityName
+    }
+}
+
+private struct WeatherModernFocusSlotView: View {
+    let accent: Color
+    @ObservedObject private var focus = ProductivityServices.shared.focus
+
+    var body: some View {
         let rem = focus.model.remaining
         let clock = String(format: "%02d:%02d", rem / 60, rem % 60)
-        return HStack(spacing: 8) {
+        HStack(spacing: 8) {
             Image(systemName: focus.model.isRunning ? "flame.fill" : "timer")
                 .font(.system(size: 13)).foregroundStyle(focus.model.isRunning ? Color.orange : accent)
             VStack(alignment: .leading, spacing: 1) {
@@ -247,12 +257,16 @@ struct WeatherModernChip: View {
         }
         .onTapGesture(count: 2) { focus.reset() }
     }
+}
 
-    private var systemVitalsView: some View {
+private struct WeatherModernVitalsSlotView: View {
+    @ObservedObject private var telemetry = DockTelemetryFeed.shared
+
+    var body: some View {
         let cpu = SystemMonitorFormat.percent(telemetry.state.cpuUsage)
         let ram = SystemMonitorFormat.percent(telemetry.state.memoryFraction)
         let bat = telemetry.state.batteryFraction.map { SystemMonitorFormat.percent($0) } ?? "AC"
-        return HStack(spacing: 6) {
+        HStack(spacing: 6) {
             vitalCell("CPU", value: cpu, color: .orange)
             vitalCell("RAM", value: ram, color: .mint)
             vitalCell("BAT", value: bat, color: .green)
@@ -268,8 +282,13 @@ struct WeatherModernChip: View {
         }
         .frame(maxWidth: .infinity)
     }
+}
 
-    private var nextCalendarView: some View {
+private struct WeatherModernCalendarSlotView: View {
+    let accent: Color
+    @ObservedObject private var calendarFeed = DockCalendarFeed.shared
+
+    var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "calendar").font(.system(size: 13)).foregroundStyle(accent)
             if let next = calendarFeed.upcoming.first {
@@ -283,14 +302,6 @@ struct WeatherModernChip: View {
             }
             Spacer(minLength: 0)
         }
-    }
-
-    private func cityNameForToken(_ token: String) -> String {
-        if case .city(let id) = WeatherLocationSelection(token: token),
-           let city = weatherService.savedCities.city(id: id) {
-            return city.name
-        }
-        return state.cityName
     }
 }
 

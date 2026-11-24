@@ -15,9 +15,14 @@ enum WeatherPrefs {
     static let animationsKey = "com.katikati.weather.animationsEnabled"
     static let onePageKey = "com.katikati.weather.overviewOnePage"
 
-    static func thresholds() -> WeatherThresholds {
-        UserDefaults.standard.data(forKey: WeatherThresholds.storageKey)
-            .flatMap { try? JSONDecoder().decode(WeatherThresholds.self, from: $0) } ?? .default
+    @MainActor private static var cachedThresholds: (data: Data?, value: WeatherThresholds) = (nil, .default)
+
+    @MainActor static func thresholds() -> WeatherThresholds {
+        let data = UserDefaults.standard.data(forKey: WeatherThresholds.storageKey)
+        if data == cachedThresholds.data { return cachedThresholds.value }
+        let decoded = data.flatMap { try? JSONDecoder().decode(WeatherThresholds.self, from: $0) } ?? .default
+        cachedThresholds = (data, decoded)
+        return decoded
     }
 }
 
@@ -594,10 +599,7 @@ struct DailyTile: View {
 
     /// `yyyy-MM-dd` is a location-local calendar date: parse and format in UTC so the weekday never shifts.
     static func weekday(_ iso: String) -> String {
-        let p = DateFormatter(); p.dateFormat = "yyyy-MM-dd"; p.timeZone = TimeZone(identifier: "UTC")
-        guard let date = p.date(from: iso) else { return iso }
-        let f = DateFormatter(); f.setLocalizedDateFormatFromTemplate("EEE"); f.timeZone = TimeZone(identifier: "UTC")
-        return f.string(from: date)
+        WeatherRefreshPolicy.utcWeekday(from: iso)
     }
 
     private func arrow(_ name: String, enabled: Bool, action: @escaping () -> Void) -> some View {

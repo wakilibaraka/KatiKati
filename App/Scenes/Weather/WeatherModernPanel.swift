@@ -115,9 +115,10 @@ struct WeatherModernPanel: View {
                     .onContinuousHover { phase in
                         switch phase {
                         case .active(let p):
-                            let i = Int((p.x / max(geo.size.width, 1) * Double(hours.count - 1)).rounded())
-                            scrub = i <= 0 ? nil : min(i, hours.count - 1)
-                        case .ended: scrub = nil
+                            let next = WeatherRefreshPolicy.scrubHourIndex(x: p.x, width: geo.size.width, count: hours.count)
+                            if scrub != next { scrub = next }
+                        case .ended:
+                            if scrub != nil { scrub = nil }
                         }
                     }
             }

@@ -254,6 +254,7 @@ private struct NotchAnimationDemo: View {
     let style: NotchOpenAnimation
     @State private var open = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.settingsStageVisible) private var stageVisible
 
     var body: some View {
         let spring = open ? style.openSpring : style.closeSpring
@@ -276,9 +277,14 @@ private struct NotchAnimationDemo: View {
         .frame(height: 50)
         .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
         .animation(reduceMotion ? nil : .spring(response: spring.response, dampingFraction: spring.dampingRatio), value: open)
-        .task {
+        .task(id: stageVisible && !reduceMotion) {
+            guard stageVisible, !reduceMotion else {
+                open = false
+                return
+            }
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1.3)); open.toggle()
+                try? await Task.sleep(for: .seconds(1.3))
+                if !Task.isCancelled, NSApp.isActive { open.toggle() }
             }
         }
         .accessibilityHidden(true)

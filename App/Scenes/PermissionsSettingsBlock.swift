@@ -11,7 +11,13 @@ struct PermissionsSettingsBlock: View {
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
     @State private var microphoneGranted = AVAudioApplication.shared.recordPermission == .granted
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    private func refreshGrants() {
+        accessibilityGranted = AXIsProcessTrusted()
+        screenRecordingGranted = CGPreflightScreenCaptureAccess()
+        inputMonitoringGranted = CGPreflightListenEventAccess()
+        microphoneGranted = AVAudioApplication.shared.recordPermission == .granted
+    }
 
     var body: some View {
         SettingsCard(Text("Permissions")) {
@@ -49,11 +55,15 @@ struct PermissionsSettingsBlock: View {
                           })
                 .padding(.vertical, SettingsMetrics.rowVerticalPadding)
         }
-        .onReceive(timer) { _ in
-            accessibilityGranted = AXIsProcessTrusted()
-            screenRecordingGranted = CGPreflightScreenCaptureAccess()
-            inputMonitoringGranted = CGPreflightListenEventAccess()
-            microphoneGranted = AVAudioApplication.shared.recordPermission == .granted
+        .onAppear(perform: refreshGrants)
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            refreshGrants()
+        }
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(2))
+                if !Task.isCancelled, NSApp.isActive { refreshGrants() }
+            }
         }
     }
 }
