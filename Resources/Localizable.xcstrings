@@ -181557,6 +181557,278 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "La stessa scheda in vetro del widget desktop, disegnata sullo sfondo mentre il Mac è bloccato." } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "Mac 잠금 시 배경화면 위에 데스크톱 위젯과 동일한 유리 카드를 표시합니다." } }
       }
+    },
+    "Active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Active" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "活跃" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "活躍" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクティブ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiv" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actif" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Activo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ativo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativo" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attivo" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성" } }
+      }
+    },
+    "Allowance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allowance" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "额度" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "額度" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "利用枠" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kontingent" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quota" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Límite" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuota" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limite" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Limite" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Quota" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "할당량" } }
+      }
+    },
+    "Animate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Animate" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "动画" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "動畫" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アニメーション" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Animieren" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Animer" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Animar" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Animar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Animar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Animar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Anima" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "애니메이션" } }
+      }
+    },
+    "App name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App name" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "应用名称" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "App 名稱" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリ名" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Name" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom de l’app" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre de la app" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nombre de la app" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nome do app" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nome da app" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nome app" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 이름" } }
+      }
+    },
+    "Artwork" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Artwork" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "图稿" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "圖稿" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アートワーク" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bildmaterial" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Illustration" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ilustración" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ilustración" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Arte" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Arte" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Grafica" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아트워크" } }
+      }
+    },
+    "Badges" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Badges" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "角标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "角標" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バッジ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kennzeichen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pastilles" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Globos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Globos" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Emblemas" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Badge" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "배지" } }
+      }
+    },
+    "CD jewel case" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "CD jewel case" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "CD 塑料盒" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "CD 透明盒" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "CD ジュエルケース" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "CD-Jewelcase" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Boîtier CD" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estuche de CD" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Caja de CD" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estojo de CD" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Caixa de CD" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Custodia CD" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "CD 주얼 케이스" } }
+      }
+    },
+    "Color fill" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Color fill" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "纯色填充" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "純色填滿" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カラー塗り" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Farbfüllung" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Remplissage uni" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Relleno de color" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Relleno de color" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Preenchimento sólido" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Preenchimento de cor" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Riempimento colore" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "단색 채우기" } }
+      }
+    },
+    "Custom & Live Icons" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom & Live Icons" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义与实时图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自訂與即時圖示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カスタム＆ライブアイコン" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Eigene & Live-Symbole" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icônes personnalisées et en direct" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iconos personalizados y en vivo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Íconos personalizados y en vivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ícones personalizados e ao vivo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ícones personalizados e em tempo real" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Icone personalizzate e live" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "사용자 지정 및 라이브 아이콘" } }
+      }
+    },
+    "Custom icons" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom icons" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自訂圖示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カスタムアイコン" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Eigene Symbole" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icônes personnalisées" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iconos personalizados" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Íconos personalizados" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ícones personalizados" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ícones personalizados" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Icone personalizzate" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "사용자 지정 아이콘" } }
+      }
+    },
+    "Customize Icon…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Customize Icon…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义图标…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自訂圖示…" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコンをカスタマイズ…" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Symbol anpassen…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Personnaliser l’icône…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar icono…" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar ícono…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar ícone…" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar ícone…" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Personalizza icona…" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘 사용자화…" } }
+      }
+    },
+    "Customized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Customized" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已自定义" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "已自訂" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カスタマイズ済み" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Angepasst" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Personnalisée" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Personalizado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Personalizado" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Personalizado" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Personalizado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Personalizzata" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "사용자 지정됨" } }
+      }
+    },
+    "Dress Up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dress Up" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "装饰" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "裝飾" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ドレスアップ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dekoration" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Habillage" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Decoración" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Decoración" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Decoração" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Decoração" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Decorazioni" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "꾸미기" } }
+      }
+    },
+    "Drop a PNG, ICNS, or .icon here" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drop a PNG, ICNS, or .icon here" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将 PNG、ICNS 或 .icon 拖到此处" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "將 PNG、ICNS 或 .icon 拖到此處" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "PNG、ICNS、または .icon をここにドロップ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PNG, ICNS oder .icon hier ablegen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déposez un PNG, ICNS ou .icon ici" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Suelta un PNG, ICNS o .icon aquí" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Suelta un PNG, ICNS o .icon aquí" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Solte um PNG, ICNS ou .icon aqui" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Largue um PNG, ICNS ou .icon aqui" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trascina qui un PNG, ICNS o .icon" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "여기에 PNG, ICNS 또는 .icon 드롭" } }
+      }
+    },
+    "Drop artwork or click + Add App to style any app icon." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drop artwork or click + Add App to style any app icon." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拖入图稿或点击“+ 添加应用”来定制任意应用图标。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "拖入圖稿或點擊「+ 加入 App」來自訂任何 App 圖示。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アートワークをドロップするか「+ アプリを追加」をクリックしてアイコンをデザインできます。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bildmaterial hierher ziehen oder auf „+ App hinzufügen“ klicken." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déposez une illustration ou cliquez sur + Ajouter une app." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Suelta una ilustración o haz clic en + Añadir app." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Suelta una ilustración o haz clic en + Agregar app." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Solte uma arte ou clique em + Adicionar app." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Largue uma arte ou clique em + Adicionar app." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trascina una grafica o fai clic su + Aggiungi app." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아트워크를 드롭하거나 + 앱 추가를 클릭해 아이콘을 꾸며보세요." } }
+      }
+    },
+    "Enable Live Icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Live Icon" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用实时图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用即時圖示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライブアイコンを有効にする" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Symbol aktivieren" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer l’icône en direct" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar icono en vivo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Activar ícono en vivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ativar ícone ao vivo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativar ícone em tempo real" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva icona live" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "라이브 아이콘 활성화" } }
+      }
     }
   },
   "version" : "1.0"
