@@ -181829,6 +181829,278 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva icona live" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "라이브 아이콘 활성화" } }
       }
+    },
+    "Enable opt-in live probe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable opt-in live probe" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用可选实时检测" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用選用即時偵測" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "オプトインのライブ検出を有効にする" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Optionale Live-Abfrage aktivieren" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer la sonde en direct (opt-in)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar sondeo en vivo opcional" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Activar sondeo en vivo opcional" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ativar verificação ao vivo opcional" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativar sonda em tempo real opcional" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva rilevamento live facoltativo" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "선택형 라이브 감지 활성화" } }
+      }
+    },
+    "Enter an app name to search community icons, or drop local artwork onto the stage." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter an app name to search community icons, or drop local artwork onto the stage." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "输入应用名称搜索社区图标，或将本地图稿拖到舞台。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "輸入 App 名稱搜尋社群圖示，或將本機圖稿拖到舞台。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリ名を入力してコミュニティアイコンを検索するか、ローカル画像をステージにドロップします。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Namen eingeben, um Community-Symbole zu suchen, oder lokales Bild auf die Bühne ziehen." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Saisissez le nom d’une app pour rechercher des icônes ou déposez une image locale." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escribe el nombre de una app para buscar iconos o suelta una imagen local." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Escribe el nombre de una app para buscar íconos o suelta una imagen local." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Digite o nome de um app para buscar ícones ou solte uma arte local." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Introduza o nome de uma app para procurar ícones ou largue uma arte local." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci il nome di un’app per cercare icone o trascina un’immagine locale." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 이름을 입력해 커뮤니티 아이콘을 검색하거나 로컬 아트워크를 무대에 드롭하세요." } }
+      }
+    },
+    "Enter an app name to search." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter an app name to search." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请输入要搜索的应用名称。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "請輸入要搜尋的 App 名稱。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "検索するアプリ名を入力してください。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bitte App-Namen für die Suche eingeben." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Veuillez saisir le nom d’une app." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Introduce el nombre de una app para buscar." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ingresa el nombre de una app para buscar." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Digite o nome de um app para buscar." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Introduza o nome de uma app para procurar." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci il nome di un’app da cercare." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "검색할 앱 이름을 입력하세요." } }
+      }
+    },
+    "Enter your macOSicons API key first." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter your macOSicons API key first." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请先输入您的 macOSicons API 密钥。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "請先輸入您的 macOSicons API 金鑰。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "先に macOSicons API キーを入力してください。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bitte zuerst den macOSicons-API-Schlüssel eingeben." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Veuillez d’abord saisir votre clé API macOSicons." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Introduce primero tu clave API de macOSicons." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ingresa primero tu clave API de macOSicons." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Insira sua chave de API do macOSicons primeiro." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Introduza primeiro a sua chave de API do macOSicons." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci prima la tua chiave API macOSicons." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "먼저 macOSicons API 키를 입력하세요." } }
+      }
+    },
+    "Export PNG" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export PNG" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出 PNG" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "匯出 PNG" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "PNG を書き出す" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PNG exportieren" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter en PNG" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar PNG" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Exportar PNG" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Exportar PNG" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Exportar PNG" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Esporta PNG" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "PNG 내보내기" } }
+      }
+    },
+    "Fade tide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fade tide" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "渐隐潮汐" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "漸隱潮汐" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フェードタイド" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verlaufswelle" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Flux dégradé" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Marea suave" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Marea suave" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Maré suave" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Maré suave" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Marea sfumata" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "페이드 타이드" } }
+      }
+    },
+    "Finish" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Finish" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "质感" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "質感" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "仕上げ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Oberfläche" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Finition" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acabado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Acabado" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Acabamento" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Acabamento" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Finitura" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "마감" } }
+      }
+    },
+    "Free key via macosicons.com" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Free key via macosicons.com" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "可在 macosicons.com 免费获取密钥" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "可於 macosicons.com 免費取得金鑰" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "macosicons.com で無料キーを取得" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kostenloser Schlüssel auf macosicons.com" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Clé gratuite via macosicons.com" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Clave gratuita en macosicons.com" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Clave gratuita en macosicons.com" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Chave gratuita em macosicons.com" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Chave gratuita em macosicons.com" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Chiave gratuita su macosicons.com" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "macosicons.com에서 무료 키 발급" } }
+      }
+    },
+    "Hover" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hover" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "悬停时" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "懸停時" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホバー時" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Beim Schweben" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Au survol" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Al pasar el cursor" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Al pasar el cursor" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ao passar o cursor" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ao passar o cursor" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Al passaggio" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "호버 시" } }
+      }
+    },
+    "Icon Studio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Icon Studio" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "图标工作室" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "圖示工作室" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイコンスタジオ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Symbol-Studio" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Studio d’icônes" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estudio de iconos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Estudio de íconos" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estúdio de Ícones" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Estúdio de Ícones" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Studio Icone" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아이콘 스튜디오" } }
+      }
+    },
+    "Live Activity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Live Activity" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "实时活动" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "即時動態" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライブアクティビティ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Aktivität" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activité en direct" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actividad en vivo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Actividad en vivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Atividade ao vivo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Atividade em tempo real" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attività live" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "실시간 활동" } }
+      }
+    },
+    "Live data" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Live data" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "实时数据" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "即時資料" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライブデータ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Daten" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Données en direct" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Datos en vivo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Datos en vivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dados ao vivo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Dados em tempo real" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dati live" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "실시간 데이터" } }
+      }
+    },
+    "Live icons" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Live icons" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "实时图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "即時圖示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライブアイコン" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Symbole" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Icônes en direct" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iconos en vivo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Íconos en vivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ícones ao vivo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ícones em tempo real" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Icone live" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "라이브 아이콘" } }
+      }
+    },
+    "Mouth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mouth" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "嘴巴" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "嘴巴" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "口" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mund" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bouche" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Boca" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Boca" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Boca" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Boca" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Bocca" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "입" } }
+      }
+    },
+    "No saved looks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No saved looks" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂无已保存外观" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "尚無已儲存外觀" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "保存済みのルックはありません" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine gespeicherten Looks" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun style enregistré" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin estilos guardados" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Sin estilos guardados" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum visual salvo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum aspeto guardado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun look salvato" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장된 룩 없음" } }
+      }
+    },
+    "Nose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nose" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "鼻子" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "鼻子" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "鼻" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nase" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nez" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nariz" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nariz" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nariz" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nariz" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Naso" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "코" } }
+      }
     }
   },
   "version" : "1.0"
