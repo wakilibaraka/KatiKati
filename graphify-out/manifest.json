@@ -216,9 +216,9 @@
     "semantic_hash": "713b93f22c78e55deda7e4746a94c1e8"
   },
   "App/Composition/HyperkeyService.swift": {
-    "mtime": 1794871452.8517857,
-    "seen": 1795534644.45705,
-    "ast_hash": "285d5edb589574058a542d8008a91346",
+    "mtime": 1795557954.4153965,
+    "seen": 1795558176.265058,
+    "ast_hash": "587054312fc877c37b73620265e8ca96",
     "semantic_hash": ""
   },
   "App/Composition/IntentPipeline/IntentPipeline.swift": {
@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795546247.1488476,
-    "seen": 1795546479.494105,
-    "ast_hash": "8e2bd09890999a3dbaeac590a1c081d2",
+    "mtime": 1795557949.8614388,
+    "seen": 1795558176.2650628,
+    "ast_hash": "b3be2dd48f25d32192ecffdbcff83aa1",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -378,9 +378,9 @@
     "semantic_hash": "6e0d667382b3fde55cad0e3ea43219ee"
   },
   "App/Composition/ShelfActions.swift": {
-    "mtime": 1794854037.1557617,
-    "seen": 1795534644.4570749,
-    "ast_hash": "4c77c47af6976660dfddb4eb73624620",
+    "mtime": 1795557956.6474133,
+    "seen": 1795558176.2650838,
+    "ast_hash": "84a90fabc89e24dbb37cbf65fd290960",
     "semantic_hash": ""
   },
   "App/Composition/ShelfStore.swift": {
@@ -1914,9 +1914,9 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1795546245.6858556,
-    "seen": 1795546479.4944482,
-    "ast_hash": "6fd1146383c3a96c88e3efd29491112a",
+    "mtime": 1795557940.9317067,
+    "seen": 1795558176.2654169,
+    "ast_hash": "33345150a574e4f78ec300275d010b90",
     "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
@@ -2730,10 +2730,10 @@
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/FullscreenIntentDecision.swift": {
-    "mtime": 1791999130.9120624,
-    "seen": 1795534644.457536,
-    "ast_hash": "f5e51ff74c2597d50be27b8e8e1474ec",
-    "semantic_hash": "f5e51ff74c2597d50be27b8e8e1474ec"
+    "mtime": 1795557932.9933538,
+    "seen": 1795558176.265575,
+    "ast_hash": "e7ad77a6f55afa68819bbf87efb635de",
+    "semantic_hash": ""
   },
   "Platform/CoreGraphics/FullscreenIntentMonitor.swift": {
     "mtime": 1795100592.0338068,
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1795546267.4041452,
-    "seen": 1795546479.4947588,
-    "ast_hash": "11172582bd2bca32e352e489d6093eac",
+    "mtime": 1795557958.5220523,
+    "seen": 1795558176.2657611,
+    "ast_hash": "96c19d27889ed2534912f603f966be6d",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
@@ -4632,9 +4632,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
-    "mtime": 1795435932.9592752,
-    "seen": 1795534644.457244,
-    "ast_hash": "50907f9dded0f27d7560f36c49ea50ab",
+    "mtime": 1795557955.4457445,
+    "seen": 1795558176.265258,
+    "ast_hash": "d4286c6d40b77fa0b2804da82806fba8",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Widgets.swift": {
@@ -6612,9 +6612,9 @@
     "semantic_hash": ""
   },
   "App/Composition/FocusFollowService.swift": {
-    "mtime": 1795546258.6599817,
-    "seen": 1795546479.494095,
-    "ast_hash": "9696aa5bbb45e3d6c59d2007ecd15a8e",
+    "mtime": 1795557938.912204,
+    "seen": 1795558176.265053,
+    "ast_hash": "891775cf04863ee8a0b32a6788fdaa8c",
     "semantic_hash": ""
   },
   "Core/Support/DockClickPolicy.swift": {
@@ -6624,15 +6624,15 @@
     "semantic_hash": ""
   },
   "Core/Support/FocusFollowPolicy.swift": {
-    "mtime": 1794841708.7604163,
-    "seen": 1795534644.457376,
-    "ast_hash": "8d1c9372fb0842e2bb2471a281e83b55",
+    "mtime": 1795557935.2194417,
+    "seen": 1795558176.265397,
+    "ast_hash": "77be98d5b68240bf43d9acd0d9f553b2",
     "semantic_hash": ""
   },
   "Tests/Unit/FocusFollowTests.swift": {
-    "mtime": 1794841714.3527632,
-    "seen": 1795534644.4576871,
-    "ast_hash": "a57f59a06a0ff42fed8ce142eb9b23b6",
+    "mtime": 1795557957.5644784,
+    "seen": 1795558176.26574,
+    "ast_hash": "a2d29d8f6f4619d67d384855115ed9d5",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchTrackPillContent.swift": {
@@ -7080,9 +7080,9 @@
     "semantic_hash": ""
   },
   "App/Composition/CommandTabTakeover.swift": {
-    "mtime": 1794840021.6754549,
-    "seen": 1795534644.4570181,
-    "ast_hash": "b4ad97860c3c2c487ec547733ba6a05b",
+    "mtime": 1795557934.428254,
+    "seen": 1795558176.265026,
+    "ast_hash": "2cf7e993c671462fe64a1d2141746046",
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
