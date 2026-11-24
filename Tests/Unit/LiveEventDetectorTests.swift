@@ -167,10 +167,14 @@ final class LiveEventDetectorTests: XCTestCase {
 
     func testClipboardCopyAndPastePresentationAndDedupeKey() {
         let copied = LiveEvent.clipboardCopied(preview: "Hello")
+        let cleaned = LiveEvent.clipboardCopied(preview: "https://example.com", linkCleaned: true)
         let pasted = LiveEvent.clipboardPasted(preview: "Hello")
         XCTAssertNotEqual(copied.dedupeKey, pasted.dedupeKey)
+        XCTAssertNotEqual(copied.dedupeKey, cleaned.dedupeKey)
         XCTAssertEqual(LiveEventPresentation(copied).symbol, "doc.on.clipboard")
         XCTAssertEqual(LiveEventPresentation(copied).detail, "Hello")
+        XCTAssertEqual(LiveEventPresentation(cleaned).symbol, "link.badge.plus")
+        XCTAssertTrue(LiveEventPresentation(cleaned).headline.contains("Link Cleaned"))
         XCTAssertEqual(LiveEventPresentation(pasted).symbol, "doc.on.clipboard.fill")
         XCTAssertEqual(LiveEventPresentation(pasted).detail, "Hello")
     }

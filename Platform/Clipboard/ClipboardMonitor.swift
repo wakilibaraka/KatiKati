@@ -14,9 +14,12 @@ final class ClipboardMonitor: ObservableObject {
 
     @Published private(set) var history = ClipboardHistory()
     @Published private(set) var isRecording: Bool
+    @Published private(set) var linkCleanerEnabled = false
     /// Fired for every external copy that gets recorded (never for `copy(_:)` from the flyout). The app
     /// layer decides whether that earns a toast; the monitor stays free of presentation.
     var onRecorded: ((String) -> Void)?
+    /// T1.2: carries whether URL tracking parameters were stripped before recording/toasting.
+    var onRecordedWithCleaning: ((String, Bool) -> Void)?
     /// Fired whenever content is pasted (via `pastePlain(_:)` or global ⌘V).
     var onPasted: ((String) -> Void)?
     private static let syntheticKeyTag: Int64 = 0x4B41544931
@@ -32,7 +35,7 @@ final class ClipboardMonitor: ObservableObject {
         self.pasteboard = pasteboard
         lastChange = pasteboard.changeCount
         isRecording = defaults.bool(forKey: Self.enabledKey)
-        if isRecording { startTimer() }
+        syncTimer()
     }
 
     func setRecording(_ on: Bool) {
@@ -41,25 +44,33 @@ final class ClipboardMonitor: ObservableObject {
         defaults.set(on, forKey: Self.enabledKey)
         if on {
             lastChange = pasteboard.changeCount   // what was copied before recording started is not ours to take
-            startTimer()
-        } else {
-            timer?.invalidate(); timer = nil
         }
+        syncTimer()
+    }
+
+    func setLinkCleanerEnabled(_ on: Bool) {
+        guard on != linkCleanerEnabled else { return }
+        linkCleanerEnabled = on
+        if on {
+            lastChange = pasteboard.changeCount
+        }
+        syncTimer()
     }
 
     /// Puts an entry back on the pasteboard (and moves it to the top).
-    func copy(_ entry: ClipEntry) {
+    func copy(_ entry: ClipEntry, playSound: Bool = true) {
         pasteboard.clearContents()
         pasteboard.setString(entry.text, forType: .string)
         lastChange = pasteboard.changeCount
         history.remember(entry.text, originBundleID: entry.originBundleID)
+        if playSound { playCue(.copy) }
     }
 
     /// Copies the entry, then sends ⌘V to the still-frontmost app (the flyout is non-activating). Only
     /// text is written, so nothing rich pastes. Needs Accessibility for the keystroke; silent if denied.
     func pastePlain(_ entry: ClipEntry) {
-        copy(entry)
-        playPasteSoundIfEnabled()
+        copy(entry, playSound: false)
+        playCue(.paste)
         onPasted?(entry.text)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
             guard let source = CGEventSource(stateID: .combinedSessionState),
@@ -79,13 +90,15 @@ final class ClipboardMonitor: ObservableObject {
         let raw = pasteboard.string(forType: .string) ?? history.entries.first?.text ?? ""
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        playPasteSoundIfEnabled()
+        playCue(.paste)
         onPasted?(trimmed)
     }
 
-    private func playPasteSoundIfEnabled() {
-        let on = defaults.object(forKey: Self.soundsKey) as? Bool ?? true
-        if on { NSSound(named: "Pop")?.play() }
+    private func playCue(_ event: ClipboardAudioEvent) {
+        guard let name = ClipboardAudioPolicy.soundName(for: event, defaults: defaults),
+              let sound = NSSound(named: NSSound.Name(name)) else { return }
+        sound.volume = ClipboardAudioPolicy.volume(defaults: defaults)
+        sound.play()
     }
 
     /// 55g: applies the retention setting to what is already in memory and to every later copy.
@@ -111,6 +124,15 @@ final class ClipboardMonitor: ObservableObject {
 
     /// MC-3: ⌥⌘⌫ keeps pins, ⇧⌥⌘⌫ drops everything.
     func clearAll(keepingPinned: Bool) { history.clear(keepingPinned: keepingPinned) }
+
+    private func syncTimer() {
+        if isRecording || linkCleanerEnabled {
+            startTimer()
+        } else {
+            timer?.invalidate()
+            timer = nil
+        }
+    }
 
     private func startTimer() {
         timer?.invalidate()
@@ -148,27 +170,47 @@ final class ClipboardMonitor: ObservableObject {
     private func poll() {
         guard pasteboard.changeCount != lastChange else { return }
         lastChange = pasteboard.changeCount
-        let outcome = captureMode.shouldRecordCopy()
-        skipNextCopy = outcome.nextMode.isSkippingNextCopy
-        guard outcome.record else { return }
         let types = (pasteboard.types ?? []).map(\.rawValue)
-        let originBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         guard ClipboardHistory.shouldRecord(types: types),
-              MaccyPasteboardFilter.shouldRecord(
-                types: types,
-                sourceBundleID: originBundleID,
-                text: pasteboard.string(forType: .string),
-                rules: filterRules
-              ),
-              let text = pasteboard.string(forType: .string) else { return }
-        let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
-        guard !ClipboardIgnoreRules.matches(text, rules: rules) else { return }
-        let limit = defaults.integer(forKey: ClipboardSettingsKeys.historyLimit)
-        history.limit = limit > 0 ? limit : ClipboardHistory.maxUnpinned
-        history.remember(text, originBundleID: originBundleID)
-        history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
-        if defaults.object(forKey: Self.soundsKey) as? Bool ?? true { NSSound(named: "Tink")?.play() }
-        onRecorded?(text)
+              let rawText = pasteboard.string(forType: .string) else { return }
+
+        let resolution = ClipboardPasteboardProcessor.process(
+            text: rawText,
+            isRecording: isRecording,
+            cleanLinks: linkCleanerEnabled
+        )
+        if resolution.shouldRewritePasteboard {
+            pasteboard.clearContents()
+            pasteboard.setString(resolution.finalText, forType: .string)
+            lastChange = pasteboard.changeCount
+        }
+
+        var recorded = false
+        if resolution.shouldRecordHistory {
+            let outcome = captureMode.shouldRecordCopy()
+            skipNextCopy = outcome.nextMode.isSkippingNextCopy
+            if outcome.record {
+                let originBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+                let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
+                if MaccyPasteboardFilter.shouldRecord(
+                    types: types,
+                    sourceBundleID: originBundleID,
+                    text: resolution.finalText,
+                    rules: filterRules
+                ), !ClipboardIgnoreRules.matches(resolution.finalText, rules: rules) {
+                    let limit = defaults.integer(forKey: ClipboardSettingsKeys.historyLimit)
+                    history.limit = limit > 0 ? limit : ClipboardHistory.maxUnpinned
+                    history.remember(resolution.finalText, originBundleID: originBundleID)
+                    history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
+                    recorded = true
+                }
+            }
+        }
+
+        guard recorded || resolution.didCleanLink else { return }
+        if let cue = resolution.audioEvent { playCue(cue) }
+        onRecordedWithCleaning?(resolution.finalText, resolution.didCleanLink)
+        onRecorded?(resolution.finalText)
     }
 
     deinit { timer?.invalidate() }

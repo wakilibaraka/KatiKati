@@ -179360,6 +179360,38 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "电池胶囊" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "電池膠囊" } }
       }
+    },
+    "History Updated" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verlauf aktualisiert" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History Updated" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial actualizado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Historial actualizado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Historique mis à jour" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cronologia aggiornata" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "履歴の更新" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기록 업데이트" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Histórico atualizado" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Histórico atualizado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "历史记录更新" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "歷史記錄更新" } }
+      }
+    },
+    "Link Cleaned" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Link bereinigt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Link Cleaned" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enlace limpiado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Enlace limpiado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Lien nettoyé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Link pulito" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リンクを整理" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "링크 정리됨" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Link limpo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ligação limpa" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "链接已清理" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "連結已清理" } }
+      }
     }
   },
   "version" : "1.0"

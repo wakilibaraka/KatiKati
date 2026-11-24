@@ -56,9 +56,9 @@ struct LiveEventPresentation {
             headline = String(format: String(localized: "%@ is today"), label)
             detail = nil
 
-        case let .clipboardCopied(preview):
-            symbol = "doc.on.clipboard"
-            headline = "\(String(localized: "Copied")) · \(ClipboardToastBadge.badge(for: preview))"
+        case let .clipboardCopied(preview, linkCleaned):
+            symbol = linkCleaned ? "link.badge.plus" : "doc.on.clipboard"
+            headline = "\(String(localized: "Copied")) · \(ClipboardToastBadge.badge(for: preview, linkCleaned: linkCleaned))"
             detail = preview
 
         case let .clipboardPasted(preview):

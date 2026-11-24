@@ -833,6 +833,10 @@ struct ClipboardSettingsPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var monitor = ProductivityServices.shared.clipboard
     @AppStorage(ClipboardMonitor.soundsKey) private var sounds = true
+    @AppStorage(ClipboardSettingsKeys.soundOnCopy) private var soundOnCopy = true
+    @AppStorage(ClipboardSettingsKeys.soundOnPaste) private var soundOnPaste = true
+    @AppStorage(ClipboardSettingsKeys.soundOnHistoryUpdated) private var soundOnHistoryUpdated = true
+    @AppStorage(ClipboardSettingsKeys.soundOnLinkCleaned) private var soundOnLinkCleaned = true
     @AppStorage(ClipboardMonitor.notchToastKey) private var toast = ClipboardToastDefaults.enabledByDefault
     @AppStorage(ClipboardToastBadge.dockTileKey) private var dockTile = false
     @AppStorage(ClipboardMonitor.ignorePatternsKey) private var patterns = ""
@@ -955,6 +959,12 @@ struct ClipboardSettingsPane: View {
             )
             SettingsDivider()
             SettingsToggleRow(Text("Copy & Paste Sounds"), isOn: $sounds)
+            if sounds {
+                SettingsToggleRow(Text("Copy"), isOn: $soundOnCopy)
+                SettingsToggleRow(Text("Paste"), isOn: $soundOnPaste)
+                SettingsToggleRow(Text("History Updated"), isOn: $soundOnHistoryUpdated)
+                SettingsToggleRow(Text("Link Cleaned"), isOn: $soundOnLinkCleaned)
+            }
             SettingsDivider()
             SettingsToggleRow(Text("Copy & Paste Glimpse Notifications"), isOn: $toast)
             SettingsDivider()

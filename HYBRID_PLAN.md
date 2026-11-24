@@ -7017,4 +7017,8 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 ### `T1.1` — Nested Battery Pill (`[ 87% ]`), Dynamic Battery Symbol Fix & Retina Menu Bar Polish (2026-11-24)
 
-- `Core/Support/MenuBarStatModel.swift`, `App/Composition/MenuBarSystemItem.swift`, `Tests/Unit/MenuBarStatModelTests.swift`, `Resources/Localizable.xcstrings`: added `.nestedPill` style (`[ 87% ]` inside Green/Yellow/Red battery shell), fixed static `"battery.75"` symbol bug via `MenuBarStatModel.symbolName(metric:values:)`, snapped `barImage`/`pieImage` to Retina half-point/integer bounds, and added 12-locale `"Battery Pill"` strings. Zero `project.pbxproj` edits.
+- `Core/Support/MenuBarStatModel.swift`, `App/Composition/MenuBarSystemItem.swift`, `Tests/Unit/MenuBarStatModelTests.swift`, `Resources/Localizable.xcstrings`: added `.nestedPill` style (`[ 87% ]` inside Green/Yellow/Red battery shell), fixed static `"battery.75"` symbol bug via `MenuBarStatModel.symbolName(metric:values:)`, snapped `barImage`/`pieImage` to Retina half-point/integer bounds, and added 12-locale `"Battery Pill"` strings (`7d93358f`). Zero `project.pbxproj` edits.
+
+### `T1.2` — Unified Clean URL Pasteboard Poll & Per-Event Clipboard Audio Cues (2026-11-24)
+
+- `Core/Support/{ClipboardPlus,LiveEventDetector,LiveSurfaceRouting}.swift`, `Platform/Clipboard/ClipboardMonitor.swift`, `App/Composition/LiveEventPresentation.swift`, `App/Entry/AppDelegate.swift`, `App/Scenes/UtilitySettingsBlock.swift`, `Tests/Unit/{ClipboardPlus,LiveEventDetector}Tests.swift`, `Resources/Localizable.xcstrings`: folded `URLCleaner.clean` into `ClipboardMonitor.poll()` (removing duplicate `LinkCleanerService` 0.7s timer), lit up `linkCleaned: true` toast badge, and added per-event audio cues (`Copy`, `Paste`, `History Updated`, `Link Cleaned`). Zero `project.pbxproj` edits.

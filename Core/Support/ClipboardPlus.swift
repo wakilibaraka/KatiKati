@@ -209,7 +209,83 @@ enum ClipboardSettingsKeys {
     static let showPinShortcuts = "com.katikati.clipboard.showPinShortcuts"
     static let popupPosition = "com.katikati.clipboard.popupPosition"
     static let soundsKey = "com.katikati.clipboard.sounds"
+    static let soundOnCopy = "com.katikati.clipboard.sound.copy"
+    static let soundOnPaste = "com.katikati.clipboard.sound.paste"
+    static let soundOnHistoryUpdated = "com.katikati.clipboard.sound.historyUpdated"
+    static let soundOnLinkCleaned = "com.katikati.clipboard.sound.linkCleaned"
+    static let soundVolume = "com.katikati.clipboard.sound.volume"
     static let notchToastKey = "com.katikati.clipboard.notchToast"
+}
+
+/// T1.2: granular optional audio cues for clipboard copy, paste, history update, and link cleaning.
+enum ClipboardAudioEvent: String, CaseIterable, Sendable {
+    case copy, paste, historyUpdated, linkCleaned
+
+    var defaultsKey: String {
+        switch self {
+        case .copy: return ClipboardSettingsKeys.soundOnCopy
+        case .paste: return ClipboardSettingsKeys.soundOnPaste
+        case .historyUpdated: return ClipboardSettingsKeys.soundOnHistoryUpdated
+        case .linkCleaned: return ClipboardSettingsKeys.soundOnLinkCleaned
+        }
+    }
+
+    var systemSoundName: String {
+        switch self {
+        case .copy, .historyUpdated: return "Tink"
+        case .paste: return "Pop"
+        case .linkCleaned: return "Morse"
+        }
+    }
+}
+
+enum ClipboardAudioPolicy {
+    static let defaultVolume: Float = 0.45
+    static let volumeRange: ClosedRange<Float> = 0.1...1.0
+
+    static func isEnabled(_ event: ClipboardAudioEvent, defaults: UserDefaults = .standard) -> Bool {
+        guard defaults.object(forKey: ClipboardSettingsKeys.soundsKey) as? Bool ?? true else { return false }
+        return defaults.object(forKey: event.defaultsKey) as? Bool ?? true
+    }
+
+    static func soundName(for event: ClipboardAudioEvent, defaults: UserDefaults = .standard) -> String? {
+        isEnabled(event, defaults: defaults) ? event.systemSoundName : nil
+    }
+
+    static func volume(defaults: UserDefaults = .standard) -> Float {
+        guard defaults.object(forKey: ClipboardSettingsKeys.soundVolume) != nil else { return defaultVolume }
+        return min(max(defaults.float(forKey: ClipboardSettingsKeys.soundVolume), volumeRange.lowerBound), volumeRange.upperBound)
+    }
+}
+
+struct ClipboardPollResolution: Equatable, Sendable {
+    var finalText: String
+    var didCleanLink: Bool
+    var shouldRewritePasteboard: Bool
+    var shouldRecordHistory: Bool
+    var audioEvent: ClipboardAudioEvent?
+}
+
+/// T1.2: single-pass pasteboard processor combining URL tracking-parameter stripping and history recording.
+enum ClipboardPasteboardProcessor {
+    static func process(text: String, isRecording: Bool, cleanLinks: Bool) -> ClipboardPollResolution {
+        if cleanLinks, let cleaned = URLCleaner.clean(text) {
+            return ClipboardPollResolution(
+                finalText: cleaned,
+                didCleanLink: true,
+                shouldRewritePasteboard: true,
+                shouldRecordHistory: isRecording,
+                audioEvent: .linkCleaned
+            )
+        }
+        return ClipboardPollResolution(
+            finalText: text,
+            didCleanLink: false,
+            shouldRewritePasteboard: false,
+            shouldRecordHistory: isRecording,
+            audioEvent: isRecording ? .historyUpdated : nil
+        )
+    }
 }
 
 /// NP-1: the notch toast for a recorded copy is off unless the user asks for it (Clipboard → Behaviour →

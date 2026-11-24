@@ -129,7 +129,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Phase 8b-7: the notch skin of the Live Island. Built lazily — only while the setting is on.
     private let notchPanel = NotchPanelCoordinator()
     /// Phase 8e menu utilities. The cleaner polls only while its setting is on.
-    private let linkCleaner = LinkCleanerService()
     private var linkCleanerSubscription: AnyCancellable?
     private lazy var colorPicker = ColorPickerService(toast: shortcutToast)
     private var notchSubscription: AnyCancellable?
@@ -650,7 +649,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             linkCleanerSubscription = settingsStore.$linkCleanerEnabled
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self] on in self?.linkCleaner.setEnabled(on) }
+                .sink { on in ProductivityServices.shared.clipboard.setLinkCleanerEnabled(on) }
             shelfShakeSubscription = settingsStore.$shelfShakeEnabled
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
@@ -682,10 +681,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             liveEventCenter.osBannersEnabled = { [weak self] in self?.settingsStore.liveEventOSBanners ?? false }
             liveEventCenter.route = { [weak self] in self?.settingsStore.liveEventRoute ?? .automatic }
             liveEventCenter.start()
-            ProductivityServices.shared.clipboard.onRecorded = { [weak self] text in
+            ProductivityServices.shared.clipboard.onRecordedWithCleaning = { [weak self] text, linkCleaned in
                 let toastOn = ClipboardToastDefaults.isEnabled()
                 guard toastOn, ClipboardToastPolicy.shouldToast(text) else { return }
-                self?.liveEventCenter.deliver(.clipboardCopied(preview: ClipboardHistory.previewLine(text)), now: Date())
+                self?.liveEventCenter.deliver(
+                    .clipboardCopied(preview: ClipboardHistory.previewLine(text), linkCleaned: linkCleaned),
+                    now: Date()
+                )
             }
             ProductivityServices.shared.clipboard.onPasted = { [weak self] text in
                 let toastOn = ClipboardToastDefaults.isEnabled()

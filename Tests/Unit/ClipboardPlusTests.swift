@@ -208,4 +208,53 @@ final class MaccyClipboardTests: XCTestCase {
         XCTAssertNil(MaccyKeyAction.action(key: "return", modifiers: .command))
         XCTAssertNil(MaccyKeyAction.action(key: "x", modifiers: .option))
     }
+
+    func testClipboardAudioPolicyMasterAndPerEventSwitches() {
+        let suite = "ClipboardAudioPolicyTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        for event in ClipboardAudioEvent.allCases {
+            XCTAssertTrue(ClipboardAudioPolicy.isEnabled(event, defaults: defaults))
+            XCTAssertNotNil(ClipboardAudioPolicy.soundName(for: event, defaults: defaults))
+        }
+        XCTAssertEqual(ClipboardAudioPolicy.volume(defaults: defaults), ClipboardAudioPolicy.defaultVolume, accuracy: 0.001)
+
+        defaults.set(false, forKey: ClipboardAudioEvent.linkCleaned.defaultsKey)
+        XCTAssertNil(ClipboardAudioPolicy.soundName(for: .linkCleaned, defaults: defaults))
+        XCTAssertNotNil(ClipboardAudioPolicy.soundName(for: .copy, defaults: defaults))
+
+        defaults.set(false, forKey: ClipboardSettingsKeys.soundsKey)
+        for event in ClipboardAudioEvent.allCases {
+            XCTAssertFalse(ClipboardAudioPolicy.isEnabled(event, defaults: defaults))
+        }
+
+        defaults.set(5.0, forKey: ClipboardSettingsKeys.soundVolume)
+        XCTAssertEqual(ClipboardAudioPolicy.volume(defaults: defaults), ClipboardAudioPolicy.volumeRange.upperBound, accuracy: 0.001)
+    }
+
+    func testClipboardPasteboardProcessorUnifiedLinkCleanAndHistory() {
+        let dirty = "https://example.com/item?utm_source=x&id=42"
+        let cleaned = ClipboardPasteboardProcessor.process(text: dirty, isRecording: true, cleanLinks: true)
+        XCTAssertTrue(cleaned.didCleanLink)
+        XCTAssertTrue(cleaned.shouldRewritePasteboard)
+        XCTAssertTrue(cleaned.shouldRecordHistory)
+        XCTAssertEqual(cleaned.finalText, "https://example.com/item?id=42")
+        XCTAssertEqual(cleaned.audioEvent, .linkCleaned)
+
+        let cleanOnly = ClipboardPasteboardProcessor.process(text: dirty, isRecording: false, cleanLinks: true)
+        XCTAssertTrue(cleanOnly.didCleanLink)
+        XCTAssertTrue(cleanOnly.shouldRewritePasteboard)
+        XCTAssertFalse(cleanOnly.shouldRecordHistory)
+        XCTAssertEqual(cleanOnly.audioEvent, .linkCleaned)
+
+        let plain = ClipboardPasteboardProcessor.process(text: "hello", isRecording: true, cleanLinks: true)
+        XCTAssertFalse(plain.didCleanLink)
+        XCTAssertFalse(plain.shouldRewritePasteboard)
+        XCTAssertTrue(plain.shouldRecordHistory)
+        XCTAssertEqual(plain.audioEvent, .historyUpdated)
+
+        let idle = ClipboardPasteboardProcessor.process(text: "hello", isRecording: false, cleanLinks: false)
+        XCTAssertFalse(idle.shouldRewritePasteboard)
+        XCTAssertFalse(idle.shouldRecordHistory)
+        XCTAssertNil(idle.audioEvent)
+    }
 }

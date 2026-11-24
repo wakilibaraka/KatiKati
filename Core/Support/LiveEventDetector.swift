@@ -33,7 +33,7 @@ enum LiveEvent: Equatable, Sendable {
     /// The soonest upcoming event arrived at "today".
     case countdownReachedToday(label: String)
     /// A text copy was recorded (Phase 22c; delivered directly, not by the detector diff).
-    case clipboardCopied(preview: String)
+    case clipboardCopied(preview: String, linkCleaned: Bool = false)
     /// A clipboard paste occurred (in-app or Cmd+V; delivered directly).
     case clipboardPasted(preview: String)
     /// A browser download finished (Phase 34e; delivered directly by `DownloadsMonitor`, not by the diff).

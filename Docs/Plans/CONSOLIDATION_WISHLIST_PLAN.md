@@ -33,8 +33,8 @@ Per `STANDING_RULES.md` §2.3 and `CLAUDE.md`, the following 5 files **must rema
 ## 1. Live Progress Tracker
 
 ### Tier 1 — Easiest (`S`: ≤1–2 days per slice, existing engines/models)
-- [x] **Slice T1.1** — Nested Battery Pill (`[ 87% ]`), Dynamic Battery Symbol Fix & Retina Menu Bar Polish (#20) *(DONE 2026-11-24)*
-- [ ] **Slice T1.2** — Unified Clean URL Pasteboard Poll & Per-Event Clipboard Audio Cues (#12, #24a)
+- [x] **Slice T1.1** — Nested Battery Pill (`[ 87% ]`), Dynamic Battery Symbol Fix & Retina Menu Bar Polish (#20) *(DONE `7d93358f`, 2026-11-24)*
+- [x] **Slice T1.2** — Unified Clean URL Pasteboard Poll & Per-Event Clipboard Audio Cues (#12, #24a) *(DONE 2026-11-24)*
 - [ ] **Slice T1.3** — Text Snippet Clipboard Restore & `ignoreNextCopy` Guard (#24b)
 - [ ] **Slice T1.4** — Command X (`FinderKeyMap`) Focused Text-Field AX Guard & Cut-Pending Toast (#6)
 - [ ] **Slice T1.5** — Snap Outer Border Padding, Inner Gaps & Dock Clearance Parity (#15)
@@ -104,7 +104,7 @@ Per `STANDING_RULES.md` §2.3 and `CLAUDE.md`, the following 5 files **must rema
 
 ### Tier 1 — Easiest (`S`)
 
-#### [x] DONE (2026-11-24) · Slice T1.1 — Nested Battery Pill (`[ 87% ]`), Dynamic Battery Symbol Fix & Retina Menu Bar Polish (#20)
+#### [x] DONE (`7d93358f`, 2026-11-24) · Slice T1.1 — Nested Battery Pill (`[ 87% ]`), Dynamic Battery Symbol Fix & Retina Menu Bar Polish (#20)
 - **Effort:** `S` | **Covers:** #20 | **`project.pbxproj` Impact:** None | **Idle CPU Impact:** `0 Hz` at rest (only updates on existing 1 Hz `SystemMonitorController` subscription when menu bar stats are enabled)
 - **Files to Touch:**
   - `Core/Support/MenuBarStatModel.swift:12-16, 69-133, 166-177`
@@ -120,7 +120,7 @@ Per `STANDING_RULES.md` §2.3 and `CLAUDE.md`, the following 5 files **must rema
   xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati -configuration Debug -derivedDataPath build/DerivedData -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -only-testing:KatiKatiTests/MenuBarStatModelTests && python3 Scripts/check_localization.py && python3 Scripts/check_debug_switches.py
   ```
 
-#### [ ] Slice T1.2 — Unified Clean URL Pasteboard Poll & Per-Event Clipboard Audio Cues (#12, #24a)
+#### [x] DONE (2026-11-24) · Slice T1.2 — Unified Clean URL Pasteboard Poll & Per-Event Clipboard Audio Cues (#12, #24a)
 - **Effort:** `S` | **Covers:** #12, #24a | **`project.pbxproj` Impact:** None | **Idle CPU Impact:** **Reduces** idle timers (`-1` 0.7s pasteboard timer)
 - **Files to Touch:**
   - `Core/Support/ClipboardPlus.swift` (audio cue event/preset model + `ClipboardToastBadge.badge(for:linkCleaned: true)`)
