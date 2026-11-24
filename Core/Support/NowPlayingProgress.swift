@@ -1374,14 +1374,23 @@ enum MusicDesktopWidgetGeometry {
         return clamp(CGRect(x: rect.minX, y: rect.maxY - height, width: width, height: height), into: bounds)
     }
 
+    /// Screen-space mouse deltas (`NSEvent.mouseLocation`, Cocoa y-up) for move and bottom-trailing resize.
+    static func dragDelta(from previous: CGPoint, to current: CGPoint) -> CGSize {
+        CGSize(width: current.x - previous.x, height: current.y - previous.y)
+    }
+
+    static func resizeDelta(from previous: CGPoint, to current: CGPoint) -> CGSize {
+        CGSize(width: current.x - previous.x, height: previous.y - current.y)
+    }
+
     /// Placement is remembered per display in the same normalized form `DesktopWidgetItem` already uses.
     static func normalized(_ rect: CGRect, in bounds: CGRect) -> NormalizedWidgetRect {
         guard bounds.width > 0, bounds.height > 0 else {
             return NormalizedWidgetRect(x: 0, y: 0, width: 0, height: 0)
         }
         return NormalizedWidgetRect(
-            x: rect.minX / bounds.width,
-            y: rect.minY / bounds.height,
+            x: (rect.minX - bounds.minX) / bounds.width,
+            y: (rect.minY - bounds.minY) / bounds.height,
             width: rect.width / bounds.width,
             height: rect.height / bounds.height
         )

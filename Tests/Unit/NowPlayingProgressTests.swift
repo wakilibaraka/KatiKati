@@ -1043,6 +1043,55 @@ final class MusicDesktopWidgetInteractionTests: XCTestCase {
         assertFrame(restored.restoredFrame, equals: panel.frame)
     }
 
+    func testNormalizedPlacementRoundTripsWithNonZeroOriginBounds() {
+        for bounds in [CGRect(x: 80, y: 68, width: 1648, height: 980),
+                       CGRect(x: -1440, y: 74, width: 1440, height: 826)] {
+            let rect = WidgetGeometry.rect(for: .card, in: bounds)
+            let normalized = WidgetGeometry.normalized(rect, in: bounds)
+            assertFrame(WidgetGeometry.frame(from: normalized, in: bounds), equals: rect)
+        }
+    }
+
+    func testScreenSpaceMouseDeltasKeepDragAndResizeSignsAligned() {
+        let start = CGPoint(x: 500, y: 600)
+        let movedRightDown = CGPoint(x: 540, y: 560)
+        XCTAssertEqual(WidgetGeometry.dragDelta(from: start, to: movedRightDown), CGSize(width: 40, height: -40))
+        XCTAssertEqual(WidgetGeometry.resizeDelta(from: start, to: movedRightDown), CGSize(width: 40, height: 40))
+    }
+
+    func testCommitReentrancyGuardStopsRecursiveDidMoveCommitLoop() {
+        let start = CGRect(x: surface.maxX - 300 - 9, y: 500, width: 300, height: 224)
+        let (panel, placement) = makePlacement(.card, frame: start)
+        var notifications = 0
+        var reentrantCommits = 0
+        let token = NotificationCenter.default.addObserver(forName: NSWindow.didMoveNotification,
+                                                           object: panel, queue: nil) { _ in
+            notifications += 1
+            if placement.commit() != nil { reentrantCommits += 1 }
+        }
+        defer { NotificationCenter.default.removeObserver(token) }
+
+        XCTAssertNotNil(placement.commit())
+        XCTAssertEqual(notifications, 1)
+        XCTAssertEqual(reentrantCommits, 0)
+        XCTAssertEqual(panel.frame.maxX, surface.maxX, accuracy: 0.5)
+    }
+
+    func testRedundantFrameRecordDoesNotBroadcastDefaultsChange() {
+        let rect = CGRect(x: 600, y: 400, width: 300, height: 224)
+        var changes = 0
+        let token = NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification,
+                                                           object: defaults, queue: nil) { _ in
+            changes += 1
+        }
+        defer { NotificationCenter.default.removeObserver(token) }
+
+        store().record(rect, for: displayID, in: surface)
+        XCTAssertEqual(changes, 1)
+        store().record(rect, for: displayID, in: surface)
+        XCTAssertEqual(changes, 1, "identical frame must not re-fire UserDefaults.didChangeNotification")
+    }
+
     // MARK: helpers
 
     private func makePanel(frame: CGRect) -> NSPanel {

@@ -495,7 +495,7 @@ struct MusicGlassCardView: View {
     private var state: NowPlayingState { localPlayer.isActive ? localPlayer.state : service.state }
 
     private func playPause() {
-        if localPlayer.isActive { localPlayer.togglePlayPause() } else { playPause() }
+        if localPlayer.isActive { localPlayer.togglePlayPause() } else { service.togglePlayPause() }
     }
 
     private func seek(to time: TimeInterval) {
@@ -1393,8 +1393,8 @@ struct MusicDesktopPresetView: View {
     var interaction: MusicDesktopWidgetInteraction?
     @State private var selection = MusicSurfaceConfig.styleSelection()
     @State private var palette: MusicArtworkPalette = MusicArtworkPaletteCache.shared.palette(for: nil)
-    @State private var moveTranslation: CGSize = .zero
-    @State private var resizeTranslation: CGSize = .zero
+    @State private var moveLastMouse: CGPoint?
+    @State private var resizeLastMouse: CGPoint?
 
     init(preset: MusicDesktopWidgetPreset,
          service: NowPlayingService = DesktopWidgetServices.nowPlaying,
@@ -1441,32 +1441,44 @@ struct MusicDesktopPresetView: View {
 
     // MARK: §10 move & resize
 
-    /// Dragging the card's own surface (not a control) moves the window. Buttons and the scrubber keep their
-    /// gestures, so this only fires where there is nothing to click.
+    /// Dragging the card's own surface (not a control) moves the window in screen coordinates. Buttons
+    /// and the scrubber keep their gestures, so this only fires where there is nothing to click.
     private var moveGesture: some Gesture {
         DragGesture(minimumDistance: 2, coordinateSpace: .global)
-            .onChanged { value in
+            .onChanged { _ in
                 guard let interaction else { return }
-                interaction.move(CGSize(width: value.translation.width - moveTranslation.width,
-                                        height: moveTranslation.height - value.translation.height))
-                moveTranslation = value.translation
+                let mouse = NSEvent.mouseLocation
+                guard let previous = moveLastMouse else {
+                    moveLastMouse = mouse
+                    return
+                }
+                let delta = MusicDesktopWidgetGeometry.dragDelta(from: previous, to: mouse)
+                moveLastMouse = mouse
+                if delta != .zero { interaction.move(delta) }
             }
             .onEnded { _ in
-                moveTranslation = .zero
-                interaction?.commit()
+                let hadDrag = moveLastMouse != nil
+                moveLastMouse = nil
+                if hadDrag { interaction?.commit() }
             }
     }
 
     private func resizeGesture(_ interaction: MusicDesktopWidgetInteraction) -> some Gesture {
         DragGesture(minimumDistance: 1, coordinateSpace: .global)
-            .onChanged { value in
-                interaction.resize(CGSize(width: value.translation.width - resizeTranslation.width,
-                                          height: resizeTranslation.height - value.translation.height))
-                resizeTranslation = value.translation
+            .onChanged { _ in
+                let mouse = NSEvent.mouseLocation
+                guard let previous = resizeLastMouse else {
+                    resizeLastMouse = mouse
+                    return
+                }
+                let delta = MusicDesktopWidgetGeometry.resizeDelta(from: previous, to: mouse)
+                resizeLastMouse = mouse
+                if delta != .zero { interaction.resize(delta) }
             }
             .onEnded { _ in
-                resizeTranslation = .zero
-                interaction.commit()
+                let hadResize = resizeLastMouse != nil
+                resizeLastMouse = nil
+                if hadResize { interaction.commit() }
             }
     }
 

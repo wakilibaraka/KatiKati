@@ -866,6 +866,7 @@ final class MusicDesktopWidgetController {
         isRunning = false
         panels.values.forEach { $0.orderOut(nil) }
         panels.removeAll()
+        placements.removeAll()
         observers.forEach { NotificationCenter.default.removeObserver($0) }
         observers = []
     }
@@ -901,9 +902,8 @@ final class MusicDesktopWidgetController {
             configure(panel, preset: preset,
                       interaction: preset == .poster ? nil : placement.interaction)
             let rect = placement.restoredFrame ?? MusicDesktopWidgetGeometry.rect(for: preset, in: bounds)
-            panel.setFrame(MusicDesktopWidgetGeometry.clamp(rect, into: bounds), display: true)
+            placement.applyFrame(MusicDesktopWidgetGeometry.clamp(rect, into: bounds), display: true)
             panel.orderFrontRegardless()
-            print("[musicdesk] panel preset=\(preset.rawValue) level=\(panel.level.rawValue) normal=\(MusicDesktopWidgetPolicy.normalWindowLevel) clickThrough=\(panel.ignoresMouseEvents) frame=\(Int(panel.frame.minX)),\(Int(panel.frame.minY)) \(Int(panel.frame.width))x\(Int(panel.frame.height)) visible=\(panel.isVisible)")
             Self.setAnimations(paused: MusicDesktopWidgetPolicy.pausesAnimations(isHidden: false,
                                                                                  isOccluded: !panel.occlusionState.contains(.visible)),
                                on: panel)
@@ -930,13 +930,12 @@ final class MusicDesktopWidgetController {
         panel.becomesKeyOnlyIfNeeded = true
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenNone]
         let center = NotificationCenter.default
-        observers.append(center.addObserver(forName: NSWindow.didMoveNotification, object: panel, queue: .main) { _ in
+        observers.append(center.addObserver(forName: NSWindow.didEndLiveResizeNotification, object: panel, queue: .main) { [weak panel] _ in
+            guard let panel else { return }
             MainActor.assumeIsolated { MusicDesktopWidgetController.shared.persist(panel) }
         })
-        observers.append(center.addObserver(forName: NSWindow.didEndLiveResizeNotification, object: panel, queue: .main) { _ in
-            MainActor.assumeIsolated { MusicDesktopWidgetController.shared.persist(panel) }
-        })
-        observers.append(center.addObserver(forName: NSWindow.didChangeOcclusionStateNotification, object: panel, queue: .main) { _ in
+        observers.append(center.addObserver(forName: NSWindow.didChangeOcclusionStateNotification, object: panel, queue: .main) { [weak panel] _ in
+            guard let panel else { return }
             MainActor.assumeIsolated {
                 MusicDesktopWidgetController.setAnimations(paused: !panel.occlusionState.contains(.visible), on: panel)
             }
@@ -952,8 +951,8 @@ final class MusicDesktopWidgetController {
         assert(level < MusicDesktopWidgetPolicy.normalWindowLevel, "music panel above app windows")
         panel.level = NSWindow.Level(rawValue: level)
         panel.ignoresMouseEvents = MusicDesktopWidgetPolicy.ignoresMouseEvents(for: preset)
-        panel.isMovable = preset != .poster
-        panel.isMovableByWindowBackground = preset != .poster
+        panel.isMovable = false
+        panel.isMovableByWindowBackground = false
         if panel.hostedPreset != preset {
             let host = NSHostingView(rootView: MusicDesktopPresetView(preset: preset, interaction: interaction))
             host.wantsLayer = true

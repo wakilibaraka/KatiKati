@@ -31,9 +31,18 @@ struct MusicDesktopWidgetFrameStore {
     /// Stores the frame the widget actually ended on, normalized to the surface it sits in.
     func record(_ rect: CGRect, for displayID: String, in bounds: CGRect) {
         var all = frames()
-        all[displayID] = MusicDesktopWidgetGeometry.normalized(rect, in: bounds)
+        let next = MusicDesktopWidgetGeometry.normalized(rect, in: bounds)
+        if let existing = all[displayID], Self.rectsApproximatelyEqual(existing, next) { return }
+        all[displayID] = next
         guard let data = try? JSONEncoder().encode(all) else { return }
         defaults.set(data, forKey: key)
+    }
+
+    private static func rectsApproximatelyEqual(_ lhs: NormalizedWidgetRect, _ rhs: NormalizedWidgetRect) -> Bool {
+        abs(lhs.x - rhs.x) < 1e-4 &&
+        abs(lhs.y - rhs.y) < 1e-4 &&
+        abs(lhs.width - rhs.width) < 1e-4 &&
+        abs(lhs.height - rhs.height) < 1e-4
     }
 }
 
@@ -48,6 +57,7 @@ final class MusicDesktopWidgetPlacement {
     /// The surface the panel is held inside; refreshed on every reload, since screens and the Dock move.
     private(set) var bounds: CGRect
     private var store: MusicDesktopWidgetFrameStore
+    private var isApplyingFrame = false
 
     init(panel: NSPanel,
          displayID: String,
@@ -80,26 +90,40 @@ final class MusicDesktopWidgetPlacement {
 
     /// A live drag: the panel follows the pointer, held inside the surface.
     func move(by delta: CGSize) {
-        guard let panel else { return }
+        guard let panel, !isApplyingFrame else { return }
         let rect = MusicDesktopWidgetGeometry.moved(panel.frame, by: delta, into: bounds)
-        if rect != panel.frame { panel.setFrame(rect, display: true) }
+        applyFrame(rect, display: true)
     }
 
     /// A live resize: the top-leading corner holds still and the panel never shrinks below the preset minimum
     /// (a strip keeps its height). Poster is a picture and never resizes.
     func resize(by delta: CGSize) {
-        guard let panel, preset != .poster else { return }
+        guard let panel, !isApplyingFrame, preset != .poster else { return }
         let rect = MusicDesktopWidgetGeometry.resized(panel.frame, by: delta, preset: preset, into: bounds)
-        if rect != panel.frame { panel.setFrame(rect, display: true) }
+        applyFrame(rect, display: true)
     }
 
     /// Snap, apply, remember: the frame the widget ends on is the frame that comes back next launch.
     @discardableResult
     func commit() -> CGRect? {
-        guard let panel else { return nil }
+        guard let panel, !isApplyingFrame else { return nil }
         let rect = MusicDesktopWidgetGeometry.snap(panel.frame, into: bounds)
-        if rect != panel.frame { panel.setFrame(rect, display: true) }
+        applyFrame(rect, display: true)
         store.record(rect, for: displayID, in: bounds)
         return rect
+    }
+
+    func applyFrame(_ rect: CGRect, display: Bool = true) {
+        guard let panel, !isApplyingFrame, !Self.framesEqual(panel.frame, rect) else { return }
+        isApplyingFrame = true
+        defer { isApplyingFrame = false }
+        panel.setFrame(rect, display: display)
+    }
+
+    private static func framesEqual(_ lhs: CGRect, _ rhs: CGRect) -> Bool {
+        abs(lhs.minX - rhs.minX) < 0.5 &&
+        abs(lhs.minY - rhs.minY) < 0.5 &&
+        abs(lhs.width - rhs.width) < 0.5 &&
+        abs(lhs.height - rhs.height) < 0.5
     }
 }
