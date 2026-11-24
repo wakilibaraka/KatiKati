@@ -336,3 +336,257 @@ final class MediaSessionSwitcherTests: XCTestCase {
         XCTAssertEqual(LiquidLyricsSource.best([wrongDuration, rightDuration], duration: 180)?.lines, rightDuration.lines)
     }
 }
+
+// MARK: - ML-1: music surface core
+
+final class MusicSurfaceCoreTests: XCTestCase {
+
+    func testGlassStylesMapOntoExistingMaterials() {
+        XCTAssertEqual(MusicGlassStyle.clear.material, .clearMinimal)
+        XCTAssertEqual(MusicGlassStyle.semi.material, .frostedGlass)
+        XCTAssertEqual(MusicGlassStyle.tinted.material, .tintedGlass)
+        XCTAssertEqual(MusicGlassStyle.allCases.count, 3)
+    }
+
+    func testAssignmentKeepsSidesDistinct() {
+        var assignment = MusicControlAssignment(left: .lyrics, right: .lyrics)
+        XCTAssertEqual(assignment.left, .lyrics)
+        XCTAssertEqual(assignment.right, MusicControlAssignment.alternative(to: .lyrics))
+        assignment.set(.copy, on: .left)
+        XCTAssertEqual(assignment.left, .copy)
+        XCTAssertNotEqual(assignment.left, assignment.right)
+        assignment.set(.favorite, on: .right)
+        XCTAssertEqual(assignment.right, .favorite)
+        XCTAssertNotEqual(assignment.left, assignment.right)
+    }
+
+    func testAssignmentDecodesStoredRawValuesAndFallsBack() {
+        XCTAssertEqual(MusicControlAssignment(leftRaw: "repeat", rightRaw: "copy"),
+                       MusicControlAssignment(left: .repeatTrack, right: .copy))
+        let fallback = MusicControlAssignment(leftRaw: "nonsense", rightRaw: nil)
+        XCTAssertEqual(fallback.left, .lyrics)
+        XCTAssertEqual(fallback.right, .output)
+    }
+
+    func testCapabilitiesHideSlotsThePlayerCannotServe() {
+        let assignment = MusicControlAssignment(left: .shuffle, right: .output)
+        let resolved = assignment.resolved(.standard)
+        XCTAssertNil(resolved.left, "shuffle is not offered without a proven command")
+        XCTAssertEqual(resolved.right, .output)
+        var capable = MusicControlCapabilities.standard
+        capable.canShuffle = true
+        XCTAssertEqual(assignment.resolved(capable).left, .shuffle)
+    }
+
+    func testHorizontalSwipeSkipsOnceTheAxisLocks() {
+        var machine = MusicSwipeMachine()
+        machine.begin()
+        machine.accumulate(deltaX: 20, deltaY: 2)
+        machine.accumulate(deltaX: 60, deltaY: 3)
+        XCTAssertEqual(machine.axis, .horizontal)
+        XCTAssertEqual(machine.end(at: 10, currentMode: .full), .skip(forward: false))
+    }
+
+    func testVerticalSwipeResizesToTheRequestedMode() {
+        var machine = MusicSwipeMachine()
+        machine.begin()
+        machine.accumulate(deltaX: 1, deltaY: -60)
+        XCTAssertEqual(machine.end(at: 10, currentMode: .full), .resize(.full))
+        machine.begin()
+        machine.accumulate(deltaX: 1, deltaY: 60)
+        XCTAssertEqual(machine.end(at: 11, currentMode: .full), .resize(.slim))
+    }
+
+    func testDiagonalBelowDominanceNeverFires() {
+        var machine = MusicSwipeMachine()
+        machine.begin()
+        machine.accumulate(deltaX: 40, deltaY: 38)
+        XCTAssertNil(machine.axis)
+        XCTAssertEqual(machine.end(at: 10, currentMode: .full), .none)
+    }
+
+    func testShortGestureIsIgnoredAndCooldownBlocksRepeats() {
+        var machine = MusicSwipeMachine(cooldown: 1)
+        machine.begin()
+        machine.accumulate(deltaX: 60, deltaY: 0)
+        machine.begin()
+        machine.accumulate(deltaX: 10, deltaY: 0)
+        XCTAssertEqual(machine.end(at: 10, currentMode: .full), .none, "a 10 pt flick is not a swipe")
+
+        machine.begin()
+        machine.accumulate(deltaX: 60, deltaY: 0)
+        XCTAssertEqual(machine.end(at: 10, currentMode: .full), .skip(forward: false))
+        machine.begin()
+        machine.accumulate(deltaX: 60, deltaY: 0)
+        XCTAssertEqual(machine.end(at: 10.2, currentMode: .full), .none, "cooldown")
+    }
+
+    func testStashClampsToTheVisibleFrame() {
+        let visible = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        let card = CGRect(x: 600, y: 400, width: 260, height: 280)
+        let leftStash = MusicEdgeStash.stashedFrame(card, in: visible, edge: .left)
+        XCTAssertEqual(leftStash.minX, -260 + MusicEdgeStash.revealWidth)
+        let rightStash = MusicEdgeStash.stashedFrame(card, in: visible, edge: .right)
+        XCTAssertEqual(rightStash.minX, visible.maxX - MusicEdgeStash.revealWidth)
+
+        XCTAssertEqual(MusicEdgeStash.revealedFrame(leftStash, in: visible, edge: .left).minX, visible.minX)
+        XCTAssertEqual(MusicEdgeStash.revealedFrame(rightStash, in: visible, edge: .right).maxX, visible.maxX)
+
+        let huge = CGRect(x: 0, y: 0, width: 2000, height: 100)
+        XCTAssertEqual(MusicEdgeStash.stashedFrame(huge, in: visible, edge: .right).width, visible.width)
+        XCTAssertTrue(MusicEdgeStash.isRevealed(mouseX: 12, frame: leftStash, edge: .left))
+        XCTAssertFalse(MusicEdgeStash.isRevealed(mouseX: 200, frame: leftStash, edge: .left))
+    }
+
+    /// The exact corruption sequence from the plan: weather holds the capture, music comes and goes, and
+    /// the capture must still be the user's original (restored only on the weather release).
+    func testPanelStashOffsetsAndFullyHiddenState() {
+        let visible = CGRect(x: 0, y: 0, width: 1440, height: 900)
+        let panel = CGRect(x: 600, y: 400, width: 280, height: 320)
+
+        let stashed = MusicEdgeStash.stashedFrame(panel, in: visible, edge: .right)
+        XCTAssertEqual(MusicEdgeStash.visibleWidth(of: stashed, in: visible), MusicEdgeStash.revealWidth)
+        XCTAssertFalse(MusicEdgeStash.isFullyHidden(stashed, in: visible))
+
+        let hidden = MusicEdgeStash.stashedFrame(panel, in: visible, edge: .right, reveal: 0)
+        XCTAssertEqual(MusicEdgeStash.visibleWidth(of: hidden, in: visible), 0)
+        XCTAssertTrue(MusicEdgeStash.isFullyHidden(hidden, in: visible))
+
+        let leftStashed = MusicEdgeStash.stashedFrame(panel, in: visible, edge: .left)
+        XCTAssertEqual(MusicEdgeStash.visibleWidth(of: leftStashed, in: visible), MusicEdgeStash.revealWidth)
+        XCTAssertEqual(MusicEdgeStash.revealedFrame(leftStashed, in: visible, edge: .left).minX, visible.minX)
+
+        // The reveal strip starts at the screen edge and covers the sliver's vertical span.
+        let rightZone = MusicEdgeStash.revealZone(in: stashed, edge: .right, visible: visible)
+        XCTAssertEqual(rightZone.maxX, visible.maxX)
+        XCTAssertTrue(rightZone.contains(CGPoint(x: visible.maxX - 1, y: stashed.midY)))
+        XCTAssertFalse(rightZone.contains(CGPoint(x: visible.maxX - 200, y: stashed.midY)))
+        let leftZone = MusicEdgeStash.revealZone(in: leftStashed, edge: .left, visible: visible)
+        XCTAssertEqual(leftZone.minX, visible.minX)
+        XCTAssertTrue(leftZone.contains(CGPoint(x: visible.minX + 1, y: leftStashed.midY)))
+    }
+
+    // MARK: - §5.7 shared design system
+
+    func testScrubberHeightsAreDeterministicAndBounded() {
+        let seed = MusicScrubberStyle.seed(title: "KatiKati CPU Probe", artist: "Local Test")
+        XCTAssertEqual(seed, MusicScrubberStyle.seed(title: "KatiKati CPU Probe", artist: "Local Test"))
+        XCTAssertNotEqual(seed, MusicScrubberStyle.seed(title: "Another", artist: "Local Test"))
+
+        let first = MusicScrubberStyle.barHeights(seed: seed, count: 32)
+        let second = MusicScrubberStyle.barHeights(seed: seed, count: 32)
+        XCTAssertEqual(first, second)
+        XCTAssertEqual(first.count, 32)
+        XCTAssertTrue(first.allSatisfy { $0 >= 0.18 && $0 <= 1 })
+        XCTAssertNotEqual(first, MusicScrubberStyle.barHeights(seed: seed &+ 1, count: 32))
+    }
+
+    func testScrubberStylesExposeTheirBarCounts() {
+        XCTAssertEqual(MusicScrubberStyle.slim.barCount, 1)
+        XCTAssertEqual(MusicScrubberStyle.dotted.barCount, 24)
+        XCTAssertEqual(MusicScrubberStyle.waveform.barCount, 32)
+        XCTAssertEqual(MusicScrubberStyle.waveform.heights(title: "A", artist: "B").count, 32)
+    }
+
+    func testSurfaceThemesKeepOneGlassVocabulary() {
+        XCTAssertEqual(MusicSurfaceTheme.allCases.count, 5)
+        XCTAssertEqual(MusicSurfaceTheme(legacy: .clear), .clearGlass)
+        XCTAssertEqual(MusicSurfaceTheme(legacy: .semi), .semiGlass)
+        XCTAssertEqual(MusicSurfaceTheme(legacy: .tinted), .tintedGlass)
+        XCTAssertEqual(MusicSurfaceTheme.semiGlass.material, .frostedGlass)
+        XCTAssertTrue(MusicSurfaceTheme.semiGlass.usesMaterial)
+        XCTAssertFalse(MusicSurfaceTheme.oledBlack.usesMaterial)
+        XCTAssertFalse(MusicSurfaceTheme.crispLight.isDark)
+        XCTAssertTrue(MusicSurfaceTheme.oledBlack.isDark)
+        XCTAssertGreaterThan(MusicSurfaceTheme.oledBlack.scrimOpacity, MusicSurfaceTheme.clearGlass.scrimOpacity)
+    }
+
+    func testCardLayoutsCarryTheirOwnGeometry() {
+        XCTAssertEqual(MusicCardLayout.slim.lyricSlots, 1)
+        XCTAssertEqual(MusicCardLayout.hero.lyricSlots, 3)
+        XCTAssertTrue(MusicCardLayout.hero.showsArtwork)
+        XCTAssertFalse(MusicCardLayout.full.showsArtwork)
+        XCTAssertLessThan(MusicCardLayout.slim.height(width: 320), MusicCardLayout.full.height(width: 320))
+        XCTAssertLessThan(MusicCardLayout.full.height(width: 320), MusicCardLayout.hero.height(width: 320))
+        XCTAssertEqual(MusicCardLayout.from(mode: .full, heroEnabled: true), .hero)
+        XCTAssertEqual(MusicCardLayout.from(mode: .slim, heroEnabled: true), .slim)
+    }
+
+    func testPalettePicksTheDominantColour() {
+        // A block of one strongly blue colour: the accent must come out blue, and the surface dark.
+        var pixels: [UInt8] = []
+        for _ in 0..<64 { pixels += [40, 60, 200, 255] }
+        let palette = MusicArtworkPalette(pixels: pixels)
+        XCTAssertGreaterThan(palette.accent.b, palette.accent.r)
+        XCTAssertGreaterThan(palette.accent.b, palette.accent.g)
+        XCTAssertTrue(palette.isDark)
+        XCTAssertEqual(MusicArtworkPalette(pixels: []), MusicArtworkPalette(pixels: [1, 2, 3]))
+    }
+
+    func testStyleSelectionOverridesOnlyWhenMatchingIsOff() {
+        var selection = MusicStyleSelection()
+        XCTAssertTrue(selection.matchesAcrossSurfaces)
+        XCTAssertEqual(selection.theme(for: .lockScreen), selection.theme(for: .desktop))
+
+        var override = MusicSurfaceStyle.standard
+        override.theme = .oledBlack
+        selection.set(override, for: .lockScreen)
+        // Still matched: the "override" wrote the base.
+        XCTAssertEqual(selection.theme(for: .desktop), .oledBlack)
+
+        selection.matchesAcrossSurfaces = false
+        selection.base = .standard
+        selection.set(override, for: .lockScreen)
+        XCTAssertEqual(selection.theme(for: .lockScreen), .oledBlack)
+        XCTAssertEqual(selection.theme(for: .desktop), .semiGlass)
+        XCTAssertEqual(selection.wallpaperStyle(for: .wallpaper), .blurredAlbum)
+    }
+
+    func testLeaseNeverHandsASecondWriterTheCapture() {
+        var lease = WallpaperLease()
+        XCTAssertTrue(lease.acquire(.weather), "first holder captures")
+        XCTAssertFalse(lease.acquire(.music), "second holder must not capture over the album art")
+        XCTAssertFalse(lease.release(.music), "music leaving must not restore while weather is painting")
+        XCTAssertTrue(lease.isCaptured)
+        XCTAssertTrue(lease.release(.weather), "the last holder restores the user's original")
+        XCTAssertFalse(lease.isCaptured)
+        XCTAssertTrue(lease.holders.isEmpty)
+    }
+
+    func testLeaseAdoptsACrashLeftoverCapture() {
+        var lease = WallpaperLease()
+        lease.adoptCapture()
+        XCTAssertFalse(lease.acquire(.music), "a persisted capture is adopted, never overwritten")
+        XCTAssertTrue(lease.release(.music))
+    }
+
+    func testLockScreenBackupSurvivesACrashMidRestore() throws {
+        var backup = LockScreenWallpaperBackup()
+        XCTAssertTrue(backup.capture("file:///Users/me/photo.heic"))
+        XCTAssertFalse(backup.capture("file:///Users/me/other.heic"), "never overwrite a held capture")
+        backup.markRestorePending()
+        let encoded = try JSONEncoder().encode(backup)
+        var restored = try JSONDecoder().decode(LockScreenWallpaperBackup.self, from: encoded)
+        XCTAssertEqual(restored.state, .restorePending)
+        XCTAssertEqual(restored.takeRestore(), "file:///Users/me/photo.heic")
+        XCTAssertEqual(restored.state, .idle)
+        XCTAssertNil(restored.takeRestore())
+    }
+
+    func testEnhancedLRCWordsAndLineFallback() {
+        let enhanced = "[00:12.50]<00:12.50>Hello <00:13.00>world\n"
+        let lines = LyricsTrack.parseLRC(enhanced)
+        XCTAssertEqual(lines.count, 1)
+        XCTAssertEqual(lines[0].text, "Hello world")
+        XCTAssertEqual(lines[0].words, [LyricsWord(time: 12.5, text: "Hello"),
+                                         LyricsWord(time: 13.0, text: "world")])
+        XCTAssertEqual(LyricsTrack.activeWord(in: lines[0], at: 12.6), "Hello")
+        XCTAssertEqual(LyricsTrack.activeWord(in: lines[0], at: 13.4), "world")
+
+        let plain = LyricsTrack.parseLRC("[00:12.50]Hello world\n")
+        XCTAssertEqual(plain[0].text, "Hello world")
+        XCTAssertTrue(plain[0].words.isEmpty)
+        XCTAssertNil(LyricsTrack.activeWord(in: plain[0], at: 20), "no word tags -> line highlighting")
+        XCTAssertEqual(LyricsTrack.activeLine(in: plain, at: 20), "Hello world")
+    }
+}

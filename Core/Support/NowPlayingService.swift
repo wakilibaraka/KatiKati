@@ -1,4 +1,6 @@
 import AppKit
+import AVFoundation
+import Combine
 import Foundation
 
 // MARK: - MediaRemote Declarations
@@ -729,3 +731,174 @@ final class LyricsStore: ObservableObject {
     }
 }
 
+// MARK: - ML-6: local audio player (§5.9)
+
+/// A local file player that feeds the music surfaces **without** becoming the system Now Playing app
+/// (§2.4). It publishes the same `NowPlayingState` shape, so the card, the lock screen and the wallpaper
+/// read it exactly like a system player — there is no second UI path.
+@MainActor
+final class LocalAudioPlayer: NSObject, ObservableObject {
+    static let shared = LocalAudioPlayer()
+
+    @Published private(set) var state = NowPlayingState(isPlaying: false)
+    @Published private(set) var isActive = false
+
+    private var player: AVAudioPlayer?
+
+    func play(url: URL) {
+        player?.stop()
+        guard let next = try? AVAudioPlayer(contentsOf: url) else { return }
+        next.prepareToPlay()
+        next.play()
+        player = next
+        isActive = true
+        state = NowPlayingState(
+            isPlaying: true,
+            title: url.deletingPathExtension().lastPathComponent,
+            artist: String(localized: "Local File"),
+            bundleIdentifier: "com.katikati.local",
+            appName: "KatiKati",
+            duration: next.duration,
+            elapsed: 0,
+            elapsedAsOf: Date(),
+            rate: 1
+        )
+    }
+
+    func togglePlayPause() {
+        guard let player else { return }
+        if player.isPlaying {
+            player.pause()
+            state.isPlaying = false
+            state.rate = 0
+            state.elapsed = player.currentTime
+            state.elapsedAsOf = Date()
+        } else {
+            player.play()
+            state.isPlaying = true
+            state.rate = 1
+            state.elapsed = player.currentTime
+            state.elapsedAsOf = Date()
+        }
+    }
+
+    func seek(to time: TimeInterval) {
+        guard let player else { return }
+        let clamped = min(max(time, 0), player.duration)
+        player.currentTime = clamped
+        state.elapsed = clamped
+        state.elapsedAsOf = Date()
+    }
+
+    func stop() {
+        player?.stop()
+        player = nil
+        isActive = false
+        state = NowPlayingState(isPlaying: false)
+    }
+}
+
+// MARK: - ML-5: Discord Rich Presence over the local IPC socket
+
+/// Opt-in, event-driven, dependency-free. It connects to `discord-ipc-N` only when a track changes and an
+/// application id is configured, sends one SET_ACTIVITY frame, and closes. No polling, no reconnect loop, and
+/// a missing Discord is a silent no-op — never an error path the user has to see.
+final class DiscordPresence {
+    static let shared = DiscordPresence()
+
+    private var lastKey: String?
+    private var cancellable: AnyCancellable?
+
+    func start(service: NowPlayingService) {
+        guard cancellable == nil else { return }
+        cancellable = service.$state
+            .removeDuplicates { lhs, rhs in
+                lhs.title == rhs.title && lhs.artist == rhs.artist && lhs.isPlaying == rhs.isPlaying
+            }
+            .sink { [weak self] state in self?.publish(state) }
+    }
+
+    private func publish(_ state: NowPlayingState) {
+        guard MusicSurfaceConfig.isDiscordPresenceEnabled, let clientID = MusicSurfaceConfig.discordClientID else { return }
+        let key = "\(state.title ?? "")|\(state.artist ?? "")|\(state.isPlaying)"
+        guard key != lastKey else { return }
+        lastKey = key
+        guard let fd = Self.connect() else { return }
+        defer { close(fd) }
+        Self.send(opcode: 0, payload: ["v": 1, "client_id": clientID], to: fd)
+        var activity: [String: Any] = ["instance": false]
+        if let title = state.title, !title.isEmpty {
+            activity["details"] = title
+            if let artist = state.artist, !artist.isEmpty { activity["state"] = artist }
+            activity["timestamps"] = state.isPlaying
+                ? ["start": Int(Date().timeIntervalSince1970 - (state.elapsed ?? 0))]
+                : [:]
+            activity["assets"] = ["large_text": title]
+            Self.send(opcode: 1, payload: ["cmd": "SET_ACTIVITY",
+                                           "args": ["pid": Int(ProcessInfo.processInfo.processIdentifier),
+                                                    "activity": activity],
+                                           "nonce": UUID().uuidString], to: fd)
+        } else {
+            Self.send(opcode: 1, payload: ["cmd": "SET_ACTIVITY",
+                                           "args": ["pid": Int(ProcessInfo.processInfo.processIdentifier)],
+                                           "nonce": UUID().uuidString], to: fd)
+        }
+    }
+
+    /// Discord exposes `discord-ipc-0…9` in the per-user temp directory; the first one that accepts a connect
+    /// wins. A miss returns nil and the caller simply does nothing.
+    private static func connect() -> Int32? {
+        let base = NSTemporaryDirectory()
+        for index in 0..<10 {
+            let path = (base as NSString).appendingPathComponent("discord-ipc-\(index)")
+            let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+            guard fd >= 0 else { continue }
+            var address = sockaddr_un()
+            address.sun_family = sa_family_t(AF_UNIX)
+            let capacity = MemoryLayout.size(ofValue: address.sun_path)
+            guard path.utf8.count < capacity else { close(fd); continue }
+            withUnsafeMutablePointer(to: &address.sun_path) { pointer in
+                pointer.withMemoryRebound(to: CChar.self, capacity: capacity) { dest in
+                    _ = path.withCString { strncpy(dest, $0, capacity - 1) }
+                }
+            }
+            let size = socklen_t(MemoryLayout<sockaddr_un>.size)
+            let result = withUnsafePointer(to: &address) { pointer in
+                pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { Darwin.connect(fd, $0, size) }
+            }
+            if result == 0 { return fd }
+            close(fd)
+        }
+        return nil
+    }
+
+    private static func send(opcode: Int, payload: [String: Any], to fd: Int32) {
+        guard let body = try? JSONSerialization.data(withJSONObject: payload) else { return }
+        var frame = Data()
+        var header = (UInt32(opcode) | (UInt32(body.count) << 8)).littleEndian
+        withUnsafeBytes(of: &header) { frame.append(contentsOf: $0) }
+        frame.append(body)
+        frame.withUnsafeBytes { raw in
+            guard let base = raw.baseAddress else { return }
+            _ = Darwin.send(fd, base, raw.count, 0)
+        }
+    }
+}
+
+/// A cheap, stable identity for artwork bytes. MediaRemote re-sends the same image with different sizes and
+/// framing, so `data.count` is not an identity — hashing a prefix is. Used for the wallpaper cache key and
+/// the palette cache, so neither re-renders while the track is unchanged.
+enum MusicArtworkSignature {
+    static func of(_ data: Data?) -> Int {
+        guard let data, !data.isEmpty else { return 0 }
+        var hash: UInt64 = 0xcbf29ce484222325
+        let prefix = data.prefix(8192)
+        for byte in prefix {
+            hash ^= UInt64(byte)
+            hash = hash &* 0x100000001b3
+        }
+        hash ^= UInt64(data.count)
+        hash = hash &* 0x100000001b3
+        return Int(truncatingIfNeeded: hash)
+    }
+}
