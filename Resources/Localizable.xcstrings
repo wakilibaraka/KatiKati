@@ -47012,7 +47012,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Double tape sur ⌘ pour ouvrir le lanceur"
+            "value" : "Tapez deux fois sur ⌘ pour ouvrir le lanceur"
           }
         },
         "it" : {
@@ -47875,7 +47875,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "떠 있는 키 스트립을 화면 어디로든 끌어다 놓고, 끝나면 다시 잠그세요."
+            "value" : "떠 있는 키 스트립을 화면 어디로든 끌어서 옮기고, 끝나면 다시 잠그세요."
           }
         },
         "pt-BR" : {
@@ -64619,7 +64619,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kopierte Bilder & Links in der Seitenleiste anheften"
+            "value" : "Kopierte Bilder & Links in der Seitenleiste anzeigen"
           }
         },
         "en" : {
@@ -64679,13 +64679,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将复制的图像和链接挂在侧边栏"
+            "value" : "在侧边栏显示复制的图像和链接"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "將複製的影像和連結掛在側邊欄"
+            "value" : "在側邊欄顯示複製的影像和連結"
           }
         }
       }
@@ -85882,7 +85882,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Monokel: Jedes Fenster ist voll groß. Mit „Fokus nächste/vorherige“ wechseln."
+            "value" : "Monokel: Jedes Fenster füllt den ganzen Bildschirm. Mit „Fokus nächste/vorherige“ wechseln."
           }
         },
         "en" : {
@@ -85954,13 +85954,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "单片：每个窗口都是全尺寸。使用“聚焦下一个/上一个”在它们之间切换。"
+            "value" : "单窗口：每个窗口都是全尺寸。使用“聚焦下一个/上一个”在它们之间切换。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "單片：每個視窗都是全尺寸。使用「聚焦下一個／上一個」在它們之間切換。"
+            "value" : "單視窗：每個視窗都是全尺寸。使用「聚焦下一個／上一個」在它們之間切換。"
           }
         }
       }
@@ -89751,7 +89751,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Neue Fenster fügen sich selbst ein. Verschobene oder skalierte Fenster bleiben unberührt, bis du „Neu kacheln“ drückst. Apps in der schwebenden Liste werden nie gekachelt. Vollbildfenster bleiben unangetastet, und Fenster, die zu klein würden, bleiben, wie sie sind."
+            "value" : "Neue Fenster fügen sich selbst ein. Verschobene oder in der Größe geänderte Fenster bleiben unberührt, bis du „Neu kacheln“ drückst. Apps in der schwebenden Liste werden nie gekachelt. Vollbildfenster bleiben unangetastet, und Fenster, die zu klein würden, bleiben, wie sie sind."
           }
         },
         "en" : {
@@ -89775,7 +89775,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Les nouvelles fenêtres rejoignent la disposition d'elles-mêmes. Une fenêtre déplacée ou redimensionnée reste intacte jusqu'à « Réorganiser ». Les apps de la liste flottante ne sont jamais carrelées. Les fenêtres plein écran sont laissées tranquilles, et celles qui deviendraient trop petites restent telles quelles."
+            "value" : "Les nouvelles fenêtres rejoignent la disposition d'elles-mêmes. Une fenêtre déplacée ou redimensionnée reste intacte jusqu'à « Réorganiser ». Les apps de la liste flottante ne sont jamais carrelées. Les fenêtres plein écran sont laissées telles quelles, et celles qui deviendraient trop petites restent telles quelles."
           }
         },
         "it" : {
@@ -89805,13 +89805,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Janelas novas entram no layout sozinhas. Uma janela movida ou redimensionada fica intacta até você tocar em Reorganizar. Apps da lista flutuante nunca são lado a lado. Janelas em tela cheia não são tocadas, e as que ficariam pequenas demais permanecem como estão."
+            "value" : "Janelas novas entram no layout sozinhas. Uma janela movida ou redimensionada fica intacta até você tocar em Reorganizar. Apps da lista flutuante nunca entram no mosaico. Janelas em tela cheia não são tocadas, e as que ficariam pequenas demais permanecem como estão."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Janelas novas entram no esquema sozinhas. Uma janela movida ou redimensionada fica intacta até carregar em Reorganizar. As apps da lista flutuante nunca são lado a lado. Janelas em ecrã inteiro não são tocadas, e as que ficariam pequenas demais permanecem como estão."
+            "value" : "Janelas novas entram no esquema sozinhas. Uma janela movida ou redimensionada fica intacta até carregar em Reorganizar. As apps da lista flutuante nunca entram no mosaico. Janelas em ecrã inteiro não são tocadas, e as que ficariam pequenas demais permanecem como estão."
           }
         },
         "ru" : {
@@ -97948,7 +97948,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Standardmäßig aus: Eingeschaltet liest es Fenstertitel auf diesem Mac und verbraucht etwas CPU, damit der AI-Chip aktuell bleibt."
+            "value" : "Standardmäßig aus: Eingeschaltet liest es Fenstertitel auf diesem Mac und verbraucht etwas CPU, damit der KI-Chip aktuell bleibt."
           }
         },
         "en" : {
@@ -110145,7 +110145,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Evita activar Bloq Mayús sin querer. Mantén un instante o toca dos veces para cambiar. Necesita Accesibilidad para enviar el cambio y no actúa mientras Super/Hyper use Bloq Mayús."
+            "value" : "Evita cambiar Bloq Mayús sin querer. Mantén un instante o toca dos veces para cambiar. Necesita Accesibilidad para enviar el cambio y no actúa mientras Super/Hyper use Bloq Mayús."
           }
         },
         "es-419" : {
@@ -110157,13 +110157,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Évite les bascules accidentelles de Verrouillage majuscule. Maintenez brièvement ou double tapez pour basculer. Nécessite Accessibilité pour envoyer la bascule, et reste inactif tant que Super/Hyper utilise Verrouillage majuscule."
+            "value" : "Évite les bascules accidentelles de Verrouillage majuscule. Maintenez brièvement ou tapez deux fois pour basculer. Nécessite Accessibilité pour envoyer la bascule, et reste inactif tant que Super/Hyper utilise Verrouillage majuscule."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Evita attivazioni accidentali di Bloc Maiusc. Tieni premuto brevemente o tocca due volte per cambiare. Serve Accessibilità per inviare il cambio ed è inerte mentre Super/Hyper usa Bloc Maiusc."
+            "value" : "Evita di attivare o disattivare Bloc Maiusc per errore. Tieni premuto brevemente o tocca due volte per cambiare. Serve Accessibilità per inviare il cambio ed è inerte mentre Super/Hyper usa Bloc Maiusc."
           }
         },
         "ja" : {
@@ -110181,13 +110181,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Evita alternar o Caps Lock sem querer. Segure por instantes ou toque duas vezes para alternar. Precisa de Acessibilidade para enviar a alternância e fica inativo enquanto Super/Hyper usa o Caps Lock."
+            "value" : "Evita alternar o Caps Lock sem querer. Segure por um instante ou toque duas vezes para alternar. Requer Acessibilidade para enviar a alternância e fica inativo enquanto Super/Hyper usa o Caps Lock."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Evita alternar o Caps Lock sem querer. Mantenha por instantes ou toque duas vezes para alternar. Precisa de Acessibilidade para enviar a alternância e fica inativo enquanto Super/Hyper usa o Caps Lock."
+            "value" : "Evita alternar o Caps Lock sem querer. Mantenha por um instante ou toque duas vezes para alternar. Requer Acessibilidade para enviar a alternância e fica inativo enquanto Super/Hyper usa o Caps Lock."
           }
         },
         "zh-Hans" : {
@@ -111529,7 +111529,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Protege ⌘Q con una pulsación larga o doble toque para que un pulsado accidental no cierre una app. Las apps de abajo pueden omitir o conservar su propio ⌘Q."
+            "value" : "Protege ⌘Q con una pulsación larga o doble toque para que una pulsación accidental no cierre una app. Las apps de abajo pueden omitir o conservar su propio ⌘Q."
           }
         },
         "es-419" : {
@@ -111541,7 +111541,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Protégez ⌘Q par un maintien ou un double tape pour éviter de quitter une app par erreur. Les apps ci-dessous peuvent ignorer ou garder leur propre ⌘Q."
+            "value" : "Protégez ⌘Q par un maintien ou un double appui pour éviter de quitter une app par erreur. Les apps ci-dessous peuvent ignorer ou garder leur propre ⌘Q."
           }
         },
         "it" : {
@@ -128393,13 +128393,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Envia ⌃⌥⇧⌘ ou ⌃⌥⌘ para outros apps nas teclas não atribuídas no KatiKati."
+            "value" : "Envia ⌃⌥⇧⌘ ou ⌃⌥⌘ a outros apps para as teclas não atribuídas no KatiKati."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Envia ⌃⌥⇧⌘ ou ⌃⌥⌘ para outras apps nas teclas não atribuídas no KatiKati."
+            "value" : "Envia ⌃⌥⇧⌘ ou ⌃⌥⌘ a outras apps para as teclas não atribuídas no KatiKati."
           }
         },
         "zh-Hans" : {
@@ -132353,7 +132353,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Clipboard-Hinweis im Notch anzeigen"
+            "value" : "Zwischenablage-Hinweis im Notch anzeigen"
           }
         },
         "en" : {
@@ -137478,13 +137478,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Ancrer Maximiser remplit l'écran sans ouvrir un nouvel espace ; appuyez à nouveau pour restaurer la fenêtre."
+            "value" : "L'ancrage « Maximiser » remplit l'écran sans ouvrir un nouvel espace ; appuyez à nouveau pour restaurer la fenêtre."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Aggancia Massimizza riempie lo schermo senza aprire un nuovo Spazio; premi di nuovo per ripristinare la finestra."
+            "value" : "L'aggancio Massimizza riempie lo schermo senza aprire un nuovo Spazio; premi di nuovo per ripristinare la finestra."
           }
         },
         "ja" : {
@@ -138561,7 +138561,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Les zones d'ancrage (moitiés, quarts, tiers) déplacent une fenêtre à l'endroit choisi. Elles marchent avec ou sans carrelage ; une fenêtre ancrée reste où vous l'avez mise."
+            "value" : "Les zones d'ancrage (moitiés, quarts, tiers) déplacent une fenêtre à l'endroit choisi. Elles fonctionnent avec ou sans carrelage ; une fenêtre ancrée reste où vous l'avez mise."
           }
         },
         "it" : {
@@ -138615,7 +138615,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "貼齊區域（兩半、四等分、三等分）會把一個視窗移到你選擇的位置。無論並排是否開啟都可用；貼齊後的視窗會留在我放置的位置。"
+            "value" : "貼齊區域（兩半、四等分、三等分）會把一個視窗移到你選擇的位置。無論並排是否開啟都可用；貼齊後的視窗會留在你放置的位置。"
           }
         }
       }
@@ -156177,7 +156177,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Digite o gatilho de um trecho em qualquer app para colar o texto. Suporta {clipboard}, {date}, {time} e {cursor}. Nunca roda em campos de senha."
+            "value" : "Digite o gatilho de um trecho em qualquer app para colar o texto. Suporta {clipboard}, {date}, {time} e {cursor}. Nunca é executado em campos de senha."
           }
         },
         "pt-PT" : {
@@ -170638,7 +170638,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Mostrar la chuleta de atajos"
+            "value" : "Mostrar la referencia de atajos"
           }
         },
         "es-419" : {
@@ -170656,7 +170656,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Mostra il prontuario scorciatoie"
+            "value" : "Mostra il prontuario delle scorciatoie"
           }
         },
         "ja" : {
@@ -170680,7 +170680,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Mostrar a cola de atalhos"
+            "value" : "Mostrar a referência de atalhos"
           }
         },
         "pt-PT" : {
