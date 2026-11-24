@@ -159,4 +159,13 @@ final class LauncherFoldersTests: XCTestCase {
         XCTAssertEqual(exported.map(\.id), ["unrelated", f1, "custom1"])
         XCTAssertEqual(exported.first { $0.id == "custom1" }?.appIDs, ["s"])
     }
+
+    func testMoveFlatAndCycleCategory() {
+        let ids = ["a", "b", "c", "d", "e"]
+        XCTAssertEqual(LauncherFocus.moveFlat(ids: ids, columns: 3, from: nil, dx: 0, dy: 0), "a")
+        XCTAssertEqual(LauncherFocus.moveFlat(ids: ids, columns: 3, from: "b", dx: 0, dy: 1), "e")
+        XCTAssertEqual(LauncherFocus.moveFlat(ids: ids, columns: 1, from: "b", dx: 0, dy: 1), "c")
+        XCTAssertEqual(LauncherFocus.cycleCategory(current: .favorites, delta: -1), .system)
+        XCTAssertEqual(LauncherFocus.cycleCategory(current: .system, delta: 1), .favorites)
+    }
 }

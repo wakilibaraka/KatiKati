@@ -211,4 +211,51 @@ final class LauncherAppIndexTests: XCTestCase {
         let heavy = ["3": LauncherUsage(launches: 400, lastLaunched: now)]
         XCTAssertEqual(LauncherSearch.search("note", in: keyed, usage: heavy).map(\.bundleID), ["9", "3"])
     }
+
+    func testSidebarCategoryClassificationAndFiltering() {
+        let xcode = LauncherApp(bundleID: "com.apple.dt.Xcode", name: "Xcode", path: "/Applications/Xcode.app",
+                                installedAt: now, category: "public.app-category.developer-tools")
+        let notes = LauncherApp(bundleID: "com.apple.Notes", name: "Notes", path: "/System/Applications/Notes.app",
+                                installedAt: now, category: "public.app-category.productivity")
+        let safari = LauncherApp(bundleID: "com.apple.Safari", name: "Safari", path: "/Applications/Safari.app",
+                                 installedAt: now, category: "")
+        let spotify = LauncherApp(bundleID: "com.spotify.client", name: "Spotify", path: "/Applications/Spotify.app",
+                                  installedAt: now, category: "public.app-category.music")
+        let term = LauncherApp(bundleID: "com.apple.Terminal", name: "Terminal",
+                               path: "/System/Applications/Utilities/Terminal.app", installedAt: now, category: "")
+        let settings = LauncherApp(bundleID: "com.apple.systempreferences", name: "System Settings",
+                                   path: "/System/Applications/System Settings.app", installedAt: now, category: "")
+
+        XCTAssertEqual(LauncherSidebarCategory.classify(xcode), .developer)
+        XCTAssertEqual(LauncherSidebarCategory.classify(notes), .productivity)
+        XCTAssertEqual(LauncherSidebarCategory.classify(safari), .internet)
+        XCTAssertEqual(LauncherSidebarCategory.classify(spotify), .media)
+        XCTAssertEqual(LauncherSidebarCategory.classify(term), .utilities)
+        XCTAssertEqual(LauncherSidebarCategory.classify(settings), .system)
+
+        let all = [xcode, notes, safari, spotify, term, settings]
+        XCTAssertEqual(LauncherSidebarCategory.filter(.favorites, apps: all, pinnedIDs: [safari.bundleID]).map(\.bundleID),
+                       [safari.bundleID])
+        XCTAssertEqual(LauncherSidebarCategory.filter(.allApps, apps: all, pinnedIDs: []).count, 6)
+    }
+
+    func testAlphaGroupsRecommendedAndClutterAndActionSearch() {
+        let apps = [app("1", "1Password"), app("z", "Zed"), app("a", "Arc"), app("u", "Foo Uninstaller")]
+        XCTAssertEqual(LauncherAppIndex.alphaGroups(apps).map(\.letter), ["A", "F", "Z", "#"])
+
+        let usage = [
+            "z": LauncherUsage(launches: 10, lastLaunched: now.addingTimeInterval(-100)),
+            "a": LauncherUsage(launches: 2, lastLaunched: now),
+        ]
+        XCTAssertEqual(LauncherAppIndex.recommendedApps(apps: apps, usage: usage, excluding: ["z"], now: now).map(\.bundleID), ["a"])
+
+        XCTAssertTrue(LauncherClutterFilter.isClutter(apps[3]))
+        XCTAssertFalse(LauncherClutterFilter.isClutter(apps[2]))
+        XCTAssertEqual(LauncherClutterFilter.hidingClutter([], apps: apps), ["u"])
+
+        XCTAssertTrue(LauncherActionSearch.matching("sleep").contains(.sleep))
+        XCTAssertTrue(LauncherActionSearch.matching("lock").contains(.lock))
+        XCTAssertTrue(LauncherActionSearch.matching("emptytrash").contains(.emptyTrash))
+        XCTAssertTrue(LauncherActionSearch.matching("dark").contains(.darkMode))
+    }
 }

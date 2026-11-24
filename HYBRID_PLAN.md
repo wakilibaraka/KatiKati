@@ -6979,3 +6979,9 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 - `Core/Support/LauncherLayout.swift`: added `.windowsStart` (new default; legacy `"dock"` / `"popover"` auto-migrate via `parse`), `.linuxMenu`, `LauncherAnchorMode`, `LauncherDensity`, `LauncherViewMode`, flipped `LauncherScrollDirection.default` to `.vertical`, and added `LauncherPanelFrame.anchored(...)` sizing/clamping for `windowsStartSize` (`660 × 620`) and `linuxMenuSize` (`740 × 560`).
 - `Core/Support/LauncherPlus.swift`: added `LauncherSearchScope` and backward-compatible `LauncherPrefs` fields (`anchorMode`, `viewMode`, `density`, section/footer toggles with `showFooterTelemetry = false` by default).
 - `Tests/Unit/{LauncherPresentationTests,LauncherPlusTests,AppSettingsStoreTests}.swift`: updated defaults and added unit coverage for preset migration, vertical-scroll default, legacy JSON decoding, and `windowsStart` / `linuxMenu` panel geometry. Zero `project.pbxproj` edits.
+
+### `LN-1b` — Pure Categories, A–Z Grouping, Frecency, Clutter Filter, Action Search & Focus (2026-11-24)
+
+- `Core/Support/LauncherAppIndex.swift`: added `LauncherSidebarCategory` (8-rail UTI + path classification), `LauncherAlphaGroup` + `alphaGroups(_:)`, `recommendedApps(...)` via `CommandBarFrecency`, `LauncherClutterFilter`, and `LauncherActionSearch` (`BarMacro` matching).
+- `Core/Support/LauncherFolders.swift`: added `LauncherFocus.moveFlat(...)` and `LauncherFocus.cycleCategory(...)`.
+- `Tests/Unit/{LauncherAppIndexTests,LauncherFoldersTests}.swift`: added unit tests for category classification, A–Z grouping, frecency ordering, clutter filtering, system action search, and flat/category focus transitions. Zero `project.pbxproj` edits.

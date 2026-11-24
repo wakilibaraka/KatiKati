@@ -122,6 +122,24 @@ enum LauncherFocus {
         guard let i = flat.firstIndex(where: { $0.id == from }) else { return nil }
         return flat[min(max(i + dx, 0), flat.count - 1)]
     }
+
+    /// Flat vertical grid/list focus navigation (reuses `move` on a single scrollable page).
+    static func moveFlat(ids: [String], columns: Int, from: String?, dx: Int, dy: Int) -> String? {
+        move(pages: [[ids]], columns: max(1, columns), from: from, currentPage: 0, dx: dx, dy: dy)?.id
+    }
+
+    /// Cycles the active category rail selection on Tab / Backtab.
+    static func cycleCategory(
+        current: LauncherSidebarCategory,
+        delta: Int,
+        available: [LauncherSidebarCategory] = LauncherSidebarCategory.allCases
+    ) -> LauncherSidebarCategory {
+        guard !available.isEmpty, let index = available.firstIndex(of: current) else {
+            return available.first ?? current
+        }
+        let next = (index + delta % available.count + available.count) % available.count
+        return available[next]
+    }
 }
 
 // MARK: - Dock App Groups (DockFolders, Slice DO-5)

@@ -272,6 +272,155 @@ enum LauncherAppIndex {
     static func togglePin(_ pinned: [String], _ bundleID: String) -> [String] {
         pinned.contains(bundleID) ? pinned.filter { $0 != bundleID } : pinned + [bundleID]
     }
+
+    /// Buckets apps into `#` and `A`–`Z` groups sorted by localized name (`#` last).
+    static func alphaGroups(_ apps: [LauncherApp]) -> [LauncherAlphaGroup] {
+        var buckets: [String: [LauncherApp]] = [:]
+        for app in apps.sorted(by: nameOrder) {
+            let trimmed = app.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let folded = trimmed.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+            let first = folded.first.map { String($0).uppercased() } ?? "#"
+            let key = (first.count == 1 && first >= "A" && first <= "Z") ? first : "#"
+            buckets[key, default: []].append(app)
+        }
+        return buckets.keys.sorted { a, b in
+            if a == "#" { return false }
+            if b == "#" { return true }
+            return a < b
+        }.map { LauncherAlphaGroup(letter: $0, apps: buckets[$0]!) }
+    }
+
+    /// Frecency-ranked apps for the Recommended section (falling back to preset apps on a fresh install).
+    static func recommendedApps(
+        apps: [LauncherApp],
+        usage: [String: LauncherUsage],
+        excluding excluded: Set<String> = [],
+        now: Date,
+        limit: Int = 6
+    ) -> [LauncherApp] {
+        guard limit > 0 else { return [] }
+        let eligible = apps.filter { !excluded.contains($0.bundleID) }
+        let ranked = eligible
+            .compactMap { app -> (LauncherApp, Double, Date)? in
+                guard let u = usage[app.bundleID], u.launches > 0 else { return nil }
+                return (app, CommandBarFrecency.score(u, now: now), u.lastLaunched)
+            }
+            .sorted { a, b in
+                if a.1 != b.1 { return a.1 > b.1 }
+                if a.2 != b.2 { return a.2 > b.2 }
+                return nameOrder(a.0, b.0)
+            }
+            .map(\.0)
+        if !ranked.isEmpty { return Array(ranked.prefix(limit)) }
+        let byID = Dictionary(eligible.map { ($0.bundleID, $0) }, uniquingKeysWith: { a, _ in a })
+        return Array(LauncherPresets.bundleIDs.compactMap { byID[$0] }.prefix(limit))
+    }
+}
+
+/// One alphabetical bucket (`A`–`Z` or `#`) for Windows Start's All Apps list.
+struct LauncherAlphaGroup: Equatable, Identifiable, Sendable {
+    var letter: String
+    var apps: [LauncherApp]
+    var id: String { letter }
+}
+
+/// Linux Kickoff / Whisker-style category rail mapped from `LSApplicationCategoryType` with zero extra disk scan.
+enum LauncherSidebarCategory: String, CaseIterable, Identifiable, Sendable {
+    case favorites, allApps, productivity, developer, internet, media, utilities, system
+
+    var id: String { rawValue }
+
+    var symbolName: String {
+        switch self {
+        case .favorites: return "star.fill"
+        case .allApps: return "square.grid.2x2"
+        case .productivity: return "doc.text"
+        case .developer: return "hammer"
+        case .internet: return "globe"
+        case .media: return "play.rectangle"
+        case .utilities: return "wrench.and.screwdriver"
+        case .system: return "gearshape"
+        }
+    }
+
+    var titleKey: String {
+        switch self {
+        case .favorites: return "Favorites"
+        case .allApps: return "All Apps"
+        case .productivity: return "Productivity"
+        case .developer: return "Developer"
+        case .internet: return "Internet"
+        case .media: return "Media"
+        case .utilities: return "Utilities"
+        case .system: return "System"
+        }
+    }
+
+    private static let internetBundleIDs: Set<String> = [
+        "com.apple.Safari", "com.apple.mail", "com.apple.MobileSMS", "com.apple.FaceTime",
+        "com.google.Chrome", "org.mozilla.firefox", "company.thebrowser.Browser",
+        "com.tinyspeck.slackmacgap", "net.whatsapp.WhatsApp", "ru.keepcoder.Telegram",
+    ]
+
+    static func classify(_ app: LauncherApp) -> LauncherSidebarCategory {
+        let tail = app.category.split(separator: ".").last.map(String.init)?.lowercased() ?? ""
+        if tail == "developer-tools" { return .developer }
+        if ["productivity", "business", "finance", "education", "reference"].contains(tail) { return .productivity }
+        if ["social-networking", "news", "weather", "travel"].contains(tail) || internetBundleIDs.contains(app.bundleID) {
+            return .internet
+        }
+        if ["music", "video", "photography", "graphics-design", "entertainment", "games"].contains(tail) {
+            return .media
+        }
+        if tail == "utilities" || app.path.contains("/Utilities/") { return .utilities }
+        if app.path.hasPrefix("/System/") { return .system }
+        return .utilities
+    }
+
+    static func filter(_ category: LauncherSidebarCategory, apps: [LauncherApp], pinnedIDs: Set<String>) -> [LauncherApp] {
+        switch category {
+        case .favorites: return apps.filter { pinnedIDs.contains($0.bundleID) }
+        case .allApps: return apps
+        default: return apps.filter { classify($0) == category }
+        }
+    }
+}
+
+/// Identifies uninstaller, updater, and helper bloat so one tap keeps the app list clean.
+enum LauncherClutterFilter {
+    private static let clutterTerms = ["uninstaller", "updater", "helper", "installer", "setup assistant"]
+    private static let presetSet = Set(LauncherHidePresets.bundleIDs)
+
+    static func isClutter(_ app: LauncherApp) -> Bool {
+        if presetSet.contains(app.bundleID) { return true }
+        if app.path.contains("/Library/Application Support/") || app.path.contains("/Helpers/") { return true }
+        let lower = app.name.lowercased()
+        return clutterTerms.contains { lower.contains($0) }
+    }
+
+    static func hidingClutter(_ hidden: [String], apps: [LauncherApp]) -> [String] {
+        let existing = Set(hidden)
+        let additions = apps.filter { isClutter($0) && !existing.contains($0.bundleID) }.map(\.bundleID)
+        return hidden + additions
+    }
+}
+
+/// Surfaces KatiKati's existing `BarMacro` system actions (`sleep`, `lock`, `empty trash`, `dark mode`) inside Launcher search.
+enum LauncherActionSearch {
+    static func matching(_ query: String, limit: Int = 5) -> [BarMacro] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, limit > 0 else { return [] }
+        return BarMacro.allCases
+            .compactMap { macro -> (BarMacro, Int)? in
+                let titleScore = LauncherMatch.score(query: trimmed, name: macro.title)
+                let keywordScore = macro.keywords.compactMap { LauncherMatch.score(query: trimmed, name: $0) }.max()
+                guard let best = [titleScore, keywordScore].compactMap({ $0 }).max() else { return nil }
+                return (macro, best)
+            }
+            .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0.title < $1.0.title }
+            .prefix(limit)
+            .map(\.0)
+    }
 }
 
 /// Nanolight's matcher, ported from its `src/search.zig` (MIT, github.com/justrach/nanolight) so the
