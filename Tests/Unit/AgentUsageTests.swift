@@ -527,3 +527,27 @@ final class AgentUsageTests: XCTestCase {
         XCTAssertEqual(summary.weeklyPercent, 45)
     }
 }
+
+/// MB-9: the hub's one-line agent summary.
+final class AgentLoadoutSummaryTests: XCTestCase {
+    func testCostIsCompactAndNeverShowsAFreeReadingForSpend() {
+        XCTAssertEqual(AgentLoadoutSummary.compactCost(0), "$0.00")
+        XCTAssertEqual(AgentLoadoutSummary.compactCost(0.004), "<$0.01")
+        XCTAssertEqual(AgentLoadoutSummary.compactCost(1.234), "$1.23")
+        XCTAssertEqual(AgentLoadoutSummary.compactCost(.nan), "$0.00")
+    }
+
+    func testBadgeCountsEnabledItems() {
+        let items = [
+            LoadoutItem(id: "a", name: "A", kind: .mcpServer, provider: .claudeCode, scope: .global, isEnabled: true, estimatedTokens: 10),
+            LoadoutItem(id: "b", name: "B", kind: .skill, provider: .claudeCode, scope: .global, isEnabled: false, estimatedTokens: 10),
+        ]
+        XCTAssertEqual(AgentLoadoutSummary.enabledCount(items), 1)
+        XCTAssertEqual(AgentLoadoutSummary.badge(cost: 0.5, enabled: 1, total: 2), "$0.50 · 1/2")
+    }
+
+    func testProfileCycleWraps() {
+        XCTAssertEqual(AgentLoadoutSummary.nextProfile(after: .allOn), .leanCoding)
+        XCTAssertEqual(AgentLoadoutSummary.nextProfile(after: .offlineLocal), .allOn)
+    }
+}

@@ -54,3 +54,52 @@ enum AppRemovalPlanner {
         return combined
     }
 }
+
+// MARK: - MB-11: Uninstaller catalogue
+
+/// One app the opt-in Uninstaller may offer. Built from the launcher's own scan, so the sheet never
+/// grows a second app index; `id` falls back to the path for the rare bundle-less helper app.
+struct UninstallerEntry: Identifiable, Equatable, Sendable {
+    var bundleID: String
+    var name: String
+    var path: String
+    var installedAt: Date
+
+    var id: String { bundleID.isEmpty ? path : bundleID }
+}
+
+enum UninstallerCatalog {
+    /// `/System` bundles are never offered: their removal is not KatiKati's call, and moving them to
+    /// the Trash would need SIP off anyway. One entry per bundle id; the shortest path wins, matching
+    /// `LauncherAppIndex.merged` so the sheet and the launcher name the same copy.
+    static func entries(from apps: [LauncherApp]) -> [UninstallerEntry] {
+        var best: [String: UninstallerEntry] = [:]
+        for app in apps where !app.path.isEmpty && !isSystemPath(app.path) {
+            let key = app.bundleID.isEmpty ? app.path : app.bundleID
+            let entry = UninstallerEntry(bundleID: app.bundleID, name: app.name,
+                                         path: app.path, installedAt: app.installedAt)
+            guard let current = best[key] else { best[key] = entry; continue }
+            if entry.path.count < current.path.count
+                || (entry.path.count == current.path.count && entry.installedAt > current.installedAt) {
+                best[key] = entry
+            }
+        }
+        return best.values.sorted {
+            let order = $0.name.localizedCaseInsensitiveCompare($1.name)
+            return order == .orderedSame ? $0.path < $1.path : order == .orderedAscending
+        }
+    }
+
+    static func filter(_ entries: [UninstallerEntry], query: String) -> [UninstallerEntry] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return entries }
+        return entries.filter {
+            $0.name.localizedCaseInsensitiveContains(trimmed)
+                || $0.bundleID.localizedCaseInsensitiveContains(trimmed)
+        }
+    }
+
+    static func isSystemPath(_ path: String) -> Bool {
+        path.hasPrefix("/System/")
+    }
+}

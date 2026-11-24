@@ -27,3 +27,37 @@ final class AppRemovalPlannerTests: XCTestCase {
         XCTAssertTrue(plan.paths.isEmpty)
     }
 }
+
+/// MB-11: the opt-in Uninstaller's catalogue.
+final class UninstallerCatalogTests: XCTestCase {
+    private func app(_ id: String, _ name: String, _ path: String, added: TimeInterval = 0) -> LauncherApp {
+        LauncherApp(bundleID: id, name: name, path: path, installedAt: Date(timeIntervalSince1970: added))
+    }
+
+    func testSystemBundlesAreNeverOffered() {
+        let entries = UninstallerCatalog.entries(from: [
+            app("com.apple.Safari", "Safari", "/System/Applications/Safari.app"),
+            app("com.x.Y", "Y", "/Applications/Y.app"),
+        ])
+        XCTAssertEqual(entries.map(\.bundleID), ["com.x.Y"])
+    }
+
+    func testOneEntryPerBundleAndTheShortestPathWins() {
+        let entries = UninstallerCatalog.entries(from: [
+            app("com.x.Y", "Y", "/Users/me/Downloads/Y.app"),
+            app("com.x.Y", "Y", "/Applications/Y.app"),
+        ])
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertEqual(entries.first?.path, "/Applications/Y.app")
+    }
+
+    func testSortedByNameAndSearchableByBundle() {
+        let entries = UninstallerCatalog.entries(from: [
+            app("com.x.Z", "Zeta", "/Applications/Zeta.app"),
+            app("com.x.A", "alpha", "/Applications/alpha.app"),
+        ])
+        XCTAssertEqual(entries.map(\.name), ["alpha", "Zeta"])
+        XCTAssertEqual(UninstallerCatalog.filter(entries, query: "com.x.Z").map(\.name), ["Zeta"])
+        XCTAssertEqual(UninstallerCatalog.filter(entries, query: "  ").count, 2)
+    }
+}

@@ -126,3 +126,56 @@ final class SystemStatusServiceTests: XCTestCase {
             }())
     }
 }
+
+/// MB-10: the pure half of the opt-in mixer.
+final class PerAppAudioRulesTests: XCTestCase {
+    func testGainIsClampedAndNonFiniteFallsBackToUnity() {
+        XCTAssertEqual(PerAppAudioRules.clamped(-1), 0)
+        XCTAssertEqual(PerAppAudioRules.clamped(2), 1)
+        XCTAssertEqual(PerAppAudioRules.clamped(0.42), 0.42)
+        XCTAssertEqual(PerAppAudioRules.clamped(.nan), 1)
+        XCTAssertEqual(PerAppAudioRules.clamped(.infinity), 1)
+    }
+
+    func testMuteWinsOverGain() {
+        let mix = PerAppAudioMix(bundleID: "com.x.Y", name: "Y", gain: 0.8, isMuted: true)
+        XCTAssertEqual(PerAppAudioRules.effectiveGain(mix), 0)
+        XCTAssertTrue(PerAppAudioRules.needsRouting(mix))
+    }
+
+    func testUnityIsNotRoutedAndLowerLevelsAre() {
+        let unity = PerAppAudioMix(bundleID: nil, name: "Y", gain: 1, isMuted: false)
+        XCTAssertFalse(PerAppAudioRules.needsRouting(unity))
+        XCTAssertTrue(PerAppAudioRules.needsRouting(PerAppAudioMix(bundleID: nil, name: "Y", gain: 0.5, isMuted: false)))
+        XCTAssertTrue(PerAppAudioRules.needsRouting(PerAppAudioMix(bundleID: nil, name: "Y", gain: 0, isMuted: false)))
+    }
+
+    func testSanitizeDropsNamelessRowsAndDuplicateKeys() {
+        let mixes = [
+            PerAppAudioMix(bundleID: "com.x.Y", name: "Y", gain: 2, isMuted: false),
+            PerAppAudioMix(bundleID: "com.x.Y", name: "Y again", gain: 0.2, isMuted: false),
+            PerAppAudioMix(bundleID: nil, name: "   ", gain: 0.5, isMuted: false),
+            PerAppAudioMix(bundleID: nil, name: "Helper", gain: -3, isMuted: true),
+        ]
+        let clean = PerAppAudioRules.sanitized(mixes)
+        XCTAssertEqual(clean.count, 2)
+        XCTAssertEqual(clean[0].gain, 1)
+        XCTAssertEqual(clean[1].gain, 0)
+        XCTAssertEqual(clean[1].storageKey, "Helper")
+    }
+
+    func testCodecRoundTripsAndRejectsGarbage() {
+        let mixes = [PerAppAudioMix(bundleID: "com.x.Y", name: "Y", gain: 0.35, isMuted: false)]
+        let data = PerAppAudioRules.encode(mixes)
+        XCTAssertEqual(PerAppAudioRules.parse(data), mixes)
+        XCTAssertEqual(PerAppAudioRules.parse(nil), [])
+        XCTAssertEqual(PerAppAudioRules.parse(Data("no".utf8)), [])
+        XCTAssertNil(PerAppAudioRules.encode([]))
+    }
+
+    func testPercentRounds() {
+        XCTAssertEqual(PerAppAudioRules.percent(0.424), 42)
+        XCTAssertEqual(PerAppAudioRules.percent(1), 100)
+        XCTAssertEqual(PerAppAudioRules.percent(-1), 0)
+    }
+}

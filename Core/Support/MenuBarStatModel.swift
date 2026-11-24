@@ -359,3 +359,31 @@ enum MenuBarRightClickConfig {
         return tokens.filter { allowedTokens.contains($0) && seen.insert($0).inserted }.joined(separator: ",")
     }
 }
+
+// MARK: - MB-9…MB-11: opt-in modules
+
+/// Tier B modules share one token list under one key. A missing key, an empty value or an unknown
+/// token all mean **off**: a stale name must never start a module the owner did not enable, and every
+/// module's heavy work (CoreAudio taps, shortcuts import, filesystem scans) is built only by its view,
+/// so an off module costs nothing at launch.
+enum HubModule: String, CaseIterable, Identifiable, Sendable {
+    case agents, audioMixer, uninstaller
+
+    var id: String { rawValue }
+
+    static let storageKey = "com.katikati.menuBarHub.modules"
+
+    static func enabled(_ raw: String?) -> Set<HubModule> {
+        guard let raw else { return [] }
+        return Set(raw.split(separator: ",").compactMap { HubModule(rawValue: String($0)) })
+    }
+
+    static func isEnabled(_ module: HubModule, raw: String?) -> Bool {
+        enabled(raw).contains(module)
+    }
+
+    /// Canonical order, so the key is stable whichever order the boxes were ticked in.
+    static func serialize(_ modules: Set<HubModule>) -> String {
+        allCases.filter(modules.contains).map(\.rawValue).joined(separator: ",")
+    }
+}

@@ -426,3 +426,30 @@ struct AILimitBarTileSummary: Equatable, Sendable {
         }
     }
 }
+
+// MARK: - MB-9: the menu bar's agent summary
+
+/// Pure strings for the Creative Hub's opt-in `Agents` card. The card is narrow (344 pt), so the
+/// summary is one line: today's spend, then how much of the loadout is on. No locale grouping — this
+/// is a status pill, not an accounting table.
+enum AgentLoadoutSummary {
+    static func compactCost(_ cost: Double) -> String {
+        guard cost.isFinite, cost > 0 else { return "$0.00" }
+        if cost < 0.01 { return "<$0.01" }
+        return String(format: "$%.2f", cost)
+    }
+
+    static func enabledCount(_ items: [LoadoutItem]) -> Int { items.filter(\.isEnabled).count }
+
+    static func badge(cost: Double, enabled: Int, total: Int) -> String {
+        "\(compactCost(cost)) · \(max(0, enabled))/\(max(0, total))"
+    }
+
+    /// The profile picker's next value, wrapping. Pure so the control cannot land on an
+    /// index that does not exist when a profile is removed in a later release.
+    static func nextProfile(after profile: LoadoutProfile) -> LoadoutProfile {
+        let all = LoadoutProfile.allCases
+        guard let index = all.firstIndex(of: profile), !all.isEmpty else { return .allOn }
+        return all[(index + 1) % all.count]
+    }
+}

@@ -137,3 +137,24 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarRightClickConfig.toggleTokens(defaults), [])
     }
 }
+
+/// Tier B: an absent or stale module token must never start a module.
+final class HubModuleTests: XCTestCase {
+    func testNoKeyMeansEveryModuleIsOff() {
+        XCTAssertTrue(HubModule.enabled(nil).isEmpty)
+        XCTAssertTrue(HubModule.enabled("").isEmpty)
+        XCTAssertFalse(HubModule.isEnabled(.audioMixer, raw: nil))
+    }
+
+    func testUnknownTokensAreDroppedAndKnownOnesKept() {
+        XCTAssertEqual(HubModule.enabled("agents,notAModule,uninstaller"), [.agents, .uninstaller])
+        XCTAssertEqual(HubModule.enabled(" , ,"), [])
+    }
+
+    func testSerializeIsCanonicalAndRoundTrips() {
+        let raw = HubModule.serialize([.uninstaller, .agents])
+        XCTAssertEqual(raw, "agents,uninstaller")
+        XCTAssertEqual(HubModule.enabled(raw), [.agents, .uninstaller])
+        XCTAssertEqual(HubModule.serialize([]), "")
+    }
+}

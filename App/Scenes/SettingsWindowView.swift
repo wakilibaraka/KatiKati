@@ -1039,6 +1039,7 @@ private struct MenuBarHubSettingsBlock: View {
     @AppStorage(HubActionSlotID.defaultsKey) private var boxGridRaw = HubActionSlotID.serialize(HubActionSlotID.defaultSlots)
     @AppStorage(MenuBarHubTab.visibleTabsKey) private var visibleTabsRaw = MenuBarHubTab.serialize(MenuBarHubTab.allCases)
     @AppStorage(MenuBarRightClickConfig.defaultsKey) private var rightClickRaw = MenuBarRightClickConfig.serialize(MenuBarRightClickConfig.defaultTokens)
+    @AppStorage(HubModule.storageKey) private var modulesRaw = ""
 
     var body: some View {
         SettingsCard(Text("Menu Bar Icon")) {
@@ -1086,6 +1087,22 @@ private struct MenuBarHubSettingsBlock: View {
             }
         }
 
+        // Tier B: off by default, and each module's view (and its CoreAudio / filesystem work) is
+        // built only while its switch is on. Full-width rows, not a checklist grid: each switch
+        // carries the one sentence a reader needs before turning it on.
+        SettingsCard(Text("Modules")) {
+            SettingsNote(Text("Optional modules stay off until enabled for zero idle CPU."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Agents"), isOn: moduleBinding(.agents),
+                              note: Text("Shows today's spend, the loadout profile and the approval pause in the Creative Hub."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Audio Mixer"), isOn: moduleBinding(.audioMixer),
+                              note: Text("Sets a level per app through a private audio tap. macOS asks for System Audio Recording the first time a slider moves."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Uninstaller"), isOn: moduleBinding(.uninstaller),
+                              note: Text("Plans the app and its support files, then moves them to the Trash."))
+        }
+
         SettingsCard(Text("Right-Click Menu")) {
             SettingsGrid(MenuBarRightClickConfig.allowedTokens, id: \.self) { token in
                 SettingsCheckboxRow(rightClickTitle(token), isOn: Binding(
@@ -1099,6 +1116,17 @@ private struct MenuBarHubSettingsBlock: View {
                 ))
             }
         }
+    }
+
+    private func moduleBinding(_ module: HubModule) -> Binding<Bool> {
+        Binding(
+            get: { HubModule.enabled(modulesRaw).contains(module) },
+            set: { on in
+                var next = HubModule.enabled(modulesRaw)
+                if on { next.insert(module) } else { next.remove(module) }
+                modulesRaw = HubModule.serialize(next)
+            }
+        )
     }
 
     private var activeSlots: [HubActionSlotID] {

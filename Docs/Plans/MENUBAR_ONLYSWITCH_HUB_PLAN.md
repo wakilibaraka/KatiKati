@@ -20,4 +20,7 @@
 - [x] **`MB-6c` (`UI`):** `Status & Audio` tab (telemetry cards, output selector, volume/brightness/backlight sliders).
 - [x] **`MB-7` (`UI`):** `Shortcuts & Evolutions` + `Schedules` tab views.
 - [x] **`MB-8` (`Settings + L10n`):** `Settings › Menu Bar` customization UI (`MenuBarHubSettingsBlock`) + 12-locale `Localizable.xcstrings`.
-- [ ] **`MB-9`..`MB-11` (Tier B, Opt-In):** AI Agent switches (`MB-9`), macOS 14.2+ Per-App Audio Mixer (`MB-10`), App Uninstaller (`MB-11`).
+- [x] **`MB-9` (`UI`, opt-in):** `Agents` hub card — today's spend, loadout profile picker, approval-hook pause. `HubModule.agents`, default off.
+- [x] **`MB-10` (`UI`/`Platform`, opt-in):** `Audio Mixer` in `Status & Audio` — read-only process discovery + private per-process tap/aggregate/IOProc gain, unity tears the route down. `HubModule.audioMixer`, default off.
+- [x] **`MB-11` (`UI`/`Core`, opt-in):** `Uninstaller` sheet — launcher scan, `/System` excluded, `AppRemovalPlanner` bundle + residue plan, Finder Trash only. `HubModule.uninstaller`, default off.
+- **Tier B gate:** all three share `HubModule` (`com.katikati.menuBarHub.modules`); absent/unknown tokens start nothing. 4 new strings × 12 locales; `project.pbxproj` and the 5 frozen files untouched. Audio routing is compile- and model-verified only — audible verification needs the System Audio Recording grant, so it was not run.

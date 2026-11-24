@@ -290,12 +290,12 @@ enum StatusTrioIconRenderer {
         let rendered = NSImage(size: NSSize(width: totalWidth, height: iconSide), flipped: false) { _ in
             NSGraphicsContext.current?.shouldAntialias = true
             let center = NSPoint(x: iconSide / 2, y: iconSide / 2)
-            let radius: CGFloat = 6.9
+            let radius: CGFloat = 7.2
             let lineWidth = CGFloat(key.stroke.lineWidth)
 
             drawBatteryArc(key: key, center: center, radius: radius, lineWidth: lineWidth, ink: primaryInk)
             drawCenterLink(key.link, center: center, stroke: lineWidth, ink: primaryInk)
-            drawVolumeDots(key: key, center: center, radius: radius, dotSize: lineWidth + 0.65, ink: primaryInk)
+            drawVolumeDots(key: key, center: center, radius: radius, dotSize: lineWidth + 1.0, ink: primaryInk)
 
             if let text = key.readoutText {
                 let origin = NSPoint(
@@ -322,7 +322,7 @@ enum StatusTrioIconRenderer {
         track.lineWidth = lineWidth
         track.lineCapStyle = .round
         track.appendArc(withCenter: center, radius: radius, startAngle: 150, endAngle: 30, clockwise: true)
-        ink.withAlphaComponent(0.24).setStroke()
+        ink.withAlphaComponent(0.32).setStroke()
         track.stroke()
 
         let fraction = key.batteryBucket.map { Double($0) / 20.0 } ?? 1.0
@@ -397,7 +397,7 @@ enum StatusTrioIconRenderer {
             let rad = deg * .pi / 180
             let pt = NSPoint(x: center.x + cos(rad) * radius, y: center.y + sin(rad) * radius)
             let active = !key.isMuted && idx < key.volumeDots
-            ink.withAlphaComponent(active ? 1.0 : 0.25).setFill()
+            ink.withAlphaComponent(active ? 1.0 : 0.32).setFill()
             NSBezierPath(ovalIn: NSRect(x: pt.x - dotSize / 2, y: pt.y - dotSize / 2, width: dotSize, height: dotSize)).fill()
         }
         if key.isMuted {
@@ -528,7 +528,7 @@ final class MenuBarHubPanelController {
 
         let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first
         let visible = (screen?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)).insetBy(dx: 8, dy: 8)
-        let size = CGSize(width: 344, height: 472)
+        let size = CGSize(width: 380, height: 560)
         let x = min(max(buttonRect.midX - size.width / 2, visible.minX), visible.maxX - size.width)
         let y = max(visible.minY, buttonRect.minY - 6 - size.height)
         let frame = CGRect(origin: CGPoint(x: x, y: y), size: size)

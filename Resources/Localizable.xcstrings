@@ -184950,6 +184950,125 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开关" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "開關" } }
       }
+    },
+    "Agents" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Agenten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Agents" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Agentes" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Agentes" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Agents" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Agenti" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "エージェント" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "에이전트" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Agentes" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Agentes" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "智能体" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "智能體" } }
+      }
+    },
+    "Audio Mixer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Audiomixer" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio Mixer" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Mezclador de audio" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Mezclador de audio" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Mixage audio" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Mixer audio" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "オーディオミキサー" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "오디오 믹서" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mixer de áudio" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mixer de áudio" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "音频混音器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "音訊混音器" } }
+      }
+    },
+    "Modules" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Module" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Modules" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Módulos" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Módulos" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Modules" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Moduli" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "モジュール" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "모듈" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Módulos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Módulos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "模块" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "模組" } }
+      }
+    },
+    "Uninstaller" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Deinstallationsprogramm" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstaller" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Desinstalador" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Desinstalador" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Désinstalleur" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Disinstallatore" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "アンインストーラー" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "제거 프로그램" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Desinstalador" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Desinstalador" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "卸载工具" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "解除安裝工具" } }
+      }
+    },
+    "Plans the app and its support files, then moves them to the Trash." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Plant die App und ihre Support-Dateien und legt sie im Papierkorb ab." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Plans the app and its support files, then moves them to the Trash." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Planifica la app y sus archivos de soporte y los mueve a la papelera." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Planifica la app y sus archivos de soporte y los mueve a la papelera." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Planifie l'app et ses fichiers de support, puis les place dans la corbeille." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Pianifica l'app e i suoi file di supporto, poi li sposta nel Cestino." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "アプリと関連ファイルを計画し、ゴミ箱に移動します。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "앱과 지원 파일을 계획한 뒤 휴지통으로 이동합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Planeja o app e os respetivos ficheiros de suporte e move-os para o Lixo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Planeja o app e os respetivos ficheiros de suporte e move-os para o Lixo." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "规划 App 及其支持文件，然后移到废纸篓。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "規劃 App 及其支援檔案，然後移到垃圾桶。" } }
+      }
+    },
+    "Sets a level per app through a private audio tap. macOS asks for System Audio Recording the first time a slider moves." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Legt pro App eine Lautstärke über einen privaten Audio-Tap fest. macOS fragt beim ersten Reglerzug nach der Systemaudio-Aufnahme." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sets a level per app through a private audio tap. macOS asks for System Audio Recording the first time a slider moves." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Ajusta el nivel de cada app mediante una captura de audio privada. macOS pide permiso de grabación de audio del sistema la primera vez." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Ajusta el nivel de cada app mediante una captura de audio privada. macOS pide permiso de grabación de audio del sistema la primera vez." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Règle le niveau de chaque app via un tap audio privé. macOS demande l'autorisation d'enregistrement audio système au premier réglage." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Imposta il livello per app tramite un tap audio privato. macOS chiede l'autorizzazione alla registrazione audio di sistema al primo utilizzo." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "プライベートなオーディオタップでアプリごとの音量を設定します。初回のスライダー操作時に macOS がシステムオーディオ録音の許可を求めます。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "비공개 오디오 탭으로 앱별 음량을 설정합니다. 슬라이더를 처음 움직일 때 macOS가 시스템 오디오 녹음을 요청합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Define o nível de cada app através de um tap de áudio privado. O macOS pede a gravação de áudio do sistema na primeira vez." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Define o nível de cada app através de um tap de áudio privado. O macOS pede a gravação de áudio do sistema na primeira vez." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "通过私有音频采集为每个 App 设置音量。首次拖动滑块时，macOS 会请求系统音频录制权限。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "透過私有音訊擷取為每個 App 設定音量。首次拖動滑桿時，macOS 會要求系統音訊錄製權限。" } }
+      }
+    },
+    "Shows today's spend, the loadout profile and the approval pause in the Creative Hub." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Zeigt den heutigen Verbrauch, das Loadout-Profil und die Genehmigungspause im Creative Hub." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shows today's spend, the loadout profile and the approval pause in the Creative Hub." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Muestra el gasto de hoy, el perfil de carga y la pausa de aprobaciones en el Creative Hub." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Muestra el gasto de hoy, el perfil de carga y la pausa de aprobaciones en el Creative Hub." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Affiche la dépense du jour, le profil de chargement et la pause des approbations dans le Creative Hub." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostra la spesa di oggi, il profilo di caricamento e la pausa delle approvazioni nel Creative Hub." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "本日の使用額、ロードアウトプロファイル、承認の一時停止をクリエイティブハブに表示します。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "오늘의 지출, 로드아웃 프로필, 승인 일시 중지를 크리에이티브 허브에 표시합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostra os gastos de hoje, o perfil de carga e a pausa de aprovações no Creative Hub." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostra os gastos de hoje, o perfil de carregamento e a pausa de aprovações no Creative Hub." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "在创意中心显示今日花费、配置方案和审批暂停。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "在創意中心顯示今日花費、配置方案和審批暫停。" } }
+      }
     }
   },
   "version" : "1.0"

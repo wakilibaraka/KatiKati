@@ -1182,6 +1182,9 @@ struct MenuBarCreativeHubView: View {
     @State private var schedMinutes = 30
     @State private var schedTime = Date()
     @State private var surfaceVersion = 0
+    /// Tier B: empty (the default) keeps every opt-in module out of the tree entirely.
+    @AppStorage(HubModule.storageKey) private var modulesRaw = ""
+    @State private var showUninstaller = false
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.colorScheme) private var colorScheme
@@ -1194,6 +1197,7 @@ struct MenuBarCreativeHubView: View {
     private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
     private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
     private var tabs: [MenuBarHubTab] { MenuBarHubTab.visibleTabs() }
+    private var modules: Set<HubModule> { HubModule.enabled(modulesRaw) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -1202,12 +1206,13 @@ struct MenuBarCreativeHubView: View {
             tabContent
         }
         .padding(12)
-        .frame(width: 344, height: 472, alignment: .top)
+        .frame(width: 380, height: 560, alignment: .top)
         .background {
             DockPanelBackdrop(theme: theme, cornerRadius: 20, usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
         }
         .dockPanelRim(cornerRadius: 20, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth,
                       usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite, highlighted: false)
+        .sheet(isPresented: $showUninstaller) { HubUninstallerSheet() }
         .onAppear {
             engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
             if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
@@ -1227,8 +1232,8 @@ struct MenuBarCreativeHubView: View {
                     Button {
                         withAnimation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.8)) { selectedTab = tab }
                     } label: {
-                        Image(systemName: tab.symbolName).font(.system(size: 11.5, weight: .semibold))
-                            .foregroundStyle(active ? Color.white : inkSoft).frame(width: 28, height: 24)
+                        Image(systemName: tab.symbolName).font(.system(size: 12.5, weight: .semibold))
+                            .foregroundStyle(active ? Color.white : inkSoft).frame(width: 30, height: 26)
                             .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(active ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(Color.clear)))
                     }.buttonStyle(.plain)
@@ -1238,7 +1243,7 @@ struct MenuBarCreativeHubView: View {
 
             HStack(spacing: 4) {
                 Image(systemName: "magnifyingglass").font(.system(size: 10)).foregroundStyle(inkSoft)
-                TextField(String(localized: "Search"), text: $query).textFieldStyle(.plain).font(.system(size: 11)).foregroundStyle(ink)
+                TextField(String(localized: "Search"), text: $query).textFieldStyle(.plain).font(.system(size: 12)).foregroundStyle(ink)
             }
             .padding(.horizontal, 7).padding(.vertical, 4)
             .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(cardFill))
@@ -1264,8 +1269,8 @@ struct MenuBarCreativeHubView: View {
                     .foregroundStyle(on ? Color.white : ink).frame(width: 28, height: 28)
                     .background(Circle().fill(on ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(cardFill)))
                 VStack(alignment: .leading, spacing: 1) {
-                    boxTitle(slot).font(.system(size: 11, weight: .semibold)).foregroundStyle(ink).lineLimit(1)
-                    Text(on ? String(localized: "On") : String(localized: "Off")).font(.system(size: 9.5, weight: .medium))
+                    boxTitle(slot).font(.system(size: 12, weight: .semibold)).foregroundStyle(ink).lineLimit(1)
+                    Text(on ? String(localized: "On") : String(localized: "Off")).font(.system(size: 10.5, weight: .medium))
                         .foregroundStyle(on ? palette.primaryAccent : inkSoft)
                 }
                 Spacer(minLength: 0)
@@ -1301,10 +1306,27 @@ struct MenuBarCreativeHubView: View {
         let items = HubSwitchCatalog.filter(HubSwitchCatalog.orderedSwitches(), query: query) { switchLabel($0) }
         return ScrollView {
             VStack(spacing: 6) {
+                if modules.contains(.agents) { HubAgentCard() }
                 if let buds = btAudioDevices.first, let level = buds.lowestBattery {
                     airPodsPill(device: buds, battery: level)
                 }
                 ForEach(items) { item in switchRow(item) }
+                if modules.contains(.uninstaller) {
+                    Button { showUninstaller = true } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "trash").font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(palette.primaryAccent).frame(width: 18)
+                            Text("Uninstaller").font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink)
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right").font(.system(size: 9))
+                                .foregroundStyle(inkSoft)
+                        }
+                        .padding(.horizontal, 9).padding(.vertical, 7)
+                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -1416,6 +1438,7 @@ struct MenuBarCreativeHubView: View {
                     }
                     .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
                 }
+                if modules.contains(.audioMixer) { HubAudioMixerCard() }
             }
         }
     }
@@ -1718,5 +1741,232 @@ struct MenuBarCreativeHubView: View {
         case .shortcut(let name): return name
         case .evolution(let uuid): return uuid.uuidString
         }
+    }
+}
+
+// MARK: - MB-9: Agents (opt-in)
+
+/// The hub's opt-in agent card: today's spend, the loadout profile, and the approval-hook pause.
+/// Created only while the module is on, so the singleton services below exist on the owner's terms.
+struct HubAgentCard: View {
+    @ObservedObject private var usage = AgentUsageService.shared
+    @State private var hooksPaused = !ClaudeApprovalService.shared.isRunning
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
+    private var ink: Color { theme.labelActive.color }
+    private var inkSoft: Color { theme.labelSubtitle.color }
+    private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
+    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
+
+    private var enabledCount: Int { AgentLoadoutSummary.enabledCount(usage.loadoutItems) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(palette.primaryAccent)
+                Text("Agents").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Text(verbatim: AgentLoadoutSummary.badge(cost: usage.snapshot.todayCost,
+                                                         enabled: enabledCount,
+                                                         total: usage.loadoutItems.count))
+                    .font(.system(size: 10, weight: .medium)).monospacedDigit().foregroundStyle(inkSoft)
+            }
+            Picker(selection: Binding(
+                get: { usage.activeProfile },
+                set: { usage.applyLoadoutProfile($0) }
+            )) {
+                ForEach(LoadoutProfile.allCases) { profile in
+                    Text(verbatim: profile.title).tag(profile)
+                }
+            } label: { EmptyView() }
+            .labelsHidden().pickerStyle(.menu).controlSize(.small)
+
+            Toggle(isOn: Binding(
+                get: { hooksPaused },
+                set: { paused in
+                    hooksPaused = paused
+                    if paused { ClaudeApprovalService.shared.stop() } else { ClaudeApprovalService.shared.start() }
+                }
+            )) {
+                Text("Pause").font(.system(size: 10.5)).foregroundStyle(inkSoft)
+            }
+            .toggleStyle(.switch).controlSize(.mini)
+        }
+        .padding(9)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+    }
+}
+
+// MARK: - MB-10: Audio Mixer (opt-in)
+
+/// Per-app levels. The engine is created with this card and torn down when the tab changes, so the
+/// module is off (and silent) the moment its view is gone.
+struct HubAudioMixerCard: View {
+    @StateObject private var engine = PerAppAudioEngine()
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
+    private var ink: Color { theme.labelActive.color }
+    private var inkSoft: Color { theme.labelSubtitle.color }
+    private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
+    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
+
+    private var audible: [AppAudioProcess] { engine.processes.filter(\.isRunningOutput) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "slider.horizontal.3").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(palette.primaryAccent)
+                Text("Audio Mixer").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Button { engine.refresh() } label: {
+                    Image(systemName: "arrow.clockwise").font(.system(size: 10)).foregroundStyle(inkSoft)
+                }.buttonStyle(.plain).help(Text("Refresh"))
+            }
+            if audible.isEmpty {
+                Text("None").font(.system(size: 10.5)).foregroundStyle(inkSoft).padding(.vertical, 3)
+            } else {
+                ForEach(Array(audible.prefix(6))) { process in row(process) }
+            }
+        }
+        .padding(9)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+        .onAppear { engine.start() }
+        .onDisappear { engine.stop() }
+    }
+
+    private func row(_ process: AppAudioProcess) -> some View {
+        VStack(spacing: 3) {
+            HStack(spacing: 6) {
+                Text(verbatim: process.name).font(.system(size: 12)).foregroundStyle(ink).lineLimit(1)
+                if engine.isRouted(process) {
+                    Circle().fill(palette.primaryAccent).frame(width: 5, height: 5)
+                }
+                Spacer(minLength: 0)
+                Text(verbatim: "\(PerAppAudioRules.percent(engine.gain(for: process)))%")
+                    .font(.system(size: 9.5)).monospacedDigit().foregroundStyle(inkSoft)
+            }
+            HStack(spacing: 6) {
+                Button { engine.setMuted(!engine.isMuted(process), for: process) } label: {
+                    Image(systemName: engine.isMuted(process) ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(engine.isMuted(process) ? Color.red : inkSoft)
+                        .frame(width: 16)
+                }.buttonStyle(.plain)
+                Slider(value: Binding(
+                    get: { engine.gain(for: process) },
+                    set: { engine.setGain($0, for: process) }
+                ), in: 0...1).controlSize(.mini).tint(palette.primaryAccent)
+            }
+        }
+    }
+}
+
+// MARK: - MB-11: Uninstaller (opt-in)
+
+/// On-demand app removal sheet. Uses the launcher's scan and `AppRemovalPlanner` — the same plan the
+/// launcher and Command Bar use — and never hard-deletes: every path goes to the Finder Trash.
+struct HubUninstallerSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var entries: [UninstallerEntry] = []
+    @State private var query = ""
+    @State private var pending: UninstallerEntry?
+    @State private var moved = 0
+    @State private var loading = true
+
+    private var visible: [UninstallerEntry] { UninstallerCatalog.filter(entries, query: query) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Uninstaller").font(.system(size: 14, weight: .semibold))
+                Spacer()
+                Button("Cancel") { dismiss() }.font(.system(size: 11))
+            }
+            TextField(String(localized: "Search"), text: $query)
+                .textFieldStyle(.roundedBorder).font(.system(size: 11))
+            if loading {
+                ProgressView().controlSize(.small).frame(maxWidth: .infinity, minHeight: 160)
+            } else {
+                ScrollView {
+                    VStack(spacing: 4) {
+                        if visible.isEmpty { Text("None").font(.system(size: 11)).foregroundStyle(.secondary) }
+                        ForEach(visible) { entry in appRow(entry) }
+                    }
+                }
+                .frame(minHeight: 180)
+            }
+            if let pending {
+                confirmCard(pending)
+            } else if moved > 0 {
+                Text(verbatim: "\(moved)").font(.system(size: 10.5)).foregroundStyle(.secondary)
+            }
+        }
+        .padding(14)
+        .frame(width: 460, height: 520)
+        .task {
+            entries = await Task.detached(priority: .utility) {
+                UninstallerCatalog.entries(from: LauncherIndexer.scanDirectories())
+            }.value
+            loading = false
+        }
+    }
+
+    private func appRow(_ entry: UninstallerEntry) -> some View {
+        Button { pending = entry } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "app").font(.system(size: 11)).foregroundStyle(.secondary).frame(width: 16)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(verbatim: entry.name).font(.system(size: 11.5, weight: .medium)).lineLimit(1)
+                    Text(verbatim: entry.bundleID).font(.system(size: 9)).foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                Text("Uninstall…").font(.system(size: 10, weight: .semibold)).foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 8).padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.05)))
+            .contentShape(Rectangle())
+        }.buttonStyle(.plain)
+    }
+
+    private func confirmCard(_ entry: UninstallerEntry) -> some View {
+        let plan = removalPlan(entry)
+        return VStack(alignment: .leading, spacing: 6) {
+            Text(verbatim: entry.name).font(.system(size: 11.5, weight: .semibold))
+            ForEach(plan.paths.prefix(6), id: \.self) { path in
+                Text(verbatim: path).font(.system(size: 9)).foregroundStyle(.secondary).lineLimit(1)
+            }
+            HStack {
+                Spacer()
+                Button("Cancel") { pending = nil }.font(.system(size: 10.5))
+                Button("Move to Trash") {
+                    let count = AppRemovalService.perform(plan)
+                    moved += count
+                    entries.removeAll { $0.id == entry.id }
+                    pending = nil
+                }
+                .font(.system(size: 10.5, weight: .semibold))
+            }
+        }
+        .padding(9)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    private func removalPlan(_ entry: UninstallerEntry) -> AppRemovalPlan {
+        var plan = AppRemovalService.plan(bundleID: entry.bundleID, name: entry.name,
+                                          appPath: entry.path, removal: .uninstall)
+        let residue = AppRemovalService.plan(bundleID: entry.bundleID, name: entry.name,
+                                             appPath: entry.path, removal: .deleteData)
+        plan.paths += residue.paths.filter { !plan.paths.contains($0) }
+        return plan
     }
 }

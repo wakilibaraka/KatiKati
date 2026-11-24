@@ -1,4 +1,5 @@
 import AudioToolbox
+import CoreAudio
 import SwiftUI
 
 // Phase 36e — list the Mac's audio outputs and make one the default. CoreAudio calls run only when the
@@ -214,5 +215,335 @@ struct AudioOutputMenu<Glyph: View>: View {
     private func refreshDevices() {
         devices = AudioOutputSwitcher.devices(input: false)
         inputDevices = AudioOutputSwitcher.devices(input: true)
+    }
+}
+
+// MARK: - MB-10: opt-in per-app audio mixer
+
+/// One process the audio HAL knows about. Read-only: listing never creates a tap, so opening the
+/// module cannot change what the Mac is playing.
+struct AppAudioProcess: Identifiable, Equatable {
+    let id: AudioObjectID
+    let pid: Int32
+    let bundleID: String?
+    let name: String
+    let isRunningOutput: Bool
+}
+
+/// The Tier B mixer. Built only by its card (`HubAudioMixerCard`), which exists only while the module
+/// is switched on, so an off module owns no CoreAudio objects and prompts for nothing.
+///
+/// Routing model: a private tap of exactly one process, muted at the source, rendered back to the
+/// current default output through a private aggregate device. Gain 100 % (and no mute) tears the
+/// route down instead of passing audio through untouched — a 1:1 tap only adds latency. Any failure
+/// destroys the whole session, which restores the app's normal output path.
+@MainActor
+final class PerAppAudioEngine: ObservableObject {
+    @Published private(set) var processes: [AppAudioProcess] = []
+    @Published private(set) var routing: Set<Int32> = []
+    @Published private(set) var unavailable = false
+
+    private var sessions: [Int32: MixSession] = [:]
+    private var saved: [String: PerAppAudioMix] = [:]
+    private var started = false
+
+    func start() {
+        guard !started else { return }
+        started = true
+        loadSaved()
+        refresh()
+    }
+
+    /// Called when the card leaves the hub: every route is torn down, so closing the panel can never
+    /// leave an app muted behind a view that no longer exists.
+    func stop() {
+        restoreAll()
+        started = false
+        processes = []
+        saved = [:]
+    }
+
+    func refresh() {
+        processes = Self.readProcesses()
+    }
+
+    func gain(for process: AppAudioProcess) -> Double {
+        saved[Self.key(for: process)]?.gain ?? 1
+    }
+
+    func isMuted(_ process: AppAudioProcess) -> Bool {
+        saved[Self.key(for: process)]?.isMuted ?? false
+    }
+
+    func isRouted(_ process: AppAudioProcess) -> Bool {
+        routing.contains(process.pid)
+    }
+
+    func setGain(_ value: Double, for process: AppAudioProcess) {
+        var mix = saved[Self.key(for: process)]
+            ?? PerAppAudioMix(bundleID: process.bundleID, name: process.name, gain: 1, isMuted: false)
+        mix.bundleID = process.bundleID
+        mix.name = process.name
+        mix.gain = PerAppAudioRules.clamped(value)
+        if mix.gain > 0 { mix.isMuted = false }
+        saved[Self.key(for: process)] = mix
+        persist()
+        apply(mix, to: process)
+    }
+
+    func setMuted(_ muted: Bool, for process: AppAudioProcess) {
+        var mix = saved[Self.key(for: process)]
+            ?? PerAppAudioMix(bundleID: process.bundleID, name: process.name, gain: 1, isMuted: false)
+        mix.isMuted = muted
+        saved[Self.key(for: process)] = mix
+        persist()
+        apply(mix, to: process)
+    }
+
+    func restore(_ process: AppAudioProcess) {
+        saved[Self.key(for: process)] = nil
+        persist()
+        teardown(pid: process.pid)
+    }
+
+    func restoreAll() {
+        for pid in Array(sessions.keys) { teardown(pid: pid) }
+        routing = []
+    }
+
+    // MARK: Routing
+
+    private func apply(_ mix: PerAppAudioMix, to process: AppAudioProcess) {
+        guard PerAppAudioRules.needsRouting(mix) else { teardown(pid: process.pid); return }
+        if let session = sessions[process.pid], session.key == mix.storageKey {
+            session.setGain(PerAppAudioRules.effectiveGain(mix))
+            routing.insert(process.pid)
+            return
+        }
+        teardown(pid: process.pid)
+        guard let session = MixSession(process: process, gain: PerAppAudioRules.effectiveGain(mix)) else {
+            unavailable = true
+            return
+        }
+        unavailable = false
+        sessions[process.pid] = session
+        routing.insert(process.pid)
+    }
+
+    private func teardown(pid: Int32) {
+        sessions.removeValue(forKey: pid)?.teardown()
+        routing.remove(pid)
+    }
+
+    // MARK: Persistence
+
+    private static func key(for process: AppAudioProcess) -> String {
+        if let id = process.bundleID, !id.isEmpty { return id }
+        return process.name
+    }
+
+    private func loadSaved() {
+        let data = UserDefaults.standard.data(forKey: PerAppAudioRules.defaultsKey)
+        saved = Dictionary(PerAppAudioRules.parse(data).map { ($0.storageKey, $0) }, uniquingKeysWith: { a, _ in a })
+    }
+
+    private func persist() {
+        let data = PerAppAudioRules.encode(Array(saved.values))
+        UserDefaults.standard.set(data, forKey: PerAppAudioRules.defaultsKey)
+    }
+
+    // MARK: HAL discovery (read-only)
+
+    nonisolated static func readProcesses() -> [AppAudioProcess] {
+        var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyProcessObjectList,
+                                                 mScope: kAudioObjectPropertyScopeGlobal,
+                                                 mElement: kAudioObjectPropertyElementMain)
+        var size: UInt32 = 0
+        guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size) == noErr,
+              size > 0 else { return [] }
+        var ids = [AudioObjectID](repeating: 0, count: Int(size) / MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &ids) == noErr else { return [] }
+        return ids.compactMap { id in
+            var pidAddress = AudioObjectPropertyAddress(mSelector: kAudioProcessPropertyPID,
+                                                        mScope: kAudioObjectPropertyScopeGlobal,
+                                                        mElement: kAudioObjectPropertyElementMain)
+            var pid: pid_t = 0
+            var pidSize = UInt32(MemoryLayout<pid_t>.size)
+            guard AudioObjectGetPropertyData(id, &pidAddress, 0, nil, &pidSize, &pid) == noErr, pid > 0 else { return nil }
+
+            var bundleAddress = AudioObjectPropertyAddress(mSelector: kAudioProcessPropertyBundleID,
+                                                           mScope: kAudioObjectPropertyScopeGlobal,
+                                                           mElement: kAudioObjectPropertyElementMain)
+            var bundle: Unmanaged<CFString>?
+            var bundleSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+            let bundleID: String? = AudioObjectGetPropertyData(id, &bundleAddress, 0, nil, &bundleSize, &bundle) == noErr
+                ? (bundle?.takeRetainedValue() as String?) : nil
+
+            var runningAddress = AudioObjectPropertyAddress(mSelector: kAudioProcessPropertyIsRunningOutput,
+                                                            mScope: kAudioObjectPropertyScopeGlobal,
+                                                            mElement: kAudioObjectPropertyElementMain)
+            var running: UInt32 = 0
+            var runningSize = UInt32(MemoryLayout<UInt32>.size)
+            let isRunning = AudioObjectGetPropertyData(id, &runningAddress, 0, nil, &runningSize, &running) == noErr && running != 0
+
+            let name = NSRunningApplication(processIdentifier: pid)?.localizedName
+                ?? bundleID?.split(separator: ".").last.map(String.init)
+                ?? "PID \(pid)"
+            return AppAudioProcess(id: id, pid: pid, bundleID: bundleID, name: name, isRunningOutput: isRunning)
+        }
+        .filter { $0.pid != getpid() }
+        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+}
+
+/// One process's live route. Deliberately small and fail-safe: if any CoreAudio call fails the whole
+/// session is destroyed in `init`, and destroying the tap un-mutes the app.
+private final class MixSession {
+    let pid: Int32
+    let key: String
+    private(set) var tap: AudioObjectID = kAudioObjectUnknown
+    private(set) var aggregate: AudioObjectID = kAudioObjectUnknown
+    private(set) var ioProc: AudioDeviceIOProcID?
+    private var gainPointer: UnsafeMutablePointer<Float>?
+
+    init?(process: AppAudioProcess, gain value: Float) {
+        pid = process.pid
+        if let bundleID = process.bundleID, !bundleID.isEmpty { key = bundleID } else { key = process.name }
+        let pointer = UnsafeMutablePointer<Float>.allocate(capacity: 1)
+        pointer.pointee = value
+        gainPointer = pointer
+
+        let description = CATapDescription(stereoMixdownOfProcesses: [process.id])
+        description.name = "KatiKati Mix"
+        description.uuid = UUID()
+        description.isPrivate = true
+        description.muteBehavior = .mutedWhenTapped
+
+        var tapID = AudioObjectID(kAudioObjectUnknown)
+        guard AudioHardwareCreateProcessTap(description, &tapID) == noErr, tapID != kAudioObjectUnknown else {
+            destroy()
+            return nil
+        }
+        tap = tapID
+
+        // Render only when the tap and the current output agree on a plain Float32 layout. A mismatch
+        // (multichannel interface, non-interleaved vs interleaved) fails closed: the tap is destroyed
+        // before the aggregate exists, so the app's audio is never touched.
+        guard let tapFormat = Self.format(of: tapID, selector: kAudioTapPropertyFormat),
+              let outputFormat = Self.outputFormat(),
+              Self.isRenderable(tapFormat, outputFormat) else { destroy(); return nil }
+
+        guard let outputUID = Self.defaultOutputUID() else { destroy(); return nil }
+        let aggregateDescription: [String: Any] = [
+            kAudioAggregateDeviceNameKey: "KatiKati Mix",
+            kAudioAggregateDeviceUIDKey: UUID().uuidString,
+            kAudioAggregateDeviceIsPrivateKey: true,
+            kAudioAggregateDeviceTapListKey: [description.uuid.uuidString],
+            kAudioAggregateDeviceSubDeviceListKey: [[kAudioSubDeviceUIDKey: outputUID]],
+            kAudioAggregateDeviceMainSubDeviceKey: outputUID,
+            kAudioAggregateDeviceIsStackedKey: false,
+        ]
+        var aggregateID = AudioObjectID(kAudioObjectUnknown)
+        guard AudioHardwareCreateAggregateDevice(aggregateDescription as CFDictionary, &aggregateID) == noErr,
+              aggregateID != kAudioObjectUnknown else { destroy(); return nil }
+        aggregate = aggregateID
+
+        var procID: AudioDeviceIOProcID?
+        let status = AudioDeviceCreateIOProcIDWithBlock(&procID, aggregateID, nil) { _, input, _, output, _ in
+            let source = UnsafeMutableAudioBufferListPointer(UnsafeMutablePointer(mutating: input))
+            let destination = UnsafeMutableAudioBufferListPointer(output)
+            let level = pointer.pointee
+            for index in 0..<min(source.count, destination.count) {
+                guard let src = source[index].mData, let dst = destination[index].mData else { continue }
+                let bytes = min(Int(source[index].mDataByteSize), Int(destination[index].mDataByteSize))
+                memcpy(dst, src, bytes)
+                guard level < 0.999 else { continue }
+                let samples = dst.assumingMemoryBound(to: Float.self)
+                for sample in 0..<(bytes / MemoryLayout<Float>.size) { samples[sample] *= level }
+            }
+        }
+        guard status == noErr, let procID else { destroy(); return nil }
+        ioProc = procID
+        guard AudioDeviceStart(aggregateID, procID) == noErr else { destroy(); return nil }
+    }
+
+    func setGain(_ value: Float) { gainPointer?.pointee = value }
+
+    func teardown() { destroy() }
+
+    private func destroy() {
+        if aggregate != kAudioObjectUnknown {
+            if let ioProc {
+                AudioDeviceStop(aggregate, ioProc)
+                AudioDeviceDestroyIOProcID(aggregate, ioProc)
+            }
+            AudioHardwareDestroyAggregateDevice(aggregate)
+            aggregate = kAudioObjectUnknown
+        }
+        ioProc = nil
+        if tap != kAudioObjectUnknown {
+            AudioHardwareDestroyProcessTap(tap)
+            tap = kAudioObjectUnknown
+        }
+        if let pointer = gainPointer {
+            pointer.deallocate()
+            gainPointer = nil
+        }
+    }
+
+    private static func format(of object: AudioObjectID, selector: AudioObjectPropertySelector) -> AudioStreamBasicDescription? {
+        var address = AudioObjectPropertyAddress(mSelector: selector,
+                                                 mScope: kAudioObjectPropertyScopeGlobal,
+                                                 mElement: kAudioObjectPropertyElementMain)
+        var format = AudioStreamBasicDescription()
+        var size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+        guard AudioObjectGetPropertyData(object, &address, 0, nil, &size, &format) == noErr else { return nil }
+        return format
+    }
+
+    private static func outputFormat() -> AudioStreamBasicDescription? {
+        var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+                                                 mScope: kAudioObjectPropertyScopeGlobal,
+                                                 mElement: kAudioObjectPropertyElementMain)
+        var device = AudioObjectID(kAudioObjectUnknown)
+        var size = UInt32(MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr,
+              device != kAudioObjectUnknown else { return nil }
+        var stream = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreamFormat,
+                                                mScope: kAudioObjectPropertyScopeOutput,
+                                                mElement: kAudioObjectPropertyElementMain)
+        var format = AudioStreamBasicDescription()
+        var formatSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+        guard AudioObjectGetPropertyData(device, &stream, 0, nil, &formatSize, &format) == noErr else { return nil }
+        return format
+    }
+
+    /// Float32 on both sides, same channel count, same interleaving — the only arrangement the
+    /// per-buffer copy below can render without guessing.
+    private static func isRenderable(_ tap: AudioStreamBasicDescription, _ output: AudioStreamBasicDescription) -> Bool {
+        let float: AudioFormatFlags = kAudioFormatFlagIsFloat
+        let nonInterleaved: AudioFormatFlags = kAudioFormatFlagIsNonInterleaved
+        guard tap.mFormatID == kAudioFormatLinearPCM, output.mFormatID == kAudioFormatLinearPCM,
+              tap.mBitsPerChannel == 32, output.mBitsPerChannel == 32,
+              tap.mFormatFlags & float != 0, output.mFormatFlags & float != 0,
+              tap.mChannelsPerFrame == output.mChannelsPerFrame, tap.mChannelsPerFrame > 0 else { return false }
+        return (tap.mFormatFlags & nonInterleaved) == (output.mFormatFlags & nonInterleaved)
+    }
+
+    private static func defaultOutputUID() -> String? {
+        var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+                                                 mScope: kAudioObjectPropertyScopeGlobal,
+                                                 mElement: kAudioObjectPropertyElementMain)
+        var device = AudioObjectID(kAudioObjectUnknown)
+        var size = UInt32(MemoryLayout<AudioObjectID>.size)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr,
+              device != kAudioObjectUnknown else { return nil }
+        var uidAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyDeviceUID,
+                                                    mScope: kAudioObjectPropertyScopeGlobal,
+                                                    mElement: kAudioObjectPropertyElementMain)
+        var uid: Unmanaged<CFString>?
+        var uidSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+        guard AudioObjectGetPropertyData(device, &uidAddress, 0, nil, &uidSize, &uid) == noErr, let uid else { return nil }
+        return uid.takeRetainedValue() as String
     }
 }
