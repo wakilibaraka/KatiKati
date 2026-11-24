@@ -209,18 +209,41 @@ final class SystemStatusService: ObservableObject {
     /// Toggles output mute on the default audio device. Returns whether the mute property was written.
     @discardableResult
     func toggleMute() -> Bool {
-        guard audioDevice != kAudioObjectUnknown else { return false }
-        var muted: UInt32 = status.volume.isMuted ? 0 : 1
-        var wrote = false
-        for element in [kAudioObjectPropertyElementMain, 1, 2] {
-            var property = Self.address(kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput, element: element)
-            var settable: DarwinBoolean = false
-            guard AudioObjectHasProperty(audioDevice, &property),
-                  AudioObjectIsPropertySettable(audioDevice, &property, &settable) == noErr, settable.boolValue else { continue }
-            wrote = AudioObjectSetPropertyData(audioDevice, &property, 0, nil, UInt32(MemoryLayout<UInt32>.size), &muted) == noErr || wrote
-        }
+        let wrote = Self.setDefaultOutputMuted(!status.volume.isMuted)
         if wrote { refreshVolume() }
         return wrote
+    }
+
+    nonisolated static func isDefaultOutputMuted() -> Bool? {
+        let device = defaultOutputDeviceID()
+        guard device != kAudioObjectUnknown else { return nil }
+        return (readUInt32(device, kAudioDevicePropertyMute) ?? 0) != 0
+    }
+
+    @discardableResult
+    nonisolated static func setDefaultOutputMuted(_ muted: Bool) -> Bool {
+        let device = defaultOutputDeviceID()
+        guard device != kAudioObjectUnknown else { return false }
+        var value: UInt32 = muted ? 1 : 0
+        var wrote = false
+        for element in [kAudioObjectPropertyElementMain, 1, 2] {
+            var property = address(kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput, element: element)
+            var settable: DarwinBoolean = false
+            guard AudioObjectHasProperty(device, &property),
+                  AudioObjectIsPropertySettable(device, &property, &settable) == noErr, settable.boolValue else { continue }
+            wrote = AudioObjectSetPropertyData(device, &property, 0, nil, UInt32(MemoryLayout<UInt32>.size), &value) == noErr || wrote
+        }
+        return wrote
+    }
+
+    nonisolated private static func defaultOutputDeviceID() -> AudioObjectID {
+        var device = AudioObjectID(kAudioObjectUnknown)
+        var size = UInt32(MemoryLayout<AudioObjectID>.size)
+        var address = address(kAudioHardwarePropertyDefaultOutputDevice)
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr else {
+            return AudioObjectID(kAudioObjectUnknown)
+        }
+        return device
     }
 
     // MARK: Helpers
@@ -231,7 +254,7 @@ final class SystemStatusService: ObservableObject {
         if next != status { status = next }
     }
 
-    private static func address(
+    nonisolated private static func address(
         _ selector: AudioObjectPropertySelector,
         scope: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal,
         element: AudioObjectPropertyElement = kAudioObjectPropertyElementMain
@@ -239,7 +262,7 @@ final class SystemStatusService: ObservableObject {
         AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
     }
 
-    private static func readFloat(_ device: AudioObjectID, _ selector: AudioObjectPropertySelector) -> Float? {
+    nonisolated private static func readFloat(_ device: AudioObjectID, _ selector: AudioObjectPropertySelector) -> Float? {
         for element in [kAudioObjectPropertyElementMain, 1] {
             var property = address(selector, scope: kAudioDevicePropertyScopeOutput, element: element)
             guard AudioObjectHasProperty(device, &property) else { continue }
@@ -250,7 +273,7 @@ final class SystemStatusService: ObservableObject {
         return nil
     }
 
-    private static func readUInt32(_ device: AudioObjectID, _ selector: AudioObjectPropertySelector) -> UInt32? {
+    nonisolated private static func readUInt32(_ device: AudioObjectID, _ selector: AudioObjectPropertySelector) -> UInt32? {
         for element in [kAudioObjectPropertyElementMain, 1] {
             var property = address(selector, scope: kAudioDevicePropertyScopeOutput, element: element)
             guard AudioObjectHasProperty(device, &property) else { continue }

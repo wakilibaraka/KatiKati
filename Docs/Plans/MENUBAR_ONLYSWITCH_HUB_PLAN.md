@@ -14,7 +14,7 @@
 - [x] **`MB-2` (`Platform/Renderer`):** Event-driven `NWPathMonitor` link status + `toggleMute()` in `SystemStatusService` + cached `StatusTrioIconRenderer` in `MenuBarSystemItem`.
 - [x] **`MB-3` (`Menu Bar Split`):** Left-click vs customizable right-click `NSMenu` in `StatusMenuController` (keeping `popUpFromTaskbar` untouched) + `MenuBarStatusCoordinator`.
 - [x] **`MB-4` (`Core`):** `KatiKatiSurfaceToggle`, `HubSwitchID` / `HubSwitchCatalog`, `EvolutionItem` codec, `HubScheduleRule` + unit tests.
-- [ ] **`MB-5` (`Platform`):** `ShortcutsCatalogRunner` (`/usr/bin/shortcuts`, 5 s watchdog), `EvolutionRunner`, `HubScheduleCoordinator`.
+- [x] **`MB-5` (`Platform`):** `.muteOutput`/`.cleanKeyboard`, `ShortcutsCatalogRunner` (5 s watchdog), `EvolutionRunner`, `HubScheduleCoordinator`.
 - [ ] **`MB-6` (`UI`):** `MenuBarHubPanelController` + `MenuBarCreativeHubView` (2×2 grid, `Switches` + AirPods pill, `Status & Audio`).
 - [ ] **`MB-7` (`UI`):** `Shortcuts & Evolutions` + `Schedules` tab views.
 - [ ] **`MB-8` (`Settings + L10n`):** `Settings › Menu Bar` customization UI + 12-locale `Localizable.xcstrings` + `CHANGELOG.md`.

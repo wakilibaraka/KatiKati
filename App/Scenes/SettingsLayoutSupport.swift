@@ -18,6 +18,8 @@ extension QuickToggleID {
         case .nightShift: return Text("Night Shift")
         case .trueTone: return Text("True Tone")
         case .vpn: return Text("VPN")
+        case .muteOutput: return Text("Muted")
+        case .cleanKeyboard: return Text("Clean Keyboard")
         case .screenSaver: return Text("Screen Saver")
         case .lockScreen: return Text("Lock Screen")
         case .relaunchFinder: return Text("Relaunch Finder")

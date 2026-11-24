@@ -739,6 +739,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.statusMenuController.refreshStatusIcon()
             }
             menuBarStatusCoordinator.start()
+            HubScheduleCoordinator.shared.startIfNeeded()
 
             // 自动更新只在正常安装的副本上跑。挂载在 DMG 里的临时副本更新自己毫无意义
             // ——它卸载就没了——和上面不给它注册全局热键、不向系统申请权限是同一条理由。

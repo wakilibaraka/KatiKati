@@ -4,7 +4,7 @@ import Foundation
 enum QuickToggleID: String, CaseIterable, Sendable {
     case darkMode, keepAwake, hideDesktopIcons, showHiddenFiles, dockAutoHide, pathBar
     case muteMic, emptyTrash, ejectDisks, wifi, bluetooth, nightShift
-    case trueTone, vpn
+    case trueTone, vpn, muteOutput, cleanKeyboard
     /// Phase 16s: utility actions in the OnlySwitch genre (open-only or fire-and-done, no new
     /// permission, no private API): start the screen saver, lock the screen, relaunch the Finder,
     /// open Display Settings for screen mirroring.
@@ -13,7 +13,7 @@ enum QuickToggleID: String, CaseIterable, Sendable {
     /// Actions have no on/off state: they run and report done.
     var isAction: Bool {
         self == .emptyTrash || self == .ejectDisks || self == .screenSaver || self == .lockScreen
-            || self == .relaunchFinder || self == .screenMirroring
+            || self == .relaunchFinder || self == .screenMirroring || self == .cleanKeyboard
     }
     /// Needs a confirmation click before it runs.
     var needsConfirm: Bool { self == .emptyTrash || self == .lockScreen || self == .relaunchFinder }
@@ -34,6 +34,8 @@ enum QuickToggleID: String, CaseIterable, Sendable {
         case .nightShift: return "sun.max.fill"
         case .trueTone: return "circle.lefthalf.filled"
         case .vpn: return "network"
+        case .muteOutput: return "speaker.slash.fill"
+        case .cleanKeyboard: return "keyboard.badge.ellipsis"
         case .screenSaver: return "moon.zzz.fill"
         case .lockScreen: return "lock.fill"
         case .relaunchFinder: return "arrow.clockwise"

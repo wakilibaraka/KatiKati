@@ -57,6 +57,7 @@ final class QuickToggleEngine: ObservableObject {
 
     func perform(_ id: QuickToggleID) {
         if id == .keepAwake { setKeepAwake(!keepAwakeOn); return }
+        if id == .cleanKeyboard { BarActionService.run(.cleanKeyboard); flashAction(id); return }
         let target = !(states[id] ?? false)
         if !id.isAction { states[id] = target }
         let savedMic = micPrevious
@@ -71,7 +72,7 @@ final class QuickToggleEngine: ObservableObject {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 if id == .muteMic { self.micPrevious = transition.nextSavedPrevious }
-                if id.isAction { self.flash = id; DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { self.flash = nil } }
+                if id.isAction { self.flashAction(id) }
                 if !ok { self.unavailable.insert(id) }
                 self.refresh()
             }
@@ -89,6 +90,13 @@ final class QuickToggleEngine: ObservableObject {
     func setKeepAwake(_ on: Bool) {
         KeepAwakeService.shared.setManual(on)
         states[.keepAwake] = on
+    }
+
+    private func flashAction(_ id: QuickToggleID) {
+        flash = id
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+            if self?.flash == id { self?.flash = nil }
+        }
     }
 
     // MARK: Reading (background)
@@ -109,7 +117,8 @@ final class QuickToggleEngine: ObservableObject {
         case .nightShift: return NightShift.read()
         case .trueTone: return TrueTone.read()
         case .vpn: return VPNService.anyConnected()
-        case .emptyTrash, .ejectDisks, .screenSaver, .lockScreen, .relaunchFinder, .screenMirroring: return nil
+        case .muteOutput: return SystemStatusService.isDefaultOutputMuted()
+        case .emptyTrash, .ejectDisks, .screenSaver, .lockScreen, .relaunchFinder, .screenMirroring, .cleanKeyboard: return nil
         }
     }
 
@@ -147,6 +156,8 @@ final class QuickToggleEngine: ObservableObject {
         case .nightShift: return NightShift.write(on)
         case .trueTone: return TrueTone.write(on)
         case .vpn: return VPNService.set(on)
+        case .muteOutput: return SystemStatusService.setDefaultOutputMuted(on)
+        case .cleanKeyboard: return true
         case .screenSaver: return run("/usr/bin/open", ["-a", "ScreenSaverEngine"])
         case .lockScreen: return run("/usr/bin/pmset", ["displaysleepnow"])
         case .relaunchFinder: return run("/usr/bin/killall", ["Finder"])
@@ -335,4 +346,194 @@ enum VPNService {
     static func anyConnected() -> Bool { VPNServiceParser.anyConnected() }
     static func set(_ on: Bool) -> Bool { VPNServiceParser.set(on) }
     static func setService(_ id: String, connected: Bool) -> Bool { VPNServiceParser.setService(id, connected: connected) }
+}
+
+// MARK: - MB-5: Shortcuts, Evolutions & Coalesced Hub Scheduler
+
+enum ShortcutsCatalogRunner {
+    static let timeout: TimeInterval = 5
+
+    static func listNames() async -> [String] {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let raw = runOutput("/usr/bin/shortcuts", ["list"])
+                let names = raw.components(separatedBy: .newlines)
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+                continuation.resume(returning: names)
+            }
+        }
+    }
+
+    @discardableResult
+    static func runShortcut(named name: String) async -> Bool {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                continuation.resume(returning: runStatus("/usr/bin/shortcuts", ["run", name]))
+            }
+        }
+    }
+
+    fileprivate static func runOutput(_ path: String, _ args: [String]) -> String {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: path)
+        p.arguments = args
+        let pipe = Pipe()
+        p.standardOutput = pipe
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return "" }
+        let watchdog = DispatchWorkItem { if p.isRunning { p.terminate() } }
+        DispatchQueue.global().asyncAfter(deadline: .now() + timeout, execute: watchdog)
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        watchdog.cancel()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    fileprivate static func runStatus(_ path: String, _ args: [String]) -> Bool {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: path)
+        p.arguments = args
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return false }
+        let watchdog = DispatchWorkItem { if p.isRunning { p.terminate() } }
+        DispatchQueue.global().asyncAfter(deadline: .now() + timeout, execute: watchdog)
+        p.waitUntilExit()
+        watchdog.cancel()
+        return p.terminationStatus == 0
+    }
+}
+
+enum EvolutionRunner {
+    static func run(_ item: EvolutionItem) async -> Bool {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let ok: Bool
+                switch item.shell {
+                case .sh: ok = ShortcutsCatalogRunner.runStatus("/bin/sh", ["-c", item.runScript])
+                case .appleScript: ok = ShortcutsCatalogRunner.runStatus("/usr/bin/osascript", ["-e", item.runScript])
+                }
+                continuation.resume(returning: ok)
+            }
+        }
+    }
+
+    static func probeStatus(_ item: EvolutionItem) async -> Bool? {
+        guard item.kind == .toggle, let script = item.statusScript, !script.isEmpty else { return nil }
+        return await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let ok: Bool
+                switch item.shell {
+                case .sh: ok = ShortcutsCatalogRunner.runStatus("/bin/sh", ["-c", script])
+                case .appleScript: ok = ShortcutsCatalogRunner.runStatus("/usr/bin/osascript", ["-e", script])
+                }
+                continuation.resume(returning: ok)
+            }
+        }
+    }
+}
+
+@MainActor
+final class HubScheduleCoordinator: ObservableObject {
+    static let shared = HubScheduleCoordinator()
+
+    @Published private(set) var rules: [HubScheduleRule] = []
+    private var timer: DispatchSourceTimer?
+    private var defaultsObserver: NSObjectProtocol?
+
+    func startIfNeeded() {
+        reload()
+        guard defaultsObserver == nil else { return }
+        defaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.reload() }
+        }
+    }
+
+    func save(_ next: [HubScheduleRule]) {
+        rules = next
+        UserDefaults.standard.set(HubScheduleRule.encode(next), forKey: HubScheduleRule.defaultsKey)
+        reschedule()
+    }
+
+    func reload() {
+        let parsed = HubScheduleRule.parse(UserDefaults.standard.data(forKey: HubScheduleRule.defaultsKey))
+        if parsed != rules {
+            rules = parsed
+            reschedule()
+        } else if timer == nil, !rules.isEmpty {
+            reschedule()
+        }
+    }
+
+    private func reschedule() {
+        timer?.cancel()
+        timer = nil
+        guard let next = HubScheduleRule.nextPendingRule(in: rules, after: Date()) else { return }
+        let delay = max(0.5, next.fireDate.timeIntervalSinceNow)
+        let source = DispatchSource.makeTimerSource(queue: .main)
+        source.schedule(deadline: .now() + delay, leeway: .seconds(1))
+        source.setEventHandler { [weak self] in
+            MainActor.assumeIsolated { self?.fireDueRules() }
+        }
+        source.resume()
+        timer = source
+    }
+
+    private func fireDueRules() {
+        let now = Date()
+        var updated = rules
+        var changed = false
+        for idx in updated.indices where updated[idx].isEnabled {
+            if let fire = updated[idx].nextFireDate(after: now.addingTimeInterval(-2)), fire <= now.addingTimeInterval(2) {
+                execute(updated[idx])
+                if case .afterMinutes = updated[idx].kind {
+                    updated[idx].isEnabled = false
+                    changed = true
+                }
+            }
+        }
+        if changed { save(updated) } else { reschedule() }
+    }
+
+    private func execute(_ rule: HubScheduleRule) {
+        guard let switchID = HubSwitchID(token: rule.targetToken) else { return }
+        switch switchID {
+        case .system(let q):
+            if q == .keepAwake {
+                QuickToggleEngine.shared.setKeepAwake(rule.desiredState)
+            } else if q.isAction || (QuickToggleEngine.shared.states[q] ?? false) != rule.desiredState {
+                QuickToggleEngine.shared.perform(q)
+            }
+        case .surface(let s):
+            Self.applySurface(s, enabled: rule.desiredState)
+        case .shortcut(let name):
+            Task { _ = await ShortcutsCatalogRunner.runShortcut(named: name) }
+        case .evolution(let uuid):
+            let items = EvolutionItem.parse(UserDefaults.standard.data(forKey: EvolutionItem.defaultsKey))
+            if let item = items.first(where: { $0.id == uuid }) {
+                Task { _ = await EvolutionRunner.run(item) }
+            }
+        }
+    }
+
+    static func applySurface(_ surface: KatiKatiSurfaceToggle, enabled: Bool) {
+        let d = UserDefaults.standard
+        switch surface {
+        case .notch:
+            AppDelegate.shared?.settingsStore.setNotchIslandEnabled(enabled)
+        case .desktopBoxes:
+            d.set(enabled, forKey: DesktopCanvasConfig.enabledKey)
+        case .nowPlaying:
+            d.set(enabled, forKey: MusicSurfaceConfig.enabledKey)
+            MusicSurfaceConfig.notifyChange()
+        case .lockScreenCard:
+            d.set(enabled, forKey: MusicSurfaceConfig.lockScreenCardKey)
+            MusicSurfaceConfig.notifyChange()
+        case .metricsBar:
+            d.set(enabled, forKey: MenuBarStatModel.masterEnabledKey)
+        }
+    }
 }
