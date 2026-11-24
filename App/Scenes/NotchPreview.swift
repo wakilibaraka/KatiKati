@@ -15,6 +15,7 @@ struct NotchPreview: View {
 
     private var skinTitle: String {
         switch skin {
+        case .liquid: return String(localized: "Liquid")
         case .boring: return String(localized: "Full")
         case .classic: return String(localized: "Compact")
         case .dynamicIsland: return String(localized: "Dynamic Island")
@@ -44,7 +45,7 @@ struct NotchPreview: View {
 
     private var silhouette: some View {
         ZStack {
-            if skin == .dynamicIsland {
+            if skin == .dynamicIsland || skin == .liquid {
                 NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
                     .fill(Color.black)
                     .overlay(

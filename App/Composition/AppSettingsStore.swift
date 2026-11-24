@@ -479,7 +479,7 @@ final class AppSettingsStore: ObservableObject {
             Keys.notesSync: false,
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: true,
-            Keys.notchSkin: LiveIslandSkin.boring.rawValue,
+            Keys.notchSkin: LiveIslandSkin.liquid.rawValue,
             Keys.islandTouchMode: IslandTouchModeSetting.automatic.rawValue,
             Keys.islandNonNotchBehavior: IslandNonNotchIdleBehavior.compactPill.rawValue,
             Keys.islandKeylineEnabled: true,
@@ -560,7 +560,7 @@ final class AppSettingsStore: ObservableObject {
         shelfAutoExpire = defaults.bool(forKey: ShelfStore.autoExpireKey)
         shelfExpiryDays = ShelfPolicy.expiryChoices.contains(defaults.integer(forKey: ShelfStore.expiryDaysKey)) ? defaults.integer(forKey: ShelfStore.expiryDaysKey) : 1
         shelfStorage = ShelfStorage(rawValue: defaults.string(forKey: ShelfStore.storageKey) ?? "") ?? .reference
-        notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .boring
+        notchSkin = LiveIslandSkin(rawValue: defaults.string(forKey: Keys.notchSkin) ?? "") ?? .liquid
         islandTouchMode = IslandTouchModeSetting(rawValue: defaults.string(forKey: Keys.islandTouchMode) ?? "") ?? .automatic
         islandNonNotchBehavior = IslandNonNotchIdleBehavior(rawValue: defaults.string(forKey: Keys.islandNonNotchBehavior) ?? "") ?? .compactPill
         islandKeylineEnabled = defaults.object(forKey: Keys.islandKeylineEnabled) as? Bool ?? true

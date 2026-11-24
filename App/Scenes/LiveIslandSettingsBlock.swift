@@ -34,6 +34,7 @@ struct LiveIslandSettingsBlock: View {
             SettingsDivider()
             SettingsRow(Text("Notch Style")) {
                 Picker("Notch Style", selection: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) })) {
+                    Text("Liquid").tag(LiveIslandSkin.liquid)
                     Text("Full").tag(LiveIslandSkin.boring)
                     Text("Compact").tag(LiveIslandSkin.classic)
                     Text("Dynamic Island").tag(LiveIslandSkin.dynamicIsland)

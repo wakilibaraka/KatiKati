@@ -115,7 +115,9 @@ struct NotchIslandView: View {
     private static let closedFade = AnyTransition.opacity
 
     var body: some View {
-        if model.skin == .dynamicIsland, let bridge = model.islandBridge {
+        if model.skin == .liquid {
+            LiquidNotchShellView(model: model, feed: feed, metrics: metrics)
+        } else if model.skin == .dynamicIsland, let bridge = model.islandBridge {
             let resolution = NotchTheme.resolve(
                 hasHardwareNotch: metrics.hasHardwareNotch,
                 tintsPlate: !metrics.hasHardwareNotch,

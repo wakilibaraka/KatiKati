@@ -396,6 +396,10 @@ final class NotchPanelController: LiveEventSink {
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
     /// clips while it animates open) and shrinks only after the close spring has finished.
     private func windowFrame(on screen: NSScreen, expanded: Bool? = nil) -> CGRect {
+        if skin == .liquid {
+            let stageSize = CGSize(width: max(600, model.openSize.width + 160), height: model.openSize.height + 80)
+            return NotchGeometry.panelFrame(size: stageSize, in: screen.frame)
+        }
         if skin == .dynamicIsland {
             let stageSize = CGSize(width: max(560, model.openSize.width + 64), height: 240)
             return NotchGeometry.panelFrame(size: stageSize, in: screen.frame)

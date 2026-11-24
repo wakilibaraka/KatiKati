@@ -1,4 +1,6 @@
 import AppKit
+import Metal
+import QuartzCore
 import SwiftUI
 
 /// Production activity preset view builders faithful to `opencoredev/islandcn/components/islandcn/*`
@@ -610,5 +612,401 @@ enum IslandPresets {
                 IslandStepProgress(steps: steps, color: accent, style: .bar, height: 5)
             )
         )
+    }
+}
+
+// MARK: - Liquid Notch Metal Renderer, Animator & Shell (MIT: fellipegoncalvesleite/liquid-notch)
+
+enum LiquidShaderSource {
+    static let metal = #"""
+    #include <metal_stdlib>
+    using namespace metal;
+
+    struct Uniforms {
+        float4 view;
+        float4 notch;
+        float4 mainB;
+        float4 drop;
+        float4 merge;
+        float4 glow;
+        float4 aura;
+        float4 fill;
+        float4 card;
+        float4 card2;
+        float4 pulse;
+        float4 hair;
+        float4 extra1;
+        float4 extra2;
+    };
+
+    struct VOut { float4 position [[position]]; };
+
+    vertex VOut liquid_vertex(uint vid [[vertex_id]]) {
+        float2 p = float2((vid << 1) & 2, vid & 2);
+        VOut o;
+        o.position = float4(p * float2(2, -2) + float2(-1, 1), 0, 1);
+        return o;
+    }
+
+    static float smin(float a, float b, float k) {
+        if (k <= 1e-4) return min(a, b);
+        float h = max(k - abs(a - b), 0.0) / k;
+        return min(a, b) - h * h * k * 0.25;
+    }
+
+    static float sdRoundBox(float2 p, float2 b, float r, float n) {
+        r = min(r, min(b.x, b.y));
+        float2 q = abs(p) - b + r;
+        float2 m = max(q, 0.0);
+        float outside = (n == 2.0) ? length(m) : powr(powr(m.x, n) + powr(m.y, n), 1.0 / n);
+        return outside + min(max(q.x, q.y), 0.0) - r;
+    }
+
+    static float sdEllipse(float2 p, float2 r) {
+        float k0 = length(p / r);
+        float k1 = length(p / (r * r));
+        return k1 > 1e-5 ? k0 * (k0 - 1.0) / k1 : -min(r.x, r.y);
+    }
+
+    static float sdSegment(float2 p, float2 a, float2 b) {
+        float2 pa = p - a, ba = b - a;
+        float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-5), 0.0, 1.0);
+        return length(pa - ba * h);
+    }
+
+    constant float kTopExtension = 64.0;
+    struct Field { float fill; float blob; float glow; };
+
+    static Field liquidField(float2 p, constant Uniforms &u) {
+        float cx = u.view.x * 0.5;
+        float nh = u.notch.y;
+        float dNotch = sdRoundBox(p - float2(cx, (nh - kTopExtension) * 0.5),
+                                  float2(u.notch.x, (nh + kTopExtension) * 0.5), u.notch.z, 2.0);
+        float mh = u.mainB.y;
+        float dMain = sdRoundBox(p - float2(cx + u.card2.w, (mh - kTopExtension) * 0.5),
+                                 float2(u.mainB.x, (mh + kTopExtension) * 0.5), u.mainB.z, u.mainB.w);
+        float d = smin(dNotch, dMain, u.merge.x);
+
+        float2 dr = u.drop.zw;
+        if (min(dr.x, dr.y) > 0.05) {
+            float2 dc = u.drop.xy;
+            d = smin(d, sdEllipse(p - dc, dr), u.merge.y);
+            float neck = u.merge.w;
+            if (neck > 0.05) {
+                float2 a = float2(cx + u.mainB.x - neck, dc.y);
+                float dNeck = sdSegment(p, a, dc) - neck;
+                d = smin(d, dNeck, min(u.merge.y, neck * 3.0));
+            }
+        }
+        for (int i = 0; i < 2; i++) {
+            float4 e = i == 0 ? u.extra1 : u.extra2;
+            if (e.z > 0.05) d = smin(d, length(p - e.xy) - e.z, e.w);
+        }
+        float glowD = d;
+        if (u.card.x > 0.5 && u.card.z > 0.5) {
+            float rest = d;
+            float dCard = sdRoundBox(p - float2(cx + u.card2.z, u.card.y + u.card.z * 0.5),
+                                     float2(u.card.x, u.card.z * 0.5), u.card.w, u.mainB.w);
+            float cn = u.card2.x;
+            float kc = min(u.merge.y, cn * 3.0);
+            if (cn > 0.05) {
+                float dBridge = sdSegment(p, float2(cx + u.card2.w, mh - cn), float2(cx + u.card2.z, u.card.y + cn)) - cn;
+                dCard = smin(dCard, dBridge, kc);
+            }
+            d = smin(d, dCard, kc);
+            glowD = u.card2.y > 0.0 ? min(dCard, rest + u.card2.y) : d;
+        }
+        Field f;
+        f.blob = d;
+        f.glow = glowD;
+        f.fill = smin(d, p.y, u.merge.z);
+        return f;
+    }
+
+    static float hash12(float2 p) {
+        float3 p3 = fract(float3(p.xyx) * 0.1031);
+        p3 += dot(p3, p3.yzx + 33.33);
+        return fract((p3.x + p3.y) * p3.z);
+    }
+
+    fragment float4 liquid_fragment(VOut in [[stage_in]], constant Uniforms &u [[buffer(0)]]) {
+        float scale = u.view.z;
+        float2 p = in.position.xy / scale;
+        Field f = liquidField(p, u);
+        float px = max(fwidth(f.fill), 1e-4) * max(u.view.w, 0.25);
+        float coverage = saturate(0.5 - f.fill / px);
+        float g = u.glow.x * exp(-max(f.glow, 0.0) / max(u.glow.y, 0.1));
+        g += (hash12(in.position.xy) - 0.5) * u.glow.z * step(1e-3, u.glow.x);
+        g = saturate(g) * (1.0 - coverage);
+        float gp = u.pulse.w * exp(-max(f.glow, 0.0) / 34.0) * (1.0 - coverage);
+        float3 rgb = u.fill.rgb * coverage + u.aura.rgb * g + u.pulse.rgb * gp;
+        float a = coverage + g + gp;
+        if (u.hair.x > 0.0) {
+            float line = u.hair.x * saturate(1.0 - abs(f.fill / px) / max(u.hair.y, 0.5)) * step(0.5, p.y);
+            rgb += float3(line);
+            a = max(a, line);
+        }
+        return float4(rgb, min(a, 1.0));
+    }
+    """#
+}
+
+struct LiquidSpring {
+    var value: Double
+    var velocity: Double = 0
+    var target: Double
+    var stiffness: Double
+    var damping: Double
+    var epsilon: Double
+
+    init(_ value: Double, stiffness: Double = 190, damping: Double = 15, epsilon: Double = 0.01) {
+        self.value = value
+        self.target = value
+        self.stiffness = stiffness
+        self.damping = damping
+        self.epsilon = epsilon
+    }
+
+    var isResting: Bool { value == target && velocity == 0 }
+
+    mutating func step(_ dt: Double) {
+        guard !isResting, dt > 0 else { return }
+        let x0 = value - target
+        let v0 = velocity
+        let w = stiffness.squareRoot()
+        let zeta = damping / (2 * w)
+        let x: Double
+        let v: Double
+        if abs(zeta - 1) < 1e-4 {
+            let e = exp(-w * dt)
+            let c = v0 + w * x0
+            x = e * (x0 + c * dt)
+            v = e * (v0 - w * c * dt)
+        } else if zeta < 1 {
+            let a = zeta * w
+            let wd = w * (1 - zeta * zeta).squareRoot()
+            let e = exp(-a * dt)
+            let cosT = cos(wd * dt), sinT = sin(wd * dt)
+            x = e * (x0 * cosT + (v0 + a * x0) / wd * sinT)
+            v = e * (v0 * cosT - (a * v0 + w * w * x0) / wd * sinT)
+        } else {
+            let s = (zeta * zeta - 1).squareRoot()
+            let r1 = -w * (zeta - s), r2 = -w * (zeta + s)
+            let c2 = (v0 - r1 * x0) / (r2 - r1)
+            let c1 = x0 - c2
+            let e1 = exp(r1 * dt), e2 = exp(r2 * dt)
+            x = c1 * e1 + c2 * e2
+            v = c1 * r1 * e1 + c2 * r2 * e2
+        }
+        if abs(x) < epsilon && abs(v) < epsilon * 10 {
+            value = target; velocity = 0
+        } else {
+            value = target + x; velocity = v
+        }
+    }
+}
+
+@MainActor
+final class LiquidRenderer {
+    let device: MTLDevice
+    private let queue: MTLCommandQueue
+    private let pipeline: MTLRenderPipelineState
+
+    init?() {
+        guard let device = MTLCreateSystemDefaultDevice(),
+              let queue = device.makeCommandQueue(),
+              let library = try? device.makeLibrary(source: LiquidShaderSource.metal, options: nil) else { return nil }
+        let desc = MTLRenderPipelineDescriptor()
+        desc.vertexFunction = library.makeFunction(name: "liquid_vertex")
+        desc.fragmentFunction = library.makeFunction(name: "liquid_fragment")
+        desc.colorAttachments[0].pixelFormat = .bgra8Unorm
+        guard let pipeline = try? device.makeRenderPipelineState(descriptor: desc) else { return nil }
+        self.device = device
+        self.queue = queue
+        self.pipeline = pipeline
+    }
+
+    func draw(to layer: CAMetalLayer, uniforms: LiquidShapeUniforms) {
+        guard let drawable = layer.nextDrawable(),
+              let cb = queue.makeCommandBuffer() else { return }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = drawable.texture
+        pass.colorAttachments[0].loadAction = .clear
+        pass.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
+        pass.colorAttachments[0].storeAction = .store
+        guard let enc = cb.makeRenderCommandEncoder(descriptor: pass) else { return }
+        var u = uniforms
+        enc.setRenderPipelineState(pipeline)
+        enc.setFragmentBytes(&u, length: MemoryLayout<LiquidShapeUniforms>.stride, index: 0)
+        enc.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        enc.endEncoding()
+        cb.commit()
+        cb.waitUntilScheduled()
+        drawable.present()
+    }
+}
+
+@MainActor
+final class LiquidMetalNSView: NSView {
+    private let metalLayer = CAMetalLayer()
+    private let renderer = LiquidRenderer()
+    private var link: CADisplayLink?
+    private var lastTimestamp: CFTimeInterval?
+    private var currentState: LiquidShapeState
+    private var springs: [(WritableKeyPath<LiquidShapeState, Double>, LiquidSpring)] = []
+    private var targetState: LiquidShapeState
+    private var notchHalfWidth: Double = 92.5
+    private var notchHeight: Double = 32
+
+    init(initial: LiquidShapeState) {
+        self.currentState = initial
+        self.targetState = initial
+        super.init(frame: .zero)
+        wantsLayer = true
+        metalLayer.device = renderer?.device
+        metalLayer.pixelFormat = .bgra8Unorm
+        metalLayer.isOpaque = false
+        metalLayer.framebufferOnly = true
+        layer = metalLayer
+        let keys: [WritableKeyPath<LiquidShapeState, Double>] = [
+            \.mainHalfWidth, \.mainHeight, \.mainRadius, \.dropX, \.dropY, \.dropRadius,
+            \.cardHalfWidth, \.cardTop, \.cardHeight, \.cardRadius, \.kBezel, \.glowIntensity
+        ]
+        springs = keys.map { ($0, LiquidSpring(initial[keyPath: $0])) }
+    }
+
+    @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        link?.invalidate()
+        guard window != nil else { return }
+        let l = displayLink(target: self, selector: #selector(onFrame(_:)))
+        l.isPaused = true
+        l.add(to: .main, forMode: .common)
+        link = l
+        drawCurrent()
+    }
+
+    override func layout() {
+        super.layout()
+        let scale = window?.backingScaleFactor ?? 2
+        metalLayer.contentsScale = scale
+        metalLayer.drawableSize = CGSize(width: max(1, bounds.width * scale), height: max(1, bounds.height * scale))
+        drawCurrent()
+    }
+
+    func update(target: LiquidShapeState, notchHalfWidth: Double, notchHeight: Double, reduceMotion: Bool) {
+        self.notchHalfWidth = notchHalfWidth
+        self.notchHeight = notchHeight
+        guard target != targetState else { return }
+        targetState = target
+        if reduceMotion {
+            currentState = target
+            for i in springs.indices {
+                springs[i].1.value = target[keyPath: springs[i].0]
+                springs[i].1.target = target[keyPath: springs[i].0]
+                springs[i].1.velocity = 0
+            }
+            link?.isPaused = true
+            drawCurrent()
+            return
+        }
+        for i in springs.indices { springs[i].1.target = target[keyPath: springs[i].0] }
+        if link?.isPaused == true {
+            lastTimestamp = nil
+            link?.isPaused = false
+        }
+    }
+
+    @objc private func onFrame(_ link: CADisplayLink) {
+        let now = link.targetTimestamp
+        let dt = min(max(lastTimestamp.map { now - $0 } ?? (link.targetTimestamp - link.timestamp), 0), 1.0 / 30.0)
+        lastTimestamp = now
+        var moving = false
+        for i in springs.indices {
+            springs[i].1.step(dt)
+            currentState[keyPath: springs[i].0] = springs[i].1.value
+            if !springs[i].1.isResting { moving = true }
+        }
+        drawCurrent()
+        if !moving {
+            link.isPaused = true
+            lastTimestamp = nil
+        }
+    }
+
+    private func drawCurrent() {
+        guard bounds.width > 1, bounds.height > 1 else { return }
+        let scale = Double(window?.backingScaleFactor ?? 2)
+        let cardGap = max(0, currentState.cardTop - currentState.mainHeight)
+        let cardNeck = (currentState.cardHalfWidth > 1 && cardGap < 14) ? max(0, 18 - cardGap) : 0
+        let uniforms = LiquidShapeUniforms(
+            state: currentState,
+            viewSize: SIMD2(Double(bounds.width), Double(bounds.height)),
+            scale: scale,
+            notchHalfWidth: max(0, notchHalfWidth - 1),
+            notchHeight: max(0, notchHeight - 1),
+            cardNeck: cardNeck
+        )
+        renderer?.draw(to: metalLayer, uniforms: uniforms)
+    }
+}
+
+private struct LiquidSurfaceRepresentable: NSViewRepresentable {
+    let target: LiquidShapeState
+    let notchHalfWidth: Double
+    let notchHeight: Double
+    let reduceMotion: Bool
+
+    func makeNSView(context: Context) -> LiquidMetalNSView { LiquidMetalNSView(initial: target) }
+    func updateNSView(_ nsView: LiquidMetalNSView, context: Context) {
+        nsView.update(target: target, notchHalfWidth: notchHalfWidth, notchHeight: notchHeight, reduceMotion: reduceMotion)
+    }
+}
+
+/// Liquid Notch shell view rendered when `LiveIslandSkin.liquid` is active.
+struct LiquidNotchShellView: View {
+    @ObservedObject var model: NotchModel
+    @ObservedObject var feed: LiveActivityFeed
+    let metrics: NotchMetrics
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var mode: LiquidPresentationMode {
+        if model.isExpanded { return .card }
+        if feed.activity.kind != .clock { return .compact }
+        return .idle
+    }
+
+    private var targetState: LiquidShapeState {
+        LiquidShapeTargets.resting(
+            mode: mode,
+            notchHalfWidth: Double(metrics.closedSize.width) / 2,
+            notchHeight: Double(metrics.closedSize.height),
+            hasHardwareNotch: metrics.hasHardwareNotch,
+            earExtent: feed.activity.kind != .clock ? 58 : 0,
+            cardSize: model.openSize
+        )
+    }
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            LiquidSurfaceRepresentable(
+                target: targetState,
+                notchHalfWidth: metrics.hasHardwareNotch ? Double(metrics.closedSize.width) / 2 : 0,
+                notchHeight: metrics.hasHardwareNotch ? Double(metrics.closedSize.height) : 0,
+                reduceMotion: reduceMotion
+            )
+            .allowsHitTesting(false)
+
+            if model.isExpanded {
+                NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                    .frame(width: model.openSize.width, height: model.openSize.height)
+                    .padding(.top, targetState.cardTop)
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
