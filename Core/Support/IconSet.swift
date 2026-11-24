@@ -288,3 +288,41 @@ struct IconStudioState: Equatable, Codable, Sendable {
         setLook(next, for: bundleID)
     }
 }
+
+// MARK: - IS-1.2 JSON Persistence Codec
+
+enum IconStudioPersistence {
+    static func defaultFileURL(fileManager: FileManager = .default) -> URL {
+        let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support", isDirectory: true)
+        return base.appendingPathComponent("KatiKati", isDirectory: true)
+            .appendingPathComponent("icon-studio.json", isDirectory: false)
+    }
+
+    static func encode(_ state: IconStudioState) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        return try encoder.encode(state)
+    }
+
+    static func decode(_ data: Data) -> IconStudioState {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        guard let state = try? decoder.decode(IconStudioState.self, from: data),
+              state.schemaVersion == IconStudioState.currentSchemaVersion else {
+            return IconStudioState()
+        }
+        return state
+    }
+
+    static func load(from url: URL) -> IconStudioState {
+        guard let data = try? Data(contentsOf: url) else { return IconStudioState() }
+        return decode(data)
+    }
+
+    static func save(_ state: IconStudioState, to url: URL) throws {
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try encode(state).write(to: url, options: .atomic)
+    }
+}
