@@ -524,6 +524,18 @@ struct IconStudioIconView: View {
             .aspectRatio(contentMode: .fit)
             .frame(width: size, height: size)
             .overlay {
+                if let live = look?.live, live.isEnabled {
+                    switch live.kind {
+                    case .claude, .codex, .cursor:
+                        AILiveIconOverlay(config: live, size: size, isHovered: isHovered, previewPercentOverride: previewPercentOverride)
+                    case .appleMusic, .spotify:
+                        MusicLiveIconOverlay(config: live, size: size, previewPercentOverride: previewPercentOverride)
+                    default:
+                        EmptyView()
+                    }
+                }
+            }
+            .overlay {
                 if let shader = look?.shader, shader.preset.isAnimated, shouldAnimate {
                     IconMetalShaderView(preset: shader.preset, strength: shader.strength, isAnimating: true)
                         .allowsHitTesting(false)

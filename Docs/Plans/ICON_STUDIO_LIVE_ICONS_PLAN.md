@@ -199,7 +199,7 @@ Additionally, keep Notch (`App/Scenes/Notch/*`), `WallpaperEngine`, and Launcher
 - [x] **IS-2.3 (`≤ 220` LOC):** Folded into `IS-2.2` (`2cc40f87`: `ChipView.swift:506` & `LauncherChip.swift:220`). — `DONE — 2cc40f87`
 
 ### Wave `IS-3` — AI & Now Playing Live Icons (Highest ROI)
-- [ ] **IS-3.1 (`≤ 250` LOC):** Add `Core/Support/IconStudio/LiveIconMetrics.swift` (Used vs Remaining fill %, weekly reset fraction, `-0:18` countdown formatter, pause-angle accumulator), extend `AgentCodexParser` (`AgentStoreParsers.swift:50`) for optional `rate_limits` %, add local Cursor usage/budget model in `AgentUsageModels.swift` / `AgentUsageService.swift`, and add synchronous tests in `Tests/Unit/LiveIconMetricsTests.swift`.
+- [x] **IS-3.1 (`≤ 250` LOC):** `LiveIconMetrics`, `VinylAngleAccumulator`, `CursorBudgetEstimator` in `Core/Support/IconSet.swift`, `AgentCodexParser.parseRateLimit` + `AgentUsageService` `.codex` limits wiring, and synchronous tests in `Tests/Unit/IconSetTests.swift` (`79995944`). — `DONE — 79995944`
 - [ ] **IS-3.2 (`≤ 280` LOC):** Add `App/Scenes/IconStudio/AILiveIconViews.swift` wired to `AgentUsageService.shared`: **Claude** (usage fill + soft `Fade tide` strictly while `activeTurn?.isActive == true`), **ChatGPT/Codex** (usage fill + continuous white glyph tracer strictly while active), **Cursor** (`Water` / `Color fill` + `%` + weekly reset + pointer/hover tilt).
 - [ ] **IS-3.3 (`≤ 260` LOC):** Add `App/Scenes/IconStudio/MusicLiveIconViews.swift` wired to `NowPlayingService`: **Apple Music** (spinning vinyl record with live album art, elapsed/remaining time, exact angle hold on pause) and **Spotify** (`CD jewel case` or spinning prismatic disc + `-0:18` countdown / progress bar, `0.0%` idle CPU when paused).
 

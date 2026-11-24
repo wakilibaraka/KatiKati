@@ -7074,3 +7074,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-2.2` — Icon Studio Runtime Metal Shaders & Dock Chip Wiring (`2cc40f87`, 2026-11-24)
 
 - `App/Scenes/{DockTheme,ContentView,ChipView,LauncherChip}.swift`, `Tests/Unit/IconSetTests.swift`: added runtime-compiled MSL `IconShaderEngine` (5 hover/active shaders with paused `CADisplayLink`) and `IconStudioIconView` wired into `ChipView` & `LauncherChip` (`2cc40f87`; 12/12 `IconSetTests` passing).
+
+### `IS-3.1` — Icon Studio Live Metrics, Codex `rate_limits` & Cursor Estimator (`79995944`, 2026-11-24)
+
+- `Core/Support/{IconSet,AgentUsage/AgentStoreParsers}.swift`, `App/Composition/AgentUsageService.swift`, `Tests/Unit/IconSetTests.swift`: added `LiveIconMetrics`, `VinylAngleAccumulator`, `CursorBudgetEstimator`, and Codex `rate_limits` parsing (`79995944`; 46/46 `IconSetTests` + `AgentUsageTests` passing).
