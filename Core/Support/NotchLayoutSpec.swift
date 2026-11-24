@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import simd
 
 // Notch Live Island "boring" skin — the pure layout numbers and panel-selection rules.
 //
@@ -7,12 +8,16 @@ import Foundation
 // header row, a music half and a calendar half). Keeping them here, away from SwiftUI, lets the sizes,
 // the corner radii, the week strip and "which panels show" be unit-tested. Dual-compiled.
 
-/// Which look the notch uses. `classic` is the original single-row panel.
+/// Which look the notch uses. `liquid` is the Liquid Notch metaball shell (default);
+/// `boring` (Full), `classic` (Compact), and `dynamicIsland` are preserved as selectable presets.
 enum LiveIslandSkin: String, CaseIterable, Sendable {
+    case liquid
     case classic
     case boring
     case dynamicIsland
 }
+
+typealias NotchShellPreset = LiveIslandSkin
 
 enum NotchTab: String, CaseIterable, Sendable {
     case home
@@ -206,5 +211,217 @@ enum NotchProductivityLayout {
     static func fits(headerHeight: CGFloat, hasReminder: Bool, cardPadding: CGFloat) -> Bool {
         let budget = NotchLayoutSpec.pageBodyHeight(headerHeight: headerHeight) - 2 * cardPadding
         return max(cardAContent(), cardBContent(hasReminder: hasReminder)) <= budget
+    }
+}
+
+// MARK: - Liquid Notch Core Engine (MIT: fellipegoncalvesleite/liquid-notch)
+
+/// Presentation mode for the Liquid Notch shell.
+enum LiquidPresentationMode: String, CaseIterable, Sendable {
+    case idle, compact, peek, duo, hud, split, card
+}
+
+/// OKLab <-> sRGB perceptual color conversion for album-art ambient glow.
+enum LiquidOKLab {
+    static func fromSRGB(_ c: SIMD3<Double>) -> SIMD3<Double> {
+        let r = toLinear(c.x), g = toLinear(c.y), b = toLinear(c.z)
+        let l = cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+        let m = cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+        let s = cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+        return SIMD3(
+            0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+            1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+            0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+        )
+    }
+
+    static func toSRGB(L: Double, a: Double, b: Double) -> SIMD3<Double> {
+        let l = pow3(L + 0.3963377774 * a + 0.2158037573 * b)
+        let m = pow3(L - 0.1055613458 * a - 0.0638541728 * b)
+        let s = pow3(L - 0.0894841775 * a - 1.2914855480 * b)
+        let r = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
+        let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
+        let bl = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+        return SIMD3(toGamma(r), toGamma(g), toGamma(bl))
+    }
+
+    private static func pow3(_ x: Double) -> Double { x * x * x }
+    private static func toLinear(_ x: Double) -> Double { x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4) }
+    private static func toGamma(_ x: Double) -> Double {
+        let c = min(max(x, 0), 1)
+        return c <= 0.0031308 ? 12.92 * c : 1.055 * pow(c, 1 / 2.4) - 0.055
+    }
+}
+
+/// Every parameter of the liquid surface at one instant, in points.
+struct LiquidShapeState: Equatable, Sendable {
+    var mainHalfWidth: Double
+    var mainHeight: Double
+    var mainRadius: Double
+    var dropX: Double = 0
+    var dropY: Double = 0
+    var dropRadius: Double = 0
+    var e1X: Double = 0
+    var e1R: Double = 0
+    var e2X: Double = 0
+    var e2R: Double = 0
+    var cardHalfWidth: Double = 0
+    var cardTop: Double = 0
+    var cardHeight: Double = 0
+    var cardRadius: Double = 0
+    var cardX: Double = 0
+    var mainX: Double = 0
+    var kBezel: Double = 0
+    var glowIntensity: Double = 0
+    var glowFalloff: Double = 12
+    var auraL: Double = 0.7
+    var auraA: Double = 0.1
+    var auraB: Double = -0.1
+}
+
+/// Byte-for-byte mirror of `Uniforms` in the embedded LiquidShape Metal shader.
+struct LiquidShapeUniforms: Sendable {
+    var view: SIMD4<Float> = .zero
+    var notch: SIMD4<Float> = .zero
+    var main: SIMD4<Float> = .zero
+    var drop: SIMD4<Float> = .zero
+    var merge: SIMD4<Float> = .zero
+    var glow: SIMD4<Float> = .zero
+    var aura: SIMD4<Float> = .zero
+    var fill: SIMD4<Float> = .zero
+    var card: SIMD4<Float> = .zero
+    var card2: SIMD4<Float> = .zero
+    var pulse: SIMD4<Float> = .zero
+    var hair: SIMD4<Float> = .zero
+    var extra1: SIMD4<Float> = .zero
+    var extra2: SIMD4<Float> = .zero
+
+    init(
+        state s: LiquidShapeState,
+        neckRadius: Double = 0,
+        dropRadii: SIMD2<Double>? = nil,
+        viewSize: SIMD2<Double>,
+        scale: Double,
+        notchHalfWidth: Double,
+        notchHeight: Double,
+        notchRadius: Double = 10,
+        cornerExponent: Double = 4.2,
+        kNotch: Double = 10,
+        kDrop: Double = 18,
+        edgeFeather: Double = 1.1,
+        cardNeck: Double = 0,
+        earGlowOffset: Double = 0,
+        hairline: Double = 0.14
+    ) {
+        let dr = dropRadii ?? SIMD2(s.dropRadius, s.dropRadius)
+        let auraRGB = LiquidOKLab.toSRGB(L: s.auraL, a: s.auraA, b: s.auraB)
+        view = SIMD4(Float(viewSize.x), Float(viewSize.y), Float(scale), Float(edgeFeather))
+        notch = SIMD4(Float(notchHalfWidth), Float(notchHeight), Float(notchRadius), 0)
+        main = SIMD4(Float(max(s.mainHalfWidth, 0)), Float(max(s.mainHeight, 0)), Float(max(s.mainRadius, 0)), Float(cornerExponent))
+        drop = SIMD4(Float(viewSize.x / 2 + s.dropX), Float(s.dropY), Float(max(dr.x, 0)), Float(max(dr.y, 0)))
+        merge = SIMD4(Float(kNotch), Float(kDrop), Float(max(s.kBezel, 0)), Float(max(neckRadius, 0)))
+        glow = SIMD4(Float(max(s.glowIntensity, 0)), Float(max(s.glowFalloff, 0.1)), Float(1.0 / 255.0), 0)
+        aura = SIMD4(Float(auraRGB.x), Float(auraRGB.y), Float(auraRGB.z), 0)
+        fill = .zero
+        card = SIMD4(Float(max(s.cardHalfWidth, 0)), Float(s.cardTop), Float(max(s.cardHeight, 0)), Float(max(s.cardRadius, 0)))
+        card2 = SIMD4(Float(max(cardNeck, 0)), Float(earGlowOffset), Float(s.cardX), Float(s.mainX))
+        pulse = .zero
+        hair = SIMD4(Float(hairline), Float(0.5 * scale), 0, 0)
+        let ball = { (x: Double, r: Double, nx: Double, nr: Double) -> SIMD4<Float> in
+            let gap = abs(x - nx) - max(r, 0) - nr
+            let k = r > 0.05 ? kDrop * min(max(1 - gap / 10, 0), 1) : 0
+            return SIMD4(Float(viewSize.x / 2 + x), Float(s.dropY), Float(max(r, 0)), Float(k))
+        }
+        extra1 = ball(s.e1X, s.e1R, -s.mainHalfWidth, 0)
+        extra2 = ball(s.e2X, s.e2R, s.dropX, s.dropRadius)
+    }
+}
+
+/// CPU mirror of the LiquidShape Metal distance field for hit-testing.
+enum LiquidShapeSDF {
+    enum HitRegion: Equatable, Sendable { case ears, card, bubble(Int) }
+    private static let topExtension = 64.0
+
+    static func hit(_ p: SIMD2<Double>, _ u: LiquidShapeUniforms, earPad: Double = 6, cardPad: Double = 2) -> HitRegion? {
+        guard p.y >= 0 else { return nil }
+        if let d = card(p, u), d < cardPad { return .card }
+        let dr = SIMD2(Double(u.drop.z), Double(u.drop.w))
+        let dropR = min(dr.x, dr.y)
+        if dropR > 1, simd_length(p - SIMD2(Double(u.drop.x), Double(u.drop.y))) < dropR + earPad { return .bubble(0) }
+        for (i, e) in [u.extra1, u.extra2].enumerated() where e.z > 1 {
+            if simd_length(p - SIMD2(Double(e.x), Double(e.y))) < Double(e.z) + earPad { return .bubble(i + 1) }
+        }
+        let cx = Double(u.view.x) / 2
+        let mh = Double(u.main.y)
+        let dMain = roundBox(p - SIMD2(cx + Double(u.card2.w), (mh - topExtension) / 2),
+                             SIMD2(Double(u.main.x), (mh + topExtension) / 2), Double(u.main.z), Double(u.main.w))
+        return dMain < earPad ? .ears : nil
+    }
+
+    private static func card(_ p: SIMD2<Double>, _ u: LiquidShapeUniforms) -> Double? {
+        let hw = Double(u.card.x), h = Double(u.card.z)
+        guard hw > 0.5, h > 0.5 else { return nil }
+        let cx = Double(u.view.x) / 2 + Double(u.card2.z)
+        return roundBox(p - SIMD2(cx, Double(u.card.y) + h / 2), SIMD2(hw, h / 2), Double(u.card.w), Double(u.main.w))
+    }
+
+    static func roundBox(_ p: SIMD2<Double>, _ b: SIMD2<Double>, _ r0: Double, _ n: Double) -> Double {
+        let r = min(r0, min(b.x, b.y))
+        let q = abs(p) - b + SIMD2(repeating: r)
+        let m = simd_max(q, .zero)
+        let outside = n == 2 ? simd_length(m) : pow(pow(m.x, n) + pow(m.y, n), 1 / n)
+        return outside + min(max(q.x, q.y), 0) - r
+    }
+}
+
+/// Computes target LiquidShapeState per mode, including non-notch external-display floating pill fallback.
+enum LiquidShapeTargets {
+    static func resting(
+        mode: LiquidPresentationMode,
+        notchHalfWidth: Double,
+        notchHeight: Double,
+        hasHardwareNotch: Bool,
+        idleHover: Bool = false,
+        earExtent: Double = 64,
+        cardSize: CGSize = NotchGeometry.liquidOpenSize
+    ) -> LiquidShapeState {
+        let baseHalf = hasHardwareNotch ? notchHalfWidth : 74.0
+        let baseHeight = hasHardwareNotch ? notchHeight : 28.0
+        let bezelK = hasHardwareNotch ? 6.0 : 0.0
+        var s = LiquidShapeState(
+            mainHalfWidth: baseHalf,
+            mainHeight: baseHeight,
+            mainRadius: hasHardwareNotch ? 10 : 14,
+            kBezel: bezelK
+        )
+        switch mode {
+        case .idle:
+            if idleHover {
+                s.mainHalfWidth = baseHalf + 6
+                s.mainHeight = baseHeight + 4
+                s.mainRadius += 2
+            }
+        case .compact, .peek, .hud:
+            s.mainHalfWidth = baseHalf + earExtent
+            s.mainHeight = mode == .peek ? baseHeight + 10 : baseHeight
+            s.mainRadius = min(14, s.mainHeight / 2)
+            s.glowIntensity = 0.35
+        case .duo, .split:
+            s.mainHalfWidth = baseHalf + earExtent
+            s.mainRadius = min(14, baseHeight / 2)
+            s.dropRadius = min(14, baseHeight / 2 - 2)
+            s.dropX = s.mainHalfWidth + 10 + s.dropRadius
+            s.dropY = baseHeight / 2
+            s.glowIntensity = 0.35
+        case .card:
+            s.mainHalfWidth = baseHalf + 18
+            s.mainRadius = 10
+            s.cardHalfWidth = Double(cardSize.width) / 2
+            s.cardTop = baseHeight + (hasHardwareNotch ? 8 : 10)
+            s.cardHeight = Double(cardSize.height)
+            s.cardRadius = 24
+            s.glowIntensity = 0.45
+        }
+        return s
     }
 }

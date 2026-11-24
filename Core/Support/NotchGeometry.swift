@@ -36,9 +36,11 @@ enum NotchGeometry {
 
     static let dynamicIslandOpenSize = CGSize(width: 480, height: 180)
     static let dynamicIslandPreviewSize = CGSize(width: 480, height: 180)
+    static let liquidOpenSize = CGSize(width: 440, height: 152)
 
     static func openSize(for skin: LiveIslandSkin) -> CGSize {
         switch skin {
+        case .liquid: return liquidOpenSize
         case .boring: return openSize
         case .classic: return classicOpenSize
         case .dynamicIsland: return dynamicIslandOpenSize
@@ -51,6 +53,7 @@ enum NotchGeometry {
             return CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight)
         }
         switch skin {
+        case .liquid: return liquidOpenSize
         case .boring: return openSize
         case .classic: return classicOpenSize
         case .dynamicIsland: return dynamicIslandPreviewSize

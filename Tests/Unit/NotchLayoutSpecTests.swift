@@ -78,6 +78,35 @@ final class NotchLayoutSpecTests: XCTestCase {
         }
     }
 
+    func testLiquidPresetAndShapeTargetsSupportNotchAndExternalDisplays() {
+        XCTAssertTrue(NotchShellPreset.allCases.contains(.liquid))
+        XCTAssertEqual(NotchGeometry.openSize(for: .liquid), NotchGeometry.liquidOpenSize)
+
+        let notchedIdle = LiquidShapeTargets.resting(mode: .idle, notchHalfWidth: 92.5, notchHeight: 32, hasHardwareNotch: true)
+        XCTAssertEqual(notchedIdle.kBezel, 6.0)
+        XCTAssertEqual(notchedIdle.mainHalfWidth, 92.5)
+
+        let externalPill = LiquidShapeTargets.resting(mode: .idle, notchHalfWidth: 92.5, notchHeight: 24, hasHardwareNotch: false)
+        XCTAssertEqual(externalPill.kBezel, 0.0, "External display renders a floating pill with no bezel flare")
+        XCTAssertEqual(externalPill.mainHalfWidth, 74.0)
+
+        let cardState = LiquidShapeTargets.resting(mode: .card, notchHalfWidth: 92.5, notchHeight: 32, hasHardwareNotch: true)
+        let uniforms = LiquidShapeUniforms(
+            state: cardState,
+            viewSize: SIMD2(640, 220),
+            scale: 2,
+            notchHalfWidth: 91.5,
+            notchHeight: 31
+        )
+        XCTAssertEqual(LiquidShapeSDF.hit(SIMD2(320, 80), uniforms), .card)
+        XCTAssertNil(LiquidShapeSDF.hit(SIMD2(20, 20), uniforms))
+
+        let lab = LiquidOKLab.fromSRGB(SIMD3(1, 0, 0))
+        let roundTrip = LiquidOKLab.toSRGB(L: lab.x, a: lab.y, b: lab.z)
+        XCTAssertEqual(roundTrip.x, 1, accuracy: 0.02)
+        XCTAssertEqual(roundTrip.y, 0, accuracy: 0.02)
+    }
+
     func testWeekStripCrossesMonthBoundary() {
         let now = utc.date(from: DateComponents(year: 2026, month: 4, day: 1))!
         let numbers = NotchLayoutSpec.weekStrip(now: now, calendar: utc).map(\.dayNumber)
