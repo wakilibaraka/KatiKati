@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
-    "mtime": 1795534615.192359,
-    "seen": 1795534644.457162,
-    "ast_hash": "606fe5df03f2885f05db23d490129b95",
+    "mtime": 1795544681.1182241,
+    "seen": 1795544862.023665,
+    "ast_hash": "6a67a12f9365f8e11a7a000a452948da",
     "semantic_hash": ""
   },
   "App/Scenes/DockVisualEffectView.swift": {
@@ -3384,10 +3384,10 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockThemeTests.swift": {
-    "mtime": 1791999130.9409962,
-    "seen": 1795534644.4576662,
-    "ast_hash": "a6657a39e741f3ddf4a344eeb4eea232",
-    "semantic_hash": "a6657a39e741f3ddf4a344eeb4eea232"
+    "mtime": 1795544643.1999738,
+    "seen": 1795544862.024226,
+    "ast_hash": "a8b10076ff831e10eefa47802c8c8dfa",
+    "semantic_hash": ""
   },
   "Tests/Unit/DocumentUsageRankingTests.swift": {
     "mtime": 1791999130.9400954,
@@ -7350,21 +7350,21 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPresets.swift": {
-    "mtime": 1795519750.3701339,
-    "seen": 1795534644.457205,
-    "ast_hash": "88fcf5c06358f7927cf86e0c7878b914",
+    "mtime": 1795544641.1343348,
+    "seen": 1795544862.023713,
+    "ast_hash": "5ce51dd4e4b240e7e9f0f4e7f8478476",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPrimitives.swift": {
-    "mtime": 1794914834.7010128,
-    "seen": 1795534644.457206,
-    "ast_hash": "04d8ec96a72580211475f3a5faece367",
+    "mtime": 1795544603.299059,
+    "seen": 1795544862.023714,
+    "ast_hash": "6e941f61ac5ee48d3216d4e7091bb7b7",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandSurfaceDriver.swift": {
-    "mtime": 1794914832.5789425,
-    "seen": 1795534644.457206,
-    "ast_hash": "c12bd6af6546fc92ba68d90b72beed75",
+    "mtime": 1795544602.161391,
+    "seen": 1795544862.023715,
+    "ast_hash": "113ed9c1df1666fb067e1ff4f7c9dfd0",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandSurfaceView.swift": {
@@ -7374,9 +7374,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Island/IslandChoreography.swift": {
-    "mtime": 1794913971.9863768,
-    "seen": 1795534644.457386,
-    "ast_hash": "6ba55db31cdf42895ee4c0b16545c33a",
+    "mtime": 1795544599.5509067,
+    "seen": 1795544862.023916,
+    "ast_hash": "54d173569770afc9f029b0ad253d5af3",
     "semantic_hash": ""
   },
   "Core/Support/Island/IslandDisplayTopology.swift": {
@@ -7434,9 +7434,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/IslandEngineTests.swift": {
-    "mtime": 1794913944.8430545,
-    "seen": 1795534644.457699,
-    "ast_hash": "01c114f1257316568adf6322f3b5f51d",
+    "mtime": 1795544642.1432512,
+    "seen": 1795544862.0242612,
+    "ast_hash": "39af61221920d7ef11dbb267f38aef6a",
     "semantic_hash": ""
   },
   "App/Composition/DockFriendsStore.swift": {
