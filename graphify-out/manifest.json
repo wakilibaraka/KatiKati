@@ -1512,9 +1512,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AppleScriptNowPlaying.swift": {
-    "mtime": 1794908342.6071458,
-    "seen": 1794908715.943478,
-    "ast_hash": "1fe97e3293843c2bbea41c4f51b72b19",
+    "mtime": 1795515361.953413,
+    "seen": 1795515680.190669,
+    "ast_hash": "b074f2a3156a73927bedb2006c2bfab9",
     "semantic_hash": ""
   },
   "Core/Support/Aria2RPC.swift": {
@@ -2136,9 +2136,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
-    "mtime": 1794908254.5288672,
-    "seen": 1794908715.943577,
-    "ast_hash": "b4e48e74a056aa377ca6c7215bef3d09",
+    "mtime": 1795515364.2824945,
+    "seen": 1795515680.190794,
+    "ast_hash": "82c296bca9e9e7575ea91111ca1d44f9",
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
@@ -3888,9 +3888,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1794908625.7740996,
-    "seen": 1794908715.943865,
-    "ast_hash": "75f0696c525a924e421287fdeca34b12",
+    "mtime": 1795515576.9312978,
+    "seen": 1795515680.191112,
+    "ast_hash": "2b1dfeb36fc47c452a7f65b765a70aed",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795514115.157532,
-    "seen": 1795514401.555874,
-    "ast_hash": "dc97072c30636677eb1679aea9010ac5",
+    "mtime": 1795515367.3399165,
+    "seen": 1795515680.1913202,
+    "ast_hash": "3d170c7d741a144672007db82a37f68a",
     "semantic_hash": ""
   },
   "README.md": {
