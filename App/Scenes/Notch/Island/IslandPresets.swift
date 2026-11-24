@@ -1,4 +1,5 @@
 import AppKit
+import AVKit
 import Metal
 import QuartzCore
 import SwiftUI
@@ -971,22 +972,51 @@ struct LiquidNotchShellView: View {
     @ObservedObject var feed: LiveActivityFeed
     let metrics: NotchMetrics
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isPeekingEars = false
+    @State private var showLyrics = false
+    @State private var lyricsCache: [String: LiquidLyrics] = [:]
+    @State private var lyricsLoadingKey: String?
+
+    private var nowPlaying: NowPlayingState { feed.nowPlayingState }
+    private var hasMusic: Bool { !(nowPlaying.title ?? "").isEmpty || feed.activity.kind == .music }
 
     private var mode: LiquidPresentationMode {
         if model.isExpanded { return .card }
-        if feed.activity.kind != .clock { return .compact }
+        if isPeekingEars && hasMusic { return .peek }
+        if feed.activity.kind != .clock || hasMusic { return .compact }
         return .idle
     }
 
+    private var cardSize: CGSize {
+        if showLyrics { return CGSize(width: 480, height: 220) }
+        return model.openSize
+    }
+
     private var targetState: LiquidShapeState {
-        LiquidShapeTargets.resting(
+        var s = LiquidShapeTargets.resting(
             mode: mode,
             notchHalfWidth: Double(metrics.closedSize.width) / 2,
             notchHeight: Double(metrics.closedSize.height),
             hasHardwareNotch: metrics.hasHardwareNotch,
-            earExtent: feed.activity.kind != .clock ? 58 : 0,
-            cardSize: model.openSize
+            earExtent: (feed.activity.kind != .clock || hasMusic) ? 58 : 0,
+            cardSize: cardSize
         )
+        if let aura = albumAuraLab {
+            s.auraL = aura.x; s.auraA = aura.y; s.auraB = aura.z
+        }
+        return s
+    }
+
+    private var albumAuraLab: SIMD3<Double>? {
+        guard let data = nowPlaying.artworkData, let img = NSImage(data: data),
+              let cg = img.cgImage(forProposedRect: nil, context: nil, hints: nil),
+              let rep = NSBitmapImageRep(cgImage: cg).converting(to: .sRGB, renderingIntent: .perceptual),
+              let c = rep.colorAt(x: rep.pixelsWide / 2, y: rep.pixelsHigh / 2) else { return nil }
+        return LiquidOKLab.fromSRGB(SIMD3(Double(c.redComponent), Double(c.greenComponent), Double(c.blueComponent)))
+    }
+
+    private var artworkImage: NSImage? {
+        nowPlaying.artworkData.flatMap(NSImage.init(data:))
     }
 
     var body: some View {
@@ -999,14 +1029,264 @@ struct LiquidNotchShellView: View {
             )
             .allowsHitTesting(false)
 
+            if !model.isExpanded && hasMusic {
+                compactEarsAndPeek
+            }
+
             if model.isExpanded {
-                NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                    .frame(width: model.openSize.width, height: model.openSize.height)
+                expandedContent
+                    .frame(width: cardSize.width, height: cardSize.height)
                     .padding(.top, targetState.cardTop)
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                     .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .top)))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .onChange(of: model.isExpanded) { _, expanded in
+            if !expanded { showLyrics = false }
+        }
+    }
+
+    private var compactEarsAndPeek: some View {
+        let earWidth = targetState.mainHalfWidth * 2
+        return VStack(spacing: 2) {
+            HStack {
+                IslandTileArtwork(image: artworkImage, systemImage: "music.note", accent: .pink, size: 20, radius: 6)
+                Spacer()
+                IslandLevelMeter(bars: 4, color: .pink, height: 13, barWidth: 2.4, gap: 1.8, active: nowPlaying.isPlaying)
+            }
+            .padding(.horizontal, 10)
+            .frame(width: earWidth, height: targetState.mainHeight - (isPeekingEars ? 12 : 0))
+
+            if isPeekingEars {
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(verbatim: nowPlaying.title ?? "")
+                            .font(.system(size: 11.5, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                        Text(verbatim: nowPlaying.artist ?? "")
+                            .font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                    }
+                    Spacer()
+                    HStack(spacing: 6) {
+                        Button { feed.previousTrack() } label: { Image(systemName: "backward.fill").font(.system(size: 10)) }
+                        Button { feed.togglePlayPause() } label: { Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill").font(.system(size: 11)) }
+                        Button { feed.nextTrack() } label: { Image(systemName: "forward.fill").font(.system(size: 10)) }
+                    }
+                    .buttonStyle(.plain).foregroundStyle(.white)
+                }
+                .padding(.horizontal, 12)
+                .frame(width: earWidth, height: 22)
+            }
+        }
+        .contentShape(Rectangle())
+        .onHover { isPeekingEars = $0 }
+        .onTapGesture { model.requestOpen() }
+    }
+
+    @ViewBuilder
+    private var expandedContent: some View {
+        if hasMusic && showLyrics {
+            LiquidSyncedLyricsView(
+                nowPlaying: nowPlaying,
+                lyrics: lyricsCache[LiquidLyricsSource.key(title: nowPlaying.title ?? "", artist: nowPlaying.artist ?? "")],
+                isLoading: lyricsLoadingKey == LiquidLyricsSource.key(title: nowPlaying.title ?? "", artist: nowPlaying.artist ?? ""),
+                onBack: { withAnimation(.spring(response: 0.32, dampingFraction: 0.85)) { showLyrics = false } },
+                onSeek: { feed.seek(to: $0) }
+            )
+        } else if hasMusic {
+            LiquidPlayerCardView(
+                nowPlaying: nowPlaying,
+                artwork: artworkImage,
+                onToggleLyrics: { openLyricsIfNeeded() },
+                onPrevious: { feed.previousTrack() },
+                onTogglePlayPause: { feed.togglePlayPause() },
+                onNext: { feed.nextTrack() },
+                onSeek: { feed.seek(to: $0) }
+            )
+        } else {
+            NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+        }
+    }
+
+    private func openLyricsIfNeeded() {
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.85)) { showLyrics = true }
+        let title = nowPlaying.title ?? ""
+        let artist = nowPlaying.artist ?? ""
+        let key = LiquidLyricsSource.key(title: title, artist: artist)
+        guard !title.isEmpty, lyricsCache[key] == nil, lyricsLoadingKey != key else { return }
+        lyricsLoadingKey = key
+        let album = nowPlaying.album ?? ""
+        let duration = nowPlaying.duration
+        Task {
+            let fetched = await LiquidLyricsSource.fetch(title: title, artist: artist, album: album, duration: duration)
+            await MainActor.run {
+                if let fetched { lyricsCache[key] = fetched }
+                if lyricsLoadingKey == key { lyricsLoadingKey = nil }
+            }
+        }
+    }
+}
+
+private struct LiquidPlayerCardView: View {
+    let nowPlaying: NowPlayingState
+    let artwork: NSImage?
+    let onToggleLyrics: () -> Void
+    let onPrevious: () -> Void
+    let onTogglePlayPause: () -> Void
+    let onNext: () -> Void
+    let onSeek: (Double) -> Void
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: nowPlaying.isPlaying ? 0.5 : 60)) { context in
+            let progress = nowPlaying.progress(at: context.date) ?? 0
+            let elapsed = NowPlayingProgress.elapsed(
+                at: context.date, elapsed: nowPlaying.elapsed, asOf: nowPlaying.elapsedAsOf,
+                rate: nowPlaying.rate, duration: nowPlaying.duration
+            ) ?? 0
+            let duration = nowPlaying.duration ?? 0
+            VStack(spacing: 10) {
+                HStack(spacing: 12) {
+                    Button(action: onToggleLyrics) {
+                        IslandTileArtwork(image: artwork, systemImage: "music.note", accent: .pink, size: 54, radius: 14)
+                    }
+                    .buttonStyle(.plain)
+                    .help(Text("Lyrics"))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(verbatim: nowPlaying.title ?? "")
+                            .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                        Text(verbatim: nowPlaying.artist ?? "")
+                            .font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.6)).lineLimit(1)
+                    }
+                    Spacer()
+                    IslandLevelMeter(bars: 4, color: .pink, height: 18, barWidth: 3, gap: 2.2, active: nowPlaying.isPlaying)
+                }
+                VStack(spacing: 4) {
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(.white.opacity(0.18))
+                            Capsule().fill(.white).frame(width: max(4, geo.size.width * progress))
+                        }
+                        .contentShape(Rectangle())
+                        .gesture(DragGesture(minimumDistance: 0).onEnded { value in
+                            guard duration > 0 else { return }
+                            let frac = min(max(value.location.x / max(geo.size.width, 1), 0), 1)
+                            onSeek(frac * duration)
+                        })
+                    }
+                    .frame(height: 5)
+                    HStack {
+                        Text(verbatim: formatTime(elapsed)).font(.system(size: 10, design: .monospaced)).foregroundStyle(.white.opacity(0.5))
+                        Spacer()
+                        Text(verbatim: duration > 0 ? formatTime(duration) : "--:--").font(.system(size: 10, design: .monospaced)).foregroundStyle(.white.opacity(0.5))
+                    }
+                }
+                ZStack {
+                    HStack(spacing: 32) {
+                        Button(action: onPrevious) { Image(systemName: "backward.fill").font(.system(size: 18)) }
+                        Button(action: onTogglePlayPause) { Image(systemName: nowPlaying.isPlaying ? "pause.fill" : "play.fill").font(.system(size: 22)) }
+                        Button(action: onNext) { Image(systemName: "forward.fill").font(.system(size: 18)) }
+                    }
+                    .buttonStyle(.plain).foregroundStyle(.white)
+                    HStack {
+                        Button(action: onToggleLyrics) { Image(systemName: "quote.bubble").font(.system(size: 14)) }
+                            .buttonStyle(.plain).foregroundStyle(.white.opacity(0.75))
+                        Spacer()
+                        LiquidRoutePickerView().frame(width: 22, height: 22)
+                    }
+                }
+            }
+            .padding(.horizontal, 20).padding(.vertical, 16)
+        }
+    }
+
+    private func formatTime(_ sec: Double) -> String {
+        let s = max(0, Int(sec.rounded()))
+        return String(format: "%d:%02d", s / 60, s % 60)
+    }
+}
+
+private struct LiquidRoutePickerView: NSViewRepresentable {
+    func makeNSView(context: Context) -> AVRoutePickerView {
+        let v = AVRoutePickerView()
+        v.isRoutePickerButtonBordered = false
+        v.setRoutePickerButtonColor(.white, for: .normal)
+        v.setRoutePickerButtonColor(.systemBlue, for: .active)
+        return v
+    }
+    func updateNSView(_ nsView: AVRoutePickerView, context: Context) {}
+}
+
+private struct LiquidSyncedLyricsView: View {
+    let nowPlaying: NowPlayingState
+    let lyrics: LiquidLyrics?
+    let isLoading: Bool
+    let onBack: () -> Void
+    let onSeek: (Double) -> Void
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: nowPlaying.isPlaying ? 0.1 : 60)) { context in
+            let elapsed = NowPlayingProgress.elapsed(
+                at: context.date, elapsed: nowPlaying.elapsed, asOf: nowPlaying.elapsedAsOf,
+                rate: nowPlaying.rate, duration: nowPlaying.duration
+            ) ?? 0
+            let activeIndex = lyrics?.current(at: elapsed)
+            VStack(spacing: 8) {
+                HStack {
+                    Button(action: onBack) {
+                        Image(systemName: "chevron.left").font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                    .buttonStyle(.plain)
+                    Text(verbatim: nowPlaying.title ?? "")
+                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white).lineLimit(1)
+                    Spacer()
+                }
+                if isLoading {
+                    Spacer()
+                    ProgressView().controlSize(.small).tint(.white)
+                    Spacer()
+                } else if let lyrics, !lyrics.lines.isEmpty {
+                    ScrollViewReader { proxy in
+                        ScrollView(.vertical, showsIndicators: false) {
+                            LazyVStack(spacing: 8) {
+                                ForEach(Array(lyrics.lines.enumerated()), id: \.offset) { idx, line in
+                                    Button { onSeek(line.time) } label: {
+                                        Text(verbatim: line.text.isEmpty ? "•••" : line.text)
+                                            .font(.system(size: 14, weight: idx == activeIndex ? .bold : .medium))
+                                            .foregroundStyle(.white.opacity(idx == activeIndex ? 1.0 : 0.38))
+                                            .multilineTextAlignment(.center)
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .id(idx)
+                                }
+                            }
+                            .padding(.vertical, 24)
+                        }
+                        .onChange(of: activeIndex) { _, target in
+                            guard let target else { return }
+                            withAnimation(.timingCurve(0.35, 0, 0.15, 1, duration: 0.6)) {
+                                proxy.scrollTo(target, anchor: .center)
+                            }
+                        }
+                    }
+                } else if let lyrics, !lyrics.plain.isEmpty {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 6) {
+                            ForEach(Array(lyrics.plain.enumerated()), id: \.offset) { _, line in
+                                Text(verbatim: line).font(.system(size: 13)).foregroundStyle(.white.opacity(0.8))
+                                    .multilineTextAlignment(.center).frame(maxWidth: .infinity)
+                            }
+                        }
+                        .padding(.vertical, 12)
+                    }
+                } else {
+                    Spacer()
+                    Text("No lyrics found").font(.system(size: 13)).foregroundStyle(.white.opacity(0.5))
+                    Spacer()
+                }
+            }
+            .padding(.horizontal, 18).padding(.vertical, 14)
+        }
     }
 }
