@@ -1962,9 +1962,9 @@
     "semantic_hash": ""
   },
   "Core/Support/LauncherLayout.swift": {
-    "mtime": 1795478879.9096653,
-    "seen": 1795479142.720567,
-    "ast_hash": "c955c2a18d4e48f1fdde25a743611811",
+    "mtime": 1795480085.193136,
+    "seen": 1795480404.79999,
+    "ast_hash": "8707f47301f7126d5164a0c26fc58bee",
     "semantic_hash": ""
   },
   "Core/Support/LauncherMenuPlan.swift": {
@@ -4626,9 +4626,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Launcher.swift": {
-    "mtime": 1795381277.1106312,
-    "seen": 1795381458.3444748,
-    "ast_hash": "a115fceb876f659bf312da823e01d721",
+    "mtime": 1795480147.7278144,
+    "seen": 1795480404.79982,
+    "ast_hash": "a12e6f1d9c2a748f3756841930b74a0c",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Shortcuts.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795479892.8366902,
-    "seen": 1795480045.84869,
-    "ast_hash": "8f3442af44edcd909c201944239107c1",
+    "mtime": 1795480087.6184952,
+    "seen": 1795480404.800586,
+    "ast_hash": "c1b3a7f729b2bc5cf9e747ff04f49b47",
     "semantic_hash": ""
   },
   "README.md": {
