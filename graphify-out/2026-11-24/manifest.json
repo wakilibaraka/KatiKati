@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795552294.6119423,
-    "seen": 1795552356.810098,
-    "ast_hash": "8b359a0deeca2e267166cf165d9cd186",
+    "mtime": 1795552408.0956163,
+    "seen": 1795552467.951821,
+    "ast_hash": "576e05aebd299e65950f86b2cc14cbe3",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795552296.7916977,
-    "seen": 1795552356.810951,
-    "ast_hash": "d5a5bcf8d8d16c226c24529316a29b29",
+    "mtime": 1795552410.7674603,
+    "seen": 1795552467.952608,
+    "ast_hash": "906231654ab257dba75080ba9c6d9cab",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795552295.823058,
-    "seen": 1795552356.810941,
-    "ast_hash": "13827ad64cb0a950a87a14350198d693",
+    "mtime": 1795552409.3808224,
+    "seen": 1795552467.952598,
+    "ast_hash": "cfa554b3a1aedd41cac035d04e9ce387",
     "semantic_hash": ""
   }
 }
