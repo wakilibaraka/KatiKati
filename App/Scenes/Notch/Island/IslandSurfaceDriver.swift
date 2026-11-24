@@ -56,18 +56,8 @@ final class IslandSurfaceDriver: ObservableObject {
     private var lastChangeId: Int = -1
     private var unsubscribeStore: (() -> Void)?
 
-    private final class DisplayLinkProxy: NSObject {
-        weak var owner: IslandSurfaceDriver?
-        init(owner: IslandSurfaceDriver) { self.owner = owner }
-        @objc func step(_ sender: CADisplayLink) {
-            Task { @MainActor [weak owner = self.owner] in
-                owner?.tickDisplayLink()
-            }
-        }
-    }
-
     private var displayLink: CADisplayLink?
-    private var linkProxy: DisplayLinkProxy?
+    private var linkProxy: WeakDisplayLinkProxy?
     private weak var anchorView: NSView?
 
     init(
@@ -296,19 +286,23 @@ final class IslandSurfaceDriver: ObservableObject {
             return
         }
         guard displayLink == nil else { return }
-        let proxy = DisplayLinkProxy(owner: self)
+        let proxy = WeakDisplayLinkProxy(owner: self) { owner, _ in
+            owner.tickDisplayLink()
+        }
         linkProxy = proxy
         let link: CADisplayLink?
         if let anchorView {
-            link = anchorView.displayLink(target: proxy, selector: #selector(DisplayLinkProxy.step(_:)))
+            link = anchorView.displayLink(target: proxy, selector: #selector(WeakDisplayLinkProxy.step(_:)))
         } else if let mainScreen = NSScreen.main {
-            link = mainScreen.displayLink(target: proxy, selector: #selector(DisplayLinkProxy.step(_:)))
+            link = mainScreen.displayLink(target: proxy, selector: #selector(WeakDisplayLinkProxy.step(_:)))
         } else {
             link = nil
         }
         if let link {
             link.add(to: .main, forMode: .common)
             displayLink = link
+        } else {
+            linkProxy = nil
         }
     }
 
@@ -329,17 +323,24 @@ final class IslandSurfaceDriver: ObservableObject {
     }
 
     private func refreshFrame(at t: Double) {
-        frame = IslandChoreography.frameAt(
+        let nextFrame = IslandChoreography.frameAt(
             shapeAnimation,
             at: t,
             stageWidth: stageWidth,
             metrics: metrics
         )
+        if IslandSurfacePublishPolicy.shouldPublishFrame(current: frame, next: nextFrame) {
+            frame = nextFrame
+        }
+        let nextDim: Double
         if let collapseStart = lastCollapseStartedAt {
             let elapsed = t - collapseStart
-            keylineDimMultiplier = islandKeylineDimMultiplier(elapsedSeconds: elapsed, motion: motion.keyline)
+            nextDim = islandKeylineDimMultiplier(elapsedSeconds: elapsed, motion: motion.keyline)
         } else {
-            keylineDimMultiplier = 1.0
+            nextDim = 1.0
+        }
+        if IslandSurfacePublishPolicy.shouldPublishDimMultiplier(current: keylineDimMultiplier, next: nextDim) {
+            keylineDimMultiplier = nextDim
         }
     }
 }

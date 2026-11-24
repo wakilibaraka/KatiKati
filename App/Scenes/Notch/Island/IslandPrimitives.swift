@@ -390,7 +390,7 @@ struct IslandLevelMeter: View {
     }
 
     var body: some View {
-        TimelineView(.animation(paused: !active || reduceMotion || levels != nil)) { context in
+        TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: !active || reduceMotion || levels != nil)) { context in
             let now = context.date.timeIntervalSinceReferenceDate
             HStack(spacing: gap) {
                 ForEach(0..<bars, id: \.self) { index in

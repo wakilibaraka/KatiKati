@@ -177,4 +177,21 @@ final class IslandEngineTests: XCTestCase {
             accuracy: 1e-6
         )
     }
+
+    func testSurfacePublishPolicyDeduplicatesIdenticalFramesAndTinyDimDeltas() {
+        let metrics = IslandMetrics.reference
+        let target = IslandChoreography.shapeTarget(
+            kind: .idle,
+            measure: .empty,
+            screenWidth: 520,
+            metrics: metrics
+        )
+        let anim = IslandShapeAnimation(target: target, metrics: metrics)
+        let f1 = IslandChoreography.frameAt(anim, at: 10.0, stageWidth: 520, metrics: metrics)
+        let f2 = IslandChoreography.frameAt(anim, at: 10.1, stageWidth: 520, metrics: metrics)
+        XCTAssertFalse(IslandSurfacePublishPolicy.shouldPublishFrame(current: f1, next: f2))
+
+        XCTAssertFalse(IslandSurfacePublishPolicy.shouldPublishDimMultiplier(current: 1.0, next: 1.00001))
+        XCTAssertTrue(IslandSurfacePublishPolicy.shouldPublishDimMultiplier(current: 1.0, next: 0.995))
+    }
 }

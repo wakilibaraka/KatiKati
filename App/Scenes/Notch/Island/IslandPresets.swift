@@ -1,6 +1,7 @@
 import AppKit
 import AVKit
 import Darwin
+import ImageIO
 import Metal
 import QuartzCore
 import SceneKit
@@ -843,9 +844,8 @@ final class LiquidRenderer {
         enc.setFragmentBytes(&u, length: MemoryLayout<LiquidShapeUniforms>.stride, index: 0)
         enc.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         enc.endEncoding()
+        cb.present(drawable)
         cb.commit()
-        cb.waitUntilScheduled()
-        drawable.present()
     }
 }
 
@@ -854,6 +854,7 @@ final class LiquidMetalNSView: NSView {
     private let metalLayer = CAMetalLayer()
     private let renderer = LiquidRenderer()
     private var link: CADisplayLink?
+    private var linkTarget: WeakDisplayLinkProxy?
     private var lastTimestamp: CFTimeInterval?
     private var currentState: LiquidShapeState
     private var springs: [(WritableKeyPath<LiquidShapeState, Double>, LiquidSpring)] = []
@@ -883,10 +884,16 @@ final class LiquidMetalNSView: NSView {
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         link?.invalidate()
+        link = nil
+        linkTarget = nil
         guard window != nil else { return }
-        let l = displayLink(target: self, selector: #selector(onFrame(_:)))
+        let proxy = WeakDisplayLinkProxy(owner: self) { owner, link in
+            owner.onFrame(link)
+        }
+        let l = displayLink(target: proxy, selector: #selector(WeakDisplayLinkProxy.step(_:)))
         l.isPaused = true
         l.add(to: .main, forMode: .common)
+        linkTarget = proxy
         link = l
         drawCurrent()
     }
@@ -977,7 +984,11 @@ struct LiquidNotchShellView: View {
     @State private var isPeekingEars = false
     @State private var showLyrics = false
     @State private var lyricsCache: [String: LiquidLyrics] = [:]
+    @State private var lyricsMissKeys: Set<String> = []
     @State private var lyricsLoadingKey: String?
+    @State private var cachedArtworkSignature: Int = 0
+    @State private var cachedArtworkImage: NSImage?
+    @State private var cachedAlbumAuraLab: SIMD3<Double>?
     @State private var showTray = false
     @StateObject private var agentHub = LiquidAgentHub.shared
     @StateObject private var sportsFeed = LiquidSportsFeed.shared
@@ -1022,16 +1033,42 @@ struct LiquidNotchShellView: View {
         return s
     }
 
+    private var artworkSignature: Int { MusicArtworkSignature.of(nowPlaying.artworkData) }
+
     private var albumAuraLab: SIMD3<Double>? {
-        guard let data = nowPlaying.artworkData, let img = NSImage(data: data),
-              let cg = img.cgImage(forProposedRect: nil, context: nil, hints: nil),
-              let rep = NSBitmapImageRep(cgImage: cg).converting(to: .sRGB, renderingIntent: .perceptual),
-              let c = rep.colorAt(x: rep.pixelsWide / 2, y: rep.pixelsHigh / 2) else { return nil }
-        return LiquidOKLab.fromSRGB(SIMD3(Double(c.redComponent), Double(c.greenComponent), Double(c.blueComponent)))
+        let sig = artworkSignature
+        return sig != 0 && sig == cachedArtworkSignature ? cachedAlbumAuraLab : nil
     }
 
     private var artworkImage: NSImage? {
-        nowPlaying.artworkData.flatMap(NSImage.init(data:))
+        let sig = artworkSignature
+        return sig != 0 && sig == cachedArtworkSignature ? cachedArtworkImage : nil
+    }
+
+    private struct DecodedArtworkPreview: Sendable {
+        let cgImage: CGImage?
+        let size: NSSize
+        let auraLab: SIMD3<Double>?
+    }
+
+    private nonisolated static func decodeArtworkPreviewAndAura(_ data: Data) -> DecodedArtworkPreview {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let cg = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+            return DecodedArtworkPreview(cgImage: nil, size: .zero, auraLab: nil)
+        }
+        var aura: SIMD3<Double>?
+        if let srgb = CGColorSpace(name: CGColorSpace.sRGB),
+           let centerCrop = cg.cropping(to: CGRect(x: cg.width / 2, y: cg.height / 2, width: 1, height: 1)) {
+            var rgba: [UInt8] = [0, 0, 0, 0]
+            if let ctx = CGContext(
+                data: &rgba, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                space: srgb, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+            ) {
+                ctx.draw(centerCrop, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+                aura = LiquidOKLab.fromSRGB(SIMD3(Double(rgba[0]) / 255.0, Double(rgba[1]) / 255.0, Double(rgba[2]) / 255.0))
+            }
+        }
+        return DecodedArtworkPreview(cgImage: cg, size: NSSize(width: cg.width, height: cg.height), auraLab: aura)
     }
 
     var body: some View {
@@ -1090,6 +1127,23 @@ struct LiquidNotchShellView: View {
                 showLyrics = false
                 showTray = false
             }
+        }
+        .task(id: artworkSignature) {
+            let sig = artworkSignature
+            let data = nowPlaying.artworkData
+            guard sig != 0, let data, !data.isEmpty else {
+                cachedArtworkSignature = 0
+                cachedArtworkImage = nil
+                cachedAlbumAuraLab = nil
+                return
+            }
+            let decoded = await Task.detached(priority: .utility) {
+                Self.decodeArtworkPreviewAndAura(data)
+            }.value
+            guard !Task.isCancelled else { return }
+            cachedArtworkSignature = sig
+            cachedArtworkImage = decoded.cgImage.map { NSImage(cgImage: $0, size: decoded.size) }
+            cachedAlbumAuraLab = decoded.auraLab
         }
     }
 
@@ -1154,7 +1208,7 @@ struct LiquidNotchShellView: View {
             HStack {
                 IslandTileArtwork(image: artworkImage, systemImage: "music.note", accent: .pink, size: 20, radius: 6)
                 Spacer()
-                IslandLevelMeter(bars: 4, color: .pink, height: 13, barWidth: 2.4, gap: 1.8, active: nowPlaying.isPlaying)
+                IslandLevelMeter(bars: 4, color: .pink, height: 13, barWidth: 2.4, gap: 1.8, active: nowPlaying.isPlaying && !model.isExpanded)
             }
             .padding(.horizontal, 10)
             .frame(width: earWidth, height: targetState.mainHeight - (isPeekingEars ? 12 : 0))
@@ -1225,14 +1279,23 @@ struct LiquidNotchShellView: View {
         let title = nowPlaying.title ?? ""
         let artist = nowPlaying.artist ?? ""
         let key = LiquidLyricsSource.key(title: title, artist: artist)
-        guard !title.isEmpty, lyricsCache[key] == nil, lyricsLoadingKey != key else { return }
+        guard !title.isEmpty,
+              lyricsCache[key] == nil,
+              !lyricsMissKeys.contains(key),
+              lyricsLoadingKey != key else { return }
         lyricsLoadingKey = key
         let album = nowPlaying.album ?? ""
         let duration = nowPlaying.duration
         Task {
             let fetched = await LiquidLyricsSource.fetch(title: title, artist: artist, album: album, duration: duration)
             await MainActor.run {
-                if let fetched { lyricsCache[key] = fetched }
+                if let fetched {
+                    if lyricsCache.count >= 64 { lyricsCache.removeAll() }
+                    lyricsCache[key] = fetched
+                } else {
+                    if lyricsMissKeys.count >= 128 { lyricsMissKeys.removeAll() }
+                    lyricsMissKeys.insert(key)
+                }
                 if lyricsLoadingKey == key { lyricsLoadingKey = nil }
             }
         }
@@ -1649,34 +1712,55 @@ struct LiquidAgentHookToggleRow: View {
 // MARK: - Liquid 3D AirPods Stage, Draggable HUD & Double-Click Tools Tray (LQ-4)
 
 @MainActor
-final class LiquidBudsStage {
+final class LiquidBudsStage: ObservableObject {
     static let shared = LiquidBudsStage()
-    private(set) var previewImage: NSImage?
+    @Published private(set) var previewImage: NSImage?
     private var loaded = false
+    private var isLoading = false
 
     func loadIfNeeded() {
-        guard !loaded else { return }
-        loaded = true
-        if let fallbackURL = Bundle.main.url(forResource: "airpods-buds", withExtension: "png"),
-           let img = NSImage(contentsOf: fallbackURL) {
-            previewImage = img
+        guard !loaded, !isLoading else { return }
+        isLoading = true
+        let fallbackURL = Bundle.main.url(forResource: "airpods-buds", withExtension: "png")
+        let usdzURL = Bundle.main.url(forResource: "airpods-4", withExtension: "usdz")
+        let hdrURL = Bundle.main.url(forResource: "studio", withExtension: "hdr")
+        Task.detached(priority: .utility) {
+            let fallbackCG: CGImage? = fallbackURL
+                .flatMap { CGImageSourceCreateWithURL($0 as CFURL, nil) }
+                .flatMap { CGImageSourceCreateImageAtIndex($0, 0, nil) }
+            if let fallbackCG {
+                await MainActor.run {
+                    if self.previewImage == nil {
+                        self.previewImage = NSImage(cgImage: fallbackCG, size: NSSize(width: fallbackCG.width, height: fallbackCG.height))
+                    }
+                }
+            }
+            let renderedCG: CGImage? = {
+                guard let usdzURL,
+                      let scene = try? SCNScene(url: usdzURL, options: nil),
+                      let device = MTLCreateSystemDefaultDevice() else { return nil }
+                if let hdrURL {
+                    scene.lightingEnvironment.contents = hdrURL
+                    scene.lightingEnvironment.intensity = 1.2
+                }
+                let cameraNode = SCNNode()
+                cameraNode.camera = SCNCamera()
+                cameraNode.position = SCNVector3(0, 0.15, 2.4)
+                scene.rootNode.addChildNode(cameraNode)
+                let renderer = SCNRenderer(device: device, options: nil)
+                renderer.scene = scene
+                renderer.pointOfView = cameraNode
+                let img = renderer.snapshot(atTime: 0, with: CGSize(width: 150, height: 132), antialiasingMode: .multisampling4X)
+                return img.cgImage(forProposedRect: nil, context: nil, hints: nil)
+            }()
+            await MainActor.run {
+                if let renderedCG {
+                    self.previewImage = NSImage(cgImage: renderedCG, size: NSSize(width: 150, height: 132))
+                }
+                self.loaded = true
+                self.isLoading = false
+            }
         }
-        guard let usdzURL = Bundle.main.url(forResource: "airpods-4", withExtension: "usdz"),
-              let scene = try? SCNScene(url: usdzURL, options: nil),
-              let device = MTLCreateSystemDefaultDevice() else { return }
-        if let hdrURL = Bundle.main.url(forResource: "studio", withExtension: "hdr") {
-            scene.lightingEnvironment.contents = hdrURL
-            scene.lightingEnvironment.intensity = 1.2
-        }
-        let cameraNode = SCNNode()
-        cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(0, 0.15, 2.4)
-        scene.rootNode.addChildNode(cameraNode)
-        let renderer = SCNRenderer(device: device, options: nil)
-        renderer.scene = scene
-        renderer.pointOfView = cameraNode
-        let rendered = renderer.snapshot(atTime: 0, with: CGSize(width: 150, height: 132), antialiasingMode: .multisampling4X)
-        previewImage = rendered
     }
 }
 
@@ -1715,6 +1799,7 @@ private struct LiquidTrayView: View {
     @ObservedObject var model: NotchModel
     @ObservedObject var feed: LiveActivityFeed
     let onClose: () -> Void
+    @ObservedObject private var budsStage = LiquidBudsStage.shared
 
     var body: some View {
         VStack(spacing: 12) {
@@ -1748,7 +1833,7 @@ private struct LiquidTrayView: View {
                     onClose()
                 }
             }
-            if let buds = LiquidBudsStage.shared.previewImage {
+            if let buds = budsStage.previewImage {
                 HStack(spacing: 8) {
                     Image(nsImage: buds).resizable().scaledToFit().frame(width: 28, height: 24)
                     Text("AirPods 3D Stage Ready").font(.system(size: 11)).foregroundStyle(.white.opacity(0.65))

@@ -217,6 +217,28 @@ public struct IslandFrameGeometry {
     public let bubbleClipPath: CGPath
     public let expansion: Double
     public let shadow: Double
+
+    public func isGeometryEqual(to other: IslandFrameGeometry) -> Bool {
+        pill == other.pill
+            && drawn == other.drawn
+            && bubble == other.bubble
+            && expansion == other.expansion
+            && shadow == other.shadow
+    }
+}
+
+public enum IslandSurfacePublishPolicy {
+    public static func shouldPublishFrame(current: IslandFrameGeometry, next: IslandFrameGeometry) -> Bool {
+        !current.isGeometryEqual(to: next)
+    }
+
+    public static func shouldPublishDimMultiplier(
+        current: Double,
+        next: Double,
+        tolerance: Double = 1e-4
+    ) -> Bool {
+        abs(current - next) > tolerance
+    }
 }
 
 public enum IslandChoreography {
