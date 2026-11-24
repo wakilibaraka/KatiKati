@@ -182101,6 +182101,278 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "Naso" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "코" } }
       }
+    },
+    "Open App" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open App" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开应用" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "開啟 App" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリを開く" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App öffnen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrir l’app" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir app" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Abrir app" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir app" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Abrir app" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri app" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 열기" } }
+      }
+    },
+    "Opt-in activity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opt-in activity" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "可选实时活动" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "選用即時動態" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "オプトインアクティビティ" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Optionale Aktivität" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activité facultative" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actividad opcional" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Actividad opcional" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Atividade opcional" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Atividade opcional" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attività facoltativa" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "선택형 활동" } }
+      }
+    },
+    "Opt-in file copy focus" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Opt-in file copy focus" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "拷贝文件时聚焦眼神（可选）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "拷貝檔案時聚焦眼神（選用）" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ファイルコピー中の集中表示（オプトイン）" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fokus bei Dateikopie (Optional)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Regard attentif lors d’une copie (opt-in)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enfoque al copiar archivos (opcional)" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Enfoque al copiar archivos (opcional)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Foco ao copiar arquivos (opcional)" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Foco ao copiar ficheiros (opcional)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Focus durante la copia file (facoltativo)" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "파일 복사 시 집중 시선 (선택 사항)" } }
+      }
+    },
+    "Original" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "原始" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "原始" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "オリジナル" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Original" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Originale" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "원본" } }
+      }
+    },
+    "Preset name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preset name" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "预设名称" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "預設名稱" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "プリセット名" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vorgabenname" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom du préréglage" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del ajuste" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del ajuste" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nome da predefinição" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nome da predefinição" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nome preset" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "프리셋 이름" } }
+      }
+    },
+    "Prismatic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Prismatic" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "棱镜幻彩" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "稜鏡幻彩" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "プリズマティック" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Prismatisch" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Prismatique" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Prismático" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Prismático" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Prismático" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Prismático" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Prismatico" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "프리즘" } }
+      }
+    },
+    "Remaining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remaining" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "剩余" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "剩餘" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "残り" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verbleibend" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Restant" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Restante" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Restante" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Restante" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Restante" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimanente" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "남은 양" } }
+      }
+    },
+    "Remove Live Icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove Live Icon" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移除实时图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "移除即時圖示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライブアイコンを削除" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Live-Symbol entfernen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer l’icône en direct" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Quitar icono en vivo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Quitar ícono en vivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Remover ícone ao vivo" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Remover ícone em tempo real" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimuovi icona live" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "라이브 아이콘 제거" } }
+      }
+    },
+    "Required only for online macOSicons search. PNG, ICNS, and .icon drop work offline." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Required only for online macOSicons search. PNG, ICNS, and .icon drop work offline." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅在线搜索 macOSicons 时需要。拖入 PNG、ICNS 和 .icon 可完全离线使用。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "僅於線上搜尋 macOSicons 時需要。拖入 PNG、ICNS 與 .icon 可離線使用。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "オンラインの macOSicons 検索でのみ必要です。PNG、ICNS、.icon のドロップはオフラインで動作します。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur für die Online-Suche auf macOSicons erforderlich. PNG-, ICNS- und .icon-Drop funktioniert offline." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Requis uniquement pour la recherche en ligne macOSicons. Le glisser-déposer PNG, ICNS et .icon fonctionne hors ligne." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo necesario para buscar en macOSicons. Soltar PNG, ICNS y .icon funciona sin conexión." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Solo necesario para buscar en macOSicons. Soltar PNG, ICNS y .icon funciona sin conexión." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Necessário apenas para busca online no macOSicons. PNG, ICNS e .icon funcionam offline." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Necessário apenas para pesquisa online no macOSicons. PNG, ICNS e .icon funcionam offline." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Richiesto solo per la ricerca online su macOSicons. PNG, ICNS e .icon funzionano offline." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "온라인 macOSicons 검색에만 필요합니다. PNG, ICNS, .icon 드롭은 오프라인에서 작동합니다." } }
+      }
+    },
+    "Requires opt-in Accessibility or Automation consent only when active." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Requires opt-in Accessibility or Automation consent only when active." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅在启用时需可选的辅助功能或自动化授权。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "僅在啟用時需選用的輔助使用或自動化授權。" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "有効時のみオプトインのアクセシビリティまたはオートメーション許可が必要です。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erfordert nur bei Aktivierung eine optionale Bedienungshilfen- oder Automationsfreigabe." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nécessite l’autorisation Accessibilité ou Automatisation uniquement lorsque actif." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Requiere permiso opcional de Accesibilidad o Automatización solo al estar activo." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Requiere permiso opcional de Accesibilidad o Automatización solo al estar activo." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Requer permissão opcional de Acessibilidade ou Automação apenas quando ativo." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Requer permissão opcional de Acessibilidade ou Automatização apenas quando ativo." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Richiede consenso facoltativo Accessibilità o Automazione solo quando attivo." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성화 시에만 선택적 손쉬운 사용 또는 자동화 권한이 필요합니다." } }
+      }
+    },
+    "Restore Original Icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore Original Icon" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "恢复原始图标" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "回復原始圖示" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "元のアイコンに戻す" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Originalsymbol wiederherstellen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rétablir l’icône d’origine" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar icono original" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar ícono original" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar ícone original" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar ícone original" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ripristina icona originale" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "원본 아이콘 복원" } }
+      }
+    },
+    "Save Look Preset" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save Look Preset" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存外观预设" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "儲存外觀預設" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ルックプリセットを保存" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Look-Vorgabe speichern" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer le style" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar ajuste visual" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Guardar ajuste visual" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar visual predefinido" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Guardar aspeto predefinido" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva preset look" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "룩 프리셋 저장" } }
+      }
+    },
+    "Save Look…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save Look…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存外观…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "儲存外觀…" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ルックを保存…" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Look sichern…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer le style…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar estilo…" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Guardar estilo…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar visual…" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Guardar aspeto…" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva look…" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "룩 저장…" } }
+      }
+    },
+    "Search apps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索应用" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋 App" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリを検索" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Apps suchen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher des apps" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar apps" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Procurar apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca app" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 검색" } }
+      }
+    },
+    "Search macOSicons" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search macOSicons" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索 macOSicons" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋 macOSicons" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons を検索" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons durchsuchen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher sur macOSicons" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar en macOSicons" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar en macOSicons" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar no macOSicons" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Procurar no macOSicons" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca su macOSicons" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons 검색" } }
+      }
+    },
+    "Search macOSicons…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search macOSicons…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索 macOSicons…" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "搜尋 macOSicons…" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons を検索…" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons durchsuchen…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher sur macOSicons…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar en macOSicons…" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Buscar en macOSicons…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar no macOSicons…" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Procurar no macOSicons…" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca su macOSicons…" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "macOSicons 검색…" } }
+      }
     }
   },
   "version" : "1.0"
