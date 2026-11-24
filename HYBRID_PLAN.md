@@ -7050,3 +7050,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `LQ-4` — Liquid Notch Activities, 3D AirPods, Draggable HUD & Double-Click Tray (`32b8c784`, 2026-11-24)
 
 - `Resources/LiquidNotch/{airpods-4.usdz,studio.hdr,airpods-buds.png}`, `KatiKati.xcodeproj/project.pbxproj`, `NOTICE`, `App/Scenes/Notch/Island/IslandPresets.swift`, `Resources/Localizable.xcstrings`: bundled 3D AirPods assets with MIT/CC BY 4.0/CC0 attributions in `NOTICE` and `LiquidBudsStage` SceneKit renderer + PNG fallback, added `LiquidHUDView` draggable Volume/Brightness/Keyboard HUD, `activityEarsRow` wired to `LiveActivityFeed`, and double-click `LiquidTrayView` (`32b8c784`; 27 unit tests + 12-locale localization gate passing).
+
+### `LQ-5` — Liquid Notch Opt-In Extras: Sports, Video-in-Island, Lock Screen Backup & Notifications (`53a0745d`, 2026-11-24)
+
+- `Core/Support/NotchLayoutSpec.swift`, `Tests/Unit/NotchLayoutSpecTests.swift`, `App/Scenes/Notch/Island/IslandPresets.swift`: added `LiquidExtrasKeys` (all `false` by default), `LiquidSportLeague` + `LiquidESPNParser`, `LiquidWallpaperBackup`, `LiquidSportsFeed`, and `LiquidNoticeCard` wired to `LiveEventPresentation` (`53a0745d`; 15 unit tests + 12-locale localization gate passing, zero `project.pbxproj` edits).

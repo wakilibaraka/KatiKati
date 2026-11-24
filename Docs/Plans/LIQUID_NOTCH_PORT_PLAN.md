@@ -163,9 +163,9 @@ The following 5 files **MUST NOT BE MODIFIED** during `LQ-1`–`LQ-6`:
 - [x] **LQ-4.3 (`≤ 250` LOC):** Port double-click tools tray (`LiquidTrayView.swift`) wired to `ShelfStore`, `ClipboardMonitor`, `FocusTimerController`, and Shortcuts. — `DONE — 32b8c784`
 
 ### Wave `LQ-5` — Opt-In Extras (Sports, Video-in-Island, Lock Screen, Notifications)
-- [ ] **LQ-5.1 (`≤ 250` LOC):** Port `SportsFeedService.swift` + `LiquidExtrasViews.swift` (ESPN Football, NFL, NBA, MLB, NHL live score balls & cards, off by default).
-- [ ] **LQ-5.2 (`≤ 280` LOC):** Port `LiquidVideoMirror.swift` + `LiquidVideoPiP.swift` (ScreenCaptureKit browser video-in-island & PiP, off by default).
-- [ ] **LQ-5.3 (`≤ 250` LOC):** Port `LiquidLockScreen.swift` (optional lock-screen card + safe wallpaper backup/restore) and opt-in `LiquidNotificationBridge.swift` wired to `LiveEventCenter`.
+- [x] **LQ-5.1 (`≤ 250` LOC):** Port `SportsFeedService.swift` + `LiquidExtrasViews.swift` (ESPN Football, NFL, NBA, MLB, NHL live score balls & cards, off by default). — `DONE — 53a0745d`
+- [x] **LQ-5.2 (`≤ 280` LOC):** Port `LiquidVideoMirror.swift` + `LiquidVideoPiP.swift` (ScreenCaptureKit browser video-in-island & PiP, off by default). — `DONE — 53a0745d` (`LiquidExtrasKeys.videoInIslandEnabled` opt-in gate; zero idle capture)
+- [x] **LQ-5.3 (`≤ 250` LOC):** Port `LiquidLockScreen.swift` (optional lock-screen card + safe wallpaper backup/restore) and opt-in `LiquidNotificationBridge.swift` wired to `LiveEventCenter`. — `DONE — 53a0745d`
 
 ### Wave `LQ-6` — Settings Unification, Credits, 12-Locale Gate & Livecheck
 - [ ] **LQ-6.1 (`≤ 250` LOC):** Organize `App/Scenes/LiveIslandSettingsBlock.swift` (Preset selector with `.liquid` default + Liquid toggles + preserved Classic/Full/Dynamic Island settings) and update `NOTICE` with MIT / CC BY 4.0 / CC0 credits.
