@@ -684,9 +684,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1795175145.598202,
-    "seen": 1795176222.465526,
-    "ast_hash": "b1bfe5e6b1bbed22d0b6c0d1a7a12ff6",
+    "mtime": 1795514106.281714,
+    "seen": 1795514401.555027,
+    "ast_hash": "109b52d50f713cd7af4b4ee82677e25e",
     "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
@@ -1116,10 +1116,10 @@
     "semantic_hash": "f6afac1a00bfaffc066fc6c5984f3b94"
   },
   "App/Scenes/RadialDial/RadialSnapPreviewPanelController.swift": {
-    "mtime": 1791999417.7887564,
-    "seen": 1792295707.0604858,
-    "ast_hash": "5583a041f32dc8a1db901b4df172c819",
-    "semantic_hash": "5583a041f32dc8a1db901b4df172c819"
+    "mtime": 1795514103.536457,
+    "seen": 1795514401.555136,
+    "ast_hash": "4c64a77fd1c69b10bbdc86ed9e2de2eb",
+    "semantic_hash": ""
   },
   "App/Scenes/ResizeCursorGlyph.swift": {
     "mtime": 1792077743.2304554,
@@ -2574,9 +2574,9 @@
     "semantic_hash": "d3d06fcee7f66f95d1a7efd64c4820e9"
   },
   "Core/Support/WindowSnap.swift": {
-    "mtime": 1795445588.9564905,
-    "seen": 1795445739.878675,
-    "ast_hash": "43b28ada636ffc10b26886f7541f47d6",
+    "mtime": 1795514143.9586678,
+    "seen": 1795514401.555418,
+    "ast_hash": "c2bf8495ead9bd1c10ec069dd07d33dd",
     "semantic_hash": ""
   },
   "Core/Support/WindowSwitcherModel.swift": {
@@ -2970,9 +2970,9 @@
     "semantic_hash": "ff91fe3d118e3cb16a04b0c1664b293c"
   },
   "Platform/Windows/WindowSnapService.swift": {
-    "mtime": 1795470728.5248525,
-    "seen": 1795471025.0985081,
-    "ast_hash": "f82bcd728b28d68cca4d4bf64eb3fb27",
+    "mtime": 1795514101.8331828,
+    "seen": 1795514401.555495,
+    "ast_hash": "54e6fb19ea6b279e7cb0591e98a06993",
     "semantic_hash": ""
   },
   "Resources/AppIcon.icon/icon.json": {
@@ -4380,9 +4380,9 @@
     "semantic_hash": "c761a1854048312afb1b02410e3a9c6e"
   },
   "Tests/Unit/WindowSnapTests.swift": {
-    "mtime": 1795445593.000248,
-    "seen": 1795445739.87902,
-    "ast_hash": "0f475e7dd7a5c73c859bbbf6c72097bd",
+    "mtime": 1795514108.053211,
+    "seen": 1795514401.555744,
+    "ast_hash": "a35c24ff40f1df9877730ee0f2b6360b",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowSubscriptionLedgerTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795513705.5462067,
-    "seen": 1795514047.238425,
-    "ast_hash": "d5e44dc082c5e72abaab653458b13ecb",
+    "mtime": 1795514115.157532,
+    "seen": 1795514401.555874,
+    "ast_hash": "dc97072c30636677eb1679aea9010ac5",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8070,9 +8070,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md": {
-    "mtime": 1795513704.3873632,
-    "seen": 1795514047.238413,
-    "ast_hash": "4bb5e6b20b6efc62417e45f82955c8cc",
+    "mtime": 1795514114.0719209,
+    "seen": 1795514401.555865,
+    "ast_hash": "61d5d0ff6a78de8b84b23da0684127b1",
     "semantic_hash": ""
   }
 }
