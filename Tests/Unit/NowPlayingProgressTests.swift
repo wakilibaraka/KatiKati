@@ -315,4 +315,24 @@ final class MediaSessionSwitcherTests: XCTestCase {
         XCTAssertTrue(spotify.contains("artwork url"), "Spotify hands out an artwork URL")
         XCTAssertFalse(spotify.contains("Music"))
     }
+
+    // MARK: - Liquid Synced Lyrics (LQ-2)
+
+    func testLiquidLrcParsingAndConsensusSelection() {
+        let lrc = "[00:12.50] First line\n[00:15.00][00:45.00] Chorus line\n[00:20.00] "
+        let lines = LiquidLyricsSource.parse(lrc)
+        XCTAssertEqual(lines.count, 4)
+        XCTAssertEqual(lines[0], LiquidLyricLine(time: 12.5, text: "First line"))
+        XCTAssertEqual(lines[1], LiquidLyricLine(time: 15.0, text: "Chorus line"))
+        XCTAssertEqual(lines[3], LiquidLyricLine(time: 45.0, text: "Chorus line"))
+
+        let lyrics = LiquidLyrics(key: "Artist|Song", lines: lines, plain: [])
+        XCTAssertEqual(lyrics.current(at: 12.45), 0, "0.1s lead lights line just as voice lands")
+        XCTAssertEqual(lyrics.line(from: 1, at: 14.2), 1, "clock step-back <= 1.5s holds current line")
+        XCTAssertEqual(lyrics.line(from: 1, at: 12.5), 0, "real seek back moves immediately")
+
+        let wrongDuration = LiquidLyricsEntry(duration: 240, lines: [LiquidLyricLine(time: 1, text: "Wrong")], plain: [])
+        let rightDuration = LiquidLyricsEntry(duration: 180, lines: [LiquidLyricLine(time: 12, text: "Right")], plain: [])
+        XCTAssertEqual(LiquidLyricsSource.best([wrongDuration, rightDuration], duration: 180)?.lines, rightDuration.lines)
+    }
 }

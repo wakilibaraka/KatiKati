@@ -425,3 +425,126 @@ enum LiquidShapeTargets {
         return s
     }
 }
+
+// MARK: - Liquid Synced Lyrics (LRCLIB, on-demand only)
+
+struct LiquidLyricLine: Equatable, Sendable {
+    let time: Double
+    let text: String
+}
+
+struct LiquidLyrics: Equatable, Sendable {
+    let key: String
+    let lines: [LiquidLyricLine]
+    let plain: [String]
+    static let lead = 0.1
+
+    func current(at elapsed: Double) -> Int? {
+        lines.lastIndex { $0.time <= elapsed + Self.lead }
+    }
+
+    /// Prevents brief flicker backward when a player's clock steps back <= 1.5s right after a seek.
+    func line(from shown: Int?, at elapsed: Double) -> Int? {
+        let now = current(at: elapsed)
+        if let shown, shown < lines.count, (now ?? -1) < shown, lines[shown].time - (elapsed + Self.lead) <= 1.5 {
+            return shown
+        }
+        return now
+    }
+}
+
+struct LiquidLyricsEntry: Equatable, Sendable {
+    let duration: Double?
+    let lines: [LiquidLyricLine]
+    let plain: [String]
+}
+
+enum LiquidLyricsSource {
+    static func key(title: String, artist: String) -> String { "\(artist)|\(title)" }
+
+    /// Fetches from LRCLIB only when explicitly requested by opening the lyrics view.
+    static func fetch(title: String, artist: String, album: String, duration: Double?) async -> LiquidLyrics? {
+        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        var c = URLComponents(string: "https://lrclib.net/api/get")!
+        c.queryItems = [URLQueryItem(name: "track_name", value: title), URLQueryItem(name: "artist_name", value: artist)]
+            + (album.isEmpty ? [] : [URLQueryItem(name: "album_name", value: album)])
+            + (duration.map { [URLQueryItem(name: "duration", value: String(Int($0.rounded())))] } ?? [])
+        var s = URLComponents(string: "https://lrclib.net/api/search")!
+        s.queryItems = [URLQueryItem(name: "track_name", value: title), URLQueryItem(name: "artist_name", value: artist)]
+        async let exact = json(c.url)
+        async let found = json(s.url)
+        let entries = ((await exact as? [String: Any]).map { [$0] } ?? []) + ((await found as? [[String: Any]]) ?? [])
+        guard let e = best(entries.map(entry), duration: duration) else { return nil }
+        return LiquidLyrics(key: key(title: title, artist: artist), lines: e.lines, plain: e.lines.isEmpty ? e.plain : [])
+    }
+
+    private static func json(_ url: URL?) async -> Any? {
+        guard let url, let (data, r) = try? await URLSession.shared.data(from: url),
+              (r as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+        return try? JSONSerialization.jsonObject(with: data)
+    }
+
+    static func entry(_ j: [String: Any]) -> LiquidLyricsEntry {
+        let plain = (j["plainLyrics"] as? String ?? "").split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        return LiquidLyricsEntry(
+            duration: (j["duration"] as? NSNumber)?.doubleValue,
+            lines: parse(j["syncedLyrics"] as? String ?? ""),
+            plain: plain == [""] ? [] : plain
+        )
+    }
+
+    static func best(_ entries: [LiquidLyricsEntry], duration: Double?) -> LiquidLyricsEntry? {
+        let fits = entries.filter { e in duration.map { d in e.duration.map { abs($0 - d) <= 2 } ?? true } ?? true }
+        var distinct: [(entry: LiquidLyricsEntry, copies: Int)] = []
+        for e in fits where !e.lines.isEmpty {
+            if let i = distinct.firstIndex(where: { $0.entry.lines == e.lines }) {
+                distinct[i].copies += 1
+            } else {
+                distinct.append((e, 1))
+            }
+        }
+        guard !distinct.isEmpty else {
+            guard let e = fits.first(where: { !$0.plain.isEmpty }) ?? entries.first(where: { !$0.plain.isEmpty || !$0.lines.isEmpty }) else { return nil }
+            return LiquidLyricsEntry(duration: e.duration, lines: [], plain: e.plain.isEmpty ? e.lines.map(\.text) : e.plain)
+        }
+        let scored = distinct.indices.map { i -> (Int, Double) in
+            let others = distinct.indices.filter { $0 != i }.map { distance(distinct[i].entry.lines, distinct[$0].entry.lines) }
+            return (i, others.isEmpty ? 0 : others.reduce(0, +) / Double(others.count))
+        }
+        let pick = scored.min { a, b in
+            abs(a.1 - b.1) > 0.01 ? a.1 < b.1 : (distinct[a.0].copies != distinct[b.0].copies ? distinct[a.0].copies > distinct[b.0].copies : a.0 < b.0)
+        }!
+        return distinct[pick.0].entry
+    }
+
+    static func distance(_ a: [LiquidLyricLine], _ b: [LiquidLyricLine]) -> Double {
+        func words(_ s: String) -> String { s.lowercased().filter { $0.isLetter || $0.isNumber } }
+        var gaps: [Double] = [], from = 0
+        for line in a where !words(line.text).isEmpty {
+            guard let j = b[from...].firstIndex(where: { words($0.text) == words(line.text) }) else { continue }
+            gaps.append(abs(line.time - b[j].time))
+            from = j + 1
+        }
+        guard gaps.count >= 3 else { return 10 }
+        gaps.sort()
+        return gaps[gaps.count / 2]
+    }
+
+    static func parse(_ lrc: String) -> [LiquidLyricLine] {
+        var out: [LiquidLyricLine] = []
+        for raw in lrc.split(separator: "\n") {
+            var line = Substring(raw), stamps: [Double] = []
+            while line.hasPrefix("["), let close = line.firstIndex(of: "]") {
+                let stamp = line[line.index(after: line.startIndex)..<close]
+                let parts = stamp.split(separator: ":")
+                if parts.count == 2, let m = Double(parts[0]), let s = Double(parts[1]) {
+                    stamps.append(m * 60 + s)
+                }
+                line = line[line.index(after: close)...]
+            }
+            let text = line.trimmingCharacters(in: .whitespaces)
+            for t in stamps { out.append(LiquidLyricLine(time: t, text: text)) }
+        }
+        return out.sorted { $0.time < $1.time }
+    }
+}
