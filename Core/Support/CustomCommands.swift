@@ -247,3 +247,57 @@ struct SnippetExpander: Equatable, Sendable {
 
     mutating func reset() { word = "" }
 }
+
+// MARK: - MB-4: OnlySwitch-Style Custom Evolutions
+
+struct EvolutionItem: Codable, Equatable, Identifiable, Sendable {
+    enum Shell: String, Codable, CaseIterable, Sendable {
+        case sh, appleScript
+    }
+
+    enum Kind: String, Codable, CaseIterable, Sendable {
+        case toggle, action
+    }
+
+    var id: UUID
+    var title: String
+    var symbolName: String
+    var kind: Kind
+    var shell: Shell
+    var runScript: String
+    var statusScript: String?
+
+    static let defaultsKey = "com.katikati.menuBarHub.evolutions"
+
+    init(
+        id: UUID = UUID(),
+        title: String,
+        symbolName: String = "terminal",
+        kind: Kind = .action,
+        shell: Shell = .sh,
+        runScript: String,
+        statusScript: String? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.symbolName = Self.validSymbol(symbolName)
+        self.kind = kind
+        self.shell = shell
+        self.runScript = runScript
+        self.statusScript = statusScript
+    }
+
+    static func validSymbol(_ raw: String) -> String {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? "terminal" : trimmed
+    }
+
+    static func parse(_ data: Data?) -> [EvolutionItem] {
+        guard let data else { return [] }
+        return (try? JSONDecoder().decode([EvolutionItem].self, from: data)) ?? []
+    }
+
+    static func encode(_ items: [EvolutionItem]) -> Data? {
+        try? JSONEncoder().encode(items)
+    }
+}
