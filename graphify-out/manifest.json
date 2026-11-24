@@ -1890,9 +1890,9 @@
     "semantic_hash": ""
   },
   "Core/Support/IconSet.swift": {
-    "mtime": 1793367764.638376,
-    "seen": 1793373444.96242,
-    "ast_hash": "4a16c29ae25400f5e83af258434a9851",
+    "mtime": 1795530590.3176079,
+    "seen": 1795530613.726906,
+    "ast_hash": "988b6bf0a9918023cc36c16af7006d99",
     "semantic_hash": ""
   },
   "Core/Support/InstallLineage.swift": {
@@ -3564,9 +3564,9 @@
     "semantic_hash": "2ee58def8ee01d13235ff328416461cc"
   },
   "Tests/Unit/IconSetTests.swift": {
-    "mtime": 1793367891.492221,
-    "seen": 1793373444.9626691,
-    "ast_hash": "53c1855c53d1892e7d7fc08c5e937723",
+    "mtime": 1795530590.3180602,
+    "seen": 1795530613.727266,
+    "ast_hash": "6c5797435dd3db39f85f4623ca385cb1",
     "semantic_hash": ""
   },
   "Tests/Unit/InstallLineageTests.swift": {
@@ -8085,6 +8085,12 @@
     "mtime": 1795530552.9510252,
     "seen": 1795530574.114412,
     "ast_hash": "14faddd498b1b8ff55616bb7b1eddd08",
+    "semantic_hash": ""
+  },
+  "Docs/Plans/ICON_STUDIO_LIVE_ICONS_PLAN.md": {
+    "mtime": 1795530590.317785,
+    "seen": 1795530681.1357179,
+    "ast_hash": "53e91c0082dad3da3a72f9519ccf695c",
     "semantic_hash": ""
   }
 }

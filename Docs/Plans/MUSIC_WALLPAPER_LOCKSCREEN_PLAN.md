@@ -229,9 +229,6 @@ graphify update .
 ```
 
 **Idle CPU is measured, not asserted:** take a real CPU-time delta (`ps -o cputime= -p <pid>` twice, 20–30 s apart) with the card visible and the music wallpaper applied, plus a sample of the animated path while playing. `top -l <n> -pid` is fine as a cross-check, but its first samples include process launch and overstate a quiet app; a number is only reported when it was actually sampled.
-
----
-
 ## 9. Risks and open decisions
 
 - **Private SkyLight space (ML-3)** — highest-risk item; opt-in, symbol-checked, and removable without touching ML-1/2/4.
@@ -242,3 +239,126 @@ graphify update .
 - **Mooziac styling (MIT)** — themes, layouts, scrubber shapes and the hero lyrics treatment are re-expressed as pure KatiKati values with attribution in `NOTICE`; no app-shell code is copied. Its streaming client stays out of scope (§5.9).
 - **Palette extraction** — one pass per track change by design. If it ever moves to a frame or a tick, it becomes the 0% idle CPU bug; the cache key is the artwork hash, and the test asserts a second call for the same hash does no work.
 - **Discord Rich Presence** — the socket may not exist; the client is opt-in, event-driven, and its absence is silent, never a reconnect loop.
+
+
+
+---
+
+## 10. Music becomes a desktop widget, not a wallpaper (`M-0` → `M-6`)
+
+**Decision (2026-11-24, after seeing it on the desktop):** the album-art *wallpaper* is the wrong surface for
+this design. A blurred multi-stop wash behind your icons reads as a broken picture, not as a music surface —
+the screenshots show the card itself carrying the art, with the desktop left alone. So the music surface
+moves to a **desktop-level widget** and the wallpaper path becomes opt-in. Nothing is deleted: every existing
+wallpaper style, card theme, scrubber, wing and lock preset stays selectable.
+
+### 10.1 Why a widget and not the desktop picture
+
+| | Music wallpaper (today) | Desktop music widget (proposed) |
+| --- | --- | --- |
+| Writes the user's desktop picture | yes (`setDesktopImageURL` + `WallpaperLease` restore) | never |
+| Can corrupt/restore-fail | yes, that is what the lease arbitrates | no code path touches the picture |
+| Blast radius on failure | whole desktop | one panel; close it and it is gone |
+| Per-display control | one picture per display, no placement | one panel per display, remembered frame |
+| Reads like the sample | weak (wash behind icons) | exactly (art in the card, desktop untouched) |
+
+The wallpaper engine keeps working for everyone who wants it; it simply stops being the default delivery for
+music.
+
+### 10.2 What already exists (grounded, not speculative)
+
+- `DesktopWidgetPanelController.desktopLayerLevel = CGWindowLevelForKey(.desktopIconWindow) + 1` — a panel
+  **above the icons, below every app window**. That is the non-obstruction guarantee: no app window can ever
+  be covered by it.
+- `WallpaperOverlay` already uses `CGWindowLevelForKey(.desktopWindow) + 1` — **below the icons**. Poster mode
+  reuses that level so even clicks on the desktop pass straight through to Finder.
+- Panel flags already proven in this host: `.borderless, .nonactivatingPanel`,
+  `becomesKeyOnlyIfNeeded`, `isOpaque = false`, `backgroundColor = .clear`, `hasShadow = false`,
+  `hidesOnDeactivate = false`, and `collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle,
+  .fullScreenNone]` (never floats over a full-screen app, never appears in ⌘-Tab or Mission Control).
+- Persistence primitives already in `DesktopWidgetItem`: `displayUUID`, `followMainDisplay`, `frame`,
+  `normalizedFrame`, `zOrder`, `isHidden` — a music panel can reuse the same shape instead of inventing a
+  second geometry store.
+- The desktop host already routes music: `onMusicStashToggle` collapses the card to an edge band and back.
+- The card itself is `MusicGlassCardView(theme:layout:scrubber:palette:showsVolumeRow:)`, shared by the desktop
+  widget, the lock card and now the Dock II wings — so the widget needs *no* new rendering code.
+
+### 10.3 Presets (additive; the old ones stay)
+
+| Preset | Extent | Level | Input | Notes |
+| --- | --- | --- | --- | --- |
+| **Poster** | whole visible frame minus menu bar/Dock, or a resizable rect | `desktopWindow + 1` (behind icons) | fully click-through | the "full-screen" look from the sample; art fills, controls drawn but non-interactive unless *Interactive* is on |
+| **Stage** | half screen (left/right/top/bottom, snappable) | `desktopIconWindow + 1` | controls only | the partial-screen option |
+| **Card** | 300 × 224 (today's widget) | `desktopIconWindow + 1` | controls only | unchanged behaviour, now the default |
+| **Strip** | 44 pt tall, full width or docked edge | `desktopIconWindow + 1` | controls only | title + scrubber + transport |
+
+Each preset composes the existing `MusicSurfaceStyle` (theme/scrubber/layout) and the existing wallpaper
+*palette* for its wash — palette only, never a picture write.
+
+### 10.4 Non-obstruction rules (the part that must be provable)
+
+1. **Never above app windows.** Level is `desktopIconWindow + 1` or lower; asserted in a pure policy + test.
+2. **Poster is click-through** — `hitTest` returns `nil` for the whole surface unless the user enables
+   *Interactive*; then only the transport and scrubber hit-test, exactly like the card's existing
+   `MusicScrollCatcher`.
+3. **Hidden under full-screen apps** via `.fullScreenNone`, and additionally by an occlusion policy: when the
+   desktop is covered by a maximised window, animations pause (Core Animation `layer.speed = 0`) — measured the
+   same way as the waveform fix.
+4. **Mission Control / Spaces**: `.stationary` + `.canJoinAllSpaces` keeps it on the desktop layer instead of
+   following every space as a floating window.
+5. **No icon stealing**: Poster at `desktopWindow + 1` sits *below* Finder's icons, so desktop icons, folder
+   double-clicks and right-clicks keep working.
+6. **One per display**, remembered by `displayUUID`, with `followMainDisplay` for laptops that dock.
+
+### 10.5 Settings: music gets its own page, like Weather
+
+- New `SettingsTab.music`, placed in the **Surfaces** group right after `.weather` (same tier as Weather —
+  "a thing with its own surface and its own settings"), with search terms
+  `music now playing vinyl album widget poster stage card strip wallpaper lock screen lyrics`.
+- `SettingsMusicPane` lives in an existing App file (no `project.pbxproj` churn): widget on/off, preset picker
+  with a live thumbnail, placement/display/click-through/opacity, lyrics + queue toggles, the lock-screen
+  card toggle, and a **"Album Art Wallpaper"** switch that is now clearly secondary ("uses your desktop
+  picture; the widget above is recommended").
+- The Wallpaper page keeps its music toggles for compatibility but points at the new page for anything that is
+  not the picture itself.
+
+### 10.6 Migration and defaults (no work lost)
+
+- Fresh installs: **widget on (Card), wallpaper off**. Existing users: their stored `wallpaperEnabled` is
+  honoured on first launch after this change, then left alone — a single one-time migration key records that
+  we asked, so no later default flip can turn the wallpaper back on.
+- All presets and styles remain: `MusicWallpaperStyle` keeps `atmosphericMesh`/`fullBleedFade` and the older
+  five; `MusicSurfaceStyle` keeps its themes, scrubbers and layouts; the three Dock II wings and the lock card
+  are untouched.
+
+### 10.7 Slice roadmap
+
+| Slice | Contents | Files (existing only) |
+| --- | --- | --- |
+| **M-0** | Pure core + tests: `MusicDesktopWidgetPreset`, `MusicDesktopPlacement`, `MusicDesktopGeometry` (visible-frame insets, snap targets, half/full rects), `MusicDesktopLevelPolicy` (preset → level, never above app windows), `MusicDesktopClickPolicy`, `MusicDesktopOcclusionPolicy` | `Core/Support/NowPlayingProgress.swift`, `Tests/Unit/NowPlayingProgressTests.swift` |
+| **M-1** | One `MusicDesktopWidgetController` per display: panel creation at the policy level, frame restore via `normalizedFrame`, drag/resize/snap, click-through toggle, occlusion observer | `App/Entry/DesktopWidgetPanelController.swift`, `App/Composition/AppComposition.swift` |
+| **M-2** | Preset rendering: Poster/Stage/Card/Strip compositions of `MusicGlassCardView` (no new view files) | `App/Scenes/Desktop/DesktopVinylBoxView.swift` |
+| **M-3** | `SettingsTab.music` + `SettingsMusicPane` with live thumbnail preview | `App/Scenes/SettingsTab.swift`, `App/Scenes/Settings/SettingsSidebar.swift`, `App/Scenes/SettingsWindowView.swift`, `App/Scenes/SettingsAppearancePane.swift` |
+| **M-4** | Defaults + one-time migration; wallpaper music becomes opt-in; Wallpaper page cross-link | `Core/Support/Desktop/DesktopBoxModel.swift`, `App/Scenes/SettingsAppearancePane.swift` |
+| **M-5** | Idle budget: static frame, CA animations paused when occluded/hidden, no timers when paused; measured with `ps -o cputime=` deltas | `App/Scenes/Desktop/DesktopVinylBoxView.swift` |
+| **M-6** | Verification: unit tests for geometry/level/occlusion, live check of all four presets on one and two displays, full-screen app behaviour, Mission Control | tests + livecheck notes |
+
+### 10.8 Verification contract for M-0 → M-6
+
+- Pure tests: level policy never returns a level above `desktopIconWindow + 1` except Poster, which must be
+  `desktopWindow + 1`; geometry keeps the rect inside `visibleFrame` with menu bar and Dock insets; snap picks
+  the nearest edge within a threshold; occlusion pauses animations; click policy is `nil` for Poster unless
+  interactive.
+- Live: all four presets render, drag/snap works, clicking the desktop behind a Poster still reaches Finder,
+  a maximised window covers Stage/Card/Strip, a full-screen app hides all of them, the wallpaper is never
+  written (no `setDesktopImageURL` call in the log), and paused CPU is ~0%.
+- Gates unchanged: Debug build 0 errors, unit suites green, `check_localization.py`,
+  `check_debug_switches.py`, `check_availability_warnings.py`, `graphify update .`.
+
+### 10.9 Open question for the user before M-1
+
+Poster's default: **behind the icons and fully click-through** (safest, looks like a wallpaper but is not one)
+or **above the icons but still below windows** (drag it, click its buttons)? The plan implements both, but the
+default has to be chosen — the rest of the design does not depend on it.
+
+---
