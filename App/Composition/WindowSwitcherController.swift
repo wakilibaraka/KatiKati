@@ -546,8 +546,7 @@ private struct WindowSwitcherView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                         .padding(4)
                 } else if let id = tile.bundleID {
-                    Image(nsImage: AppIconResolver.icon(for: id)).resizable()
-                        .frame(width: controller.styleConfig.iconSize, height: controller.styleConfig.iconSize)
+                    IconStudioIconView(bundleID: id, size: controller.styleConfig.iconSize, isHovered: selected)
                         .opacity(tile.isMinimized ? 0.5 : 1)
                 }
             }
@@ -613,8 +612,7 @@ private struct WindowSwitcherView: View {
         HStack(spacing: 10) {
             badge(index)
             if let id = tile.bundleID {
-                Image(nsImage: AppIconResolver.icon(for: id)).resizable()
-                    .frame(width: controller.styleConfig.iconSize, height: controller.styleConfig.iconSize)
+                IconStudioIconView(bundleID: id, size: controller.styleConfig.iconSize, isHovered: selected)
                     .opacity(tile.isMinimized ? 0.5 : 1)
             }
             titleRow(tile)
@@ -657,8 +655,7 @@ private struct WindowSwitcherView: View {
         VStack(spacing: 6) {
             ZStack(alignment: .topLeading) {
                 if let id = tile.bundleID {
-                    Image(nsImage: AppIconResolver.icon(for: id)).resizable()
-                        .frame(width: controller.styleConfig.iconSize, height: controller.styleConfig.iconSize)
+                    IconStudioIconView(bundleID: id, size: controller.styleConfig.iconSize, isHovered: selected)
                         .opacity(tile.isMinimized ? 0.5 : 1)
                 }
                 badge(index)
@@ -683,7 +680,7 @@ private struct WindowSwitcherView: View {
                 HStack(spacing: 10) {
                     badge(index)
                     if let id = tile.bundleID {
-                        Image(nsImage: AppIconResolver.icon(for: id)).resizable().frame(width: 28, height: 28)
+                        IconStudioIconView(bundleID: id, size: 28, isHovered: index == controller.selection)
                     }
                     Text(verbatim: tile.title.isEmpty ? tile.appName : tile.title)
                         .font(.system(size: 12, weight: .medium)).lineLimit(1)
@@ -720,8 +717,7 @@ private struct WindowSwitcherView: View {
                                 Image(nsImage: image).resizable().aspectRatio(contentMode: .fit)
                                     .padding(4)
                             } else if let id = tile.bundleID {
-                                Image(nsImage: AppIconResolver.icon(for: id)).resizable()
-                                    .frame(width: controller.styleConfig.iconSize, height: controller.styleConfig.iconSize)
+                                IconStudioIconView(bundleID: id, size: controller.styleConfig.iconSize, isHovered: index == controller.selection)
                             }
                         }
                         .frame(width: index == controller.selection ? 220 : 160, height: 138)
@@ -740,8 +736,7 @@ private struct WindowSwitcherView: View {
             HStack(spacing: 8) {
                 ForEach(Array(controller.tiles.enumerated()), id: \.element.id) { index, tile in
                     if let id = tile.bundleID {
-                        Image(nsImage: AppIconResolver.icon(for: id)).resizable()
-                            .frame(width: 22, height: 22)
+                        IconStudioIconView(bundleID: id, size: 22, isHovered: index == controller.selection)
                             .padding(3)
                             .background(Circle().fill(index == controller.selection
                                 ? controller.accentColor.opacity(0.35) : Color.clear))
