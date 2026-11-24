@@ -763,10 +763,14 @@ final class IconStudioController: ObservableObject {
         if let hit = fastCache[fp] { return hit }
         if !inFlightKeys.contains(fp) {
             inFlightKeys.insert(fp)
-            let sourceData = artworkFileURL(for: look.artwork).flatMap { IconAssetLoader.loadCGImage(from: $0) }.flatMap { IconAssetLoader.pngData(from: $0) }
-                ?? fallbackArtwork()
+            let artworkURL = artworkFileURL(for: look.artwork)
+            let fallbackData = artworkURL == nil ? fallbackArtwork() : nil
             let (recolor, shader) = (look.recolor, look.shader)
             Task.detached(priority: .utility) {
+                let sourceData = artworkURL
+                    .flatMap { IconAssetLoader.loadCGImage(from: $0) }
+                    .flatMap { IconAssetLoader.pngData(from: $0) }
+                    ?? fallbackData
                 let png = await IconBakeActor.shared.bakeIfNeeded(
                     fingerprint: fp, sourceImageData: sourceData, recolor: recolor, shader: shader, pixelSize: pixelSize
                 )
@@ -906,9 +910,71 @@ struct IconMetalShaderView: NSViewRepresentable {
 }
 
 @MainActor
+protocol DisplayLinkHandle: AnyObject {
+    func invalidate()
+}
+
+extension CADisplayLink: DisplayLinkHandle {}
+
+@MainActor
+final class WeakDisplayLinkProxy: NSObject {
+    weak var owner: AnyObject?
+    private let onStep: @MainActor (AnyObject, CADisplayLink) -> Void
+
+    init<Owner: AnyObject>(
+        owner: Owner,
+        onStep: @escaping @MainActor (Owner, CADisplayLink) -> Void
+    ) {
+        self.owner = owner
+        self.onStep = { anyOwner, link in
+            guard let typed = anyOwner as? Owner else { return }
+            onStep(typed, link)
+        }
+    }
+
+    @objc func step(_ sender: CADisplayLink) {
+        MainActor.assumeIsolated {
+            _ = dispatchTick(sender) { [onStep] owner in
+                onStep(owner, sender)
+            }
+        }
+    }
+
+    @discardableResult
+    func dispatchTick(_ handle: any DisplayLinkHandle, action: (AnyObject) -> Void) -> Bool {
+        guard let owner else {
+            handle.invalidate()
+            return false
+        }
+        action(owner)
+        return true
+    }
+}
+
+enum IconShaderAnimationPolicy {
+    static func shouldAnimateFrame(hasWindow: Bool, bounds: CGSize, isAnimating: Bool) -> Bool {
+        hasWindow && isAnimating && bounds.width > 1 && bounds.height > 1
+    }
+
+    static func shouldSkipUpdate(
+        currentPreset: IconShaderPreset,
+        currentStrength: Double,
+        currentAnimating: Bool,
+        nextPreset: IconShaderPreset,
+        nextStrength: Double,
+        nextAnimating: Bool
+    ) -> Bool {
+        currentPreset == nextPreset
+            && abs(currentStrength - nextStrength) < 1e-6
+            && currentAnimating == nextAnimating
+    }
+}
+
+@MainActor
 final class IconMetalShaderNSView: NSView {
     private let metalLayer = CAMetalLayer()
     private var link: CADisplayLink?
+    private var linkProxy: WeakDisplayLinkProxy?
     private var preset: IconShaderPreset
     private var strength: Double
     private var isAnimating: Bool
@@ -928,13 +994,22 @@ final class IconMetalShaderNSView: NSView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        link?.invalidate(); link = nil
+        link?.invalidate(); link = nil; linkProxy = nil
         guard window != nil else { return }
-        let l = displayLink(target: self, selector: #selector(tick))
-        l.isPaused = !isAnimating
+        let proxy = WeakDisplayLinkProxy(owner: self) { owner, _ in
+            owner.tick()
+        }
+        let l = displayLink(target: proxy, selector: #selector(WeakDisplayLinkProxy.step(_:)))
+        let shouldRun = IconShaderAnimationPolicy.shouldAnimateFrame(
+            hasWindow: true,
+            bounds: bounds.size,
+            isAnimating: isAnimating
+        )
+        l.isPaused = !shouldRun
         l.add(to: .main, forMode: .common)
+        linkProxy = proxy
         link = l
-        if isAnimating { drawFrame() }
+        if shouldRun { drawFrame() }
     }
 
     override func layout() {
@@ -942,20 +1017,47 @@ final class IconMetalShaderNSView: NSView {
         let s = window?.backingScaleFactor ?? 2
         metalLayer.contentsScale = s
         metalLayer.drawableSize = CGSize(width: max(1, bounds.width * s), height: max(1, bounds.height * s))
+        let shouldRun = IconShaderAnimationPolicy.shouldAnimateFrame(
+            hasWindow: window != nil,
+            bounds: bounds.size,
+            isAnimating: isAnimating
+        )
+        link?.isPaused = !shouldRun
+        if shouldRun { drawFrame() }
     }
 
     func update(preset: IconShaderPreset, strength: Double, isAnimating: Bool) {
+        if IconShaderAnimationPolicy.shouldSkipUpdate(
+            currentPreset: self.preset,
+            currentStrength: self.strength,
+            currentAnimating: self.isAnimating,
+            nextPreset: preset,
+            nextStrength: strength,
+            nextAnimating: isAnimating
+        ) {
+            return
+        }
         let wasAnimating = self.isAnimating
         self.preset = preset; self.strength = strength; self.isAnimating = isAnimating
         if isAnimating && !wasAnimating { startTime = CACurrentMediaTime() }
-        link?.isPaused = !isAnimating
-        if isAnimating { drawFrame() }
+        let shouldRun = IconShaderAnimationPolicy.shouldAnimateFrame(
+            hasWindow: window != nil,
+            bounds: bounds.size,
+            isAnimating: isAnimating
+        )
+        link?.isPaused = !shouldRun
+        if shouldRun { drawFrame() }
     }
 
-    @objc private func tick() { if isAnimating { drawFrame() } }
+    private func tick() { if isAnimating { drawFrame() } }
 
     private func drawFrame() {
-        guard let mode = IconShaderEngine.presetIndex(for: preset), bounds.width > 1, bounds.height > 1 else { return }
+        guard IconShaderAnimationPolicy.shouldAnimateFrame(
+            hasWindow: window != nil,
+            bounds: bounds.size,
+            isAnimating: isAnimating
+        ),
+        let mode = IconShaderEngine.presetIndex(for: preset) else { return }
         let u = IconShaderUniforms(time: Float(CACurrentMediaTime() - startTime), strength: Float(strength), mode: mode)
         IconShaderEngine.shared?.draw(to: metalLayer, uniforms: u)
     }

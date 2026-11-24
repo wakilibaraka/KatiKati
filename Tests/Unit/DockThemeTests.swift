@@ -508,6 +508,49 @@ final class DockThemeTests: XCTestCase {
                        DockThemeTokens.resolved(for: .light))
     }
 
+    @MainActor
+    func testWeakDisplayLinkProxyDoesNotRetainOwnerAndInvalidatesOrphanedLink() {
+        final class Owner: NSObject {}
+        final class SpyLink: DisplayLinkHandle {
+            var invalidated = false
+            func invalidate() { invalidated = true }
+        }
+
+        weak var weakOwner: Owner?
+        let proxy: WeakDisplayLinkProxy
+        do {
+            let owner = Owner()
+            weakOwner = owner
+            proxy = WeakDisplayLinkProxy(owner: owner) { _, _ in }
+        }
+        XCTAssertNil(weakOwner, "CADisplayLink proxy must not retain its owner")
+
+        let spy = SpyLink()
+        let invoked = proxy.dispatchTick(spy) { _ in XCTFail("orphaned proxy must not fire step") }
+        XCTAssertFalse(invoked)
+        XCTAssertTrue(spy.invalidated)
+    }
+
+    func testIconShaderAnimationPolicyGatesVisibilityAndRedundantUpdates() {
+        XCTAssertFalse(IconShaderAnimationPolicy.shouldAnimateFrame(hasWindow: false, bounds: CGSize(width: 64, height: 64), isAnimating: true))
+        XCTAssertFalse(IconShaderAnimationPolicy.shouldAnimateFrame(hasWindow: true, bounds: .zero, isAnimating: true))
+        XCTAssertFalse(IconShaderAnimationPolicy.shouldAnimateFrame(hasWindow: true, bounds: CGSize(width: 64, height: 64), isAnimating: false))
+        XCTAssertTrue(IconShaderAnimationPolicy.shouldAnimateFrame(hasWindow: true, bounds: CGSize(width: 64, height: 64), isAnimating: true))
+
+        XCTAssertTrue(
+            IconShaderAnimationPolicy.shouldSkipUpdate(
+                currentPreset: .neonSign, currentStrength: 0.75, currentAnimating: true,
+                nextPreset: .neonSign, nextStrength: 0.75 + 1e-8, nextAnimating: true
+            )
+        )
+        XCTAssertFalse(
+            IconShaderAnimationPolicy.shouldSkipUpdate(
+                currentPreset: .neonSign, currentStrength: 0.75, currentAnimating: true,
+                nextPreset: .neonSign, nextStrength: 0.75, nextAnimating: false
+            )
+        )
+    }
+
     // MARK: - Contrast helpers (levels are 0…255)
 
     private static func composite(_ tint: DockTint, over background: Double) -> Double {
