@@ -462,9 +462,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WeatherService.swift": {
-    "mtime": 1795443274.0060885,
-    "seen": 1795534644.4570901,
-    "ast_hash": "6a9f797d41f8725362a504dd7059ec59",
+    "mtime": 1795545675.3776524,
+    "seen": 1795545784.590347,
+    "ast_hash": "34927f1e831408c2d9f120ce06d892d7",
     "semantic_hash": ""
   },
   "App/Composition/WindowLayoutRestoreController.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795545394.1425993,
-    "seen": 1795545595.291109,
-    "ast_hash": "0e5e6581691652dbdae8e3e3b56d89fa",
+    "mtime": 1795545676.353738,
+    "seen": 1795545784.590357,
+    "ast_hash": "c84429df65b33c9d103f054fe910a702",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1074,9 +1074,9 @@
     "semantic_hash": "ef87f6ba361edf485d8bf56ec45054fa"
   },
   "App/Scenes/PermissionsSettingsBlock.swift": {
-    "mtime": 1792531158.67673,
-    "seen": 1795534644.457227,
-    "ast_hash": "c4c87056bcd025f9903af659e16f3b2b",
+    "mtime": 1795545766.7354867,
+    "seen": 1795545784.5905159,
+    "ast_hash": "483483412725006c7d91594dd274f84b",
     "semantic_hash": ""
   },
   "App/Scenes/PhaseSurfaceTint.swift": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WeatherPanelView.swift": {
-    "mtime": 1795545393.0394466,
-    "seen": 1795545595.2912939,
-    "ast_hash": "b6da534b83c04662a46062ad15958170",
+    "mtime": 1795545754.153451,
+    "seen": 1795545784.590577,
+    "ast_hash": "fa50355dc20c4a1ffb4b781359e6ea6e",
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
@@ -2448,10 +2448,10 @@
     "semantic_hash": ""
   },
   "Core/Support/WeatherCache.swift": {
-    "mtime": 1791999130.7671897,
-    "seen": 1795534644.457489,
-    "ast_hash": "df748d4cc3235174ab3e91659b8cfa0b",
-    "semantic_hash": "df748d4cc3235174ab3e91659b8cfa0b"
+    "mtime": 1795545666.9566681,
+    "seen": 1795545784.59084,
+    "ast_hash": "0d87959768c9aba031e97f9f69afd27b",
+    "semantic_hash": ""
   },
   "Core/Support/WeatherDetail.swift": {
     "mtime": 1795446721.0707026,
@@ -2478,9 +2478,9 @@
     "semantic_hash": "5b0b668434d45fe05b26c7beeb0774ac"
   },
   "Core/Support/WeatherState.swift": {
-    "mtime": 1795014026.1057374,
-    "seen": 1795534644.457495,
-    "ast_hash": "24465c959e72842d29de8dbca064b9cd",
+    "mtime": 1795545668.5893776,
+    "seen": 1795545784.590847,
+    "ast_hash": "29fa993666d34dd73affb26c8c52d51c",
     "semantic_hash": ""
   },
   "Core/Support/WeatherWarnings.swift": {
@@ -4260,10 +4260,10 @@
     "semantic_hash": "dd18e16a6508186027565795206c5633"
   },
   "Tests/Unit/WeatherCacheTests.swift": {
-    "mtime": 1791999130.9566305,
-    "seen": 1795534644.457812,
-    "ast_hash": "6808c7bb41d87a42bc75f3b4970561a4",
-    "semantic_hash": "6808c7bb41d87a42bc75f3b4970561a4"
+    "mtime": 1795545678.859559,
+    "seen": 1795545784.591234,
+    "ast_hash": "dca8b40d97075e1cb4e5997cbe9b3f6e",
+    "semantic_hash": ""
   },
   "Tests/Unit/WeatherEffectsTests.swift": {
     "mtime": 1791999130.9522061,
@@ -6528,21 +6528,21 @@
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherModernChip.swift": {
-    "mtime": 1795429879.707067,
-    "seen": 1795534644.457272,
-    "ast_hash": "7b358fa6bc76e4825ae2cc13ed4a175b",
+    "mtime": 1795545763.5045035,
+    "seen": 1795545784.590572,
+    "ast_hash": "feeedef7ce5555ff5b183304b88d716c",
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherModernPanel.swift": {
-    "mtime": 1795446725.148631,
-    "seen": 1795534644.457273,
-    "ast_hash": "ec535c3c9fd444c479b6aeac6609210e",
+    "mtime": 1795545755.5133212,
+    "seen": 1795545784.590573,
+    "ast_hash": "fc6a9aac41efbdf3b7d09c4f3ccc61a1",
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherFullScreenView.swift": {
-    "mtime": 1795446732.8819618,
-    "seen": 1795534644.45727,
-    "ast_hash": "ef72abd30a606f0d534f4d2d53fc57c9",
+    "mtime": 1795545758.9234533,
+    "seen": 1795545784.590569,
+    "ast_hash": "0224b1ffd5ab6f31f14f8d59a34f2306",
     "semantic_hash": ""
   },
   "App/Scenes/Weather/WeatherScenery.swift": {
@@ -7338,9 +7338,9 @@
     "semantic_hash": ""
   },
   "App/Composition/IslandLiveBridge.swift": {
-    "mtime": 1795470679.233563,
-    "seen": 1795534644.457053,
-    "ast_hash": "9f10bfd9e73005a6447ad0c6f1457387",
+    "mtime": 1795545677.5378802,
+    "seen": 1795545784.590302,
+    "ast_hash": "4a1993a776476749456fe2f1b5553320",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandKit.swift": {
