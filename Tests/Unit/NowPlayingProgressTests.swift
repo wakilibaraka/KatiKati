@@ -719,3 +719,123 @@ final class AtmosphericCoreTests: XCTestCase {
         XCTAssertEqual(Set(MusicViewMode.allCases.map(\.symbolName)).count, 3)
     }
 }
+
+// MARK: - §10 desktop music widget policy
+
+final class MusicDesktopWidgetPolicyTests: XCTestCase {
+    private let screen = CGRect(x: 0, y: 0, width: 1728, height: 1080)
+
+    func testCardIsTheDefaultPreset() {
+        XCTAssertEqual(MusicDesktopWidgetPreset.standard, .card)
+        XCTAssertEqual(MusicSurfaceConfig.desktopPreset(defaults: UserDefaults(suiteName: UUID().uuidString)!), .card)
+    }
+
+    func testPosterSitsBelowTheIconsAndEverythingElseAtIconLevel() {
+        XCTAssertEqual(MusicDesktopWidgetPolicy.level(for: .poster), .desktopPicture)
+        for preset in [MusicDesktopWidgetPreset.stage, .card, .strip] {
+            XCTAssertEqual(MusicDesktopWidgetPolicy.level(for: preset), .desktopIcons)
+        }
+        XCTAssertLessThan(MusicDesktopWidgetPolicy.windowLevel(for: .poster),
+                          MusicDesktopWidgetPolicy.windowLevel(for: .card))
+    }
+
+    func testNoPresetEverReachesANormalAppWindowLevel() {
+        for preset in MusicDesktopWidgetPreset.allCases {
+            XCTAssertLessThan(MusicDesktopWidgetPolicy.windowLevel(for: preset),
+                              MusicDesktopWidgetPolicy.normalWindowLevel,
+                              "\(preset.rawValue) must stay below normal app windows")
+        }
+    }
+
+    func testOnlyPosterIsClickThrough() {
+        XCTAssertTrue(MusicDesktopWidgetPolicy.ignoresMouseEvents(for: .poster))
+        for preset in [MusicDesktopWidgetPreset.stage, .card, .strip] {
+            XCTAssertFalse(MusicDesktopWidgetPolicy.ignoresMouseEvents(for: preset))
+        }
+    }
+
+    func testAnimationsPauseWhenHiddenOrOccluded() {
+        XCTAssertFalse(MusicDesktopWidgetPolicy.pausesAnimations(isHidden: false, isOccluded: false))
+        XCTAssertTrue(MusicDesktopWidgetPolicy.pausesAnimations(isHidden: true, isOccluded: false))
+        XCTAssertTrue(MusicDesktopWidgetPolicy.pausesAnimations(isHidden: false, isOccluded: true))
+    }
+
+    func testGeometryKeepsEveryPresetInsideTheVisibleFrameWithInsets() {
+        let insets = MusicDesktopWidgetInsets(top: 12, bottom: 20, leading: 8, trailing: 8)
+        for preset in MusicDesktopWidgetPreset.allCases {
+            let rect = MusicDesktopWidgetGeometry.rect(for: preset, in: screen, insets: insets)
+            XCTAssertTrue(screen.contains(rect), "\(preset.rawValue) escaped the visible frame")
+            XCTAssertGreaterThanOrEqual(rect.minX, screen.minX + insets.leading)
+            XCTAssertGreaterThanOrEqual(rect.minY, screen.minY + insets.bottom)
+            XCTAssertLessThanOrEqual(rect.maxX, screen.maxX - insets.trailing)
+            XCTAssertLessThanOrEqual(rect.maxY, screen.maxY - insets.top)
+        }
+    }
+
+    func testPosterCoversAndStageSplitsTheVisibleFrame() {
+        let poster = MusicDesktopWidgetGeometry.rect(for: .poster, in: screen)
+        XCTAssertEqual(poster, screen)
+        let stage = MusicDesktopWidgetGeometry.rect(for: .stage, in: screen, stageSide: .trailing)
+        XCTAssertEqual(stage.width, screen.width / 2, accuracy: 0.5)
+        XCTAssertEqual(stage.maxX, screen.maxX, accuracy: 0.5)
+    }
+
+    func testCardAndStripUseTheirOwnGeometry() {
+        let card = MusicDesktopWidgetGeometry.rect(for: .card, in: screen)
+        XCTAssertEqual(card.size, MusicDesktopWidgetGeometry.cardSize)
+        XCTAssertEqual(card.maxX, screen.maxX - MusicDesktopWidgetGeometry.edgeMargin, accuracy: 0.5)
+        let strip = MusicDesktopWidgetGeometry.rect(for: .strip, in: screen)
+        XCTAssertEqual(strip.height, MusicDesktopWidgetGeometry.stripHeight, accuracy: 0.5)
+        XCTAssertLessThan(strip.width, screen.width)
+    }
+
+    func testClampShrinksAndMovesOversizedRectsBackInside() {
+        let clamped = MusicDesktopWidgetGeometry.clamp(CGRect(x: -50, y: -50, width: 4000, height: 4000), into: screen)
+        XCTAssertEqual(clamped, screen)
+        let moved = MusicDesktopWidgetGeometry.clamp(CGRect(x: 1700, y: 1000, width: 300, height: 200), into: screen)
+        XCTAssertEqual(moved.maxX, screen.maxX, accuracy: 0.5)
+        XCTAssertEqual(moved.maxY, screen.maxY, accuracy: 0.5)
+    }
+
+    func testSnapPullsToTheNearestEdgeWithinTheThresholdOnly() {
+        let near = CGRect(x: 12, y: screen.height - MusicDesktopWidgetGeometry.cardSize.height - 9,
+                          width: MusicDesktopWidgetGeometry.cardSize.width,
+                          height: MusicDesktopWidgetGeometry.cardSize.height)
+        let snapped = MusicDesktopWidgetGeometry.snap(near, into: screen)
+        XCTAssertEqual(snapped.minX, screen.minX, accuracy: 0.5)
+        XCTAssertEqual(snapped.maxY, screen.maxY, accuracy: 0.5)
+
+        let far = CGRect(x: 600, y: 400, width: 300, height: 200)
+        XCTAssertEqual(MusicDesktopWidgetGeometry.snap(far, into: screen), far)
+    }
+
+    func testNormalizedPlacementRoundTripsPerDisplay() {
+        let rect = MusicDesktopWidgetGeometry.rect(for: .card, in: screen)
+        let normalized = MusicDesktopWidgetGeometry.normalized(rect, in: screen)
+        let restored = MusicDesktopWidgetGeometry.frame(from: normalized, in: screen)
+        XCTAssertEqual(restored.origin.x, rect.origin.x, accuracy: 0.5)
+        XCTAssertEqual(restored.origin.y, rect.origin.y, accuracy: 0.5)
+        XCTAssertEqual(restored.size.width, rect.size.width, accuracy: 0.5)
+        XCTAssertEqual(restored.size.height, rect.size.height, accuracy: 0.5)
+    }
+
+    func testLockCardHeightHasOneSourceOfTruth() {
+        XCTAssertEqual(MusicCardLayout.lockWidth, 340)
+        XCTAssertEqual(MusicCardLayout.full.lockHeight(showsVolumeRow: true), 224)
+        XCTAssertEqual(MusicCardLayout.full.lockHeight(showsVolumeRow: false), 208)
+        XCTAssertEqual(MusicCardLayout.hero.lockHeight(showsVolumeRow: true), 316)
+    }
+
+    func testWallpaperDefaultMigrationHonoursAStoredChoiceExactlyOnce() {
+        let suite = UserDefaults(suiteName: UUID().uuidString)!
+        MusicSurfaceConfig.ensureWallpaperDefaultMigrated(defaults: suite)
+        XCTAssertEqual(suite.object(forKey: MusicSurfaceConfig.wallpaperEnabledKey) as? Bool, false)
+        XCTAssertEqual(suite.object(forKey: MusicSurfaceConfig.wallpaperDefaultMigratedKey) as? Bool, true)
+
+        let chosen = UserDefaults(suiteName: UUID().uuidString)!
+        chosen.set(true, forKey: MusicSurfaceConfig.wallpaperEnabledKey)
+        MusicSurfaceConfig.ensureWallpaperDefaultMigrated(defaults: chosen)
+        XCTAssertEqual(chosen.object(forKey: MusicSurfaceConfig.wallpaperEnabledKey) as? Bool, true)
+        XCTAssertEqual(chosen.object(forKey: MusicSurfaceConfig.wallpaperDefaultMigratedKey) as? Bool, true)
+    }
+}

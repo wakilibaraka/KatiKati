@@ -66,6 +66,11 @@ enum DesktopCanvasConfig {
 enum MusicSurfaceConfig {
     static let enabledKey = "com.katikati.music.widgetEnabled"
     static let wallpaperEnabledKey = "com.katikati.music.wallpaperEnabled"
+    static let desktopEnabledKey = "com.katikati.music.desktopWidgetEnabled"
+    static let desktopPresetKey = "com.katikati.music.desktopPreset"
+    static let desktopFramesKey = "com.katikati.music.desktopFrames"
+    /// Recorded once so a later default flip can never re-enable the wallpaper for someone who chose.
+    static let wallpaperDefaultMigratedKey = "com.katikati.music.wallpaperDefaultMigrated"
     static let wallpaperClassicKey = "com.katikati.music.wallpaperClassic"
     static let wallpaperAnimatedKey = "com.katikati.music.wallpaperAnimated"
     static let glassStyleKey = "com.katikati.music.glassStyle"
@@ -90,6 +95,30 @@ enum MusicSurfaceConfig {
     static func assignment(defaults: UserDefaults = .standard) -> MusicControlAssignment {
         MusicControlAssignment(leftRaw: defaults.string(forKey: leftSlotKey),
                                rightRaw: defaults.string(forKey: rightSlotKey))
+    }
+
+    /// The desktop widget is on for fresh installs; the washed album-art wallpaper is not (§10).
+    static var isDesktopWidgetEnabled: Bool {
+        (UserDefaults.standard.object(forKey: desktopEnabledKey) as? Bool) ?? true
+    }
+
+    static func desktopPreset(defaults: UserDefaults = .standard) -> MusicDesktopWidgetPreset {
+        defaults.string(forKey: desktopPresetKey).flatMap(MusicDesktopWidgetPreset.init(rawValue:))
+            ?? MusicDesktopWidgetPreset.standard
+    }
+
+    static func setDesktopPreset(_ preset: MusicDesktopWidgetPreset, defaults: UserDefaults = .standard) {
+        defaults.set(preset.rawValue, forKey: desktopPresetKey)
+        notifyChange()
+    }
+
+    /// One-time: honour a stored wallpaper choice, otherwise leave the album-art wallpaper off.
+    static func ensureWallpaperDefaultMigrated(defaults: UserDefaults = .standard) {
+        guard defaults.object(forKey: wallpaperDefaultMigratedKey) == nil else { return }
+        if defaults.object(forKey: wallpaperEnabledKey) == nil {
+            defaults.set(false, forKey: wallpaperEnabledKey)
+        }
+        defaults.set(true, forKey: wallpaperDefaultMigratedKey)
     }
 
     static func mode(defaults: UserDefaults = .standard) -> MusicWidgetMode {

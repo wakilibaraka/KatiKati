@@ -111,7 +111,7 @@ struct SettingsWindowContent: View {
             case .general: generalPane
             case .menuBar: menuBarPane
             case .appearance: SettingsAppearancePane(store: store)
-            case .wallpaper: SettingsWallpaperPane(store: store)
+            case .wallpaper: SettingsWallpaperPane(store: store, tabState: tabState)
             case .dockItems:
                 SettingsLayoutPane(store: store, mode: .widgets)
                     .background(SettingsPageHeightProbe(tab: .dockItems))
@@ -128,6 +128,7 @@ struct SettingsWindowContent: View {
             case .desktop:
                 DesktopSettingsBlock(store: store)
             case .weather: weatherPane
+            case .music: SettingsMusicPane(store: store, tabState: tabState)
             case .notch: notchPane
             case .notifications: SettingsNotificationsPane(store: store)
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)

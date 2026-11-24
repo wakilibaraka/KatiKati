@@ -1380,3 +1380,82 @@ private struct MusicLyricsTranslationHost<Content: View>: View {
             }
     }
 }
+
+// MARK: - §10 Desktop music widget presets
+
+/// The four desktop presets, all drawn by the existing `MusicGlassCardView`. Nothing here renders a new
+/// card: poster and stage add an art-derived wash behind it, card and strip are the card alone.
+struct MusicDesktopPresetView: View {
+    var preset: MusicDesktopWidgetPreset
+    @ObservedObject var service: NowPlayingService
+    @State private var selection = MusicSurfaceConfig.styleSelection()
+    @State private var palette: MusicArtworkPalette = MusicArtworkPaletteCache.shared.palette(for: nil)
+
+    init(preset: MusicDesktopWidgetPreset, service: NowPlayingService = DesktopWidgetServices.nowPlaying) {
+        self.preset = preset
+        self.service = service
+    }
+
+    private var layout: MusicCardLayout {
+        switch preset {
+        case .poster: return .hero
+        case .strip: return .slim
+        case .stage, .card: return .full
+        }
+    }
+
+    private var accent: Color {
+        Color(red: palette.accent.r, green: palette.accent.g, blue: palette.accent.b)
+    }
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            if preset == .poster || preset == .stage {
+                backdrop
+            }
+            card
+                .frame(width: preset == .poster ? 360 : nil)
+                .frame(maxWidth: preset == .strip ? .infinity : nil,
+                       maxHeight: preset == .poster ? 316 : .infinity)
+                .padding(preset == .poster ? 36 : (preset == .stage ? 16 : 0))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .onReceive(NotificationCenter.default.publisher(for: MusicSurfaceConfig.didChangeNotification)) { _ in
+            selection = MusicSurfaceConfig.styleSelection()
+        }
+        .onReceive(service.$state.map { MusicArtworkSignature.of($0.artworkData) }.removeDuplicates()) { _ in
+            palette = MusicArtworkPaletteCache.shared.palette(for: service.state.artworkData)
+        }
+    }
+
+    private var card: some View {
+        MusicGlassCardView(
+            service: service,
+            theme: selection.theme(for: .desktop),
+            layout: layout,
+            scrubber: selection.scrubber(for: .desktop),
+            palette: palette,
+            assignment: MusicSurfaceConfig.assignment(),
+            showsChrome: true,
+            onPlayLocalFile: { MusicLocalFilePicker.present() }
+        )
+    }
+
+    /// Art-derived wash for the two large presets: same palette the wallpaper used, never a picture write.
+    @ViewBuilder private var backdrop: some View {
+        ZStack {
+            LinearGradient(colors: [accent.opacity(0.9), Color.black.opacity(0.95)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            if let data = service.state.artworkData, let image = NSImage(data: data) {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: preset == .poster ? 60 : 36)
+                    .opacity(0.5)
+            }
+            LinearGradient(colors: [.clear, .black.opacity(0.55)], startPoint: .top, endPoint: .bottom)
+        }
+        .clipped()
+        .allowsHitTesting(false)
+    }
+}

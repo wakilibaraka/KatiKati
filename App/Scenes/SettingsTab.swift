@@ -16,6 +16,7 @@ enum SettingsTab: String, CaseIterable {
     case widgets
     case desktop
     case weather
+    case music
     case notch
     case notifications
     case edgeBars
@@ -52,6 +53,7 @@ enum SettingsTab: String, CaseIterable {
         case "widgets": self = .widgets
         case "desktop": self = .desktop
         case "weather": self = .weather
+        case "music": self = .music
         case "notch": self = .notch
         case "notifications": self = .notifications
         case "edgeBars": self = .edgeBars
@@ -91,6 +93,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return String(localized: "Widget Wings")
         case .desktop: return String(localized: "Desktop")
         case .weather: return String(localized: "Weather")
+        case .music: return String(localized: "Music")
         case .notch: return String(localized: "Notch")
         case .notifications: return String(localized: "Notifications")
         case .edgeBars: return String(localized: "Edge Bars")
@@ -130,6 +133,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return String(localized: "Left and right flanking wings, Battery & Peripherals, and floating stack.")
         case .desktop: return String(localized: "Folder boxes, to-dos, notes, and glanceable widgets on your desktop.")
         case .weather: return String(localized: "Weather units, layout, and warnings.")
+        case .music: return String(localized: "The desktop music widget, its preset, the lock card, and album art.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
         case .notifications: return String(localized: "Battery, charging, peripherals, and banner placement.")
         case .edgeBars: return String(localized: "Side bars: preset, placement, widgets, and size.")
@@ -167,6 +171,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return "square.grid.2x2"
         case .desktop: return "macwindow.on.rectangle"
         case .weather: return "cloud.sun"
+        case .music: return "music.note"
         case .notch: return "capsule.tophalf.filled"
         case .notifications: return "bell"
         case .edgeBars: return "sidebar.right"
@@ -205,6 +210,7 @@ enum SettingsTab: String, CaseIterable {
         case .widgets: return (0.58, 0.40, 0.93)
         case .desktop: return (0.20, 0.60, 0.86)
         case .weather: return (0.30, 0.72, 0.78)
+        case .music: return (0.86, 0.30, 0.56)
         case .notch: return (0.30, 0.30, 0.34)
         case .notifications: return (0.96, 0.46, 0.24)
         case .edgeBars: return (0.10, 0.70, 0.66)

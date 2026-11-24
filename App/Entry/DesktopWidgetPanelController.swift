@@ -773,7 +773,11 @@ final class LockScreenMusicCardController {
             showsChrome: false,
             showsVolumeRow: MusicSurfaceConfig.isLockVolumeEnabled
         )
-        let size = CGSize(width: 340, height: cardLayout == .hero ? 316 : (MusicSurfaceConfig.isLockVolumeEnabled ? 224 : 208))
+        let size = CGSize(
+            width: MusicCardLayout.lockWidth,
+            height: cardLayout.lockHeight(showsVolumeRow: MusicSurfaceConfig.isLockVolumeEnabled)
+        )
+        print("[lock-card] size=\(Int(size.width))x\(Int(size.height)) volume=\(MusicSurfaceConfig.isLockVolumeEnabled) layout=\(cardLayout.rawValue)")
         let frame = CGRect(
             x: screen.frame.midX - size.width / 2,
             y: screen.frame.minY + max(140, screen.frame.height * 0.16),
@@ -816,4 +820,166 @@ final class LockScreenMusicCardController {
 private final class LockScreenMusicCardPanel: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
+}
+
+// MARK: - §10 desktop music widget controller
+
+/// One remembered music panel per display. The panel is created at the level the preset policy allows —
+/// poster below the Finder icons (and click-through), everything else above the icons — and never above a
+/// normal app window. `.fullScreenNone` keeps it out of full-screen spaces, and its animations stop whenever
+/// the window is hidden or covered.
+@MainActor
+final class MusicDesktopWidgetController {
+    static let shared = MusicDesktopWidgetController()
+
+    private final class MusicSurfacePanel: NSPanel {
+        var hostedPreset: MusicDesktopWidgetPreset?
+        var displayID: String = ""
+        override var canBecomeKey: Bool { false }
+        override var canBecomeMain: Bool { false }
+    }
+
+    private var panels: [String: MusicSurfacePanel] = [:]
+    private var observers: [NSObjectProtocol] = []
+    private var frames: [String: NormalizedWidgetRect] = [:]
+    private var isRunning = false
+
+    private init() {}
+
+    /// Idempotent: the app calls this once at launch; Settings calls `reload()` after a change.
+    func start() {
+        guard !isRunning else { reload(); return }
+        isRunning = true
+        frames = Self.loadFrames()
+        print("[musicdesk] start enabled=\(MusicSurfaceConfig.isDesktopWidgetEnabled) preset=\(MusicSurfaceConfig.desktopPreset().rawValue) screens=\(NSScreen.screens.count)")
+        reload()
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(forName: MusicSurfaceConfig.didChangeNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { MusicDesktopWidgetController.shared.reload() }
+        })
+        observers.append(center.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { MusicDesktopWidgetController.shared.reload() }
+        })
+    }
+
+    func stop() {
+        isRunning = false
+        panels.values.forEach { $0.orderOut(nil) }
+        panels.removeAll()
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+        observers = []
+    }
+
+    /// Rebuilds the panels for the current preset, display set and enabled state.
+    func reload() {
+        guard isRunning else { return }
+        let enabled = MusicSurfaceConfig.isDesktopWidgetEnabled
+        let preset = MusicSurfaceConfig.desktopPreset()
+        guard enabled else {
+            panels.values.forEach { panel in
+                Self.setAnimations(paused: true, on: panel)
+                panel.orderOut(nil)
+            }
+            return
+        }
+        var seen = Set<String>()
+        for screen in NSScreen.screens {
+            let id = Self.displayID(for: screen)
+            seen.insert(id)
+            let panel = panels[id] ?? makePanel(displayID: id)
+            panels[id] = panel
+            configure(panel, preset: preset)
+            let bounds = screen.visibleFrame
+            let rect = frames[id].map { MusicDesktopWidgetGeometry.frame(from: $0, in: bounds) }
+                ?? MusicDesktopWidgetGeometry.rect(for: preset, in: bounds)
+            panel.setFrame(MusicDesktopWidgetGeometry.clamp(rect, into: bounds), display: true)
+            panel.orderFrontRegardless()
+            print("[musicdesk] panel preset=\(preset.rawValue) level=\(panel.level.rawValue) normal=\(MusicDesktopWidgetPolicy.normalWindowLevel) clickThrough=\(panel.ignoresMouseEvents) frame=\(Int(panel.frame.minX)),\(Int(panel.frame.minY)) \(Int(panel.frame.width))x\(Int(panel.frame.height)) visible=\(panel.isVisible)")
+            Self.setAnimations(paused: MusicDesktopWidgetPolicy.pausesAnimations(isHidden: false,
+                                                                                 isOccluded: !panel.occlusionState.contains(.visible)),
+                               on: panel)
+        }
+        for (id, panel) in panels where !seen.contains(id) {
+            panel.orderOut(nil)
+            panels[id] = nil
+        }
+    }
+
+    private func makePanel(displayID: String) -> MusicSurfacePanel {
+        let panel = MusicSurfacePanel(contentRect: CGRect(x: 0, y: 0, width: 320, height: 240),
+                                      styleMask: [.borderless, .nonactivatingPanel],
+                                      backing: .buffered,
+                                      defer: false)
+        panel.displayID = displayID
+        panel.isFloatingPanel = false
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+        panel.hidesOnDeactivate = false
+        panel.isReleasedWhenClosed = false
+        panel.becomesKeyOnlyIfNeeded = true
+        panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenNone]
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(forName: NSWindow.didMoveNotification, object: panel, queue: .main) { _ in
+            MainActor.assumeIsolated { MusicDesktopWidgetController.shared.persist(panel) }
+        })
+        observers.append(center.addObserver(forName: NSWindow.didEndLiveResizeNotification, object: panel, queue: .main) { _ in
+            MainActor.assumeIsolated { MusicDesktopWidgetController.shared.persist(panel) }
+        })
+        observers.append(center.addObserver(forName: NSWindow.didChangeOcclusionStateNotification, object: panel, queue: .main) { _ in
+            MainActor.assumeIsolated {
+                MusicDesktopWidgetController.setAnimations(paused: !panel.occlusionState.contains(.visible), on: panel)
+            }
+        })
+        return panel
+    }
+
+    private func configure(_ panel: MusicSurfacePanel, preset: MusicDesktopWidgetPreset) {
+        let level = MusicDesktopWidgetPolicy.windowLevel(for: preset)
+        // Invariant: a music panel never reaches a normal app window's level.
+        assert(level < MusicDesktopWidgetPolicy.normalWindowLevel, "music panel above app windows")
+        panel.level = NSWindow.Level(rawValue: level)
+        panel.ignoresMouseEvents = MusicDesktopWidgetPolicy.ignoresMouseEvents(for: preset)
+        panel.isMovable = preset != .poster
+        panel.isMovableByWindowBackground = preset != .poster
+        if panel.hostedPreset != preset {
+            let host = NSHostingView(rootView: MusicDesktopPresetView(preset: preset))
+            host.wantsLayer = true
+            panel.contentView = host
+            panel.hostedPreset = preset
+        }
+    }
+
+    private func persist(_ panel: MusicSurfacePanel) {
+        guard let screen = NSScreen.screens.first(where: { Self.displayID(for: $0) == panel.displayID }) else { return }
+        let bounds = screen.visibleFrame
+        let rect = MusicDesktopWidgetGeometry.snap(panel.frame, into: bounds)
+        if rect != panel.frame { panel.setFrame(rect, display: true) }
+        frames[panel.displayID] = MusicDesktopWidgetGeometry.normalized(rect, in: bounds)
+        Self.saveFrames(frames)
+    }
+
+    private static func setAnimations(paused: Bool, on panel: NSPanel) {
+        panel.contentView?.layer?.speed = paused ? 0 : 1
+    }
+
+    private static func displayID(for screen: NSScreen) -> String {
+        let number = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+        if number != 0, let unmanaged = CGDisplayCreateUUIDFromDisplayID(number) {
+            let uuid = unmanaged.takeRetainedValue()
+            if let text = CFUUIDCreateString(nil, uuid) { return text as String }
+        }
+        return screen.localizedName
+    }
+
+    private static func loadFrames() -> [String: NormalizedWidgetRect] {
+        guard let data = UserDefaults.standard.data(forKey: MusicSurfaceConfig.desktopFramesKey),
+              let decoded = try? JSONDecoder().decode([String: NormalizedWidgetRect].self, from: data) else { return [:] }
+        return decoded
+    }
+
+    private static func saveFrames(_ frames: [String: NormalizedWidgetRect]) {
+        guard let data = try? JSONEncoder().encode(frames) else { return }
+        UserDefaults.standard.set(data, forKey: MusicSurfaceConfig.desktopFramesKey)
+    }
 }

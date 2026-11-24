@@ -370,6 +370,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 MissionControlSession.shared.applyEnabled(MissionControlSettings.isEnabled())
             }
         }
+        MusicSurfaceConfig.ensureWallpaperDefaultMigrated()
+        MusicDesktopWidgetController.shared.start()
         _ = DesktopPerformanceStore.shared
         WebDAVBackupService.shared.startScheduler()
 

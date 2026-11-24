@@ -9,10 +9,10 @@ import XCTest
 // `SettingsMetricsTests`).
 
 final class SettingsTabTests: XCTestCase {
-    func testTheSidebarIsThirtyTwoTabsWithOneIdentityEach() {
-        // 2026-11-23 (DO-9): Drawer retired into Launcher; Dock Layout, App Icons & Hover, Bar Widgets & Widget Wings added.
-        XCTAssertEqual(SettingsTab.allCases.count, 32, "thirty-two sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 32,
+    func testTheSidebarIsThirtyThreeTabsWithOneIdentityEach() {
+        // 2026-11-24 (§10): Music became its own page next to Weather; the desktop music widget lives there.
+        XCTAssertEqual(SettingsTab.allCases.count, 33, "thirty-three sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 33,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -30,6 +30,10 @@ final class SettingsTabTests: XCTestCase {
                        .missionControl, "Mission Control sits beside the window pages")
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
         XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
+        // §10: Music sits right after Weather in the Surfaces group.
+        XCTAssertEqual(SettingsTab(rawValue: "music"), .music)
+        XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .weather)! + 1], .music,
+                       "Music sits after Weather")
         // DW-4: Wallpaper became a page of its own next to Appearance.
         XCTAssertEqual(SettingsTab(rawValue: "wallpaper"), .wallpaper)
         XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .appearance)! + 1], .wallpaper)

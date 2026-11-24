@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 
 // Phase 8b-6 — pure playback-progress maths for the Live Island's music surfaces.
@@ -1165,5 +1166,198 @@ enum MusicRomanizer {
         CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
         let latin = String(mutable)
         return latin == text ? nil : latin
+    }
+}
+
+// MARK: - §10 Desktop music widget (pure policy)
+
+/// §10 — the desktop music widget's four presets. `card` stays the default so an existing desktop widget
+/// keeps its size; `poster`, `stage` and `strip` are additive.
+enum MusicDesktopWidgetPreset: String, CaseIterable, Codable, Sendable, Identifiable {
+    /// Full-screen art poster: below the Finder icons and click-through, so it behaves like a picture.
+    case poster
+    /// Half-screen stage panel: above the icons, below every app window.
+    case stage
+    /// The existing desktop card, unchanged in behaviour.
+    case card
+    /// A thin strip with title, scrubber and transport.
+    case strip
+
+    var id: String { rawValue }
+
+    static let standard: MusicDesktopWidgetPreset = .card
+}
+
+extension MusicCardLayout {
+    /// Single source of truth for the lock card (was 340 x 316/224/208 hard-coded in the overlay).
+    static let lockWidth: CGFloat = 340
+
+    func lockHeight(showsVolumeRow: Bool) -> CGFloat {
+        self == .hero ? 316 : (showsVolumeRow ? 224 : 208)
+    }
+
+    var lockSize: CGSize { CGSize(width: Self.lockWidth, height: lockHeight(showsVolumeRow: true)) }
+}
+
+/// Which window level a preset may occupy. There are only two, and neither is above a normal window.
+enum MusicDesktopWidgetLevel: String, Sendable, CaseIterable {
+    /// `CGWindowLevelForKey(.desktopWindow) + 1` — below the desktop icons, above the desktop picture.
+    case desktopPicture
+    /// `CGWindowLevelForKey(.desktopIconWindow) + 1` — above the icons, below every app window.
+    case desktopIcons
+}
+
+enum MusicDesktopWidgetPolicy {
+    /// Poster sits behind the icons; everything else may sit above them but never above app windows.
+    static func level(for preset: MusicDesktopWidgetPreset) -> MusicDesktopWidgetLevel {
+        preset == .poster ? .desktopPicture : .desktopIcons
+    }
+
+    /// Numeric window level for a preset. Asserted in tests to stay below `normalWindowLevel`.
+    static func windowLevel(for preset: MusicDesktopWidgetPreset) -> Int {
+        switch level(for: preset) {
+        case .desktopPicture: return Int(CGWindowLevelForKey(.desktopWindow)) + 1
+        case .desktopIcons: return Int(CGWindowLevelForKey(.desktopIconWindow)) + 1
+        }
+    }
+
+    /// The level of a normal app window: nothing here may reach or exceed it.
+    static var normalWindowLevel: Int { Int(CGWindowLevelForKey(.normalWindow)) }
+
+    /// Poster is a picture: it must never intercept a click, so icons, right-click and drag-select keep working.
+    static func ignoresMouseEvents(for preset: MusicDesktopWidgetPreset) -> Bool {
+        preset == .poster
+    }
+
+    /// Animations only run when the panel is visible, on screen and not covered by a window.
+    static func pausesAnimations(isHidden: Bool, isOccluded: Bool) -> Bool {
+        isHidden || isOccluded
+    }
+}
+
+/// Menu-bar / Dock style insets for the surface the widget is placed in.
+struct MusicDesktopWidgetInsets: Equatable, Sendable {
+    var top: CGFloat = 0
+    var bottom: CGFloat = 0
+    var leading: CGFloat = 0
+    var trailing: CGFloat = 0
+
+    static let zero = MusicDesktopWidgetInsets()
+}
+
+enum MusicDesktopWidgetStageSide: String, Sendable, CaseIterable {
+    case leading, trailing, top, bottom
+}
+
+/// Pure geometry: every rect the widget can take, clamped to the visible frame and snapped to its edges.
+enum MusicDesktopWidgetGeometry {
+    static let cardSize = CGSize(width: 300, height: 224)
+    static let stripHeight: CGFloat = 44
+    static let edgeMargin: CGFloat = 24
+    static let snapThreshold: CGFloat = 32
+
+    /// The rect a preset asks for inside `visibleFrame` (which already excludes the menu bar and the Dock;
+    /// `insets` adds a user margin on top of that).
+    static func rect(
+        for preset: MusicDesktopWidgetPreset,
+        in visibleFrame: CGRect,
+        insets: MusicDesktopWidgetInsets = .zero,
+        stageSide: MusicDesktopWidgetStageSide = .trailing
+    ) -> CGRect {
+        let bounds = clamp(CGRect(
+            x: visibleFrame.minX + insets.leading,
+            y: visibleFrame.minY + insets.bottom,
+            width: max(0, visibleFrame.width - insets.leading - insets.trailing),
+            height: max(0, visibleFrame.height - insets.top - insets.bottom)
+        ), into: visibleFrame)
+        return clamp(rawRect(for: preset, in: bounds, stageSide: stageSide), into: bounds)
+    }
+
+    private static func rawRect(
+        for preset: MusicDesktopWidgetPreset,
+        in bounds: CGRect,
+        stageSide: MusicDesktopWidgetStageSide
+    ) -> CGRect {
+        switch preset {
+        case .poster:
+            return bounds
+        case .stage:
+            switch stageSide {
+            case .leading:
+                return CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width / 2, height: bounds.height)
+            case .trailing:
+                return CGRect(x: bounds.midX, y: bounds.minY, width: bounds.width / 2, height: bounds.height)
+            case .top:
+                return CGRect(x: bounds.minX, y: bounds.midY, width: bounds.width, height: bounds.height / 2)
+            case .bottom:
+                return CGRect(x: bounds.minX, y: bounds.minY, width: bounds.width, height: bounds.height / 2)
+            }
+        case .card:
+            return CGRect(
+                x: bounds.maxX - cardSize.width - edgeMargin,
+                y: bounds.minY + edgeMargin,
+                width: cardSize.width,
+                height: cardSize.height
+            )
+        case .strip:
+            return CGRect(
+                x: bounds.minX + edgeMargin,
+                y: bounds.minY + edgeMargin,
+                width: max(0, bounds.width - edgeMargin * 2),
+                height: stripHeight
+            )
+        }
+    }
+
+    /// Keeps a dragged/resized rect inside the surface: shrinks it when it is larger than the surface.
+    static func clamp(_ rect: CGRect, into bounds: CGRect) -> CGRect {
+        guard bounds.width > 0, bounds.height > 0 else { return .zero }
+        let width = min(max(0, rect.width), bounds.width)
+        let height = min(max(0, rect.height), bounds.height)
+        let x = min(max(rect.minX, bounds.minX), bounds.maxX - width)
+        let y = min(max(rect.minY, bounds.minY), bounds.maxY - height)
+        return CGRect(x: x, y: y, width: width, height: height)
+    }
+
+    /// Snaps to the nearest edge on each axis when it is within `threshold`; otherwise leaves that axis alone.
+    static func snap(
+        _ rect: CGRect,
+        into bounds: CGRect,
+        threshold: CGFloat = snapThreshold
+    ) -> CGRect {
+        var result = clamp(rect, into: bounds)
+        if abs(result.minX - bounds.minX) <= threshold {
+            result.origin.x = bounds.minX
+        } else if abs(bounds.maxX - result.maxX) <= threshold {
+            result.origin.x = bounds.maxX - result.width
+        }
+        if abs(result.minY - bounds.minY) <= threshold {
+            result.origin.y = bounds.minY
+        } else if abs(bounds.maxY - result.maxY) <= threshold {
+            result.origin.y = bounds.maxY - result.height
+        }
+        return result
+    }
+
+    /// Placement is remembered per display in the same normalized form `DesktopWidgetItem` already uses.
+    static func normalized(_ rect: CGRect, in bounds: CGRect) -> NormalizedWidgetRect {
+        guard bounds.width > 0, bounds.height > 0 else {
+            return NormalizedWidgetRect(x: 0, y: 0, width: 0, height: 0)
+        }
+        return NormalizedWidgetRect(
+            x: rect.minX / bounds.width,
+            y: rect.minY / bounds.height,
+            width: rect.width / bounds.width,
+            height: rect.height / bounds.height
+        )
+    }
+
+    static func frame(from normalized: NormalizedWidgetRect, in bounds: CGRect) -> CGRect {
+        clamp(CGRect(
+            x: bounds.minX + normalized.x * bounds.width,
+            y: bounds.minY + normalized.y * bounds.height,
+            width: normalized.width * bounds.width,
+            height: normalized.height * bounds.height
+        ), into: bounds)
     }
 }

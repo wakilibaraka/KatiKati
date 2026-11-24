@@ -221,6 +221,8 @@ private struct ThemeName: View {
 // same values the engine paints with, so the preview cannot drift from the desktop.
 struct SettingsWallpaperPane: View {
     @ObservedObject var store: AppSettingsStore
+    /// §10: the page lives in Settings → Music; this pane only points at it.
+    var tabState: SettingsTabState? = nil
     @Environment(\.colorScheme) private var colorScheme
     // ML-5: music surfaces. The values live in `MusicSurfaceConfig`, shared with the card and the engine.
     @AppStorage(MusicSurfaceConfig.wallpaperEnabledKey) private var musicWallpaper = false
@@ -450,6 +452,15 @@ struct SettingsWallpaperPane: View {
             Text("Music"),
             note: Text("Album art on the desktop, the glass card on the lock screen, and the desktop Now Playing widget.")
         ) {
+            HStack(spacing: 8) {
+                Text("The desktop music widget, its presets and the lock-screen card now live on their own page.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+                Button("Open Music") { tabState?.selected = .music }
+                    .buttonStyle(SettingsGelButtonStyle())
+            }
+            SettingsDivider()
             SettingsToggleRow(Text("Album Art Wallpaper"), isOn: Binding(get: { musicWallpaper }, set: { on in
                 musicWallpaper = on
                 if on {
@@ -944,6 +955,13 @@ struct SettingsLockScreenMusicCard: View {
                 .frame(width: 130)
             }
             SettingsDivider()
+            SettingsRow(Text("Card Size")) {
+                Text(verbatim: "\(Int(MusicCardLayout.lockWidth)) × \(Int(layout.lockHeight(showsVolumeRow: lockVolume))) pt")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("lockCardSize")
+            }
+            SettingsDivider()
             preview
         }
     }
@@ -974,6 +992,194 @@ struct SettingsLockScreenMusicCard: View {
             .frame(maxWidth: .infinity)
             .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
+}
+
+// MARK: - §10 Music page
+
+/// Settings → Music (Surfaces, right after Weather): the desktop widget is the primary surface, so it gets
+/// its own page with the preset picker and a live thumbnail. The album-art wallpaper stays available but is
+/// opt-in and points back to the Wallpaper page for its own controls.
+struct SettingsMusicPane: View {
+    @ObservedObject var store: AppSettingsStore
+    @ObservedObject var tabState: SettingsTabState
+
+    @AppStorage(MusicSurfaceConfig.desktopEnabledKey) private var desktopEnabled = true
+    @AppStorage(MusicSurfaceConfig.desktopPresetKey) private var presetRaw = MusicDesktopWidgetPreset.standard.rawValue
+    @AppStorage(MusicSurfaceConfig.enabledKey) private var widgetEnabled = true
+    @AppStorage(MusicSurfaceConfig.wallpaperEnabledKey) private var wallpaperEnabled = false
+    @AppStorage(MusicSurfaceConfig.lockScreenCardKey) private var lockScreenCard = false
+
+    private var preset: MusicDesktopWidgetPreset {
+        MusicDesktopWidgetPreset(rawValue: presetRaw) ?? .standard
+    }
+
+    private static func title(_ preset: MusicDesktopWidgetPreset) -> String {
+        switch preset {
+        case .poster: return String(localized: "Poster")
+        case .stage: return String(localized: "Stage")
+        case .card: return String(localized: "Card")
+        case .strip: return String(localized: "Strip")
+        }
+    }
+
+    private static func detail(_ preset: MusicDesktopWidgetPreset) -> String {
+        switch preset {
+        case .poster:
+            return String(localized: "Full-screen art behind your icons. Click-through, so icons, right-click and drag-select all keep working.")
+        case .stage:
+            return String(localized: "Half the screen: art, title, scrubber and transport. Above the icons, below every app window.")
+        case .card:
+            return String(localized: "The compact card in the corner. Above the icons, below every app window.")
+        case .strip:
+            return String(localized: "A thin bar with title, scrubber and transport, docked to the bottom edge.")
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SettingsCard(
+                Text("Desktop Music Widget"),
+                note: Text("A music surface at the desktop layer. It never covers an app window and it never changes your wallpaper.")
+            ) {
+                SettingsToggleRow(Text("Show on Desktop"), isOn: Binding(
+                    get: { desktopEnabled },
+                    set: { on in
+                        desktopEnabled = on
+                        MusicDesktopWidgetController.shared.reload()
+                    }
+                ), note: Text("One panel per display, remembered where you leave it."))
+                SettingsDivider()
+                SettingsSegmentedRow(Text("Preset"), selection: Binding(
+                    get: { preset },
+                    set: { MusicSurfaceConfig.setDesktopPreset($0) }
+                )) {
+                    ForEach(MusicDesktopWidgetPreset.allCases) { value in
+                        Text(Self.title(value)).tag(value)
+                    }
+                }
+                SettingsDivider()
+                thumbnail
+                SettingsDivider()
+                SettingsRow(Text("Behaviour")) {
+                    Text(Self.detail(preset))
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.trailing)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            SettingsCard(
+                Text("Music Card"),
+                note: Text("The same glass card on every surface: themes, layout and lyrics live on Widget Wings.")
+            ) {
+                SettingsToggleRow(Text("Desktop Now Playing Widget"), isOn: $widgetEnabled,
+                                  note: Text("The card inside the desktop boxes, unchanged."))
+                SettingsDivider()
+                SettingsToggleRow(Text("Lock Screen Card"), isOn: Binding(
+                    get: { lockScreenCard },
+                    set: { on in
+                        lockScreenCard = on
+                        if on { LockScreenMusicCardController.shared.start() } else { LockScreenMusicCardController.shared.stop() }
+                    }
+                ), note: Text("340 × 224 with the volume row, 208 without, 316 for the hero layout."))
+                SettingsDivider()
+                SettingsRow(Text("Styles, Layout & Lyrics")) {
+                    Button("Open Widget Wings") { tabState.selected = .widgets }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
+            }
+
+            SettingsCard(
+                Text("Album Art Wallpaper"),
+                note: Text("Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash.")
+            ) {
+                SettingsToggleRow(Text("Album Art Wallpaper"), isOn: Binding(
+                    get: { wallpaperEnabled },
+                    set: { on in
+                        wallpaperEnabled = on
+                        if on {
+                            MusicWallpaperController.shared.start(service: DesktopWidgetServices.nowPlaying)
+                        } else {
+                            MusicWallpaperController.shared.stop()
+                        }
+                        MusicSurfaceConfig.notifyChange()
+                    }
+                ))
+                SettingsDivider()
+                SettingsRow(Text("Backdrop, animation & theme")) {
+                    Button("Open Wallpaper") { tabState.selected = .wallpaper }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
+            }
+        }
+        .onChange(of: presetRaw) { _, _ in MusicDesktopWidgetController.shared.reload() }
+        .onChange(of: desktopEnabled) { _, _ in MusicDesktopWidgetController.shared.reload() }
+    }
+
+    /// Live preview on a mock desktop with icons, so "does not obstruct" is visible, not just claimed.
+    private var thumbnail: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Preview")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+            ZStack(alignment: presetAlignment) {
+                LinearGradient(colors: [Color(red: 0.16, green: 0.19, blue: 0.28),
+                                        Color(red: 0.05, green: 0.06, blue: 0.10)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
+                icons
+                MusicDesktopPresetView(preset: preset)
+                    .frame(width: previewWidth, height: previewHeight, alignment: presetAlignment)
+                    .clipShape(RoundedRectangle(cornerRadius: preset == .poster ? 0 : 8, style: .continuous))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 210)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .accessibilityIdentifier("musicPresetPreview")
+        }
+    }
+
+    private var icons: some View {
+        VStack {
+            HStack(spacing: 10) {
+                ForEach(0..<8, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(Color.white.opacity(0.32))
+                        .frame(width: 16, height: 16)
+                }
+                Spacer(minLength: 0)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .allowsHitTesting(false)
+    }
+
+    private var presetAlignment: Alignment {
+        switch preset {
+        case .poster, .stage: return .center
+        case .card: return .bottomTrailing
+        case .strip: return .bottom
+        }
+    }
+
+    private var previewWidth: CGFloat? {
+        switch preset {
+        case .poster: return nil
+        case .stage: return 150
+        case .card: return 150
+        case .strip: return nil
+        }
+    }
+
+    private var previewHeight: CGFloat? {
+        switch preset {
+        case .poster: return nil
+        case .stage: return nil
+        case .card: return 104
+        case .strip: return 34
         }
     }
 }

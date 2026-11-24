@@ -19,6 +19,7 @@ extension SettingsTab {
         case .widgets: return "wings battery peripherals telemetry ram network disk floating stack"
         case .desktop: return "desktop boxes folder todo to-do quick capture glance weather vinyl music capsule dock edge quick reveal panorama displays display identify default edid topology pin layout how to"
         case .weather: return "units temperature wind forecast warnings hero animations"
+        case .music: return "music now playing album art widget poster stage card strip desktop lock screen lyrics volume wallpaper"
         case .notch: return "island skin style open panel"
         case .notifications: return "battery charging low power peripheral bluetooth history banners"
         case .edgeBars: return "dock side bar auto hide edge"
@@ -103,7 +104,7 @@ struct SettingsSidebar: View {
 
     private static let sections: [SidebarSection] = [
         .system([.general, .menuBar, .appearance, .wallpaper, .dockItems, .appIcons]),
-        .surfaces([.barWidgets, .widgets, .shelf, .desktop, .weather, .notch, .notifications, .edgeBars]),
+        .surfaces([.barWidgets, .widgets, .shelf, .desktop, .weather, .music, .notch, .notifications, .edgeBars]),
         .workspace([.tiling, .windowManagement, .missionControl, .launcher, .commandBar, .controlCenter]),
         .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
         .productivity([.aiTracking, .downloads, .clipboard, .tools]),
