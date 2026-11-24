@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "App/Composition/LiveEventPresentation.swift": {
-    "mtime": 1795470679.2346852,
-    "seen": 1795470702.06654,
-    "ast_hash": "e067d7585b539f9a7fd434b21cfc4474",
+    "mtime": 1795513664.483123,
+    "seen": 1795514047.237303,
+    "ast_hash": "808c648b0b02b2e46eb9517cf452d15d",
     "semantic_hash": ""
   },
   "App/Composition/MemoryOverlayController.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795479394.431078,
-    "seen": 1795479526.337302,
-    "ast_hash": "148f3815fd21cc9cf1cfac930809fb69",
+    "mtime": 1795513668.864272,
+    "seen": 1795514047.237348,
+    "ast_hash": "ee512ee49421c7b03d8877941f0cf82c",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": "cce3b50509e62e793a875bc5b2166d6c"
   },
   "App/Scenes/UtilitySettingsBlock.swift": {
-    "mtime": 1795443274.0265434,
-    "seen": 1795443762.3138719,
-    "ast_hash": "25bfbe22a08e37f6f302f73eabe9457e",
+    "mtime": 1795513670.9969742,
+    "seen": 1795514047.237578,
+    "ast_hash": "1038a62238fcd3b4ea21f10c4b288aea",
     "semantic_hash": ""
   },
   "App/Scenes/WeatherChip.swift": {
@@ -1620,9 +1620,9 @@
     "semantic_hash": ""
   },
   "Core/Support/ClipboardPlus.swift": {
-    "mtime": 1795444433.4270997,
-    "seen": 1795444544.53114,
-    "ast_hash": "335524b7417b22af80ede890322b6662",
+    "mtime": 1795513652.479107,
+    "seen": 1795514047.2376478,
+    "ast_hash": "829ab9834fdc2484e8180300e73b1892",
     "semantic_hash": ""
   },
   "Core/Support/ClockChipContent.swift": {
@@ -1998,15 +1998,15 @@
     "semantic_hash": "43e3d8be59ee83af83b9feac82efad43"
   },
   "Core/Support/LiveEventDetector.swift": {
-    "mtime": 1795470679.244215,
-    "seen": 1795470702.066902,
-    "ast_hash": "8f92e68083a263394b5303ef392fa2cd",
+    "mtime": 1795513654.1242502,
+    "seen": 1795514047.23775,
+    "ast_hash": "1ea6696545b45b909a03cb1570910a6f",
     "semantic_hash": ""
   },
   "Core/Support/LiveSurfaceRouting.swift": {
-    "mtime": 1795470679.2444224,
-    "seen": 1795470702.066903,
-    "ast_hash": "712b3dbe0fe2cf2a2f42dbfcef16259e",
+    "mtime": 1795513656.7563417,
+    "seen": 1795514047.237751,
+    "ast_hash": "1cfa0f2f463a4b9a898d1a6f58bee770",
     "semantic_hash": ""
   },
   "Core/Support/MessagingMainWindowDecision.swift": {
@@ -2706,9 +2706,9 @@
     "semantic_hash": ""
   },
   "Platform/Clipboard/ClipboardMonitor.swift": {
-    "mtime": 1795444436.4035602,
-    "seen": 1795444544.531565,
-    "ast_hash": "b0e1f34e87085250c6f4fb495bdfe37c",
+    "mtime": 1795513663.0097616,
+    "seen": 1795514047.2379,
+    "ast_hash": "4966b6625d87f79744b139a4f7e8117f",
     "semantic_hash": ""
   },
   "Platform/CoreGraphics/CoreGraphicsSource.swift": {
@@ -3288,9 +3288,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ClipboardPlusTests.swift": {
-    "mtime": 1795444441.5087125,
-    "seen": 1795444544.5316858,
-    "ast_hash": "73f55b815144b9d7fcc5159843f1ced3",
+    "mtime": 1795513725.249672,
+    "seen": 1795514047.238029,
+    "ast_hash": "c729b3dab1d2420be91a654e8b834bf2",
     "semantic_hash": ""
   },
   "Tests/Unit/ColorFormatTests.swift": {
@@ -3714,9 +3714,9 @@
     "semantic_hash": "08e11a886752f344f444c416f16b5075"
   },
   "Tests/Unit/LiveEventDetectorTests.swift": {
-    "mtime": 1795013073.444848,
-    "seen": 1795013547.1419609,
-    "ast_hash": "d898cf836cb50f1f1b7016ffb23f0148",
+    "mtime": 1795513697.1560495,
+    "seen": 1795514047.238133,
+    "ast_hash": "ff93951171bf6348ed3b2934ddf08916",
     "semantic_hash": ""
   },
   "Tests/Unit/LiveIdleActionTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795513374.4404092,
-    "seen": 1795513588.439471,
-    "ast_hash": "6f0ad6a7d4ac7430a2f38e47ef10c5d9",
+    "mtime": 1795513705.5462067,
+    "seen": 1795514047.238425,
+    "ast_hash": "d5e44dc082c5e72abaab653458b13ecb",
     "semantic_hash": ""
   },
   "README.md": {
@@ -8070,9 +8070,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md": {
-    "mtime": 1795513372.6513548,
-    "seen": 1795513588.4394612,
-    "ast_hash": "721cc0a520497213c779a605557188de",
+    "mtime": 1795513704.3873632,
+    "seen": 1795514047.238413,
+    "ast_hash": "4bb5e6b20b6efc62417e45f82955c8cc",
     "semantic_hash": ""
   }
 }
