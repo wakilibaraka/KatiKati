@@ -44,7 +44,9 @@ final class NowPlayingProgressTests: XCTestCase {
     /// and the island said "Not Playing" while a player was running. Compiling catches that whole class
     /// of breakage; running it would need a live player plus the Apple Events grant.
     func testAppleScriptFallbackCompiles() {
-        guard let script = NSAppleScript(source: AppleScriptNowPlaying.source) else {
+        let hasSpotify = FileManager.default.fileExists(atPath: "/Applications/Spotify.app")
+        let source = AppleScriptNowPlaying.source(includeSpotify: hasSpotify, includeMusic: true)
+        guard let script = NSAppleScript(source: source) else {
             return XCTFail("NSAppleScript did not accept the source")
         }
         var error: NSDictionary?
@@ -99,6 +101,30 @@ final class NowPlayingProgressTests: XCTestCase {
         XCTAssertEqual(source.components(separatedBy: "on error errMsg number errNum").count - 1, 2,
                        "each player branch needs its own error handler")
         XCTAssertTrue(source.contains("return \"REFUSED\" & sep & refusal"))
+    }
+
+    func testSourceFilteringOmitsStoppedOrUninstalledPlayersAndCompiles() {
+        let musicOnly = AppleScriptNowPlaying.source(includeSpotify: false, includeMusic: true)
+        XCTAssertFalse(musicOnly.contains("Spotify"))
+        XCTAssertTrue(musicOnly.contains("Music"))
+        if let musicScript = NSAppleScript(source: musicOnly) {
+            var error: NSDictionary?
+            XCTAssertTrue(musicScript.compileAndReturnError(&error), "compile failed: \(String(describing: error))")
+        } else {
+            XCTFail("NSAppleScript did not accept musicOnly source")
+        }
+
+        let spotifyOnly = AppleScriptNowPlaying.source(includeSpotify: true, includeMusic: false)
+        XCTAssertTrue(spotifyOnly.contains("Spotify"))
+        XCTAssertFalse(spotifyOnly.contains("Music"))
+        XCTAssertNotNil(NSAppleScript(source: spotifyOnly))
+
+        XCTAssertEqual(AppleScriptNowPlaying.source(includeSpotify: false, includeMusic: false), "")
+
+        let sessionMusicOnly = MediaSessions.source(includeSpotify: false, includeMusic: true)
+        XCTAssertFalse(sessionMusicOnly.contains("Spotify"))
+        XCTAssertTrue(sessionMusicOnly.contains("Music"))
+        XCTAssertEqual(MediaSessions.source(includeSpotify: false, includeMusic: false), "")
     }
 
     /// The two TCC refusals are a verdict; every other AppleScript failure (no such app, our own script

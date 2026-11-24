@@ -74,48 +74,63 @@ enum AppleScriptNowPlaying {
     /// One record per run; `is running` guards so a stopped player is never launched by asking it. A
     /// running player that refuses the ask (macOS Automation grant missing) is reported instead of
     /// swallowed — see `refusal(in:)` and `PlayerAccess`.
-    static var source: String {
-        """
-        set sep to (ASCII character 9)
-        set out to ""
-        set refusal to ""
-        if application "Spotify" is running then
-        	tell application "Spotify"
-        		try
-        			set stateText to (player state as text)
-        			set t to current track
-        			set out to "Spotify" & sep & stateText & sep & (name of t) & sep & (artist of t) & sep & (album of t) & sep & ((duration of t) / 1000) & sep & (player position) & sep & (artwork url of t)
-        		on error errMsg number errNum
-        			if refusal is "" then set refusal to "Spotify" & sep & errNum
-        		end try
-        	end tell
-        end if
-        if out is "" then
-        	if application "Music" is running then
-        		tell application "Music"
-        			try
-        				set stateText to (player state as text)
-        				set t to current track
-        				set out to "Music" & sep & stateText & sep & (name of t) & sep & (artist of t) & sep & (album of t) & sep & (duration of t) & sep & (player position)
-        				if (count of artworks of t) > 0 then
-        					set d to (data of artwork 1 of t)
-        					set f to (open for access (POSIX file "@ART@") with write permission)
-        					set eof f to 0
-        					write d to f
-        					close access f
-        					set out to out & sep & "@ART@"
-        				end if
-        			on error errMsg number errNum
-        				if refusal is "" then set refusal to "Music" & sep & errNum
-        			end try
-        		end tell
-        	end if
-        end if
+    static var source: String { source(includeSpotify: true, includeMusic: true) }
+
+    /// Builds the fallback AppleScript containing only the players explicitly requested, so an uninstalled
+    /// player (e.g. Spotify missing on disk) never triggers a compile-time "Where is <App>?" prompt.
+    static func source(includeSpotify: Bool, includeMusic: Bool) -> String {
+        guard includeSpotify || includeMusic else { return "" }
+        var blocks: [String] = [
+            "set sep to (ASCII character 9)",
+            "set out to \"\"",
+            "set refusal to \"\""
+        ]
+        if includeSpotify {
+            blocks.append("""
+            if application "Spotify" is running then
+            \ttell application "Spotify"
+            \t\ttry
+            \t\t\tset stateText to (player state as text)
+            \t\t\tset t to current track
+            \t\t\tset out to "Spotify" & sep & stateText & sep & (name of t) & sep & (artist of t) & sep & (album of t) & sep & ((duration of t) / 1000) & sep & (player position) & sep & (artwork url of t)
+            \t\ton error errMsg number errNum
+            \t\t\tif refusal is "" then set refusal to "Spotify" & sep & errNum
+            \t\tend try
+            \tend tell
+            end if
+            """)
+        }
+        if includeMusic {
+            let musicBlock = """
+            \tif application "Music" is running then
+            \t\ttell application "Music"
+            \t\t\ttry
+            \t\t\t\tset stateText to (player state as text)
+            \t\t\t\tset t to current track
+            \t\t\t\tset out to "Music" & sep & stateText & sep & (name of t) & sep & (artist of t) & sep & (album of t) & sep & (duration of t) & sep & (player position)
+            \t\t\t\tif (count of artworks of t) > 0 then
+            \t\t\t\t\tset d to (data of artwork 1 of t)
+            \t\t\t\t\tset f to (open for access (POSIX file "@ART@") with write permission)
+            \t\t\t\t\tset eof f to 0
+            \t\t\t\t\twrite d to f
+            \t\t\t\t\tclose access f
+            \t\t\t\t\tset out to out & sep & "@ART@"
+            \t\t\t\tend if
+            \t\t\ton error errMsg number errNum
+            \t\t\t\tif refusal is "" then set refusal to "Music" & sep & errNum
+            \t\t\tend try
+            \t\tend tell
+            \tend if
+            """.replacingOccurrences(of: "@ART@", with: transientArtworkPath)
+            blocks.append(includeSpotify ? "if out is \"\" then\n\(musicBlock)\nend if" : musicBlock.replacingOccurrences(of: "\n\t", with: "\n").trimmingCharacters(in: CharacterSet(charactersIn: "\t")))
+        }
+        blocks.append("""
         if out is "" and refusal is not "" then
-        	return "REFUSED" & sep & refusal
+        \treturn "REFUSED" & sep & refusal
         end if
         return out
-        """.replacingOccurrences(of: "@ART@", with: transientArtworkPath)
+        """)
+        return blocks.joined(separator: "\n")
     }
 
     // MARK: Transport target (Phase 47)
@@ -204,36 +219,49 @@ enum MediaSessions {
     }
 
     /// Reads every running player that has a track. Never launches a stopped one (`is running` guards).
-    static var source: String {
-        """
-        set sep to (ASCII character 9)
-        set out to ""
-        if application "Spotify" is running then
-        \ttell application "Spotify"
-        \t\ttry
-        \t\t\tset stateText to (player state as text)
-        \t\t\tset t to current track
-        \t\t\tif (name of t) is not "" then
-        \t\t\t\tset out to out & "Spotify" & sep & stateText & sep & (name of t) & sep & (artist of t) & linefeed
-        \t\t\tend if
-        \t\ton error errMsg number errNum
-        \t\tend try
-        \tend tell
-        end if
-        if application "Music" is running then
-        \ttell application "Music"
-        \t\ttry
-        \t\t\tset stateText to (player state as text)
-        \t\t\tset t to current track
-        \t\t\tif (name of t) is not "" then
-        \t\t\t\tset out to out & "Music" & sep & stateText & sep & (name of t) & sep & (artist of t) & linefeed
-        \t\t\tend if
-        \t\ton error errMsg number errNum
-        \t\tend try
-        \tend tell
-        end if
-        return out
-        """
+    static var source: String { source(includeSpotify: true, includeMusic: true) }
+
+    /// Builds the multi-session discovery script containing only requested players.
+    static func source(includeSpotify: Bool, includeMusic: Bool) -> String {
+        guard includeSpotify || includeMusic else { return "" }
+        var blocks: [String] = [
+            "set sep to (ASCII character 9)",
+            "set out to \"\""
+        ]
+        if includeSpotify {
+            blocks.append("""
+            if application "Spotify" is running then
+            \ttell application "Spotify"
+            \t\ttry
+            \t\t\tset stateText to (player state as text)
+            \t\t\tset t to current track
+            \t\t\tif (name of t) is not "" then
+            \t\t\t\tset out to out & "Spotify" & sep & stateText & sep & (name of t) & sep & (artist of t) & linefeed
+            \t\t\tend if
+            \t\ton error errMsg number errNum
+            \t\tend try
+            \tend tell
+            end if
+            """)
+        }
+        if includeMusic {
+            blocks.append("""
+            if application "Music" is running then
+            \ttell application "Music"
+            \t\ttry
+            \t\t\tset stateText to (player state as text)
+            \t\t\tset t to current track
+            \t\t\tif (name of t) is not "" then
+            \t\t\t\tset out to out & "Music" & sep & stateText & sep & (name of t) & sep & (artist of t) & linefeed
+            \t\t\tend if
+            \t\ton error errMsg number errNum
+            \t\tend try
+            \tend tell
+            end if
+            """)
+        }
+        blocks.append("return out")
+        return blocks.joined(separator: "\n")
     }
 
     /// One player's record (`Reading` shape) for the pinned session, so the surfaces follow the switch

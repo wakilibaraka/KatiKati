@@ -300,15 +300,31 @@ public final class NowPlayingService: ObservableObject {
 
     // MARK: - OW-5a: several sessions
 
+    private static func runningScriptablePlayers() -> (spotify: Bool, music: Bool) {
+        (!NSRunningApplication.runningApplications(withBundleIdentifier: "com.spotify.client").isEmpty,
+         !NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").isEmpty)
+    }
+
     /// Re-reads the running players, at most once per `sessionsInterval` unless forced. A pinned player that
     /// has gone away clears the pin, so the surfaces fall back to the system-wide reading instead of freezing.
     public func refreshSessions(force: Bool = false) {
         guard !isReadingSessions,
               force || Date().timeIntervalSince(lastSessionsRead) >= Self.sessionsInterval else { return }
+        let running = Self.runningScriptablePlayers()
+        guard running.spotify || running.music else {
+            lastSessionsRead = Date()
+            if switcher.pinnedBundleID != nil {
+                switcher.clearPin()
+                pinnedSessionApp = nil
+            }
+            if !sessions.isEmpty { sessions = [] }
+            return
+        }
         isReadingSessions = true
         lastSessionsRead = Date()
+        let script = MediaSessions.source(includeSpotify: running.spotify, includeMusic: running.music)
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let raw = Self.runAppleScript(MediaSessions.source)
+            let raw = Self.runAppleScript(script)
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.isReadingSessions = false
@@ -420,12 +436,29 @@ public final class NowPlayingService: ObservableObject {
     private func readFallback() {
         let now = Date()
         guard !isReadingFallback, now.timeIntervalSince(lastFallbackRead) >= Self.fallbackInterval else { return }
+        let running = Self.runningScriptablePlayers()
+        let pinned = pinnedSessionApp
+        let script: String = {
+            if let pinned {
+                let isRunning = (pinned == "Spotify" && running.spotify) || (pinned == "Music" && running.music)
+                return isRunning ? MediaSessions.readingSource(for: pinned) : ""
+            }
+            return AppleScriptNowPlaying.source(includeSpotify: running.spotify, includeMusic: running.music)
+        }()
+        guard !script.isEmpty else {
+            lastFallbackRead = now
+            playerAccess = .unknown
+            if fallbackApp != nil {
+                fallbackApp = nil
+                state = NowPlayingState(isPlaying: false)
+            }
+            return
+        }
         isReadingFallback = true
         lastFallbackRead = now
-        let pinned = pinnedSessionApp
         DispatchQueue.global(qos: .utility).async { [weak self] in
             // OW-5a: a pinned player is read directly, so the switch is not undone by the next system reading.
-            let raw = Self.runAppleScript(pinned.map(MediaSessions.readingSource(for:)) ?? AppleScriptNowPlaying.source)
+            let raw = Self.runAppleScript(script)
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.isReadingFallback = false

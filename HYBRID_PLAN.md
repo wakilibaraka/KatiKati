@@ -7023,6 +7023,10 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 
 - `Core/Support/{ClipboardPlus,LiveEventDetector,LiveSurfaceRouting}.swift`, `Platform/Clipboard/ClipboardMonitor.swift`, `App/Composition/LiveEventPresentation.swift`, `App/Entry/AppDelegate.swift`, `App/Scenes/UtilitySettingsBlock.swift`, `Tests/Unit/{ClipboardPlus,LiveEventDetector}Tests.swift`, `Resources/Localizable.xcstrings`: folded `URLCleaner.clean` into `ClipboardMonitor.poll()` (removing duplicate `LinkCleanerService` 0.7s timer), lit up `linkCleaned: true` toast badge, and added per-event audio cues (`Copy`, `Paste`, `History Updated`, `Link Cleaned`). Zero `project.pbxproj` edits.
 
-### `T1.5` — Snap Outer Border Padding, Inner Gaps & Dock Clearance Parity (2026-11-24)
+### `T1.5` — Snap Outer Border Padding, Inner Gaps & Dock Clearance Parity (`b17cc800`, 2026-11-24)
 
 - `Core/Support/WindowSnap.swift`, `Platform/Windows/WindowSnapService.swift`, `App/Scenes/RadialDial/RadialSnapPreviewPanelController.swift`, `App/Scenes/BehaviourSettingsBlock.swift`, `Tests/Unit/WindowSnapTests.swift`, `Resources/Localizable.xcstrings`: added `SnapGaps` (`outerGap` / `innerGap`) to `SnapPosition.frame(in:gaps:)` and `SnapZonePlanner`, wired `DockReserve.workArea` + `SnapGaps.current()` into `WindowSnapService`, `SnapDragMonitor`, and `RadialSnapPreviewPanelController`, and added Outer/Inner Gap sliders in Snap Preview settings. Zero `project.pbxproj` edits.
+
+### Livecheck Fix — Skip Uninstalled/Stopped Spotify/Music AppleScript Probe (2026-11-24)
+
+- `Core/Support/{AppleScriptNowPlaying,NowPlayingService}.swift`, `Tests/Unit/NowPlayingProgressTests.swift`: gated `AppleScriptNowPlaying.source(includeSpotify:includeMusic:)` and `MediaSessions.source(includeSpotify:includeMusic:)` behind running-app bundle checks in `NowPlayingService` so launching without Spotify installed no longer pops a blocking `"Where is Spotify?" Choose Application` modal.
