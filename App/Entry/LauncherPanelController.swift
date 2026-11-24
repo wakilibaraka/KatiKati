@@ -44,6 +44,7 @@ final class LauncherPanelController {
     private var scrollAccum: CGFloat = 0
     private var scrollFired = false
     private var lastWheelTurn = Date.distantPast
+    private var recentFilesGeneration = 0
 
     var isShown: Bool { panel?.isVisible ?? false }
 
@@ -86,7 +87,16 @@ final class LauncherPanelController {
         model.keptIDs = keptApps()
         model.stashedAppIDs = stashedApps()
         model.runningIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
-        model.recentFiles = loadRecentFiles(usage: model.state.usage)
+        recentFilesGeneration &+= 1
+        let recentGen = recentFilesGeneration
+        let usageSnapshot = model.state.usage
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let loaded = LauncherPanelController.loadRecentFiles(usage: usageSnapshot)
+            await MainActor.run { [weak self] in
+                guard let self, self.recentFilesGeneration == recentGen else { return }
+                self.model.recentFiles = loaded
+            }
+        }
         if model.prefs.searchScope.recentFiles { FileIndexService.shared.prepare() }
         indexer.start()
         let panel = self.panel ?? makePanel()
@@ -277,7 +287,7 @@ final class LauncherPanelController {
         NSWorkspace.shared.open(url)
     }
 
-    private func loadRecentFiles(usage: [String: LauncherUsage]) -> [LauncherRecentItem] {
+    nonisolated private static func loadRecentFiles(usage: [String: LauncherUsage]) -> [LauncherRecentItem] {
         var items: [LauncherRecentItem] = []
         var seen = Set<String>()
         let topApps = usage.sorted { $0.value.lastLaunched > $1.value.lastLaunched }.prefix(4).map(\.key)

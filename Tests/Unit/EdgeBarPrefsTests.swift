@@ -177,22 +177,27 @@ final class TendederoPolicyTests: XCTestCase {
         let d = defaults()
         XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndManualClipboard)
         XCTAssertFalse(TendederoPolicy.showSidebarOnNewItem(d))
+        XCTAssertFalse(TendederoPolicy.shouldStartMonitoringAtLaunch(d))
     }
 
     func testExplicitChoicesSurviveAndUnknownRawValuesFallBack() {
         let d = defaults()
         d.set(TendederoCaptureMode.screenshotsAndAutoClipboard.rawValue, forKey: TendederoPolicy.captureModeKey)
         XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndAutoClipboard)
+        XCTAssertTrue(TendederoPolicy.shouldStartMonitoringAtLaunch(d))
         d.set(TendederoCaptureMode.screenshotsAndManualClipboard.rawValue, forKey: TendederoPolicy.captureModeKey)
         XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndManualClipboard)
+        XCTAssertFalse(TendederoPolicy.shouldStartMonitoringAtLaunch(d))
         d.set("someFutureMode", forKey: TendederoPolicy.captureModeKey)
         XCTAssertEqual(TendederoPolicy.captureMode(d), .screenshotsAndManualClipboard,
                        "a stale value must not re-enable auto-hanging")
 
         TendederoPolicy.setShowSidebarOnNewItem(true, defaults: d)
         XCTAssertTrue(TendederoPolicy.showSidebarOnNewItem(d))
+        XCTAssertTrue(TendederoPolicy.shouldStartMonitoringAtLaunch(d))
         TendederoPolicy.setShowSidebarOnNewItem(false, defaults: d)
         XCTAssertFalse(TendederoPolicy.showSidebarOnNewItem(d))
+        XCTAssertFalse(TendederoPolicy.shouldStartMonitoringAtLaunch(d))
     }
 
     func testClipboardToastIsOffUnlessStoredOn() {

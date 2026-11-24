@@ -1,3 +1,4 @@
+import ImageIO
 import QuickLookUI
 import SwiftUI
 import UniformTypeIdentifiers
@@ -290,12 +291,13 @@ final class TendederoClotheslineController: NSObject, ObservableObject, QLPrevie
         started = true
         applyCapacityMode()
         startScreenshotQuery()
-        startPasteboardWatch()
+        reconcilePasteboardWatch()
     }
 
     func setCaptureMode(_ mode: TendederoCaptureMode) {
         captureMode = mode
         UserDefaults.standard.set(mode.rawValue, forKey: TendederoPolicy.captureModeKey)
+        if started { reconcilePasteboardWatch() }
     }
 
     func setUnlimitedCapacity(_ unlimited: Bool) {
@@ -422,10 +424,17 @@ final class TendederoClotheslineController: NSObject, ObservableObject, QLPrevie
         }
     }
 
-    private func startPasteboardWatch() {
+    private func reconcilePasteboardWatch() {
+        pasteboardTimer?.invalidate()
+        pasteboardTimer = nil
+        guard captureMode == .screenshotsAndAutoClipboard else { return }
         pasteboardTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                guard let self, self.captureMode == .screenshotsAndAutoClipboard else { return }
+                guard let self, self.captureMode == .screenshotsAndAutoClipboard else {
+                    self?.pasteboardTimer?.invalidate()
+                    self?.pasteboardTimer = nil
+                    return
+                }
                 let count = NSPasteboard.general.changeCount
                 guard count != self.lastChangeCount else { return }
                 self.hangCurrentClipboard()
@@ -540,7 +549,10 @@ struct LeftSidebarClotheslineView: View {
                 }
             }
         }
-        .onAppear { controller.markAllRead() }
+        .onAppear {
+            controller.start()
+            controller.markAllRead()
+        }
         .onKeyPress(.space) {
             if let id = controller.selectedID, let item = controller.store.items.first(where: { $0.id == id }) {
                 controller.quickLook(item)
@@ -599,21 +611,85 @@ struct LeftSidebarClotheslineView: View {
     private func cardPreview(_ item: TendederoItem) -> some View {
         switch item.kind {
         case .screenshot(let url):
-            if let img = NSImage(contentsOf: url) {
-                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 44, height: 34).clipped().cornerRadius(5)
-            } else {
-                Image(systemName: "photo").frame(width: 32, height: 32)
-            }
+            TendederoThumbnailView(source: .url(url), width: 44, height: 34, cornerRadius: 5)
         case .imageData(let data):
-            if let img = NSImage(data: data) {
-                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 44, height: 34).clipped().cornerRadius(5)
-            } else {
-                Image(systemName: "photo").frame(width: 32, height: 32)
-            }
+            TendederoThumbnailView(source: .data(data), width: 44, height: 34, cornerRadius: 5)
         case .link:
             Image(systemName: "link").font(.system(size: 15)).frame(width: 32, height: 32)
         case .text:
             Image(systemName: "doc.text").font(.system(size: 15)).frame(width: 32, height: 32)
+        }
+    }
+}
+
+private enum TendederoThumbnailSource: Equatable {
+    case url(URL)
+    case data(Data)
+
+    var cacheKey: String {
+        switch self {
+        case .url(let url): return "u:\(url.path)"
+        case .data(let data): return "d:\(data.count):\(data.prefix(64).hashValue)"
+        }
+    }
+}
+
+private struct TendederoThumbnailView: View {
+    let source: TendederoThumbnailSource
+    let width: CGFloat
+    let height: CGFloat
+    let cornerRadius: CGFloat
+
+    @MainActor
+    private static let cache: NSCache<NSString, NSImage> = {
+        let c = NSCache<NSString, NSImage>()
+        c.countLimit = 48
+        return c
+    }()
+
+    @State private var image: NSImage?
+
+    var body: some View {
+        Group {
+            if let image = image ?? Self.cache.object(forKey: source.cacheKey as NSString) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: width, height: height)
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            } else {
+                Image(systemName: "photo")
+                    .frame(width: width, height: height)
+            }
+        }
+        .task(id: source.cacheKey) {
+            let key = source.cacheKey as NSString
+            if let cached = Self.cache.object(forKey: key) {
+                image = cached
+                return
+            }
+            let maxPixel = Int(max(width, height) * 2.5)
+            let cgImage = await Task.detached(priority: .utility) { () -> CGImage? in
+                let opts = [
+                    kCGImageSourceCreateThumbnailFromImageAlways: true,
+                    kCGImageSourceThumbnailMaxPixelSize: maxPixel,
+                    kCGImageSourceCreateThumbnailWithTransform: true
+                ] as CFDictionary
+                let src: CGImageSource?
+                switch source {
+                case .url(let url):
+                    src = CGImageSourceCreateWithURL(url as CFURL, nil)
+                case .data(let data):
+                    src = CGImageSourceCreateWithData(data as CFData, nil)
+                }
+                guard let src else { return nil }
+                return CGImageSourceCreateThumbnailAtIndex(src, 0, opts)
+            }.value
+            if let cgImage {
+                let decoded = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+                Self.cache.setObject(decoded, forKey: key)
+                image = decoded
+            }
         }
     }
 }
@@ -722,13 +798,9 @@ struct DockScreenshotsFlyoutView: View {
     private func screenshotThumb(_ item: TendederoItem) -> some View {
         switch item.kind {
         case .screenshot(let url):
-            if let img = NSImage(contentsOf: url) {
-                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 48, height: 34).clipShape(RoundedRectangle(cornerRadius: 6))
-            } else { Image(systemName: "photo").frame(width: 48, height: 34) }
+            TendederoThumbnailView(source: .url(url), width: 48, height: 34, cornerRadius: 6)
         case .imageData(let data):
-            if let img = NSImage(data: data) {
-                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill).frame(width: 48, height: 34).clipShape(RoundedRectangle(cornerRadius: 6))
-            } else { Image(systemName: "photo").frame(width: 48, height: 34) }
+            TendederoThumbnailView(source: .data(data), width: 48, height: 34, cornerRadius: 6)
         default:
             Image(systemName: "doc").frame(width: 48, height: 34)
         }

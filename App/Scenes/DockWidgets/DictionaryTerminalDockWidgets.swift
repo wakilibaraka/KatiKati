@@ -205,7 +205,6 @@ struct DockScreenshotsUtilityButton: View {
         .popover(isPresented: $showFlyout, arrowEdge: popoverEdge) {
             DockScreenshotsFlyoutView()
         }
-        .onAppear { controller.start() }
     }
 }
 

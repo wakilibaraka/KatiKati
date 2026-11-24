@@ -60,7 +60,9 @@ final class WindowDrawerController: ObservableObject {
             guard TendederoPolicy.showSidebarOnNewItem() else { return }
             self?.peekTendedero()
         }
-        TendederoClotheslineController.shared.start()
+        if TendederoPolicy.shouldStartMonitoringAtLaunch() {
+            TendederoClotheslineController.shared.start()
+        }
     }
 
     func peekTendedero() {

@@ -207,6 +207,10 @@ enum TendederoPolicy {
     static func setShowSidebarOnNewItem(_ on: Bool, defaults: UserDefaults = .standard) {
         defaults.set(on, forKey: showSidebarOnNewItemKey)
     }
+
+    static func shouldStartMonitoringAtLaunch(_ defaults: UserDefaults = .standard) -> Bool {
+        captureMode(defaults) == .screenshotsAndAutoClipboard || showSidebarOnNewItem(defaults)
+    }
 }
 
 enum TendederoCapacityMode: Equatable, Codable, Sendable {
