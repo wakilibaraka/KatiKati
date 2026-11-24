@@ -8741,81 +8741,20 @@
         }
       }
     },
-    "Add to Folder" : {
-      "extractionState" : "manual",
+    "Add to App Group" : {
       "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zum Ordner hinzufügen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add to Folder"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Añadir a carpeta"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agregar a carpeta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter au dossier"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi alla cartella"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フォルダに追加"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "폴더에 추가"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar à pasta"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adicionar à pasta"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "添加到文件夹"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "加入檔案夾"
-          }
-        }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zu App-Gruppe hinzufügen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to App Group" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir a grupo de apps" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Agregar a grupo de apps" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter au groupe d’apps" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aggiungi al gruppo app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Appグループに追加" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 그룹에 추가" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar ao grupo de apps" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar ao grupo de apps" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加到应用组" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "加入 App 群組" } }
       }
     },
     "Add to Stack" : {
@@ -179713,6 +179652,54 @@
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Multimédia" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "媒体" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "媒體" } }
+      }
+    },
+    "Remove from Dock" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus dem Dock entfernen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove from Dock" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar del Dock" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar del Dock" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer du Dock" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimuovi dal Dock" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Dockから削除" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Dock에서 제거" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Remover do Dock" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Remover da Dock" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "从程序坞移除" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "從 Dock 移除" } }
+      }
+    },
+    "System Actions" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Systemaktionen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System Actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acciones del sistema" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Acciones del sistema" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actions système" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Azioni di sistema" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システムアクション" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "시스템 동작" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ações do Sistema" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ações do Sistema" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统操作" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "系統動作" } }
+      }
+    },
+    "Recent Files" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zuletzt verwendet" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recent Files" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Archivos recientes" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Archivos recientes" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fichiers récents" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "File recenti" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "最近のファイル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최근 파일" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Arquivos recentes" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ficheiros recentes" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最近文件" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "最近檔案" } }
       }
     }
   },
