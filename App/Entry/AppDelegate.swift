@@ -32,7 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let drawerStore = DrawerStore()
     let messagingStore = MessagingAppStore()
     let badgeStore = BadgeStore()
-    let weatherService = WeatherService()
+    let weatherService = WeatherService.shared
 
     let keptAppStore = KeptAppStore()
     /// 系统 Dock 的钉住列表也算「记得住顺序的保留应用」（Phase 42）：它们拿到名次才落在启动器组里，

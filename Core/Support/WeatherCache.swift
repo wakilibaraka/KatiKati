@@ -3,7 +3,7 @@ import Foundation
 /// The last forecast for each place, kept on disk so weather still shows when the Mac is offline. Each file holds the full
 /// response the tiles use (current, 48 hours, 16 days), so a week-old cache still has seven days of forecast to show.
 /// A cache older than `maxAge` is treated as missing; one that is shown while offline is marked not live.
-public struct WeatherCache {
+public struct WeatherCache: Sendable {
     public static let maxAge: TimeInterval = 7 * 24 * 3600
 
     public let directory: URL
@@ -36,5 +36,19 @@ public struct WeatherCache {
               now.timeIntervalSince(state.lastUpdated) <= Self.maxAge else { return nil }
         state.isLive = false
         return state
+    }
+
+    public func saveAsync(_ state: WeatherState, token: String) {
+        let cache = self
+        Task.detached(priority: .utility) {
+            cache.save(state, token: token)
+        }
+    }
+
+    public func loadAsync(token: String, now: Date = Date()) async -> WeatherState? {
+        let cache = self
+        return await Task.detached(priority: .utility) {
+            cache.load(token: token, now: now)
+        }.value
     }
 }

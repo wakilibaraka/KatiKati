@@ -44,7 +44,7 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         downloadService: DownloadManagerService = .shared,
         agentService: AgentUsageService = .shared,
         cameraService: CameraMirrorService = .shared,
-        weatherService: WeatherService = .shared,
+        weatherService: WeatherService? = nil,
         alarmStore: AlarmStore? = nil
     ) {
         self.driver = driver ?? IslandSurfaceDriver()
@@ -53,7 +53,7 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         self.downloadService = downloadService
         self.agentService = agentService
         self.cameraService = cameraService
-        self.weatherService = weatherService
+        self.weatherService = weatherService ?? .shared
         self.alarmStore = alarmStore ?? ProductivityServices.shared.alarms
     }
 

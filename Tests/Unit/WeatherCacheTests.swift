@@ -49,4 +49,33 @@ final class WeatherCacheTests: XCTestCase {
         XCTAssertEqual(WeatherCache.fileName(forToken: "city:42"), "city_42.json")
         XCTAssertEqual(WeatherCache.fileName(forToken: "../x"), "___x.json")
     }
+
+    func testAsyncCacheAndRefreshPolicyAndWeekdayFormatting() async {
+        let cache = makeCache()
+        let now = Date()
+        cache.saveAsync(state(city: "Kampala", updated: now), token: "city:9")
+        var loaded: WeatherState?
+        for _ in 0..<20 {
+            loaded = await cache.loadAsync(token: "city:9", now: now)
+            if loaded != nil { break }
+            try? await Task.sleep(for: .milliseconds(25))
+        }
+        XCTAssertEqual(loaded?.cityName, "Kampala")
+
+        XCTAssertTrue(WeatherRefreshPolicy.shouldCommitForecast(requestedToken: "city:9", activeToken: "city:9"))
+        XCTAssertFalse(WeatherRefreshPolicy.shouldCommitForecast(requestedToken: "current", activeToken: "city:9"))
+
+        XCTAssertNil(WeatherRefreshPolicy.scrubHourIndex(x: 0, width: 240, count: 24))
+        XCTAssertEqual(WeatherRefreshPolicy.scrubHourIndex(x: 240, width: 240, count: 24), 23)
+        XCTAssertNil(WeatherRefreshPolicy.scrubHourIndex(x: 50, width: 240, count: 1))
+
+        let daily = DailyForecast(date: "2026-10-15", highCelsius: 25, lowCelsius: 15, symbolName: "sun.max.fill")
+        var utc = Calendar(identifier: .gregorian)
+        utc.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        let first = daily.weekdayLabel(locale: Locale(identifier: "en_US_POSIX"), calendar: utc)
+        let second = daily.weekdayLabel(locale: Locale(identifier: "en_US_POSIX"), calendar: utc)
+        XCTAssertEqual(first, "Thu")
+        XCTAssertEqual(second, "Thu")
+        XCTAssertEqual(WeatherRefreshPolicy.utcWeekday(from: "2026-10-15"), "Thu")
+    }
 }
