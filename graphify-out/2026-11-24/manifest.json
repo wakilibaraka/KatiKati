@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795515751.5916338,
-    "seen": 1795534644.457062,
-    "ast_hash": "de0d8d104bc34f3bc95f8e4c35c77baa",
+    "mtime": 1795551189.274701,
+    "seen": 1795551324.717846,
+    "ast_hash": "9854c9744cf443e5eeb83517100b073e",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795546626.1151338,
-    "seen": 1795546853.738264,
-    "ast_hash": "e2dcb629aa9acff284e8c570c27365f5",
+    "mtime": 1795551199.2889416,
+    "seen": 1795551324.7178829,
+    "ast_hash": "3d2f687a92f9fa0cbce6b8b87f36853c",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795530552.9451618,
-    "seen": 1795534644.457124,
-    "ast_hash": "813b58cfaf479ac1761a3bee90094326",
+    "mtime": 1795551195.6025724,
+    "seen": 1795551324.717911,
+    "ast_hash": "24e7b7ec5b56b6eee74ddd23b0cbc684",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -2952,9 +2952,9 @@
     "semantic_hash": ""
   },
   "Platform/SystemStatus/SystemStatusService.swift": {
-    "mtime": 1795546653.1392891,
-    "seen": 1795546853.738753,
-    "ast_hash": "7950a07e7589cedb066aaef981939cd2",
+    "mtime": 1795551026.8543165,
+    "seen": 1795551085.141697,
+    "ast_hash": "c4b97699f10658da3c1873104362303a",
     "semantic_hash": ""
   },
   "Platform/Tasks/TasksController.swift": {
@@ -4176,9 +4176,9 @@
     "semantic_hash": "831fd8e76e113bc1043a0e961dd7a974"
   },
   "Tests/Unit/SystemStatusTests.swift": {
-    "mtime": 1795549778.3740454,
-    "seen": 1795550095.884402,
-    "ast_hash": "68d800083cedfbb6315b43be22d7f900",
+    "mtime": 1795550814.0485446,
+    "seen": 1795551085.141917,
+    "ast_hash": "bd2072b65e431bfeb7c828e0bd28f764",
     "semantic_hash": ""
   },
   "Tests/Unit/TabFoldDecisionTests.swift": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "HYBRID_PLAN.md": {
-    "mtime": 1795549783.0746527,
-    "seen": 1795550095.884583,
-    "ast_hash": "9e4d8ec4c2c4fa67080de4d74a4be5c0",
+    "mtime": 1795551201.5369842,
+    "seen": 1795551324.7188008,
+    "ast_hash": "5451d163a19fd795bde91f937ac31310",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795549776.9499269,
-    "seen": 1795550095.883986,
-    "ast_hash": "b12638b0b2714fccb3e8a7dec0595191",
+    "mtime": 1795550846.8365571,
+    "seen": 1795551085.141527,
+    "ast_hash": "7694d8a6525a91b598b63523c1ad8872",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -8106,9 +8106,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MENUBAR_ONLYSWITCH_HUB_PLAN.md": {
-    "mtime": 1795549784.1613264,
-    "seen": 1795550095.8845708,
-    "ast_hash": "0cbf468baf3ab83513b584578f072893",
+    "mtime": 1795551200.2061992,
+    "seen": 1795551324.7187898,
+    "ast_hash": "83bdc2fd05702b9f81de615480859ef8",
     "semantic_hash": ""
   }
 }
