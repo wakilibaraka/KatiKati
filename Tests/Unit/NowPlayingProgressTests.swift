@@ -539,7 +539,8 @@ final class MusicSurfaceCoreTests: XCTestCase {
         selection.set(override, for: .lockScreen)
         XCTAssertEqual(selection.theme(for: .lockScreen), .oledBlack)
         XCTAssertEqual(selection.theme(for: .desktop), .semiGlass)
-        XCTAssertEqual(selection.wallpaperStyle(for: .wallpaper), .blurredAlbum)
+        // Atmospheric is the shipped default now, so a matched selection paints the mesh on the wallpaper.
+        XCTAssertEqual(selection.wallpaperStyle(for: .wallpaper), .atmosphericMesh)
     }
 
     func testLeaseNeverHandsASecondWriterTheCapture() {
@@ -588,5 +589,133 @@ final class MusicSurfaceCoreTests: XCTestCase {
         XCTAssertTrue(plain[0].words.isEmpty)
         XCTAssertNil(LyricsTrack.activeWord(in: plain[0], at: 20), "no word tags -> line highlighting")
         XCTAssertEqual(LyricsTrack.activeLine(in: plain, at: 20), "Hello world")
+    }
+}
+
+// MARK: - Atmospheric (Full-Bleed) pure core
+
+final class AtmosphericCoreTests: XCTestCase {
+    func testAtmosphericIsTheShippedDefault() {
+        let style = MusicSurfaceStyle.standard
+        XCTAssertEqual(style.wallpaperStyle, .atmosphericMesh)
+        XCTAssertEqual(style.scrubber, .pill)
+        XCTAssertEqual(style.layout, .full)
+        XCTAssertEqual(MusicStyleSelection().base, .standard)
+        // Every earlier preset is still a real, selectable style.
+        XCTAssertTrue(MusicWallpaperStyle.allCases.contains(.blurredAlbum))
+        XCTAssertTrue(MusicWallpaperStyle.allCases.contains(.heroArtwork))
+        XCTAssertTrue(MusicWallpaperStyle.allCases.contains(.oledBlack))
+        XCTAssertTrue(MusicSurfaceTheme.allCases.contains(.clearGlass))
+        XCTAssertTrue(MusicScrubberStyle.allCases.contains(.waveform))
+    }
+
+    func testVolumeCurveRoundTrips() {
+        for step in 0...100 {
+            let position = Double(step) / 100
+            let gain = MusicVolumeCurve.gain(forPosition: position)
+            XCTAssertEqual(MusicVolumeCurve.position(forGain: gain), position, accuracy: 1e-9)
+        }
+    }
+
+    func testVolumeCurveEndpointsAndMonotonicity() {
+        XCTAssertEqual(MusicVolumeCurve.gain(forPosition: 0), 0, accuracy: 1e-12)
+        XCTAssertEqual(MusicVolumeCurve.gain(forPosition: 1), 1, accuracy: 1e-12)
+        XCTAssertEqual(MusicVolumeCurve.position(forGain: 0), 0, accuracy: 1e-12)
+        XCTAssertEqual(MusicVolumeCurve.position(forGain: 1), 1, accuracy: 1e-12)
+        var previous = -1.0
+        for step in 0...50 {
+            let gain = MusicVolumeCurve.gain(forPosition: Double(step) / 50)
+            XCTAssertGreaterThan(gain, previous)
+            previous = gain
+        }
+        // Exponential, not linear: half travel is well under half gain.
+        XCTAssertLessThan(MusicVolumeCurve.gain(forPosition: 0.5), 0.2)
+        XCTAssertEqual(MusicVolumeCurve.percent(forPosition: 0), 0)
+        XCTAssertEqual(MusicVolumeCurve.percent(forPosition: 1), 100)
+    }
+
+    func testQueueRecordsDedupesAndCaps() {
+        var model = MusicQueueModel()
+        model.capacity = 3
+        model.record(title: "A", artist: "x")
+        model.record(title: "B", artist: "y")
+        model.record(title: "A", artist: "x")
+        XCTAssertEqual(model.history.map(\.title), ["A", "B"])
+        model.record(title: "C", artist: nil)
+        model.record(title: "D", artist: nil)
+        XCTAssertEqual(model.history.map(\.title), ["D", "C", "A"])
+        model.record(title: "   ", artist: nil)
+        XCTAssertEqual(model.history.count, 3)
+    }
+
+    func testQueueSectionsUseTheZeroPermissionFallback() {
+        var model = MusicQueueModel()
+        model.record(title: "Played", artist: "Artist")
+        let sections = model.sections(favorites: [MusicQueueEntry(title: "Starred", artist: nil)])
+        XCTAssertEqual(sections.map(\.kind), [.history, .favorites])
+        // No upcoming array: nothing claims a queue macOS never gave us.
+        XCTAssertFalse(sections.contains { $0.kind == .upcoming })
+        XCTAssertTrue(model.sections().isEmpty == false)
+        XCTAssertEqual(model.sections(upcoming: [MusicQueueEntry(title: "Next", artist: nil)]).first?.kind, .upcoming)
+    }
+
+    func testMeshStopsAreDeterministicAndBounded() {
+        let palette = MusicArtworkPalette(accent: MusicRGB(0.9, 0.2, 0.1),
+                                          secondary: MusicRGB(0.1, 0.3, 0.8), isDark: true)
+        let stops = MusicMeshStops.stops(for: palette)
+        XCTAssertEqual(stops.count, 5)
+        XCTAssertEqual(stops, MusicMeshStops.stops(for: palette))
+        for stop in stops {
+            XCTAssertTrue((0...1).contains(stop.r))
+            XCTAssertTrue((0...1).contains(stop.g))
+            XCTAssertTrue((0...1).contains(stop.b))
+            XCTAssertTrue((0...1).contains(stop.x))
+            XCTAssertTrue((0...1).contains(stop.y))
+            XCTAssertGreaterThan(stop.radius, 0)
+        }
+    }
+
+    func testTransportLayoutTradesDetailForSpace() {
+        let small = MusicTransportLayout(size: .small)
+        XCTAssertFalse(small.showsVolume)
+        XCTAssertFalse(small.showsDeviceLabel)
+        XCTAssertEqual(small.lyricLines, 1)
+        let medium = MusicTransportLayout(size: .medium)
+        XCTAssertTrue(medium.showsVolume)
+        XCTAssertTrue(medium.showsDeviceLabel)
+        XCTAssertTrue(medium.showsScrubber)
+        let large = MusicTransportLayout(size: .large)
+        XCTAssertGreaterThan(large.playDiameter, medium.playDiameter)
+        XCTAssertGreaterThan(large.lyricLines, medium.lyricLines)
+    }
+
+    func testRomanizerHandlesEveryScriptThePlanNames() {
+        XCTAssertTrue(MusicRomanizer.supports("ありがとう"))
+        XCTAssertTrue(MusicRomanizer.supports("감사합니다"))
+        XCTAssertTrue(MusicRomanizer.supports("谢谢"))
+        XCTAssertTrue(MusicRomanizer.supports("Спасибо"))
+
+        let japanese = MusicRomanizer.romanize("ありがとう")?.lowercased() ?? ""
+        XCTAssertTrue(japanese.contains("arigat"), "got \(japanese)")
+        let korean = MusicRomanizer.romanize("감사합니다")?.lowercased() ?? ""
+        XCTAssertTrue(korean.contains("gam"), "got \(korean)")
+        let han = MusicRomanizer.romanize("谢谢")?.lowercased() ?? ""
+        XCTAssertTrue(han.contains("xie"), "got \(han)")
+        let russian = MusicRomanizer.romanize("Спасибо")?.lowercased() ?? ""
+        XCTAssertTrue(russian.contains("spasib"), "got \(russian)")
+    }
+
+    func testRomanizerHidesItselfOnLatinText() {
+        XCTAssertFalse(MusicRomanizer.supports("Thank You for the cross"))
+        XCTAssertNil(MusicRomanizer.romanize("Thank You for the cross"))
+    }
+
+    func testViewModeCyclesThroughAllThree() {
+        var mode = MusicViewMode.nowPlaying
+        var seen: [MusicViewMode] = []
+        for _ in 0..<3 { seen.append(mode); mode = mode.next }
+        XCTAssertEqual(seen, [.nowPlaying, .lyrics, .queue])
+        XCTAssertEqual(mode, .nowPlaying)
+        XCTAssertEqual(Set(MusicViewMode.allCases.map(\.symbolName)).count, 3)
     }
 }

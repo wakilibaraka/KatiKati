@@ -248,6 +248,7 @@ struct SettingsWallpaperPane: View {
             accentCard
             restoreCard
             musicCard
+            SettingsLockScreenMusicCard()
         }
         .onAppear(perform: loadDraft)
     }
@@ -596,6 +597,7 @@ struct SettingsWallpaperPane: View {
     private func scrubberTitle(_ style: MusicScrubberStyle) -> Text {
         switch style {
         case .slim: return Text("Slim")
+        case .pill: return Text("Pill")
         case .dotted: return Text("Dotted")
         case .waveform: return Text("Waveform")
         }
@@ -611,6 +613,8 @@ struct SettingsWallpaperPane: View {
 
     private func wallpaperStyleTitle(_ style: MusicWallpaperStyle) -> Text {
         switch style {
+        case .atmosphericMesh: return Text("Atmospheric Mesh")
+        case .fullBleedFade: return Text("Full-Bleed Fade")
         case .blurredAlbum: return Text("Blurred Album")
         case .adaptiveTint: return Text("Adaptive Tint")
         case .oledBlack: return Text("OLED Black")
@@ -888,4 +892,88 @@ struct WallpaperStageView: View {
     }
 
     private func color(_ c: SkyRGB) -> Color { Color(red: c.r, green: c.g, blue: c.b) }
+}
+
+
+// MARK: - Lock Screen widgets page
+
+/// A dedicated Lock Screen page: the exact card the lock overlay draws, live, plus the only two settings
+/// that change it. The preview uses `DesktopWidgetServices.nowPlaying`, so it can never drift from the lock
+/// screen itself.
+struct SettingsLockScreenMusicCard: View {
+    @AppStorage(MusicSurfaceConfig.lockScreenCardKey) private var lockScreenCard = false
+    @AppStorage(MusicSurfaceConfig.lockVolumeKey) private var lockVolume = true
+    @State private var selection = MusicSurfaceConfig.styleSelection()
+
+    private var layout: MusicCardLayout {
+        let chosen = selection.layout(for: .lockScreen)
+        return chosen == .slim ? .full : chosen
+    }
+
+    private var palette: MusicArtworkPalette {
+        MusicArtworkPaletteCache.shared.palette(for: DesktopWidgetServices.nowPlaying.state.artworkData)
+    }
+
+    var body: some View {
+        SettingsCard(
+            Text("Lock Screen Widgets"),
+            note: Text("The same glass card as the desktop widget, drawn over your wallpaper while the Mac is locked.")
+        ) {
+            SettingsToggleRow(Text("Lock Screen Card"), isOn: Binding(get: { lockScreenCard }, set: { on in
+                lockScreenCard = on
+                if on { LockScreenMusicCardController.shared.start() } else { LockScreenMusicCardController.shared.stop() }
+            }))
+            SettingsDivider()
+            SettingsToggleRow(Text("Show the volume slider"), isOn: $lockVolume,
+                              note: Text("Puts the full-width volume row under the transport, like the lock widget in the sample."))
+            SettingsDivider()
+            SettingsRow(Text("Lock Screen Layout")) {
+                Picker("Lock Screen Layout", selection: Binding(
+                    get: { layout },
+                    set: { value in
+                        var style = selection.style(for: .lockScreen)
+                        style.layout = value
+                        selection.set(style, for: .lockScreen)
+                        MusicSurfaceConfig.saveStyleSelection(selection)
+                    }
+                )) {
+                    Text("Full").tag(MusicCardLayout.full)
+                    Text("Hero").tag(MusicCardLayout.hero)
+                }
+                .labelsHidden()
+                .frame(width: 130)
+            }
+            SettingsDivider()
+            preview
+        }
+    }
+
+    /// Live preview against a wallpaper wash, at the real card's aspect.
+    private var preview: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Preview")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+            ZStack {
+                LinearGradient(colors: [
+                    Color(red: palette.accent.r, green: palette.accent.g, blue: palette.accent.b).opacity(0.55),
+                    Color.black.opacity(0.65)
+                ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                MusicGlassCardView(
+                    service: DesktopWidgetServices.nowPlaying,
+                    theme: selection.theme(for: .lockScreen),
+                    layout: layout,
+                    scrubber: selection.scrubber(for: .lockScreen),
+                    palette: palette,
+                    assignment: MusicSurfaceConfig.assignment(),
+                    showsChrome: false,
+                    showsVolumeRow: lockVolume
+                )
+                .frame(width: 288, height: layout == .hero ? 268 : (lockVolume ? 200 : 184))
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 300)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
 }

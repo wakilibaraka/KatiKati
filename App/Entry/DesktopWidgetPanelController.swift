@@ -770,9 +770,10 @@ final class LockScreenMusicCardController {
             scrubber: selection.scrubber(for: .lockScreen),
             palette: MusicArtworkPaletteCache.shared.palette(for: DesktopWidgetServices.nowPlaying.state.artworkData),
             assignment: MusicSurfaceConfig.assignment(),
-            showsChrome: false
+            showsChrome: false,
+            showsVolumeRow: MusicSurfaceConfig.isLockVolumeEnabled
         )
-        let size = CGSize(width: 340, height: cardLayout == .hero ? 300 : 208)
+        let size = CGSize(width: 340, height: cardLayout == .hero ? 316 : (MusicSurfaceConfig.isLockVolumeEnabled ? 224 : 208))
         let frame = CGRect(
             x: screen.frame.midX - size.width / 2,
             y: screen.frame.minY + max(140, screen.frame.height * 0.16),

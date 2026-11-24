@@ -1,5 +1,8 @@
 import AppKit
 import SwiftUI
+#if canImport(Translation)
+import Translation
+#endif
 
 /// One shared system-wide now-playing reader for every music surface (created on first use).
 @MainActor
@@ -36,6 +39,17 @@ final class MusicFavorites: ObservableObject {
         guard let key = Self.key(title: title, artist: artist) else { return }
         if keys.contains(key) { keys.remove(key) } else { keys.insert(key) }
         UserDefaults.standard.set(Array(keys).sorted(), forKey: MusicSurfaceConfig.favoritesKey)
+    }
+
+    /// Favourites are stored as `title|artist`; the queue drawer needs them as rows again.
+    var entries: [MusicQueueEntry] {
+        keys.compactMap { key in
+            let parts = key.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
+            guard let title = parts.first, !title.isEmpty else { return nil }
+            let artist = parts.count > 1 ? String(parts[1]) : ""
+            return MusicQueueEntry(title: String(title), artist: artist.isEmpty ? nil : artist)
+        }
+        .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
     }
 }
 
@@ -213,6 +227,14 @@ struct MusicScrubControl: View {
     @ViewBuilder
     private func track(progress: Double, width: CGFloat) -> some View {
         switch style {
+        case .pill:
+            ZStack(alignment: .leading) {
+                Capsule().fill(labelColor.opacity(0.22)).frame(height: 5)
+                Capsule().fill(tint).frame(width: CGFloat(progress) * width, height: 5)
+                Circle().fill(labelColor)
+                    .frame(width: 11, height: 11)
+                    .offset(x: max(0, min(width - 11, CGFloat(progress) * width - 5.5)))
+            }
         case .slim:
             ZStack(alignment: .leading) {
                 Capsule().fill(labelColor.opacity(0.18)).frame(height: 3)
@@ -443,6 +465,8 @@ struct MusicGlassCardView: View {
     var assignment: MusicControlAssignment = MusicControlAssignment()
     var capabilities: MusicControlCapabilities = .standard
     var showsChrome: Bool = true
+    /// The lock-screen card can drop the volume row; the desktop widget always keeps it.
+    var showsVolumeRow: Bool = true
     var onToggleMode: (() -> Void)?
     var onStash: (() -> Void)?
     var onPlayLocalFile: (() -> Void)?
@@ -455,6 +479,17 @@ struct MusicGlassCardView: View {
     @State private var showLyrics = false
     @State private var showOutput = false
     @State private var volumeHUD: Double?
+
+    // Atmospheric: Now Playing / Synced Lyrics / Queue-History, remembered per surface.
+    @State private var viewMode: MusicViewMode = MusicSurfaceConfig.viewMode()
+    @State private var lyricsExpanded = false
+    @State private var showRomanization = false
+    @State private var showTranslation = false
+    @State private var translatedLines: [String: String] = [:]
+    @State private var volumePosition: Double = MusicVolumeCurve.position(
+        forGain: AudioOutputSwitcher.outputVolume() ?? 0.5)
+    @State private var deviceName: String?
+    @State private var queue = MusicSurfaceConfig.queueModel()
 
     /// ML-6: a local file takes over the same card while it is loaded; otherwise the system player speaks.
     private var state: NowPlayingState { localPlayer.isActive ? localPlayer.state : service.state }
@@ -489,10 +524,22 @@ struct MusicGlassCardView: View {
             .overlay(alignment: .trailing) { edgeVolumeBand }
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .onAppear { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
+            .onAppear {
+                lyricsStore.loadIfNeeded(title: state.title, artist: state.artist)
+                refreshDeviceName()
+                recordHistory()
+            }
             .onChange(of: state.title) { _, _ in
                 lyricsStore.loadIfNeeded(title: state.title, artist: state.artist)
                 if showLyrics { showLyrics = lyricLines.isEmpty ? false : showLyrics }
+                translatedLines = [:]
+                lyricsExpanded = false
+                refreshDeviceName()
+                recordHistory()
+            }
+            .onChange(of: viewMode) { _, mode in
+                if mode != .lyrics { lyricsExpanded = false }
+                if mode == .nowPlaying || mode == .queue { refreshDeviceName() }
             }
             .popover(isPresented: $showOutput, arrowEdge: .bottom) {
                 MusicOutputPopover(tint: accent, onPlayLocalFile: onPlayLocalFile)
@@ -508,16 +555,13 @@ struct MusicGlassCardView: View {
                 slimRow
             }
         case .full:
-            VStack(alignment: .leading, spacing: 10) {
-                header
-                MusicScrubControl(state: state, tint: accent, style: scrubber,
-                                  labelColor: textColor) { seek(to: $0) }
-                transportRow
-                if showLyrics {
-                    MusicLyricsDrawer(lines: lyricLines, elapsed: elapsed, tint: accent)
-                        .frame(maxHeight: 108)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                }
+            switch viewMode {
+            case .nowPlaying:
+                nowPlayingBody
+            case .lyrics:
+                lyricsBody
+            case .queue:
+                queueBody
             }
         case .hero:
             HStack(alignment: .top, spacing: 12) {
@@ -531,6 +575,402 @@ struct MusicGlassCardView: View {
                 }
             }
         }
+    }
+
+    // MARK: Atmospheric (Full-Bleed) — the three views
+
+    private var nowPlayingBody: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            atmosphericHeader
+            Spacer(minLength: 0)
+            MusicScrubControl(state: state, tint: accent, style: scrubber,
+                              labelColor: textColor) { seek(to: $0) }
+            transportRow
+            if showsVolumeRow { volumeRow }
+            modeBar
+            if let deviceName, !deviceName.isEmpty {
+                Text(verbatim: deviceName)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(textColor.opacity(0.5))
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    /// Title + translucent artist on the left, the two circular glass pills on the right.
+    private var atmosphericHeader: some View {
+        HStack(alignment: .top, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: state.title ?? String(localized: "Not Playing"))
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(textColor)
+                    .lineLimit(1)
+                if let artist = state.artist, !artist.isEmpty {
+                    Text(verbatim: artist)
+                        .font(.system(size: 11.5, weight: .medium))
+                        .foregroundStyle(textColor.opacity(theme.secondaryTextOpacity))
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            glassPill("star" + (isFavoriteSlot(.favorite) ? ".fill" : ""),
+                      active: isFavoriteSlot(.favorite),
+                      label: String(localized: "Favorite")) {
+                favorites.toggle(title: state.title, artist: state.artist)
+            }
+            glassPill("ellipsis", active: showOutput,
+                      label: String(localized: "More")) { showOutput.toggle() }
+        }
+    }
+
+    private func glassPill(_ symbol: String, active: Bool, label: String,
+                           action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(active ? accent : textColor.opacity(0.85))
+                .frame(width: 26, height: 26)
+                .background(textColor.opacity(0.14), in: Circle())
+                .overlay(Circle().strokeBorder(textColor.opacity(0.12), lineWidth: 0.5))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: label))
+    }
+
+    /// Full-width volume with the perceptual curve in both directions.
+    private var volumeRow: some View {
+        HStack(spacing: 8) {
+            Image(systemName: volumePosition <= 0.001 ? "speaker.slash.fill" : "speaker.fill")
+                .font(.system(size: 9))
+                .foregroundStyle(textColor.opacity(0.6))
+            GeometryReader { proxy in
+                let width = max(proxy.size.width, 1)
+                ZStack(alignment: .leading) {
+                    Capsule().fill(textColor.opacity(0.18)).frame(height: 3)
+                    Capsule().fill(textColor.opacity(0.85))
+                        .frame(width: CGFloat(volumePosition) * width, height: 3)
+                    Circle().fill(textColor)
+                        .frame(width: 7, height: 7)
+                        .offset(x: max(0, min(width - 7, CGFloat(volumePosition) * width - 3.5)))
+                }
+                .frame(maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            let next = min(max(Double(value.location.x / width), 0), 1)
+                            volumePosition = next
+                            _ = AudioOutputSwitcher.setOutputVolume(MusicVolumeCurve.gain(forPosition: next))
+                        }
+                )
+            }
+            .frame(height: 12)
+            Image(systemName: "speaker.wave.3.fill")
+                .font(.system(size: 9))
+                .foregroundStyle(textColor.opacity(0.6))
+        }
+        .accessibilityLabel(Text("Volume"))
+    }
+
+    /// Lyrics | Output | Queue, with the active output device named underneath.
+    private var modeBar: some View {
+        HStack(spacing: 8) {
+            modeButton("quote.bubble", active: viewMode == .lyrics, label: String(localized: "Lyrics")) {
+                setViewMode(viewMode == .lyrics ? .nowPlaying : .lyrics)
+            }
+            modeButton("airplayaudio", active: showOutput, label: String(localized: "Output")) {
+                showOutput.toggle()
+            }
+            modeButton("list.bullet", active: viewMode == .queue, label: String(localized: "Queue")) {
+                setViewMode(viewMode == .queue ? .nowPlaying : .queue)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func modeButton(_ symbol: String, active: Bool, label: String,
+                            action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(active ? textColor : textColor.opacity(0.55))
+                .frame(width: 32, height: 24)
+                .background(textColor.opacity(active ? 0.16 : 0), in: Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: label))
+    }
+
+    private func setViewMode(_ mode: MusicViewMode) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { viewMode = mode }
+        MusicSurfaceConfig.saveViewMode(mode)
+    }
+
+    // MARK: Synced lyrics
+
+    private var lyricsBody: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            miniHeader
+            lyricsScroll
+                .frame(maxHeight: .infinity)
+            if showTranslation, !lyricLines.isEmpty {
+                translationHost
+            }
+            if !lyricsExpanded {
+                modeBar
+            }
+            HStack(spacing: 4) {
+                Text(verbatim: "Lyrics by lrclib.net")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(textColor.opacity(0.38))
+                Spacer(minLength: 0)
+                if MusicRomanizer.supports(lyricLines.map(\.text).joined(separator: " ")) {
+                    pillToggle("globe", on: showRomanization, label: String(localized: "Romanization")) {
+                        showRomanization.toggle()
+                    }
+                }
+                pillToggle("character.bubble", on: showTranslation, label: String(localized: "Translate")) {
+                    showTranslation.toggle()
+                }
+            }
+        }
+    }
+
+    private var lyricLinesActive: Int {
+        guard !lyricLines.isEmpty else { return 0 }
+        return lyricLines.lastIndex { $0.time <= elapsed + 0.1 } ?? 0
+    }
+
+    private var lyricsScroll: some View {
+        let active = lyricLinesActive
+        return ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 10) {
+                    if lyricLines.isEmpty {
+                        Text("No synced lyrics for this track")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(textColor.opacity(0.5))
+                            .padding(.top, 8)
+                    }
+                    ForEach(Array(lyricLines.enumerated()), id: \.offset) { index, line in
+                        Text(verbatim: displayLine(line.text))
+                            .font(.system(size: index == active ? 15 : 13,
+                                          weight: index == active ? .bold : .medium))
+                            .foregroundStyle(textColor.opacity(index == active ? 0.98 : 0.34))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id(index)
+                    }
+                }
+                .padding(.vertical, 10)
+            }
+            .mask(
+                LinearGradient(stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .black, location: 0.10),
+                    .init(color: .black, location: 0.86),
+                    .init(color: .clear, location: 1)
+                ], startPoint: .top, endPoint: .bottom)
+            )
+            .onChange(of: active) { _, index in
+                guard !lyricsExpanded else { return }
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { proxy.scrollTo(index, anchor: .center) }
+            }
+            .onAppear { proxy.scrollTo(active, anchor: .center) }
+        }
+    }
+
+    private func displayLine(_ raw: String) -> String {
+        if showTranslation, let translated = translatedLines[raw], !translated.isEmpty {
+            return translated
+        }
+        if showRomanization, let latin = MusicRomanizer.romanize(raw) { return latin }
+        return raw
+    }
+
+    private func pillToggle(_ symbol: String, on: Bool, label: String,
+                            action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(on ? Color.black.opacity(0.8) : textColor.opacity(0.75))
+                .frame(width: 22, height: 22)
+                .background(on ? textColor.opacity(0.9) : textColor.opacity(0.14), in: Circle())
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: label))
+    }
+
+    /// Reuses the same Translation framework pass `TranslateCardView` uses; the host is zero-sized and only
+    /// present while the 文A pill is on.
+    @ViewBuilder
+    private var translationHost: some View {
+        if #available(macOS 15.0, *) {
+            MusicLyricsTranslationHost(lines: lyricLines.map(\.text)) { translated in
+                translatedLines = translated
+            } content: {
+                Color.clear.frame(width: 0, height: 0)
+            }
+        }
+    }
+
+    private var miniHeader: some View {
+        HStack(spacing: 8) {
+            if let data = state.artworkData, let image = NSImage(data: data) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 30, height: 30)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+            } else {
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(accent.opacity(0.35))
+                    .frame(width: 30, height: 30)
+                    .overlay(Image(systemName: "music.note").font(.system(size: 11)))
+            }
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: state.title ?? String(localized: "Not Playing"))
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .foregroundStyle(textColor)
+                    .lineLimit(1)
+                if let artist = state.artist, !artist.isEmpty {
+                    Text(verbatim: artist)
+                        .font(.system(size: 9.5, weight: .medium))
+                        .foregroundStyle(textColor.opacity(0.5))
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            glassPill("star" + (isFavoriteSlot(.favorite) ? ".fill" : ""),
+                      active: isFavoriteSlot(.favorite),
+                      label: String(localized: "Favorite")) {
+                favorites.toggle(title: state.title, artist: state.artist)
+            }
+            glassPill(lyricsExpanded ? "chevron.down" : "arrow.up.left.and.arrow.down.right",
+                      active: lyricsExpanded,
+                      label: String(localized: "Synced Lyrics")) {
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { lyricsExpanded.toggle() }
+            }
+        }
+    }
+
+    // MARK: Queue / History
+
+    private var queueBody: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            miniHeader
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 10) {
+                    let sections = queue.sections(favorites: favorites.entries)
+                    if sections.isEmpty {
+                        Text("Nothing played yet")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(textColor.opacity(0.5))
+                            .padding(.top, 8)
+                    }
+                    ForEach(sections) { section in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 4) {
+                                Image(systemName: section.kind.symbolName).font(.system(size: 8))
+                                Text(verbatim: queueTitle(section.kind))
+                                    .font(.system(size: 9, weight: .semibold))
+                                Spacer(minLength: 0)
+                            }
+                            .foregroundStyle(textColor.opacity(0.45))
+                            ForEach(section.entries) { entry in
+                                queueRow(entry)
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical, 6)
+            }
+            .frame(maxHeight: .infinity)
+            segmentedControls
+            modeBar
+        }
+    }
+
+    private func queueTitle(_ kind: MusicQueueKind) -> String {
+        switch kind {
+        case .upcoming: return String(localized: "Upcoming")
+        case .history: return String(localized: "History")
+        case .favorites: return String(localized: "Favorites")
+        }
+    }
+
+    private func queueRow(_ entry: MusicQueueEntry) -> some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .fill(accent.opacity(0.4))
+                .frame(width: 20, height: 20)
+                .overlay(Image(systemName: "music.note").font(.system(size: 8)).foregroundStyle(textColor.opacity(0.8)))
+            VStack(alignment: .leading, spacing: 0) {
+                Text(verbatim: entry.title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(textColor)
+                    .lineLimit(1)
+                if let artist = entry.artist, !artist.isEmpty {
+                    Text(verbatim: artist)
+                        .font(.system(size: 9))
+                        .foregroundStyle(textColor.opacity(0.5))
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+            Button { favorites.toggle(title: entry.title, artist: entry.artist) } label: {
+                Image(systemName: favorites.contains(title: entry.title, artist: entry.artist) ? "star.fill" : "star")
+                    .font(.system(size: 9))
+                    .foregroundStyle(textColor.opacity(0.55))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Favorite"))
+        }
+    }
+
+    private var segmentedControls: some View {
+        HStack(spacing: 4) {
+            segment(String(localized: "Shuffle"), symbol: "shuffle", on: queue.isShuffled) {
+                queue.isShuffled.toggle(); MusicSurfaceConfig.saveQueueModel(queue)
+            }
+            segment(String(localized: "Repeat"), symbol: "repeat", on: queue.repeatsTrack) {
+                queue.repeatsTrack.toggle(); MusicSurfaceConfig.saveQueueModel(queue)
+            }
+            segment(String(localized: "Autoplay"), symbol: "infinity", on: queue.autoplay) {
+                queue.autoplay.toggle(); MusicSurfaceConfig.saveQueueModel(queue)
+            }
+        }
+        .padding(2)
+        .background(textColor.opacity(0.10), in: Capsule())
+    }
+
+    private func segment(_ label: String, symbol: String, on: Bool,
+                         action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 3) {
+                Image(systemName: symbol).font(.system(size: 9, weight: .semibold))
+                Text(verbatim: label).font(.system(size: 9, weight: .semibold))
+            }
+            .foregroundStyle(on ? textColor : textColor.opacity(0.5))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 4)
+            .background(textColor.opacity(on ? 0.16 : 0), in: Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: label))
+    }
+
+    private func refreshDeviceName() {
+        deviceName = AudioOutputSwitcher.devices().first(where: \.isDefault)?.name
+    }
+
+    private func recordHistory() {
+        queue.record(title: state.title, artist: state.artist)
+        MusicSurfaceConfig.saveQueueModel(queue)
     }
 
     // MARK: pieces
@@ -744,6 +1184,23 @@ struct MusicGlassCardView: View {
     @ViewBuilder
     private var background: some View {
         ZStack {
+            if layout == .full, viewMode == .nowPlaying,
+               let data = state.artworkData, let image = NSImage(data: data) {
+                GeometryReader { proxy in
+                    Image(nsImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: proxy.size.width, height: proxy.size.height * 0.68, alignment: .top)
+                        .clipped()
+                        .overlay(
+                            LinearGradient(stops: [
+                                .init(color: .clear, location: 0.42),
+                                .init(color: Color.black.opacity(theme.isDark ? 0.55 : 0.18), location: 0.78),
+                                .init(color: Color.black.opacity(theme.isDark ? 0.78 : 0.30), location: 1)
+                            ], startPoint: .top, endPoint: .bottom)
+                        )
+                }
+            }
             if theme.usesMaterial {
                 DockVisualEffectView(material: .hudWindow)
             }
@@ -891,5 +1348,35 @@ enum MusicLocalFilePicker {
         panel.message = String(localized: "Choose an audio file to play locally.")
         guard panel.runModal() == .OK, let url = panel.url else { return }
         LocalAudioPlayer.shared.play(url: url)
+    }
+}
+
+
+/// Lyrics translation reuses the same Translation framework pass as `TranslateCardView`: the view itself is
+/// zero-sized, so the lyrics list keeps owning its layout.
+@available(macOS 15.0, *)
+private struct MusicLyricsTranslationHost<Content: View>: View {
+    var lines: [String]
+    var onResult: ([String: String]) -> Void
+    @ViewBuilder var content: Content
+
+    @State private var configuration: TranslationSession.Configuration?
+
+    var body: some View {
+        content
+            .onAppear {
+                if configuration == nil {
+                    configuration = TranslationSession.Configuration(source: nil, target: nil)
+                }
+            }
+            .translationTask(configuration) { session in
+                var result: [String: String] = [:]
+                for line in lines where !line.isEmpty {
+                    if let response = try? await session.translate(line) {
+                        result[line] = response.targetText
+                    }
+                }
+                await MainActor.run { onResult(result) }
+            }
     }
 }

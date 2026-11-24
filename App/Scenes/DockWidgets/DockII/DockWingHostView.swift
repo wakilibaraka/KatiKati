@@ -178,6 +178,12 @@ struct DockWingHostView: View {
             DockPauseWidgetView()
         case .hydrate:
             DockHydrateWidgetView()
+        case .musicAtmospheric:
+            DockMusicAtmosphericWingView()
+        case .musicLyrics:
+            DockMusicLyricsWingView()
+        case .musicQueue:
+            DockMusicQueueWingView()
         }
     }
 
@@ -363,6 +369,12 @@ struct DockUniversalWidgetCard: View {
             DockPauseWidgetView()
         case .hydrate:
             DockHydrateWidgetView()
+        case .musicAtmospheric:
+            DockMusicAtmosphericWingView()
+        case .musicLyrics:
+            DockMusicLyricsWingView()
+        case .musicQueue:
+            DockMusicQueueWingView()
         }
     }
 

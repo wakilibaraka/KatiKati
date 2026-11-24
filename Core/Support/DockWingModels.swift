@@ -17,6 +17,10 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
     // PHN-2: the wellness wings.
     case pause
     case hydrate
+    // Atmospheric music wings (ML-12).
+    case musicAtmospheric
+    case musicLyrics
+    case musicQueue
 
     var id: String { rawValue }
 
@@ -38,6 +42,9 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .ai: return "sparkles"
         case .pause: return "figure.mind.and.body"
         case .hydrate: return "drop.fill"
+        case .musicAtmospheric: return "music.note.house"
+        case .musicLyrics: return "quote.bubble"
+        case .musicQueue: return "list.bullet"
         }
     }
 
@@ -56,6 +63,9 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .ai: return String(localized: "AI")
         case .pause: return String(localized: "Pause")
         case .hydrate: return String(localized: "Hydrate")
+        case .musicAtmospheric: return String(localized: "Music Atmospheric")
+        case .musicLyrics: return String(localized: "Music Lyrics")
+        case .musicQueue: return String(localized: "Music Queue")
         }
     }
 }
@@ -285,6 +295,15 @@ enum DockWingDimensions {
         // Was 232: the ring, the day total and three serving pills need ~234 pt at dock scale, so at
         // 232 the first two pills wrapped to two lines while the third stayed on one.
         case (.hydrate, .large): return 276
+        case (.musicAtmospheric, .small): return 120
+        case (.musicAtmospheric, .medium): return 200
+        case (.musicAtmospheric, .large): return 264
+        case (.musicLyrics, .small): return 116
+        case (.musicLyrics, .medium): return 208
+        case (.musicLyrics, .large): return 272
+        case (.musicQueue, .small): return 112
+        case (.musicQueue, .medium): return 196
+        case (.musicQueue, .large): return 256
         }
     }
 

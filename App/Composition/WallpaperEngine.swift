@@ -488,7 +488,7 @@ enum MusicWallpaperRenderer {
               let tiff = sourceImage.tiffRepresentation,
               let source = CIImage(data: tiff) else { return nil }
         let width = Int(size.width.rounded()), height = Int(size.height.rounded())
-        let name = "music-\(signature(trackKey))-\(width)x\(height)-\(blur ? "b" : "p")-\(style.rawValue).png"
+        let name = "music-\(signature(trackKey))-\(width)x\(height)-\(blur ? "b" : "p")-\(style.rawValue)\(style.isAtmospheric ? "-" + paletteTag(palette) : "").png"
         let url = dir.appendingPathComponent(name)
         if FileManager.default.fileExists(atPath: url.path) { return url }
 
@@ -503,28 +503,7 @@ enum MusicWallpaperRenderer {
         if blur {
             image = image.clampedToExtent().applyingGaussianBlur(sigma: blurRadius).cropped(to: target)
         }
-        if style.keepsArtworkCrisp {
-            // The art stays readable: a crisp copy inset over the blurred base (no rounding: the card does that).
-            let inset = target.insetBy(dx: target.width * 0.19, dy: target.height * 0.19)
-            let factor = max(inset.width / max(clear.extent.width, 1), inset.height / max(clear.extent.height, 1))
-            var plate = clear.transformed(by: CGAffineTransform(scaleX: factor, y: factor))
-            plate = plate.transformed(by: CGAffineTransform(
-                translationX: inset.midX - plate.extent.midX, y: inset.midY - plate.extent.midY))
-            plate = plate.cropped(to: inset)
-            image = plate.composited(over: image)
-        }
-        if style.dim > 0 || style.brighten > 0 {
-            image = image.applyingFilter("CIColorControls", parameters: [
-                kCIInputBrightnessKey: style.brighten - style.dim
-            ]).cropped(to: target)
-        }
-        if style.tintMix > 0 {
-            let tint = CIImage(color: CIColor(red: palette.accent.r, green: palette.accent.g, blue: palette.accent.b))
-                .cropped(to: target)
-            image = tint.applyingFilter("CIColorMatrix", parameters: [
-                "inputAVector": CIVector(x: 0, y: 0, z: 0, w: style.tintMix)
-            ]).composited(over: image)
-        }
+        image = painted(blurred: image, clear: clear, target: target, style: style, palette: palette)
         let context = CIContext(options: [.useSoftwareRenderer: false])
         guard let cgImage = context.createCGImage(image, from: target),
               let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)
@@ -583,6 +562,7 @@ enum MusicWallpaperRenderer {
             .transformed(by: CGAffineTransform(translationX: target.midX + panX * target.width,
                                                y: target.midY + panY * target.height))
             .cropped(to: target)
+        image = painted(blurred: image, clear: image, target: target, style: style, palette: palette)
         let context = CIContext(options: [.useSoftwareRenderer: false])
         guard let cgImage = context.createCGImage(image, from: target),
               let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.jpeg.identifier as CFString, 1, nil)
@@ -591,6 +571,95 @@ enum MusicWallpaperRenderer {
         CGImageDestinationAddImage(destination, cgImage, options)
         guard CGImageDestinationFinalize(destination) else { return url }
         return url
+    }
+
+    /// The Atmospheric paint pass: one CoreImage pass per track for the multi-stop mesh, the full-bleed fade,
+    /// the crisp plate, the dim/brighten and the accent tint. Every style shares it, so there is still exactly
+    /// one place that decides what a wallpaper looks like.
+    static func painted(blurred image: CIImage, clear: CIImage, target: CGRect,
+                        style: MusicWallpaperStyle, palette: MusicArtworkPalette) -> CIImage {
+        var result = image
+        if style == .atmosphericMesh {
+            result = mesh(result, target: target, palette: palette)
+        }
+        if style == .fullBleedFade {
+            let mask = CIImage(color: .white).cropped(to: target)
+                .applyingFilter("CIGaussianGradient", parameters: [
+                    "inputCenter": CIVector(x: target.midX, y: target.maxY - target.height * 0.28),
+                    "inputRadius0": target.height * 0.10,
+                    "inputRadius1": target.height * 0.62,
+                    "inputColor0": CIColor(red: 1, green: 1, blue: 1, alpha: 1),
+                    "inputColor1": CIColor(red: 1, green: 1, blue: 1, alpha: 0)
+                ])
+                .cropped(to: target)
+            let inset = target.insetBy(dx: target.width * 0.06, dy: target.height * 0.06)
+            let factor = max(inset.width / max(clear.extent.width, 1), inset.height / max(clear.extent.height, 1))
+            var plate = clear.transformed(by: CGAffineTransform(scaleX: factor, y: factor))
+            plate = plate.transformed(by: CGAffineTransform(
+                translationX: inset.midX - plate.extent.midX, y: inset.midY - plate.extent.midY))
+            plate = plate.cropped(to: inset)
+            let faded = plate.composited(over: result).applyingFilter("CIBlendWithMask", parameters: [
+                kCIInputBackgroundImageKey: result,
+                kCIInputMaskImageKey: mask.applyingFilter("CIMaskToAlpha")
+            ])
+            result = faded.cropped(to: target)
+        }
+        if style.keepsArtworkCrisp && style != .fullBleedFade {
+            // The art stays readable: a crisp copy inset over the blurred base (no rounding: the card does that).
+            let inset = target.insetBy(dx: target.width * 0.19, dy: target.height * 0.19)
+            let factor = max(inset.width / max(clear.extent.width, 1), inset.height / max(clear.extent.height, 1))
+            var plate = clear.transformed(by: CGAffineTransform(scaleX: factor, y: factor))
+            plate = plate.transformed(by: CGAffineTransform(
+                translationX: inset.midX - plate.extent.midX, y: inset.midY - plate.extent.midY))
+            plate = plate.cropped(to: inset)
+            result = plate.composited(over: result)
+        }
+        if style.dim > 0 || style.brighten > 0 {
+            result = result.applyingFilter("CIColorControls", parameters: [
+                kCIInputBrightnessKey: style.brighten - style.dim
+            ]).cropped(to: target)
+        }
+        if style.tintMix > 0 {
+            let tint = CIImage(color: CIColor(red: palette.accent.r, green: palette.accent.g, blue: palette.accent.b))
+                .cropped(to: target)
+            result = tint.applyingFilter("CIColorMatrix", parameters: [
+                "inputAVector": CIVector(x: 0, y: 0, z: 0, w: style.tintMix)
+            ]).composited(over: result)
+        }
+        return result.cropped(to: target)
+    }
+
+    /// Multi-stop adaptive mesh: one radial gradient per palette stop, over the blurred art, then a vignette so
+    /// the corners sink instead of flattening. Five filters, once per track.
+    private static func mesh(_ image: CIImage, target: CGRect, palette: MusicArtworkPalette) -> CIImage {
+        var result = image
+        let span = max(target.width, target.height)
+        for stop in MusicMeshStops.stops(for: palette) {
+            let center = CIVector(x: target.minX + target.width * stop.x, y: target.minY + target.height * stop.y)
+            let radius = span * stop.radius
+            guard let gradient = CIFilter(name: "CIRadialGradient", parameters: [
+                "inputCenter": center,
+                "inputRadius0": radius * 0.10,
+                "inputRadius1": radius,
+                "inputColor0": CIColor(red: stop.r, green: stop.g, blue: stop.b, alpha: 0.62),
+                "inputColor1": CIColor(red: stop.r, green: stop.g, blue: stop.b, alpha: 0)
+            ]), let field = gradient.outputImage else { continue }
+            result = field.cropped(to: target).composited(over: result)
+        }
+        return result.applyingFilter("CIVignette", parameters: [
+            kCIInputIntensityKey: 0.85,
+            kCIInputRadiusKey: 1.9
+        ]).cropped(to: target)
+    }
+
+    /// Stable palette tag so a mesh repaint happens when the colours change, not on every track tick.
+    private static func paletteTag(_ palette: MusicArtworkPalette) -> String {
+        func hex(_ value: Double) -> String {
+            String(format: "%02x", Int((min(max(value, 0), 1) * 255).rounded()))
+        }
+        return hex(palette.accent.r) + hex(palette.accent.g) + hex(palette.accent.b)
+            + hex(palette.secondary.r) + hex(palette.secondary.g) + hex(palette.secondary.b)
+            + (palette.isDark ? "d" : "l")
     }
 
     /// Filename-safe, stable content key.
