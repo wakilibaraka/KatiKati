@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import os.lock
 
 enum AXMessagingPolicy {
     static let defaultTimeoutSeconds: Float = 0.15
@@ -150,14 +151,23 @@ enum WindowSnapService {
         return actual
     }
 
-    static func frame(of window: AXUIElement) -> CGRect? {
-        var posRef: CFTypeRef?, sizeRef: CFTypeRef?
+    nonisolated static func origin(of window: AXUIElement) -> CGPoint? {
+        var posRef: CFTypeRef?
         guard AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &posRef) == .success,
-              AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef) == .success,
-              let posRef, let sizeRef, CFGetTypeID(posRef) == AXValueGetTypeID(), CFGetTypeID(sizeRef) == AXValueGetTypeID()
+              let posRef, CFGetTypeID(posRef) == AXValueGetTypeID()
         else { return nil }
-        var p = CGPoint.zero, s = CGSize.zero
+        var p = CGPoint.zero
         AXValueGetValue(posRef as! AXValue, .cgPoint, &p)
+        return p
+    }
+
+    nonisolated static func frame(of window: AXUIElement) -> CGRect? {
+        var sizeRef: CFTypeRef?
+        guard let p = origin(of: window),
+              AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef) == .success,
+              let sizeRef, CFGetTypeID(sizeRef) == AXValueGetTypeID()
+        else { return nil }
+        var s = CGSize.zero
         AXValueGetValue(sizeRef as! AXValue, .cgSize, &s)
         return CGRect(origin: p, size: s)
     }
@@ -197,13 +207,78 @@ enum WindowSnapService {
     }
 }
 
+/// Serial background Accessibility reader for `SnapDragMonitor` so drag events never block `@MainActor`.
+private final class SnapAXProbe: @unchecked Sendable {
+    private let queue = DispatchQueue(label: "com.katikati.snap.ax", qos: .userInteractive)
+    private var lock = os_unfair_lock_s()
+    private var pollInFlight = false
+    private var cachedPressID: UInt64 = 0
+    private var cachedWindow: AXUIElement?
+
+    func seed(pressID: UInt64,
+              pid: pid_t,
+              primaryMaxY: CGFloat,
+              completion: @escaping @MainActor @Sendable (UInt64, CGRect?, CGPoint?) -> Void) {
+        queue.async { [weak self] in
+            guard let self else { return }
+            self.cachedPressID = pressID
+            self.cachedWindow = nil
+            let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
+            var ref: CFTypeRef?
+            guard AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute as CFString, &ref) == .success,
+                  let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else {
+                DispatchQueue.main.async { completion(pressID, nil, nil) }
+                return
+            }
+            let window = AXMessagingPolicy.applyTimeout(ref as! AXUIElement)
+            guard let quartz = WindowSnapService.frame(of: window) else {
+                DispatchQueue.main.async { completion(pressID, nil, nil) }
+                return
+            }
+            self.cachedWindow = window
+            let cocoa = CGRect(x: quartz.minX, y: primaryMaxY - quartz.maxY, width: quartz.width, height: quartz.height)
+            DispatchQueue.main.async { completion(pressID, cocoa, quartz.origin) }
+        }
+    }
+
+    func pollOrigin(pressID: UInt64, completion: @escaping @MainActor @Sendable (UInt64, CGPoint?) -> Void) {
+        os_unfair_lock_lock(&lock)
+        if pollInFlight {
+            os_unfair_lock_unlock(&lock)
+            return
+        }
+        pollInFlight = true
+        os_unfair_lock_unlock(&lock)
+
+        queue.async { [weak self] in
+            guard let self else { return }
+            defer {
+                os_unfair_lock_lock(&self.lock)
+                self.pollInFlight = false
+                os_unfair_lock_unlock(&self.lock)
+            }
+            guard self.cachedPressID == pressID, let window = self.cachedWindow else { return }
+            let origin = WindowSnapService.origin(of: window)
+            DispatchQueue.main.async { completion(pressID, origin) }
+        }
+    }
+
+    func clear() {
+        queue.async { [weak self] in
+            self?.cachedPressID = 0
+            self?.cachedWindow = nil
+        }
+    }
+}
+
 /// Non-intercepting drag-to-edge monitor (G3). It observes mouse drags only while the setting is
 /// on, draws a ghost of the planned zone, and applies it after release. `DragController` is untouched.
 @MainActor
 final class SnapDragMonitor {
     private var monitors: [Any] = []
     private var activeZone: SnapZonePlanner.Zone?
-    private var tracking = false
+    private var session = SnapDragSession()
+    private let axProbe = SnapAXProbe()
     private var style = SnapPreviewStyle.outline
     private var edgeMargin: CGFloat = 12
     private var preview: NSPanel?
@@ -227,7 +302,8 @@ final class SnapDragMonitor {
     private func stop() {
         for monitor in monitors { NSEvent.removeMonitor(monitor) }
         monitors.removeAll()
-        tracking = false
+        session.reset()
+        axProbe.clear()
         activeZone = nil
         preview?.orderOut(nil)
         preview = nil
@@ -235,11 +311,32 @@ final class SnapDragMonitor {
 
     private func dragged() {
         let mouse = NSEvent.mouseLocation
-        if !tracking {
-            guard let frame = WindowSnapService.frontmostWindowFrameCocoa(),
-                  frame.insetBy(dx: -2, dy: -2).contains(mouse) else { return }
-            tracking = true
+        if session.isIdle {
+            let pressID = session.beginPress(at: mouse)
+            guard AXIsProcessTrusted(),
+                  let app = NSWorkspace.shared.frontmostApplication,
+                  app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
+                  let primaryMaxY = NSScreen.screens.first?.frame.maxY else {
+                session.applySeed(pressID: pressID, windowFrameCocoa: nil, windowOriginQuartz: nil)
+                return
+            }
+            axProbe.seed(pressID: pressID, pid: app.processIdentifier, primaryMaxY: primaryMaxY) { [weak self] id, cocoa, origin in
+                self?.session.applySeed(pressID: id, windowFrameCocoa: cocoa, windowOriginQuartz: origin)
+            }
+            return
         }
+        if let pressID = session.seededPressID {
+            axProbe.pollOrigin(pressID: pressID) { [weak self] id, currentOrigin in
+                guard let self, self.session.observeWindowOrigin(currentOrigin, pressID: id) else { return }
+                self.evaluateZone(at: NSEvent.mouseLocation)
+            }
+            return
+        }
+        guard session.isTracking else { return }
+        evaluateZone(at: mouse)
+    }
+
+    private func evaluateZone(at mouse: CGPoint) {
         guard let screen = NSScreen.screens.first(where: { $0.frame.contains(mouse) }) else {
             activeZone = nil
             preview?.orderOut(nil)
@@ -263,12 +360,11 @@ final class SnapDragMonitor {
     }
 
     private func released() {
-        defer {
-            tracking = false
-            activeZone = nil
-            preview?.orderOut(nil)
-        }
-        guard let zone = activeZone else { return }
+        let zone = session.finishPress(activeZone: activeZone)
+        axProbe.clear()
+        activeZone = nil
+        preview?.orderOut(nil)
+        guard let zone else { return }
         WindowSnapService.apply(zone.position)
     }
 

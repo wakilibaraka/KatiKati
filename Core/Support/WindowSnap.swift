@@ -211,6 +211,88 @@ enum SnapZonePlanner {
     }
 }
 
+/// Pure state machine gating drag-to-snap so each press seeds AX window geometry at most once
+/// and only arms edge-zone snapping after the focused window's origin actually moves (`>= 2 pt`).
+struct SnapDragSession: Equatable, Sendable {
+    enum Phase: Equatable, Sendable {
+        case idle
+        case seeding(pressID: UInt64, mouseDown: CGPoint)
+        case seeded(pressID: UInt64, initialOrigin: CGPoint)
+        case tracking(pressID: UInt64)
+        case rejected(pressID: UInt64)
+    }
+
+    static let defaultMovementThreshold: CGFloat = 2
+    static let seedHitSlop: CGFloat = 8
+
+    private(set) var phase: Phase = .idle
+    private var nextPressID: UInt64 = 0
+    let movementThreshold: CGFloat
+
+    init(movementThreshold: CGFloat = Self.defaultMovementThreshold) {
+        self.movementThreshold = max(0.5, movementThreshold)
+    }
+
+    var isIdle: Bool { phase == .idle }
+
+    var isTracking: Bool {
+        if case .tracking = phase { return true }
+        return false
+    }
+
+    var seededPressID: UInt64? {
+        if case .seeded(let id, _) = phase { return id }
+        return nil
+    }
+
+    /// Starts a new press on first drag sample and returns its `pressID` for a single background AX seed.
+    @discardableResult
+    mutating func beginPress(at mouse: CGPoint) -> UInt64 {
+        nextPressID &+= 1
+        let id = nextPressID
+        phase = .seeding(pressID: id, mouseDown: mouse)
+        return id
+    }
+
+    /// Applies the single focused-window seed for `pressID`, rejecting drags outside the window.
+    mutating func applySeed(pressID: UInt64, windowFrameCocoa: CGRect?, windowOriginQuartz: CGPoint?) {
+        guard case .seeding(let activeID, let mouseDown) = phase, activeID == pressID else { return }
+        guard let frame = windowFrameCocoa,
+              let origin = windowOriginQuartz,
+              frame.insetBy(dx: -Self.seedHitSlop, dy: -Self.seedHitSlop).contains(mouseDown) else {
+            phase = .rejected(pressID: pressID)
+            return
+        }
+        phase = .seeded(pressID: pressID, initialOrigin: origin)
+    }
+
+    /// Observes a polled `AXPosition` while `.seeded`; returns `true` when the window moves enough to arm tracking.
+    @discardableResult
+    mutating func observeWindowOrigin(_ currentOrigin: CGPoint?, pressID: UInt64) -> Bool {
+        guard case .seeded(let activeID, let initialOrigin) = phase, activeID == pressID else { return false }
+        guard let currentOrigin else {
+            phase = .rejected(pressID: pressID)
+            return false
+        }
+        if hypot(currentOrigin.x - initialOrigin.x, currentOrigin.y - initialOrigin.y) >= movementThreshold {
+            phase = .tracking(pressID: pressID)
+            return true
+        }
+        return false
+    }
+
+    /// Completes the press on mouse-up, returning `activeZone` only if real window movement armed tracking.
+    mutating func finishPress(activeZone: SnapZonePlanner.Zone?) -> SnapZonePlanner.Zone? {
+        let armed = isTracking
+        phase = .idle
+        return armed ? activeZone : nil
+    }
+
+    mutating func reset() {
+        phase = .idle
+    }
+}
+
 /// Which display a window moves to when a gesture asks for the next or previous one.
 enum DisplayMove {
     /// `step` displays along the live order, wrapping both ways so a gesture can send a window back.

@@ -153,6 +153,61 @@ final class WindowSnapTests: XCTestCase {
                                              dock: CGRect(x: 1376, y: 150, width: 64, height: 600))
         XCTAssertEqual(SnapPosition.rightHalf.frame(in: rightArea, gaps: gaps).maxX, 1368)
     }
+
+    func testSnapDragSessionSeedsOnceAndRejectsOutsideDrags() {
+        var session = SnapDragSession()
+        let windowFrame = CGRect(x: 200, y: 150, width: 800, height: 500)
+        let pressID = session.beginPress(at: CGPoint(x: 50, y: 50))
+        XCTAssertFalse(session.isIdle, "subsequent drag ticks must not re-seed the same press")
+        XCTAssertNil(session.seededPressID)
+
+        session.applySeed(pressID: pressID, windowFrameCocoa: windowFrame, windowOriginQuartz: CGPoint(x: 200, y: 250))
+        XCTAssertEqual(session.phase, .rejected(pressID: pressID))
+        XCTAssertNil(session.seededPressID, "rejected desktop/outside drags never poll AXPosition again")
+        XCTAssertFalse(session.isTracking)
+
+        let edgeZone = SnapZonePlanner.resolve(at: CGPoint(x: 2, y: 400), in: visible)
+        XCTAssertNil(session.finishPress(activeZone: edgeZone))
+        XCTAssertTrue(session.isIdle)
+    }
+
+    func testSnapDragSessionIgnoresInteriorScrollbarAndTextDrags() {
+        var session = SnapDragSession()
+        let windowFrame = CGRect(x: 100, y: 100, width: 900, height: 600)
+        let initialOrigin = CGPoint(x: 100, y: 200)
+        let pressID = session.beginPress(at: CGPoint(x: 992, y: 400))
+        session.applySeed(pressID: pressID, windowFrameCocoa: windowFrame, windowOriginQuartz: initialOrigin)
+        XCTAssertEqual(session.seededPressID, pressID)
+
+        // Dragging a scrollbar or text selection all the way to the screen edge leaves AXPosition unchanged.
+        XCTAssertFalse(session.observeWindowOrigin(initialOrigin, pressID: pressID))
+        XCTAssertFalse(session.observeWindowOrigin(CGPoint(x: 101.2, y: 200.5), pressID: pressID), "sub-2pt jitter stays disarmed")
+        XCTAssertFalse(session.isTracking)
+
+        let rightZone = SnapZonePlanner.resolve(at: CGPoint(x: 1438, y: 400), in: visible)
+        XCTAssertNotNil(rightZone)
+        XCTAssertNil(session.finishPress(activeZone: rightZone), "interior drags must never snap on release")
+    }
+
+    func testSnapDragSessionArmsOnRealWindowMoveAndIgnoresStalePressIDs() {
+        var session = SnapDragSession()
+        let windowFrame = CGRect(x: 200, y: 150, width: 800, height: 500)
+        let initialOrigin = CGPoint(x: 200, y: 250)
+        let staleID = session.beginPress(at: CGPoint(x: 400, y: 640))
+        let activeID = session.beginPress(at: CGPoint(x: 400, y: 640))
+
+        session.applySeed(pressID: staleID, windowFrameCocoa: nil, windowOriginQuartz: nil)
+        XCTAssertEqual(session.phase, .seeding(pressID: activeID, mouseDown: CGPoint(x: 400, y: 640)))
+
+        session.applySeed(pressID: activeID, windowFrameCocoa: windowFrame, windowOriginQuartz: initialOrigin)
+        XCTAssertTrue(session.observeWindowOrigin(CGPoint(x: 202.5, y: 250), pressID: activeID))
+        XCTAssertTrue(session.isTracking)
+        XCTAssertNil(session.seededPressID, "once armed, drag ticks stop polling AXPosition")
+
+        let leftZone = SnapZonePlanner.resolve(at: CGPoint(x: 4, y: 400), in: visible)
+        XCTAssertEqual(session.finishPress(activeZone: leftZone), leftZone)
+        XCTAssertTrue(session.isIdle)
+    }
 }
 
 /// 54a: a plain click keeps its old meaning; the modifiers are the only change.
