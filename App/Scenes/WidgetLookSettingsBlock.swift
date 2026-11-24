@@ -253,6 +253,15 @@ struct AppIconsSettingsBlock: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+            SettingsCard(Text("Icon Studio")) {
+                SettingsButtonRow(
+                    Text("Custom & Live Icons"),
+                    note: Text("Style Dock and Command-Tab icons with custom artwork, shaders, badge effects, and live data.")
+                ) {
+                    IconStudioWindowController.shared.open()
+                }
+            }
+
             SettingsCard(Text("App Icon Presets")) {
                 SettingsPickerRow(
                     Text("Running Apps Style"),
@@ -935,5 +944,253 @@ struct IconStudioInspectorColumn: View {
     let bundleID: String
     @ObservedObject var studio: IconStudioController
     let examplePct: Double?
-    var body: some View { Color.clear }
+
+    @State private var openSections: Set<String> = ["live"]
+    @State private var showSaveLook = false
+    @State private var lookNameDraft = ""
+    @State private var showMacOSIcons = false
+    @State private var tintColor: Color = .accentColor
+
+    private var look: IconLook { studio.look(for: bundleID) ?? IconLook() }
+    private var liveKind: LiveIconKind? { LiveIconKind.allCases.first { $0.defaultBundleID == bundleID } }
+
+    private func updateLook(_ mutate: (inout IconLook) -> Void) {
+        var next = look
+        mutate(&next)
+        studio.setLook(next, for: bundleID)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    if let kind = liveKind { liveHeaderCard(kind) }
+
+                    HStack {
+                        Text("Appearance").font(.system(size: 13, weight: .semibold))
+                        Spacer()
+                        Button("Save Look…") { lookNameDraft = ""; showSaveLook = true }
+                            .controlSize(.small)
+                            .popover(isPresented: $showSaveLook) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Save Look Preset").font(.system(size: 12, weight: .semibold))
+                                    TextField("Preset name", text: $lookNameDraft).textFieldStyle(.roundedBorder).frame(width: 200)
+                                    HStack {
+                                        Spacer()
+                                        Button("Save") {
+                                            studio.savePreset(name: lookNameDraft, from: look)
+                                            showSaveLook = false
+                                        }
+                                        .keyboardShortcut(.defaultAction).controlSize(.small)
+                                    }
+                                }
+                                .padding(12)
+                            }
+                        Menu("Looks") {
+                            if studio.state.savedPresets.isEmpty {
+                                Text("No saved looks")
+                            } else {
+                                ForEach(studio.state.savedPresets) { preset in
+                                    Button(preset.name) { studio.applyPreset(preset, to: bundleID) }
+                                }
+                                Divider()
+                                Menu("Delete Look") {
+                                    ForEach(studio.state.savedPresets) { preset in
+                                        Button(preset.name, role: .destructive) { studio.deletePreset(id: preset.id) }
+                                    }
+                                }
+                            }
+                        }
+                        .menuStyle(.borderedButton).controlSize(.small).fixedSize()
+                    }
+
+                    inspectorSection("badges", title: String(localized: "Badges"), summary: look.badgeEffect.kind == .none ? String(localized: "Off") : look.badgeEffect.kind.rawValue.capitalized) {
+                        Picker("Effect", selection: Binding(get: { look.badgeEffect.kind }, set: { val in updateLook { $0.badgeEffect.kind = val } })) {
+                            ForEach(IconBadgeEffectKind.allCases) { Text($0.rawValue.capitalized).tag($0) }
+                        }
+                        .pickerStyle(.menu)
+                        if look.badgeEffect.kind != .none {
+                            Stepper("Min unread: \(look.badgeEffect.minUnreadCount)", value: Binding(get: { look.badgeEffect.minUnreadCount }, set: { val in updateLook { $0.badgeEffect.minUnreadCount = max(1, val) } }), in: 1...99)
+                                .font(.system(size: 11).monospacedDigit())
+                        }
+                    }
+
+                    inspectorSection("artwork", title: String(localized: "Artwork"), summary: look.artwork.isCustom ? String(localized: "Custom") : String(localized: "Original")) {
+                        HStack(spacing: 8) {
+                            Button("Choose Image…") { pickCustomImage() }.controlSize(.small)
+                            Button("Search macOSicons…") { showMacOSIcons = true }.controlSize(.small)
+                            if look.artwork.isCustom {
+                                Button("Reset") { updateLook { $0.artwork = .original } }.controlSize(.small)
+                            }
+                        }
+                    }
+
+                    inspectorSection("color", title: String(localized: "Color"), summary: look.recolor.isIdentity ? String(localized: "Original") : look.recolor.mode.rawValue.capitalized) {
+                        Picker("Mode", selection: Binding(get: { look.recolor.mode }, set: { m in updateLook { $0.recolor.mode = m; if m != .original && $0.recolor.intensity == 0 { $0.recolor.intensity = 0.65 } } })) {
+                            ForEach(IconRecolorSpec.Mode.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
+                        }
+                        .pickerStyle(.segmented)
+                        if look.recolor.mode != .original {
+                            HStack {
+                                ColorPicker("Tint", selection: $tintColor, supportsOpacity: false)
+                                    .onChange(of: tintColor) { c in
+                                        if let hex = hexString(from: c) { updateLook { $0.recolor.primaryHex = hex } }
+                                    }
+                                Slider(value: Binding(get: { look.recolor.intensity }, set: { v in updateLook { $0.recolor.intensity = v } }), in: 0...1)
+                            }
+                        }
+                    }
+
+                    inspectorSection("shaders", title: String(localized: "Shaders"), summary: look.shader.preset == .none ? String(localized: "None") : look.shader.preset.rawValue) {
+                        Picker("Finish", selection: Binding(get: { look.shader.preset }, set: { p in updateLook { $0.shader.preset = p } })) {
+                            ForEach(IconShaderPreset.allCases) { Text($0.rawValue).tag($0) }
+                        }
+                        if look.shader.preset != .none {
+                            Slider(value: Binding(get: { look.shader.strength }, set: { v in updateLook { $0.shader.strength = v } }), in: 0...1) { Text("Strength") }
+                            if look.shader.preset.isAnimated {
+                                Picker("Animate", selection: Binding(get: { look.shader.trigger }, set: { t in updateLook { $0.shader.trigger = t } })) {
+                                    Text("Hover").tag(IconAnimationTrigger.hover)
+                                    Text("Active").tag(IconAnimationTrigger.active)
+                                    Text("Off").tag(IconAnimationTrigger.off)
+                                }.pickerStyle(.segmented)
+                            }
+                        }
+                    }
+
+                    inspectorSection("dressup", title: String(localized: "Dress Up"), summary: look.decorations.isEmpty ? String(localized: "None") : "\(look.decorations.count)") {
+                        HStack(spacing: 6) {
+                            ForEach(IconDecorationKind.allCases) { kind in
+                                let active = look.decorations.contains { $0.kind == kind }
+                                Button(kind.rawValue) {
+                                    updateLook {
+                                        if active { $0.decorations.removeAll { $0.kind == kind } }
+                                        else { $0.decorations.append(IconDecoration(kind: kind, anchorX: 0.5, anchorY: kind == .stringLights ? 0.16 : 0.22)) }
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent).tint(active ? .accentColor : .secondary.opacity(0.35)).controlSize(.small)
+                            }
+                        }
+                        if let first = look.decorations.first {
+                            Slider(value: Binding(get: { first.anchorY }, set: { y in updateLook { if !$0.decorations.isEmpty { $0.decorations[0].anchorY = y } } }), in: 0.05...0.95) { Text("Vertical") }
+                            if first.kind == .stringLights {
+                                Slider(value: Binding(get: { first.spacing }, set: { sp in updateLook { if !$0.decorations.isEmpty { $0.decorations[0].spacing = sp } } }), in: 0...1) { Text("Spacing") }
+                            }
+                        }
+                    }
+
+                    if let kind = liveKind {
+                        let liveCfg = look.live ?? LiveIconConfig.default(for: kind)
+                        inspectorSection("live", title: String(localized: "Live Activity"), summary: look.live?.isEnabled == true ? String(localized: "Active") : String(localized: "Off")) {
+                            Toggle("Enable Live Icon", isOn: Binding(get: { look.live?.isEnabled == true }, set: { on in updateLook { $0.live = on ? (look.live ?? .default(for: kind)) : nil } }))
+                            if look.live?.isEnabled == true {
+                                liveKindControls(kind: kind, cfg: liveCfg)
+                            }
+                        }
+                    }
+                }
+                .padding(14)
+            }
+            Divider()
+            HStack {
+                if look.live != nil {
+                    Button("Remove Live Icon") { updateLook { $0.live = nil } }.controlSize(.small)
+                }
+                Spacer()
+                Button("Open App") {
+                    if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+                        NSWorkspace.shared.openApplication(at: url, configuration: .init())
+                    }
+                }
+                .controlSize(.small)
+            }
+            .padding(12)
+        }
+        .sheet(isPresented: $showMacOSIcons) {
+            MacOSIconsSearchSheet(bundleID: bundleID, studio: studio)
+        }
+    }
+
+    @ViewBuilder
+    private func liveHeaderCard(_ kind: LiveIconKind) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: AppDisplayNameResolver.displayName(for: bundleID)).font(.system(size: 12, weight: .semibold))
+                Text(kind.supportsOptInActivityProbe ? "Opt-in activity source" : "Local activity source")
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+            Spacer()
+            if kind == .claude || kind == .codex || kind == .cursor {
+                Button { AgentUsageService.shared.refreshAsync() } label: { Image(systemName: "arrow.clockwise") }.buttonStyle(.borderless)
+            }
+        }
+        .padding(10)
+        .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    @ViewBuilder
+    private func liveKindControls(kind: LiveIconKind, cfg: LiveIconConfig) -> some View {
+        switch kind {
+        case .claude, .codex, .cursor:
+            Picker("Allowance", selection: Binding(get: { cfg.usageMode }, set: { v in updateLook { var c = $0.live ?? cfg; c.usageMode = v; $0.live = c } })) {
+                Text("None").tag(LiveIconUsageMode.none); Text("Used").tag(LiveIconUsageMode.used); Text("Remaining").tag(LiveIconUsageMode.remaining)
+            }.pickerStyle(.segmented)
+            Picker("Style", selection: Binding(get: { cfg.usageStyle }, set: { v in updateLook { var c = $0.live ?? cfg; c.usageStyle = v; $0.live = c } })) {
+                Text("Color fill").tag(LiveIconUsageStyle.colorFill); Text("Water").tag(LiveIconUsageStyle.water)
+                Text("Fade tide").tag(LiveIconUsageStyle.fadeTide); Text("Tracer").tag(LiveIconUsageStyle.glyphTracer)
+            }
+            Toggle("Show percentage", isOn: Binding(get: { cfg.showPercentage }, set: { v in updateLook { var c = $0.live ?? cfg; c.showPercentage = v; $0.live = c } }))
+            Toggle("Show weekly reset", isOn: Binding(get: { cfg.showWeeklyReset }, set: { v in updateLook { var c = $0.live ?? cfg; c.showWeeklyReset = v; $0.live = c } }))
+        case .appleMusic, .spotify:
+            Picker("Style", selection: Binding(get: { cfg.musicStyle }, set: { v in updateLook { var c = $0.live ?? cfg; c.musicStyle = v; $0.live = c } })) {
+                Text("Vinyl").tag(LiveIconMusicStyle.vinyl); Text("CD jewel case").tag(LiveIconMusicStyle.cdJewelCase); Text("Prismatic").tag(LiveIconMusicStyle.prismaticDisc)
+            }
+            Toggle("Show countdown", isOn: Binding(get: { cfg.showCountdown }, set: { v in updateLook { var c = $0.live ?? cfg; c.showCountdown = v; $0.live = c } }))
+        case .finder:
+            let f = cfg.finderStyle ?? FinderCompanionStyle()
+            Picker("Nose", selection: Binding(get: { f.noseStyle }, set: { n in updateLook { var c = $0.live ?? cfg; var st = c.finderStyle ?? f; st.noseStyle = n; c.finderStyle = st; $0.live = c } })) {
+                ForEach(FinderCompanionStyle.NoseStyle.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
+            }
+            Picker("Mouth", selection: Binding(get: { f.mouthStyle }, set: { m in updateLook { var c = $0.live ?? cfg; var st = c.finderStyle ?? f; st.mouthStyle = m; c.finderStyle = st; $0.live = c } })) {
+                ForEach(FinderCompanionStyle.MouthStyle.allCases, id: \.self) { Text($0.rawValue.capitalized).tag($0) }
+            }
+            Toggle("Opt-in file copy focus", isOn: Binding(get: { cfg.optInActivityProbe }, set: { v in updateLook { var c = $0.live ?? cfg; c.optInActivityProbe = v; $0.live = c } }))
+        case .mail, .messages, .safari, .chrome:
+            Toggle("Enable opt-in live probe", isOn: Binding(get: { cfg.optInActivityProbe }, set: { v in updateLook { var c = $0.live ?? cfg; c.optInActivityProbe = v; $0.live = c } }))
+            Text("Requires opt-in Accessibility or Automation consent only when active.").font(.system(size: 10)).foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func inspectorSection<Content: View>(_ id: String, title: String, summary: String, @ViewBuilder content: @escaping () -> Content) -> some View {
+        let isOpen = openSections.contains(id)
+        DisclosureGroup(isExpanded: Binding(get: { isOpen }, set: { on in if on { openSections.insert(id) } else { openSections.remove(id) } })) {
+            VStack(alignment: .leading, spacing: 8) { content() }.padding(.top, 6)
+        } label: {
+            HStack { Text(verbatim: title).font(.system(size: 12, weight: .semibold)); Spacer(); Text(verbatim: summary).font(.system(size: 11)).foregroundStyle(.secondary) }
+        }
+        .padding(10)
+        .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private func pickCustomImage() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.png, .icns, .tiff, .jpeg]
+        if panel.runModal() == .OK, let url = panel.url { _ = studio.importArtwork(from: url, for: bundleID) }
+    }
+
+    private func hexString(from color: Color) -> String? {
+        guard let ns = NSColor(color).usingColorSpace(.sRGB) else { return nil }
+        return String(format: "#%02X%02X%02X", Int((ns.redComponent * 255).rounded()), Int((ns.greenComponent * 255).rounded()), Int((ns.blueComponent * 255).rounded()))
+    }
+}
+
+struct MacOSIconsSearchSheet: View {
+    let bundleID: String
+    @ObservedObject var studio: IconStudioController
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("macOSicons Search").font(.headline)
+            Button("Close") { dismiss() }
+        }.padding(20)
+    }
 }

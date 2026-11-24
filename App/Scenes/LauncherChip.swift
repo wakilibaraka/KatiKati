@@ -377,6 +377,9 @@ struct LauncherChip: View {
                     menu.addItem(AppMenuBuilder.membershipItem(item))
                 }
                 AppMenuBuilder.appendAppGroupMenu(to: menu, bundleID: bundleID)
+                menu.addItem(ClosureMenuItem(String(localized: "Customize Icon…")) {
+                    IconStudioWindowController.shared.open(selectedBundleID: bundleID)
+                })
             }
         }
         return menu

@@ -7086,3 +7086,7 @@ the left edge and the closed notch unchanged after 1 s and after 3 s — no Side
 ### `IS-4.1` — Unread Badge Effects, Dress Up & Targeted `BadgeStore` Union (`c8eb78bd`, 2026-11-24)
 
 - `App/Entry/AppDelegate.swift`, `App/Scenes/{ChipBadgeView,ChipView,LauncherChip,ContentView}.swift`: unioned `IconStudioController.shared.state.badgeEligibleBundleIDs` into targeted `BadgeStore` polling and added `IconBadgeEffectView` (`fire`, `sunlight`, `waxSeal`, `glint`) + `IconDressUpOverlayView` (`stringLights`, `pine`, `snowGlobe`) (`c8eb78bd`; 19/19 `IconSetTests` + `BadgeReadPlanTests` passing).
+
+### `IS-4.2` & `IS-5.1` — Finder Companion & 3-Column Icon Studio Shell (`45a0c9b8`, `ad3e1593`, 2026-11-24)
+
+- `Core/Support/IconSet.swift`, `App/Scenes/{ChipBadgeView,ContentView,WidgetLookSettingsBlock}.swift`, `Tests/Unit/IconSetTests.swift`: added `FinderCompanionStyle`/`FinderCompanionGeometry`/`FinderCompanionIconView` (`45a0c9b8`; 14/14 `IconSetTests` passing) and `IconStudioWindowController`/`IconStudioWindowView` (`ad3e1593`; clean `KatiKati` build).

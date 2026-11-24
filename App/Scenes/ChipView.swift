@@ -628,6 +628,9 @@ struct ChipView: View {
             menu.addItem(AppMenuBuilder.membershipItem(descriptor))
         }
         AppMenuBuilder.appendAppGroupMenu(to: menu, bundleID: bid)
+        menu.addItem(ClosureMenuItem(String(localized: "Customize Icon…")) {
+            IconStudioWindowController.shared.open(selectedBundleID: bid)
+        })
     }
 
     // MARK: - Helpers
