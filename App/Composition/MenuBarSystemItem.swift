@@ -89,8 +89,10 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
             return Self.pieImage(MenuBarStatModel.imageFraction(metric: metric, values: values))
         case .iconOnly:
             return NSImage(systemSymbolName: MenuBarStatModel.batterySymbol(values.battery), accessibilityDescription: nil)
+        case .nestedPill:
+            return Self.nestedBatteryPillImage(values.battery)
         case .percentage, .available, .used, .remainingTime, .watts:
-            return NSImage(systemSymbolName: MenuBarStatModel.symbolName(metric: metric), accessibilityDescription: nil)
+            return NSImage(systemSymbolName: MenuBarStatModel.symbolName(metric: metric, values: values), accessibilityDescription: nil)
         }
     }
 
@@ -129,13 +131,69 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
 
     // MARK: - Template images for the drawing styles (tint to the menu bar automatically)
 
+    private static func nestedBatteryPillImage(_ battery: MenuBarBattery?) -> NSImage {
+        let label = MenuBarStatModel.batteryPillLabel(battery)
+        let tone = MenuBarStatModel.batteryPillTone(battery)
+        let charging = battery?.isCharging == true
+        let font = NSFont.monospacedDigitSystemFont(ofSize: 9.5, weight: .bold)
+        let textColor: NSColor = tone == .warning ? NSColor(white: 0.08, alpha: 1) : .white
+        let fillColor: NSColor = {
+            switch tone {
+            case .healthy, .charging: return .systemGreen
+            case .warning: return .systemYellow
+            case .critical: return .systemRed
+            }
+        }()
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: textColor]
+        let textSize = (label as NSString).size(withAttributes: attrs)
+        let bodyWidth = ceil(max(26, textSize.width + (charging ? 15 : 8)))
+        let totalWidth = bodyWidth + 3
+        let image = NSImage(size: NSSize(width: totalWidth, height: 16), flipped: false) { _ in
+            let bodyRect = NSRect(x: 0.5, y: 1.5, width: bodyWidth - 1, height: 13)
+            let shell = NSBezierPath(roundedRect: bodyRect, xRadius: 3.5, yRadius: 3.5)
+            fillColor.withAlphaComponent(0.92).setFill()
+            shell.fill()
+            fillColor.setStroke()
+            shell.lineWidth = 1
+            shell.stroke()
+
+            let nubRect = NSRect(x: bodyWidth + 0.5, y: 5.5, width: 1.5, height: 5)
+            fillColor.withAlphaComponent(0.85).setFill()
+            NSBezierPath(roundedRect: nubRect, xRadius: 0.75, yRadius: 0.75).fill()
+
+            let boltWidth: CGFloat = charging ? 7 : 0
+            let contentWidth = textSize.width + boltWidth + (charging ? 1 : 0)
+            let textOrigin = NSPoint(
+                x: ((bodyWidth - contentWidth) / 2).rounded(.toNearestOrAwayFromZero),
+                y: ((16 - textSize.height) / 2).rounded(.toNearestOrAwayFromZero)
+            )
+            (label as NSString).draw(at: textOrigin, withAttributes: attrs)
+
+            if charging,
+               let bolt = NSImage(systemSymbolName: "bolt.fill", accessibilityDescription: nil) {
+                let tinted = NSImage(size: NSSize(width: 7, height: 10), flipped: false) { rect in
+                    bolt.draw(in: rect)
+                    textColor.setFill()
+                    rect.fill(using: .sourceAtop)
+                    return true
+                }
+                tinted.draw(in: NSRect(x: textOrigin.x + textSize.width + 1, y: 3, width: 7, height: 10))
+            }
+            return true
+        }
+        image.isTemplate = false
+        return image
+    }
+
     private static func barImage(_ fraction: Double?) -> NSImage {
-        let f = fraction ?? 0
+        let f = min(1, max(0, fraction ?? 0))
         let image = NSImage(size: NSSize(width: 16, height: 16), flipped: false) { _ in
+            NSGraphicsContext.current?.shouldAntialias = true
             NSColor(white: 1, alpha: 0.3).setFill()
-            NSBezierPath(roundedRect: NSRect(x: 1, y: 5.5, width: 14, height: 5), xRadius: 2.5, yRadius: 2.5).fill()
+            NSBezierPath(roundedRect: NSRect(x: 1, y: 5, width: 14, height: 6), xRadius: 3, yRadius: 3).fill()
             NSColor(white: 1, alpha: 1).setFill()
-            NSBezierPath(roundedRect: NSRect(x: 1, y: 5.5, width: max(1, 14 * f), height: 5), xRadius: 2.5, yRadius: 2.5).fill()
+            let snappedWidth = (max(2, 14 * f) * 2).rounded() / 2
+            NSBezierPath(roundedRect: NSRect(x: 1, y: 5, width: snappedWidth, height: 6), xRadius: 3, yRadius: 3).fill()
             return true
         }
         image.isTemplate = true
@@ -143,10 +201,15 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     }
 
     private static func pieImage(_ fraction: Double?) -> NSImage {
-        let f = fraction ?? 0
+        let f = min(1, max(0, fraction ?? 0))
         let image = NSImage(size: NSSize(width: 16, height: 16), flipped: false) { _ in
-            NSColor(white: 1, alpha: 0.3).setFill()
+            NSGraphicsContext.current?.shouldAntialias = true
+            NSColor(white: 1, alpha: 0.25).setFill()
             NSBezierPath(ovalIn: NSRect(x: 2, y: 2, width: 12, height: 12)).fill()
+            NSColor(white: 1, alpha: 0.55).setStroke()
+            let ring = NSBezierPath(ovalIn: NSRect(x: 2.5, y: 2.5, width: 11, height: 11))
+            ring.lineWidth = 1
+            ring.stroke()
             if f > 0 {
                 let wedge = NSBezierPath()
                 wedge.move(to: NSPoint(x: 8, y: 8))

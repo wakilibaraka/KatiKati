@@ -179344,6 +179344,22 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐藏辅助程序与冗余应用" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "隱藏輔助程式與冗餘 App" } }
       }
+    },
+    "Battery Pill" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Batteriepille" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Battery Pill" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Píldora de batería" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Píldora de batería" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pilule de batterie" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pillola batteria" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バッテリーピル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "배터리 캡슐" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pílula de bateria" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pílula de bateria" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "电池胶囊" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "電池膠囊" } }
+      }
     }
   },
   "version" : "1.0"

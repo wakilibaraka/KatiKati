@@ -13,6 +13,12 @@ enum MenuBarMetricStyle: String, CaseIterable, Sendable {
     case percentage, barGraph, pieChart, available, used, iconOnly
     /// 59d: the battery's own readings, after BeteriApp's display types.
     case remainingTime, watts
+    /// T1.1: percentage embedded inside a dynamic Green/Yellow/Red battery shell.
+    case nestedPill
+}
+
+enum MenuBarBatteryPillTone: Equatable, Sendable {
+    case healthy, warning, critical, charging
 }
 
 /// One tick of readings for every metric. `gpu` and `battery` are optional on purpose: a reader
@@ -76,6 +82,7 @@ enum MenuBarStatModel {
         case .iconOnly: return String(localized: "Icon Only")
         case .remainingTime: return String(localized: "Time Remaining")
         case .watts: return String(localized: "Watts")
+        case .nestedPill: return String(localized: "Battery Pill")
         }
     }
 
@@ -83,7 +90,7 @@ enum MenuBarStatModel {
         switch metric {
         case .cpu, .memory, .gpu: return [.percentage, .barGraph, .pieChart]
         case .storage: return [.percentage, .available, .used]
-        case .battery: return [.percentage, .remainingTime, .watts, .iconOnly]
+        case .battery: return [.percentage, .nestedPill, .remainingTime, .watts, .iconOnly]
         case .network: return []
         }
     }
@@ -117,7 +124,7 @@ enum MenuBarStatModel {
             return menuRowText(metric: .network, values: values)
         }
         switch style {
-        case .barGraph, .pieChart, .iconOnly:
+        case .barGraph, .pieChart, .iconOnly, .nestedPill:
             return ""
         case .percentage:
             return fraction(metric: metric, values: values).map(SystemMonitorFormat.percent) ?? "–"
@@ -160,6 +167,24 @@ enum MenuBarStatModel {
         case .battery: return "battery.75"
         case .network: return "network"
         }
+    }
+
+    /// Live SF Symbol for the status button: battery tracks current charge & charger state.
+    static func symbolName(metric: MenuBarMetric, values: MenuBarStatValues) -> String {
+        metric == .battery ? batterySymbol(values.battery) : symbolName(metric: metric)
+    }
+
+    static func batteryPillTone(_ battery: MenuBarBattery?) -> MenuBarBatteryPillTone {
+        if battery?.isCharging == true { return .charging }
+        let fraction = clamp01(battery?.fraction ?? 0)
+        if fraction < 0.20 { return .critical }
+        if fraction < 0.45 { return .warning }
+        return .healthy
+    }
+
+    static func batteryPillLabel(_ battery: MenuBarBattery?) -> String {
+        guard let battery else { return "–" }
+        return "\(Int((clamp01(battery.fraction) * 100).rounded()))%"
     }
 
     /// Battery icon that tracks the level and the charger.

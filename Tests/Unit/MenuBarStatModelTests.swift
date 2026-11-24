@@ -12,7 +12,7 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.styles(for: .memory), [.percentage, .barGraph, .pieChart])
         XCTAssertEqual(MenuBarStatModel.styles(for: .gpu), [.percentage, .barGraph, .pieChart])
         XCTAssertEqual(MenuBarStatModel.styles(for: .storage), [.percentage, .available, .used])
-        XCTAssertEqual(MenuBarStatModel.styles(for: .battery), [.percentage, .remainingTime, .watts, .iconOnly])
+        XCTAssertEqual(MenuBarStatModel.styles(for: .battery), [.percentage, .nestedPill, .remainingTime, .watts, .iconOnly])
         XCTAssertEqual(MenuBarStatModel.styles(for: .network), [], "the network readout is speed text, no style")
         for metric in MenuBarMetric.allCases {
             XCTAssertTrue(MenuBarStatModel.styles(for: metric).contains(MenuBarStatModel.defaultStyle(for: metric)) || MenuBarStatModel.styles(for: metric).isEmpty)
@@ -24,6 +24,7 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.style("nonsense", for: .cpu), .percentage)
         XCTAssertEqual(MenuBarStatModel.style("pieChart", for: .battery), .percentage, "battery has no pie")
         XCTAssertEqual(MenuBarStatModel.style("iconOnly", for: .battery), .iconOnly)
+        XCTAssertEqual(MenuBarStatModel.style("nestedPill", for: .battery), .nestedPill)
     }
 
     func testUnsetKeyReadsTheDefaultNotFalse() {
@@ -78,5 +79,25 @@ final class MenuBarStatModelTests: XCTestCase {
         XCTAssertEqual(MenuBarStatModel.batterySymbol(MenuBarBattery(fraction: 0.1, isCharging: false)), "battery.0")
         XCTAssertEqual(MenuBarStatModel.batterySymbol(MenuBarBattery(fraction: 0.95, isCharging: false)), "battery.100")
         XCTAssertEqual(MenuBarStatModel.batterySymbol(MenuBarBattery(fraction: 0.95, isCharging: true)), "battery.100.bolt")
+    }
+
+    func testNestedBatteryPillModelAndDynamicSymbol() {
+        var values = MenuBarStatValues()
+        values.battery = MenuBarBattery(fraction: 0.87, isCharging: false)
+        XCTAssertEqual(MenuBarStatModel.statusText(metric: .battery, style: .nestedPill, values: values), "")
+        XCTAssertEqual(MenuBarStatModel.batteryPillLabel(values.battery), "87%")
+        XCTAssertEqual(MenuBarStatModel.batteryPillLabel(nil), "–")
+        XCTAssertEqual(MenuBarStatModel.symbolName(metric: .battery, values: values), "battery.75")
+
+        values.battery = MenuBarBattery(fraction: 0.12, isCharging: true)
+        XCTAssertEqual(MenuBarStatModel.symbolName(metric: .battery, values: values), "battery.0.bolt")
+        XCTAssertEqual(MenuBarStatModel.symbolName(metric: .cpu, values: values), "cpu")
+
+        XCTAssertEqual(MenuBarStatModel.batteryPillTone(nil), .critical)
+        XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.15, isCharging: false)), .critical)
+        XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.20, isCharging: false)), .warning)
+        XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.44, isCharging: false)), .warning)
+        XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.45, isCharging: false)), .healthy)
+        XCTAssertEqual(MenuBarStatModel.batteryPillTone(MenuBarBattery(fraction: 0.10, isCharging: true)), .charging)
     }
 }
