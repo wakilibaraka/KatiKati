@@ -98,6 +98,267 @@ enum ControlCenterGrid {
     }
 }
 
+// MARK: - CC-2: presets, tile identity, span packer
+
+/// Layout presets. `classic` is today's panel; `custom` is what an edit produces, and it remembers
+/// the preset it started from so Reset can go back instead of guessing.
+enum ControlCenterPreset: String, CaseIterable, Sendable {
+    case classic, modular, bento, custom
+
+    static let `default`: ControlCenterPreset = .classic
+    static let storageKey = "com.katikati.controlcenter.preset"
+
+    static func parse(_ raw: String?) -> ControlCenterPreset {
+        raw.flatMap(ControlCenterPreset.init(rawValue:)) ?? .default
+    }
+}
+
+/// A named block of the panel. Sections are what presets arrange; toggles are what the user adds.
+enum ControlCenterSection: String, CaseIterable, Sendable {
+    case header, peripherals, connectivity, nowPlaying, network, sliders, utilities, account
+}
+
+/// Four sizes, four columns at medium width. `hero` always takes the full row; `wide` takes two.
+enum ControlCenterTileSize: String, CaseIterable, Sendable {
+    case icon, standard, wide, hero
+
+    static let `default`: ControlCenterTileSize = .standard
+
+    /// Columns the tile wants. Clamped by the packer to the row width it actually has.
+    var span: Int {
+        switch self {
+        case .icon, .standard: return 1
+        case .wide: return 2
+        case .hero: return 4
+        }
+    }
+}
+
+/// Tile identity is wider than a toggle: sections and toggles share one catalogue order.
+enum ControlCenterTileID: Hashable, Sendable {
+    case section(ControlCenterSection)
+    case toggle(QuickToggleID)
+
+    var token: String {
+        switch self {
+        case .section(let section): return "section.\(section.rawValue)"
+        case .toggle(let toggle): return "toggle.\(toggle.rawValue)"
+        }
+    }
+
+    init?(token: String) {
+        if token.hasPrefix("section."),
+           let section = ControlCenterSection(rawValue: String(token.dropFirst(8))) {
+            self = .section(section)
+        } else if token.hasPrefix("toggle."),
+                  let toggle = QuickToggleID(rawValue: String(token.dropFirst(7))) {
+            self = .toggle(toggle)
+        } else {
+            return nil
+        }
+    }
+}
+
+struct ControlCenterTileSpec: Equatable, Sendable {
+    var id: ControlCenterTileID
+    var size: ControlCenterTileSize = .standard
+}
+
+struct ControlCenterLayoutSpec: Equatable, Sendable {
+    var preset: ControlCenterPreset
+    var basedOn: ControlCenterPreset
+    var tiles: [ControlCenterTileSpec]
+}
+
+extension ControlCenterLayoutSpec {
+    /// `classic` is today's panel order, so an existing profile that never opens Settings sees no
+    /// change. `custom` falls back to `classic` until an edit writes a spec.
+    static func preset(_ preset: ControlCenterPreset) -> ControlCenterLayoutSpec {
+        switch preset {
+        case .classic, .custom:
+            return .init(preset: .classic, basedOn: .classic, tiles: classicTiles)
+        case .modular:
+            return .init(preset: .modular, basedOn: .modular, tiles: [
+                .init(id: .section(.header), size: .hero),
+                .init(id: .section(.connectivity), size: .hero),
+                .init(id: .section(.network)),
+                .init(id: .section(.nowPlaying), size: .wide),
+                .init(id: .section(.sliders), size: .wide),
+                .init(id: .section(.utilities)),
+                .init(id: .section(.account)),
+                .init(id: .section(.peripherals)),
+            ])
+        case .bento:
+            return .init(preset: .bento, basedOn: .bento, tiles: [
+                .init(id: .section(.header), size: .hero),
+                .init(id: .section(.connectivity), size: .wide),
+                .init(id: .section(.peripherals), size: .wide),
+                .init(id: .section(.sliders), size: .hero),
+                .init(id: .section(.network), size: .wide),
+                .init(id: .section(.utilities)),
+                .init(id: .section(.account)),
+                .init(id: .section(.nowPlaying), size: .hero),
+            ])
+        }
+    }
+
+    static let classicTiles: [ControlCenterTileSpec] = [
+        .init(id: .section(.header), size: .hero),
+        .init(id: .section(.peripherals)),
+        .init(id: .section(.connectivity)),
+        .init(id: .section(.nowPlaying)),
+        .init(id: .section(.network)),
+        .init(id: .section(.sliders)),
+        .init(id: .section(.utilities)),
+        .init(id: .section(.account)),
+    ]
+}
+
+/// A finish layered on the dock theme's own colours — not a second theme system.
+enum ControlCenterGlassStyle: String, CaseIterable, Sendable {
+    case clear, semi, tinted
+
+    static let `default`: ControlCenterGlassStyle = .semi
+    static let storageKey = "com.katikati.controlcenter.glass"
+
+    var cardAlpha: Double {
+        switch self {
+        case .clear: return 0.05
+        case .semi: return 0.10
+        case .tinted: return 0.16
+        }
+    }
+
+    static func parse(_ raw: String?) -> ControlCenterGlassStyle {
+        raw.flatMap(ControlCenterGlassStyle.init(rawValue:)) ?? .default
+    }
+}
+
+/// Where the Control Centre lives. `edge` is the standalone deck; `menuBar` hands the panel to the
+/// menu-bar item and frees the edge deck for a different job.
+enum ControlCenterSurfaceMode: String, CaseIterable, Sendable {
+    case edge, menuBar
+
+    static let `default`: ControlCenterSurfaceMode = .edge
+    static let storageKey = "com.katikati.controlcenter.surface"
+
+    static func parse(_ raw: String?) -> ControlCenterSurfaceMode {
+        raw.flatMap(ControlCenterSurfaceMode.init(rawValue:)) ?? .default
+    }
+}
+
+/// What the edge deck does once Control Centre moves to the menu bar. Choosing the menu-bar home is
+/// the only thing that switches this, so nobody's deck changes job without asking.
+enum ControlCenterEdgeRole: String, CaseIterable, Sendable {
+    case controlCenter, backgroundActivity
+
+    /// The role a surface mode implies, plus whether the owner still needs to be told about it.
+    static func implied(by mode: ControlCenterSurfaceMode, hasBeenTold: Bool) -> (role: ControlCenterEdgeRole, needsPrompt: Bool) {
+        guard mode == .menuBar else { return (.controlCenter, false) }
+        return (.backgroundActivity, !hasBeenTold)
+    }
+
+    static let promptSeenKey = "com.katikati.controlcenter.menuBarRolePromptSeen"
+}
+
+/// Music surfaces that can own the now-playing card. The notch wins over the dock widget when both
+/// are on, but either one is enough to suppress the panel's own card.
+enum ControlCenterMusicSurface: String, CaseIterable, Sendable {
+    case notch, dock
+}
+
+struct ControlCenterDedupeOptions: Equatable, Sendable {
+    var singleBattery = true
+    var singleNowPlaying = true
+    var showNowPlayingAnyway = false
+}
+
+/// Dedupe is opt-out, never magic: it only hides the row the header already answers, and the
+/// settings override always wins.
+enum ControlCenterDedupe {
+    static func hidesSystemRow(hasBatteryPill: Bool, options: ControlCenterDedupeOptions) -> Bool {
+        options.singleBattery && hasBatteryPill
+    }
+
+    static func hidesNowPlaying(surfacesOn: Set<ControlCenterMusicSurface>,
+                                options: ControlCenterDedupeOptions) -> Bool {
+        guard options.singleNowPlaying, !options.showNowPlayingAnyway else { return false }
+        return !surfacesOn.isEmpty
+    }
+}
+
+/// Versioned, tolerant storage for a custom layout. A malformed or unknown value falls back to the
+/// preset the profile already had, so a half-written preferences file can never empty the panel.
+enum ControlCenterLayoutCodec {
+    static let storageKey = "com.katikati.controlcenter.layout.v1"
+    private static let prefix = "v1"
+
+    static func encode(_ spec: ControlCenterLayoutSpec) -> String {
+        let tiles = spec.tiles.map { "\($0.id.token):\($0.size.rawValue)" }.joined(separator: ",")
+        return "\(prefix)|\(spec.preset.rawValue)|\(spec.basedOn.rawValue)|\(tiles)"
+    }
+
+    static func decode(_ raw: String?) -> ControlCenterLayoutSpec? {
+        guard let raw else { return nil }
+        let parts = raw.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count == 4, parts[0] == prefix else { return nil }
+        let preset = ControlCenterPreset(rawValue: parts[1]) ?? .custom
+        let basedOn = ControlCenterPreset(rawValue: parts[2]) ?? .classic
+        var seen = Set<ControlCenterTileID>()
+        let tiles: [ControlCenterTileSpec] = parts[3].split(separator: ",").compactMap { entry in
+            let bits = entry.split(separator: ":", maxSplits: 1).map(String.init)
+            guard let id = ControlCenterTileID(token: bits.first ?? ""), seen.insert(id).inserted else { return nil }
+            let size = bits.count > 1 ? (ControlCenterTileSize(rawValue: bits[1]) ?? .standard) : .standard
+            return ControlCenterTileSpec(id: id, size: size)
+        }
+        guard !tiles.isEmpty else { return nil }
+        return ControlCenterLayoutSpec(preset: preset, basedOn: basedOn, tiles: tiles)
+    }
+}
+
+/// One packed row. `columnsUsed` lets the view hug the leading edge without measuring text.
+struct ControlCenterPackedRow: Equatable, Sendable {
+    let tiles: [ControlCenterTileSpec]
+    let columnsUsed: Int
+}
+
+/// Resolves spans into rows. Pure, stable, and it never leaves a hole before a tile that would fit:
+/// a tile that does not fit the remainder starts the next row instead of being clipped.
+enum ControlCenterPacker {
+    static let wideColumns = 4
+
+    /// Below 400 pt the panel degrades to one column rather than shrinking text or clipping.
+    static func columns(width: CGFloat) -> Int {
+        width < 400 ? 1 : wideColumns
+    }
+
+    static func rows(_ tiles: [ControlCenterTileSpec], columns: Int) -> [ControlCenterPackedRow] {
+        let limit = max(1, columns)
+        var rows: [ControlCenterPackedRow] = []
+        var current: [ControlCenterTileSpec] = []
+        var used = 0
+        for tile in tiles {
+            let span = min(max(tile.size.span, 1), limit)
+            if used + span > limit, !current.isEmpty {
+                rows.append(ControlCenterPackedRow(tiles: current, columnsUsed: used))
+                current = []
+                used = 0
+            }
+            current.append(tile)
+            used += span
+            if used >= limit {
+                rows.append(ControlCenterPackedRow(tiles: current, columnsUsed: used))
+                current = []
+                used = 0
+            }
+        }
+        if !current.isEmpty {
+            rows.append(ControlCenterPackedRow(tiles: current, columnsUsed: used))
+        }
+        return rows
+    }
+}
+
 /// Control Center open animation. Instant (default) is the pre-animation behavior.
 enum ControlCenterAnimation: String, CaseIterable, Sendable {
     case instant, fade, slide
