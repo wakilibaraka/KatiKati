@@ -994,7 +994,9 @@ enum MissionControlDockProbe {
                 width: boundsDict["Width"] ?? 0, height: boundsDict["Height"] ?? 0
             )
             guard bounds.width > 200, bounds.height > 200 else { continue }
-            let coverage = screens.map { coverage(of: bounds, in: $0) }.max() ?? 0
+            // `Self.` matters: the bare name would resolve to the `coverage` this line is defining on
+            // the Xcode 26 toolchain CI uses (a call of a non-function), even though 27 accepts it.
+            let coverage = screens.map { Self.coverage(of: bounds, in: $0) }.max() ?? 0
             if layer == 20, coverage > 0.5,
                (info[kCGWindowOwnerName as String] as? String) == "Dock" {
                 overview = true
