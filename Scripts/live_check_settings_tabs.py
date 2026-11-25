@@ -79,7 +79,10 @@ def main() -> int:
         run('open', '-n', '--env', f'DOCK_OPEN_SETTINGS={tab}', '--env', 'DOCK_DEV_SKIP_PERMISSIONS=1', args.app)
         sizes = []
         ok = False
-        for _ in range(14):
+        # AppDelegate presents the page 3 s after the strip starts (DOCK_OPEN_SETTINGS), then a cold
+        # launch adds its own time on a loaded machine; 7 s (the old 14 x 0.5 s) was short enough to
+        # fail heavy pages such as Widgets. Poll for 20 s and stop as soon as a window is there.
+        for _ in range(40):
             time.sleep(0.5)
             sizes = window_sizes()
             if any(w >= MIN_W and h >= MIN_H for w, h in sizes):
