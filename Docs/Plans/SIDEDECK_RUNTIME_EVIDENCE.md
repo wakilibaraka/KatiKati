@@ -122,6 +122,29 @@ no measurable idle cost; the branch is 6.1 MB *below* the pre-SideDeck build in 
 settle the pre-SideDeck build's own first seconds show comparable churn. `ps rss` (~1.2 GB) is shared
 pages, not footprint; the numbers above are the comparable ones.
 
+### Re-measured on the closeout tree (2026-11-25, `docs/sidedeck-closeout`)
+
+Same sampler, run from `../KatiKati-sidedeck` on the tree that carries this document, staged outside
+`/tmp` (the sampler cannot match a bundle under `/tmp`) and measured with `Tools/Bench/benchtool`:
+
+| Build | Tree | CPU, 60 s sample | KatiKati footprint | Group footprint |
+|---|---|---|---|---|
+| Debug, fixes included | `docs/sidedeck-closeout` | **0.00 %** | **214.6 MB** | 312.2 MB |
+
+```
+idle_cpu_pct=0.00
+KatiKati 214.6 MB · swift-frontend 81.9 MB · MTLCompilerService 13.6 MB · group 312.2 MB
+```
+
+`Scripts/bench_katikati.sh --idle-only` completed its 60 s CPU window at 0.00 %; the app then exited
+before the script's own memory read, so the memory figures come from `benchtool mem` after a 60 s
+settle on the same build. **One static surface must stay open**: this is an accessory app that exits
+when its last window closes, so it was launched with `DOCK_OPEN_SETTINGS=general` and the Settings
+window was left untouched. Ten seconds after launch the same process read 1.99 GB `phys_footprint`;
+that transient is launch-time Metal shader compilation (an `MTLCompilerService` child appears with it)
+and settles to 214.6 MB by the 60 s mark — a release instance running on this machine during the same
+window also read ~1.99 GB while settling, so the transient is not a property of this tree.
+
 Harness note: this app enforces "the newer instance takes over", and the sibling worktree's build
 script installs that build into `/Applications` and relaunches it, so long windows die mid-sample.
 Every figure above is from a run that completed its full 60 s window.
@@ -132,6 +155,58 @@ The settings "gel" button rows drew their title but exposed no accessible name �
 an unlabelled `AXButton`, so VoiceOver and AX automation could not tell it from any other button in
 the pane. `SettingsButtonRow` now sets `.accessibilityLabel(title)` (`App/Scenes/SettingsCard.swift`),
 which names every row built from it, including both swap rows.
+
+## Deck click path — driven on the closeout tree (2026-11-25)
+
+`Scripts/live_check_side_deck.py` drives the deck through real HID input and asserts the accessibility
+tree, closing the earlier pass's gap ("the resting handle's click path was not re-driven"). Run from
+`../KatiKati-sidedeck` against the Debug build in `/tmp/katikati-dd-sidedeck`:
+
+```
+python3 Scripts/live_check_side_deck.py \
+    --app /tmp/katikati-dd-sidedeck/Build/Products/Debug/KatiKati.app \
+    --shots build/live-check/side-deck-shots
+```
+
+Output (exit 0):
+
+```
+  ✅ handle        14x54 at 56,548 (edge +3)
+  ✅ open          400x1038 at 64,58 (edge +101)
+  ✅ rail          16/16 buttons
+  ✅ page dock     5/5 tabs
+  ✅ pin toggle     accessibility label present
+  ✅ Settings gear  accessibility label present
+  ✅ Storage        click 110,526 renders 'Developer & Cache', 'used'
+  ✅ Downloads      click 110,388 renders 'URL RESOLVER', 'IN-FLIGHT TRANSFERS', 'TORRENT HUB'
+  ✅ collapse      click outside closed the deck
+  ✅ Settings      1080x700 — Side Deck pane is listed
+```
+
+The pointer move that opens the panel is a `CGEvent` HID move onto the handle's 14 x 54 pt hit window,
+not an `AXPress`; the panel then appeared at the configured 400 pt width, full height (58 → 1096 on a
+1112 pt screen, matching `SideDeckConfig.topInset` 20 and `bottomInset` 16). The rail clicks are HID
+clicks at the positions AX reports, and the assertion is the pane text that appears afterwards, so a
+rail that stopped swapping panes would fail even though the window still opened.
+
+Two behaviours the render promised do not exist in this build. They are recorded rather than assumed:
+
+- **There is no chevron control.** The rail's foot is the **Pin Strip Open** toggle; no view in
+  `WindowDrawerController` draws a collapse chevron. Collapse ships as a click outside the panel (its
+  global click monitor), which the check drives and asserts.
+- **Escape is inert.** `DrawerPanel.cancelOperation` exists, but the panel is a `nonactivatingPanel` in
+  an accessory app and never holds key focus. A synthetic Escape posted to the app's own event queue
+  left the panel open, with the process confirmed alive before and after.
+
+## Defect found and fixed — the deck's Settings gear
+
+The identity strip's gear called `NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from:
+nil)`. No responder in this app implements `showSettingsWindow:` — every other surface opens Settings
+through `AppDelegate.openSettings(selecting:)` — so the button did nothing: the deck drive clicked it
+at its reported position and no window appeared. It now calls
+`AppDelegate.shared?.openSettings(selecting: .sideDeck)` and carries
+`.accessibilityLabel(Text("Settings"))`, so VoiceOver and AX automation read a name instead of the SF
+Symbol fallback "Gear Shape".
 
 ## Closeout gate run — merged tree `6259c01b`
 
@@ -146,6 +221,18 @@ below is a command's exit code or an accessibility read, not an inference.
 | Settings livecheck | `python3 Scripts/live_check_settings_tabs.py --app … --shots …` | all **34** pages, exit 0, 34 screenshots |
 | ClearDisk card | driven through AX on that build | `Reclaimable 3.33 GB` = header `3.33 GB` |
 
+### Re-run on the closeout branch (2026-11-25, `docs/sidedeck-closeout`)
+
+| Gate | Command | Result |
+| --- | --- | --- |
+| Ten suites | Settings, SideDeck config + logic, DevCacheCatalog, DevCacheSnapshot, DeckGeometry, ControlCenterLayout, ControlCenterReadability, NotificationDigest, DownloadEnginePolicy | **80 passed, 0 failed**, exit 0 (`/tmp/sidedeck-gate/xcodebuild-after-fix.log`) |
+| Localization | `python3 Scripts/check_localization.py` | exit 0 — 2 630 keys × 12 locales, no orphans |
+| Debug switches | `python3 Scripts/check_debug_switches.py` | exit 0 — 94 registered |
+| Input hygiene | `python3 Scripts/check_input_hygiene.py` | exit 0 |
+| Availability | `python3 Scripts/check_availability_warnings.py <test-build log>` | exit 0, no cross-version warnings |
+| Deck click path | `python3 Scripts/live_check_side_deck.py …` | exit 0 — section above |
+| Idle | `Scripts/bench_katikati.sh --idle-only` + `benchtool cpu/mem 60` | 0.00 % CPU, 214.6 MB |
+
 ### Livecheck harness fix
 
 `Scripts/live_check_settings_tabs.py` waited 7 s (14 x 0.5 s) for a Settings window. `AppDelegate`
@@ -156,13 +243,24 @@ This was a gate defect, not a pane defect — no app source changed for it.
 
 ## Open / limitations
 
-- The livecheck asserts only that each page raises a window of at least 600x400; it does not read which
-  page is showing (its own header says so). `sideDeck.png` was inspected and shows the Side Deck pane
-  with Edge, Swap Left / Right Sides, Size, Edge Activation, Identity Strip, Open Dwell and Weather
-  Handle.
-- Idle CPU/RSS was **not** re-measured on the merged tree. The 60 s like-for-like numbers above are from
-  the same day on the branch; the merge added Control Centre files and documents only, but that is an
-  inference, so the idle table is dated rather than claimed for `6259c01b`.
-- The card drive used edge hover activation; the resting handle's click path was not re-driven.
-- Screenshots live in `/tmp/sidedeck-livecheck-shots4/` and `/tmp/card-postfix-final.png`. They are
-  evidence for this pass, not repository assets.
+- **No chevron control exists in the deck.** The render's bottom chevron never shipped; the rail's foot
+  is the **Pin Strip Open** toggle. Collapse is a click outside the panel, which the deck live-check
+  drives and asserts.
+- **Escape does not close the deck.** The panel is a `nonactivatingPanel` in an accessory app, so it
+  never holds key focus and `cancelOperation` never fires; an Escape posted to the app's own event
+  queue left it open with the process confirmed alive. A behaviour gap, named rather than glossed.
+- **The identity strip is off by default**, so its gear exists only with
+  `com.katikati.sidedeck.prefs.v1.identityStrip = true`. The deck live-check saves, enables and
+  restores that value and `edgeActivation` around its run; the user's own values were `0` and were put
+  back to `0`.
+- **The deck live-check asserts the accessibility tree, not pixels.** It reads the sixteen rail labels,
+  the five page-dock tabs, the Pin toggle and the gear, then the pane text each rail click renders, and
+  that the gear opens a window listing **Side Deck**. Screenshots are captured per step but not
+  compared.
+- **The Settings livecheck (`live_check_settings_tabs.py`) still asserts only window size**; it does
+  not read page content. The deck check is the one that reads rendered content.
+- **Idle was measured with one static surface open** (Settings › General): the app exits when its last
+  window closes, so a windowless idle sample is not possible with this harness.
+- Screenshots from the deck check live in `build/live-check/side-deck-shots/` — the repo's own
+  gitignored live-check workspace, which is why they are not committed. The earlier
+  `/tmp/sidedeck-livecheck-shots4/` and `/tmp/card-postfix-final.png` were local only and are gone.

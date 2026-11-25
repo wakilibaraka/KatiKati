@@ -622,7 +622,9 @@ private struct WindowDrawerView: View {
                 .frame(maxHeight: .infinity)
             Rectangle().fill(Color.primary.opacity(0.12)).frame(width: 1, height: 24)
             Button {
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                // The app has no `showSettingsWindow:` responder action (SwiftUI Settings scenes are opened
+                // through `AppDelegate`, like every other surface); sending it did nothing.
+                AppDelegate.shared?.openSettings(selecting: .sideDeck)
             } label: {
                 Image(systemName: "gearshape").font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.secondary)
@@ -631,6 +633,7 @@ private struct WindowDrawerView: View {
             }
             .buttonStyle(.plain)
             .help(Text("Settings"))
+            .accessibilityLabel(Text("Settings"))
         }
         .padding(.vertical, 8)
         .frame(width: 26)

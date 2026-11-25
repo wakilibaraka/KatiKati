@@ -203,7 +203,12 @@ Downloads, Storage, notch rest, Dock) with before/after shots.
 | Settings livecheck | done — 34/34 pages, exit 0, 34 screenshots (`/tmp/sidedeck-livecheck-shots4/`) |
 | Livecheck harness | fixed — the wait was 7 s against a page that `AppDelegate` presents after 3 s; the poll now runs to 20 s (`Scripts/live_check_settings_tabs.py`) |
 | ClearDisk card on a post-fix build | done — `Reclaimable 3.33 GB` = header `3.33 GB`; snapshot epoch unchanged across Dashboard revisits |
-| Rail / handle / Downloads / Dock walked by hand | partial — the Settings pages and the Dashboard card were driven and photographed; a hand walk of the rail and Dock was not repeated in the closeout |
+| Deck click path (handle → rail panes → collapse → gear) | done — `Scripts/live_check_side_deck.py` exit 0 on this tree: 16/16 rail buttons, 5/5 page-dock tabs, the Storage and Downloads pane text, click-away collapse, and the gear opening Settings with **Side Deck** listed |
+| Gear → Settings | fixed — the gear sent `showSettingsWindow:`, which no responder in the app implements; it now calls `AppDelegate.openSettings(selecting: .sideDeck)` and carries an accessible name |
+| Deck livecheck | added — asserts the rendered rail, page dock and pane content, not a window size |
+| Deck idle on this tree | done — 0.00 % CPU over 60 s, 214.6 MB footprint (group 312.2 MB), measured with the app's Settings surface held open |
+| Chevron collapse | not shipped — the rail's foot is the **Pin Strip Open** toggle; collapse is a click outside the panel, which the livecheck drives |
+| Escape collapse | not working — the `nonactivatingPanel` never holds key focus, so `cancelOperation` never fires; recorded in the runtime evidence |
 
 ### 8.1 Risk register
 

@@ -15,6 +15,7 @@ All notable changes to KatiKati are documented in this file.
 ### Fixed
 - **ClearDisk and Storage state the same number:** the card formatted the same byte count with the downloader's 1024-based helper (`3.10 GB`) while the Storage page header used the storage formatter (`3.33 GB`). Both card figures now call `SystemMonitorFormat.bytes` at the callsite, so the card reads `Reclaimable 3.33 GB` beside the header's `3.33 GB` without either shared formatter changing.
 - **Settings rows announce their names:** every "gel" button row drew its title but exposed no accessible name, so the Side Deck swap row read as an unlabelled button to VoiceOver and AX automation. `SettingsButtonRow` now sets `.accessibilityLabel(title)`, naming both swap rows and every other row built from it.
+- **The Side Deck's Settings gear opens Settings:** the identity strip's gear sent `showSettingsWindow:`, which no responder in the app implements, so pressing it did nothing; it now opens Settings › Side Deck through `AppDelegate` like every other surface and carries an accessible name.
 
 ## [0.18.0 beta 3] — 2026-11-24
 
