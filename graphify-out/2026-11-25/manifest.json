@@ -324,9 +324,9 @@
     "semantic_hash": ""
   },
   "App/Composition/PanelGeometry.swift": {
-    "mtime": 1795620501.2189374,
-    "seen": 1795621495.99332,
-    "ast_hash": "ff82496774085bfb3251f794aa963e45",
+    "mtime": 1795622953.5667214,
+    "seen": 1795623338.430985,
+    "ast_hash": "e01ff52adad8dda2bfd9e8af1f7a8e14",
     "semantic_hash": ""
   },
   "App/Composition/PanelVisibilityState.swift": {
@@ -8784,9 +8784,9 @@
     "semantic_hash": ""
   },
   "Scripts/live_check_dock_layout.py": {
-    "mtime": 1795621430.3947568,
-    "seen": 1795621495.99391,
-    "ast_hash": "0dc96bcf06c8d475a6b8646443993f5f",
+    "mtime": 1795623218.972115,
+    "seen": 1795623338.431863,
+    "ast_hash": "18db8190ecc5d47837581bfb1fd41cfa",
     "semantic_hash": ""
   },
   "Scripts/live_check_side_deck.py": {
