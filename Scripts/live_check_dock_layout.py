@@ -23,6 +23,7 @@ import argparse
 import pathlib
 import subprocess
 import sys
+import json
 import time
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -30,6 +31,8 @@ WORK = ROOT / 'build/live-check'
 DOMAIN = 'com.katikati.app'
 MODE_KEY = 'com.katikati.layout.mode'
 MODES = ['windows', 'split3', 'split4', 'split5', 'centered']
+# Registered in Core/Support/DebugSwitch.swift: the strip's chip-frame dump.
+DebugSwitchTrigger = 'DOCK_CHIP_FRAMES_OUT'
 
 HELPER_SWIFT = r'''
 import AppKit
@@ -129,6 +132,7 @@ def main() -> int:
 
     failures: list[str] = []
     usable = screen_w - 24          # the bar never runs past the side margins
+    frames_file = WORK / 'frames.json'
     for mode in MODES:
         set_mode(mode)
         stored = run('defaults', 'read', DOMAIN, MODE_KEY).stdout.strip()
@@ -136,41 +140,73 @@ def main() -> int:
             print(f'  ❌ {mode:<9} defaults kept {stored!r} instead of the requested mode')
             failures.append(mode)
             continue
-        run('open', '-n', '--env', 'DOCK_DEV_SKIP_PERMISSIONS=1', args.app)
-        pid = None
-        for _ in range(20):
-            time.sleep(0.5)
-            found = pids(args.app)
-            if found:
-                pid = max(found)
-                break
-        dock = None
-        for _ in range(20):
-            time.sleep(0.5)
-            dock = dock_window(windows(binary), screen_h)
-            if dock:
-                break
-        if dock is None:
-            print(f'  ❌ {mode:<9} no dock window appeared')
+        frames_file.unlink(missing_ok=True)
+        # The strip publishes its own chip frames: that is the only measurement that proves the
+        # plate hugs the *drawn* content, and it keeps the shot and the number on the same window.
+        run('launchctl', 'setenv', DebugSwitchTrigger, str(frames_file))
+        run('open', '-n', args.app)
+        time.sleep(5.0)
+        run('launchctl', 'unsetenv', DebugSwitchTrigger)
+        try:
+            frames = json.loads(frames_file.read_text())
+        except (OSError, json.JSONDecodeError):
+            print(f'  ❌ {mode:<9} the strip published no chip frames')
             failures.append(mode)
-        else:
-            time.sleep(1.2)      # let the strip finish its spring before the shot
-            _, x, y, w, h = dock
-            shot = ''
-            if shots:
-                run('screencapture', '-x', str(shots / f'dock-{mode}.png'))
-                shot = f' → {shots / f"dock-{mode}.png"}'
-            fits = w <= usable
-            hug = mode != 'windows' or w < usable - 1
-            ok = fits and hug
-            reason = ''
-            if not fits:
-                reason = f' — {w} pt wider than the {usable} pt usable screen'
-            elif not hug:
-                reason = ' — Full Width is still the full-bleed bar'
-            print(f'  {"✅" if ok else "❌"} {mode:<9} {w}x{h} at {x},{y} (usable {usable}){reason}{shot}')
-            if not ok:
-                failures.append(mode)
+            for owned in pids(args.app):
+                run('kill', '-TERM', str(owned))
+            continue
+
+        chips = sorted(frames['chips'], key=lambda c: c['x'])
+        span = (min(c['x'] for c in chips), max(c['x'] + c['w'] for c in chips))
+        gaps = [b['x'] - (a['x'] + a['w']) for a, b in zip(chips, chips[1:])]
+        pads = (span[0], frames['rootWidth'] - span[1])
+        # Any of the strip's windows can be the widest one (the glass background panel is 40 pt
+        # wider than its content), so match the published strip frame instead of guessing.
+        window = None
+        for attempt in range(4):
+            best = None
+            for row in windows(binary):
+                _, x, y, w, h = row
+                if y < screen_h * 0.5:
+                    continue
+                # Either the content window or its glass background (20 pt wider each side).
+                score = min(abs(w - frames['rootWidth']) + abs(x - frames['rootLeft']),
+                            abs(w - (frames['rootWidth'] + 40)) + abs(x - (frames['rootLeft'] - 20)))
+                if score <= 6 and (best is None or score < best):
+                    best, window = score, row
+            if window:
+                break
+            time.sleep(0.6)
+        problems = []
+        if max(pads) > 10:
+            problems.append(f'trailing/leading dead plate {pads[0]:.0f}/{pads[1]:.0f} pt')
+        if gaps and max(gaps) > 3.5:
+            problems.append(f'inner gap {max(gaps):.1f} pt above the 3 pt section spacing')
+        if window is None:
+            problems.append('no window matches the published strip width')
+        if span[1] - span[0] > frames['rootWidth'] + 4:
+            problems.append(f'content {span[1] - span[0]:.0f} pt overflows the plate')
+        if frames['rootWidth'] > usable:
+            problems.append(f'{frames["rootWidth"]:.0f} pt wider than the {usable} pt usable screen')
+        if mode == 'windows' and frames['rootWidth'] >= usable - 1:
+            problems.append('Full Width is still the full-bleed bar')
+        shot = ''
+        if shots and window:
+            time.sleep(0.8)          # let the strip finish its spring before the shot
+            _, x, y, w, h = window
+            pad = 10
+            run('screencapture', '-x', str(shots / f'dock-{mode}.png'))
+            run('screencapture', '-x', '-R',
+                f'{max(0, x - pad)},{max(0, y - pad)},{w + 2 * pad},{h + 2 * pad}',
+                str(shots / f'plate-{mode}.png'))
+            shot = f' → {shots / f"plate-{mode}.png"}'
+        ok = not problems
+        detail = (f'plate {frames["rootWidth"]:.0f} content {span[1] - span[0]:.0f} '
+                  f'pads {pads[0]:.0f}/{pads[1]:.0f} maxgap {max(gaps) if gaps else 0:.1f}')
+        print(f'  {"✅" if ok else "❌"} {mode:<9} {detail}'
+              + (f' — {"; ".join(problems)}' if problems else '') + shot)
+        if not ok:
+            failures.append(mode)
         for owned in pids(args.app):
             run('kill', '-TERM', str(owned))
         time.sleep(0.8)

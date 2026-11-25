@@ -560,8 +560,12 @@ enum PanelGeometry {
             #endif
             // Only the apps island takes the dock minimum: a fixed island is exactly its solver
             // frame, or a narrow trailing island grows past the screen edge (Phase 11a, B3).
+            // The capsule is its own panel in split modes, so every apps island hands its slot back:
+            // subtracting it only on the owner island left the others with a capsule-sized dead
+            // stretch at their trailing end (measured 95 pt on split3, 49 pt on split4).
+            let reservedCapsuleSpace = isApps ? capsuleSpace : currentCapsuleSpace
             let panelWidth = isApps
-                ? max(island.frame.width - currentCapsuleSpace, metrics.minimumDockWidth)
+                ? max(island.frame.width - reservedCapsuleSpace, metrics.minimumDockWidth)
                 : max(island.frame.width - currentCapsuleSpace, 0)
             let panelX = (ownsCapsule && placement == .left) ? island.frame.minX + currentCapsuleSpace : island.frame.minX
             
