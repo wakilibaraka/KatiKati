@@ -760,13 +760,16 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
 
     private func reconcileFullscreenIntentMonitor() {
         let greenButtonOverride = settingsStore.greenButtonBehavior == .maximizeInCurrentSpace && !isSuspended
-        FullscreenGreenButtonOverride.shared.set(greenButtonOverride ? {
+        // Typed, not inferred from the ternary: the CI toolchain reads the closure/nil pair as two
+        // different generic returns (Void vs `WindowSnapService.Outcome`) and refuses the call.
+        let greenButtonHandler: (() -> Bool)? = greenButtonOverride ? {
             // Event-thread safe: only hop to main; the AX write happens after the click is consumed.
             DispatchQueue.main.async {
-                MainActor.assumeIsolated { WindowSnapService.apply(.maximize) }
+                MainActor.assumeIsolated { _ = WindowSnapService.apply(.maximize) }
             }
             return true
-        } : nil)
+        } : nil
+        FullscreenGreenButtonOverride.shared.set(greenButtonHandler)
         let enabled = FullscreenIntentDecision.isEnabled(
             settingEnabled: settingsStore.fullscreenIntentEnabled,
             environment: ProcessInfo.processInfo.environment
