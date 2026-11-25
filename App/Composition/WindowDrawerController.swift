@@ -246,7 +246,9 @@ final class WindowDrawerController: ObservableObject {
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens[0]
         let area = screen.visibleFrame
-        let frame = NSRect(x: area.minX + 8, y: area.minY + 8, width: 400, height: area.height - 16)
+        // SD-1: the shell's geometry is `SideDeckConfig`'s, not a literal — full height, inset below the menu
+        // bar and above the Dock, on whichever edge the owner chose.
+        let frame = SideDeckConfig.migrating(from: .standard).panelFrame(in: area)
         let panel = DrawerPanel(frame: frame)
         panel.onEscape = { [weak self] in self?.close() }
         panel.contentView = NSHostingView(rootView: WindowDrawerView(controller: self))
@@ -336,7 +338,8 @@ private struct WindowDrawerView: View {
                 }
             }
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        // SD-1: one radius for the whole shell, the sanctioned deck glass radius (26).
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: EdgeStyleTokens.glassRadius, style: .continuous))
         .onAppear {
             searchFocused = true
             syncMonitorHold()
