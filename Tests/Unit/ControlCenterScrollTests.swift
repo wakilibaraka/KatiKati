@@ -59,6 +59,114 @@ final class ControlCenterScrollTests: XCTestCase {
 }
 
 /// The switch grid's 4-or-5-per-row choice.
+final class ControlCenterLayoutTests: XCTestCase {
+    func testClassicPresetKeepsTodaysSectionOrder() {
+        let classic = ControlCenterLayoutSpec.preset(.classic)
+        XCTAssertEqual(classic.preset, .classic)
+        XCTAssertEqual(classic.tiles.map(\.id), [
+            .section(.header), .section(.peripherals), .section(.connectivity),
+            .section(.nowPlaying), .section(.network), .section(.sliders),
+            .section(.utilities), .section(.account),
+        ])
+        XCTAssertEqual(classic.tiles.first?.size, .hero)
+        XCTAssertEqual(ControlCenterLayoutSpec.preset(.custom), classic)
+    }
+
+    func testPackerFillsRowsWithoutClippingATile() {
+        let tiles: [ControlCenterTileSpec] = [
+            .init(id: .section(.header), size: .hero),
+            .init(id: .section(.network), size: .wide),
+            .init(id: .section(.utilities)),
+            .init(id: .section(.account)),
+        ]
+        let rows = ControlCenterPacker.rows(tiles, columns: 4)
+        XCTAssertEqual(rows.map { $0.tiles.count }, [1, 3])
+        XCTAssertEqual(rows.map(\.columnsUsed), [4, 4])
+        XCTAssertEqual(rows[1].tiles.map(\.id), [tiles[1].id, tiles[2].id, tiles[3].id])
+    }
+
+    func testPackerStartsANewRowWhenTheRemainderIsTooSmall() {
+        let tiles: [ControlCenterTileSpec] = [
+            .init(id: .section(.network), size: .wide),
+            .init(id: .section(.utilities), size: .wide),
+            .init(id: .section(.account), size: .wide),
+        ]
+        let rows = ControlCenterPacker.rows(tiles, columns: 4)
+        XCTAssertEqual(rows.map { $0.tiles.count }, [2, 1])
+        XCTAssertEqual(rows.map(\.columnsUsed), [4, 2])
+    }
+
+    func testPackerDegradesToOneColumnBelowFourHundredPoints() {
+        XCTAssertEqual(ControlCenterPacker.columns(width: 300), 1)
+        XCTAssertEqual(ControlCenterPacker.columns(width: 399), 1)
+        XCTAssertEqual(ControlCenterPacker.columns(width: 400), 4)
+        let rows = ControlCenterPacker.rows(ControlCenterLayoutSpec.preset(.bento).tiles, columns: 1)
+        XCTAssertEqual(rows.count, ControlCenterLayoutSpec.preset(.bento).tiles.count)
+        XCTAssertTrue(rows.allSatisfy { $0.columnsUsed == 1 })
+    }
+
+    func testDedupeOnlyHidesWhatTheHeaderAlreadyAnswers() {
+        let on = ControlCenterDedupeOptions()
+        XCTAssertTrue(ControlCenterDedupe.hidesSystemRow(hasBatteryPill: true, options: on))
+        XCTAssertFalse(ControlCenterDedupe.hidesSystemRow(hasBatteryPill: false, options: on))
+        var off = on
+        off.singleBattery = false
+        XCTAssertFalse(ControlCenterDedupe.hidesSystemRow(hasBatteryPill: true, options: off))
+
+        XCTAssertFalse(ControlCenterDedupe.hidesNowPlaying(surfacesOn: [], options: on))
+        XCTAssertTrue(ControlCenterDedupe.hidesNowPlaying(surfacesOn: [.notch], options: on))
+        XCTAssertTrue(ControlCenterDedupe.hidesNowPlaying(surfacesOn: [.dock], options: on))
+        var override = on
+        override.showNowPlayingAnyway = true
+        XCTAssertFalse(ControlCenterDedupe.hidesNowPlaying(surfacesOn: [.notch, .dock], options: override))
+        override.singleNowPlaying = false
+        override.showNowPlayingAnyway = false
+        XCTAssertFalse(ControlCenterDedupe.hidesNowPlaying(surfacesOn: [.notch], options: override))
+    }
+
+    func testMenuBarModeRepurposesTheEdgeDeckOnceAndOnlyOnce() {
+        let edge = ControlCenterEdgeRole.implied(by: .edge, hasBeenTold: false)
+        XCTAssertEqual(edge.role, .controlCenter)
+        XCTAssertFalse(edge.needsPrompt)
+
+        let first = ControlCenterEdgeRole.implied(by: .menuBar, hasBeenTold: false)
+        XCTAssertEqual(first.role, .backgroundActivity)
+        XCTAssertTrue(first.needsPrompt)
+
+        let later = ControlCenterEdgeRole.implied(by: .menuBar, hasBeenTold: true)
+        XCTAssertEqual(later.role, .backgroundActivity)
+        XCTAssertFalse(later.needsPrompt)
+        XCTAssertEqual(ControlCenterSurfaceMode.parse("menuBar"), .menuBar)
+        XCTAssertEqual(ControlCenterSurfaceMode.parse("bogus"), .edge)
+    }
+
+    func testGlassParsesKnownValuesAndFallsBack() {
+        XCTAssertEqual(ControlCenterGlassStyle.parse(nil), .semi)
+        XCTAssertEqual(ControlCenterGlassStyle.parse("nonsense"), .semi)
+        XCTAssertEqual(ControlCenterGlassStyle.parse("tinted"), .tinted)
+        XCTAssertLessThan(ControlCenterGlassStyle.clear.cardAlpha, ControlCenterGlassStyle.tinted.cardAlpha)
+    }
+
+    func testLayoutCodecRoundTripsAndRejectsGarbage() {
+        let spec = ControlCenterLayoutSpec.preset(.modular)
+        let decoded = ControlCenterLayoutCodec.decode(ControlCenterLayoutCodec.encode(spec))
+        XCTAssertEqual(decoded, spec)
+        XCTAssertNil(ControlCenterLayoutCodec.decode(nil))
+        XCTAssertNil(ControlCenterLayoutCodec.decode("v1|modular|modular|"))
+        XCTAssertNil(ControlCenterLayoutCodec.decode("v2|modular|modular|section.header:hero"))
+        let tolerant = ControlCenterLayoutCodec.decode("v1|bento|bento|section.header:hero,bogus.x:wide,section.network:wide")
+        XCTAssertEqual(tolerant?.tiles.map(\.id), [.section(.header), .section(.network)])
+        XCTAssertEqual(tolerant?.tiles.last?.size, .wide)
+    }
+
+    func testTileTokensRoundTripAndUnknownTokensDrop() {
+        XCTAssertEqual(ControlCenterTileID(token: "section.nowPlaying"), .section(.nowPlaying))
+        XCTAssertEqual(ControlCenterTileID(token: "section.nowPlaying")?.token, "section.nowPlaying")
+        XCTAssertEqual(ControlCenterTileID(token: "toggle.nonsense"), nil)
+        XCTAssertEqual(ControlCenterTileID(token: "section.nope"), nil)
+    }
+}
+
 final class ControlCenterGridTests: XCTestCase {
     func testRowsRoundUp() {
         XCTAssertEqual(ControlCenterGrid.rows(count: 16, columns: 4), 4)
