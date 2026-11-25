@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795584554.654754,
-    "seen": 1795584799.84211,
-    "ast_hash": "e77ff9c0ceb82ac26e280bc001efbcc2",
+    "mtime": 1795585974.9241784,
+    "seen": 1795586185.8844988,
+    "ast_hash": "459472ac6fafa3799aa08487e4df8956",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795583052.3981638,
-    "seen": 1795584158.093917,
-    "ast_hash": "654976d19bad50cd483f1008715f30f6",
+    "mtime": 1795585443.3398352,
+    "seen": 1795586185.884525,
+    "ast_hash": "ff684f3e37f0b1fcefecec37609a3224",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -1656,9 +1656,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1795568589.4197361,
-    "seen": 1795569411.222784,
-    "ast_hash": "df1dfeda50859bd0589774e063923020",
+    "mtime": 1795585973.1776512,
+    "seen": 1795586185.884722,
+    "ast_hash": "e3ea4ac4f2b38bc0ecb382f4fa19a6b1",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
@@ -4614,9 +4614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1795567638.58381,
-    "seen": 1795568098.537216,
-    "ast_hash": "5f6a6e2a527dfde7efdd1162814fcd41",
+    "mtime": 1795585974.4220014,
+    "seen": 1795586185.884638,
+    "ast_hash": "d48c8ce3ab5e2eed945cfc42c95cba93",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
@@ -8259,6 +8259,84 @@
     "mtime": 1795584687.5079556,
     "seen": 1795584799.843028,
     "ast_hash": "dcad064edd4545831b07623bc5c40611",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/README.md": {
+    "mtime": 1795585891.6648223,
+    "seen": 1795586185.885296,
+    "ast_hash": "9039aaad0af0d2017955e8c4d865b5d0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/01-prompt.png": {
+    "mtime": 1795585609.765139,
+    "seen": 1795586185.885406,
+    "ast_hash": "80c4c1c9a1d32ecf626e7bfa866d371f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/02-revert-button.png": {
+    "mtime": 1795585628.1617486,
+    "seen": 1795586185.885407,
+    "ast_hash": "eb35677e18ba3d50d21845e7ed12822b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/03-prompt-second.png": {
+    "mtime": 1795585643.336114,
+    "seen": 1795586185.885407,
+    "ast_hash": "3bd3e0e8c09036f4ad1ccb7c7c111925",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/04-menubar-control-centre.png": {
+    "mtime": 1795585665.109208,
+    "seen": 1795586185.885408,
+    "ast_hash": "cb7cc68a5f0abbb594776c60ceb214c6",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/05-edge-background-apps.png": {
+    "mtime": 1795585690.714596,
+    "seen": 1795586185.885409,
+    "ast_hash": "50564d48e109395f8dc121ad14541c2e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/06-relaunch-menubar-cc.png": {
+    "mtime": 1795585722.8794467,
+    "seen": 1795586185.885409,
+    "ast_hash": "b82052c139506cdede1055e573a64444",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/07-relaunch-background-apps.png": {
+    "mtime": 1795585725.5737343,
+    "seen": 1795586185.88541,
+    "ast_hash": "a53ff0769608267b2222e44f4cfab2ff",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/08-reverted-to-edge.png": {
+    "mtime": 1795585743.135864,
+    "seen": 1795586185.885411,
+    "ast_hash": "3a93e60519823c4331355e53a7e438cf",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/09-menubar-creative-hub.png": {
+    "mtime": 1795586109.2089753,
+    "seen": 1795586185.885411,
+    "ast_hash": "5d5bcc334f8321bbf651baa1c765eadc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/10-standalone-control-centre.png": {
+    "mtime": 1795586152.1853616,
+    "seen": 1795586185.885412,
+    "ast_hash": "8d6214716cba1de42f311bf93b961956",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/11-trash-chip-after-revert.png": {
+    "mtime": 1795585829.6093042,
+    "seen": 1795586185.8854132,
+    "ast_hash": "3d5f55a29aaa9f1f32c7bddb7ea5f4ef",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar/12-folder-chip-after-revert.png": {
+    "mtime": 1795585832.0747514,
+    "seen": 1795586185.8854132,
+    "ast_hash": "011905aaf8acc47b21909320a45f8477",
     "semantic_hash": ""
   }
 }
