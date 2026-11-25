@@ -155,6 +155,7 @@ struct WelcomeGuideView: View {
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
     @State private var microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+    @State private var cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
     @State private var calendarGranted = EKEventStore.authorizationStatus(for: .event) == .fullAccess
     @State private var remindersGranted = EKEventStore.authorizationStatus(for: .reminder) == .fullAccess
     @State private var notificationsGranted = false
@@ -419,6 +420,15 @@ struct WelcomeGuideView: View {
                               AVCaptureDevice.requestAccess(for: .audio) { _ in }
                               PermissionRow.openPrivacy("Privacy_Microphone")
                           })
+            // 2026-11-25: the camera is the last grant that used to appear from a panel rather than
+            // here (opening the camera mirror). It joins the one pass, so it is asked once.
+            PermissionRow(title: Text("Camera"),
+                          note: Text("Only for the camera mirror. Nothing turns the camera on until you open it."),
+                          isGranted: cameraGranted,
+                          grant: {
+                              AVCaptureDevice.requestAccess(for: .video) { _ in }
+                              PermissionRow.openPrivacy("Privacy_Camera")
+                          })
             // 58c: the four grants that used to pop up later, from whichever panel happened to need
             // them first (calendar on the panel, location on the weather chip, notifications on the
             // first alarm). They are asked here, once, so the appearance is predictable.
@@ -482,6 +492,7 @@ struct WelcomeGuideView: View {
             screenRecordingGranted = CGPreflightScreenCaptureAccess()
             inputMonitoringGranted = CGPreflightListenEventAccess()
             microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+            cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
             refreshCalendarGrants()
             refreshNotificationsGranted()
             locationGranted = locationManager.authorizationStatus == .authorizedAlways
@@ -520,6 +531,12 @@ struct WelcomeGuideView: View {
             }
             await pause(600_000_000)
         }
+        if AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                AVCaptureDevice.requestAccess(for: .video) { _ in continuation.resume() }
+            }
+            await pause(600_000_000)
+        }
         if EKEventStore.authorizationStatus(for: .event) == .notDetermined {
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
                 Self.eventStore.requestFullAccessToEvents { _, _ in continuation.resume() }
@@ -542,7 +559,11 @@ struct WelcomeGuideView: View {
         }
         refreshCalendarGrants()
         refreshNotificationsGranted()
+        cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
         locationGranted = locationManager.authorizationStatus == .authorizedAlways
+        // Every prompt this app is allowed to raise has now been raised once. Feature code reads
+        // this and reports status instead of asking again.
+        PermissionBootstrap.markCompleted()
     }
 
     private func refreshCalendarGrants() {

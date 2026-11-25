@@ -439,25 +439,24 @@ enum PanelGeometry {
     ) -> CGRect {
         switch mode {
         case .windows:
-            // Full Width is a true edge-to-edge bar inside the side margins (the capsule keeps its
-            // slot at the end), never a hug bar — that was indistinguishable from Centered (Phase 11b).
-            // With the Control Centre at the trailing end the plate takes that slot over and the
-            // capsule moves inside it (`controlCentreTrailing`).
-            let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
-            // Full Width has no slack for a wing to park in, so the wings *become* the bar's ends:
-            // the reserve comes straight out of the plate and the bar still fills every point between
-            // them, flush on the same margins it used to run to (`wing | bar | wing`). No dead gap and
-            // no centring — centring the plate in leftover space is Centered's job, and a hug bar here
-            // would collapse the mode into that one. The strip's horizontal `ScrollView` takes the
-            // overflow, exactly as it does for a busy Centered dock (PHN-6a).
-            let wingSpace = dockWingReserve(config: wingConfig, metrics: metrics)
-            let fullWidth = controlCentreTrailing
-                ? screen.frame.width - 2 * max(0, margin)
-                : fullWidthPlateWidth(screenWidth: screen.frame.width, margin: margin, metrics: metrics)
-            let plateWidth = max(fullWidth - wingSpace.left - wingSpace.right, metrics.minimumDockWidth)
-            let panelWidth = max(plateWidth, metrics.minimumDockWidth)
-            let panelX = screen.frame.minX + max(0, margin) + wingSpace.left
-                + (placement == .left ? capsuleSpace : 0)
+            // Owner 2026-11-25: no dead space in the bar at any item count. Full Width hugs its
+            // content like every other mode — the plate is the content plus the chrome, centred in
+            // the space the wings leave — instead of running edge to edge with the spare width
+            // poured into section boundaries.
+            let capsuleSpace = controlCentreTrailing ? 0 : metrics.capsuleGap + metrics.capsuleWidth
+            var wingSpace = dockWingReserve(config: wingConfig, metrics: metrics)
+            if capsuleSpace > 0, wingConfig.hasAnyActiveWing {
+                if placement == .left { wingSpace.left += 2 * metrics.shadowPadding }
+                else { wingSpace.right += 2 * metrics.shadowPadding }
+            }
+            let maxWidth = screen.frame.width - 2 * max(0, margin) - capsuleSpace
+                - wingSpace.left - wingSpace.right
+            let targetWidth = min(maxWidth, max(contentWidth, metrics.minimumDockWidth))
+            let panelWidth = max(targetWidth, metrics.minimumDockWidth)
+            let slack = max(0, screen.frame.width - 2 * max(0, margin) - capsuleSpace
+                - wingSpace.left - wingSpace.right - panelWidth)
+            let x = screen.frame.minX + max(0, margin) + wingSpace.left + slack / 2
+            let panelX = placement == .left ? x + capsuleSpace : x
             return CGRect(
                 x: panelX - metrics.shadowPadding,
                 y: screen.frame.minY + metrics.bottomGap - metrics.shadowPadding,

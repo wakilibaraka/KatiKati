@@ -80,7 +80,9 @@ final class WindowChipGroupingTests: XCTestCase {
 
     func testDockSpacingConfigClamping() {
         XCTAssertEqual(DockSpacingConfig.default.iconSpacing, 1)
-        XCTAssertEqual(DockSpacingConfig.default.sectionSpacing, 6)
+        XCTAssertEqual(DockSpacingConfig.default.sectionSpacing,
+                       DockSpacingConfig.sectionSpacingRange.lowerBound,
+                       "sections default to the tightest gap (owner 2026-11-25)")
         XCTAssertEqual(DockSpacingConfig.iconSpacingRange, -2...12)
         XCTAssertEqual(DockSpacingConfig.sectionSpacingRange, 3...20)
         XCTAssertTrue(DockSpacingConfig.iconSpacingRange.contains(0))

@@ -77,6 +77,13 @@ final class CameraMirrorService: ObservableObject {
         generation &+= 1
         isStarting = true
         if AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
+            // The welcome pass owns the prompt. After it has run, a page appearing must not raise a
+            // second one — the mirror simply reports that the camera is not available.
+            guard PermissionBootstrap.mayPromptFromFeature else {
+                isStarting = false
+                refresh()
+                return
+            }
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 Task { @MainActor in
                     guard self.wantsCamera else { self.refresh(); return }

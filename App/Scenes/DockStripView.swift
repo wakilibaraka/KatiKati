@@ -275,17 +275,13 @@ struct DockStripView: View {
             // Phase 18c: one stack, two axes — a side rail stacks the same entries top to bottom.
             ScrollView(isRail ? .vertical : .horizontal, showsIndicators: false) {
                 StripAxisStack(vertical: isRail,
-                               spacing: effectiveSpacing,
-                               wideFill: !isRail && settingsStore.barLayoutMode == .windows) {
+                               spacing: effectiveSpacing) {
                     ForEach(projection.entries) { entry in
                         chipWithReorder(entry, projection: projection, compression: compression)
                             .transition(.scale(scale: 0.88).combined(with: .opacity))
-                            .layoutValue(key: StripWideFlexBoundaryKey.self, value: Self.isWideFlexBoundary(entry))
                     }
                 }
-                .frame(minWidth: isRail ? nil : fullWidthContentWidth,
-                       minHeight: isRail ? fullWidthContentWidth : nil,
-                       alignment: isRail ? .top : .leading)
+                .frame(alignment: isRail ? .top : .leading)
                 .padding(isRail ? .vertical : .horizontal, (isRail ? Style.railContentInset : Style.chipContentInset) * dockScale)
                 // DP-5: a rail's plate is `tile + 2·inset` thick, not the bar's height. The panel
                 // window is solved to the same thickness in `PanelGeometry.stripTargetFrame`, so the
@@ -1955,14 +1951,6 @@ extension DockStripView {
 // MARK: - Section widget content (shared by plain slots and Smart Stack slots)
 
 extension DockStripView {
-    /// Full Width only: the width the content row stretches to (plate minus the end insets); `nil`
-    /// elsewhere so every other mode keeps measuring its natural width.
-    var fullWidthContentWidth: CGFloat? {
-        guard settingsStore.barLayoutMode == .windows else { return nil }
-        let plate = PanelGeometry.fullWidthPlateWidth(
-            screenWidth: stripMainLength, margin: CGFloat(settingsStore.islandMargin), metrics: metrics)
-        return max(0, plate - 2 * Style.chipContentInset * dockScale)
-    }
 
     /// Phase 18: the edge this strip sits on (its display's override, else the global choice).
     var stripPlacement: StripPlacement { settingsStore.stripPlacement(forDisplay: displayUUID) }
@@ -2366,16 +2354,6 @@ extension DockStripView {
         dockFocus.end()
     }
 
-    private static func isWideFlexBoundary(_ entry: StripEntry) -> Bool {
-        if case let .divider(id) = entry {
-            return id.hasPrefix("layout-divider-")
-        }
-        return false
-    }
-}
-
-private struct StripWideFlexBoundaryKey: LayoutValueKey {
-    static let defaultValue: Bool = false
 }
 
 /// HStack on the bottom bar, VStack on a side rail (Phase 18c). `AnyLayout` would do this in one
@@ -2383,54 +2361,13 @@ private struct StripWideFlexBoundaryKey: LayoutValueKey {
 private struct StripAxisStack<Content: View>: View {
     let vertical: Bool
     let spacing: CGFloat
-    /// In Wide mode, absorbs spare width at major zone boundaries (`layout-divider-*`) while
-    /// keeping app icons and utility/tool clusters strictly at `Icon Spacing`.
-    var wideFill: Bool = false
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         if vertical {
             VStack(alignment: .center, spacing: spacing, content: content)
-        } else if wideFill {
-            WideStripFillLayout(baseSpacing: spacing) { content() }
         } else {
             HStack(alignment: .center, spacing: spacing, content: content)
-        }
-    }
-}
-
-/// Wide's horizontal stack: fills the plate while keeping app icons and tool clusters strictly at
-/// `baseSpacing` (`Icon Spacing`), pouring spare width evenly into major zone flex boundaries
-/// (`WideZoneSpacerPlan`) — or equally at both ends when no flex boundary is present.
-private struct WideStripFillLayout: Layout {
-    let baseSpacing: CGFloat
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        let natural = max(0, sizes.reduce(0) { $0 + $1.width }
-            + baseSpacing * CGFloat(max(0, sizes.count - 1)))
-        let width = max(natural, proposal.width ?? natural)
-        return CGSize(width: width, height: proposal.height ?? (sizes.map(\.height).max() ?? 0))
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        guard !sizes.isEmpty else { return }
-        let gaps = max(0, sizes.count - 1)
-        let contentWidth = sizes.reduce(0) { $0 + $1.width }
-        let spare = max(0, bounds.width - contentWidth - baseSpacing * CGFloat(gaps))
-        let flexCount = subviews.reduce(0) { $0 + ($1[StripWideFlexBoundaryKey.self] ? 1 : 0) }
-        let plan = WideZoneSpacerPlan.resolve(spare: spare, flexBoundaryCount: flexCount)
-        var x = bounds.minX + plan.endPadding
-        for (index, size) in sizes.enumerated() {
-            let isFlex = subviews[index][StripWideFlexBoundaryKey.self]
-            if isFlex { x += plan.boundaryExtra / 2 }
-            subviews[index].place(
-                at: CGPoint(x: x, y: bounds.midY - size.height / 2),
-                anchor: .topLeading,
-                proposal: ProposedViewSize(size)
-            )
-            x += size.width + (isFlex ? plan.boundaryExtra / 2 : 0) + (index < gaps ? baseSpacing : 0)
         }
     }
 }

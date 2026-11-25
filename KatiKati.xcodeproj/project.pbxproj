@@ -197,6 +197,7 @@
 		A0000000000000000001F0B1 /* CommandTabTakeover.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0B0 /* CommandTabTakeover.swift */; };
 		A0000000000000000001F0C1 /* WindowDrawerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0C0 /* WindowDrawerController.swift */; };
 		A0000000000000000001F0D1 /* WindowStripController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0D0 /* WindowStripController.swift */; };
+		A0000000000000000002C0F1 /* PermissionBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002C0F0 /* PermissionBootstrap.swift */; };
 		A0000000000000000001F0E1 /* WindowBorderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0E0 /* WindowBorderController.swift */; };
 		FA10A1000000000000000191 /* WindowSwitcherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000190 /* WindowSwitcherController.swift */; };
 		FA10A1000000000000000184 /* WindowSwitcherModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000183 /* WindowSwitcherModelTests.swift */; };
@@ -836,6 +837,7 @@
 		7CCEA0B12BC6D7CB27B79C8C /* WelcomeGuideOnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18EBBCA120BD5D255C5108B /* WelcomeGuideOnboardingTests.swift */; };
 		2813AE63913A8DF4A5C68CBE /* SettingsLayoutPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97A613F29432B20F1634E08E /* SettingsLayoutPane.swift */; };
 		2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75000000000000000000013 /* WelcomeGuideView.swift */; };
+		A0000000000000000002C0F2 /* PermissionBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000002C0F0 /* PermissionBootstrap.swift */; };
 		A00000000000000000009011 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009010 /* LaunchAtLoginService.swift */; };
 		A00000000000000000009021 /* NativeDockPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009020 /* NativeDockPreferencesService.swift */; };
 		A00000000000000000009031 /* PanelVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000009030 /* PanelVisibilityState.swift */; };
@@ -1642,6 +1644,7 @@
 		A0000000000000000001F0B0 /* CommandTabTakeover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandTabTakeover.swift; path = App/Composition/CommandTabTakeover.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0C0 /* WindowDrawerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowDrawerController.swift; path = App/Composition/WindowDrawerController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0D0 /* WindowStripController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowStripController.swift; path = App/Composition/WindowStripController.swift; sourceTree = SOURCE_ROOT; };
+		A0000000000000000002C0F0 /* PermissionBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PermissionBootstrap.swift; path = App/Composition/PermissionBootstrap.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0E0 /* WindowBorderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowBorderController.swift; path = App/Composition/WindowBorderController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000190 /* WindowSwitcherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSwitcherController.swift; path = App/Composition/WindowSwitcherController.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000183 /* WindowSwitcherModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSwitcherModelTests.swift; path = Tests/Unit/WindowSwitcherModelTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3942,6 +3945,7 @@
 				A0000000000000000001F0B1 /* CommandTabTakeover.swift in Sources */,
 				A0000000000000000001F0C1 /* WindowDrawerController.swift in Sources */,
 				A0000000000000000001F0D1 /* WindowStripController.swift in Sources */,
+				A0000000000000000002C0F1 /* PermissionBootstrap.swift in Sources */,
 				A0000000000000000001F0E1 /* WindowBorderController.swift in Sources */,
 				FA10A1000000000000000191 /* WindowSwitcherController.swift in Sources */,
 				FA10A1000000000000000172 /* MemoryOverlayController.swift in Sources */,
@@ -4643,6 +4647,7 @@
 				FC11A0000000000000005802 /* SettingsLayoutPane+Shortcuts.swift in Sources */,
 				A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */,
 				2E8A037835590C15D95BB4E9 /* WelcomeGuideView.swift in Sources */,
+				A0000000000000000002C0F2 /* PermissionBootstrap.swift in Sources */,
 				FA10A1000000000000000249 /* DisplayIdentity.swift in Sources */,
 				DD0000000000000000000017 /* DockWidgetLogicTests.swift in Sources */,
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,

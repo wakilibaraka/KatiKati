@@ -148,10 +148,14 @@ struct DockSpacingConfig: Equatable, Codable, Sendable {
     static let sectionSpacingRange: ClosedRange<CGFloat> = 3...20
 
     var iconSpacing: CGFloat = 1
-    var sectionSpacing: CGFloat = 6
+    /// Owner 2026-11-25: start at the tightest gap the range allows, so a fresh dock has no
+    /// unnecessary air between sections; `sectionSpacingRange.lowerBound` is 3.
+    var sectionSpacing: CGFloat = 3
     var dynamicCompressionEnabled: Bool = true
 
     static let `default` = DockSpacingConfig()
+    /// The pre-2026-11-25 shipped default; a stored config equal to this was never customised.
+    static let legacyDefault = DockSpacingConfig(iconSpacing: 1, sectionSpacing: 6, dynamicCompressionEnabled: true)
 
     func clamped() -> DockSpacingConfig {
         DockSpacingConfig(

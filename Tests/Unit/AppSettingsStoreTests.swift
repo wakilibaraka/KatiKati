@@ -2380,12 +2380,21 @@ final class AppSettingsStoreTests: XCTestCase {
 
         let migratedStore = AppSettingsStore(defaults: legacyDefaults)
         XCTAssertEqual(migratedStore.dockSpacingConfig.iconSpacing, 1)
-        XCTAssertEqual(migratedStore.dockSpacingConfig.sectionSpacing, 6)
+        XCTAssertEqual(migratedStore.dockSpacingConfig.sectionSpacing,
+                       DockSpacingConfig.sectionSpacingRange.lowerBound)
         XCTAssertFalse(migratedStore.dockSpacingConfig.dynamicCompressionEnabled)
 
         migratedStore.setDockSpacingConfig(
             DockSpacingConfig(iconSpacing: 0, sectionSpacing: 4, dynamicCompressionEnabled: true)
         )
+        // A stored config that still equals the pre-2026-11-25 default was never customised, so it
+        // follows the new tight default instead of pinning the old 6 pt gaps forever.
+        let oldDefaultDefaults = makeDefaults()
+        oldDefaultDefaults.set(try JSONEncoder().encode(DockSpacingConfig.legacyDefault),
+                               forKey: DockSpacingConfig.defaultsKey)
+        let oldDefaultStore = AppSettingsStore(defaults: oldDefaultDefaults)
+        XCTAssertEqual(oldDefaultStore.dockSpacingConfig, DockSpacingConfig.default)
+
         let reloaded = AppSettingsStore(defaults: legacyDefaults)
         XCTAssertEqual(reloaded.dockSpacingConfig, DockSpacingConfig(iconSpacing: 0, sectionSpacing: 4, dynamicCompressionEnabled: true))
     }

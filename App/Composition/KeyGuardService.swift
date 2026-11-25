@@ -165,7 +165,10 @@ final class KeyGuardService: ObservableObject {
     /// frees itself when the time is up (fail-open). Asks for Input Monitoring first; false if not granted.
     @discardableResult
     func startCleaningLock(seconds: Double = CleaningLock.defaultSeconds) -> Bool {
-        guard Self.hasPermission else { Self.requestPermission(); return false }
+        guard Self.hasPermission else {
+            if PermissionBootstrap.mayPromptFromFeature { Self.requestPermission() }
+            return false
+        }
         let end = Date().addingTimeInterval(CleaningLock.clamped(seconds))
         cleaningEnd = end
         UserDefaults.standard.set(end, forKey: Self.cleaningEndKey)

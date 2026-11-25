@@ -619,7 +619,11 @@ final class AppSettingsStore: ObservableObject {
         hasStoredAppIconPreset = storedIconPreset != nil
         appIconPreset = AppIconPresentationPreset.resolved(stored: storedIconPreset, isVertical: false)
         if let current = Self.decoded(DockSpacingConfig.self, forKey: DockSpacingConfig.defaultsKey, defaults: defaults) {
-            dockSpacingConfig = current.clamped()
+            let migrated = current == DockSpacingConfig.legacyDefault ? DockSpacingConfig.default : current
+            dockSpacingConfig = migrated.clamped()
+            if migrated != current, let data = try? JSONEncoder().encode(migrated) {
+                defaults.set(data, forKey: DockSpacingConfig.defaultsKey)
+            }
         } else if let legacy = Self.decoded(DockSpacingConfig.self, forKey: DockSpacingConfig.legacyV1DefaultsKey, defaults: defaults) {
             var migrated = DockSpacingConfig.default
             migrated.dynamicCompressionEnabled = legacy.dynamicCompressionEnabled

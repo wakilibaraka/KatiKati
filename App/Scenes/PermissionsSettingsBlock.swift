@@ -1,5 +1,6 @@
 import AppKit
 import AVFAudio
+import AVFoundation
 import CoreGraphics
 import SwiftUI
 
@@ -11,12 +12,14 @@ struct PermissionsSettingsBlock: View {
     @State private var screenRecordingGranted = CGPreflightScreenCaptureAccess()
     @State private var inputMonitoringGranted = CGPreflightListenEventAccess()
     @State private var microphoneGranted = AVAudioApplication.shared.recordPermission == .granted
+    @State private var cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
 
     private func refreshGrants() {
         accessibilityGranted = AXIsProcessTrusted()
         screenRecordingGranted = CGPreflightScreenCaptureAccess()
         inputMonitoringGranted = CGPreflightListenEventAccess()
         microphoneGranted = AVAudioApplication.shared.recordPermission == .granted
+        cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
     }
 
     var body: some View {
@@ -34,6 +37,12 @@ struct PermissionsSettingsBlock: View {
                           note: Text("Shows live window thumbnails in hover previews. Without it, previews show titles only."),
                           isGranted: screenRecordingGranted,
                           grant: { _ = CGRequestScreenCaptureAccess(); PermissionRow.openPrivacy("Privacy_ScreenCapture") })
+                .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+            SettingsDivider()
+            PermissionRow(title: Text("Camera"),
+                          note: Text("Only for the camera mirror. Nothing turns the camera on until you open it."),
+                          isGranted: cameraGranted,
+                          grant: { AVCaptureDevice.requestAccess(for: .video) { _ in } })
                 .padding(.vertical, SettingsMetrics.rowVerticalPadding)
             SettingsDivider()
             PermissionRow(title: Text("Input Monitoring"),

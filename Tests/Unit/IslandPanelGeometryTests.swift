@@ -8,24 +8,27 @@ final class IslandPanelGeometryTests: XCTestCase {
         safeAreaTop: 25
     )
 
-    func testWindowsModeIsAFullWidthPlateNotAHugBar() {
+    func testWindowsModeHugsItsContentAndCentresTheBar() {
         let metrics = PanelLayoutMetrics.tungstenEdge
         let margin: CGFloat = 12
+        let capsuleSpace = metrics.capsuleGap + metrics.capsuleWidth
+        var plates: [CGFloat] = []
         for contentWidth: CGFloat in [300, 500, 900] {
             let frame = PanelGeometry.islandTargetFrame(
                 slot: 0, contentWidth: contentWidth, mode: .windows, on: testScreen,
                 metrics: metrics, margin: margin)
             let plate = frame.width - 2 * metrics.shadowPadding
-            XCTAssertEqual(plate, 1440 - 2 * margin - (metrics.capsuleGap + metrics.capsuleWidth),
-                           "Full Width ignores content width (Phase 11b)")
-            XCTAssertEqual(frame.minX + metrics.shadowPadding, margin)
+            XCTAssertEqual(plate, max(contentWidth, metrics.minimumDockWidth), accuracy: 0.5,
+                           "Full Width is content + chrome, never an edge-to-edge bar (owner 2026-11-25)")
+            XCTAssertLessThan(plate, testScreen.frame.width - 2 * margin,
+                              "no dead plate beyond the content")
+            // Centred in the room the trailing capsule leaves, rather than pinned to a margin.
+            XCTAssertEqual(plate / 2 + (frame.minX + metrics.shadowPadding),
+                           (testScreen.frame.width - capsuleSpace) / 2, accuracy: 1,
+                           "the hug bar is centred")
+            plates.append(plate)
         }
-        // Distinct from Centered at the same content width.
-        let centered = PanelGeometry.islandTargetFrame(
-            slot: 0, contentWidth: 500, mode: .centered, on: testScreen, metrics: metrics, margin: margin)
-        let full = PanelGeometry.islandTargetFrame(
-            slot: 0, contentWidth: 500, mode: .windows, on: testScreen, metrics: metrics, margin: margin)
-        XCTAssertGreaterThan(full.width, centered.width)
+        XCTAssertEqual(plates, plates.sorted(), "wider content makes a wider bar")
     }
 
     func testCenteredModeHugsContent() {
@@ -208,7 +211,7 @@ final class IslandPanelGeometryTests: XCTestCase {
     /// go. This mode has no slack to park in, so the wings take the bar's own ends: they start and
     /// finish on the margins the plate used to reach, the bar fills everything between them, and the
     /// plate gives up exactly the wings' park so the strip scrolls instead of clipping.
-    func testFullWidthDockDocksTheWingsToTheBarEnds() {
+    func testFullWidthDockKeepsItsWingsBesideTheHugPlate() {
         let metrics = PanelLayoutMetrics.tungstenEdge
         let margin: CGFloat = 12
         var wings = DockWingsConfiguration(
@@ -221,7 +224,6 @@ final class IslandPanelGeometryTests: XCTestCase {
             slot: 0, contentWidth: 1640, mode: .windows, on: testScreen,
             metrics: metrics, margin: margin, wingConfig: wings)
         let plate = frame.insetBy(dx: metrics.shadowPadding, dy: metrics.shadowPadding)
-        // The real bar always has its drawer capsule at the trailing end; the wing wraps around it.
         let capsule = PanelGeometry.stripCapsuleTargetFrame(
             forDock: frame, stripPlacement: .bottom, on: testScreen,
             drawerPlacement: .right, metrics: metrics)
@@ -230,27 +232,27 @@ final class IslandPanelGeometryTests: XCTestCase {
             stripPlacement: .bottom, drawerPlacement: .right, controlCentreTrailing: false,
             on: testScreen, metrics: metrics, margin: margin)
 
-        XCTAssertNotNil(plan.leftFrame, "Full Width must not hide the left wing")
-        XCTAssertNotNil(plan.rightFrame, "Full Width must not hide the right wing")
+        XCTAssertNotNil(plan.leftFrame, "a hug bar must still show the left wing")
+        XCTAssertNotNil(plan.rightFrame, "a hug bar must still show the right wing")
         XCTAssertEqual(plan.leftSize, .medium)
         XCTAssertEqual(plan.rightSize, .medium)
 
-        // Both wings reach the margins the full-bleed plate used to span, with nothing between them
-        // and the plate but the gap.
-        XCTAssertEqual(plan.leftFrame!.minX + metrics.shadowPadding, margin, accuracy: 0.5)
-        XCTAssertEqual(plan.rightFrame!.maxX - metrics.shadowPadding,
-                       testScreen.frame.maxX - margin, accuracy: 0.5)
+        // Wings flank the plate without overlapping it, and stay inside the screen margins.
         XCTAssertLessThanOrEqual(plan.leftFrame!.maxX - metrics.shadowPadding, plate.minX + 0.5)
         XCTAssertGreaterThanOrEqual(plan.rightFrame!.minX + metrics.shadowPadding, plate.maxX - 0.5)
+        XCTAssertGreaterThanOrEqual(plan.leftFrame!.minX + metrics.shadowPadding, margin - 0.5)
+        XCTAssertLessThanOrEqual(plan.rightFrame!.maxX - metrics.shadowPadding,
+                                 testScreen.frame.maxX - margin + 0.5)
 
-        // The bar still stretches: it forfeits exactly the wings' park and keeps every other point,
-        // which is what makes the strip scroll rather than the mode turn into a hug bar.
+        // Reserving wing room makes the hug plate narrower by exactly that reserve, never wider.
         let plain = PanelGeometry.islandTargetFrame(
             slot: 0, contentWidth: 1640, mode: .windows, on: testScreen,
             metrics: metrics, margin: margin, wingConfig: .default)
         let reserve = PanelGeometry.dockWingReserve(config: wings, metrics: metrics)
-        XCTAssertEqual(plain.width - frame.width, reserve.left + reserve.right, accuracy: 0.5)
+        // The capsule rides beside the plate, so the forward side hands back its shadow padding too.
+        XCTAssertEqual(plain.width - frame.width,
+                       reserve.left + reserve.right + 2 * metrics.shadowPadding, accuracy: 0.5)
         XCTAssertGreaterThan(frame.insetBy(dx: metrics.shadowPadding, dy: 0).width,
-                             metrics.minimumDockWidth * 4, "the bar must stay a bar, not a chip")
+                             metrics.minimumDockWidth * 4, "a busy dock still fills its room")
     }
 }
