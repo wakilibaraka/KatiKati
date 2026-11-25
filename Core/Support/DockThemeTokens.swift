@@ -38,6 +38,15 @@ struct DockTint: Equatable {
     static func rgba(_ rgba: DockRGBA) -> DockTint { .init(base: .rgb(rgba), opacity: rgba.a) }
 }
 
+extension DockTint {
+    /// The same ink with its alpha raised to `floor`, never lowered. A subtitle tint calibrated for a
+    /// full-width glass bar is too faint on a translucent card over the wallpaper; this lets a surface
+    /// keep the theme's base colour while guaranteeing its own minimum opacity.
+    func withMinimumOpacity(_ floor: Double) -> DockTint {
+        DockTint(base: base, opacity: min(1, max(opacity, floor)))
+    }
+}
+
 /// 同一处视觉的常态 / 强调态两个值（强调 = 悬停，或投放命中）。
 struct DockTintPair: Equatable {
     var normal: DockTint

@@ -351,7 +351,11 @@ struct ControlCenterView: View {
     private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
     /// Dock label tints: black on the light column, white on the dark one, so text flips with the plate.
     private var ink: Color { theme.labelActive.color }
-    private var inkSoft: Color { theme.labelSubtitle.color }
+    /// The bar's subtitle tint, floored: this panel's copy sits on a translucent card over the
+    /// wallpaper, where the bar's value reads as a smudge.
+    private var inkSoft: Color {
+        theme.labelSubtitle.withMinimumOpacity(ControlCenterReadability.minimumSecondaryAlpha).color
+    }
 
     private var connectivity: [QuickToggleID] { [.wifi, .bluetooth] }
     private var quickActions: [QuickToggleID] { order.filter { !connectivity.contains($0) } }
@@ -498,8 +502,8 @@ struct ControlCenterView: View {
 
     /// The Finish row tunes the card wash only; the dock theme's colours stay untouched.
     private var cardFill: AnyShapeStyle {
-        let alpha = ControlCenterGlassStyle.parse(
-            UserDefaults.standard.string(forKey: ControlCenterGlassStyle.storageKey)).cardAlpha
+        let alpha = ControlCenterReadability.cardAlpha(for: ControlCenterGlassStyle.parse(
+            UserDefaults.standard.string(forKey: ControlCenterGlassStyle.storageKey)))
         if isPad { return AnyShapeStyle(Color.white.opacity(colorScheme == .dark ? alpha + 0.02 : 0.55)) }
         return AnyShapeStyle(LinearGradient(colors: [Color.primary.opacity(colorScheme == .dark ? alpha : alpha * 0.75),
                                               palette.cardTintBottom],
@@ -545,7 +549,7 @@ struct ControlCenterView: View {
     private var clockPill: some View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
             Text(verbatim: Self.clockFormatter.string(from: context.date))
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: ControlCenterReadability.captionSize, weight: .medium))
                 .monospacedDigit()
                 .foregroundStyle(inkSoft)
                 .padding(.horizontal, 7)
@@ -596,7 +600,7 @@ struct ControlCenterView: View {
                             .foregroundStyle(ink)
                         if status.status.battery.isCharging {
                             Text("Charging")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.system(size: ControlCenterReadability.detailSize, weight: .semibold))
                                 .foregroundStyle(Color.green)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 1)
@@ -605,7 +609,7 @@ struct ControlCenterView: View {
                         // 59e: the OS's own power saving, shown where the reading is.
                         if status.status.battery.facts.isLowPowerMode {
                             Text("Low Power")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.system(size: ControlCenterReadability.detailSize, weight: .semibold))
                                 .foregroundStyle(Color.orange)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 1)
@@ -648,7 +652,7 @@ struct ControlCenterView: View {
                             }
                             if peripherals.isEmpty {
                                 Text("No connected devices report a battery")
-                                    .font(.system(size: 10.5))
+                                    .font(.system(size: ControlCenterReadability.captionSize))
                                     .foregroundStyle(inkSoft)
                             }
                         }
@@ -676,7 +680,7 @@ struct ControlCenterView: View {
                     .foregroundStyle(ink)
                 if let detail {
                     Text(verbatim: "· " + detail)
-                        .font(.system(size: 9.5))
+                        .font(.system(size: ControlCenterReadability.detailSize))
                         .lineLimit(1)
                         .foregroundStyle(inkSoft)
                 }
@@ -745,7 +749,7 @@ struct ControlCenterView: View {
                                 .foregroundStyle(ink)
                                 .lineLimit(1)
                             Text(verbatim: connectivityDetail(id, on: on))
-                                .font(.system(size: 10.5))
+                                .font(.system(size: ControlCenterReadability.captionSize))
                                 .foregroundStyle(inkSoft)
                                 .lineLimit(1)
                         }
@@ -949,10 +953,11 @@ struct ControlCenterView: View {
                     .shadow(color: on || armed ? palette.glowColor : .clear, radius: 6, y: 2)
                     .scaleEffect(armed ? 1.06 : 1)
                 id.title
-                    .font(.system(size: 9.5, weight: .medium))
+                    .font(.system(size: ControlCenterReadability.captionSize, weight: .medium))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.62)
-                    .foregroundStyle(inkSoft)
+                    .minimumScaleFactor(ControlCenterReadability.minimumLabelScale)
+                    // A toggle's name is the panel's primary copy, not a subtitle.
+                    .foregroundStyle(ink)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, isPad ? 6 : 0)
@@ -1067,7 +1072,7 @@ struct ControlCenterView: View {
                     .controlSize(.small)
                     .tint(palette.primaryAccent)
                 Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 11.5, weight: .medium))
                     .monospacedDigit()
                     .foregroundStyle(inkSoft)
                     .frame(width: 26, alignment: .trailing)
@@ -1092,9 +1097,9 @@ struct ControlCenterView: View {
             VStack(spacing: 3) {
                 Image(systemName: symbol).font(.system(size: 14, weight: .medium))
                 Text(label)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.system(size: ControlCenterReadability.detailSize, weight: .medium))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.62)
+                    .minimumScaleFactor(ControlCenterReadability.minimumLabelScale)
             }
             .foregroundStyle(ink)
             .frame(maxWidth: .infinity)
@@ -1159,9 +1164,9 @@ private struct ControlCenterNetworkRow: View {
             Text("Network").font(.system(size: 12, weight: .semibold))
             Spacer(minLength: 0)
             Image(systemName: "arrow.down").font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
-            Text(verbatim: SystemMonitorFormat.bytes(snapshot.down) + "/s").font(.system(size: 11)).monospacedDigit()
+            Text(verbatim: SystemMonitorFormat.bytes(snapshot.down) + "/s").font(.system(size: 11.5)).monospacedDigit()
             Image(systemName: "arrow.up").font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
-            Text(verbatim: SystemMonitorFormat.bytes(snapshot.up) + "/s").font(.system(size: 11)).monospacedDigit()
+            Text(verbatim: SystemMonitorFormat.bytes(snapshot.up) + "/s").font(.system(size: 11.5)).monospacedDigit()
         }
         .onAppear { monitor.acquire() }
         .onDisappear { monitor.release() }
@@ -1182,7 +1187,8 @@ private struct ControlCenterAccountRow: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(verbatim: user?.fullName ?? NSUserName())
                         .font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
-                    Text("Manage accounts").font(.system(size: 10.5)).foregroundStyle(.secondary)
+                    Text("Manage accounts").font(.system(size: ControlCenterReadability.captionSize))
+                        .foregroundStyle(Color.primary.opacity(ControlCenterReadability.minimumSecondaryAlpha))
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "gearshape").font(.system(size: 13)).foregroundStyle(.secondary)

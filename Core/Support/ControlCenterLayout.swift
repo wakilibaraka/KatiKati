@@ -235,6 +235,35 @@ enum ControlCenterGlassStyle: String, CaseIterable, Sendable {
     }
 }
 
+/// Readability floors for the panel's copy.
+///
+/// The dock's tints are calibrated for a full-width glass bar. The panel puts the same ink on a
+/// 5–16 % card floating over a photograph, where the bar's subtitle value reads as a smudge. These
+/// floors are the panel's contract: the live panel and the stage preview both draw through them, so
+/// "Finish" can change the surface without taking the labels below legibility.
+enum ControlCenterReadability {
+    /// Subtitle ink never drops below this alpha, whatever the theme says.
+    static let minimumSecondaryAlpha: Double = 0.72
+    /// The switch captions; below this a caption stops being a label.
+    static let captionSize: CGFloat = 10.5
+    /// Secondary details (device summary, utility captions).
+    static let detailSize: CGFloat = 10
+    /// A label that must shrink never goes below 85 % of its size — truncating beats 6 pt text.
+    static let minimumLabelScale: CGFloat = 0.85
+    /// The faintest card wash; the clear finish is raised to it rather than sitting at 5 %.
+    static let minimumCardAlpha: Double = 0.10
+
+    /// Raised alpha for subtitle ink (never lowered).
+    static func secondaryAlpha(_ base: Double) -> Double {
+        min(1, max(base, minimumSecondaryAlpha))
+    }
+
+    /// The wash a finish actually draws, never below the floor.
+    static func cardAlpha(for style: ControlCenterGlassStyle) -> Double {
+        min(1, max(style.cardAlpha, minimumCardAlpha))
+    }
+}
+
 /// Where the Control Centre lives. `edge` is the standalone deck; `menuBar` hands the panel to the
 /// menu-bar item and frees the edge deck for a different job.
 enum ControlCenterSurfaceMode: String, CaseIterable, Sendable {

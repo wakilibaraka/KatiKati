@@ -242,3 +242,38 @@ final class ControlCenterGridTests: XCTestCase {
         ])
     }
 }
+
+/// The panel's copy sits on a translucent card over the wallpaper, so the dock's bar-calibrated
+/// subtitle tint is not enough on its own.
+final class ControlCenterReadabilityTests: XCTestCase {
+    func testSubtitleInkIsRaisedToTheFloorAndNeverDimmed() {
+        XCTAssertEqual(ControlCenterReadability.secondaryAlpha(0.55), 0.72, accuracy: 0.0001)
+        XCTAssertEqual(ControlCenterReadability.secondaryAlpha(0.60), 0.72, accuracy: 0.0001)
+        XCTAssertEqual(ControlCenterReadability.secondaryAlpha(0.90), 0.90, accuracy: 0.0001)
+        XCTAssertEqual(ControlCenterReadability.secondaryAlpha(1.20), 1, accuracy: 0.0001)
+
+        XCTAssertEqual(DockTint.white(0.60).withMinimumOpacity(0.72), DockTint.white(0.72))
+        XCTAssertEqual(DockTint.black(0.9).withMinimumOpacity(0.72), DockTint.black(0.9))
+        XCTAssertEqual(DockTint.black(0.9).withMinimumOpacity(3).opacity, 1)
+    }
+
+    func testEveryFinishDrawsAVisibleCardWash() {
+        for style in ControlCenterGlassStyle.allCases {
+            let alpha = ControlCenterReadability.cardAlpha(for: style)
+            XCTAssertGreaterThanOrEqual(alpha, 0.10 - 1e-9, "\(style) draws a wash that vanishes")
+            XCTAssertLessThanOrEqual(alpha, 1)
+        }
+        // The clear finish used to be 5 %: on a photograph the card and the ink both disappeared.
+        XCTAssertGreaterThan(ControlCenterReadability.cardAlpha(for: .clear),
+                             ControlCenterGlassStyle.clear.cardAlpha)
+        XCTAssertEqual(ControlCenterReadability.cardAlpha(for: .tinted),
+                       ControlCenterGlassStyle.tinted.cardAlpha, accuracy: 1e-9)
+    }
+
+    func testCaptionFloorsBeatTheOldSmallestSizes() {
+        XCTAssertGreaterThanOrEqual(ControlCenterReadability.captionSize, 10.5)
+        XCTAssertGreaterThanOrEqual(ControlCenterReadability.detailSize, 10)
+        XCTAssertGreaterThan(ControlCenterReadability.minimumLabelScale, 0.62,
+                             "a squeeze must not shrink a caption to six points")
+    }
+}
