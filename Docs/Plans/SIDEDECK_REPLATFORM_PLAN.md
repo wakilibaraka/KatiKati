@@ -4,8 +4,9 @@
 > **Downloader & Torrents** from the Notch and **Storage** from both the Notch and the Dock, and it gains
 > EasyDict, a Notification Centre and code-reusing bento widgets.
 >
-> Status: plan approved 2026-11-25. Branch `feat/sidedeck-replatform` (worktree `../KatiKati-sidedeck`),
-> built in parallel with Control Centre work on `main`. Merge-back items (§8) land on `main` once, at merge.
+> Status: **shipped** 2026-11-25. Built on `feat/sidedeck-replatform` (worktree `../KatiKati-sidedeck`)
+> in parallel with Control Centre work on `main`, then merged into `main` at `94454ebc` and graphed at
+> `6259c01b`. §7.1 records every landed batch, §8.0 the merge-back checklist and its evidence.
 
 ---
 
@@ -134,16 +135,40 @@ hand-appended, never regenerated; past ~30 lines for a file addition the slice i
 | **SD-7** | Notification Centre page (grouped by app, clear/filter) + Dashboard bento widgets (Downloads, ClearDisk, Notification digest, Today glance) | `DeckViews`, `NotificationMirrorService`, widget files | `SideDeckBadges`/grouping tests, widget format tests |
 | **SD-8** | Settings › SideDeck and Settings › Edge Bar panes, shared swap option, 12-locale catalog, `check_localization.py` / `check_debug_switches.py` / `check_availability_warnings.py` / `check_input_hygiene.py`, livecheck, idle CPU/RSS | `SettingsTab.swift`, `SettingsWindowView.swift`, `App/Scenes/Settings*`, `Resources/Localizable.xcstrings` | `SettingsTabTests`, livecheck script |
 
-### 7.1 Landed in this batch
+### 7.1 Landed (all slices, merged into `main` at `94454ebc`, graph rebuilt at `6259c01b`)
 
-| Commit | Scope |
-| --- | --- |
-| `docs(sidedeck)` | This document. |
-| `refactor(sidedeck)` | SD-3a — Downloads pane moves to `App/Scenes/Edge/`, deck card surface, wrapper removed. |
-| `feat(notch)` | SD-3b — Storage leaves the resting notch; cleaner folded into the deck; migration + tests. |
-| `feat(dock)` | SD-3c — `.drives` retires from the Dock. The drop happens in `WidgetLayout.init` (every path funnels through it), so it is idempotent and needs no defaults stamp; the enum case stays decodable, and the menu-bar Drives item + Dock Downloads tile are untouched. |
+| Commit | Slice | Scope |
+| --- | --- | --- |
+| `b216437f` | docs | This document. |
+| `d2002565` | SD-1 | `SideDeckConfig` (side, width 360–560, activation + dwell, identity strip, merged weather handle) behind `com.katikati.sidedeck.prefs.v1`, with the one-way `drawer.edgeHover` migration. |
+| `68a70a92` | SD-1 | Detached rail, r26 full-height panel, 4 × 44 pt resting handle on an `NSTrackingArea` (the 7 Hz pointer poll retires), `spring(0.34, 0.84)` entry. |
+| `5d5d7b3d` | SD-2 | Header capsule and real bento columns. |
+| `ebf4570a` | SD-2 | Bottom page dock; pages fill the panel. |
+| `353ebfb3` | SD-3a | Downloads pane moves from `App/Scenes/Notch/` to `App/Scenes/Edge/SideDeckDownloadsPane.swift`, wears `sideDeckCard()`, wrapper removed. |
+| `5a94bc92` | SD-3b | Storage leaves the resting notch. |
+| `63be83bc` | SD-3b | The notch's storage cleaner moves into the deck. |
+| `0081b756` | SD-3b | The unreferenced storage page is deleted. |
+| `1c5bd4ea` | SD-3c | `.drives` retires from the Dock. The drop happens in `WidgetLayout.init` (every path funnels through it), so it is idempotent and needs no defaults stamp; the enum case stays decodable, and the menu-bar Drives item + Dock Downloads tile are untouched. |
+| `20f3f102` | SD-3d | `DevCacheCatalog` (Xcode, node_modules, CocoaPods, SPM, Docker, pip, Cargo) plus the storage-pressure gauge. |
+| `0f75cfe1` | SD-4 | 1–32 connection policy and stall statistics. |
+| `ef0cb033` | SD-4 | Segment scheduling as a testable engine state. |
+| `bef63bcf` | SD-4 | The segmented downloader runs on that state. |
+| `81c0b2ee` | SD-5 | Media-resolver requests decided in a testable core. |
+| `c480f23a` | SD-5 | The opt-in resolver runs from the downloads pane. |
+| `6d937960` | SD-5 | Resolver outcome mapping covered by tests. |
+| `0ee8c637` | SD-6 | Recent lookups and the word of the day in Core. |
+| `5ea0e192` | SD-6 | EasyDict page in the deck. |
+| `ee97be58` | SD-7 | Grouped inbox and capped digest in Core. |
+| `779e9232` | SD-7 | Grouped inbox page and the deck dashboard. |
+| `2799dbea` | SD-7 | ClearDisk shows the measured reclaimable total. |
+| `16b4c88f` | SD-8 | Settings › Side Deck pane and the shared `SideDeckEdgeSwap` control. |
+| `955527bb` | fix | `SettingsButtonRow` rows carry `.accessibilityLabel(title)`, so VoiceOver can name them. |
+| `5c388b5b` | fix | The ClearDisk card formats both figures with the Storage page's own formatter. |
 
-SD-1, SD-2 and SD-3d onwards follow in their own batches.
+**Closeout (2026-11-25):** clean build exit 0; `check_availability_warnings.py` exit 0 with zero hits;
+nine suites **63/63**; Settings livecheck **34/34** pages with screenshots; the ClearDisk card re-driven
+on the merged build showing `Reclaimable 3.33 GB` beside the page header's `3.33 GB`. Full transcripts:
+`Docs/Plans/SIDEDECK_RUNTIME_EVIDENCE.md`.
 
 ---
 
@@ -157,11 +182,28 @@ xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati \
 python3 Scripts/check_localization.py
 python3 Scripts/check_debug_switches.py
 python3 Scripts/check_input_hygiene.py
+python3 Scripts/check_availability_warnings.py /tmp/clean-build.log   # needs a full, non-quiet build log
+python3 Scripts/live_check_settings_tabs.py --app <built app> --shots <dir>  # Settings pages, no other app running
 ```
 
 Merge-back (on `main`, once): `HYBRID_PLAN.md` slice note · `CHANGELOG.md` Unreleased → Changed · prune any
 catalog orphans · `graphify update .` and commit the graph · live-check on a spare display (rail, handle,
 Downloads, Storage, notch rest, Dock) with before/after shots.
+
+### 8.0 Merge-back checklist (closed 2026-11-25)
+
+| Item | State |
+| --- | --- |
+| `HYBRID_PLAN.md` slice note | done — `SD-1`–`SD-8` with hashes, plus the closeout evidence link |
+| `CHANGELOG.md` Unreleased | done — Added + Changed for the replatform, Fixed for both follow-ups |
+| Catalog orphans | none — `check_localization.py` exit 0 |
+| `graphify update .` + graph commit | done — `6259c01b` |
+| `check_availability_warnings.py` | done — clean build log, exit 0, zero conformance warnings |
+| Nine suites on the merged tree | done — 63/63, exit 0, from that clean derived data |
+| Settings livecheck | done — 34/34 pages, exit 0, 34 screenshots (`/tmp/sidedeck-livecheck-shots4/`) |
+| Livecheck harness | fixed — the wait was 7 s against a page that `AppDelegate` presents after 3 s; the poll now runs to 20 s (`Scripts/live_check_settings_tabs.py`) |
+| ClearDisk card on a post-fix build | done — `Reclaimable 3.33 GB` = header `3.33 GB`; snapshot epoch unchanged across Dashboard revisits |
+| Rail / handle / Downloads / Dock walked by hand | partial — the Settings pages and the Dashboard card were driven and photographed; a hand walk of the rail and Dock was not repeated in the closeout |
 
 ### 8.1 Risk register
 

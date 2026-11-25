@@ -53,15 +53,19 @@ Text(verbatim: SystemMonitorFormat.bytes(Double(reclaimableBytes)))
 
 For 3 330 863 104 bytes that function returns `3.33 GB` — the value the Storage header printed for the
 same count — so the two surfaces now state one number. The card's free-space figure moves with the
-same formatter (`20.30 GB` → `21.79 GB` for the same disk), which keeps the card internally
-consistent instead of mixing the two conventions.
+same formatter, so the card stays internally consistent instead of mixing the two conventions.
 
-**What could not be re-driven after the change:** the sibling build script installs its own build
-into `/Applications` and relaunches it every 30–60 seconds; this app terminates the older instance
-on launch, and the last five attempts died inside the drive script (AX returned `Invalid index`).
-The pre-fix drive above is the recorded rendering; the post-fix agreement is by construction (same
-function, same byte count, the header's own output `3.33 GB` for those bytes) but was not photographed
-in the running app.
+**Re-driven after the change (2026-11-25, merged tree `6259c01b`).** A clean Debug build was launched
+with the snapshot key deleted; the card showed free space alone (`Storage 12.63 GB`, no Reclaimable
+row). Pressing the rail's Storage item measured the caches and wrote
+`v1|1795607718|3328528384` (3 328 528 384 bytes) under a header of `232.48 GB used | 3.33 GB`; back on
+the Dashboard the card read `Storage 12.63 GB` and `Reclaimable 3.33 GB`. Two further Dashboard visits
+(through Downloads and Dictionary) left the key at `v1|1795607718|3328528384`, and the free-space figure
+moved with the disk while `Reclaimable` stayed at the stored total. Screenshot of the deck, taken in
+that session: `/tmp/card-postfix-final.png` (local only; machines rebuild `/tmp`).
+
+The first drive attempt in the earlier pass failed because the sibling worktree's install script
+replaced the running app mid-script; this run completed with that build at rest.
 
 ## SD-8 — Settings › Side Deck controls write through
 
@@ -128,3 +132,37 @@ The settings "gel" button rows drew their title but exposed no accessible name �
 an unlabelled `AXButton`, so VoiceOver and AX automation could not tell it from any other button in
 the pane. `SettingsButtonRow` now sets `.accessibilityLabel(title)` (`App/Scenes/SettingsCard.swift`),
 which names every row built from it, including both swap rows.
+
+## Closeout gate run — merged tree `6259c01b`
+
+Run inside `../KatiKati-sidedeck` from a branch cut at `origin/main` (`6259c01b`), 2026-11-25. Every row
+below is a command's exit code or an accessibility read, not an inference.
+
+| Gate | Command | Result |
+| --- | --- | --- |
+| Clean build | `xcodebuild build -project KatiKati.xcodeproj -scheme KatiKati -derivedDataPath /tmp/dd-clean` (full compile, no `-quiet`) | exit 0 — log `/tmp/clean-build.log` |
+| Availability | `python3 Scripts/check_availability_warnings.py /tmp/clean-build.log` | exit 0; `grep "is only available in macOS"` = **0** |
+| Nine suites | Settings, SideDeck, DevCacheCatalog, DevCacheSnapshot, DeckGeometry, ControlCenterLayout, ControlCenterReadability, NotificationDigest, DownloadEnginePolicy | **63 passed, 0 failed**, exit 0 |
+| Settings livecheck | `python3 Scripts/live_check_settings_tabs.py --app … --shots …` | all **34** pages, exit 0, 34 screenshots |
+| ClearDisk card | driven through AX on that build | `Reclaimable 3.33 GB` = header `3.33 GB` |
+
+### Livecheck harness fix
+
+`Scripts/live_check_settings_tabs.py` waited 7 s (14 x 0.5 s) for a Settings window. `AppDelegate`
+presents the page 3 s after the strip starts, so a cold launch on a loaded machine exceeded that: the
+first run missed seven pages and the second still missed `widgets`, while the same page opened fine by
+hand. The poll now runs to 20 s and still stops at the first window; the confirming run opened all 34.
+This was a gate defect, not a pane defect — no app source changed for it.
+
+## Open / limitations
+
+- The livecheck asserts only that each page raises a window of at least 600x400; it does not read which
+  page is showing (its own header says so). `sideDeck.png` was inspected and shows the Side Deck pane
+  with Edge, Swap Left / Right Sides, Size, Edge Activation, Identity Strip, Open Dwell and Weather
+  Handle.
+- Idle CPU/RSS was **not** re-measured on the merged tree. The 60 s like-for-like numbers above are from
+  the same day on the branch; the merge added Control Centre files and documents only, but that is an
+  inference, so the idle table is dated rather than claimed for `6259c01b`.
+- The card drive used edge hover activation; the resting handle's click path was not re-driven.
+- Screenshots live in `/tmp/sidedeck-livecheck-shots4/` and `/tmp/card-postfix-final.png`. They are
+  evidence for this pass, not repository assets.

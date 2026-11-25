@@ -12,6 +12,10 @@ All notable changes to KatiKati are documented in this file.
 - **Menu Bar hub pages are distinct and readable:** the four action boxes now open on the Switches page instead of repeating above every tab; each page owns its search. Switches gains a Keep Awake timer (15m / 30m / 1h / 2h / 5h / indefinite) and an opt-in **Lid closed** switch, page two gains a **Storage** readout (used / available / bar), and a header menu chooses the finish — **Glass**, **Tinted**, **Solid** or **High Contrast** — with a scrim and secondary-ink floor so text stays legible over busy wallpapers.
 - **ClearDisk reports what it can reclaim:** the Dashboard card now reads the developer-cache total the Storage page measured and persisted (`DevCacheSnapshotStore`) instead of only showing free space, and never starts a scan of its own; the dashboard card labels and the Dashboard tab title are localized, and the Side Deck pages ship in all twelve catalog locales.
 
+### Fixed
+- **ClearDisk and Storage state the same number:** the card formatted the same byte count with the downloader's 1024-based helper (`3.10 GB`) while the Storage page header used the storage formatter (`3.33 GB`). Both card figures now call `SystemMonitorFormat.bytes` at the callsite, so the card reads `Reclaimable 3.33 GB` beside the header's `3.33 GB` without either shared formatter changing.
+- **Settings rows announce their names:** every "gel" button row drew its title but exposed no accessible name, so the Side Deck swap row read as an unlabelled button to VoiceOver and AX automation. `SettingsButtonRow` now sets `.accessibilityLabel(title)`, naming both swap rows and every other row built from it.
+
 ## [0.18.0 beta 3] — 2026-11-24
 
 Modular Dock & Launcher overhaul (`DO-1`–`DO-10`), native macOS-tight dock spacing, SideDeck Waves 1–4, 13-Pillar Audit Waves 1–4 (telemetry, Vision background removal, `⌥`-thirds snap, persistent window layouts, Control Center inputs), and `~0.2%` idle-CPU livecheck polish; see `Docs/Releases/RELEASE_NOTES_v0.18.0-beta.3.md`.
