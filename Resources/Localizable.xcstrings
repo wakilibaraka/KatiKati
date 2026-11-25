@@ -185046,6 +185046,151 @@
         "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "顯示器與鍵盤" } }
       }
     }
+,
+    "Modular" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Modular" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Modular" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Modular" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Modular" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Modulaire" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Modulare" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "モジュール" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "모듈형" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Modular" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Modular" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "模块化" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "模組化" } }
+      }
+    },
+    "Bento" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bento" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Bento" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "便当" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "便當" } }
+      }
+    },
+    "Single Battery" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Einzelne Batterie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Single Battery" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Batería única" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Batería única" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Batterie unique" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Batteria singola" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "バッテリーを1か所に" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "배터리 한 곳에" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Bateria única" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Bateria única" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "单一电池" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "單一電池" } }
+      }
+    },
+    "Single Music" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Einzelne Musik" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Single Music" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Música única" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Música única" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Musique unique" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Musica singola" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "音楽を1か所に" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "음악 한 곳에" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Música única" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Música única" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "单一音乐" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "單一音樂" } }
+      }
+    },
+    "Show Anyway" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Trotzdem anzeigen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Anyway" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostrar igualmente" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostrar igualmente" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Afficher quand même" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostra comunque" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "それでも表示" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "그래도 표시" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostrar mesmo assim" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mostrar mesmo assim" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "仍然显示" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "仍要顯示" } }
+      }
+    },
+    "Based on your last preset. Choosing one above resets the tiles." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Basiert auf deinem letzten Preset. Eine Wahl oben setzt die Kacheln zurück." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Based on your last preset. Choosing one above resets the tiles." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Basado en tu último ajuste. Elegir uno arriba restablece las tarjetas." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Basado en tu último ajuste. Elegir uno arriba restablece las tarjetas." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Basé sur votre dernier préréglage. Choisir ci-dessus réinitialise les tuiles." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Basato sul tuo ultimo preset. Sceglierne uno sopra reimposta le tessere." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "最後のプリセットに基づきます。上を選ぶとタイルがリセットされます。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "마지막 프리셋을 기반으로 합니다. 위에서 선택하면 타일이 초기화됩니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Baseado no seu último preset. Escolher um acima redefine os blocos." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Baseado no seu último preset. Escolher um acima redefine os blocos." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "基于你上次的预设。选择上方任一预设会重置图块。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "以你上次的預設為基礎。選擇上方任一預設會重設圖磚。" } }
+      }
+    },
+    "Keeps the battery reading in the header pill and hides the duplicate This Mac row." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Behält den Batteriewert in der Kopfzeile und blendet die doppelte Zeile „Dieser Mac“ aus." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keeps the battery reading in the header pill and hides the duplicate This Mac row." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantiene la batería en la píldora superior y oculta la fila duplicada de este Mac." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantiene la batería en la píldora superior y oculta la fila duplicada de este Mac." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Garde la batterie dans la pastille d'en-tête et masque la ligne dupliquée de ce Mac." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantiene la batteria nella pillola in alto e nasconde la riga duplicata di questo Mac." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "バッテリー残量は上部のピルに表示し、重複する「このMac」行を隠します。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "배터리 잔량은 상단 필에 표시하고 중복된 '이 Mac' 행을 숨깁니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantém a bateria na pílula superior e oculta a linha duplicada deste Mac." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantém a bateria na pílula superior e oculta a linha duplicada deste Mac." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "电池读数保留在顶部胶囊中，并隐藏重复的“这台 Mac”行。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "電量讀數保留在頂端膠囊中，並隱藏重複的「這台 Mac」列。" } }
+      }
+    },
+    "Hides the panel's now-playing card while the notch or dock music surface is on." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Blendet die Wiedergabekarte aus, solange die Notch- oder Dock-Musikfläche aktiv ist." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hides the panel's now-playing card while the notch or dock music surface is on." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Oculta la tarjeta de reproducción mientras la superficie de música del notch o del dock esté activa." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Oculta la tarjeta de reproducción mientras la superficie de música del notch o del dock esté activa." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Masque la carte de lecture tant que la surface musique du notch ou du dock est active." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Nasconde la scheda di riproduzione mentre la superficie musicale del notch o del dock è attiva." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "ノッチまたはDockの音楽サーフェスが有効な間、再生カードを隠します。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "노치 또는 Dock 음악 표면이 켜져 있는 동안 재생 카드를 숨깁니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Oculta o cartão de reprodução enquanto a superfície de música do notch ou do dock estiver ativa." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Oculta o cartão de reprodução enquanto a superfície de música do notch ou do dock estiver ativa." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "当刘海或程序坞音乐界面开启时，隐藏面板的播放卡片。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "當瀏海或程式塢音樂介面開啟時，隱藏面板的播放卡片。" } }
+      }
+    },
+    "Keeps the now-playing card even when another music surface is on." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Behält die Wiedergabekarte, auch wenn eine andere Musikfläche aktiv ist." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keeps the now-playing card even when another music surface is on." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantiene la tarjeta de reproducción aunque haya otra superficie de música activa." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantiene la tarjeta de reproducción aunque haya otra superficie de música activa." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Garde la carte de lecture même si une autre surface musique est active." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantiene la scheda di riproduzione anche con un'altra superficie musicale attiva." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "別の音楽サーフェスが有効でも再生カードを表示します。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "다른 음악 표면이 켜져 있어도 재생 카드를 유지합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantém o cartão de reprodução mesmo com outra superfície de música ativa." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mantém o cartão de reprodução mesmo com outra superfície de música ativa." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "即使其他音乐界面开启，也保留播放卡片。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "即使其他音樂介面開啟，也保留播放卡片。" } }
+      }
+    }
   },
   "version" : "1.0"
 }
