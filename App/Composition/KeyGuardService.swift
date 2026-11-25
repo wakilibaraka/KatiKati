@@ -687,6 +687,9 @@ final class KeyGuardService: ObservableObject {
 /// in the middle of a hold cannot cancel the keyUp that fires the quit. The keycaps the visualizer
 /// paints live here too — bounded by `KeyVisualizerBuffer`, never logged, never persisted.
 final class KeyGuardShared: @unchecked Sendable {
+    /// Injected so the shared-path tests do not depend on whatever holds Secure Input on the
+    /// machine running them; production keeps the live probe.
+    private let secureInputProbe: () -> Bool
     private let lock = NSLock()
     private var state = KeyGuardState(unlockKey: keyGuardUnlock)
     private var caps = KeyVisualizerBuffer()
@@ -713,6 +716,10 @@ final class KeyGuardShared: @unchecked Sendable {
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
     var onGlobalPaste: (() -> Void)?
+
+    init(secureInput: @escaping () -> Bool = IsSecureEventInputEnabled) {
+        secureInputProbe = secureInput
+    }
 
     func setVisualizer(enabled: Bool, filter: KeyVisualizerFilter = .allKeys, linger: TimeInterval = 1.5) {
         lock.lock()
@@ -860,7 +867,7 @@ final class KeyGuardShared: @unchecked Sendable {
     func decide(_ event: KeyGuardEvent, isRepeat: Bool = false) -> (decision: KeyGuardDecision, state: KeyGuardState) {
         lock.lock(); defer { lock.unlock() }
         var effectiveState = state
-        if effectiveState.needsSecureInputCheck { effectiveState.secureInputActive = IsSecureEventInputEnabled() }
+        if effectiveState.needsSecureInputCheck { effectiveState.secureInputActive = secureInputProbe() }
         let outcome = KeyGuardPipeline.reduce(event, state: effectiveState, isRepeat: isRepeat)
         state = outcome.state
         guard state.finderKeysActive else {
