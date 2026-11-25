@@ -24,6 +24,17 @@ that commit. No code changes were needed; this folder is evidence only.
 
 Final machine state: `surface=edge`, prompt flag set, app running on the synced commit.
 
+## Second pass on the newer HEAD
+
+While this pass was finishing, a concurrent editor wrote Control Centre readability/scroll work
+into the tree (`ControlCenterReadability`, trio/status tweaks, `ControlCenterScrollTests`). It was
+captured in `96157e4b`, whose message still says "graphify: rebuild" — the commit is code, not
+just the graph stamp. The build was re-run on that HEAD: exit 0, **3845 tests, 2 skipped, 0
+failures** (three new tests came with the swept-in file). The menu-bar flow repeats on that build:
+switch to Menu Bar (prompt already seen, so no alert), dropdown 360×792 with the Wi-Fi card (`10`),
+Background Apps 360×994 (`11`), then revert to Edge and the standalone Control Centre returns
+(360×994, Wi-Fi card).
+
 ## Not covered
 
 - The two button strings were only rendered in English; all twelve catalogs pass the localization gate.
