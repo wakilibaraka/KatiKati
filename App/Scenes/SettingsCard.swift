@@ -830,6 +830,9 @@ struct SettingsButtonRow: View {
             HStack(spacing: SettingsMetrics.controlSpacing) {
                 Button(action: action) { title }
                     .buttonStyle(SettingsGelButtonStyle())
+                    // SD-8 runtime pass: the gel style drew the title but left the button unnamed for
+                    // VoiceOver (and for AX automation), so the swap row read as an unlabelled button.
+                    .accessibilityLabel(title)
                 if let info {
                     SettingsInfoButton(text: info)
                 }
