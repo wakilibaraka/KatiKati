@@ -282,6 +282,9 @@ extension ControlCenterSurfaceMode {
     /// the Creative Hub. Named so the host choice is testable without opening a panel.
     var hostsControlCentreInMenuBar: Bool { self == .menuBar }
 
+    /// The one personality the status item wears in this mode.
+    var menuBarSurface: ControlCenterMenuBarSurface { self == .menuBar ? .controlCentre : .creativeHub }
+
     /// What the standalone panel shows under this mode. Menu-bar mode hands its content to the
     /// status item, so the panel takes the Background Apps job instead of duplicating the grid.
     var edgeDeckRole: ControlCenterEdgeRole {
@@ -290,6 +293,28 @@ extension ControlCenterSurfaceMode {
         case .menuBar: return .backgroundActivity
         }
     }
+}
+
+/// The two things the status item can be: the Creative Hub, or a hosted Control Centre.
+enum ControlCenterMenuBarSurface: Equatable, Sendable {
+    case creativeHub, controlCentre
+}
+
+/// The whole host decision in one value. `isExclusive` is the invariant the two panels rely on:
+/// exactly one surface shows Control Centre, so the Hub and the dropdown can never stack.
+struct ControlCenterHosting: Equatable, Sendable {
+    var mode: ControlCenterSurfaceMode
+    var menuBar: ControlCenterMenuBarSurface
+    var standalone: ControlCenterEdgeRole
+
+    static func resolve(_ mode: ControlCenterSurfaceMode) -> ControlCenterHosting {
+        .init(mode: mode, menuBar: mode.menuBarSurface, standalone: mode.edgeDeckRole)
+    }
+
+    var menuBarShowsControlCentre: Bool { menuBar == .controlCentre }
+    var standaloneShowsControlCentre: Bool { standalone == .controlCenter }
+    var standaloneShowsBackgroundActivity: Bool { standalone == .backgroundActivity }
+    var isExclusive: Bool { menuBarShowsControlCentre != standaloneShowsControlCentre }
 }
 
 /// What the edge deck does once Control Centre moves to the menu bar. Choosing the menu-bar home is

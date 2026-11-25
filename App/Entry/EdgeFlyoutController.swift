@@ -186,7 +186,7 @@ final class ControlCenterPanelController {
         // When Control Centre lives in the menu bar, this deck keeps its job: it becomes the
         // Background Apps surface instead of duplicating the panel.
         let surfaceMode = ControlCenterSurfaceMode.parse(UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey))
-        let showsBackgroundApps = surfaceMode.edgeDeckRole == .backgroundActivity
+        let showsBackgroundApps = ControlCenterHosting.resolve(surfaceMode).standaloneShowsBackgroundActivity
         let root: AnyView = showsBackgroundApps
             ? AnyView(BackgroundActivityDeckView()
                 .environment(\.dockThemeStyle, themeStyle())

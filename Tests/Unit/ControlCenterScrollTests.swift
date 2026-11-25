@@ -206,6 +206,29 @@ final class ControlCenterLayoutTests: XCTestCase {
         XCTAssertFalse(ControlCenterEdgeRole.implied(by: restored, hasBeenTold: true).needsPrompt)
     }
 
+    /// One host decision drives both surfaces: in every mode exactly one shows Control Centre, and
+    /// menu-bar mode resolves the standalone panel to background activity (never a duplicate grid).
+    func testHostResolvesExactlyOneSurfacePerMode() {
+        for mode in ControlCenterSurfaceMode.allCases {
+            let hosting = ControlCenterHosting.resolve(mode)
+            XCTAssertEqual(hosting.mode, mode)
+            XCTAssertTrue(hosting.isExclusive, "Hub and dropdown must not stack in \(mode)")
+            XCTAssertNotEqual(hosting.menuBarShowsControlCentre, hosting.standaloneShowsControlCentre)
+        }
+
+        let menuBar = ControlCenterHosting.resolve(.menuBar)
+        XCTAssertEqual(menuBar.menuBar, .controlCentre)
+        XCTAssertEqual(menuBar.standalone, .backgroundActivity)
+        XCTAssertTrue(menuBar.standaloneShowsBackgroundActivity)
+        XCTAssertFalse(menuBar.standaloneShowsControlCentre)
+
+        let edge = ControlCenterHosting.resolve(.edge)
+        XCTAssertEqual(edge.menuBar, .creativeHub)
+        XCTAssertEqual(edge.standalone, .controlCenter)
+        XCTAssertFalse(edge.standaloneShowsBackgroundActivity)
+        XCTAssertTrue(edge.standaloneShowsControlCentre)
+    }
+
     func testGlassParsesKnownValuesAndFallsBack() {
         XCTAssertEqual(ControlCenterGlassStyle.parse(nil), .semi)
         XCTAssertEqual(ControlCenterGlassStyle.parse("nonsense"), .semi)
