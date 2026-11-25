@@ -49,13 +49,46 @@ hub-style header the app-chip and folder menus got in `ce4985d3` — it opened s
   Hide · New Window · Unpin · Quit) above "Recent Folders" and the rest of the chip rows.
 - `08` — close-up of the strip header at 2×.
 
-## Not seen / limitations
+## Second pass — chip-level menus (2026-11-25, same day)
 
-- The **trash chip** does not show a hub header: its two-row menu is presented through the floating chip
-  panel, which predates the header work (`ce4985d3` covered app chips and folder/trash *grids*, not the
-  chip-level menus). Right-clicking that chip in this layout opened the surrounding widget-section panel
-  instead. Unchanged by this work.
-- No pinned folder chip exists on this dock, so a folder-chip menu could not be opened; folder **grid**
-  item menus use `FileItemMenuBuilder`, which already carries the header.
-- The recurring "Developer Tools Access" system dialog stayed on screen during the pass (unrelated to
-  the app); it never covered the strip or the menus captured here.
+### Why the trash chip was unreachable
+
+The utilities island draws the trash chip, the pinned Downloads folder and the utility chips, and the
+**section** wraps all of them in its own widget-menu overlay. That overlay sits above its children, so
+a right-click on the trash chip opened the section's widget menu (Apply Preset … Hide) instead of the
+trash menu. `StripContextMenuZone.sectionClaims` is the pure rule that fixes it: a section may claim
+empty padding and its own reported frame, but steps aside for any other chip frame drawn inside it.
+`floatingContextMenu` gained an optional `shouldClaim`, and the section host now uses it. The utility
+chips (Screenshots / Clipboard / Dictionary / Terminal) were swallowed by the same overlay and are
+fixed by the same rule.
+
+### Headers on the item chips
+
+`DockMenuChrome.dockHeader` is now the single header for every Dock surface (strip, app chip, pinned
+folder, trash): icon well, title, placement/hide pill, and Settings / Control Center / Auto-Hide /
+Position. `TrashChip` and `PinnedFolderChip` prepend it to their existing rows. Because the header is a
+custom-view row, `NSMenu.hasViewItem` routes these menus to the native pop-up instead of the floating
+chip panel, so the header is never flattened into an "NSMenuItem" row.
+
+### What was seen
+
+- `10` / close-up: right-click on the trash chip (screen 1396,1087) opens one native menu
+  `1397,908 288×163`: trash icon + "Trash" + "Bottom · Always Visible" pill, the four 62×44 wells,
+  then Open Trash and Empty Trash….
+- `11`: clicking the **Settings** well closed the menu (AX tree had no menu left) and opened KatiKati
+  Settings (`315,225 1080×700`).
+- `12` / close-up: right-click on the pinned Downloads folder chip (screen 1362,1087) opens one native
+  menu `1363,849 288×257`: folder icon + "Downloads" + the same pill and wells, then Preview Contents,
+  Open in Finder, Sort by ▸, Add Folder…, Remove from Taskbar.
+- `13`: clicking the **Control Center** well closed the menu and opened the Control Centre panel
+  (`1338,50 360×994`, level 3).
+- Reopening each menu counts exactly one header title (`Downloads` ×1, `Trash` ×1) and the menus
+  open on the right-click event with no panel round-trip.
+
+## Still open
+
+- App-chip menus with a custom-view row now open as native menus; menus without one still use the
+  floating chip panel (unchanged).
+- The widget-section menu on genuinely empty padding of the utilities island is unchanged.
+- The intermittent "Developer Tools Access" system dialog from the earlier pass was dismissed; the
+  synthetic right-clicks and screenshots above ran without it.
