@@ -8052,9 +8052,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795629474.3915584,
-    "seen": 1795629480.471808,
-    "ast_hash": "8296f267086c161e11eb6dc69f9c648f",
+    "mtime": 1795630118.4300435,
+    "seen": 1795630163.742042,
+    "ast_hash": "57086c2e2622abbd6252eb7497c9293b",
     "semantic_hash": ""
   },
   "Scripts/check_input_hygiene.py": {
@@ -8952,9 +8952,9 @@
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/README.md": {
-    "mtime": 1795628158.5424495,
-    "seen": 1795628297.015546,
-    "ast_hash": "9a1cc8c24e95739d029c995e77dc556d",
+    "mtime": 1795630123.8282375,
+    "seen": 1795630163.742031,
+    "ast_hash": "9a01cf5eb18f64201e18bac0e41d3814",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/01-prompt.png": {
@@ -9003,6 +9003,60 @@
     "mtime": 1795628142.0133448,
     "seen": 1795628297.0157351,
     "ast_hash": "fac97602af6734be6820b9f001980b43",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/09-prompt-fresh.png": {
+    "mtime": 1795629995.947762,
+    "seen": 1795630163.742201,
+    "ast_hash": "b43d2489b3d90d5139e94d6fe79407ad",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/10-settings-home-menu-bar-row.png": {
+    "mtime": 1795629995.9736323,
+    "seen": 1795630163.742202,
+    "ast_hash": "54b86c98b56e8dfa5b85902d9e74a63e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/11-settings-home-edge-clicked.png": {
+    "mtime": 1795629995.9960942,
+    "seen": 1795630163.742203,
+    "ast_hash": "4028fda9cbe0928b9fae00423098a641",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/12-edge-cc-after-edge-click.png": {
+    "mtime": 1795629996.0119154,
+    "seen": 1795630163.742203,
+    "ast_hash": "0113abf8983e9ea00c41ff86f353504e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/13-hub-returned-at-status-item.png": {
+    "mtime": 1795629996.031776,
+    "seen": 1795630163.742204,
+    "ast_hash": "a07d3ca7dbe297b3cba42b571b70520a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/14-menu-bar-again-dropdown.png": {
+    "mtime": 1795629996.0490716,
+    "seen": 1795630163.742205,
+    "ast_hash": "170b7299e5050eac33c852400775b495",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/15-background-apps-again.png": {
+    "mtime": 1795629996.0632575,
+    "seen": 1795630163.742205,
+    "ast_hash": "bf81432a25a4b784a6a0b8ef777e6fba",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/16-home-row-note-visible.png": {
+    "mtime": 1795630107.9226284,
+    "seen": 1795630163.7422059,
+    "ast_hash": "a9a6528711498afb00d47ff23d1f908f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/17-pane-scrolls.png": {
+    "mtime": 1795630107.948479,
+    "seen": 1795630163.742207,
+    "ast_hash": "943038920d5097ac0b7e2f7fddf47397",
     "semantic_hash": ""
   }
 }
