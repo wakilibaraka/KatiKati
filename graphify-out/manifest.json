@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ChipBadgeView.swift": {
-    "mtime": 1795534615.1909742,
-    "seen": 1795606909.622077,
-    "ast_hash": "113fcbccca65dee96f370a1fdd9bfac2",
+    "mtime": 1795634312.2088344,
+    "seen": 1795634359.7772539,
+    "ast_hash": "31383a00208db946c313431cf567bee9",
     "semantic_hash": ""
   },
   "App/Scenes/ChipPanel/ChipPanelModel.swift": {
@@ -2214,9 +2214,9 @@
     "semantic_hash": "4b47c29ddcb4ffa3a37c4eb8233d5d7a"
   },
   "Core/Support/ScreenTime.swift": {
-    "mtime": 1795470679.2452471,
-    "seen": 1795606909.622545,
-    "ast_hash": "cce2bfaba2c88308395c11bebb337bde",
+    "mtime": 1795634263.8162751,
+    "seen": 1795634359.7775989,
+    "ast_hash": "72f23c26407d90bae4797621b4e5bac2",
     "semantic_hash": ""
   },
   "Core/Support/ScreenTopologySnapshot.swift": {
