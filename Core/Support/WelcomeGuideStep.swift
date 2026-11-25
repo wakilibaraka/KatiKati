@@ -18,6 +18,16 @@ enum WelcomeGuideStep: Int, CaseIterable, Sendable {
 
     static let first: WelcomeGuideStep = .layout
 
+    /// The `DOCK_WELCOME_STEP` spelling of a step, so a live check can open the guide on one page.
+    static func named(_ name: String) -> WelcomeGuideStep? {
+        switch name.lowercased() {
+        case "layout": return .layout
+        case "widgets": return .widgets
+        case "permissions": return .permissions
+        default: return nil
+        }
+    }
+
     var next: WelcomeGuideStep? { WelcomeGuideStep(rawValue: rawValue + 1) }
     var previous: WelcomeGuideStep? { WelcomeGuideStep(rawValue: rawValue - 1) }
 

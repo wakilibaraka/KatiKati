@@ -116,6 +116,9 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Live-check aid: present the welcome guide at launch even when the first-run gates say no, so the
     /// permission pass can be observed deterministically. Unset in normal use.
     case welcomeGuide = "DOCK_WELCOME_GUIDE"
+    /// Value switch: `DOCK_WELCOME_STEP=permissions` opens the guide on that step, so the first-run
+    /// pass can be driven and observed without synthetic clicks. Unset in normal use.
+    case welcomeStep = "DOCK_WELCOME_STEP"
 
     /// Phase 24e: the key-guard pipeline's per-event log (category keyguard); =1 prints
     case keyGuardTrace = "DOCK_KEYGUARD_TRACE"
@@ -262,7 +265,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
              .chipFramesOut, .dockTheme, .wallpaperPhase, .wallpaperAnimate, .dockIconFrame, .openSettings,
-             .powerNotificationDemo, .settingsPageHeight, .cheatSheetCheck, .permissionProbe:
+             .powerNotificationDemo, .settingsPageHeight, .cheatSheetCheck, .permissionProbe,
+             .welcomeStep:
             return .value
         }
     }

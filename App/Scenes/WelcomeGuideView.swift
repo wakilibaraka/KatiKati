@@ -12,10 +12,13 @@ struct WelcomeGuideWindowContent: View {
     let layout: WelcomeGuideLayoutContext
     let onApply: (WelcomeGuideSelection) -> Void
     let onDismiss: () -> Void
+    /// Live-check aid: open straight on one step (`DOCK_WELCOME_STEP`). The step still runs through
+    /// the same `.task(id: step)` that a click on Continue triggers.
+    var startAt: WelcomeGuideStep? = nil
 
     var body: some View {
         ScrollView(.vertical) {
-            WelcomeGuideView(layout: layout, onApply: onApply, onDismiss: onDismiss)
+            WelcomeGuideView(layout: layout, onApply: onApply, onDismiss: onDismiss, startAt: startAt)
         }
         .frame(width: WelcomeGuideView.contentWidth)
         // 58b: an overlay on purpose — the window height is measured once at open, so the intro may not add a row.
@@ -135,6 +138,8 @@ struct WelcomeGuideView: View {
     let layout: WelcomeGuideLayoutContext
     let onApply: (WelcomeGuideSelection) -> Void
     let onDismiss: () -> Void
+    /// See `WelcomeGuideWindowContent.startAt`.
+    var startAt: WelcomeGuideStep? = nil
 
     @State private var selection = WelcomeGuideSelection.recommended
     @State private var step = WelcomeGuideStep.first
@@ -191,6 +196,9 @@ struct WelcomeGuideView: View {
         .padding(28)
         .frame(width: Self.contentWidth, alignment: .leading)
         .animation(.easeInOut(duration: 0.15), value: step)
+        // Advancing `step` is the whole Continue action; the permission pass hangs off `.task(id:)`
+        // on that step, so this opens the same code path a click does.
+        .onAppear { if let startAt, step != startAt { step = startAt } }
     }
 
     @ViewBuilder
@@ -524,35 +532,48 @@ struct WelcomeGuideView: View {
 
         func pause(_ nanoseconds: UInt64) async { try? await Task.sleep(nanoseconds: nanoseconds) }
 
+        // The owner's list, in the owner's order: every capability logs exactly one line — the prompt
+        // when macOS still has to ask, or "already granted" when it does not. A pass that skipped a
+        // decided capability used to leave no trace of it at all.
         PermissionBootstrap.trace("begin")
-        if !AXIsProcessTrusted() {
-            PermissionBootstrap.trace("request accessibility")
-            _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
-            await pause(900_000_000)
-        }
         if !CGPreflightScreenCaptureAccess() {
-            PermissionBootstrap.trace("request screenRecording")
+            PermissionBootstrap.trace("screenRecording: request")
             _ = CGRequestScreenCaptureAccess()
             await pause(900_000_000)
+        } else {
+            PermissionBootstrap.trace("screenRecording: already granted")
+        }
+        if !AXIsProcessTrusted() {
+            PermissionBootstrap.trace("accessibility: request")
+            _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
+            await pause(900_000_000)
+        } else {
+            PermissionBootstrap.trace("accessibility: already granted")
         }
         if !CGPreflightListenEventAccess() {
-            PermissionBootstrap.trace("request inputMonitoring")
+            PermissionBootstrap.trace("inputMonitoring: request")
             _ = CGRequestListenEventAccess()
             await pause(900_000_000)
+        } else {
+            PermissionBootstrap.trace("inputMonitoring: already granted")
         }
         if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
-            PermissionBootstrap.trace("request microphone")
+            PermissionBootstrap.trace("microphone: request")
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
                 AVCaptureDevice.requestAccess(for: .audio) { _ in continuation.resume() }
             }
             await pause(600_000_000)
+        } else {
+            PermissionBootstrap.trace("microphone: already decided")
         }
         if AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
-            PermissionBootstrap.trace("request camera")
+            PermissionBootstrap.trace("camera: request")
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
                 AVCaptureDevice.requestAccess(for: .video) { _ in continuation.resume() }
             }
             await pause(600_000_000)
+        } else {
+            PermissionBootstrap.trace("camera: already decided")
         }
         if EKEventStore.authorizationStatus(for: .event) == .notDetermined {
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
@@ -568,17 +589,15 @@ struct WelcomeGuideView: View {
         }
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         if settings.authorizationStatus == .notDetermined {
-            PermissionBootstrap.trace("request notifications")
+            PermissionBootstrap.trace("notifications: request")
             _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
             await pause(600_000_000)
+        } else {
+            PermissionBootstrap.trace("notifications: already decided")
         }
         if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestAlwaysAuthorization()
         }
-        refreshCalendarGrants()
-        refreshNotificationsGranted()
-        cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
-        locationGranted = locationManager.authorizationStatus == .authorizedAlways
         // Login Item has no system prompt, so the pass offers the row rather than registering behind
         // the owner's back; it is still reported here so the trace covers every item on the list.
         PermissionBootstrap.trace("offer loginItem")

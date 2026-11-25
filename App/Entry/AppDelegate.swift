@@ -1,6 +1,7 @@
 import AppKit
 import AVFoundation
 import Combine
+import ServiceManagement
 import QuartzCore
 import SwiftUI
 import os
@@ -1013,8 +1014,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let lockStarted = KeyGuardService.shared.startCleaningLock()
             try? await Task.sleep(nanoseconds: 800_000_000)
             let listenAfter = CGPreflightListenEventAccess()
+            // The Login Item row's real action: register once, record what macOS says, then put the
+            // login item back the way it was, so the probe leaves no trace on the owner's Mac.
+            let loginBefore = SMAppService.mainApp.status.rawValue
+            let loginBaseline = loginBefore
+            var loginError = ""
+            var loginAfterRegister = loginBaseline
+            do {
+                try SMAppService.mainApp.register()
+                loginAfterRegister = SMAppService.mainApp.status.rawValue
+            } catch {
+                loginError = String(describing: error)
+                loginAfterRegister = SMAppService.mainApp.status.rawValue
+            }
+            let loginRequiresApproval = SMAppService.mainApp.status == .requiresApproval
+            // Put the login item back if the probe is what enabled it.
+            if loginBefore != SMAppService.Status.enabled.rawValue {
+                try? await SMAppService.mainApp.unregister()
+            }
+            let loginRestored = SMAppService.mainApp.status.rawValue
             let payload: [String: Any] = [
                 "bootstrap": PermissionBootstrap.hasCompletedInitialRequest,
+                "loginBefore": loginBefore,
+                "loginBaseline": loginBaseline,
+                "loginAfterRegister": loginAfterRegister,
+                "loginRequiresApproval": loginRequiresApproval,
+                "loginRestored": loginRestored,
+                "loginError": loginError,
                 "cameraBefore": String(describing: cameraBefore),
                 "cameraAfter": String(describing: cameraAfter),
                 "mirrorAvailability": mirrorAvailability,
@@ -1094,7 +1120,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let content = WelcomeGuideWindowContent(
             layout: layoutContext,
             onApply: { [weak self] selection in self?.applyWelcomeSelection(selection) },
-            onDismiss: { [weak self] in self?.dismissWelcomeGuide() }
+            onDismiss: { [weak self] in self?.dismissWelcomeGuide() },
+            startAt: DebugSwitch.welcomeStep.value().flatMap(WelcomeGuideStep.named)
         )
         let hosting = NSHostingView(rootView: content)
         let window = NSWindow(
