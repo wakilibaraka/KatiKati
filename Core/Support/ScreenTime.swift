@@ -25,10 +25,16 @@ struct ScreenTimeLedger: Equatable, Codable, Sendable {
 
     /// Most-used apps for a day, biggest first; ties by name so the order is stable.
     func top(day: String, limit: Int) -> [(bundleID: String, name: String, seconds: Double)] {
-        (days[day] ?? [:])
-            .map { (bundleID: $0.key, name: names[$0.key] ?? $0.key, seconds: $0.value) }
-            .sorted { $0.seconds != $1.seconds ? $0.seconds > $1.seconds : $0.name < $1.name }
-            .prefix(max(0, limit)).map { $0 }
+        // Staged rather than one chain: the whole pipeline as a single expression cost the
+        // type-checker ~3 s, which is the kind of thing Xcode 26 refuses outright.
+        typealias Row = (bundleID: String, name: String, seconds: Double)
+        let rows: [Row] = (days[day] ?? [:]).map { entry in
+            (bundleID: entry.key, name: names[entry.key] ?? entry.key, seconds: entry.value)
+        }
+        let sorted: [Row] = rows.sorted { left, right in
+            left.seconds != right.seconds ? left.seconds > right.seconds : left.name < right.name
+        }
+        return Array(sorted.prefix(max(0, limit)))
     }
 
     /// Totals for the seven days ending at `end` (oldest first).

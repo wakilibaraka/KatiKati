@@ -110,6 +110,10 @@ struct IconDressUpOverlayView: View {
     let size: CGFloat
     let isHovered: Bool
 
+    /// Hoisted out of the view body: as a local literal inside the ForEach closure it cost the
+    /// type-checker 5.3 s here, and Xcode 26 gave up on the file entirely.
+    private static let stringLightColors: [Color] = [.yellow, .red, .green, .cyan, .orange]
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -128,15 +132,23 @@ struct IconDressUpOverlayView: View {
         let s = CGFloat(deco.scale)
         switch deco.kind {
         case .stringLights:
-            let count = max(3, min(9, Int((3 + (1.0 - deco.spacing) * 6).rounded())))
+            // Stepped, not nested: the single max/min/Int/rounded expression blew the Xcode 26
+            // type-checker's budget ("unable to type-check this expression in reasonable time").
+            let wanted: Double = 3 + (1 - deco.spacing) * 6
+            let count: Int = max(3, min(9, Int(wanted.rounded())))
             HStack(spacing: max(1, (size * 0.72 / CGFloat(count)) * 0.35)) {
                 ForEach(0..<count, id: \.self) { i in
-                    let colors: [Color] = [.yellow, .red, .green, .cyan, .orange]
+                    // Typed locals: the same chain written inline mixed Int, Double and CGFloat
+                    // literals and still cost 3.2 s after the color hoist above.
+                    let dotSize: CGFloat = max(3, size * 0.09 * s)
+                    let dotColor: Color = Self.stringLightColors[i % Self.stringLightColors.count]
+                    let phase: Double = Double(i) / Double(max(1, count - 1))
+                    let lift: CGFloat = CGFloat(sin(phase * Double.pi)) * size * 0.07
                     Circle()
-                        .fill(colors[i % colors.count])
-                        .frame(width: max(3, size * 0.09 * s), height: max(3, size * 0.09 * s))
-                        .shadow(color: colors[i % colors.count].opacity(0.75), radius: max(1.5, size * 0.04))
-                        .offset(y: sin(Double(i) / Double(max(1, count - 1)) * .pi) * size * 0.07)
+                        .fill(dotColor)
+                        .frame(width: dotSize, height: dotSize)
+                        .shadow(color: dotColor.opacity(0.75), radius: max(1.5, size * 0.04))
+                        .offset(y: lift)
                 }
             }
             .frame(width: size * 0.88)
