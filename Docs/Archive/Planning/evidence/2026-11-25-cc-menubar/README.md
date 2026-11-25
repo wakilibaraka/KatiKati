@@ -36,15 +36,16 @@ left floating behind Control Centre.
 7. Settings › Home = **Edge** (`08`) wrote `surface=edge` with no prompt. The status item then opened
    the Creative Hub surface (`09`, hub toggles such as Now Playing / Notch / Desktop, no Wi-Fi cards),
    and the capsule opened the standalone Control Centre again (`10`, 360×994, Wi-Fi / Bluetooth).
-8. After the revert, the Dock chip hub menus still open with header and tiles: trash chip `11`
+8. Degrade path with the Hub physically open: in Edge mode the status item opened the Hub
+   (380×570 at 1322,38); Settings was opened without closing it, and clicking **Menu Bar** made the
+   Hub window disappear in the same tick while `surface` became `menuBar` — the notification does
+   close the surface being left. Clicking **Edge** then wrote `edge` again.
+9. After the revert, the Dock chip hub menus still open with header and tiles: trash chip `11`
    (`Trash` + Settings / Control Center / Auto-Hide / Position + Open Trash) and Downloads folder chip
    `12` (`Downloads` + the same four tiles + Preview Contents / Open in Finder / Sort by / Add Folder…
    / Remove from Taskbar).
 
 ## What was not verified
 
-- The switch while the Creative Hub panel is physically open: the code hides it
-  (`controlCenterSurfaceDidChange`), but the live pass switched from Settings, where no hub panel was
-  up.
 - Locale rendering of the two new button strings beyond English; all twelve catalogs carry values and
   the localization gate is green.
