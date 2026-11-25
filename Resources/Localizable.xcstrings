@@ -185191,6 +185191,39 @@
         "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "即使其他音樂介面開啟，也保留播放卡片。" } }
       }
     }
+,
+    "Control Centre is now in the Menu Bar" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Control Centre ist jetzt in der Menüleiste" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Control Centre is now in the Menu Bar" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "El Centro de Control ahora está en la barra de menús" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "El Centro de Control ahora está en la barra de menús" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Le Centre de contrôle est maintenant dans la barre des menus" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Il Centro di Controllo ora è nella barra dei menu" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "コントロールセンターがメニューバーに移動しました" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "제어 센터가 이제 메뉴 막대에 있습니다" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "O Centro de Controlo está agora na barra de menus" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "O Centro de Controlo está agora na barra de menus" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "控制中心现在位于菜单栏" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "控制中心現在位於選單列" } }
+      }
+    },
+    "The edge Control Panel now shows Background Apps. Open the Control Centre from the menu bar icon." : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Das seitliche Control Panel zeigt jetzt Hintergrund-Apps. Öffne das Control Centre über das Menüleisten-Symbol." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The edge Control Panel now shows Background Apps. Open the Control Centre from the menu bar icon." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "El panel lateral ahora muestra Apps en segundo plano. Abre el Centro de Control desde el icono de la barra de menús." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "El panel lateral ahora muestra Apps en segundo plano. Abre el Centro de Control desde el icono de la barra de menús." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Le panneau latéral affiche maintenant les apps en arrière-plan. Ouvrez le Centre de contrôle depuis l'icône de la barre des menus." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Il pannello laterale ora mostra le app in background. Apri il Centro di Controllo dall'icona della barra dei menu." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "サイドパネルにはバックグラウンドアプリが表示されます。メニューバーのアイコンからコントロールセンターを開けます。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "사이드 패널에는 이제 백그라운드 앱이 표시됩니다. 메뉴 막대 아이콘에서 제어 센터를 여세요." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "O painel lateral mostra agora Apps em segundo plano. Abre o Centro de Controlo pelo ícone da barra de menus." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "O painel lateral mostra agora Apps em segundo plano. Abre o Centro de Controlo pelo ícone da barra de menus." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "侧边面板现在显示后台应用。从菜单栏图标打开控制中心。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "側邊面板現在顯示背景應用程式。從選單列圖示開啟控制中心。" } }
+      }
+    }
   },
   "version" : "1.0"
 }
