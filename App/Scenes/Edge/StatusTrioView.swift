@@ -1553,6 +1553,11 @@ struct MenuBarCreativeHubView: View {
     @State private var showUninstaller = false
     @State private var calendarMonth = Date()
     @AppStorage(HubActionLayout.widthsKey) private var boxWidthsRaw = "half,half,half,half"
+    @ObservedObject private var keepAwake = KeepAwakeService.shared
+    @AppStorage(HubAppearancePreset.storageKey) private var appearanceRaw = HubAppearancePreset.default.rawValue
+    @AppStorage("com.katikati.stayawake.preset") private var awakePresetRaw = 30
+    @State private var disk: DiskUsage?
+    @State private var lidNeedsAdmin = false
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.colorScheme) private var colorScheme
@@ -1561,9 +1566,13 @@ struct MenuBarCreativeHubView: View {
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
     private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
     private var ink: Color { theme.labelActive.color }
-    private var inkSoft: Color { theme.labelSubtitle.color }
-    private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
-    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
+    private var appearance: HubAppearancePreset { HubAppearancePreset.parse(appearanceRaw) }
+    /// Secondary ink comes from the primary ink, never a washed tint, so one preset value raises every
+    /// subtitle and caption together.
+    private var inkSoft: Color { ink.opacity(appearance.secondaryInk) }
+    private var cardFill: Color { Color.primary.opacity((colorScheme == .dark ? 0.08 : 0.05) * appearance.cardScale) }
+    private var cardStroke: Color { Color.primary.opacity((colorScheme == .dark ? 0.12 : 0.08) * appearance.cardScale) }
+    private var awakePreset: StayAwakePreset { StayAwakePreset(rawValue: awakePresetRaw) ?? .m30 }
     private var tabs: [MenuBarHubTab] { MenuBarHubTab.visibleTabs() }
     private var modules: Set<HubModule> { HubModule.enabled(modulesRaw) }
 
@@ -1576,8 +1585,13 @@ struct MenuBarCreativeHubView: View {
         .background {
             // One plate: the body's backdrop is masked to body + pointer, and one rim strokes the
             // combined outline, so the joint cannot show a material or rim seam.
-            DockPanelBackdrop(theme: theme, cornerRadius: 0,
-                              usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
+            ZStack {
+                DockPanelBackdrop(theme: theme, cornerRadius: 0,
+                                  usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
+                // The finish's scrim: glass keeps a small legibility floor, the solid presets buy contrast.
+                Color(colorScheme == .dark ? .black : .white).opacity(appearance.plateScrim)
+                palette.primaryAccent.opacity(appearance.accentTint)
+            }
                 .mask(HubPlateShape(caretCenter: plateCaretX).fill(Color.black))
         }
         .overlay {
@@ -1590,9 +1604,11 @@ struct MenuBarCreativeHubView: View {
             if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
         }
         .onDisappear { status.release() }
+        .onChange(of: selectedTab) { _, _ in query = "" }
         .task {
             let all = await BluetoothDeviceReader.read()
             btAudioDevices = all.filter { $0.isConnected && $0.lowestBattery != nil }
+            disk = SystemMonitorSampler.disk()
         }
     }
 
@@ -1603,7 +1619,6 @@ struct MenuBarCreativeHubView: View {
     private var hubBody: some View {
         VStack(alignment: .leading, spacing: 10) {
             headerBar
-            actionBoxGrid
             tabContent
         }
         .padding(12)
@@ -1627,12 +1642,22 @@ struct MenuBarCreativeHubView: View {
             }
             .padding(2).background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
 
-            HStack(spacing: 4) {
-                Image(systemName: "magnifyingglass").font(.system(size: 10)).foregroundStyle(inkSoft)
-                TextField(String(localized: "Search"), text: $query).textFieldStyle(.plain).font(.system(size: 12)).foregroundStyle(ink)
+            Spacer(minLength: 4)
+
+            Menu {
+                ForEach(HubAppearancePreset.allCases) { preset in
+                    Button { appearanceRaw = preset.rawValue } label: {
+                        if preset == appearance { Label(preset.title, systemImage: "checkmark") }
+                        else { Text(verbatim: preset.title) }
+                    }
+                }
+            } label: {
+                Image(systemName: "circle.lefthalf.filled").font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(inkSoft).frame(width: 26, height: 26)
+                    .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(cardFill))
             }
-            .padding(.horizontal, 7).padding(.vertical, 4)
-            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(cardFill))
+            .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+            .help(Text("Appearance"))
 
             Button(action: onOpenSettings) {
                 Image(systemName: "gearshape").font(.system(size: 12, weight: .medium)).foregroundStyle(inkSoft)
@@ -1730,9 +1755,13 @@ struct MenuBarCreativeHubView: View {
 
     private var switchesBody: some View {
         let items = HubSwitchCatalog.filter(HubSwitchCatalog.orderedSwitches(), query: query) { switchLabel($0) }
-            .filter { !$0.isDuplicated(by: boxSlots) }
+            .filter { !$0.isDuplicated(by: boxSlots) && !Self.isKeepAwake($0) }
         return ScrollView {
             VStack(spacing: 6) {
+                // Page one's own actions, not global chrome repeated above every tab.
+                actionBoxGrid
+                keepAwakeCard
+                pageSearchField
                 if let buds = btAudioDevices.first, let level = buds.lowestBattery {
                     airPodsPill(device: buds, battery: level)
                 }
@@ -1755,6 +1784,84 @@ struct MenuBarCreativeHubView: View {
                 }
             }
         }
+    }
+
+    private static func isKeepAwake(_ item: HubSwitchID) -> Bool {
+        if case .system(.keepAwake) = item { return true }
+        return false
+    }
+
+    private var pageSearchField: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "magnifyingglass").font(.system(size: 10)).foregroundStyle(inkSoft)
+            TextField(String(localized: "Search"), text: $query)
+                .textFieldStyle(.plain).font(.system(size: 12)).foregroundStyle(ink)
+        }
+        .padding(.horizontal, 7).padding(.vertical, 5)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(cardFill))
+    }
+
+    /// Keep Awake grown from a bare toggle into a timer: the chips choose how long a manual hold lasts,
+    /// and lid-closed is opt-in next to it (the service still owns the admin prompt and the battery floor).
+    private var keepAwakeCard: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 8) {
+                Image(systemName: "cup.and.saucer.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(keepAwake.decision.hold ? palette.primaryAccent : ink)
+                    .frame(width: 28, height: 28).background(Circle().fill(cardFill))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Keep Awake").font(.system(size: 12, weight: .semibold)).foregroundStyle(ink)
+                    Text(verbatim: keepAwakeStatusLine).font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(inkSoft).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                Toggle(isOn: Binding(get: { keepAwake.manualOn }, set: { on in
+                    keepAwake.setManual(on, duration: on ? awakePreset.duration : nil)
+                })) { EmptyView() }
+                .labelsHidden().toggleStyle(.switch).controlSize(.mini)
+            }
+            HStack(spacing: 4) {
+                ForEach(StayAwakePreset.allCases, id: \.self) { option in
+                    let active = keepAwake.manualOn && option == awakePreset
+                    Button {
+                        awakePresetRaw = option.rawValue
+                        keepAwake.setManual(true, duration: option.duration)
+                    } label: {
+                        Text(verbatim: option.label)
+                            .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                            .foregroundStyle(active ? Color.white : inkSoft)
+                            .frame(maxWidth: .infinity, minHeight: 22)
+                            .background(Capsule().fill(active ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(cardFill)))
+                    }.buttonStyle(.plain)
+                }
+            }
+            HStack(spacing: 6) {
+                Image(systemName: "laptopcomputer").font(.system(size: 11)).foregroundStyle(inkSoft).frame(width: 16)
+                Text("Lid closed").font(.system(size: 11, weight: .medium)).foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Toggle(isOn: Binding(get: { keepAwake.lidClosedEnabled }, set: { on in
+                    Task { lidNeedsAdmin = !(await keepAwake.setLidClosed(on)) }
+                })) { EmptyView() }
+                .labelsHidden().toggleStyle(.switch).controlSize(.mini)
+                .help(Text("Keep running with the lid shut"))
+            }
+            if lidNeedsAdmin {
+                Text("Admin approval was not given").font(.system(size: 9.5)).foregroundStyle(.orange)
+            }
+        }
+        .padding(9)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+    }
+
+    private var keepAwakeStatusLine: String {
+        guard keepAwake.decision.hold else { return String(localized: "Off") }
+        if keepAwake.decision.reason == .manual, let end = keepAwake.manualEnd {
+            return String(format: String(localized: "Until %@"), end.formatted(date: .omitted, time: .shortened))
+        }
+        if keepAwake.manualOn { return String(localized: "Until you turn it off") }
+        return String(localized: "AI agents")
     }
 
     private func airPodsPill(device: BluetoothDevice, battery: Int) -> some View {
@@ -1824,6 +1931,7 @@ struct MenuBarCreativeHubView: View {
                                   value: status.status.wiredEthernetConnected ? String(localized: "Network") : (wifi.ssid ?? (wifi.isConnected ? String(localized: "On") : String(localized: "Offline"))),
                                   detail: wifi.rssi.map { "\($0) dBm" } ?? (wifi.isPoweredOn ? String(localized: "Not Connected") : String(localized: "Wi-Fi Off")))
                 }
+                storageCard
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text("Audio Output").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
@@ -1899,6 +2007,38 @@ struct MenuBarCreativeHubView: View {
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
     }
 
+    /// Page two owns the machine's story: battery, network and now the boot volume. One read on
+    /// appear, not a poll — the hub never wakes the disk just to keep a percentage honest.
+    private var storageCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 5) {
+                Image(systemName: "internaldrive.fill").font(.system(size: 10.5)).foregroundStyle(palette.primaryAccent)
+                Text("Storage").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
+                Spacer()
+                Text(verbatim: disk.map { "\($0.usedPercent)%" } ?? "–")
+                    .font(.system(size: 11, weight: .semibold)).monospacedDigit().foregroundStyle(inkSoft)
+            }
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.primary.opacity(0.10))
+                    Capsule().fill(palette.primaryAccent.gradient)
+                        .frame(width: proxy.size.width * CGFloat(disk?.usedFraction ?? 0))
+                }
+            }
+            .frame(height: 5)
+            HStack(spacing: 4) {
+                Text("Used").font(.system(size: 10)).foregroundStyle(inkSoft)
+                Text(verbatim: disk?.usedLabel ?? "–").font(.system(size: 10, weight: .medium)).monospacedDigit().foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Text("Available").font(.system(size: 10)).foregroundStyle(inkSoft)
+                Text(verbatim: disk?.availableLabel ?? "–").font(.system(size: 10, weight: .medium)).monospacedDigit().foregroundStyle(ink)
+            }
+        }
+        .padding(9)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+    }
+
     /// iPadOS-style level: a 34 pt capsule with a large white knob and the glyph sitting in the fill.
     /// The native slider is kept underneath at near-zero opacity so dragging, keyboard and
     /// Accessibility (AXSlider) behave exactly as before; only the drawing is bolder.
@@ -1947,6 +2087,7 @@ struct MenuBarCreativeHubView: View {
         let filteredSC = q.isEmpty ? shortcutNames : shortcutNames.filter { $0.localizedCaseInsensitiveContains(q) }
         return ScrollView {
             VStack(alignment: .leading, spacing: 8) {
+                pageSearchField
                 HStack {
                     Text("Custom").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
                     Spacer()
@@ -2040,6 +2181,7 @@ struct MenuBarCreativeHubView: View {
     private var schedulesBody: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
+                pageSearchField
                 HStack {
                     Text("Schedule").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
                     Spacer()
