@@ -80,3 +80,43 @@ final class DevCacheCatalogTests: XCTestCase {
         DevCacheCatalog.targets.first { $0.kind == kind }!
     }
 }
+
+/// The storage page's last measurement, kept for surfaces that must not scan (the dashboard).
+final class DevCacheSnapshotTests: XCTestCase {
+    private let suiteName = "com.katikati.tests.devcache.snapshot"
+
+    func testSaveKeepsTheOneClickTotalAndTheMeasurementDate() {
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        XCTAssertNil(DevCacheSnapshotStore.load(defaults: defaults), "a machine that never opened Storage has no total")
+
+        let low = DevCacheReading(target: DevCacheCatalog.targets.first { $0.kind == .derivedData }!,
+                                  paths: ["/a"], bytes: 100)
+        let high = DevCacheReading(target: DevCacheCatalog.targets.first { $0.kind == .archives }!,
+                                   paths: ["/b"], bytes: 400)
+        let measured = Date(timeIntervalSince1970: 1_700_000_000)
+        DevCacheSnapshotStore.save([low, high], at: measured, defaults: defaults)
+
+        XCTAssertEqual(DevCacheSnapshotStore.load(defaults: defaults),
+                       DevCacheSnapshot(measuredAt: measured, reclaimableBytes: 100),
+                       "archives are never part of the one-click figure")
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+
+    func testDecodeRejectsMalformedOrNegativeSnapshots() {
+        XCTAssertNil(DevCacheSnapshotStore.decode(nil))
+        XCTAssertNil(DevCacheSnapshotStore.decode("v2|1|2"))
+        XCTAssertNil(DevCacheSnapshotStore.decode("v1|nope|2"))
+        XCTAssertNil(DevCacheSnapshotStore.decode("v1|1|-2"), "a negative total would draw as a credit")
+        XCTAssertNil(DevCacheSnapshotStore.decode("v1|1"))
+        XCTAssertEqual(DevCacheSnapshotStore.decode("v1|0|0"),
+                       DevCacheSnapshot(measuredAt: Date(timeIntervalSince1970: 0), reclaimableBytes: 0))
+    }
+
+    func testRoundTripIsStableForTheStoredFormat() {
+        let snapshot = DevCacheSnapshot(measuredAt: Date(timeIntervalSince1970: 1_800_000_000),
+                                        reclaimableBytes: 5_200_000_000)
+        XCTAssertEqual(DevCacheSnapshotStore.encode(snapshot), "v1|1800000000|5200000000")
+        XCTAssertEqual(DevCacheSnapshotStore.decode(DevCacheSnapshotStore.encode(snapshot)), snapshot)
+    }
+}

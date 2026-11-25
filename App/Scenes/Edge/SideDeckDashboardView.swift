@@ -10,6 +10,8 @@ struct SideDeckDashboardView: View {
     @ObservedObject private var weather = WeatherService.shared
     @ObservedObject private var calendar = DockCalendarFeed.shared
     @State private var freeBytes: Int64 = 0
+    /// SD-3d/SD-7: what the Storage page last measured, read from preferences — the dashboard never scans.
+    @State private var reclaimableBytes: Int64?
 
     private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
@@ -25,6 +27,7 @@ struct SideDeckDashboardView: View {
             downloads.retain()
             calendar.retain()
             freeBytes = StorageScanService.freeBytes()
+            reclaimableBytes = DevCacheSnapshotStore.load()?.reclaimableBytes
         }
         .onDisappear {
             downloads.release()
@@ -71,9 +74,22 @@ struct SideDeckDashboardView: View {
         card(title: "FREE DISK", symbol: SideDeckTab.storage.symbol) {
             Text(verbatim: DownloadItem.formatBytes(freeBytes))
                 .font(.system(size: 26, weight: .semibold, design: .rounded))
-            Text(verbatim: "ClearDisk lives in Storage.")
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.45))
+            if let reclaimableBytes {
+                HStack(spacing: 5) {
+                    Image(systemName: "hammer")
+                        .font(.system(size: 10))
+                    Text(verbatim: "Reclaimable")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    Spacer(minLength: 0)
+                    Text(verbatim: DownloadItem.formatBytes(reclaimableBytes))
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                }
+                .foregroundStyle(.secondary)
+            } else {
+                Text(verbatim: "ClearDisk lives in Storage.")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.45))
+            }
             Spacer(minLength: 0)
             openButton("Storage", tab: .storage)
         }

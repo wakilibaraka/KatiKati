@@ -62,6 +62,9 @@ final class SideDeckHandleWindow {
         panel.hasShadow = false
         panel.level = .floating
         panel.isMovable = false
+        // The handle lives on its tracking area, not on clicks: it must receive mouseEntered/Exited, so
+        // this window is deliberately not click-through (4 pt of ink inside a 14 pt hit target).
+        // INPUT-HYGIENE: INTERACTIVE
         panel.ignoresMouseEvents = false
         panel.collectionBehavior = PanelCollectionBehavior.standard
         panel.isReleasedWhenClosed = false

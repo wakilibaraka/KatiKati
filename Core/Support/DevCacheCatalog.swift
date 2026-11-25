@@ -124,3 +124,43 @@ enum DevCacheCatalog {
         }
     }
 }
+
+/// The Storage page's last developer-cache measurement, kept for surfaces that must not scan.
+struct DevCacheSnapshot: Equatable, Sendable {
+    var measuredAt: Date
+    var reclaimableBytes: Int64
+}
+
+/// One writer, many readers: the Storage page saves what it measured while it was open, and the
+/// dashboard reads that total instead of starting a scan of its own. A dashboard that is off screen
+/// therefore costs nothing, and an open one costs one preferences read — the 0.0 % idle rule holds
+/// without the deck ever measuring the disk.
+enum DevCacheSnapshotStore {
+    static let key = "com.katikati.devcache.snapshot.v1"
+    private static let prefix = "v1"
+
+    static func encode(_ snapshot: DevCacheSnapshot) -> String {
+        "\(prefix)|\(Int(snapshot.measuredAt.timeIntervalSince1970))|\(snapshot.reclaimableBytes)"
+    }
+
+    static func decode(_ raw: String?) -> DevCacheSnapshot? {
+        guard let raw else { return nil }
+        let parts = raw.split(separator: "|", omittingEmptySubsequences: false)
+        guard parts.count == 3, parts[0] == prefix,
+              let seconds = TimeInterval(parts[1]),
+              let bytes = Int64(parts[2]), bytes >= 0 else { return nil }
+        return DevCacheSnapshot(measuredAt: Date(timeIntervalSince1970: seconds), reclaimableBytes: bytes)
+    }
+
+    /// Called by the page that already ran the measurement — never by a timer or a second surface.
+    static func save(_ readings: [DevCacheReading], at date: Date = Date(),
+                     defaults: UserDefaults = .standard) {
+        let snapshot = DevCacheSnapshot(measuredAt: date,
+                                        reclaimableBytes: DevCacheCatalog.reclaimableBytes(readings))
+        defaults.set(encode(snapshot), forKey: key)
+    }
+
+    static func load(defaults: UserDefaults = .standard) -> DevCacheSnapshot? {
+        decode(defaults.string(forKey: key))
+    }
+}

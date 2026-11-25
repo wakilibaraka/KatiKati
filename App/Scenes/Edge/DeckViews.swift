@@ -1027,7 +1027,11 @@ struct SideDeckStorageView: View {
                         .map { path + "/" + $0 }
                 }
             )
-            await MainActor.run { devCaches = readings }
+            await MainActor.run {
+                devCaches = readings
+                // The page that measured is the only writer; the dashboard reads this instead of scanning.
+                DevCacheSnapshotStore.save(readings)
+            }
         }
     }
 
