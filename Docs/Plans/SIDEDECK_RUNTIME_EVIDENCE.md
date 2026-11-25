@@ -179,6 +179,7 @@ Output (exit 0):
   ✅ Settings gear  accessibility label present
   ✅ Storage        click 110,526 renders 'Developer & Cache', 'used'
   ✅ Downloads      click 110,388 renders 'URL RESOLVER', 'IN-FLIGHT TRANSFERS', 'TORRENT HUB'
+  ✅ escape        Escape (keyCode 53) removed the deck from windows and AX tree
   ✅ collapse      chevron 109,1000 removed the deck from windows and AX tree
   ✅ Settings      1080x700 — Side Deck pane is listed
 ```
@@ -199,9 +200,21 @@ The chevron sits below the **Pin Strip Open** toggle, and the gear stays at the 
 The two foot controls do not conflict — Pin holds the deck open, the chevron dismisses it — so the Pin
 control SD-1 still needs was kept rather than deleted to make room.
 
-**Escape is still inert.** `DrawerPanel.cancelOperation` exists, but the panel is a
-`nonactivatingPanel` in an accessory app and never holds key focus. A synthetic Escape posted to the
-app's own event queue left the panel open, with the process confirmed alive before and after.
+**Escape now dismisses the deck.** `WindowDrawerController.handleKey` handles keyCode 53 by calling
+`close()` — the same path the chevron and the click-away monitor use — and it is the deck's local key
+monitor (`NSEvent.addLocalMonitorForEvents(matching: .keyDown)`, installed while the panel is open)
+that sees the key. The panel *is* a key window (`isKeyWindow` read true in the instrumented run);
+`cancelOperation` simply never fired, because the monitor handled arrows, Return and Delete and let
+Escape fall through with `return false`. The defect was a missing case in the key map, not a missing
+key window.
+
+One limit is inherent to the design and is checked rather than glossed: a `nonactivatingPanel` in an
+accessory app only receives keys while its app owns the keyboard, the same as the deck's existing
+arrow/Return navigation. The live check therefore activates the app it launched and its `press` helper
+waits until our pid owns the frontmost slot before posting keyCode 53 through the HID tap — the state
+a person is in when they press Escape at a deck they are using. The same helper, the pid-scoped window
+reads and the retried, gliding hover are what make this run reproducible while another worktree's
+KatiKati instance is on the machine.
 
 ## Defect found and fixed — the deck's Settings gear
 
@@ -230,7 +243,7 @@ below is a command's exit code or an accessibility read, not an inference.
 
 | Gate | Command | Result |
 | --- | --- | --- |
-| Ten suites | Settings, SideDeck config + logic, DevCacheCatalog, DevCacheSnapshot, DeckGeometry, ControlCenterLayout, ControlCenterReadability, NotificationDigest, DownloadEnginePolicy | **80 passed, 0 failed**, exit 0 (`/tmp/sidedeck-gate/xcodebuild-chevron.log`, this turn's build) |
+| Ten suites | Settings, SideDeck config + logic, DevCacheCatalog, DevCacheSnapshot, DeckGeometry, ControlCenterLayout, ControlCenterReadability, NotificationDigest, DownloadEnginePolicy | **80 passed, 0 failed**, exit 0 (`/tmp/sidedeck-gate/xcodebuild-escape-final2.log`, this turn's build) |
 | Localization | `python3 Scripts/check_localization.py` | exit 0 — 2 630 keys × 12 locales, no orphans |
 | Debug switches | `python3 Scripts/check_debug_switches.py` | exit 0 — 94 registered |
 | Input hygiene | `python3 Scripts/check_input_hygiene.py` | exit 0 |
@@ -248,9 +261,10 @@ This was a gate defect, not a pane defect — no app source changed for it.
 
 ## Open / limitations
 
-- **Escape does not close the deck.** The chevron and click-away both collapse it, but the panel is a
-  `nonactivatingPanel` in an accessory app, so it never holds key focus and `cancelOperation` never
-  fires; an Escape posted to the app's own event queue left it open with the process confirmed alive.
+- **Escape needs the app frontmost, like the deck's other keys.** Keycode 53 is handled by the deck's
+  local monitor and closes through `close()`, proven by the live check — but a `nonactivatingPanel` in
+  an accessory app only receives keys when its app owns the keyboard. When another app is frontmost,
+  Escape goes to that app and the deck stays open; the check activates the app it drives first.
 - **The chevron collapses, it does not animate a fold.** It calls `close()`, the same dismissal
   click-away uses, so the panel disappears rather than sliding into the rail; the render's fold motion
   is not implemented.

@@ -23,7 +23,8 @@ What it checks, in order:
   4. clicking the Storage rail button swaps the pane to Storage content;
   5. clicking the Downloads rail button swaps it to the downloads pane;
   6. clicking the identity strip's gear opens Settings;
-  7. the rail's foot chevron collapses the deck and removes it from the accessibility tree.
+  7. Escape on the open deck dismisses it and removes it from the accessibility tree.
+  8. the rail's foot chevron collapses the reopened deck the same way.
 
 Exit code: 0 every step passed; 1 a step failed; 2 a setup problem (app running, no .app, no AX trust).
 
@@ -101,8 +102,10 @@ case "trust":
     print(AXIsProcessTrusted() ? "true" : "false")
 case "windows":
     let list = (CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]]) ?? []
+    let only = args.count > 1 ? Int32(args[1]) : nil
     for window in list {
         guard (window[kCGWindowOwnerName as String] as? String) == "KatiKati",
+              only == nil || (window[kCGWindowOwnerPID as String] as? Int32) == only,
               let layer = window[kCGWindowLayer as String] as? Int,
               let bounds = window[kCGWindowBounds as String] as? [String: Any],
               let x = bounds["X"] as? Double, let y = bounds["Y"] as? Double,
@@ -141,6 +144,39 @@ case "keypid":
     let source = CGEventSource(stateID: .hidSystemState)
     CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: true)?.postToPid(pid)
     CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: false)?.postToPid(pid)
+case "glide":
+    // A jump can be coalesced into one move and lose the enter a tracking area needs; glide the
+    // pointer the way a hand would, in small steps, so mouseEntered is generated on the way in.
+    guard args.count > 3, let tx = Double(args[2]), let ty = Double(args[3]) else { exit(1) }
+    let startNS = NSEvent.mouseLocation
+    let screenHeight = NSScreen.screens.first?.frame.height ?? 1080
+    let start = CGPoint(x: startNS.x, y: screenHeight - startNS.y)  // CGEvent uses a top-left origin
+    let source = CGEventSource(stateID: .hidSystemState)
+    let steps = 24
+    for i in 1...steps {
+        let f = Double(i) / Double(steps)
+        let p = CGPoint(x: start.x + (tx - start.x) * f, y: start.y + (ty - start.y) * f)
+        CGEvent(mouseEventSource: source, mouseType: .mouseMoved, mouseCursorPosition: p, mouseButton: .left)?
+            .post(tap: .cghidEventTap)
+        usleep(15_000)
+    }
+case "press":
+    // Activate the app, wait until it owns the keyboard, then press the key through the HID tap —
+    // one process, no window for another app to take focus back between the two steps.
+    guard args.count > 3, let pid = Int32(args[3]) else { exit(1) }
+    let code = CGKeyCode(UInt16(args[2]) ?? 53)
+    NSRunningApplication(processIdentifier: pid)?
+        .activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
+    var owned = false
+    for _ in 0..<150 {
+        if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { owned = true; break }
+        usleep(20_000)
+    }
+    let source = CGEventSource(stateID: .hidSystemState)
+    CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: true)?.post(tap: .cghidEventTap)
+    usleep(40_000)
+    CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: false)?.post(tap: .cghidEventTap)
+    print(owned ? "front" : "not-front")
 case "find":
     guard args.count > 3, let pid = Int32(args[3]) else { print("no-pid"); exit(1) }
     let root = AXUIElementCreateApplication(pid)
@@ -162,7 +198,7 @@ case "tree":
         walk(window, 0) { element, depth in report(element, depth) }
     }
 default:
-    print("usage: helper windows|handle|move X Y|click X Y|focus PID|keypid CODE PID|find LABEL PID|tree PID|trust")
+    print("usage: helper windows|handle|move X Y|glide X Y|click X Y|focus PID|keypid CODE PID|press CODE PID|find LABEL PID|tree PID|trust")
     exit(2)
 }
 '''
@@ -196,12 +232,17 @@ def set_pref(name: str, value: bool) -> None:
     run('defaults', 'write', DOMAIN, name, '-bool', 'true' if value else 'false')
 
 
-def app_pid(app: str) -> int | None:
-    """The pid running this exact bundle — never another KatiKati instance on the machine."""
+def our_pids(app: str) -> list[int]:
+    """Every process running this exact bundle — never another KatiKati on the machine."""
     exe = str(pathlib.Path(app).resolve() / 'Contents/MacOS/KatiKati')
     out = run('pgrep', '-f', exe)
-    pids = [int(n) for n in out.stdout.split()] if out.returncode == 0 else []
-    return pids[0] if pids else None
+    return [int(n) for n in out.stdout.split()] if out.returncode == 0 else []
+
+
+def app_pid(app: str) -> int | None:
+    """The newest process running this exact bundle: a TERM'd instance lingers briefly while exiting."""
+    pids = our_pids(app)
+    return max(pids) if pids else None
 
 
 def wait_pid(app: str, timeout: float = 20.0) -> int | None:
@@ -214,18 +255,19 @@ def wait_pid(app: str, timeout: float = 20.0) -> int | None:
     return None
 
 
-def windows(binary: pathlib.Path) -> list[tuple[int, int, int, int, int]]:
+def windows(binary: pathlib.Path, pid: int | None = None) -> list[tuple[int, int, int, int, int]]:
     rows = []
-    for line in run(str(binary), 'windows').stdout.splitlines():
+    cmd = [str(binary), 'windows'] + ([str(pid)] if pid else [])
+    for line in run(*cmd).stdout.splitlines():
         parts = [int(n) for n in line.split('|')]
         if len(parts) == 5:
             rows.append(tuple(parts))
     return rows
 
 
-def deck_window(binary: pathlib.Path):
-    """The open deck: a KatiKati window 360-560 pt wide and at least 900 pt tall (full height)."""
-    for layer, x, y, w, h in windows(binary):
+def deck_window(binary: pathlib.Path, pid: int | None = None):
+    """The open deck: this process's window 360-560 pt wide and at least 900 pt tall (full height)."""
+    for layer, x, y, w, h in windows(binary, pid):
         if 360 <= w <= 560 and h >= 900:
             return layer, x, y, w, h
     return None
@@ -261,6 +303,30 @@ def find_point(binary: pathlib.Path, pid: int, label: str) -> tuple[int, int] | 
     return min(points)
 
 
+def reopen_deck(binary: pathlib.Path, handle_point, app: str, pid: int) -> tuple | None:
+    """Hover the resting handle until the deck is open, retrying the enter.
+
+    The handle is an NSTrackingArea on a nonactivating window: it reports hover while its app is
+    active, and the deck's key window only receives Escape while the app is active too. The check
+    therefore activates the app it launched before each hover (it is driving that app anyway), moves
+    well away, comes back, and polls — a real open is the only thing that returns a deck.
+    """
+    for _ in range(4):
+        run('open', '-a', app)
+        time.sleep(0.5)
+        # The cursor is often resting on the handle when the deck closes, so a single jump back to it
+        # is not an enter. Walk it away, then in via a point outside the hit target.
+        run(str(binary), 'glide', '1200', '240')
+        time.sleep(0.8)
+        run(str(binary), 'glide', str(handle_point[0]), str(handle_point[1]))
+        for _ in range(10):
+            time.sleep(0.5)
+            deck = deck_window(binary, pid)
+            if deck:
+                return deck
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('--app', required=True, help='path to the built KatiKati.app')
@@ -272,9 +338,14 @@ def main() -> int:
     if not pathlib.Path(args.app).is_dir():
         print(f'❌ no app bundle at {args.app}')
         return 2
-    if app_pid(args.app) is not None:
-        print(f'❌ this build is already running ({args.app}) — quit it first')
-        return 2
+    # Our own earlier runs may still be shutting down; they would answer AX as empty and hide the
+    # deck from the pid the check reads. Clear just this bundle's processes before launching.
+    for stale in our_pids(args.app):
+        run('kill', '-TERM', str(stale))
+    for _ in range(12):
+        if not our_pids(args.app):
+            break
+        time.sleep(0.4)
     if run('pgrep', '-x', 'KatiKati').returncode == 0:
         print('⚠️  another KatiKati instance is running; launching this build terminates it')
 
@@ -309,7 +380,7 @@ def main() -> int:
         handle = None
         for _ in range(20):
             time.sleep(0.5)
-            handle = next((row for row in windows(binary) if row[3] == 14 and row[4] == 54), None)
+            handle = next((row for row in windows(binary, pid) if row[3] == 14 and row[4] == 54), None)
             if handle:
                 break
         if handle is None:
@@ -318,13 +389,7 @@ def main() -> int:
             print(f'  ✅ handle        {handle[3]}x{handle[4]} at {handle[1]},{handle[2]} (edge {handle[0]:+})')
 
         point = run(str(binary), 'handle').stdout.split()
-        run(str(binary), 'move', point[0], point[1])
-        deck = None
-        for _ in range(16):
-            time.sleep(0.5)
-            deck = deck_window(binary)
-            if deck:
-                break
+        deck = reopen_deck(binary, point, args.app, pid)
         if deck is None:
             fail('open', f'no full-height deck window after hovering {point[0]},{point[1]}')
             shot('deck-missing')
@@ -386,12 +451,38 @@ def main() -> int:
                 if not ok:
                     failures.append(f'pane-{step}')
 
-            # Collapse: the rail's foot chevron, driven by a HID click at the position AX reports.
-            # It must remove the panel from both the window list and the accessibility tree — a panel
-            # that only moved off-screen would still be in the tree.
+            # Escape, on the deck that is already open: its panel is key and the app owns the
+            # keyboard, which is the state a person presses Escape in. It must dismiss through the
+            # same close() the chevron uses and leave the accessibility tree.
             pid = app_pid(args.app) or pid
-            chevron = find_point(binary, pid, 'Collapse')
-            if chevron is None:
+            dismissed = False
+            for attempt in range(3):
+                # Activation and the press happen in one helper process; the host app reclaims focus
+                # between two separate steps and a key posted elsewhere is lost.
+                run(str(binary), 'press', '53', str(pid))
+                for _ in range(8):
+                    time.sleep(0.4)
+                    tree = run(str(binary), 'tree', str(pid)).stdout
+                    if deck_window(binary, pid) is None and 'desc=Collapse' not in tree:
+                        dismissed = True
+                        break
+                if dismissed:
+                    break
+            print(f'  {"✅" if dismissed else "❌"} escape        Escape (keyCode 53) '
+                  + ('removed the deck from windows and AX tree' if dismissed
+                     else 'left the deck in the window list or the accessibility tree'))
+            if not dismissed:
+                failures.append('escape')
+
+            # Collapse: reopen, then click the rail's foot chevron where AX reports it. It must remove
+            # the panel from both the window list and the accessibility tree — a panel that only moved
+            # off-screen would still be in the tree.
+            collapse_deck = reopen_deck(binary, point, args.app, pid)
+            pid = app_pid(args.app) or pid
+            chevron = find_point(binary, pid, 'Collapse') if collapse_deck else None
+            if collapse_deck is None:
+                fail('collapse', 'the deck did not reopen from its handle for the chevron check')
+            elif chevron is None:
                 fail('collapse', 'the rail has no Collapse chevron in the accessibility tree')
             else:
                 run(str(binary), 'click', str(chevron[0]), str(chevron[1]))
@@ -399,7 +490,7 @@ def main() -> int:
                 for _ in range(12):
                     time.sleep(0.4)
                     tree = run(str(binary), 'tree', str(pid)).stdout
-                    if deck_window(binary) is None and 'desc=Collapse' not in tree:
+                    if deck_window(binary, pid) is None and 'desc=Collapse' not in tree:
                         closed = True
                         break
                 print(f'  {"✅" if closed else "❌"} collapse      chevron {chevron[0]},{chevron[1]} '
@@ -410,26 +501,18 @@ def main() -> int:
 
             # Re-open through the handle (leave first: the tracking area only fires on a new enter),
             # then the identity strip's gear must open Settings.
-            run(str(binary), 'move', str(int(point[0]) + 400), str(int(point[1])))
-            time.sleep(0.4)
-            run(str(binary), 'move', point[0], point[1])
+            reopened = reopen_deck(binary, point, args.app, pid)
             pid = app_pid(args.app) or pid
-            reopened = None
-            for _ in range(24):
-                time.sleep(0.5)
-                reopened = deck_window(binary)
-                if reopened:
-                    break
             gear = find_point(binary, pid, 'Settings') if reopened else None
             if gear is None:
                 fail('settings', 'the deck did not reopen from its handle, or has no Settings gear')
             else:
-                before = {row[0:2] for row in windows(binary)}
+                before = {row[0:2] for row in windows(binary, pid)}
                 run(str(binary), 'click', str(gear[0]), str(gear[1]))
                 settings = None
                 for _ in range(16):
                     time.sleep(0.5)
-                    for row in windows(binary):
+                    for row in windows(binary, pid):
                         if row[3] >= 600 and row[4] >= 400 and (row[0], row[1]) not in before:
                             settings = row
                             break
@@ -448,10 +531,9 @@ def main() -> int:
                         failures.append('settings-content')
     finally:
         # Only the build this script started: another worktree's KatiKati must survive this run.
-        ours = app_pid(args.app)
-        if ours is not None:
+        for ours in our_pids(args.app):
             run('kill', '-TERM', str(ours))
-            time.sleep(0.8)
+        time.sleep(0.8)
         if not args.keep_prefs:
             for name, old in saved.items():
                 if old is None:
@@ -462,7 +544,7 @@ def main() -> int:
     if failures:
         print('❌ failed: ' + ', '.join(failures))
         return 1
-    print('✅ the deck opens from its handle, its rail swaps panes, the foot chevron collapses it, the gear opens Settings')
+    print('✅ the deck opens from its handle, its rail swaps panes, the foot chevron and Escape collapse it, the gear opens Settings')
     return 0
 
 

@@ -172,7 +172,7 @@ on the merged build showing `Reclaimable 3.33 GB` beside the page header's `3.33
 
 ---
 
-**Follow-up (unmerged, `docs/sidedeck-closeout`):** after this merge the closeout branch added the SD-1 rail-foot collapse chevron, fixed the identity strip gear to open Settings › Side Deck through `AppDelegate`, and re-drove the deck end to end with `Scripts/live_check_side_deck.py`; `SIDEDECK_RUNTIME_EVIDENCE.md` carries the observed output and the remaining gaps (Escape is inert; the chevron dismisses rather than folding).
+**Follow-up (unmerged, `docs/sidedeck-closeout`):** after this merge the closeout branch added the SD-1 rail-foot collapse chevron and Escape dismissal, fixed the identity strip gear to open Settings › Side Deck through `AppDelegate`, and re-drove the deck end to end with `Scripts/live_check_side_deck.py`; `SIDEDECK_RUNTIME_EVIDENCE.md` carries the observed output and the remaining gaps (Escape needs the app frontmost; the chevron dismisses rather than folding).
 
 ## 8. Verification gates
 
@@ -210,7 +210,7 @@ Downloads, Storage, notch rest, Dock) with before/after shots.
 | Deck livecheck | added — asserts the rendered rail, page dock and pane content, not a window size |
 | Deck idle on this tree | done — 0.00 % CPU over 60 s, 214.6 MB footprint (group 312.2 MB), measured with the app's Settings surface held open |
 | Chevron collapse | done — a `SideDeckRailButton` with `chevron.left`/`chevron.right` at the rail's foot, below the Pin toggle, calling the same `close()` the click-away monitor uses; the livecheck clicks it and asserts the panel leaves the window list and the AX tree |
-| Escape collapse | not working — the `nonactivatingPanel` never holds key focus, so `cancelOperation` never fires; recorded in the runtime evidence |
+| Escape | done — keyCode 53 handled by the deck's local key monitor, calling the same `close()` the chevron uses; the live check activates the app, posts a HID Escape, and asserts the panel leaves the window list and the AX tree |
 
 ### 8.1 Risk register
 

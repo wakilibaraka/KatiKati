@@ -218,6 +218,13 @@ final class WindowDrawerController: ObservableObject {
         case 125: moveSelection(1); return true
         case 36, 76: guard !editing else { return false }; activateSelection(); return true
         case 51: guard !editing else { return false }; dismissSelection(); return true
+        case 53:
+            // SD-1: Escape dismisses the deck through `close()` — the same path the foot chevron and
+            // the click-away monitor use. The panel is key while this app owns the keyboard, but this
+            // local monitor sees the event before the responder chain, so `cancelOperation` never
+            // runs; the key map simply had no Escape case and let it fall through. Like the deck's
+            // arrow keys, Escape reaches here only while the app is frontmost.
+            close(); return true
         default: return false
         }
     }
