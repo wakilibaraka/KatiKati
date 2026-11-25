@@ -4733,12 +4733,6 @@
     "ast_hash": "8356facc1feeba57dcaa7b119aff662a",
     "semantic_hash": ""
   },
-  "CHANGELOG.md": {
-    "mtime": 1795553941.5979025,
-    "seen": 1795554024.997024,
-    "ast_hash": "43f0b11a7b74b53ac7f923f274a3f5dc",
-    "semantic_hash": ""
-  },
   "Docs/Archive/Planning/2026-10-08-phase-0-log.md": {
     "mtime": 1791999137.4385269,
     "seen": 1795534644.457856,
@@ -5417,24 +5411,6 @@
     "ast_hash": "470b63d995b661ad590d817940d54979",
     "semantic_hash": ""
   },
-  "Docs/Releases/RELEASE_NOTES_v0.17.0-beta.1.md": {
-    "mtime": 1791999137.4273758,
-    "seen": 1795534644.457952,
-    "ast_hash": "d6e79259123444c9b1cb8c1dec88d73a",
-    "semantic_hash": ""
-  },
-  "Docs/Releases/RELEASE_NOTES_v0.17.0-beta.2.md": {
-    "mtime": 1791999137.4260879,
-    "seen": 1795534644.457953,
-    "ast_hash": "954e2a243770eed03192ff434a2de0bf",
-    "semantic_hash": ""
-  },
-  "Docs/Releases/RELEASE_NOTES_v0.17.0-beta.3.md": {
-    "mtime": 1792362115.3910687,
-    "seen": 1795534644.457954,
-    "ast_hash": "678092db65e238e2f8f2a45b85fe070f",
-    "semantic_hash": ""
-  },
   "Docs/Repository/pinboard-retirement.md": {
     "mtime": 1791999137.4287362,
     "seen": 1795534644.457958,
@@ -5451,12 +5427,6 @@
     "mtime": 1795280639.4041753,
     "seen": 1795534644.457959,
     "ast_hash": "ff6ac2447d5acbd6ee9ae6c5ff4ef286",
-    "semantic_hash": ""
-  },
-  "HYBRID_PLAN.md": {
-    "mtime": 1795553940.5360215,
-    "seen": 1795554024.997132,
-    "ast_hash": "a8707fb2e6322d62582277e368d5fc80",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6678,9 +6648,9 @@
     "semantic_hash": ""
   },
   "Scripts/graphify_autocommit.sh": {
-    "mtime": 1794838425.3022184,
-    "seen": 1795534644.4575942,
-    "ast_hash": "0acaf4a012a7534a582ff052af850aaf",
+    "mtime": 1795569458.359315,
+    "seen": 1795569519.0299149,
+    "ast_hash": "93b0bcfa75074b8105b46812f16911e6",
     "semantic_hash": ""
   },
   "App/Entry/PowerNotificationCenter.swift": {
@@ -7323,12 +7293,6 @@
     "mtime": 1795220696.6317668,
     "seen": 1795534644.457458,
     "ast_hash": "d9164e338b05976090ec1e0418b94d95",
-    "semantic_hash": ""
-  },
-  "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.1.md": {
-    "mtime": 1794882232.47045,
-    "seen": 1795534644.4579551,
-    "ast_hash": "977c9ff16a18e8a157737111700b9031",
     "semantic_hash": ""
   },
   "assets/screenshots/settings-clipboard.png": {
@@ -8045,12 +8009,6 @@
     "ast_hash": "3ea94ef00e5497338b15c8f46466309f",
     "semantic_hash": ""
   },
-  "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.2.md": {
-    "mtime": 1795310462.8685691,
-    "seen": 1795534644.4579551,
-    "ast_hash": "04c92f0f78d08b538ca5a238f10c8c3a",
-    "semantic_hash": ""
-  },
   "Docs/MissionControlResearch.md": {
     "mtime": 1795308454.5490286,
     "seen": 1795534644.4579468,
@@ -8093,12 +8051,6 @@
     "ast_hash": "62e4281fa808c9e5e4941dcd09ba7200",
     "semantic_hash": ""
   },
-  "Docs/Releases/RELEASE_NOTES_v0.18.0-beta.3.md": {
-    "mtime": 1795530979.385077,
-    "seen": 1795534644.457957,
-    "ast_hash": "189de73d945506a75c21830443c9955b",
-    "semantic_hash": ""
-  },
   "Core/Support/Desktop/MusicDesktopWidgetPlacement.swift": {
     "mtime": 1795543762.8056433,
     "seen": 1795543905.083292,
@@ -8139,6 +8091,12 @@
     "mtime": 1795569356.7937799,
     "seen": 1795569411.223685,
     "ast_hash": "29235dfd579b19e9d58a93100f9a2bc8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/03-menubar-control-center.png": {
+    "mtime": 1795569436.7163148,
+    "seen": 1795569519.030422,
+    "ast_hash": "afcb5e5962a973bbd65a91ec5556988d",
     "semantic_hash": ""
   }
 }
