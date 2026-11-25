@@ -104,10 +104,15 @@ if [[ $IDLE_ONLY == 0 ]]; then
   "$BENCHTOOL" mem "$APP" | sed 's/^total_mb=/active_total_mb=/' | tee -a "$LOG"
   "$BENCHTOOL" cpu "$APP" 30 | sed -e 's/^cpu_pct=/active_cpu_pct=/' -e 's/^cpu_proc /active_cpu_proc /' | tee -a "$LOG"
 else
-  if [[ -z "$(group_pids 2>/dev/null || true)" ]]; then
-    open "$APP"
-    sleep 5
+  # A headless accessory app exits as soon as its last window closes, which used to leave the
+  # deep-idle sample with no process at all. Keep one static surface (Settings › General) alive
+  # for the run; it is not touched, so the sample stays idle.
+  if [[ -n "$(group_pids 2>/dev/null || true)" ]]; then
+    osascript -e 'tell application id "com.katikati.app" to quit' >/dev/null 2>&1 || true
+    sleep 3
   fi
+  open -n --env DOCK_OPEN_SETTINGS=general --env DOCK_DEV_SKIP_PERMISSIONS=1 "$APP" 2>/dev/null || open "$APP"
+  sleep 8
 fi
 
 echo "== settling ${SETTLE_SECONDS} s" | tee -a "$LOG"
