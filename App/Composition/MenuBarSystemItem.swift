@@ -274,6 +274,48 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
 enum StatusTrioIconRenderer {
     private static var cache: [StatusTrioRenderKey: NSImage] = [:]
 
+    /// Stacked day number over the month abbreviation, like a desk calendar. Template ink so it
+    /// inverts with the menu bar; the month name comes from the user's locale.
+    static func dateImage(hasUpdateDot: Bool, now: Date = Date()) -> NSImage {
+        let day = Calendar.current.component(.day, from: now)
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMM")
+        let month = formatter.string(from: now).uppercased().replacingOccurrences(of: ".", with: "")
+        let image = NSImage(size: NSSize(width: 20, height: 20), flipped: false) { _ in
+            NSGraphicsContext.current?.shouldAntialias = true
+            let ink = NSColor.black
+            let monthText = month as NSString
+            let monthAttrs: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: 7, weight: .semibold),
+                .foregroundColor: ink,
+                .kern: 0.2,
+            ]
+            let monthSize = monthText.size(withAttributes: monthAttrs)
+            monthText.draw(at: NSPoint(x: ((20 - monthSize.width) / 2).rounded(), y: 11.5), withAttributes: monthAttrs)
+
+            let dayText = "\(day)" as NSString
+            let dayAttrs: [NSAttributedString.Key: Any] = [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: 11.5, weight: .bold),
+                .foregroundColor: ink,
+            ]
+            let daySize = dayText.size(withAttributes: dayAttrs)
+            dayText.draw(at: NSPoint(x: ((20 - daySize.width) / 2).rounded(), y: 0.5), withAttributes: dayAttrs)
+
+            if hasUpdateDot {
+                let dot = NSRect(x: 15.5, y: 15.5, width: 4, height: 4)
+                NSGraphicsContext.current?.compositingOperation = .clear
+                NSBezierPath(ovalIn: dot.insetBy(dx: -1.2, dy: -1.2)).fill()
+                NSGraphicsContext.current?.compositingOperation = .sourceOver
+                ink.setFill()
+                NSBezierPath(ovalIn: dot).fill()
+            }
+            return true
+        }
+        image.isTemplate = true
+        image.accessibilityDescription = "KatiKati"
+        return image
+    }
+
     static func image(for key: StatusTrioRenderKey) -> NSImage {
         if let cached = cache[key] { return cached }
         if cache.count >= 12 { cache.removeAll(keepingCapacity: true) }
@@ -470,7 +512,9 @@ final class MenuBarStatusCoordinator {
     }
 
     func renderStatusBarIcon(for button: NSStatusBarButton?, hasUpdateDot: Bool) -> NSImage? {
-        guard MenuBarIconMode.current() == .statusTrio else { return nil }
+        let mode = MenuBarIconMode.current()
+        if mode == .date { return StatusTrioIconRenderer.dateImage(hasUpdateDot: hasUpdateDot) }
+        guard mode == .statusTrio else { return nil }
         let appearance = button?.effectiveAppearance ?? NSApp.effectiveAppearance
         let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         let defaults = UserDefaults.standard

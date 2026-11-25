@@ -1046,6 +1046,7 @@ private struct MenuBarHubSettingsBlock: View {
             SettingsSegmentedRow(Text("Style"), selection: $iconModeRaw) {
                 Text("Status Trio Ring").tag(MenuBarIconMode.statusTrio.rawValue)
                 Text("Classic").tag(MenuBarIconMode.classic.rawValue)
+                Text("Date").tag(MenuBarIconMode.date.rawValue)
             }
             SettingsDivider()
             SettingsSegmentedRow(Text("Ring Stroke"), selection: $strokeRaw) {

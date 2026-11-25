@@ -1,5 +1,6 @@
 import AudioToolbox
 import CoreAudio
+import Darwin
 import SwiftUI
 
 // Phase 36e — list the Mac's audio outputs and make one the default. CoreAudio calls run only when the
@@ -228,6 +229,13 @@ struct AppAudioProcess: Identifiable, Equatable {
     let bundleID: String?
     let name: String
     let isRunningOutput: Bool
+
+    /// One identity rule for levels, routes and persisted-free state: bundle id when there is one,
+    /// so helper processes and renames don't split a row; the display name otherwise.
+    var storageKey: String {
+        if let bundleID, !bundleID.isEmpty { return bundleID }
+        return name
+    }
 }
 
 /// The Tier B mixer. Built only by its card (`HubAudioMixerCard`), which exists only while the module
@@ -241,38 +249,40 @@ struct AppAudioProcess: Identifiable, Equatable {
 final class PerAppAudioEngine: ObservableObject {
     @Published private(set) var processes: [AppAudioProcess] = []
     @Published private(set) var routing: Set<Int32> = []
-    @Published private(set) var unavailable = false
+    @Published private(set) var failures: [Int32: PerAppAudioFailure] = [:]
 
-    private var sessions: [Int32: MixSession] = [:]
-    private var saved: [String: PerAppAudioMix] = [:]
-    private var started = false
+    /// True while at least one app's level cannot be applied; the card shows `Volume Unavailable`.
+    var unavailable: Bool { !failures.isEmpty }
 
-    func start() {
-        guard !started else { return }
-        started = true
-        loadSaved()
-        refresh()
+    func failure(for process: AppAudioProcess) -> PerAppAudioFailure? {
+        failures[process.pid]
     }
+
+    /// Levels live only as long as the card. Closing the hub tears every route down and restores the
+    /// app to unity, so a remembered level that is not being enforced would be a lie — nothing is
+    /// written to disk, and reopening starts from an honest 100 %.
+    private var mixes: [String: PerAppAudioMix] = [:]
+    private var sessions: [Int32: MixSession] = [:]
+
+    func start() { refresh() }
 
     /// Called when the card leaves the hub: every route is torn down, so closing the panel can never
     /// leave an app muted behind a view that no longer exists.
     func stop() {
-        restoreAll()
-        started = false
+        for pid in Array(sessions.keys) { teardown(pid: pid) }
+        mixes = [:]
         processes = []
-        saved = [:]
+        failures = [:]
     }
 
-    func refresh() {
-        processes = Self.readProcesses()
-    }
+    func refresh() { processes = Self.readProcesses() }
 
     func gain(for process: AppAudioProcess) -> Double {
-        saved[Self.key(for: process)]?.gain ?? 1
+        mixes[process.storageKey]?.gain ?? 1
     }
 
     func isMuted(_ process: AppAudioProcess) -> Bool {
-        saved[Self.key(for: process)]?.isMuted ?? false
+        mixes[process.storageKey]?.isMuted ?? false
     }
 
     func isRouted(_ process: AppAudioProcess) -> Bool {
@@ -280,76 +290,58 @@ final class PerAppAudioEngine: ObservableObject {
     }
 
     func setGain(_ value: Double, for process: AppAudioProcess) {
-        var mix = saved[Self.key(for: process)]
-            ?? PerAppAudioMix(bundleID: process.bundleID, name: process.name, gain: 1, isMuted: false)
-        mix.bundleID = process.bundleID
-        mix.name = process.name
+        var mix = mix(for: process)
         mix.gain = PerAppAudioRules.clamped(value)
         if mix.gain > 0 { mix.isMuted = false }
-        saved[Self.key(for: process)] = mix
-        persist()
-        apply(mix, to: process)
+        commit(mix, to: process)
     }
 
     func setMuted(_ muted: Bool, for process: AppAudioProcess) {
-        var mix = saved[Self.key(for: process)]
-            ?? PerAppAudioMix(bundleID: process.bundleID, name: process.name, gain: 1, isMuted: false)
+        var mix = mix(for: process)
         mix.isMuted = muted
-        saved[Self.key(for: process)] = mix
-        persist()
-        apply(mix, to: process)
+        commit(mix, to: process)
     }
 
-    func restore(_ process: AppAudioProcess) {
-        saved[Self.key(for: process)] = nil
-        persist()
-        teardown(pid: process.pid)
+    private func mix(for process: AppAudioProcess) -> PerAppAudioMix {
+        mixes[process.storageKey]
+            ?? PerAppAudioMix(bundleID: process.bundleID, name: process.name, gain: 1, isMuted: false)
     }
 
-    func restoreAll() {
-        for pid in Array(sessions.keys) { teardown(pid: pid) }
-        routing = []
+    private func commit(_ mix: PerAppAudioMix, to process: AppAudioProcess) {
+        var current = mix
+        current.bundleID = process.bundleID
+        current.name = process.name
+        mixes[process.storageKey] = current
+        apply(current, to: process)
     }
 
     // MARK: Routing
 
     private func apply(_ mix: PerAppAudioMix, to process: AppAudioProcess) {
         guard PerAppAudioRules.needsRouting(mix) else { teardown(pid: process.pid); return }
-        if let session = sessions[process.pid], session.key == mix.storageKey {
+        if let session = sessions[process.pid], session.key == process.storageKey {
             session.setGain(PerAppAudioRules.effectiveGain(mix))
             routing.insert(process.pid)
             return
         }
         teardown(pid: process.pid)
-        guard let session = MixSession(process: process, gain: PerAppAudioRules.effectiveGain(mix)) else {
-            unavailable = true
-            return
+        do {
+            sessions[process.pid] = try MixSession(process: process, gain: PerAppAudioRules.effectiveGain(mix))
+            routing.insert(process.pid)
+        } catch let reason as PerAppAudioFailure {
+            // Nothing is routed, so the row must not keep showing a level that is not running.
+            failures[process.pid] = reason
+            mixes[process.storageKey] = nil
+        } catch {
+            failures[process.pid] = .tap
+            mixes[process.storageKey] = nil
         }
-        unavailable = false
-        sessions[process.pid] = session
-        routing.insert(process.pid)
     }
 
     private func teardown(pid: Int32) {
         sessions.removeValue(forKey: pid)?.teardown()
         routing.remove(pid)
-    }
-
-    // MARK: Persistence
-
-    private static func key(for process: AppAudioProcess) -> String {
-        if let id = process.bundleID, !id.isEmpty { return id }
-        return process.name
-    }
-
-    private func loadSaved() {
-        let data = UserDefaults.standard.data(forKey: PerAppAudioRules.defaultsKey)
-        saved = Dictionary(PerAppAudioRules.parse(data).map { ($0.storageKey, $0) }, uniquingKeysWith: { a, _ in a })
-    }
-
-    private func persist() {
-        let data = PerAppAudioRules.encode(Array(saved.values))
-        UserDefaults.standard.set(data, forKey: PerAppAudioRules.defaultsKey)
+        failures[pid] = nil
     }
 
     // MARK: HAL discovery (read-only)
@@ -386,13 +378,25 @@ final class PerAppAudioEngine: ObservableObject {
             var runningSize = UInt32(MemoryLayout<UInt32>.size)
             let isRunning = AudioObjectGetPropertyData(id, &runningAddress, 0, nil, &runningSize, &running) == noErr && running != 0
 
-            let name = NSRunningApplication(processIdentifier: pid)?.localizedName
-                ?? bundleID?.split(separator: ".").last.map(String.init)
-                ?? "PID \(pid)"
+            guard let name = Self.appName(pid: pid) else { return nil }
             return AppAudioProcess(id: id, pid: pid, bundleID: bundleID, name: name, isRunningOutput: isRunning)
         }
         .filter { $0.pid != getpid() }
         .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    /// Only processes that live inside an `.app` belong in the card: daemons and audio HAL helpers are
+    /// skipped, so a level can never be offered for something that is not the user's app. Electron
+    /// helpers take their outermost bundle name, so “YouTube Music Helper” still reads as the app.
+    nonisolated private static func appName(pid: pid_t) -> String? {
+        if let name = NSRunningApplication(processIdentifier: pid)?.localizedName { return name }
+        // PROC_PIDPATHINFO_MAXSIZE is 4 * MAXPATHLEN; the C constant is not exported to Swift.
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        let length = proc_pidpath(pid, &buffer, UInt32(buffer.count))
+        guard length > 0 else { return nil }
+        let path = String(cString: buffer)
+        guard let appRange = path.range(of: ".app/") else { return nil }
+        return path[..<appRange.lowerBound].split(separator: "/").last.map(String.init)
     }
 }
 
@@ -406,9 +410,9 @@ private final class MixSession {
     private(set) var ioProc: AudioDeviceIOProcID?
     private var gainPointer: UnsafeMutablePointer<Float>?
 
-    init?(process: AppAudioProcess, gain value: Float) {
+    init(process: AppAudioProcess, gain value: Float) throws {
         pid = process.pid
-        if let bundleID = process.bundleID, !bundleID.isEmpty { key = bundleID } else { key = process.name }
+        key = process.storageKey
         let pointer = UnsafeMutablePointer<Float>.allocate(capacity: 1)
         pointer.pointee = value
         gainPointer = pointer
@@ -422,7 +426,7 @@ private final class MixSession {
         var tapID = AudioObjectID(kAudioObjectUnknown)
         guard AudioHardwareCreateProcessTap(description, &tapID) == noErr, tapID != kAudioObjectUnknown else {
             destroy()
-            return nil
+            throw PerAppAudioFailure.tap
         }
         tap = tapID
 
@@ -430,22 +434,21 @@ private final class MixSession {
         // (multichannel interface, non-interleaved vs interleaved) fails closed: the tap is destroyed
         // before the aggregate exists, so the app's audio is never touched.
         guard let tapFormat = Self.format(of: tapID, selector: kAudioTapPropertyFormat),
-              let outputFormat = Self.outputFormat(),
-              Self.isRenderable(tapFormat, outputFormat) else { destroy(); return nil }
+              let target = Self.outputTarget() else { destroy(); throw PerAppAudioFailure.layout }
+        guard Self.isRenderable(tapFormat, target.format) else { destroy(); throw PerAppAudioFailure.layout }
 
-        guard let outputUID = Self.defaultOutputUID() else { destroy(); return nil }
         let aggregateDescription: [String: Any] = [
             kAudioAggregateDeviceNameKey: "KatiKati Mix",
             kAudioAggregateDeviceUIDKey: UUID().uuidString,
             kAudioAggregateDeviceIsPrivateKey: true,
             kAudioAggregateDeviceTapListKey: [description.uuid.uuidString],
-            kAudioAggregateDeviceSubDeviceListKey: [[kAudioSubDeviceUIDKey: outputUID]],
-            kAudioAggregateDeviceMainSubDeviceKey: outputUID,
+            kAudioAggregateDeviceSubDeviceListKey: [[kAudioSubDeviceUIDKey: target.uid]],
+            kAudioAggregateDeviceMainSubDeviceKey: target.uid,
             kAudioAggregateDeviceIsStackedKey: false,
         ]
         var aggregateID = AudioObjectID(kAudioObjectUnknown)
         guard AudioHardwareCreateAggregateDevice(aggregateDescription as CFDictionary, &aggregateID) == noErr,
-              aggregateID != kAudioObjectUnknown else { destroy(); return nil }
+              aggregateID != kAudioObjectUnknown else { destroy(); throw PerAppAudioFailure.aggregate }
         aggregate = aggregateID
 
         var procID: AudioDeviceIOProcID?
@@ -462,10 +465,15 @@ private final class MixSession {
                 for sample in 0..<(bytes / MemoryLayout<Float>.size) { samples[sample] *= level }
             }
         }
-        guard status == noErr, let procID else { destroy(); return nil }
+        guard status == noErr, let procID else { destroy(); throw PerAppAudioFailure.start }
         ioProc = procID
-        guard AudioDeviceStart(aggregateID, procID) == noErr else { destroy(); return nil }
+        guard AudioDeviceStart(aggregateID, procID) == noErr else { destroy(); throw PerAppAudioFailure.start }
     }
+
+    /// If the engine dies without `stop()` (a skipped `onDisappear`, a replaced hosting view), the
+    /// session must still destroy its tap: the tap holds the app's audio muted, so leaking it would
+    /// keep that app silent for the rest of the process's life.
+    deinit { destroy() }
 
     func setGain(_ value: Float) { gainPointer?.pointee = value }
 
@@ -501,7 +509,14 @@ private final class MixSession {
         return format
     }
 
-    private static func outputFormat() -> AudioStreamBasicDescription? {
+    /// The current default output, read once: the aggregate needs its UID and the format guard needs
+    /// its stream format, so both come from the same device instead of two separate lookups.
+    private struct OutputTarget {
+        let uid: String
+        let format: AudioStreamBasicDescription
+    }
+
+    private static func outputTarget() -> OutputTarget? {
         var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
                                                  mScope: kAudioObjectPropertyScopeGlobal,
                                                  mElement: kAudioObjectPropertyElementMain)
@@ -509,13 +524,22 @@ private final class MixSession {
         var size = UInt32(MemoryLayout<AudioObjectID>.size)
         guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr,
               device != kAudioObjectUnknown else { return nil }
+
+        var uidAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyDeviceUID,
+                                                    mScope: kAudioObjectPropertyScopeGlobal,
+                                                    mElement: kAudioObjectPropertyElementMain)
+        var uid: Unmanaged<CFString>?
+        var uidSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+        guard AudioObjectGetPropertyData(device, &uidAddress, 0, nil, &uidSize, &uid) == noErr, let uid else { return nil }
+
         var stream = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyStreamFormat,
                                                 mScope: kAudioObjectPropertyScopeOutput,
                                                 mElement: kAudioObjectPropertyElementMain)
         var format = AudioStreamBasicDescription()
         var formatSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
         guard AudioObjectGetPropertyData(device, &stream, 0, nil, &formatSize, &format) == noErr else { return nil }
-        return format
+
+        return OutputTarget(uid: uid.takeRetainedValue() as String, format: format)
     }
 
     /// Float32 on both sides, same channel count, same interleaving — the only arrangement the
@@ -530,20 +554,4 @@ private final class MixSession {
         return (tap.mFormatFlags & nonInterleaved) == (output.mFormatFlags & nonInterleaved)
     }
 
-    private static func defaultOutputUID() -> String? {
-        var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
-                                                 mScope: kAudioObjectPropertyScopeGlobal,
-                                                 mElement: kAudioObjectPropertyElementMain)
-        var device = AudioObjectID(kAudioObjectUnknown)
-        var size = UInt32(MemoryLayout<AudioObjectID>.size)
-        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr,
-              device != kAudioObjectUnknown else { return nil }
-        var uidAddress = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyDeviceUID,
-                                                    mScope: kAudioObjectPropertyScopeGlobal,
-                                                    mElement: kAudioObjectPropertyElementMain)
-        var uid: Unmanaged<CFString>?
-        var uidSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
-        guard AudioObjectGetPropertyData(device, &uidAddress, 0, nil, &uidSize, &uid) == noErr, let uid else { return nil }
-        return uid.takeRetainedValue() as String
-    }
 }

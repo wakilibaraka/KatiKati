@@ -134,23 +134,31 @@ struct SystemStatus: Equatable, Sendable {
 /// One app's mix setting. Gains persist by bundle id (falling back to the name for helper processes
 /// with no bundle), so a relaunch restores the level without remembering a pid, which is reused by
 /// whichever process the system starts next.
-struct PerAppAudioMix: Equatable, Codable, Sendable {
+struct PerAppAudioMix: Equatable, Sendable {
     var bundleID: String?
     var name: String
     var gain: Double
     var isMuted: Bool
+}
 
-    var storageKey: String {
-        if let bundleID, !bundleID.isEmpty { return bundleID }
-        return name
-    }
+/// Why a per-app route could not be created. The card shows this instead of a slider that looks active
+/// while nothing is routed.
+enum PerAppAudioFailure: Error, Equatable, Sendable {
+    /// The private process tap was refused (missing System Audio Recording grant, or the HAL said no).
+    case tap
+    /// The private aggregate device could not be built on the current output.
+    case aggregate
+    /// The aggregate was built but its IOProc would not start.
+    case start
+    /// The tap and the output device do not share a Float32 layout this engine can copy.
+    case layout
+
+    var isLayoutMismatch: Bool { self == .layout }
 }
 
 /// Pure rules for the opt-in mixer. The engine owns CoreAudio; everything that can be decided from
 /// numbers lives here so it is unit-tested rather than only listened to.
 enum PerAppAudioRules {
-    static let defaultsKey = "com.katikati.menuBarHub.audioMix.gains"
-
     static func clamped(_ gain: Double) -> Double {
         guard gain.isFinite else { return 1 }
         return min(1, max(0, gain))
@@ -163,34 +171,6 @@ enum PerAppAudioRules {
 
     static func needsRouting(_ mix: PerAppAudioMix) -> Bool {
         mix.isMuted || clamped(mix.gain) < 0.999
-    }
-
-    /// Drops duplicate bundle ids, clamps every gain and refuses nameless rows (a row the user cannot
-    /// recognise is a row they cannot safely set a level for).
-    static func sanitized(_ mixes: [PerAppAudioMix]) -> [PerAppAudioMix] {
-        var seen = Set<String>()
-        var out: [PerAppAudioMix] = []
-        for mix in mixes {
-            let trimmed = mix.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else { continue }
-            let key = mix.storageKey
-            guard seen.insert(key).inserted else { continue }
-            out.append(PerAppAudioMix(bundleID: mix.bundleID, name: trimmed,
-                                      gain: clamped(mix.gain), isMuted: mix.isMuted))
-        }
-        return out
-    }
-
-    static func parse(_ data: Data?) -> [PerAppAudioMix] {
-        guard let data, !data.isEmpty else { return [] }
-        let decoder = JSONDecoder()
-        return sanitized((try? decoder.decode([PerAppAudioMix].self, from: data)) ?? [])
-    }
-
-    static func encode(_ mixes: [PerAppAudioMix]) -> Data? {
-        let clean = sanitized(mixes)
-        guard !clean.isEmpty else { return nil }
-        return try? JSONEncoder().encode(clean)
     }
 
     static func percent(_ gain: Double) -> Int {

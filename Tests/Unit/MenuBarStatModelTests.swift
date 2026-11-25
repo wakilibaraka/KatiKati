@@ -158,6 +158,48 @@ final class HubModuleTests: XCTestCase {
         XCTAssertEqual(HubModule.serialize([]), "")
     }
 
+    func testCalendarGridAlignsWeeksAndMarksToday() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.firstWeekday = 1
+        let month = calendar.date(from: DateComponents(year: 2026, month: 11, day: 1))!
+        let today = calendar.date(from: DateComponents(year: 2026, month: 11, day: 24))!
+        let cells = HubCalendarGrid.cells(for: month, calendar: calendar, today: today)
+        XCTAssertEqual(cells.count, 42)
+        // 1 November 2026 is a Sunday, so the month starts in the first column.
+        XCTAssertEqual(cells[0].day, 1)
+        XCTAssertEqual(cells.firstIndex(where: { $0.isToday }), 23)
+        XCTAssertEqual(cells.filter(\.isToday).count, 1)
+        XCTAssertEqual(cells[29].day, 30)
+        XCTAssertNil(cells[30].day)
+        XCTAssertNil(cells[41].day)
+    }
+
+    func testCalendarWeekdaysFollowFirstWeekday() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.firstWeekday = 2
+        let symbols = HubCalendarGrid.weekdaySymbols(calendar)
+        XCTAssertEqual(symbols.count, 7)
+        XCTAssertEqual(symbols[0], calendar.veryShortWeekdaySymbols[1])
+        XCTAssertEqual(symbols[6], calendar.veryShortWeekdaySymbols[0])
+    }
+
+    func testSwitchRowsThatRepeatAnActionTileAreFlagged() {
+        let slots: [HubActionSlotID] = [.keepAwake, .darkMode, .notchToggle, .captureOCR]
+        XCTAssertTrue(HubSwitchID.system(.keepAwake).isDuplicated(by: slots))
+        XCTAssertTrue(HubSwitchID.system(.darkMode).isDuplicated(by: slots))
+        XCTAssertTrue(HubSwitchID.surface(.notch).isDuplicated(by: slots))
+        XCTAssertFalse(HubSwitchID.system(.hideDesktopIcons).isDuplicated(by: slots))
+        XCTAssertFalse(HubSwitchID.surface(.nowPlaying).isDuplicated(by: slots))
+    }
+
+    func testLayoutWidthsDefaultToHalfAndIgnoreUnknownTokens() {
+        let suite = UserDefaults(suiteName: "hub.layout.\(UUID().uuidString)")!
+        XCTAssertEqual(HubActionLayout.widths(suite), [.half, .half, .half, .half])
+        suite.set("full,bogus,half", forKey: HubActionLayout.widthsKey)
+        XCTAssertEqual(HubActionLayout.widths(suite), [.full, .half, .half, .half])
+        XCTAssertEqual(HubActionLayout.serializeWidths([.full]), "full,half,half,half")
+    }
+
     func testCaretTracksIconCentreAndNeverLeavesThePanel() {
         XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 190, panelWidth: 380), 190)
         XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 0, panelWidth: 380), 33)

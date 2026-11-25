@@ -214,6 +214,8 @@ enum MenuBarStatModel {
 
 enum MenuBarIconMode: String, CaseIterable, Sendable {
     case statusTrio, classic
+    /// Stacked day number over the month abbreviation, like a desk calendar.
+    case date
 
     static let defaultsKey = "com.katikati.menuBar.iconMode"
 
@@ -343,6 +345,40 @@ enum HubActionSlotID: String, CaseIterable, Identifiable, Sendable {
     static func serialize(_ slots: [HubActionSlotID]) -> String { slots.prefix(4).map(\.rawValue).joined(separator: ",") }
 }
 
+enum HubActionWidth: String, Sendable {
+    case half, full
+}
+
+/// Per-position tile widths: the owner sets the shape of each of the four slots, so replacing an
+/// action keeps the half/full rhythm they chose for that spot.
+enum HubActionLayout {
+    static let widthsKey = "com.katikati.menuBarHub.boxWidths"
+    static let defaultWidths: [HubActionWidth] = [.half, .half, .half, .half]
+
+    static func widths(_ defaults: UserDefaults = .standard) -> [HubActionWidth] {
+        let parsed = (defaults.string(forKey: widthsKey) ?? "")
+            .split(separator: ",")
+            .compactMap { HubActionWidth(rawValue: String($0)) }
+        return (0..<4).map { $0 < parsed.count ? parsed[$0] : .half }
+    }
+
+    static func serializeWidths(_ widths: [HubActionWidth]) -> String {
+        (0..<4).map { ($0 < widths.count ? widths[$0] : .half).rawValue }.joined(separator: ",")
+    }
+}
+
+extension HubSwitchID {
+    /// True when this row's control is already one of the four action tiles: page one would show
+    /// the same setting twice, once as a tile and once as a switch.
+    func isDuplicated(by slots: [HubActionSlotID]) -> Bool {
+        switch self {
+        case .system(let toggle): return slots.contains { $0.rawValue == toggle.rawValue }
+        case .surface(.notch): return slots.contains(.notchToggle)
+        default: return false
+        }
+    }
+}
+
 enum MenuBarRightClickConfig {
     static let defaultsKey = "com.katikati.menuBar.rightClickToggles"
     static let defaultTokens = ["keepAwake", "darkMode", "hideDesktopIcons", "muteOutput"]
@@ -408,5 +444,43 @@ enum HubCaretPlan {
         let maximum = panelWidth - minimum
         guard maximum >= minimum else { return panelWidth / 2 }
         return min(max(iconCenter, minimum), maximum)
+    }
+}
+
+/// One cell of the hub's month grid. `day` is nil for the leading/trailing blanks that keep the
+/// weekday columns aligned.
+struct HubCalendarCell: Equatable, Sendable {
+    let day: Int?
+    let isToday: Bool
+}
+
+/// Pure month grid for the Schedules tab: six weeks, weeks starting on the calendar's `firstWeekday`,
+/// one cell marked as today. No dates are stored, so it cannot drift from the user's calendar.
+enum HubCalendarGrid {
+    static let columns = 7
+    static let rows = 6
+
+    static func monthStart(for date: Date, calendar: Calendar) -> Date {
+        calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
+    }
+
+    static func cells(for month: Date, calendar: Calendar = .current, today: Date = Date()) -> [HubCalendarCell] {
+        let start = monthStart(for: month, calendar: calendar)
+        let weekday = calendar.component(.weekday, from: start)
+        let leading = (weekday - calendar.firstWeekday + 7) % 7
+        let count = calendar.range(of: .day, in: .month, for: start)?.count ?? 30
+        return (0..<(columns * rows)).map { index in
+            let day = index - leading + 1
+            guard day >= 1, day <= count else { return HubCalendarCell(day: nil, isToday: false) }
+            let date = calendar.date(byAdding: .day, value: day - 1, to: start) ?? start
+            return HubCalendarCell(day: day, isToday: calendar.isDate(date, inSameDayAs: today))
+        }
+    }
+
+    /// The calendar's own one-letter weekday names, rotated to `firstWeekday`.
+    static func weekdaySymbols(_ calendar: Calendar = .current) -> [String] {
+        let symbols = calendar.veryShortWeekdaySymbols
+        let offset = calendar.firstWeekday - 1
+        return (0..<columns).map { symbols[(offset + $0) % symbols.count] }
     }
 }

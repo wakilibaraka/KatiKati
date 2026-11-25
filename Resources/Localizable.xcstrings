@@ -184915,6 +184915,136 @@
         "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "在创意中心显示今日花费、配置方案和审批暂停。" } },
         "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "在創意中心顯示今日花費、配置方案和審批暫停。" } }
       }
+    },
+    "Output layout not supported" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Ausgabelayout wird nicht unterstützt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Output layout not supported" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Diseño de salida no compatible" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Diseño de salida no compatible" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Disposition de sortie non prise en charge" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Layout di uscita non supportato" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "出力レイアウトに対応していません" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "출력 레이아웃이 지원되지 않습니다" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Layout de saída não suportado" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Disposição de saída não suportada" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "不支持输出布局" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "不支援輸出配置" } }
+      }
+    },
+    "Audio route unavailable — allow System Audio Recording." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Audio-Route nicht verfügbar – Systemaudio-Aufnahme erlauben." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio route unavailable — allow System Audio Recording." } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Ruta de audio no disponible: permite la grabación de audio del sistema." } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Ruta de audio no disponible: permite la grabación de audio del sistema." } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Routage audio indisponible — autorisez l'enregistrement audio du système." } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Routing audio non disponibile: consenti la registrazione audio di sistema." } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "オーディオ経路を利用できません — システムオーディオ録音を許可してください。" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "오디오 경로를 사용할 수 없습니다 — 시스템 오디오 녹음을 허용하세요." } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Rota de áudio indisponível — permita a gravação de áudio do sistema." } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Encaminhamento de áudio indisponível — permita a gravação de áudio do sistema." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "音频路由不可用 — 请允许系统音频录制。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "音訊路由無法使用 — 請允許系統音訊錄製。" } }
+      }
+    },
+    "Half Width" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Halbe Breite" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Half Width" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Ancho medio" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Ancho medio" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Demi-largeur" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Larghezza ridotta" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "半分の幅" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "절반 너비" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Largura média" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Largura média" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "半宽" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "半寬" } }
+      }
+    },
+    "Full Width" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Volle Breite" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full Width" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Ancho completo" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Ancho completo" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Pleine largeur" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Larghezza intera" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "全幅" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "전체 너비" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Largura total" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Largura total" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "全宽" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "全寬" } }
+      }
+    },
+    "Move Left" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Nach links" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move Left" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover a la izquierda" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover a la izquierda" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Déplacer à gauche" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Sposta a sinistra" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "左へ移動" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "왼쪽으로 이동" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover para a esquerda" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover para a esquerda" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "左移" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "左移" } }
+      }
+    },
+    "Move Right" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Nach rechts" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move Right" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover a la derecha" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover a la derecha" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Déplacer à droite" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Sposta a destra" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "右へ移動" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "오른쪽으로 이동" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover para a direita" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Mover para a direita" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "右移" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "右移" } }
+      }
+    },
+    "Replace" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Ersetzen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Replace" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Reemplazar" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Reemplazar" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Remplacer" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Sostituisci" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "置き換える" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "교체" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Substituir" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Substituir" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "替换" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "取代" } }
+      }
+    },
+    "Display & Keyboard" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "needs_review", "value" : "Display & Tastatur" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Display & Keyboard" } },
+        "es" : { "stringUnit" : { "state" : "needs_review", "value" : "Pantalla y teclado" } },
+        "es-419" : { "stringUnit" : { "state" : "needs_review", "value" : "Pantalla y teclado" } },
+        "fr" : { "stringUnit" : { "state" : "needs_review", "value" : "Écran et clavier" } },
+        "it" : { "stringUnit" : { "state" : "needs_review", "value" : "Display e tastiera" } },
+        "ja" : { "stringUnit" : { "state" : "needs_review", "value" : "ディスプレイとキーボード" } },
+        "ko" : { "stringUnit" : { "state" : "needs_review", "value" : "디스플레이 및 키보드" } },
+        "pt-BR" : { "stringUnit" : { "state" : "needs_review", "value" : "Tela e teclado" } },
+        "pt-PT" : { "stringUnit" : { "state" : "needs_review", "value" : "Tela e teclado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "显示器与键盘" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "顯示器與鍵盤" } }
+      }
     }
   },
   "version" : "1.0"

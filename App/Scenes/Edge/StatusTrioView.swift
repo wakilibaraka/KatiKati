@@ -1190,6 +1190,8 @@ struct MenuBarCreativeHubView: View {
     /// Tier B: empty (the default) keeps every opt-in module out of the tree entirely.
     @AppStorage(HubModule.storageKey) private var modulesRaw = ""
     @State private var showUninstaller = false
+    @State private var calendarMonth = Date()
+    @AppStorage(HubActionLayout.widthsKey) private var boxWidthsRaw = "half,half,half,half"
 
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.colorScheme) private var colorScheme
@@ -1206,10 +1208,21 @@ struct MenuBarCreativeHubView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            pointer
+            Color.clear.frame(height: HubCaretPlan.height)
             hubBody
         }
         .frame(width: Self.panelWidth, height: Self.panelHeight + HubCaretPlan.height, alignment: .top)
+        .background {
+            // One plate: the body's backdrop is masked to body + pointer, and one rim strokes the
+            // combined outline, so the joint cannot show a material or rim seam.
+            DockPanelBackdrop(theme: theme, cornerRadius: 0,
+                              usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
+                .mask(HubPlateShape(caretCenter: plateCaretX).fill(Color.black))
+        }
+        .overlay {
+            HubPlateShape(caretCenter: plateCaretX)
+                .stroke(theme.panelRimStyle, lineWidth: theme.panelRimLineWidth)
+        }
         .sheet(isPresented: $showUninstaller) { HubUninstallerSheet() }
         .onAppear {
             engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
@@ -1222,21 +1235,8 @@ struct MenuBarCreativeHubView: View {
         }
     }
 
-    /// The pointer that ties the panel to its menu-bar icon. It only ever adds: the body below keeps
-    /// its exact 380×560 frame, backdrop and rim, so the established design is unchanged.
-    private var pointer: some View {
-        let center = HubCaretPlan.centerX(iconCenter: caretX, panelWidth: Self.panelWidth)
-        return HubCaretPointer(centerX: center)
-            .fill(.ultraThinMaterial)
-            .overlay {
-                HubCaretPointerOutline(centerX: center)
-                    .stroke(theme.panelRimStyle, lineWidth: theme.panelRimLineWidth)
-            }
-            .overlay {
-                HubCaretPointer(centerX: center)
-                    .fill(Color.primary.opacity(colorScheme == .dark ? 0.05 : 0.03))
-            }
-            .frame(width: Self.panelWidth, height: HubCaretPlan.height)
+    private var plateCaretX: CGFloat {
+        HubCaretPlan.centerX(iconCenter: caretX, panelWidth: Self.panelWidth)
     }
 
     private var hubBody: some View {
@@ -1247,11 +1247,6 @@ struct MenuBarCreativeHubView: View {
         }
         .padding(12)
         .frame(width: Self.panelWidth, height: Self.panelHeight, alignment: .top)
-        .background {
-            DockPanelBackdrop(theme: theme, cornerRadius: 20, usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite)
-        }
-        .dockPanelRim(cornerRadius: 20, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth,
-                      usesLiquidGlass: DockGlassPresentation.shouldAttemptTaskbarComposite, highlighted: false)
     }
 
     private var headerBar: some View {
@@ -1285,9 +1280,36 @@ struct MenuBarCreativeHubView: View {
         }
     }
 
+    private var boxWidths: [HubActionWidth] {
+        let parsed = boxWidthsRaw.split(separator: ",").compactMap { HubActionWidth(rawValue: String($0)) }
+        return (0..<4).map { $0 < parsed.count ? parsed[$0] : .half }
+    }
+
+    /// Two half tiles share a row; a full tile takes the whole row. Building rows here (instead of a
+    /// LazyVGrid) is what lets one tile span the panel without a second layout pass.
+    private var boxRows: [[HubActionRowEntry]] {
+        let widths = boxWidths
+        var rows: [[HubActionRowEntry]] = []
+        var index = 0
+        while index < boxSlots.count {
+            var row = [HubActionRowEntry(index: index, slot: boxSlots[index])]
+            if widths[index] == .half, index + 1 < boxSlots.count, widths[index + 1] == .half {
+                row.append(HubActionRowEntry(index: index + 1, slot: boxSlots[index + 1]))
+                index += 1
+            }
+            rows.append(row)
+            index += 1
+        }
+        return rows
+    }
+
     private var actionBoxGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-            ForEach(Array(boxSlots.enumerated()), id: \.offset) { index, slot in boxTile(slot: slot, index: index) }
+        LazyVStack(spacing: 8) {
+            ForEach(Array(boxRows.enumerated()), id: \.offset) { _, row in
+                HStack(spacing: 8) {
+                    ForEach(row) { entry in boxTile(slot: entry.slot, index: entry.index) }
+                }
+            }
         }
     }
 
@@ -1313,12 +1335,25 @@ struct MenuBarCreativeHubView: View {
         .buttonStyle(.plain)
         .animation(reduceMotion ? nil : .spring(response: 0.22, dampingFraction: 0.72), value: on)
         .contextMenu {
-            ForEach(HubActionSlotID.allCases) { candidate in
-                Button {
-                    var next = boxSlots; next[index] = candidate; boxSlots = next
-                    UserDefaults.standard.set(HubActionSlotID.serialize(next), forKey: HubActionSlotID.defaultsKey)
-                } label: { boxTitle(candidate) }
+            Section("Size") {
+                Button { setBoxWidth(index, .half) } label: {
+                    Label("Half Width", systemImage: boxWidths[index] == .half ? "checkmark" : "rectangle.lefthalf.filled")
+                }
+                Button { setBoxWidth(index, .full) } label: {
+                    Label("Full Width", systemImage: boxWidths[index] == .full ? "checkmark" : "rectangle.fill")
+                }
             }
+            Button { moveBox(index, by: -1) } label: { Label("Move Left", systemImage: "arrow.left") }
+                .disabled(index == 0)
+            Button { moveBox(index, by: 1) } label: { Label("Move Right", systemImage: "arrow.right") }
+                .disabled(index == boxSlots.count - 1)
+            Menu {
+                ForEach(HubActionSlotID.allCases) { candidate in
+                    Button { replaceBox(index, with: candidate) } label: { boxTitle(candidate) }
+                }
+            } label: { Text("Replace") }
+            Divider()
+            Button(role: .destructive) { removeBox(index) } label: { Label("Remove", systemImage: "trash") }
         }
     }
 
@@ -1334,9 +1369,9 @@ struct MenuBarCreativeHubView: View {
 
     private var switchesBody: some View {
         let items = HubSwitchCatalog.filter(HubSwitchCatalog.orderedSwitches(), query: query) { switchLabel($0) }
+            .filter { !$0.isDuplicated(by: boxSlots) }
         return ScrollView {
             VStack(spacing: 6) {
-                if modules.contains(.agents) { HubAgentCard() }
                 if let buds = btAudioDevices.first, let level = buds.lowestBattery {
                     airPodsPill(device: buds, battery: level)
                 }
@@ -1391,9 +1426,11 @@ struct MenuBarCreativeHubView: View {
     private func switchRow(_ item: HubSwitchID) -> some View {
         let on = switchState(item)
         return HStack(spacing: 9) {
-            Image(systemName: switchSymbol(item)).font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(on ? palette.primaryAccent : inkSoft).frame(width: 22)
-            Text(verbatim: switchLabel(item)).font(.system(size: 12, weight: .medium)).foregroundStyle(ink).lineLimit(1)
+            Image(systemName: switchSymbol(item)).font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(on ? palette.primaryAccent : ink)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(cardFill))
+            Text(verbatim: switchLabel(item)).font(.system(size: 12, weight: .semibold)).foregroundStyle(ink).lineLimit(1)
             Spacer()
             if case .system(let q) = item, q.isAction {
                 Button { engine.perform(q) } label: {
@@ -1406,8 +1443,9 @@ struct MenuBarCreativeHubView: View {
                     .labelsHidden().toggleStyle(.switch).controlSize(.mini)
             }
         }
-        .padding(.horizontal, 9).padding(.vertical, 6)
-        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+        // Same 28 pt glyph well and 7.5 pt inset as the action tiles, so every row is 43 pt tall.
+        .padding(.horizontal, 9).padding(.vertical, 7.5)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
     }
 
     private var statusAudioBody: some View {
@@ -1444,14 +1482,28 @@ struct MenuBarCreativeHubView: View {
                         }.buttonStyle(.plain)
                     }
                     hubSlider(icon: vol.symbolName, value: Binding(get: { Double(vol.level) }, set: { _ = status.setVolume(Float($0)) }))
-                    if let brightness {
-                        hubSlider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
-                    }
-                    if let keyLight {
-                        hubSlider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
+                    if modules.contains(.audioMixer) {
+                        Divider().overlay(cardStroke)
+                        HubAudioMixerSection()
                     }
                 }
                 .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+                if brightness != nil || keyLight != nil {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "sun.max.fill").font(.system(size: 10.5)).foregroundStyle(palette.primaryAccent)
+                            Text("Display & Keyboard").font(.system(size: 11.5, weight: .semibold)).foregroundStyle(ink)
+                            Spacer()
+                        }
+                        if let brightness {
+                            hubSlider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
+                        }
+                        if let keyLight {
+                            hubSlider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
+                        }
+                    }
+                    .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+                }
                 if !btAudioDevices.isEmpty {
                     VStack(alignment: .leading, spacing: 5) {
                         ForEach(btAudioDevices) { dev in
@@ -1468,7 +1520,7 @@ struct MenuBarCreativeHubView: View {
                     }
                     .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
                 }
-                if modules.contains(.audioMixer) { HubAudioMixerCard() }
+                if modules.contains(.agents) { HubAgentCard() }
             }
         }
     }
@@ -1486,12 +1538,43 @@ struct MenuBarCreativeHubView: View {
         .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
     }
 
+    /// iPadOS-style level: a 34 pt capsule with a large white knob and the glyph sitting in the fill.
+    /// The native slider is kept underneath at near-zero opacity so dragging, keyboard and
+    /// Accessibility (AXSlider) behave exactly as before; only the drawing is bolder.
     private func hubSlider(icon: String, value: Binding<Double>) -> some View {
-        HStack(spacing: 7) {
-            Image(systemName: icon).font(.system(size: 11)).foregroundStyle(inkSoft).frame(width: 16)
-            Slider(value: value, in: 0...1).controlSize(.small).tint(palette.primaryAccent)
-            Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))").font(.system(size: 10)).monospacedDigit()
-                .foregroundStyle(inkSoft).frame(width: 24, alignment: .trailing)
+        let fraction = min(max(value.wrappedValue, 0), 1)
+        return HStack(spacing: 8) {
+            GeometryReader { geo in
+                let height = geo.size.height
+                let knob = height - 8
+                let travel = max(0, geo.size.width - knob - 6)
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.08))
+                    // Neutral, like Control Center: the fill is ink, not an accent gradient.
+                    Capsule().fill(ink.opacity(colorScheme == .dark ? 0.9 : 0.82))
+                        .frame(width: max(height, geo.size.width * fraction))
+                    Image(systemName: icon)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(colorScheme == .dark ? Color.black.opacity(0.72) : Color.white)
+                        .padding(.leading, 12)
+                    Circle().fill(.white)
+                        .frame(width: knob, height: knob)
+                        .shadow(color: .black.opacity(0.22), radius: 3, y: 1)
+                        .offset(x: 3 + travel * fraction)
+                    Slider(value: value, in: 0...1)
+                        .controlSize(.small)
+                        .tint(.clear)
+                        .opacity(0.02)
+                }
+                .contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                    value.wrappedValue = min(max((drag.location.x - 3) / max(travel, 1), 0), 1)
+                })
+            }
+            .frame(height: 34)
+            Text(verbatim: "\(Int((fraction * 100).rounded()))")
+                .font(.system(size: 11, weight: .semibold)).monospacedDigit()
+                .foregroundStyle(inkSoft).frame(width: 28, alignment: .trailing)
         }
     }
 
@@ -1609,9 +1692,70 @@ struct MenuBarCreativeHubView: View {
                 } else {
                     ForEach(scheduler.rules) { rule in scheduleRow(rule) }
                 }
+                calendarCard
             }
         }
         .onAppear { scheduler.reload() }
+    }
+
+    /// A month view under the schedule list. Pure grid from `HubCalendarGrid`; the month names and
+    /// weekday letters come from the user's calendar, so no new copy is needed.
+    private var calendarCard: some View {
+        let calendar = Calendar.current
+        let cells = HubCalendarGrid.cells(for: calendarMonth, calendar: calendar)
+        let symbols = HubCalendarGrid.weekdaySymbols(calendar)
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
+        return VStack(spacing: 6) {
+            HStack(spacing: 8) {
+                Text(verbatim: formatter.string(from: calendarMonth))
+                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(ink)
+                Spacer()
+                monthArrow("chevron.left", delta: -1)
+                monthArrow("chevron.right", delta: 1)
+            }
+            HStack(spacing: 0) {
+                ForEach(Array(symbols.enumerated()), id: \.offset) { _, symbol in
+                    Text(verbatim: symbol).font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(inkSoft).frame(maxWidth: .infinity)
+                }
+            }
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 2), count: HubCalendarGrid.columns), spacing: 2) {
+                ForEach(Array(cells.enumerated()), id: \.offset) { _, cell in
+                    calendarDay(cell)
+                }
+            }
+        }
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
+    }
+
+    private func monthArrow(_ symbol: String, delta: Int) -> some View {
+        Button {
+            guard let next = Calendar.current.date(byAdding: .month, value: delta, to: calendarMonth) else { return }
+            withAnimation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.85)) { calendarMonth = next }
+        } label: {
+            Image(systemName: symbol).font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(inkSoft).frame(width: 22, height: 22)
+                .background(Circle().fill(cardFill))
+        }.buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func calendarDay(_ cell: HubCalendarCell) -> some View {
+        if let day = cell.day {
+            Text(verbatim: "\(day)")
+                .font(.system(size: 11, weight: cell.isToday ? .bold : .medium)).monospacedDigit()
+                .foregroundStyle(cell.isToday ? Color.white : ink)
+                .frame(maxWidth: .infinity, minHeight: 24)
+                .background {
+                    if cell.isToday {
+                        Circle().fill(palette.primaryAccent).frame(width: 24, height: 24)
+                    }
+                }
+        } else {
+            Color.clear.frame(height: 24)
+        }
     }
 
     private var addScheduleForm: some View {
@@ -1674,6 +1818,46 @@ struct MenuBarCreativeHubView: View {
         }
         .padding(.horizontal, 9).padding(.vertical, 6)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+    }
+
+    private func setBoxWidth(_ index: Int, _ width: HubActionWidth) {
+        guard boxWidths.indices.contains(index) else { return }
+        var widths = boxWidths
+        widths[index] = width
+        boxWidthsRaw = HubActionLayout.serializeWidths(widths)
+    }
+
+    private func replaceBox(_ index: Int, with slot: HubActionSlotID) {
+        guard boxSlots.indices.contains(index) else { return }
+        var next = boxSlots
+        next[index] = slot
+        saveBoxes(next)
+    }
+
+    private func moveBox(_ index: Int, by delta: Int) {
+        let target = index + delta
+        guard boxSlots.indices.contains(index), boxSlots.indices.contains(target) else { return }
+        var next = boxSlots
+        next.swapAt(index, target)
+        saveBoxes(next)
+    }
+
+    /// Removing keeps four tiles: the gap is filled from the default order with an action that is
+    /// not already on the grid, so the panel never shrinks to a ragged row.
+    private func removeBox(_ index: Int) {
+        guard boxSlots.indices.contains(index) else { return }
+        var next = boxSlots
+        next.remove(at: index)
+        if let filler = (HubActionSlotID.defaultSlots + HubActionSlotID.allCases).first(where: { !next.contains($0) }) {
+            next.append(filler)
+        }
+        saveBoxes(next)
+    }
+
+    private func saveBoxes(_ slots: [HubActionSlotID]) {
+        let trimmed = Array(slots.prefix(4))
+        boxSlots = trimmed
+        UserDefaults.standard.set(HubActionSlotID.serialize(trimmed), forKey: HubActionSlotID.defaultsKey)
     }
 
     private func saveSchedule() {
@@ -1776,6 +1960,53 @@ struct MenuBarCreativeHubView: View {
 
 // MARK: - MB-9: Agents (opt-in)
 
+/// Title row shared by the opt-in module cards; each card supplies its own trailing accessory.
+struct HubModuleCardHeader<Accessory: View>: View {
+    let symbol: String
+    let title: String
+    let accessory: Accessory
+
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.colorScheme) private var colorScheme
+
+    init(symbol: String, title: String, @ViewBuilder accessory: () -> Accessory) {
+        self.symbol = symbol
+        self.title = title
+        self.accessory = accessory()
+    }
+
+    var body: some View {
+        let theme = DockThemeTokens.resolved(for: colorScheme, style: dockThemeStyle)
+        let palette = SettingsIridescentPalette.resolve(style: dockThemeStyle, colorScheme: colorScheme)
+        return HStack(spacing: 6) {
+            Image(systemName: symbol).font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(palette.primaryAccent)
+            Text(LocalizedStringKey(title)).font(.system(size: 12.5, weight: .semibold))
+                .foregroundStyle(theme.labelActive.color)
+            Spacer(minLength: 0)
+            accessory
+        }
+    }
+}
+
+/// The plate both module cards sit on, so their padding, fill and edge cannot drift apart.
+private struct HubModuleCardChrome: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .padding(9)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05)))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08), lineWidth: 1))
+    }
+}
+
+extension View {
+    func hubModuleCardChrome() -> some View { modifier(HubModuleCardChrome()) }
+}
+
 /// The hub's opt-in agent card: today's spend, the loadout profile, and the approval-hook pause.
 /// Created only while the module is on, so the singleton services below exist on the owner's terms.
 struct HubAgentCard: View {
@@ -1785,21 +2016,12 @@ struct HubAgentCard: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
-    private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
-    private var ink: Color { theme.labelActive.color }
     private var inkSoft: Color { theme.labelSubtitle.color }
-    private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
-    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
-
     private var enabledCount: Int { AgentLoadoutSummary.enabledCount(usage.loadoutItems) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: "sparkles").font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(palette.primaryAccent)
-                Text("Agents").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(ink)
-                Spacer(minLength: 0)
+            HubModuleCardHeader(symbol: "sparkles", title: "Agents") {
                 Text(verbatim: AgentLoadoutSummary.badge(cost: usage.snapshot.todayCost,
                                                          enabled: enabledCount,
                                                          total: usage.loadoutItems.count))
@@ -1826,9 +2048,7 @@ struct HubAgentCard: View {
             }
             .toggleStyle(.switch).controlSize(.mini)
         }
-        .padding(9)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+        .hubModuleCardChrome()
     }
 }
 
@@ -1836,7 +2056,8 @@ struct HubAgentCard: View {
 
 /// Per-app levels. The engine is created with this card and torn down when the tab changes, so the
 /// module is off (and silent) the moment its view is gone.
-struct HubAudioMixerCard: View {
+/// Lives inside the Audio Output card: general output level and per-app levels are one audio story.
+struct HubAudioMixerSection: View {
     @StateObject private var engine = PerAppAudioEngine()
     @Environment(\.dockThemeStyle) private var dockThemeStyle
     @Environment(\.colorScheme) private var colorScheme
@@ -1845,21 +2066,25 @@ struct HubAudioMixerCard: View {
     private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
     private var ink: Color { theme.labelActive.color }
     private var inkSoft: Color { theme.labelSubtitle.color }
-    private var cardFill: Color { Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.05) }
-    private var cardStroke: Color { Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08) }
 
     private var audible: [AppAudioProcess] { engine.processes.filter(\.isRunningOutput) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: "slider.horizontal.3").font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(palette.primaryAccent)
-                Text("Audio Mixer").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(ink)
-                Spacer(minLength: 0)
+            HubModuleCardHeader(symbol: "slider.horizontal.3", title: "Audio Mixer") {
                 Button { engine.refresh() } label: {
                     Image(systemName: "arrow.clockwise").font(.system(size: 10)).foregroundStyle(inkSoft)
                 }.buttonStyle(.plain).help(Text("Refresh"))
+            }
+            if engine.unavailable {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 10))
+                    Text("Audio route unavailable — allow System Audio Recording.")
+                        .font(.system(size: 10.5, weight: .medium))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                }
+                .foregroundStyle(Color.orange)
             }
             if audible.isEmpty {
                 Text("None").font(.system(size: 10.5)).foregroundStyle(inkSoft).padding(.vertical, 3)
@@ -1867,15 +2092,14 @@ struct HubAudioMixerCard: View {
                 ForEach(Array(audible.prefix(6))) { process in row(process) }
             }
         }
-        .padding(9)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(cardStroke, lineWidth: 1))
+        .padding(.top, 2)
         .onAppear { engine.start() }
         .onDisappear { engine.stop() }
     }
 
     private func row(_ process: AppAudioProcess) -> some View {
-        VStack(spacing: 3) {
+        let failure = engine.failure(for: process)
+        return VStack(spacing: 3) {
             HStack(spacing: 6) {
                 Text(verbatim: process.name).font(.system(size: 12)).foregroundStyle(ink).lineLimit(1)
                 if engine.isRouted(process) {
@@ -1897,7 +2121,22 @@ struct HubAudioMixerCard: View {
                     set: { engine.setGain($0, for: process) }
                 ), in: 0...1).controlSize(.mini).tint(palette.primaryAccent)
             }
+            if let failure {
+                HStack(spacing: 4) {
+                    Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 9))
+                    Text(verbatim: failureText(failure)).font(.system(size: 9.5, weight: .medium)).lineLimit(1)
+                    Spacer(minLength: 0)
+                }
+                .foregroundStyle(Color.orange)
+            }
         }
+    }
+
+    /// A rejected output layout is not a level problem, so it says so instead of blaming the volume.
+    private func failureText(_ failure: PerAppAudioFailure) -> String {
+        failure.isLayoutMismatch
+            ? String(localized: "Output layout not supported")
+            : String(localized: "Volume Unavailable")
     }
 }
 
@@ -2001,37 +2240,36 @@ struct HubUninstallerSheet: View {
     }
 }
 
-/// The pointer under the menu-bar icon: a 22 pt base tapering to a rounded 1 pt tip over 10 pt.
-private struct HubCaretPointer: Shape {
-    var centerX: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        let half = HubCaretPlan.halfWidth
-        let cx = min(max(centerX, rect.minX + half), rect.maxX - half)
-        var path = Path()
-        path.move(to: CGPoint(x: cx - half, y: rect.maxY))
-        path.addQuadCurve(to: CGPoint(x: cx, y: rect.minY),
-                          control: CGPoint(x: cx - half * 0.5, y: rect.minY + rect.height * 0.12))
-        path.addQuadCurve(to: CGPoint(x: cx + half, y: rect.maxY),
-                          control: CGPoint(x: cx + half * 0.5, y: rect.minY + rect.height * 0.12))
-        path.closeSubpath()
-        return path
-    }
+private struct HubActionRowEntry: Identifiable {
+    let index: Int
+    let slot: HubActionSlotID
+    var id: Int { index }
 }
 
-/// The pointer's two slanted edges only, so the rim never draws a line across the panel's top.
-private struct HubCaretPointerOutline: Shape {
-    var centerX: CGFloat
+/// Body and pointer as one outline. The panel's backdrop is masked to this path and the rim is
+/// stroked from the same path, so the pointer carries the panel's exact material and tint and the
+/// joint has no seam line of its own.
+private struct HubPlateShape: Shape {
+    var cornerRadius: CGFloat = 20
+    var caretCenter: CGFloat
 
     func path(in rect: CGRect) -> Path {
+        let caretHeight = HubCaretPlan.height
+        let bodyRect = CGRect(x: rect.minX, y: rect.minY + caretHeight,
+                              width: rect.width, height: rect.height - caretHeight)
+        let body = CGPath(roundedRect: bodyRect, cornerWidth: cornerRadius,
+                          cornerHeight: cornerRadius, transform: nil)
         let half = HubCaretPlan.halfWidth
-        let cx = min(max(centerX, rect.minX + half), rect.maxX - half)
-        var path = Path()
-        path.move(to: CGPoint(x: cx - half, y: rect.maxY))
-        path.addQuadCurve(to: CGPoint(x: cx, y: rect.minY),
-                          control: CGPoint(x: cx - half * 0.5, y: rect.minY + rect.height * 0.12))
-        path.addQuadCurve(to: CGPoint(x: cx + half, y: rect.maxY),
-                          control: CGPoint(x: cx + half * 0.5, y: rect.minY + rect.height * 0.12))
-        return path
+        let cx = min(max(caretCenter, bodyRect.minX + cornerRadius + half),
+                     bodyRect.maxX - cornerRadius - half)
+        let base = bodyRect.minY + 0.5
+        let caret = CGMutablePath()
+        caret.move(to: CGPoint(x: cx - half, y: base))
+        caret.addQuadCurve(to: CGPoint(x: cx, y: rect.minY),
+                           control: CGPoint(x: cx - half * 0.5, y: rect.minY + caretHeight * 0.12))
+        caret.addQuadCurve(to: CGPoint(x: cx + half, y: base),
+                           control: CGPoint(x: cx + half * 0.5, y: rect.minY + caretHeight * 0.12))
+        caret.closeSubpath()
+        return Path(body.union(caret))
     }
 }
