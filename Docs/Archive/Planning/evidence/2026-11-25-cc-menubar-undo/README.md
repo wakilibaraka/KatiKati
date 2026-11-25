@@ -45,8 +45,21 @@ can *see and undo* the change from the repurposed panel. This pass adds:
 - The Creative Hub exclusivity was verified in the previous pass and is unchanged here (the host
   still picks one surface by the same key); this pass did not re-open the Hub.
 
+## Rebased onto the SideDeck replatform
+
+While this pass ran, `origin/main` moved 25 commits (the SideDeck branch). The two authored commits
+were rebased onto `e28d0b29`; the auto-generated graphify rebase commits were dropped and the hook
+rebuilt them. On the rebased tree the dropdown (`12`) and the deck footer plus its undo (`13`) were
+re-checked on screen with the same result: `Wi-Fi` in the 360×792 dropdown, the `Use Edge Instead`
+footer in the deck, `surface=edge` after clicking it.
+
+The merge left three assertions behind (`.drives` retired from the dock, two new rail tabs), so the
+suite was red on the merged base before this pass's code: `BarLayoutModeTests` counted the retired
+case, `WidgetCatalogTests` did the same, and `SideDeckLogicTests` listed the pre-dictionary rail.
+Those three test literals were caught up in their own commit; the app code was not touched.
+
 ## Checks
 
-- `build_and_run.sh`: exit 0.
-- Full suite: 3845 tests, 2 skipped, 0 failures.
-- Localization and debug-switch gates green (94 switches).
+- `build_and_run.sh`: exit 0, before and after the rebase.
+- Full suite on the rebased tree: 3914 tests, 2 skipped, 0 failures.
+- Localization and debug-switch gates green; input hygiene green.
