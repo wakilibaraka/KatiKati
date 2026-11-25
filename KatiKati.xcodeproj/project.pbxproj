@@ -534,7 +534,6 @@
 		FB0000000000000000000050 /* ClaudeApprovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000051 /* ClaudeApprovalService.swift */; };
 		FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
 		FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000D1 /* NotchAIPageView.swift */; };
-		FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000F1 /* NotchStoragePageView.swift */; };
 		5D000000000000000000A011 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
 		5D000000000000000000A012 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
 		5D000000000000000000A021 /* StorageScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A020 /* StorageScanService.swift */; };
@@ -1856,7 +1855,6 @@
 		FA33B0000000000000000031 /* ClaudeHookInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookInstaller.swift; path = App/Composition/ClaudeHookInstaller.swift; sourceTree = SOURCE_ROOT; };
 		FB0000000000000000000051 /* ClaudeApprovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeApprovalService.swift; path = App/Composition/ClaudeApprovalService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
-		FA33A00000000000000000F1 /* NotchStoragePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchStoragePageView.swift; path = App/Scenes/Notch/NotchStoragePageView.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A010 /* StorageScanMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMath.swift; path = Core/Support/StorageScanMath.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A070 /* NotchEdgeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyle.swift; path = Core/Support/NotchEdgeStyle.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A080 /* NotchEdgeStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyleTests.swift; path = Tests/Unit/NotchEdgeStyleTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3972,7 +3970,6 @@
 				FB0000000000000000000040 /* AgentApproval.swift in Sources */,
 				FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */,
 				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
-				FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */,
 				5D000000000000000000A011 /* StorageScanMath.swift in Sources */,
 				5D000000000000000000A021 /* StorageScanService.swift in Sources */,
 				5D000000000000000000A051 /* NotchDockChips.swift in Sources */,
