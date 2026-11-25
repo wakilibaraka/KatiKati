@@ -1,6 +1,6 @@
 # Control Centre → Quick Settings Hub (`CC-1` → `CC-5`)
 
-> **Status:** Complete (`2026-11-25`) · `CC-1` → `CC-4` landed (`9dfa2298`, `457e3648`, `cf516427`, `9082b956`, `a7c8b8d4`); `CC-3b` drawn Bluetooth rune done; `CC-5` verified — localization/debug/input gates green, 3921-test suite green, signed Release 0.18.0 (54) installed fresh. Idle CPU was not re-measured during the final pass because the desktop was in active use.
+> **Status:** Complete (`2026-11-25`) · `CC-1` → `CC-4` landed (`9dfa2298`, `457e3648`, `cf516427`, `9082b956`, `a7c8b8d4`); `CC-3b` drawn Bluetooth rune done; `CC-5` verified — localization/debug/input gates green, 3922-test suite green, signed Release 0.18.0 (54) installed fresh. `CC-6` (the home choice: edge deck **or** menu-bar dropdown, with the one-time Background Apps notice) landed as `174eebde` on top of the menu-bar hosting work. Verified against the installed Release: **1.85 %** of one core and **358.2 MB** deep idle, one screenshot per preset, prefs restored — see §7 and `Docs/Archive/Planning/evidence/2026-11-25-cc-presets/`.
 > **Guardrails:** `<= 300` LOC per commit · `0` `project.pbxproj` edits · `0` edits to the 5 frozen files
 > (`WindowLiftAvoidanceController`, `AppTracker`, `DragController`, `AccessibilitySource`,
 > `FullscreenIntentMonitor`) · `0.0 %` idle CPU · pure Core + tests before UI, every slice.
@@ -12,7 +12,8 @@
 | Panel shell, edge placement, Esc/outside-click, animation | `App/Entry/EdgeFlyoutController.swift` → `ControlCenterPanelController` (`show`, `panelFrame`, `railInset`, `bottomReserve`) | Do **not** build a second panel manager. Extend this controller with layout/preset hooks. |
 | Panel content | `App/Scenes/Edge/StatusTrioView.swift` → `ControlCenterView` (~lines 140–1000) | All new rendering goes here (same file — keeps `project.pbxproj` untouched). |
 | Menu Bar surface | `MenuBarCreativeHubView` (same file, MB-6a→6c) + `MenuBarHubPanelController` (`App/Composition/MenuBarSystemItem.swift:510`) | The hub already exists: left-click status item → 344×472 hub with `Switches` / `Status & Audio` tabs. Tandem work, not a rebuild. |
-| Mutual exclusion | `App/Entry/AppDelegate.swift:106-114` (hub hides CC) and `:184-191` (CC hides hub) | Already correct. Keep it; only add the shared vocabulary. |
+| Home of Control Centre | `ControlCenterSurfaceMode` (`com.katikati.controlcenter.surface`, `edge`/`menuBar`), `ControlCenterMenuBarSurface`, `ControlCenterHosting`, `ControlCenterEdgeRole` in `Core/Support/ControlCenterLayout.swift` | One stored choice decides **one** surface: the status item hosts either the Hub or Control Centre, and the edge deck hosts either Control Centre or Background Apps. `ControlCenterHosting.isExclusive` is the tested invariant. |
+| Mutual exclusion | `App/Entry/AppDelegate.swift:106-114` (hub hides CC) and `:184-191` (CC hides hub), plus `.controlCenterSurfaceDidChange` closing whichever panel was open | Already correct. Keep it; only add the shared vocabulary. |
 | Sizes / anchor / skin / animation | `Core/Support/ControlCenterLayout.swift` — `ControlCenterSize` (300/360/440), `ControlCenterAnchor`, `ControlCenterStyle` (`classic`/`ipad`), `ControlCenterAnimation`, `ControlCenterGrid` (4→5 columns) | Presets extend this file; do not replace these keys. |
 | Toggles | `Core/Support/QuickToggles.swift` — `QuickToggleID` (20 cases), `HubSwitchID`/`HubSwitchCatalog` (order + hide + search, already shared with the hub) | Reuse `HubSwitchCatalog` as the CC tile catalogue so both surfaces show one vocabulary. |
 | Widget tiles | `TileKind.controlCenterDefault = [.network, .battery, .batteries]` (`Core/Support/CalendarPanelModels.swift:276`) | Battery/peripherals/network are already opt-in widgets — the dedupe model plugs in here. |
@@ -62,10 +63,13 @@
 6. **Glass = finish, not theme.** `ControlCenterGlassStyle` `.clear` / `.semi` / `.tinted` maps to
    (plate material, card fill alpha, tint mix) values layered on the dock theme's own colours; macOS 26
    `#available` glass path stays behind its existing gate.
-7. **Menu Bar tandem, not duplication.** Left-click stays the hub; Control Centre stays the edge deck. Both
-   read `QuickToggleEngine.shared` and `SystemStatusService`; the hub's `Switches` tab and the CC catalogue
-   share `HubSwitchCatalog`; a new `Open Control Center` entry joins the right-click config's allowed tokens;
-   `HubActionSlotID` gains `.controlCenter` so a hub box can open the deck.
+7. **Menu Bar tandem, not duplication — and the user picks the home.** Default (`edge`): Control Centre is
+   the standalone deck and left-click on the status item is the Creative Hub — today's behaviour, unchanged.
+   Choosing `menuBar` hands the panel to the status item and gives the deck a different job: the existing
+   `BackgroundActivityDeckView`, so the two surfaces never show the same grid and never stack. Whichever home
+   is chosen, both panels read one engine and one vocabulary: `QuickToggleEngine.shared`, `SystemStatusService`,
+   `HubSwitchCatalog`; a new `Open Control Center` entry joins the right-click config's allowed tokens and
+   `HubActionSlotID` gains `.controlCenter` so a hub box can still reach the panel.
 8. **Zero new files** (hence zero `project.pbxproj` edits): models → `Core/Support/ControlCenterLayout.swift`,
    UI → `App/Scenes/Edge/StatusTrioView.swift`, settings → `SettingsLayoutPane+ControlCenter.swift`,
    stage → `SettingsStagePanels.swift`, tests → `Tests/Unit/ControlCenterScrollTests.swift`.
@@ -123,6 +127,29 @@
   signing report, `bench_katikati.sh --idle-only`, fresh-install livecheck with prefs restore.
 - Docs: `CHANGELOG.md`, `HYBRID_PLAN.md` CC section, `LANES.md` claim (lane B owns `ControlCenter*`).
 
+### `CC-6` — Home: standalone deck or menu-bar dropdown (landed, `174eebde`)
+
+Requested after `CC-5`: Control Centre may live as the **menu-bar dropdown**, and the standalone panel then
+gets a different job instead of duplicating it.
+
+- **One stored choice, one resolved host.** `ControlCenterSurfaceMode` (`edge` | `menuBar`, key
+  `com.katikati.controlcenter.surface`, default `edge`) is read by `MenuBarSystemItem` (via
+  `ControlCenterHosting.resolve`) and by `EdgeFlyoutController`; no panel builds its own decision.
+  `ControlCenterHosting` exposes `menuBarShowsControlCentre`, `standaloneShowsBackgroundActivity` and
+  `isExclusive` (`menuBarShowsControlCentre != standaloneShowsControlCentre`), pinned by
+  `testHostResolvesExactlyOneSurfacePerMode` for every case, so the Hub and the dropdown can never stack.
+- **The panel becomes Background Apps, and says so once.** `ControlCenterEdgeRole.implied(by:hasBeenTold:)`
+  returns `needsPrompt` only when the deck takes the `backgroundActivity` role and the owner has not been
+  told (`com.katikati.controlcenter.menuBarRolePromptSeen`). Settings › Control Center › **Home** shows the
+  notice as a segmented `Edge` / `Menu Bar` row; switching raises one alert — “Control Centre is now in the
+  Menu Bar” with “The edge Control Panel now shows Background Apps.” — offering **Keep in Menu Bar** (default)
+  and **Use Edge Instead** (Escape). Both dismiss; the second writes `edge` back, so the choice is never a trap
+  and never nags twice. The deck resolves to the existing `BackgroundActivityDeckView` — no new tracker.
+- **No third “paused Hub” explanation gap.** Settings › Control Center, the Hub’s own Left-Click card and the
+  right-click menu each say the Creative Hub is paused while Control Centre is in the menu bar.
+- **Tests:** mode parsing/default, persistence round-trip, the exclusivity matrix, and the prompt truth table
+  (`hasBeenTold` false→prompt, true→silent, `edge`→never). Localization carries both new strings ×12.
+
 ## 4. Assumptions (stated, not asked)
 - `classic` preset = today's exact panel; existing users see no change until they pick a preset.
 - Battery single-source defaults to the header pill (it is already the always-visible reading).
@@ -131,6 +158,34 @@
   do that).
 - Presets may pin a minimum Size: `modular`/`bento` need ≥ 400 pt, so on `small` the packer falls back to
   one column and the Settings row notes it rather than silently switching Size.
+- The home choice is the only thing that moves Control Centre, and the default keeps today's arrangement;
+  Background Apps is the deck's replacement job because it already exists as a full view.
+
+## 7. Verification record (closed) and what is still owed
+
+Closed in this pass, on the installed Release 0.18.0 (54), evidence in
+`Docs/Archive/Planning/evidence/2026-11-25-cc-presets/`:
+
+- **Idle CPU/RSS** — `Scripts/bench_katikati.sh --idle-only`: **1.85 %** of one core for KatiKati and
+  **2.16 %** for its process group, **358.2 MB** resident (442.8 MB group) after a 120 s settle and a
+  60 s sample. Two honest caveats: the sample needs one static window open because a not-yet-trusted fresh
+  install enables AppKit automatic termination, and 0.32 % / 82.5 MB of the group is the existing
+  `NowPlayingService` `swift-frontend` helper, not the panel. `powermetrics` rows are `n/a` (no passwordless
+  sudo on this Mac).
+- **Presets** — `classic`, `modular` and `bento` captured from the shipped panel, from the menu-bar home,
+  plus 1:1 crops of the title, footer and note ink. Switching preset and reopening the panel applies
+  without relaunch; single-battery keeps the header pill and shows no `This Mac` row.
+- **Readability** — footer tiles, `Manage accounts` and `No connected devices report a battery` are all
+  legible at 1:1; no ink change was needed.
+- **Profile** — the pre-existing `com.katikati.app.plist` was backed up to
+  `/tmp/katikati-prefs-cc-20261125/` before any run and imported back afterwards; the app was then left on
+  a wiped profile for onboarding.
+
+Still owed (not blockers, just not done here):
+
+- The edge-hosted panel at each preset (only the menu-bar home was captured), Reduced Motion and VoiceOver
+  order, and a pointer pass over drag-to-reorder inside the panel.
+- Longer `powermetrics` wakeup figures once a passwordless sudo path exists on the bench machine.
 
 ## 5. Risks
 - `StatusTrioView.swift` is already 1,515 lines and holds the hub too; adding four tile sizes risks a file
