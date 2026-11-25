@@ -1434,11 +1434,29 @@ struct SideDeckNotificationsView: View {
         }
     }
 
+    /// SD-7: grouped by app, newest group first, each group carrying its own unread count. Selection follows
+    /// the entry's id, because a grouped list no longer has one flat row number per entry.
     private var rows: some View {
         ScrollView {
-            LazyVStack(spacing: 6) {
-                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                    card(entry, selected: controller.notificationSelection.index == index)
+            LazyVStack(alignment: .leading, spacing: 10) {
+                ForEach(NotificationDigest.groups(entries)) { group in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text(verbatim: NotificationDigest.label(for: group.bundleID))
+                                .font(.system(size: 10, weight: .heavy, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                            if group.unreadCount > 0 {
+                                Text(verbatim: "\(group.unreadCount)")
+                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .padding(.horizontal, 5).padding(.vertical, 1)
+                                    .background(Capsule().fill(Color.accentColor.opacity(0.22)))
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        ForEach(group.entries) { entry in
+                            card(entry, selected: controller.selectedNotification?.id == entry.id)
+                        }
+                    }
                 }
             }
             .padding(.bottom, 4)

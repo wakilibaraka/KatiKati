@@ -177,7 +177,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .downloads, .dictionary, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -185,7 +185,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .downloads, .dictionary, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -193,7 +193,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .downloads, .dictionary, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -589,6 +589,7 @@ private struct WindowDrawerView: View {
         case .notifications: SideDeckNotificationsView(controller: controller)
         case .downloads: SideDeckDownloadsPane(feed: LiveActivityFeed.shared)
         case .dictionary: SideDeckDictionaryPane(query: $controller.query)
+        case .dashboard: SideDeckDashboardView { controller.select($0) }
         case .storage: SideDeckStorageView()
         case .weather: SideDeckWeatherView()
         case .aiMissionControl: SideDeckAIMissionControlView()
@@ -651,6 +652,8 @@ private struct WindowDrawerView: View {
                                selected: controller.tab == .downloads) { controller.select(.downloads) }
             SideDeckRailButton(symbol: SideDeckTab.dictionary.symbol, title: Text("Dictionary"),
                                selected: controller.tab == .dictionary) { controller.select(.dictionary) }
+            SideDeckRailButton(symbol: SideDeckTab.dashboard.symbol, title: Text(verbatim: "Dashboard"),
+                               selected: controller.tab == .dashboard) { controller.select(.dashboard) }
             SideDeckRailButton(symbol: SideDeckTab.storage.symbol, title: Text("Storage"),
                                selected: controller.tab == .storage) { controller.select(.storage) }
             SideDeckRailButton(symbol: SideDeckTab.weather.symbol, title: Text("Weather"),

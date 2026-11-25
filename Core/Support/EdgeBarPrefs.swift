@@ -393,6 +393,8 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case scratchpad
     /// OW-5b: the opt-in FX / Gold / Crypto ticker.
     case markets
+    /// SD-7: the bento dashboard — downloads, disk, notification digest, today.
+    case dashboard
 
     var id: String { rawValue }
 
@@ -412,6 +414,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .tendedero: return String(localized: "Clothesline")
         case .scratchpad: return String(localized: "Scratchpad")
         case .markets: return String(localized: "Markets")
+        case .dashboard: return "Dashboard"
         }
     }
 
@@ -431,6 +434,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .tendedero: return "paperclip"
         case .scratchpad: return "square.and.pencil"
         case .markets: return "chart.line.uptrend.xyaxis"
+        case .dashboard: return "square.grid.2x2.fill"
         }
     }
 
@@ -456,6 +460,7 @@ enum SideDeckSearch {
         case .tendedero: return String(localized: "Search shelf")
         case .scratchpad: return String(localized: "Scratchpad")
         case .markets: return String(localized: "Search markets")
+        case .dashboard: return "Dashboard"
         }
     }
 }
