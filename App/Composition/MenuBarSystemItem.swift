@@ -592,7 +592,7 @@ final class MenuBarHubPanelController {
         // The status item hosts whichever surface the owner chose: the Creative Hub, or the Control
         // Centre when they moved it to the menu bar (the two stay mutually exclusive).
         let surfaceMode = ControlCenterSurfaceMode.parse(UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey))
-        let size = surfaceMode == .menuBar
+        let size = surfaceMode.hostsControlCentreInMenuBar
             ? CGSize(width: ControlCenterSize.parse(UserDefaults.standard.string(forKey: ControlCenterSize.storageKey)).width, height: 792)
             : CGSize(width: MenuBarCreativeHubView.panelWidth,
                      height: MenuBarCreativeHubView.panelHeight + HubCaretPlan.height)
@@ -604,7 +604,7 @@ final class MenuBarHubPanelController {
 
         let p = panel ?? makePanel()
         panel = p
-        let root: AnyView = surfaceMode == .menuBar
+        let root: AnyView = surfaceMode.hostsControlCentreInMenuBar
             ? AnyView(ControlCenterView(
                 engine: .shared,
                 order: QuickToggleID.defaultOrder,

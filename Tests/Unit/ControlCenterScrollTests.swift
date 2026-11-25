@@ -164,6 +164,48 @@ final class ControlCenterLayoutTests: XCTestCase {
         XCTAssertEqual(ControlCenterSurfaceMode.parse("bogus"), .edge)
     }
 
+    /// The choice is a stored preference, not a session flag: it survives a re-read, names the host
+    /// for both surfaces, and only the first move to the menu bar explains the change.
+    func testSurfaceChoicePersistsAndDrivesBothHosts() {
+        let defaults = TestDefaults.make("ControlCenterSurface", for: self)
+        let key = ControlCenterSurfaceMode.storageKey
+        XCTAssertEqual(key, "com.katikati.controlcenter.surface")
+        XCTAssertEqual(ControlCenterEdgeRole.promptSeenKey,
+                       "com.katikati.controlcenter.menuBarRolePromptSeen")
+
+        // Nothing stored yet: standalone, exactly today's behaviour.
+        let unset = ControlCenterSurfaceMode.parse(defaults.string(forKey: key))
+        XCTAssertEqual(unset, .edge)
+        XCTAssertFalse(unset.hostsControlCentreInMenuBar)
+        XCTAssertEqual(unset.edgeDeckRole, .controlCenter)
+
+        defaults.set(ControlCenterSurfaceMode.menuBar.rawValue, forKey: key)
+        let chosen = ControlCenterSurfaceMode.parse(defaults.string(forKey: key))
+        XCTAssertEqual(chosen, .menuBar)
+        XCTAssertTrue(chosen.hostsControlCentreInMenuBar)
+        XCTAssertEqual(chosen.edgeDeckRole, .backgroundActivity)
+
+        let first = ControlCenterEdgeRole.implied(
+            by: chosen,
+            hasBeenTold: defaults.bool(forKey: ControlCenterEdgeRole.promptSeenKey))
+        XCTAssertEqual(first.role, .backgroundActivity)
+        XCTAssertTrue(first.needsPrompt)
+
+        defaults.set(true, forKey: ControlCenterEdgeRole.promptSeenKey)
+        let second = ControlCenterEdgeRole.implied(
+            by: chosen,
+            hasBeenTold: defaults.bool(forKey: ControlCenterEdgeRole.promptSeenKey))
+        XCTAssertEqual(second.role, .backgroundActivity)
+        XCTAssertFalse(second.needsPrompt, "the prompt is a one-time explanation")
+
+        defaults.set(ControlCenterSurfaceMode.edge.rawValue, forKey: key)
+        let restored = ControlCenterSurfaceMode.parse(defaults.string(forKey: key))
+        XCTAssertEqual(restored, .edge)
+        XCTAssertFalse(restored.hostsControlCentreInMenuBar)
+        XCTAssertEqual(restored.edgeDeckRole, .controlCenter)
+        XCTAssertFalse(ControlCenterEdgeRole.implied(by: restored, hasBeenTold: true).needsPrompt)
+    }
+
     func testGlassParsesKnownValuesAndFallsBack() {
         XCTAssertEqual(ControlCenterGlassStyle.parse(nil), .semi)
         XCTAssertEqual(ControlCenterGlassStyle.parse("nonsense"), .semi)
