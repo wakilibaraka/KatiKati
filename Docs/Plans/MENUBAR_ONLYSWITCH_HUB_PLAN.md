@@ -1,11 +1,11 @@
 # Menu Bar Creative Hub (`Status Trio` + `Hop` 4-Box Grid + `OnlySwitch`)
 
-> **Status:** Approved (`2026-11-24`) · Tier A (`MB-1` → `MB-8`), Tier B opt-in (`MB-9` → `MB-11`)  
+> **Status:** Approved (`2026-11-24`) · Tier A (`MB-1` → `MB-8`), Tier B opt-in (`MB-9` → `MB-11`); refined `2026-11-25` (readability finishes, page-local actions, Keep Awake timer, storage)  
 > **Guardrails:** `<= 300` LOC per commit · `0` `project.pbxproj` edits · `0` edits to the 5 frozen files · `0.0%` idle CPU
 
 ## Locked Architecture Decisions
 1. **Primary Status Item (`Status Trio` Ring):** Default icon (`MenuBarIconMode.statusTrio`, `Regular` stroke) with 1-click `Classic KatiKati Icon` fallback, `Light`/`Regular`/`Bold` strokes, adaptive monochrome template by default, plus `Settings › Menu Bar` toggles for `Semantic Alerts` and `Compact % Readout`.
-2. **Left-Click Creative Hub (`Hop` 2×2 Grid + `OnlySwitch` Tabs):** Borderless `KeyableFlyoutPanel` + `DockGlassBackdrop` hosting a customizable 2×2 tactile action grid (defaults: `Keep Awake`, `Dark Mode`, `Capture/OCR`, `Dynamic Notch`; **zero color picker**) and 4 hideable tabs (`Switches`, `Status & Audio`, `Shortcuts & Evolutions`, `Schedules`).
+2. **Left-Click Creative Hub (`Hop` 2×2 Grid + `OnlySwitch` Tabs):** Borderless `KeyableFlyoutPanel` + `DockGlassBackdrop` hosting a customizable 2×2 tactile action grid (defaults: `Keep Awake`, `Dark Mode`, `Capture/OCR`, `Dynamic Notch`) and 4 hideable tabs (`Switches`, `Status & Audio`, `Shortcuts & Evolutions`, `Schedules`). The grid now lives on the Switches page only, so it no longer repeats above every tab; page two owns storage, and each page carries its own search field. A header menu picks the hub finish (`Glass`, `Tinted`, `Solid`, `High Contrast`), each with a scrim and secondary-ink floor for menu-bar readability.
 3. **Customizable Right-Click Simple Menu:** Menu bar right-click (`menuBarContextMenu`) opens a clean, customizable toggle list + `Open Creative Hub`, `KatiKati Settings…`, `About KatiKati`, `Quit KatiKati`. **Taskbar/Dock right-click (`popUpFromTaskbar`) remains untouched.**
 4. **Test Target Hygiene:** Keep `StatusMenuController.swift` free of `Platform/` imports via closure injection.
 
