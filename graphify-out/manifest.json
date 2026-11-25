@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1795584554.153475,
-    "seen": 1795584799.8421388,
-    "ast_hash": "6f68a8eadc88d26ec36281ed3cf29521",
+    "mtime": 1795596701.6395276,
+    "seen": 1795596702.143175,
+    "ast_hash": "1ad018851dd4434c454b970d869cfc4b",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -1656,9 +1656,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1795595765.5920885,
-    "seen": 1795595814.084515,
-    "ast_hash": "e520ec4c409a32302ce86fc5d0854d0b",
+    "mtime": 1795595828.872106,
+    "seen": 1795596702.143389,
+    "ast_hash": "19f898817f303e1a97f6789a5d0fd205",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
