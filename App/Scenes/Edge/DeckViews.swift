@@ -887,12 +887,15 @@ struct SideDeckStorageView: View {
     @ObservedObject private var cleaner = CleanerService.shared
     /// SD-3b: the notch Storage page's "Scan App Leftovers" result, kept alive here now that the page is gone.
     @State private var leftoverCandidates: [CleanupCandidate] = []
+    /// SD-3d: the developer-cache catalogue as measured on this machine, cheapest-to-reclaim totals included.
+    @State private var devCaches: [DevCacheReading] = []
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
                 capacity
                 categoryBreakdown
+                devCacheSection
                 HStack(alignment: .top, spacing: 8) {
                     itemColumn(title: "Large Files", items: scanner.files)
                     itemColumn(title: String(localized: "Developer & Cache"), items: scanner.dev)
@@ -901,7 +904,10 @@ struct SideDeckStorageView: View {
             }
             .padding(12)
         }
-        .onAppear { scanner.scan() }
+        .onAppear {
+            scanner.scan()
+            measureDevCaches()
+        }
         .onDisappear { scanner.cancel() }
     }
 
@@ -909,6 +915,9 @@ struct SideDeckStorageView: View {
         let disk = SystemMonitorSampler.disk()
         let used = Double(disk.total > disk.free ? disk.total - disk.free : 0)
         let fraction = disk.total == 0 ? 0 : used / Double(disk.total)
+        let reclaimable = DevCacheCatalog.reclaimableBytes(devCaches)
+        let reclaimableFraction = disk.total == 0 ? 0
+            : min(fraction, Double(reclaimable) / Double(disk.total))
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Storage").font(.system(size: 13, weight: .semibold))
@@ -921,12 +930,123 @@ struct SideDeckStorageView: View {
                     Capsule().fill(Color.primary.opacity(0.10))
                     Capsule().fill(Color.accentColor)
                         .frame(width: max(4, geo.size.width * fraction))
+                    // SD-3d: the slice of that bar this card can reclaim in one click, so the gauge answers
+                    // "how much can I get back" and not just "how full am I".
+                    if reclaimableFraction > 0 {
+                        Capsule().fill(Color.orange)
+                            .frame(width: max(2, geo.size.width * reclaimableFraction))
+                    }
                 }
             }
             .frame(height: 8)
+            HStack(spacing: 4) {
+                Image(systemName: "hammer").font(.system(size: 8)).foregroundStyle(.orange)
+                Text(verbatim: ByteCountFormatter.string(fromByteCount: reclaimable, countStyle: .file))
+                    .font(.system(size: 9)).foregroundStyle(.secondary).monospacedDigit()
+                Text("Developer").font(.system(size: 9)).foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            }
         }
         .padding(10)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    /// SD-3d: the ClearDisk-style catalogue. Each row is one known cache root with what it weighs and how
+    /// risky it is to reclaim; the levels are the already-localized Low / Medium / High, and only Low and
+    /// Medium are swept by the one-click reclaim, so an archive or a container image always needs its own
+    /// confirmation.
+    private var devCacheSection: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 6) {
+                Text("Developer").font(.system(size: 11, weight: .semibold))
+                Spacer(minLength: 4)
+                if !devCaches.isEmpty {
+                    Button("Move to Trash") { reclaimDevCaches() }
+                        .buttonStyle(.borderless)
+                        .font(.system(size: 9))
+                }
+            }
+            if devCaches.isEmpty {
+                Text("Nothing Large Found").font(.system(size: 9)).foregroundStyle(.secondary)
+            }
+            ForEach(DevCacheCatalog.ordered(devCaches)) { reading in
+                HStack(spacing: 5) {
+                    Image(systemName: reading.target.symbol)
+                        .font(.system(size: 9)).foregroundStyle(.secondary).frame(width: 12)
+                    Text(verbatim: reading.target.title).lineLimit(1)
+                    Text(verbatim: reading.target.risk.localizedTitle)
+                        .font(.system(size: 8, weight: .semibold))
+                        .padding(.horizontal, 4).padding(.vertical, 1)
+                        .background(Capsule().fill(riskTint(reading.target.risk).opacity(0.18)))
+                        .foregroundStyle(riskTint(reading.target.risk))
+                    Spacer(minLength: 4)
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: reading.bytes, countStyle: .file))
+                        .foregroundStyle(.secondary).monospacedDigit()
+                }
+                .font(.system(size: 9))
+                .help(Text(verbatim: reading.paths.joined(separator: "\n")))
+                .contextMenu {
+                    Button(String(localized: "Reveal")) {
+                        NSWorkspace.shared.activateFileViewerSelecting(reading.paths.map { URL(fileURLWithPath: $0) })
+                    }
+                    Button(String(localized: "Move to Trash"), role: .destructive) {
+                        reading.paths.forEach { try? FileManager.default.trashItem(at: URL(fileURLWithPath: $0), resultingItemURL: nil) }
+                        measureDevCaches()
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    private func riskTint(_ risk: DevCacheTarget.Risk) -> Color {
+        switch risk {
+        case .low: return .green
+        case .medium: return .orange
+        case .high: return .red
+        }
+    }
+
+    /// Measured on appear and after a reclaim — never on a timer, so a closed deck costs nothing.
+    private func measureDevCaches() {
+        let home = NSHomeDirectory()
+        Task.detached(priority: .utility) {
+            let readings = DevCacheCatalog.snapshot(
+                home: home,
+                isDirectory: { path in
+                    var isDirectory: ObjCBool = false
+                    return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
+                        && isDirectory.boolValue
+                },
+                size: { StorageScanService.size(of: $0) },
+                children: { path in
+                    ((try? FileManager.default.contentsOfDirectory(atPath: path)) ?? [])
+                        .filter { !$0.hasPrefix(".") }
+                        .map { path + "/" + $0 }
+                }
+            )
+            await MainActor.run { devCaches = readings }
+        }
+    }
+
+    private func reclaimDevCaches() {
+        let sweep = DevCacheCatalog.ordered(devCaches).filter { $0.target.risk.isReclaimableInOneClick }
+        guard !sweep.isEmpty else { return }
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Move to Trash?")
+        alert.informativeText = String(format: String(localized: "%d items, %@."), sweep.reduce(0) { $0 + $1.paths.count },
+                                       ByteCountFormatter.string(fromByteCount: DevCacheCatalog.reclaimableBytes(devCaches),
+                                                                 countStyle: .file))
+        alert.addButton(withTitle: String(localized: "Move to Trash"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        for path in sweep.flatMap(\.paths) {
+            try? FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)
+        }
+        measureDevCaches()
     }
 
     private var categoryBreakdown: some View {

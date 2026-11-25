@@ -535,6 +535,8 @@
 		FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
 		FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000D1 /* NotchAIPageView.swift */; };
 		5D000000000000000000A011 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
+		DC000000000000000000C011 /* DevCacheCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C010 /* DevCacheCatalog.swift */; };
+		DC000000000000000000C012 /* DevCacheCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C010 /* DevCacheCatalog.swift */; };
 		5D000000000000000000A012 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
 		5D000000000000000000A021 /* StorageScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A020 /* StorageScanService.swift */; };
 		5D000000000000000000A051 /* NotchDockChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A050 /* NotchDockChips.swift */; };
@@ -543,6 +545,7 @@
 		5D000000000000000000A081 /* NotchEdgeStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A080 /* NotchEdgeStyleTests.swift */; };
 		5D000000000000000000A061 /* NotchEventCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A060 /* NotchEventCard.swift */; };
 		5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A040 /* StorageScanMathTests.swift */; };
+		DC000000000000000000C041 /* DevCacheCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C040 /* DevCacheCatalogTests.swift */; };
 		FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000101 /* NotchProductivityPageView.swift */; };
 		FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
 		FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
@@ -1856,6 +1859,8 @@
 		FB0000000000000000000051 /* ClaudeApprovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeApprovalService.swift; path = App/Composition/ClaudeApprovalService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A010 /* StorageScanMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMath.swift; path = Core/Support/StorageScanMath.swift; sourceTree = SOURCE_ROOT; };
+		DC000000000000000000C010 /* DevCacheCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevCacheCatalog.swift; path = Core/Support/DevCacheCatalog.swift; sourceTree = SOURCE_ROOT; };
+		DC000000000000000000C040 /* DevCacheCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevCacheCatalogTests.swift; path = Tests/Unit/DevCacheCatalogTests.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A070 /* NotchEdgeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyle.swift; path = Core/Support/NotchEdgeStyle.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A080 /* NotchEdgeStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyleTests.swift; path = Tests/Unit/NotchEdgeStyleTests.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A060 /* NotchEventCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEventCard.swift; path = App/Scenes/Notch/NotchEventCard.swift; sourceTree = SOURCE_ROOT; };
@@ -3971,6 +3976,7 @@
 				FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */,
 				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
 				5D000000000000000000A011 /* StorageScanMath.swift in Sources */,
+				DC000000000000000000C011 /* DevCacheCatalog.swift in Sources */,
 				5D000000000000000000A021 /* StorageScanService.swift in Sources */,
 				5D000000000000000000A051 /* NotchDockChips.swift in Sources */,
 				5D000000000000000000A061 /* NotchEventCard.swift in Sources */,
@@ -4383,6 +4389,8 @@
 				ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */,
 				5D000000000000000000A012 /* StorageScanMath.swift in Sources */,
 				5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */,
+				DC000000000000000000C012 /* DevCacheCatalog.swift in Sources */,
+				DC000000000000000000C041 /* DevCacheCatalogTests.swift in Sources */,
 				5D000000000000000000A072 /* NotchEdgeStyle.swift in Sources */,
 				5D000000000000000000A081 /* NotchEdgeStyleTests.swift in Sources */,
 				ED00000000000000000000DD /* CaptureController.swift in Sources */,
