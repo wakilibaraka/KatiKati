@@ -5,7 +5,7 @@ final class WidgetLayoutModelTests: XCTestCase {
     func testDefaultLayoutReproducesTodaysBehaviour() {
         let layout = WidgetLayout.default
         XCTAssertEqual(layout.order, BarSection.canonicalOrder)
-        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices, .drives, .dictionary, .terminal, .ai], "opt-in & utility-hosted widgets start hidden")
+        XCTAssertEqual(layout.hiddenSections, [.calendar, .system, .devices, .dictionary, .terminal, .ai], "opt-in & utility-hosted widgets start hidden")
         XCTAssertEqual(layout.solverWidths(), [:])
     }
 
@@ -41,7 +41,20 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [
             WidgetInstance(section: .clock), WidgetInstance(section: .clock), WidgetInstance(section: .weather)
         ])
-        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .utilities, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(layout.order, [.clock, .weather, .launcher, .apps, .media, .utilities, .calendar, .system, .devices, .dictionary, .terminal, .ai, .widgets])
+    }
+
+    /// SD-3c: Drives retired from the dock. The stored slot is dropped as the layout is normalized (which is
+    /// what decoding goes through), and the enum case stays decodable so an old layout file still opens.
+    func testDrivesSlotCannotEnterTheLayout() {
+        let layout = WidgetLayout(instances: [WidgetInstance(section: .drives, isVisible: true),
+                                              WidgetInstance(section: .clock)])
+        XCTAssertFalse(layout.order.contains(.drives))
+        XCTAssertEqual(layout.order.first, .clock, "the retired slot is removed, not hidden in place")
+        XCTAssertFalse(BarSection.canonicalOrder.contains(.drives))
+        XCTAssertFalse(BarSection.defaultOrder.contains(.drives))
+        XCTAssertEqual(BarSection(rawValue: "drives"), .drives, "the case survives so old JSON still decodes")
+        XCTAssertTrue(BarSection.drives.isRetired)
     }
 
     func testCodableRoundTrip() throws {
@@ -50,7 +63,7 @@ final class WidgetLayoutModelTests: XCTestCase {
         let layout = WidgetLayout(instances: [inst])
         let decoded = WidgetLayout.decode(layout.encoded())
         XCTAssertEqual(decoded, layout)
-        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai])
+        XCTAssertEqual(decoded?.hiddenSections, [.media, .calendar, .system, .devices, .dictionary, .terminal, .ai])
         XCTAssertNil(WidgetLayout.decode(Data("junk".utf8)))
     }
 
@@ -77,9 +90,9 @@ extension WidgetLayoutModelTests {
 extension WidgetLayoutModelTests {
     func testMovingFollowsOnMoveSemantics() {
         let moved = WidgetLayout.default.moving(from: IndexSet(integer: 5), to: 1) // clock before weather
-        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .utilities, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(moved.order, [.launcher, .clock, .weather, .apps, .media, .utilities, .calendar, .system, .devices, .dictionary, .terminal, .ai, .widgets])
         let down = WidgetLayout.default.moving(from: IndexSet(integer: 0), to: 3) // launcher after weather+apps
-        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .utilities, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets])
+        XCTAssertEqual(down.order, [.weather, .apps, .launcher, .media, .utilities, .clock, .calendar, .system, .devices, .dictionary, .terminal, .ai, .widgets])
     }
 
     func testVisibleOrderDropsHiddenButNeverApps() {

@@ -90,10 +90,13 @@ struct WidgetLayout: Codable, Equatable, Sendable {
     /// Today's behaviour: canonical order, every widget visible at medium, no overrides.
     static let `default` = WidgetLayout(instances: BarSection.canonicalOrder.map { WidgetInstance(section: $0, isVisible: !$0.startsHidden) })
 
-    /// Always a permutation of all sections: unknown/duplicate entries dropped, missing appended.
+    /// Always a permutation of all sections: unknown/duplicate/retired entries dropped, missing appended.
     init(instances: [WidgetInstance]) {
         var seen = Set<BarSection>()
-        var normalized = instances.filter { seen.insert($0.section).inserted }
+        // SD-3c: a layout saved while Drives was open loses the slot right here. Doing it at normalization
+        // keeps it idempotent — every path (decode, move, update) funnels through this init — so no separate
+        // defaults stamp is needed.
+        var normalized = instances.filter { !$0.section.isRetired && seen.insert($0.section).inserted }
         for section in BarSection.canonicalOrder where !seen.contains(section) {
             normalized.append(WidgetInstance(section: section, isVisible: !section.startsHidden))
         }

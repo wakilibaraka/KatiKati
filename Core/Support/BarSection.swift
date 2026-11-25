@@ -41,7 +41,14 @@ enum BarSection: String, CaseIterable, Identifiable, Hashable, Codable, Sendable
     case widgets
 
     /// Canonical left-to-right order (Phase 4U-A).
-    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .utilities, .clock, .calendar, .system, .devices, .drives, .dictionary, .terminal, .ai, .widgets]
+    ///
+    /// SD-3c: `.drives` is retired from the dock. The case stays in the enum so a saved layout still decodes
+    /// (an unknown raw value would fail the whole file), but it is no longer part of the order and
+    /// `WidgetLayout` drops any stored instance of it.
+    static let canonicalOrder: [BarSection] = [.launcher, .weather, .apps, .media, .utilities, .clock, .calendar, .system, .devices, .dictionary, .terminal, .ai, .widgets]
+
+    /// A section the dock no longer offers: kept decodable, never rendered or listed.
+    var isRetired: Bool { self == .drives }
 
     /// The core sections a fresh dock shows.
     static let defaultOrder: [BarSection] = canonicalOrder.filter { !$0.startsHidden }

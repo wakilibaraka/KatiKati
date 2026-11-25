@@ -141,7 +141,7 @@ hand-appended, never regenerated; past ~30 lines for a file addition the slice i
 | `docs(sidedeck)` | This document. |
 | `refactor(sidedeck)` | SD-3a — Downloads pane moves to `App/Scenes/Edge/`, deck card surface, wrapper removed. |
 | `feat(notch)` | SD-3b — Storage leaves the resting notch; cleaner folded into the deck; migration + tests. |
-| `feat(dock)` | SD-3c — `.drives` retires from the Dock with a one-time migration; menu-bar Drives and the Dock Downloads tile untouched. |
+| `feat(dock)` | SD-3c — `.drives` retires from the Dock. The drop happens in `WidgetLayout.init` (every path funnels through it), so it is idempotent and needs no defaults stamp; the enum case stays decodable, and the menu-bar Drives item + Dock Downloads tile are untouched. |
 
 SD-1, SD-2 and SD-3d onwards follow in their own batches.
 
