@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import Combine
 import QuartzCore
 import SwiftUI
@@ -978,6 +979,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// `DOCK_PERMISSION_PROBE=<file>`: with the one pass already done, start the two paths that used to
+    /// raise their own prompts — the camera mirror and the cleaning lock — record what they did, write
+    /// the result and quit. The probe never answers or raises anything itself; it only observes.
+    private func runPermissionProbeIfRequested() {
+        guard let path = DebugSwitch.permissionProbe.value(), !path.isEmpty else { return }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            let cameraBefore = AVCaptureDevice.authorizationStatus(for: .video)
+            let mirror = CameraMirrorService.shared
+            PermissionBootstrap.trace("probe start cameraMirror")
+            mirror.start()
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            let cameraAfter = AVCaptureDevice.authorizationStatus(for: .video)
+            let mirrorAvailability = String(describing: mirror.availability)
+            let mirrorStarting = mirror.isStarting
+            mirror.stop()
+            PermissionBootstrap.trace("probe start cleaningLock")
+            let listenBefore = CGPreflightListenEventAccess()
+            let lockStarted = KeyGuardService.shared.startCleaningLock()
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            let listenAfter = CGPreflightListenEventAccess()
+            let payload: [String: Any] = [
+                "bootstrap": PermissionBootstrap.hasCompletedInitialRequest,
+                "cameraBefore": String(describing: cameraBefore),
+                "cameraAfter": String(describing: cameraAfter),
+                "mirrorAvailability": mirrorAvailability,
+                "mirrorStarting": mirrorStarting,
+                "listenBefore": listenBefore,
+                "listenAfter": listenAfter,
+                "lockStarted": lockStarted
+            ]
+            let data = try? JSONSerialization.data(withJSONObject: payload,
+                                                   options: [.prettyPrinted, .sortedKeys])
+            try? data?.write(to: URL(fileURLWithPath: path))
+            PermissionBootstrap.trace("probe written")
+            NSApp.terminate(nil)
+        }
+    }
+
     private func showWelcomeWindow() {
         if let welcomeWindow {
             welcomeWindow.makeKeyAndOrderFront(nil)
@@ -1371,6 +1411,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 用户得先看见任务条长什么样，那句「它俩都在屏幕底边会互相遮挡」才有所指。
         applyDockIconPreference()
         presentWelcomeGuideIfNeeded()
+        // Live-check aid: present the guide even on an install the first-run gates skip, so the one
+        // permission pass can be observed deterministically. Unset in normal use.
+        if DebugSwitch.welcomeGuide.isEnabled() { showWelcomeWindow() }
+        runPermissionProbeIfRequested()
         runCheatSheetLiveCheckIfRequested()
         nativeDockPreferencesService.scheduleReapplyDesiredIfNeeded()
         syncDesktopCanvasState()

@@ -166,7 +166,16 @@ final class KeyGuardService: ObservableObject {
     @discardableResult
     func startCleaningLock(seconds: Double = CleaningLock.defaultSeconds) -> Bool {
         guard Self.hasPermission else {
-            if PermissionBootstrap.mayPromptFromFeature { Self.requestPermission() }
+            if PermissionBootstrap.mayPromptFromFeature {
+                Self.requestPermission()
+            } else {
+                // The one pass already asked. Asking again here would be the feature-level prompt the
+                // owner asked us to remove, so route to the grant row instead and fail the lock.
+                PermissionBootstrap.trace("lock routed to Settings (input monitoring missing)")
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
             return false
         }
         let end = Date().addingTimeInterval(CleaningLock.clamped(seconds))

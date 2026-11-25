@@ -113,6 +113,9 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case minimizeAppFallback = "DOCK_MINIMIZE_APP_FALLBACK"
     /// Dev-only: skip Accessibility onboarding/prompt/watchdog/suspend so panels render with no AX grant (=1 on; never ship on)
     case devSkipPermissions = "DOCK_DEV_SKIP_PERMISSIONS"
+    /// Live-check aid: present the welcome guide at launch even when the first-run gates say no, so the
+    /// permission pass can be observed deterministically. Unset in normal use.
+    case welcomeGuide = "DOCK_WELCOME_GUIDE"
 
     /// Phase 24e: the key-guard pipeline's per-event log (category keyguard); =1 prints
     case keyGuardTrace = "DOCK_KEYGUARD_TRACE"
@@ -214,6 +217,11 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// what the one overlay did there, and quits. Unset in normal use.
     case cheatSheetCheck = "DOCK_CHEAT_SHEET_CHECK"
 
+    /// A file path: the permission live check (`DOCK_PERMISSION_PROBE`) starts the camera mirror and the
+    /// cleaning lock once the app is up, records whether either raised a system prompt, writes the result
+    /// there and quits. Unset in normal use.
+    case permissionProbe = "DOCK_PERMISSION_PROBE"
+
     /// Slice DI-2 live-check aid: `DOCK_SETTINGS_PAGE_HEIGHT=<file>` writes the dock settings page's
     /// measured content height (`dockItems <pt>`) so the 1074 pt clamp is a number, not an eyeball.
     /// Unset in normal use.
@@ -244,7 +252,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace, .touchIsland, .desktopCanvas,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
-             .devSkipPermissions, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:
+             .devSkipPermissions, .welcomeGuide, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:
             return .trace
         case .reconcileAxTimeoutMs, .seedAxTimeoutMs, .dragFlightMs, .labelAnim, .inventoryLog,
              .panelLevel, .panelMaterial, .panelSaturation, .panelThickness,
@@ -254,7 +262,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .liquidGlassBackgroundOpacity, .liquidGlassWindowBlur, .liquidGlassContentInset,
              .liquidGlassSystemVariant, .stackPopupSnapshot, .stackPopupMode, .stackPopupTheme,
              .chipFramesOut, .dockTheme, .wallpaperPhase, .wallpaperAnimate, .dockIconFrame, .openSettings,
-             .powerNotificationDemo, .settingsPageHeight, .cheatSheetCheck:
+             .powerNotificationDemo, .settingsPageHeight, .cheatSheetCheck, .permissionProbe:
             return .value
         }
     }

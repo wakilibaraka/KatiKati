@@ -2,6 +2,7 @@ import AppKit
 import AVFoundation
 import CoreLocation
 import EventKit
+import ServiceManagement
 import SwiftUI
 import UserNotifications
 
@@ -159,6 +160,9 @@ struct WelcomeGuideView: View {
     @State private var calendarGranted = EKEventStore.authorizationStatus(for: .event) == .fullAccess
     @State private var remindersGranted = EKEventStore.authorizationStatus(for: .reminder) == .fullAccess
     @State private var notificationsGranted = false
+    /// Login Item is not a TCC grant: the row registers the app, and macOS may still park it in Login
+    /// Items for approval — that case opens the pane instead of pretending the switch is on.
+    @State private var loginItemEnabled = SMAppService.mainApp.status == .enabled
     @State private var locationGranted = false
     /// One onboarding pass asks for everything it needs; panels then never prompt mid-task.
     @State private var didRequestAllPermissions = false
@@ -448,6 +452,12 @@ struct WelcomeGuideView: View {
                                   NSWorkspace.shared.open(url)
                               }
                           })
+            // 2026-11-25: the last item on the owner's list. It has no prompt of its own, so the pass
+            // offers it here once instead of scattering "open at login" through Settings.
+            PermissionRow(title: Text("Open at Login"),
+                          note: Text("Starts KatiKati when you log in to this Mac."),
+                          isGranted: loginItemEnabled,
+                          grant: { setLoginItem(enabled: true) })
             PermissionRow(title: Text("Location"),
                           note: Text("Puts the weather widget on your current city instead of the first saved one."),
                           isGranted: locationGranted,
@@ -495,6 +505,7 @@ struct WelcomeGuideView: View {
             cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
             refreshCalendarGrants()
             refreshNotificationsGranted()
+            loginItemEnabled = SMAppService.mainApp.status == .enabled
             locationGranted = locationManager.authorizationStatus == .authorizedAlways
         }
         // 用户停在「Permissions」这一屏就是同意被问：一次把全部权限问完，之后各处不再弹。
@@ -513,25 +524,31 @@ struct WelcomeGuideView: View {
 
         func pause(_ nanoseconds: UInt64) async { try? await Task.sleep(nanoseconds: nanoseconds) }
 
+        PermissionBootstrap.trace("begin")
         if !AXIsProcessTrusted() {
+            PermissionBootstrap.trace("request accessibility")
             _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
             await pause(900_000_000)
         }
         if !CGPreflightScreenCaptureAccess() {
+            PermissionBootstrap.trace("request screenRecording")
             _ = CGRequestScreenCaptureAccess()
             await pause(900_000_000)
         }
         if !CGPreflightListenEventAccess() {
+            PermissionBootstrap.trace("request inputMonitoring")
             _ = CGRequestListenEventAccess()
             await pause(900_000_000)
         }
         if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
+            PermissionBootstrap.trace("request microphone")
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
                 AVCaptureDevice.requestAccess(for: .audio) { _ in continuation.resume() }
             }
             await pause(600_000_000)
         }
         if AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
+            PermissionBootstrap.trace("request camera")
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
                 AVCaptureDevice.requestAccess(for: .video) { _ in continuation.resume() }
             }
@@ -551,6 +568,7 @@ struct WelcomeGuideView: View {
         }
         let settings = await UNUserNotificationCenter.current().notificationSettings()
         if settings.authorizationStatus == .notDetermined {
+            PermissionBootstrap.trace("request notifications")
             _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
             await pause(600_000_000)
         }
@@ -561,9 +579,29 @@ struct WelcomeGuideView: View {
         refreshNotificationsGranted()
         cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
         locationGranted = locationManager.authorizationStatus == .authorizedAlways
+        // Login Item has no system prompt, so the pass offers the row rather than registering behind
+        // the owner's back; it is still reported here so the trace covers every item on the list.
+        PermissionBootstrap.trace("offer loginItem")
         // Every prompt this app is allowed to raise has now been raised once. Feature code reads
         // this and reports status instead of asking again.
         PermissionBootstrap.markCompleted()
+        PermissionBootstrap.trace("completed")
+    }
+
+    /// Registering can succeed outright, or macOS parks the app in Login Items for approval. The pane
+    /// is where that approval happens, so a pending registration opens it instead of showing a check.
+    private func setLoginItem(enabled: Bool) {
+        do {
+            if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+        } catch {
+            PermissionBootstrap.trace("loginItem failed: \(error.localizedDescription)")
+        }
+        if SMAppService.mainApp.status == .requiresApproval,
+           let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
+        loginItemEnabled = SMAppService.mainApp.status == .enabled
+        PermissionBootstrap.trace("loginItem \(loginItemEnabled ? "on" : "off")")
     }
 
     private func refreshCalendarGrants() {

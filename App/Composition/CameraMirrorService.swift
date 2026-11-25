@@ -185,10 +185,14 @@ final class CameraMirrorService: ObservableObject {
         return discovery.devices.map { CameraMirrorDevice(id: $0.uniqueID, name: $0.localizedName) }
     }
 
-    /// "Not asked yet" counts as available: `start()` is the one place that raises the prompt.
+    /// "Not asked yet" counts as available only while a feature may still raise the prompt. Once the
+    /// first-run pass is done, an undecided camera is *not* available: reporting it as ready left the
+    /// page on a preview that never fills, instead of the "Camera Access Is Off" pane with its
+    /// System Settings door.
     nonisolated private static var isAuthorized: Bool {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
-        return status == .authorized || status == .notDetermined
+        if status == .notDetermined { return PermissionBootstrap.mayPromptFromFeature }
+        return status == .authorized
     }
 
     nonisolated private static func device(for id: String) -> AVCaptureDevice? {
