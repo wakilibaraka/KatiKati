@@ -274,6 +274,20 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         let menuBarSurface = ControlCenterSurfaceMode.parse(
             UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey)
         )
+        // The Hub does not vanish without a word: while the menu-bar item hosts Control Centre,
+        // the menu says where the Hub went before naming the surface the item actually opens.
+        // Spelled inline rather than through AppMenuFragments: this controller is also compiled
+        // by the test target, which has no scene layer. Same grammar — symbol plus a gray row.
+        if menuBarSurface == .menuBar {
+            let paused = NSMenuItem(
+                title: String(localized: "Creative Hub is paused while Control Centre is in the Menu Bar."),
+                action: nil,
+                keyEquivalent: ""
+            )
+            paused.image = NSImage(systemSymbolName: "pause.circle", accessibilityDescription: nil)
+            paused.isEnabled = false
+            menuBarContextMenu.addItem(paused)
+        }
         let hubTitle = menuBarSurface == .menuBar
             ? String(localized: "Control Centre")
             : String(localized: "Open Creative Hub")

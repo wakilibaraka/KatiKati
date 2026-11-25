@@ -250,6 +250,7 @@ struct BackgroundActivityDeckView: View {
                 ForEach(items, id: \.bundleID) { item in row(item) }
             }
             Spacer(minLength: 0)
+            if !store.ignored.isEmpty { hiddenBar }
             homeBar
         }
         .padding(14)
@@ -285,6 +286,31 @@ struct BackgroundActivityDeckView: View {
         .padding(.horizontal, 9)
         .padding(.vertical, 7)
         .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color.primary.opacity(0.045)))
+    }
+
+    /// Hiding a row writes the same ignore list the drawer uses; it is a preference, not a
+    /// deletion. This keeps the way back on the deck that did the hiding, and Settings › Behavior
+    /// carries the same reset.
+    private var hiddenBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "eye.slash")
+                .font(.system(size: 10, weight: .semibold)).foregroundStyle(inkSoft)
+            Text(verbatim: "\(store.ignored.count)")
+                .font(.system(size: 10, weight: .semibold)).monospacedDigit().foregroundStyle(inkSoft)
+            Spacer(minLength: 4)
+            Button { store.unignoreAll() } label: {
+                Text("Show Hidden Apps")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(ink)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(Color.primary.opacity(0.07)))
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .help(Text("Show Hidden Apps"))
+        }
+        .padding(.horizontal, 5)
     }
 
     private func useEdgeInstead() {
@@ -349,13 +375,23 @@ struct BackgroundActivityDeckView: View {
     }
 
     private func activate(_ item: BackgroundActivity.Item) {
-        runningApp(item)?.activate(options: [.activateIgnoringOtherApps])
+        guard let app = runningApp(item) else { launch(item); return }
+        if app.isHidden { _ = app.unhide() }
+        if !app.activate(options: [.activateIgnoringOtherApps]) { launch(item) }
     }
 
     private func show(_ item: BackgroundActivity.Item) {
-        guard let app = runningApp(item) else { return }
-        app.unhide()
-        app.activate(options: [.activateIgnoringOtherApps])
+        guard let app = runningApp(item) else { launch(item); return }
+        _ = app.unhide()
+        if !app.activate(options: [.activateIgnoringOtherApps]) { launch(item) }
+    }
+
+    /// A windowless agent can refuse `activate` because it has nothing to raise. Opening the
+    /// bundle through LaunchServices reaches it either way, and for a hidden regular app it is
+    /// also what brings the window back.
+    private func launch(_ item: BackgroundActivity.Item) {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: item.bundleID) else { return }
+        NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
     }
 
     private func quit(_ item: BackgroundActivity.Item) {
