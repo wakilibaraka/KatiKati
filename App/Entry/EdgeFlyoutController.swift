@@ -201,7 +201,12 @@ final class ControlCenterPanelController {
         let hosting = NSHostingView(rootView: root)
         hosting.frame = CGRect(origin: .zero, size: size)
         panel.contentView = Self.floatingPlate(wrapping: hosting, size: size, style: panelStyle())
-        switch panelAnimation() {
+        // Reduce Motion (owner 2026-11-25): the panel's own fade/slide is decoration, so the system
+        // setting turns it into the instant path. Nothing about showing the panel depends on it.
+        let animation: ControlCenterAnimation = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+            ? .instant
+            : panelAnimation()
+        switch animation {
         case .instant:
             panel.alphaValue = 1
             panel.setFrame(frame, display: true)
