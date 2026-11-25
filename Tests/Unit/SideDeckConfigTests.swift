@@ -77,4 +77,17 @@ final class SideDeckConfigTests: XCTestCase {
         config.write(to: defaults)
         XCTAssertEqual(SideDeckConfig.stored(in: defaults), config)
     }
+
+    /// SD-8: the shared swap exchanges both edges at once, and is its own inverse.
+    func testTheSharedSwapExchangesBothEdges() {
+        let shipped = SideDeckEdgeSwap.Sides(deck: .left, edgeBar: .right)
+        let swapped = SideDeckEdgeSwap.exchange(shipped)
+        XCTAssertEqual(swapped.deck, .right)
+        XCTAssertEqual(swapped.edgeBar, .left)
+        XCTAssertEqual(SideDeckEdgeSwap.exchange(swapped), shipped, "applying the swap twice is the identity")
+
+        let bothRight = SideDeckEdgeSwap.Sides(deck: .right, edgeBar: .right)
+        XCTAssertEqual(SideDeckEdgeSwap.exchange(bothRight), bothRight,
+                       "two surfaces already on one edge cannot exchange anything")
+    }
 }

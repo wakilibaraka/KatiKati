@@ -10,9 +10,9 @@ import XCTest
 
 final class SettingsTabTests: XCTestCase {
     func testTheSidebarIsThirtyThreeTabsWithOneIdentityEach() {
-        // 2026-11-24 (§10): Music became its own page next to Weather; the desktop music widget lives there.
-        XCTAssertEqual(SettingsTab.allCases.count, 33, "thirty-three sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 33,
+        // 2026-11-25 (SD-8): the Side Deck became a page of its own beside Edge Bars.
+        XCTAssertEqual(SettingsTab.allCases.count, 34, "thirty-four sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 34,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
@@ -30,6 +30,11 @@ final class SettingsTabTests: XCTestCase {
                        .missionControl, "Mission Control sits beside the window pages")
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
         XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
+        // SD-8: the deck's page sits beside the Edge Bars it swaps edges with.
+        XCTAssertEqual(SettingsTab(rawValue: "sideDeck"), .sideDeck)
+        XCTAssertEqual(SettingsTab.sideDeck.title, "Side Deck")
+        XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .sideDeck)! + 1], .edgeBars,
+                       "the Side Deck sits just before Edge Bars")
         // §10: Music sits right after Weather in the Surfaces group.
         XCTAssertEqual(SettingsTab(rawValue: "music"), .music)
         XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .weather)! + 1], .music,

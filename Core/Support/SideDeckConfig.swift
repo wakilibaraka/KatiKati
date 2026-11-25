@@ -113,3 +113,19 @@ struct SideDeckConfig: Equatable, Sendable {
         return config
     }
 }
+
+/// SD-8: the swap the Side Deck pane and the Edge Bars pane share. Each surface owns one edge, so the
+/// control exchanges them in one write — a pane that moved only its own half could park both surfaces on
+/// the same edge, which is the state `SideDeckConfig.Side` exists to prevent.
+enum SideDeckEdgeSwap {
+    struct Sides: Equatable, Sendable {
+        var deck: SideDeckConfig.Side
+        var edgeBar: EdgeSide
+    }
+
+    /// The deck takes the bar edge and the bar takes the deck edge. Applying it twice is the identity.
+    static func exchange(_ sides: Sides) -> Sides {
+        Sides(deck: sides.edgeBar == .left ? .left : .right,
+              edgeBar: sides.deck == .left ? .left : .right)
+    }
+}

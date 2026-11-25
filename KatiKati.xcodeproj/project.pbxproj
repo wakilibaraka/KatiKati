@@ -140,7 +140,9 @@
 		FC11A0000000000000005501 /* SettingsLayoutPane+Launcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */; };
 		FC11A0000000000000005502 /* SettingsLayoutPane+Launcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */; };
 		FC11A0000000000000005601 /* SettingsLayoutPane+ControlCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */; };
+		F5C0DE00000000000000AA02 /* SettingsSideDeckPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */; };
 		FC11A0000000000000005602 /* SettingsLayoutPane+ControlCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */; };
+		F5C0DE00000000000000AA03 /* SettingsSideDeckPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */; };
 		FC11A0000000000000005701 /* SettingsLayoutPane+EdgeBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */; };
 		FC11A0000000000000005702 /* SettingsLayoutPane+EdgeBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */; };
 		FC11A0000000000000005801 /* SettingsLayoutPane+Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005800 /* SettingsLayoutPane+Shortcuts.swift */; };
@@ -1602,6 +1604,7 @@
 		FC11A0000000000000005400 /* SettingsLayoutPane+Widgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+Widgets.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+Launcher.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+ControlCenter.swift"; sourceTree = "<group>"; };
+		F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsSideDeckPane.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+EdgeBars.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005800 /* SettingsLayoutPane+Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+Shortcuts.swift"; sourceTree = "<group>"; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
@@ -2791,6 +2794,7 @@
 				FC11A0000000000000005400 /* SettingsLayoutPane+Widgets.swift */,
 				FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */,
 				FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */,
+				F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */,
 				FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */,
 				FC11A0000000000000005800 /* SettingsLayoutPane+Shortcuts.swift */,
 				A0000000000000000001F090 /* SettingsTilingPane.swift */,
@@ -3515,6 +3519,7 @@
 				FC11A0000000000000005401 /* SettingsLayoutPane+Widgets.swift in Sources */,
 				FC11A0000000000000005501 /* SettingsLayoutPane+Launcher.swift in Sources */,
 				FC11A0000000000000005601 /* SettingsLayoutPane+ControlCenter.swift in Sources */,
+				F5C0DE00000000000000AA02 /* SettingsSideDeckPane.swift in Sources */,
 				FC11A0000000000000005701 /* SettingsLayoutPane+EdgeBars.swift in Sources */,
 				FC11A0000000000000005801 /* SettingsLayoutPane+Shortcuts.swift in Sources */,
 				A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */,
@@ -4633,6 +4638,7 @@
 				FC11A0000000000000005402 /* SettingsLayoutPane+Widgets.swift in Sources */,
 				FC11A0000000000000005502 /* SettingsLayoutPane+Launcher.swift in Sources */,
 				FC11A0000000000000005602 /* SettingsLayoutPane+ControlCenter.swift in Sources */,
+				F5C0DE00000000000000AA03 /* SettingsSideDeckPane.swift in Sources */,
 				FC11A0000000000000005702 /* SettingsLayoutPane+EdgeBars.swift in Sources */,
 				FC11A0000000000000005802 /* SettingsLayoutPane+Shortcuts.swift in Sources */,
 				A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */,

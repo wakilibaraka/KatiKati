@@ -39,7 +39,7 @@ struct SideDeckDashboardView: View {
 
     private var downloadsCard: some View {
         let active = downloads.items.filter { $0.bytesDownloaded < $0.totalBytes }
-        return card(title: "ACTIVE DOWNLOADS", symbol: SideDeckTab.downloads.symbol) {
+        return card(title: "Downloads", symbol: SideDeckTab.downloads.symbol) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(verbatim: DownloadItem.formatBytes(downloads.aggregateDownloadBps) + "/s")
                     .font(.system(size: 26, weight: .semibold, design: .rounded))
@@ -59,7 +59,7 @@ struct SideDeckDashboardView: View {
                         .progressViewStyle(.linear)
                 }
             } else {
-                Text(verbatim: "Nothing downloading.")
+                Text("Nothing downloading.")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(.white.opacity(0.45))
             }
@@ -71,24 +71,20 @@ struct SideDeckDashboardView: View {
     // MARK: - ClearDisk
 
     private var clearDiskCard: some View {
-        card(title: "FREE DISK", symbol: SideDeckTab.storage.symbol) {
+        card(title: "Storage", symbol: SideDeckTab.storage.symbol) {
             Text(verbatim: DownloadItem.formatBytes(freeBytes))
                 .font(.system(size: 26, weight: .semibold, design: .rounded))
             if let reclaimableBytes {
                 HStack(spacing: 5) {
                     Image(systemName: "hammer")
                         .font(.system(size: 10))
-                    Text(verbatim: "Reclaimable")
+                    Text("Reclaimable")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
                     Spacer(minLength: 0)
                     Text(verbatim: DownloadItem.formatBytes(reclaimableBytes))
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(.secondary)
-            } else {
-                Text(verbatim: "ClearDisk lives in Storage.")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.45))
             }
             Spacer(minLength: 0)
             openButton("Storage", tab: .storage)
@@ -100,7 +96,7 @@ struct SideDeckDashboardView: View {
     private var digestCard: some View {
         let entries = mirror.historyStore.entries
         let unread = NotificationDigest.unreadCount(entries)
-        return card(title: "NOTIFICATIONS", symbol: SideDeckTab.notifications.symbol) {
+        return card(title: "Notifications", symbol: SideDeckTab.notifications.symbol) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(verbatim: "\(unread)")
                     .font(.system(size: 26, weight: .semibold, design: .rounded))
@@ -125,7 +121,7 @@ struct SideDeckDashboardView: View {
                 }
             }
             if entries.isEmpty {
-                Text(verbatim: "No notifications yet.")
+                Text("No notifications yet.")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(.white.opacity(0.45))
             }
@@ -144,7 +140,7 @@ struct SideDeckDashboardView: View {
     // MARK: - Today glance
 
     private var todayCard: some View {
-        card(title: "TODAY", symbol: "clock") {
+        card(title: "Today", symbol: "clock") {
             // A one-minute timeline, only while this card is on screen: an off-screen dashboard schedules nothing.
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 Text(verbatim: context.date.formatted(date: .omitted, time: .shortened))
@@ -183,14 +179,14 @@ struct SideDeckDashboardView: View {
 
     // MARK: - Chrome
 
-    private func card<Content: View>(title: String, symbol: String,
+    private func card<Content: View>(title: LocalizedStringKey, symbol: String,
                                      @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Image(systemName: symbol)
                     .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(.secondary)
-                Text(verbatim: title)
+                Text(title)
                     .font(.system(size: 10, weight: .heavy, design: .monospaced))
                     .foregroundStyle(.white.opacity(0.8))
                 Spacer(minLength: 0)
@@ -202,9 +198,9 @@ struct SideDeckDashboardView: View {
         .sideDeckCard()
     }
 
-    private func openButton(_ title: String, tab: SideDeckTab) -> some View {
+    private func openButton(_ title: LocalizedStringKey, tab: SideDeckTab) -> some View {
         Button { onOpenTab(tab) } label: {
-            Text(verbatim: title)
+            Text(title)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(.secondary)
         }

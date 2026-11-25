@@ -414,7 +414,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .tendedero: return String(localized: "Clothesline")
         case .scratchpad: return String(localized: "Scratchpad")
         case .markets: return String(localized: "Markets")
-        case .dashboard: return "Dashboard"
+        case .dashboard: return String(localized: "Dashboard")
         }
     }
 
@@ -460,7 +460,7 @@ enum SideDeckSearch {
         case .tendedero: return String(localized: "Search shelf")
         case .scratchpad: return String(localized: "Scratchpad")
         case .markets: return String(localized: "Search markets")
-        case .dashboard: return "Dashboard"
+        case .dashboard: return String(localized: "Dashboard")
         }
     }
 }

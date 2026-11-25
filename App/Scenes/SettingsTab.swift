@@ -19,6 +19,7 @@ enum SettingsTab: String, CaseIterable {
     case music
     case notch
     case notifications
+    case sideDeck
     case edgeBars
     case tiling
     case windowManagement
@@ -56,6 +57,7 @@ enum SettingsTab: String, CaseIterable {
         case "music": self = .music
         case "notch": self = .notch
         case "notifications": self = .notifications
+        case "sideDeck": self = .sideDeck
         case "edgeBars": self = .edgeBars
         case "tiling": self = .tiling
         case "windowManagement": self = .windowManagement
@@ -96,6 +98,7 @@ enum SettingsTab: String, CaseIterable {
         case .music: return String(localized: "Music")
         case .notch: return String(localized: "Notch")
         case .notifications: return String(localized: "Notifications")
+        case .sideDeck: return String(localized: "Side Deck")
         case .edgeBars: return String(localized: "Edge Bars")
         case .tiling: return String(localized: "Tiling")
         case .windowManagement: return String(localized: "Window Management")
@@ -136,6 +139,7 @@ enum SettingsTab: String, CaseIterable {
         case .music: return String(localized: "The desktop music widget, its preset, the lock card, and album art.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
         case .notifications: return String(localized: "Battery, charging, peripherals, and banner placement.")
+        case .sideDeck: return String(localized: "Placement, width, and how the deck opens.")
         case .edgeBars: return String(localized: "Side bars: preset, placement, widgets, and size.")
         case .tiling: return String(localized: "Auto-tiling, presets, gaps, and floating apps.")
         case .windowManagement: return String(localized: "Window chips and window behaviors.")
@@ -174,6 +178,7 @@ enum SettingsTab: String, CaseIterable {
         case .music: return "music.note"
         case .notch: return "capsule.tophalf.filled"
         case .notifications: return "bell"
+        case .sideDeck: return "sidebar.left"
         case .edgeBars: return "sidebar.right"
         case .tiling: return "rectangle.split.2x2"
         case .windowManagement: return "macwindow"
@@ -213,6 +218,7 @@ enum SettingsTab: String, CaseIterable {
         case .music: return (0.86, 0.30, 0.56)
         case .notch: return (0.30, 0.30, 0.34)
         case .notifications: return (0.96, 0.46, 0.24)
+        case .sideDeck: return (0.24, 0.48, 0.92)
         case .edgeBars: return (0.10, 0.70, 0.66)
         case .tiling: return (0.20, 0.52, 0.98)
         case .windowManagement: return (0.25, 0.35, 0.65)
