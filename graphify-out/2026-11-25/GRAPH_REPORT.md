@@ -1,17 +1,17 @@
 # Graph Report - KatiKati  (2026-11-25)
 
 ## Corpus Check
-- 1146 files · ~1,248,262 words
+- 1146 files · ~1,248,299 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 27 file(s) not represented in the graph (top: (none) 7, .csv 7, .plist 2)
 
 ## Summary
-- 29532 nodes · 81152 edges · 750 communities (621 shown, 129 thin omitted)
+- 29520 nodes · 81152 edges · 738 communities (621 shown, 117 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 12074 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `446f07d7`
+- Built from commit: `91441608`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -764,21 +764,21 @@
 10. `KatiKati` - 186 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Batch 1 — Correctness & Idle-CPU Fixes` --references--> `SystemMonitorController`  [INFERRED]
-  Docs/Plans/CODEBASE_GAP_AND_CAPABILITY_AUDIT.md → Platform/SystemMonitor/SystemMonitorController.swift
-- `10.5 Settings: music gets its own page, like Weather` --references--> `SettingsMusicPane`  [INFERRED]
-  Docs/Plans/MUSIC_WALLPAPER_LOCKSCREEN_PLAN.md → App/Scenes/SettingsAppearancePane.swift
-- `4.2 3-Column Studio Layout` --references--> `WallpaperEngine`  [INFERRED]
-  Docs/Plans/ICON_STUDIO_LIVE_ICONS_PLAN.md → App/Composition/WallpaperEngine.swift
-- `5.1 Behavior-Frozen Files (ZERO EDITS)` --references--> `WallpaperEngine`  [INFERRED]
-  Docs/Plans/ICON_STUDIO_LIVE_ICONS_PLAN.md → App/Composition/WallpaperEngine.swift
-- `10.1 Why a widget and not the desktop picture` --references--> `WallpaperLease`  [INFERRED]
-  Docs/Plans/MUSIC_WALLPAPER_LOCKSCREEN_PLAN.md → Core/Support/NowPlayingProgress.swift
+- `3.3 Zero-Idle-CPU & Accessibility Contract` --references--> `CADisplayLink`  [INFERRED]
+  Docs/Plans/ICON_STUDIO_LIVE_ICONS_PLAN.md → App/Scenes/DockTheme.swift
+- `Tier 1 — Easiest (`S`: ≤1–2 days per slice, existing engines/models)` --references--> `FinderKeyMap`  [INFERRED]
+  Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md → Core/Support/KeyGuard.swift
+- `Advanced is the last tab` --references--> `SettingsTabTests`  [INFERRED]
+  Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/README.md → Tests/Unit/SettingsTabTests.swift
+- `Checks` --references--> `StatusMenuController`  [INFERRED]
+  Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/README.md → App/Entry/StatusMenuController.swift
+- `8.1 Risk register` --references--> `NotchPage`  [INFERRED]
+  Docs/Plans/SIDEDECK_REPLATFORM_PLAN.md → Core/Support/NotchSectionPaging.swift
 
 ## Import Cycles
 - None detected.
 
-## Communities (750 total, 129 thin omitted)
+## Communities (738 total, 117 thin omitted)
 
 ### Community 0 - "AppSettingsStore"
 Cohesion: 0.02
@@ -3265,23 +3265,23 @@ Cohesion: 0.09
 Nodes (8): AXWindowSnapshot, .title, AppTrackerReadSemanticsTests, ControlledAppTrackerReader, .readCount, .untimedReadCount, FixedAppTrackerProcessProvider, MutableAppTrackerProcessProvider
 
 ## Knowledge Gaps
-- **4957 isolated node(s):** `.key`, `.slot`, `.nowPlayingService`, `.hoverMonitorsNeeded`, `-dealloc` (+4952 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 7780 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **129 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **4957 isolated node(s):** `-dealloc`, `-observeValueForKeyPathofObjectchangecontext`, `.controlCentreAtTrailingEnd`, `.edgeActiveSides`, `.edgeAutoHideEnabled` (+4952 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 7768 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **117 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `CGFloat` connect `View` to `AppSettingsStore`, `HoverStyle`, `AppKit`, `Drag Controller & Carrier`, `SettingsCard`, `PanelCoordinator`, `StripBlockLandingTests`, `MenuBarCreativeHubView`, `Edge Bar Slots`, `WindowID`, `WelcomeGuideView`, `DrawerCapsulePaging`, `Hashable`, `DockMusicLyricsWingView`, `Status Menu`, `StripPlacementMap`, `.widgetPanelFrame`, `LauncherPanelController`, `Text`, `Placement`, `WindowLiftAvoidanceTests`, `Units`, `SystemObservation`, `WindowLiftAvoidance`, `DesktopCanvasCoordinator`, `EdgeTabShape`, `2. Complete 24-Item Code-Grounded Status Matrix`, `WeatherDetail`, `.value`, `TrashChip`, `DesktopWidgetItem`, `DesktopWidgetAppearance`, `WeatherChipPreset`, `DockGlassBackdrop`, `TaskbarScreenOrchestrator`, `PanelGeometry`, `TopologyDisplay`, `DockHeightDragSession`, `.init`, `SnapPosition`, `StripHoverResolutionTests`, `DockAccentSpec`, `AudioOutputSwitcher`, `DockSlotLayout`, `LauncherView`, `DeckFont`, `DockLiquidGlassConfigurationTests`, `BarLayoutMode`, `DockWindowManager`, `DockThemeStyleTokens`, `ScrollingStripState`, `DockStripView`, `Double`, `IslandContentMeasure`, `.mask`, `QuitAppRules`, `NotchContinuousMaskShape`, `WeatherModernChip`, `FinderP0Tests`, `.targetOrigin`, `.islands`, `NotchPanelController`, `DesktopThumbnailCache`, `DockScreenEdge`, `String`, `DeckMetrics`, `SideDeckLogicTests`, `DesktopWidgetPanelController`, `HydrationController`, `DownloadManagerService`, `StripPlacementTests`, `BackupSettingsBlock`, `MissionControlWindowFrame`, `WidgetEditOverlay`, `String`, `DesktopResizeHandle`, `LauncherIconView`, `StackPopupBackdrop`, `MenuBarHubPanelController`, `SystemMonitorController`, `NotchColorPreset`, `WindowSwitcherController`, `ChipPanelController`, `CircularGaugeDiscView`, `.render`, `.bounds`, `LauncherToggleOption`, `Item`, `ClaudeApprovalService`, `MusicArtworkPalette`, `StageShortcuts`, `FinderAppleEventMatcherTests`, `SideDeckConfig`, `MusicSurfaceCoreTests`, `TileKind`, `EdgeBarPanelController`, `WeatherPanelView.swift`, `FullscreenClassificationTests`, `WallpaperEnvironment`, `ControlCenterScroll`, `MeetingCallPlatform`, `HoverTrace`, `DockPreviewCard`, `DockTelemetryFeed`, `CalendarLookaheadHorizon`, `NotchMetrics`, `SurfaceTimeTravelCoordinator`, `StripPointerBoxTests`, `StackGridLayout`, `SettingsMetricsTests`, `ChipPressGestureModifier`, `WindowRecord`, `IconStudioController`, `SettingsMusicPane`, `ManualPanelHostTests`, `NonConstrainingPanel`, `NotchModel`, `WallpaperStageView`, `ShelfTrayArt`, `LiveActivity`, `DesktopManualStack`, `MoveAllWidgetsUndoPlan`, `MusicScrollCatcher`, `DockGlassBackdrop.swift`, `StripDropRouting`, `LiveActivityFeed`, `WallpaperEngine`, `.cardFrameHeight`, `PreferenceSliderMenuItemView`, `DockClipboardUtilityHostedView`, `WidgetSize`, `Task`, `NotchShape`, `ChipHoverInput`, `FolderContentsLoader`, `DeckRichCards.swift`, `RadialDialGeometryTests`, `IslandPrimitives.swift`, `IslandDisplayTopology`, `NotchPage`, `ControlCenterLayout.swift`, `DeckButton`, `ControlCenterPanelController`, `WindowSwitcherView`, `FolderChipDropZone`, `SettingsWindowContent`, `.makeCoordinator`, `Task`, `StackPopupChrome`, `WeatherModernChip`, `DockThemeStyle`, `SystemStatusService`, `MissionControlSurface`, `AppIconPresentationPreset`, `DrawerCapsuleButton`, `FluidRailBody`, `StripFileDropDelegate`, `Slice Roadmap`, `DailyHelpersService`, `DockThemeTests`, `DeckButton`, `NotchRestContent`, `BarSection`, `ChipPanelHoverMachine`, `SettingsShell`, `String`, `DockControlCenterWidgetView`, `StripContextMenuZoneTests`, `MarqueeText`, `LauncherChip`, `2. Detailed Pillar-by-Pillar Findings (1–13)`, `WheelAction`, `.mainWindowID`, `LiveIslandSkin`, `DesktopWidgetChromeView`, `WidgetTextScale`, `DockAppGroupStore`, `PinnedFolderCoverStore`, `ChipView`, `WiFiVolumeFABView`, `View`, `ExpandedMediaCardView`, `RadialDialWedgeView`, `IconSet`, `WindowLayoutMemory`, `.applicationDidFinishLaunching`, `PopItem`, `NSView`, `WidgetPanelController`, `NotchTrackPillModel`, `NotchDesignSpec`, `CGRect`, `KeyVisualizerController`, `SideDeckHandleWindow`, `CaptureController`, `TaskbarPerDisplaySeedController`, `DragCarrierGeometryTests`, `SettingsWallpaperPane`, `ControlCenterView`, `LauncherLayoutTests`, `MusicDesktopWidgetPreset`, `LiquidNotchShellView`, `ShelfChip`, `IslandPath.swift`, `StripDropRoutingTests`, `.panelSize`, `Identifiable`, `NotchBatteryChip`, `PermissionOnboardingView`, `DockLiquidGlassConfiguration`, `AXWindowReader`, `Sendable`, `RadialDialView`?**
-  _High betweenness centrality (0.136) - this node is a cross-community bridge._
+  _High betweenness centrality (0.100) - this node is a cross-community bridge._
 - **Are the 40 inferred relationships involving `CGFloat` (e.g. with `.renderExampleMoodboardPNG()` and `.chipPanel`) actually correct?**
   _`CGFloat` has 40 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `.key`, `.slot`, `.nowPlayingService` to the rest of the system?**
+- **What connects `-dealloc`, `-observeValueForKeyPathofObjectchangecontext`, `.controlCentreAtTrailingEnd` to the rest of the system?**
   _4957 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `AppSettingsStore` be split into smaller, more focused modules?**
   _Cohesion score 0.021408213499157922 - nodes in this community are weakly interconnected._
 - **Why does `CGRect` connect `CGRect` to `View`, `App Tracker & AX Cache`, `Drag Controller & Carrier`, `SettingsCard`, `Codable`, `PanelCoordinator`, `StripBlockLandingTests`, `WindowID`, `SpaceSwitchDirection`, `GestureDispatcher`, `Status Menu`, `StripPlacementMap`, `.widgetPanelFrame`, `LauncherPanelController`, `Placement`, `make_icons.swift`, `WindowLiftAvoidanceTests`, `Units`, `SystemObservation`, `WindowLiftAvoidance`, `DesktopCanvasCoordinator`, `MusicGlassCardView`, `EdgeTabShape`, `.info`, `2. Complete 24-Item Code-Grounded Status Matrix`, `WeatherDetail`, `App Tracker Batching`, `DesktopWidgetItem`, `TaskbarScreenOrchestrator`, `PanelGeometry`, `DragControllerConversionTests`, `TopologyDisplay`, `.init`, `SnapPosition`, `StripHoverResolutionTests`, `TerminalPanelController`, `DockAccentSpec`, `AppDelegate`, `DockSlotLayout`, `LayoutCatalog`, `DockLiquidGlassConfigurationTests`, `DeckFont`, `BarLayoutMode`, `.show`, `DockWindowManager`, `ScrollingStripState`, `MusicWaveformView`, `DockStripView`, `Double`, `ObservationAdmissionGate`, `NotchContinuousMaskShape`, `WeatherModernChip`, `FinderP0Tests`, `NowPlayingProgressTests`, `TrackingView`, `.islands`, `NotchPanelController`, `DockScreenEdge`, `DeckMetrics`, `StripPlacementTests`, `DesktopWidgetPanelController`, `ObservableObject`, `MissionControlWindowFrame`, `.applyFullscreenVisibility`, `DesktopResizeHandle`, `Double`, `benchtool.swift`, `main.swift`, `DragConversionPlanTests`, `MenuBarHubPanelController`, `NotchColorPreset`, `ChipPanelController`, `.start`, `MusicDesktopWidgetPreset`, `DesktopSearchPanelView`, `.bounds`, `MusicArtworkPalette`, `StageShortcuts`, `FinderAppleEventMatcherTests`, `SideDeckConfig`, `.taskbarMenuAnchor`, `EdgeBarPanelController`, `WeatherPanelView.swift`, `FullscreenClassificationTests`, `HoverTrace`, `Verdict`, `AppTrackerCGWindowSnapshot`, `NotchMetrics`, `SurfaceTimeTravelCoordinator`, `StripPointerBoxTests`, `DragShakeWatcher`, `NotificationMoveService`, `WindowRecord`, `IconStudioController`, `Task`, `NotchModel`, `WallpaperStageView`, `ShelfTrayArt`, `MoveAllWidgetsUndoPlan`, `AccessibilityWindowActionExecutor`, `Foundation`, `.isEligible`, `WindowDisplayTitleTests`, `DockWidgetStyle`, `.cardFrameHeight`, `WidgetSize`, `Task`, `WindowLiftRecoveryEntry`, `NotchShape`, `DeckRichCards.swift`, `LiquidNotchShellView`, `IslandDisplayTopology`, `PinnedIslandTests`, `DeckButton`, `ControlCenterPanelController`, `FolderChipDropZone`, `SnapPosition`, `WeatherModernChip`, `FullscreenIntentDecisionTests`, `MissionControlSurface`, `FluidRailBody`, `StripFileDropDelegate`, `DeckButton`, `WeatherEffects`, `FullscreenIntentMonitor`, `ChipPanelHoverMachine`, `StripContextMenuZoneTests`, `AppRuntime`, `FullscreenIntentMonitor`, `String`, `DesktopWidgetChromeView`, `FinderTrashTests`, `NotchHoverMachineTests`, `.matchScore`, `ChipView`, `AppTrackerDisplayAttributionTests`, `DesktopSearchService`, `View`, `RadialDialWedgeView`, `UVLevel`, `WindowLayoutMemory`, `.applicationDidFinishLaunching`, `FocusFollowService`, `PopItem`, `WidgetPanelController`, `NotchDesignSpec`, `DictionaryPanelController`, `.installFixtureForTesting`, `CaptureController`, `.verdict`, `TaskbarPerDisplaySeedController`, `DragCarrierGeometryTests`, `LauncherLayoutTests`, `MusicDesktopWidgetPreset`, `IslandPath.swift`, `StripDropRoutingTests`, `.panelSize`, `Identifiable`, `AXWindowReader`, `Sendable`?**
-  _High betweenness centrality (0.075) - this node is a cross-community bridge._
+  _High betweenness centrality (0.089) - this node is a cross-community bridge._
 - **Are the 303 inferred relationships involving `CGRect` (e.g. with `.detached()` and `.hostWindow()`) actually correct?**
   _`CGRect` has 303 INFERRED edges - model-reasoned connections that need verification._
 - **Should `XCTest` be split into smaller, more focused modules?**
