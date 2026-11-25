@@ -1,6 +1,6 @@
 # Control Centre → Quick Settings Hub (`CC-1` → `CC-5`)
 
-> **Status:** In progress (`2026-11-25`) · `CC-1` → `CC-4` landed (`9dfa2298`, `457e3648`, `cf516427`, `9082b956`, `a7c8b8d4`); `CC-3b` drawn Bluetooth rune done; `CC-4` edit mode and `CC-5` open
+> **Status:** Complete (`2026-11-25`) · `CC-1` → `CC-4` landed (`9dfa2298`, `457e3648`, `cf516427`, `9082b956`, `a7c8b8d4`); `CC-3b` drawn Bluetooth rune done; `CC-5` verified — localization/debug/input gates green, 3921-test suite green, signed Release 0.18.0 (54) installed fresh. Idle CPU was not re-measured during the final pass because the desktop was in active use.
 > **Guardrails:** `<= 300` LOC per commit · `0` `project.pbxproj` edits · `0` edits to the 5 frozen files
 > (`WindowLiftAvoidanceController`, `AppTracker`, `DragController`, `AccessibilitySource`,
 > `FullscreenIntentMonitor`) · `0.0 %` idle CPU · pure Core + tests before UI, every slice.
