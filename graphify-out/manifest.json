@@ -4710,9 +4710,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1795632143.8835168,
-    "seen": 1795632168.206995,
-    "ast_hash": "948b0c921dafab42b65f65aadc2cbd5d",
+    "mtime": 1795633255.8568356,
+    "seen": 1795633310.045294,
+    "ast_hash": "ffc18cf4f22e51b4284b2b1b9bb950e3",
     "semantic_hash": ""
   },
   "BASELINE_RULES.md": {
@@ -7008,9 +7008,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/bench.yml": {
-    "mtime": 1795633158.3612309,
-    "seen": 1795633173.594445,
-    "ast_hash": "c80b77c6344421df1dccbdbe3b40e23d",
+    "mtime": 1795633255.8565576,
+    "seen": 1795633310.0452921,
+    "ast_hash": "4b250f09f0dbfc417ae032b4e7f1243b",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/2026-11-04-livecheck-fix-plan.md": {
@@ -7374,9 +7374,9 @@
     "semantic_hash": ""
   },
   "Platform/Display/ScreenTouchCapabilities.swift": {
-    "mtime": 1794914298.8769655,
-    "seen": 1795606909.6226401,
-    "ast_hash": "c4c25b5b6663bd277d3cb6ec9d278a0e",
+    "mtime": 1795633261.9106622,
+    "seen": 1795633310.0459058,
+    "ast_hash": "374ad639b9393f8275397ff150c5c97b",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandDisplayTopologyTests.swift": {
