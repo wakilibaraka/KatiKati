@@ -349,7 +349,7 @@ private struct NotchBehaviorCard: View {
 /// What the closed island shows at rest, and when the charge turns red (vorssaint-utils' Activity tab,
 /// the parts KatiKati has data for; indicators and Lock Screen are not ported).
 private struct NotchActivityCard: View {
-    @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
+    @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.timeBattery.rawValue
     @AppStorage(NotchMusicGlow.defaultsKey) private var glow = NotchMusicGlow.default.rawValue
     @AppStorage("com.katikati.notch.trackToast") private var trackToast = true
     @AppStorage("com.katikati.notch.batteryBuddy") private var batteryBuddy = true
@@ -364,15 +364,15 @@ private struct NotchActivityCard: View {
 
     var body: some View {
         SettingsCard(Text(verbatim: "Notch At Rest")) {
+            // SD-3b: storage left the resting notch, so its two presets retired; the row stays 3-up and
+            // keeps a second line so the card does not reflow into a five-across strip.
             HStack(spacing: 8) {
-                choice(.dockChips, "Storage & battery", "internaldrive")
                 choice(.timeBattery, "Time & battery", "clock")
                 choice(.battery, "Battery", "battery.75percent")
+                choice(.time, "Time", "clock.fill")
             }
             .padding(.vertical, 4)
             HStack(spacing: 8) {
-                choice(.storage, "Storage", "internaldrive.fill")
-                choice(.time, "Time", "clock.fill")
                 choice(.nothing, "None", "minus")
             }
             .padding(.bottom, 4)
@@ -414,7 +414,7 @@ private struct NotchActivityCard: View {
     }
 
     private func choice(_ value: NotchRestContent, _ title: String, _ symbol: String) -> some View {
-        let selected = rest == value.rawValue
+        let selected = NotchRestContent.resolved(raw: rest) == value
         return Button { rest = value.rawValue } label: {
             VStack(spacing: 6) {
                 Image(systemName: symbol).font(.system(size: 18, weight: .medium))

@@ -7,7 +7,6 @@ struct NotchWideBarView: View {
     let height: CGFloat
     @ObservedObject private var feed = LiveActivityFeed.shared
     @StateObject private var power = SystemStatusService()
-    @State private var free: Int64 = 0
 
     var body: some View {
         let items = NotchWideBarSpec.items(width: width)
@@ -35,13 +34,6 @@ struct NotchWideBarView: View {
             }
             if items.contains(.system) { WideBarSystem() }
             if items.contains(.weather), let service = WeatherPanelHost.service { WideBarWeather(service: service) }
-            if items.contains(.storage) {
-                HStack(spacing: 3) {
-                    Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
-                    Text(verbatim: StorageScanMath.compact(free))
-                        .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit()).foregroundStyle(.white)
-                }
-            }
             if items.contains(.status) {
                 HStack(spacing: 6) {
                     Image(systemName: power.status.wifi.symbolName)
@@ -57,12 +49,6 @@ struct NotchWideBarView: View {
         .frame(width: width, height: height)
         .onAppear { power.acquire() }
         .onDisappear { power.release() }
-        .task {
-            while !Task.isCancelled {
-                free = StorageScanService.freeBytes()
-                try? await Task.sleep(for: .seconds(60))
-            }
-        }
     }
 }
 

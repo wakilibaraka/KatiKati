@@ -116,10 +116,34 @@ final class NotchHoverMachineTests: XCTestCase {
         }
         XCTAssertEqual(NotchRestContent.battery.left, .batteryIcon)
         XCTAssertEqual(NotchRestContent.battery.right, .batteryPercent)
-        XCTAssertEqual(NotchRestContent.storage.left, .storageLabel)
-        XCTAssertEqual(NotchRestContent.storage.right, .storage)
         XCTAssertEqual(NotchRestContent.time.left, .date)
         XCTAssertEqual(NotchRestContent.time.right, .time)
+    }
+
+    /// SD-3b: the two storage presets retired with the notch's storage ear. A stored value still resolves, and
+    /// is rewritten once behind a stamp, so a later explicit choice is never clobbered.
+    func testRetiredRestContentPresetsMigrateToTimeBattery() {
+        let suite = "NotchRestContentMigrationTests"
+        let d = UserDefaults(suiteName: suite)!
+        d.removePersistentDomain(forName: suite)
+
+        d.set("dockChips", forKey: NotchRestContent.defaultsKey)
+        NotchRestContent.migrateRetiredPresets(in: d)
+        XCTAssertEqual(d.string(forKey: NotchRestContent.defaultsKey), NotchRestContent.timeBattery.rawValue)
+        XCTAssertTrue(d.bool(forKey: NotchRestContent.migrationKey))
+
+        // Stamped: a value written after the migration is left alone, even if it names a retired preset.
+        d.set("storage", forKey: NotchRestContent.defaultsKey)
+        NotchRestContent.migrateRetiredPresets(in: d)
+        XCTAssertEqual(d.string(forKey: NotchRestContent.defaultsKey), "storage")
+
+        XCTAssertEqual(NotchRestContent.resolved(raw: "dockChips"), .timeBattery)
+        XCTAssertEqual(NotchRestContent.resolved(raw: "storage"), .timeBattery)
+        XCTAssertEqual(NotchRestContent.resolved(raw: "battery"), .battery)
+        XCTAssertEqual(NotchRestContent.resolved(raw: ""), .timeBattery)
+
+        d.set("battery", forKey: NotchRestContent.defaultsKey)
+        XCTAssertEqual(NotchRestContent.current(d), .battery)
     }
 
     func testTimeTravelBufferRingCapAndScrubbing() {
