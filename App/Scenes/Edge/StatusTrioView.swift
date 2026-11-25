@@ -180,6 +180,50 @@ struct BluetoothFlyoutView: View {
 /// Layout, top to bottom: header (clock + battery), system & peripherals with live percentages,
 /// Wi-Fi / Bluetooth bento, now playing, the switch grid (4 or 5 per row, see `ControlCenterGrid`),
 /// the network row, three sliders, the utility row and the account footer.
+/// The edge deck's second job once Control Centre moves to the menu bar: a compact list of the
+/// apps running without a window, reading the same store the drawer tab uses.
+struct BackgroundActivityDeckView: View {
+    @ObservedObject private var store = BackgroundAppsStore.shared
+    @Environment(\.dockThemeStyle) private var dockThemeStyle
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    private var ink: Color { theme.labelActive.color }
+    private var inkSoft: Color { theme.labelSubtitle.color }
+
+    private var ids: [String] {
+        Array(store.facts.filter { !store.ignored.contains($0.bundleID) }.map(\.bundleID).prefix(10))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 6) {
+                Image(systemName: "square.stack.3d.up.fill")
+                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(inkSoft)
+                Text("Background Apps").font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
+                Spacer()
+            }
+            if ids.isEmpty {
+                Text("None").font(.system(size: 11)).foregroundStyle(inkSoft)
+            } else {
+                ForEach(ids, id: \.self) { id in
+                    HStack(spacing: 8) {
+                        Image(nsImage: AppIconResolver.icon(for: id)).resizable().frame(width: 24, height: 24)
+                        Text(verbatim: AppDisplayNameResolver.displayName(for: id))
+                            .font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink).lineLimit(1)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
 struct ControlCenterView: View {
     @ObservedObject var engine: QuickToggleEngine
     let order: [QuickToggleID]
@@ -378,9 +422,12 @@ struct ControlCenterView: View {
         isPad ? Color.white.opacity(colorScheme == .dark ? 0.10 : 0.65) : Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.07)
     }
 
+    /// The Finish row tunes the card wash only; the dock theme's colours stay untouched.
     private var cardFill: AnyShapeStyle {
-        if isPad { return AnyShapeStyle(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.55)) }
-        return AnyShapeStyle(LinearGradient(colors: [Color.primary.opacity(colorScheme == .dark ? 0.07 : 0.05),
+        let alpha = ControlCenterGlassStyle.parse(
+            UserDefaults.standard.string(forKey: ControlCenterGlassStyle.storageKey)).cardAlpha
+        if isPad { return AnyShapeStyle(Color.white.opacity(colorScheme == .dark ? alpha + 0.02 : 0.55)) }
+        return AnyShapeStyle(LinearGradient(colors: [Color.primary.opacity(colorScheme == .dark ? alpha : alpha * 0.75),
                                               palette.cardTintBottom],
                                      startPoint: .topLeading, endPoint: .bottomTrailing))
     }

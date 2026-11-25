@@ -574,8 +574,13 @@ final class MenuBarHubPanelController {
 
         let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first
         let visible = (screen?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)).insetBy(dx: 8, dy: 8)
-        let size = CGSize(width: MenuBarCreativeHubView.panelWidth,
-                          height: MenuBarCreativeHubView.panelHeight + HubCaretPlan.height)
+        // The status item hosts whichever surface the owner chose: the Creative Hub, or the Control
+        // Centre when they moved it to the menu bar (the two stay mutually exclusive).
+        let surfaceMode = ControlCenterSurfaceMode.parse(UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey))
+        let size = surfaceMode == .menuBar
+            ? CGSize(width: ControlCenterSize.parse(UserDefaults.standard.string(forKey: ControlCenterSize.storageKey)).width, height: 520)
+            : CGSize(width: MenuBarCreativeHubView.panelWidth,
+                     height: MenuBarCreativeHubView.panelHeight + HubCaretPlan.height)
         let x = min(max(buttonRect.midX - size.width / 2, visible.minX), visible.maxX - size.width)
         // No gap now: the pointer strip takes the old 6 pt gap and its tip touches the icon's edge.
         let y = max(visible.minY, buttonRect.minY + 1 - size.height)
@@ -584,13 +589,23 @@ final class MenuBarHubPanelController {
 
         let p = panel ?? makePanel()
         panel = p
-        let root = MenuBarCreativeHubView(
-            onDismiss: { [weak self] in self?.hide() },
-            onOpenSettings: { [weak self] in self?.hide(); self?.onOpenSettings() },
-            caretX: caretX
-        )
-        .environment(\.dockThemeStyle, themeStyle())
-        .environment(\.themeTuning, themeTuning())
+        let root: AnyView = surfaceMode == .menuBar
+            ? AnyView(ControlCenterView(
+                engine: .shared,
+                order: QuickToggleID.defaultOrder,
+                widgetTiles: TileKind.controlCenterDefault,
+                style: ControlCenterStyle.parse(UserDefaults.standard.string(forKey: ControlCenterStyle.storageKey)),
+                onSettings: { [weak self] in self?.hide(); self?.onOpenSettings() })
+                .frame(width: size.width, height: size.height)
+                .environment(\.dockThemeStyle, themeStyle())
+                .environment(\.themeTuning, themeTuning()))
+            : AnyView(MenuBarCreativeHubView(
+                onDismiss: { [weak self] in self?.hide() },
+                onOpenSettings: { [weak self] in self?.hide(); self?.onOpenSettings() },
+                caretX: caretX
+            )
+            .environment(\.dockThemeStyle, themeStyle())
+            .environment(\.themeTuning, themeTuning()))
 
         let hosting = NSHostingView(rootView: root)
         hosting.frame = CGRect(origin: .zero, size: size)

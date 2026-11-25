@@ -183,13 +183,21 @@ final class ControlCenterPanelController {
         let frame = panelFrame(on: screen, size: size)
         let panel = self.panel ?? makePanel()
         self.panel = panel
-        let hosting = NSHostingView(rootView: AnyView(ControlCenterView(
-            engine: .shared, order: toggleOrder(),
-            widgetTiles: widgets(), style: panelStyle(),
-            onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
-            onDrawer: onDrawer, onQuit: onQuit)
-            .environment(\.dockThemeStyle, themeStyle())
-            .environment(\.themeTuning, themeTuning())))
+        // When Control Centre lives in the menu bar, this deck keeps its job: it becomes the
+        // Background Apps surface instead of duplicating the panel.
+        let surfaceMode = ControlCenterSurfaceMode.parse(UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey))
+        let root: AnyView = surfaceMode == .menuBar
+            ? AnyView(BackgroundActivityDeckView()
+                .environment(\.dockThemeStyle, themeStyle())
+                .environment(\.themeTuning, themeTuning()))
+            : AnyView(ControlCenterView(
+                engine: .shared, order: toggleOrder(),
+                widgetTiles: widgets(), style: panelStyle(),
+                onSettings: onSettings, onLauncher: onLauncher, onCapture: onCapture,
+                onDrawer: onDrawer, onQuit: onQuit)
+                .environment(\.dockThemeStyle, themeStyle())
+                .environment(\.themeTuning, themeTuning()))
+        let hosting = NSHostingView(rootView: root)
         hosting.frame = CGRect(origin: .zero, size: size)
         panel.contentView = Self.floatingPlate(wrapping: hosting, size: size, style: panelStyle())
         switch panelAnimation() {

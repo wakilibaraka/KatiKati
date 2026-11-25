@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 // The ControlCenter mode of `SettingsLayoutPane`; state lives in the main file.
@@ -171,6 +172,7 @@ private struct ControlCenterAppearanceSettings: View {
     @AppStorage(ControlCenterDedupeOptions.singleBatteryKey) private var singleBattery = true
     @AppStorage(ControlCenterDedupeOptions.singleNowPlayingKey) private var singleNowPlaying = true
     @AppStorage(ControlCenterDedupeOptions.showNowPlayingAnywayKey) private var showAnyway = false
+    @AppStorage(ControlCenterSurfaceMode.storageKey) private var surfaceRaw = ControlCenterSurfaceMode.default.rawValue
 
     private var preset: ControlCenterPreset { ControlCenterPreset.parse(presetRaw) }
 
@@ -202,6 +204,23 @@ private struct ControlCenterAppearanceSettings: View {
                 Text("Clear").tag(ControlCenterGlassStyle.clear)
                 Text("Semi").tag(ControlCenterGlassStyle.semi)
                 Text("Tinted").tag(ControlCenterGlassStyle.tinted)
+            }
+
+            SettingsSegmentedRow(Text("Home"), selection: Binding(
+                get: { ControlCenterSurfaceMode.parse(surfaceRaw) },
+                set: { next in
+                    surfaceRaw = next.rawValue
+                    guard next == .menuBar,
+                          !UserDefaults.standard.bool(forKey: ControlCenterEdgeRole.promptSeenKey) else { return }
+                    UserDefaults.standard.set(true, forKey: ControlCenterEdgeRole.promptSeenKey)
+                    let alert = NSAlert()
+                    alert.messageText = String(localized: "Control Centre is now in the Menu Bar")
+                    alert.informativeText = String(localized: "The edge Control Panel now shows Background Apps. Open the Control Centre from the menu bar icon.")
+                    alert.runModal()
+                }
+            )) {
+                Text("Edge").tag(ControlCenterSurfaceMode.edge)
+                Text("Menu Bar").tag(ControlCenterSurfaceMode.menuBar)
             }
 
             SettingsToggleRow(Text("Single Battery"), isOn: $singleBattery,
