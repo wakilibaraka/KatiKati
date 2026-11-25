@@ -3204,9 +3204,9 @@
     "semantic_hash": "2ca0a88d8fd48cd79ccc8c7a3c03376c"
   },
   "Tests/Unit/BarLayoutModeTests.swift": {
-    "mtime": 1795477675.8100257,
-    "seen": 1795598824.3523252,
-    "ast_hash": "aece270c66ce626b60c0cc0d320fcaae",
+    "mtime": 1795599164.61513,
+    "seen": 1795599309.381431,
+    "ast_hash": "88c3c0946a738e1d86661ffc8fb961ad",
     "semantic_hash": ""
   },
   "Tests/Unit/BluetoothDevicesTests.swift": {
@@ -4308,9 +4308,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetPresetTests.swift": {
-    "mtime": 1795015549.1788352,
-    "seen": 1795598824.3525188,
-    "ast_hash": "c1c174eeb58a94d73e43736bfac011d5",
+    "mtime": 1795599165.1242504,
+    "seen": 1795599309.3816361,
+    "ast_hash": "08c72b4f830b1cc211e451672b47eb6a",
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetTallTests.swift": {
@@ -6756,9 +6756,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DockWidgetLogicTests.swift": {
-    "mtime": 1795598775.9444745,
-    "seen": 1795598824.352366,
-    "ast_hash": "ff10e4cb35a41a0fd2178882e718f2a2",
+    "mtime": 1795599165.6512916,
+    "seen": 1795599309.381475,
+    "ast_hash": "afa0e2cd413e241d8b1334adb8d3d95b",
     "semantic_hash": ""
   },
   "App/Composition/SpaceTransitionController.swift": {
@@ -8568,9 +8568,9 @@
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-undo/README.md": {
-    "mtime": 1795598789.208222,
-    "seen": 1795598824.352642,
-    "ast_hash": "64cdced55c2c712d74e4ddee010f5901",
+    "mtime": 1795599268.5295064,
+    "seen": 1795599309.3817651,
+    "ast_hash": "e85a9d76cdb65d89c329623339a26b06",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-undo/01-prompt.png": {
@@ -8637,6 +8637,18 @@
     "mtime": 1795598789.207704,
     "seen": 1795598824.352776,
     "ast_hash": "f2cb2716e85a6aa25fa45c5b08e92091",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-undo/12-rebased-dropdown.png": {
+    "mtime": 1795598965.2263687,
+    "seen": 1795599309.381907,
+    "ast_hash": "34ee9913f3b5b9aa8be87284779bea4c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-undo/13-rebased-background-apps.png": {
+    "mtime": 1795598979.3811023,
+    "seen": 1795599309.381908,
+    "ast_hash": "77fdbe8a7775150b76c6cb2fe92b8bf4",
     "semantic_hash": ""
   }
 }
