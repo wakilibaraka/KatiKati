@@ -56,7 +56,7 @@ final class WidgetCatalogTests: XCTestCase {
         let items = WidgetCatalog.items(layout: .default, utilities: WidgetCatalogUtilities(), userPresets: [user])
         // Every module but Apps: Apps is fixed on the bar and has no visibility switch.
         XCTAssertEqual(targetKind(items) { if case .section = $0 { return true } else { return false } },
-                       BarSection.allCases.count - 1)
+                       BarSection.canonicalOrder.count - 1)
         XCTAssertFalse(items.contains { $0.target == .section(.apps) })
         XCTAssertEqual(targetKind(items) { if case .utility = $0 { return true } else { return false } }, 4)
         XCTAssertEqual(targetKind(items) { if case .preset = $0 { return true } else { return false } },

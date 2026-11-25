@@ -104,8 +104,9 @@ final class BarLayoutModeTests: XCTestCase {
     // MARK: - Hardcoded order + settings-only widths (Phase 4U decision 3, 2026-10-09)
 
     func testCanonicalOrderIsHardcoded() {
-        // Declaration order IS the canonical widget order: no reader, no writer.
-        XCTAssertEqual(BarSection.allCases, BarSection.canonicalOrder)
+        // Declaration order IS the canonical widget order: no reader, no writer. Retired cases stay
+        // declared only so old layouts decode, so they are the one legitimate exception (SD-3c).
+        XCTAssertEqual(BarSection.allCases.filter { !$0.isRetired }, BarSection.canonicalOrder)
         // DP-2: AI Tracking is opt-in, so the fresh visible set no longer includes `.ai`.
         XCTAssertEqual(BarSection.defaultOrder, [.launcher, .weather, .apps, .media, .utilities, .clock, .widgets])
     }
