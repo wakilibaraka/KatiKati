@@ -541,6 +541,42 @@ struct ChipView: View {
     private func buildChipMenu() -> NSMenu {
         let menu = NSMenu()
         let bid = item.bundleIdentifier
+        // Show-and-tell header: the same icon well / name / pill / four wells as the Menu Bar hub.
+        let isHidden = effectiveStatus == "hidden"
+        let isKept = bid.map(keptAppStore.contains) ?? false
+        let quickTiles = DockMenuModel.appTiles(isHidden: isHidden, isKept: isKept).map { tile -> DockMenuChrome.Tile in
+            switch tile.id {
+            case "show":
+                return .init(symbol: tile.symbol, caption: String(localized: "Show")) {
+                    runtime.activate(windowID: item.actionWindowID)
+                }
+            case "hide":
+                return .init(symbol: tile.symbol, caption: String(localized: "Hide")) {
+                    runtime.hide(windowID: item.actionWindowID)
+                }
+            case "newWindow":
+                return .init(symbol: tile.symbol, caption: String(localized: "New Window")) {
+                    runtime.newWindow(windowID: item.actionWindowID)
+                }
+            case "pin", "unpin":
+                let caption = tile.id == "pin" ? String(localized: "Keep in Dock") : String(localized: "Unpin")
+                return .init(symbol: tile.symbol, caption: caption) {
+                    if let bid { appMembershipController.setKept(bid, enabled: tile.id == "pin") }
+                }
+            default:
+                return .init(symbol: tile.symbol, caption: String(localized: "Quit")) {
+                    runtime.quit(windowID: item.actionWindowID)
+                }
+            }
+        }
+        menu.addItem(DockMenuChrome.header(
+            icon: bid.map { AppIconResolver.icon(for: $0) } ?? NSApp.applicationIconImage,
+            title: appName,
+            status: isHidden ? String(localized: "Hidden") : nil,
+            tiles: quickTiles,
+            menu: menu
+        ))
+        menu.addItem(.separator())
         // 窗口列表最前（仅应用级入口；次序见 Docs/27 2026-08-24）：✓ 前台窗，◇ 已最小化。
         // 只读快照——菜单在右键瞬间同步构建，这条路径上不做任何 AX。
         if showsWindowListInMenu, let listBid = bid {

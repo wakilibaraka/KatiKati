@@ -46,6 +46,41 @@ enum FileItemMenuBuilder {
         let menu = NSMenu()
         let url = context.url
         let closePopup = context.closePopup
+        let onTrashed = context.onTrashed
+        let trashItem: () -> Void = {
+            do {
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+                TrashStateStore.shared.noteTrashedInApp()
+                onTrashed?()
+            } catch {
+                NSSound.beep()   // 失败（权限/只读卷等）不弹框,与访达的静默拒绝一致
+            }
+        }
+
+        let tiles = DockMenuModel.fileTiles(isDirectory: context.isDirectory)
+        menu.addItem(DockMenuChrome.header(
+            icon: NSWorkspace.shared.icon(forFile: url.path),
+            title: FileManager.default.displayName(atPath: url.path),
+            status: context.isDirectory ? String(localized: "Folder") : String(localized: "File"),
+            tiles: [
+                .init(symbol: tiles[0].symbol, caption: String(localized: "Open")) {
+                    NSWorkspace.shared.open(url)
+                    closePopup()
+                },
+                .init(symbol: tiles[1].symbol, caption: String(localized: "Show in Finder")) {
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                    closePopup()
+                },
+                .init(symbol: tiles[2].symbol, caption: String(localized: "Copy")) {
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.writeObjects([url as NSURL])
+                },
+                .init(symbol: tiles[3].symbol, caption: String(localized: "Move to Trash"), action: trashItem),
+            ],
+            menu: menu
+        ))
+        menu.addItem(.separator())
 
         menu.addItem(ClosureMenuItem(String(localized: "Open")) {
             NSWorkspace.shared.open(url)
@@ -78,16 +113,7 @@ enum FileItemMenuBuilder {
             }
         }
         menu.addItem(.separator())
-        let onTrashed = context.onTrashed
-        menu.addItem(ClosureMenuItem(String(localized: "Move to Trash")) {
-            do {
-                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
-                TrashStateStore.shared.noteTrashedInApp()
-                onTrashed?()
-            } catch {
-                NSSound.beep()   // 失败（权限/只读卷等）不弹框,与访达的静默拒绝一致
-            }
-        })
+        menu.addItem(ClosureMenuItem(String(localized: "Move to Trash"), handler: trashItem))
         return menu
     }
 

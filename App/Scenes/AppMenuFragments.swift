@@ -614,3 +614,78 @@ enum DockUtilityMenuBuilder {
         return menu
     }
 }
+
+// MARK: - Dock menu chrome
+
+/// The visual header at the top of a Dock right-click menu: the same grammar as the Menu Bar hub —
+/// a 26 pt icon well, a 12.5 pt semibold name, a quiet status pill, and four action wells. It is a
+/// hosted SwiftUI view so the hub's type ramp and radii are reused rather than restyled; building
+/// it costs one hosting view, with no timers, readers, AX calls or disk walks on the open path.
+@MainActor
+enum DockMenuChrome {
+    struct Tile {
+        let symbol: String
+        let caption: String
+        let action: () -> Void
+    }
+
+    static func header(icon: NSImage?, title: String, status: String?, tiles: [Tile], menu: NSMenu) -> NSMenuItem {
+        let host = NSHostingView(rootView: DockMenuHeaderView(icon: icon, title: title, status: status, tiles: tiles, menu: menu))
+        host.frame = NSRect(x: 0, y: 0, width: 264, height: 94)
+        let item = NSMenuItem()
+        item.view = host
+        return item
+    }
+}
+
+private struct DockMenuHeaderView: View {
+    let icon: NSImage?
+    let title: String
+    let status: String?
+    let tiles: [DockMenuChrome.Tile]
+    let menu: NSMenu
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 9) {
+                Group {
+                    if let icon {
+                        Image(nsImage: icon).resizable().interpolation(.high)
+                    } else {
+                        Image(systemName: "app.dashed").font(.system(size: 15, weight: .medium))
+                    }
+                }
+                .frame(width: 26, height: 26)
+                Text(verbatim: title).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
+                Spacer(minLength: 4)
+                if let status {
+                    Text(verbatim: status)
+                        .font(.system(size: 9.5, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 7).padding(.vertical, 2.5)
+                        .background(Capsule().fill(Color.primary.opacity(0.09)))
+                }
+            }
+            HStack(spacing: 6) {
+                ForEach(Array(tiles.enumerated()), id: \.offset) { _, tile in
+                    Button {
+                        tile.action()
+                        DispatchQueue.main.async { menu.cancelTracking() }
+                    } label: {
+                        VStack(spacing: 3) {
+                            Image(systemName: tile.symbol).font(.system(size: 13, weight: .semibold)).frame(height: 17)
+                            Text(verbatim: tile.caption).font(.system(size: 9.5, weight: .medium)).lineLimit(1)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.07)))
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.horizontal, 11)
+        .padding(.vertical, 9)
+        .frame(width: 264, height: 94)
+    }
+}

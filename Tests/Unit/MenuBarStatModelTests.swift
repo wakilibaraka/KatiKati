@@ -183,6 +183,23 @@ final class HubModuleTests: XCTestCase {
         XCTAssertEqual(symbols[6], calendar.veryShortWeekdaySymbols[0])
     }
 
+    func testDockMenuTilesSwitchWithStateAndStayAtFour() {
+        let visible = DockMenuModel.appTiles(isHidden: false, isKept: false)
+        let hidden = DockMenuModel.appTiles(isHidden: true, isKept: true)
+        XCTAssertEqual(visible.count, 4)
+        XCTAssertEqual(hidden.count, 4)
+        XCTAssertEqual(visible.map(\.id), ["hide", "newWindow", "pin", "quit"])
+        XCTAssertEqual(hidden.map(\.id), ["show", "newWindow", "unpin", "quit"])
+        XCTAssertEqual(Set(visible.map(\.symbol)).count, 4)
+        let folder = DockMenuModel.fileTiles(isDirectory: true)
+        let file = DockMenuModel.fileTiles(isDirectory: false)
+        XCTAssertEqual(folder.count, 4)
+        XCTAssertEqual(folder.map(\.id), ["open", "reveal", "copy", "trash"])
+        XCTAssertNotEqual(folder[0].symbol, file[0].symbol)
+        XCTAssertEqual(DockMenuModel.fileStatus(isDirectory: true), "Folder")
+        XCTAssertEqual(DockMenuModel.fileStatus(isDirectory: false), "File")
+    }
+
     func testSwitchRowsThatRepeatAnActionTileAreFlagged() {
         let slots: [HubActionSlotID] = [.keepAwake, .darkMode, .notchToggle, .captureOCR]
         XCTAssertTrue(HubSwitchID.system(.keepAwake).isDuplicated(by: slots))

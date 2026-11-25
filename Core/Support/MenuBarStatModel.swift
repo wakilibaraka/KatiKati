@@ -367,6 +367,37 @@ enum HubActionLayout {
     }
 }
 
+/// The quick-action strip at the top of a Dock right-click menu. Tokens only: titles are localized
+/// by the menu that builds it, so Core stays free of AppKit and localization tables.
+struct DockMenuTileDescriptor: Equatable, Sendable {
+    let id: String
+    let symbol: String
+}
+
+enum DockMenuModel {
+    static func appTiles(isHidden: Bool, isKept: Bool) -> [DockMenuTileDescriptor] {
+        [
+            DockMenuTileDescriptor(id: isHidden ? "show" : "hide", symbol: isHidden ? "eye" : "eye.slash"),
+            DockMenuTileDescriptor(id: "newWindow", symbol: "macwindow.badge.plus"),
+            DockMenuTileDescriptor(id: isKept ? "unpin" : "pin", symbol: isKept ? "pin.slash" : "pin"),
+            DockMenuTileDescriptor(id: "quit", symbol: "power"),
+        ]
+    }
+
+    /// Folders and files share the first three tiles; only the last one differs in wording
+    /// (Move to Trash for both, because the grid menus act on the item, not on the whole view).
+    static func fileTiles(isDirectory: Bool) -> [DockMenuTileDescriptor] {
+        [
+            DockMenuTileDescriptor(id: "open", symbol: isDirectory ? "folder" : "doc.text"),
+            DockMenuTileDescriptor(id: "reveal", symbol: "magnifyingglass"),
+            DockMenuTileDescriptor(id: "copy", symbol: "doc.on.doc"),
+            DockMenuTileDescriptor(id: "trash", symbol: "trash"),
+        ]
+    }
+
+    static func fileStatus(isDirectory: Bool) -> String { isDirectory ? "Folder" : "File" }
+}
+
 extension HubSwitchID {
     /// True when this row's control is already one of the four action tiles: page one would show
     /// the same setting twice, once as a tile and once as a switch.
