@@ -120,7 +120,7 @@ struct SideDeckDownloadsPane: View {
                     Text(verbatim: file.lastPathComponent)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(.green)
-                } else if resolver.configuredTool == nil {
+                } else if !resolver.hasTool {
                     Text(verbatim: "Point it at a yt-dlp you installed or an endpoint you host.")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.45))

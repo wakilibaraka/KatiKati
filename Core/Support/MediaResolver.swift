@@ -131,3 +131,74 @@ enum MediaResolver {
         return try? JSONSerialization.data(withJSONObject: body)
     }
 }
+
+/// Where a resolve goes once the owner has configured a tool.
+enum MediaResolveRoute: Equatable, Sendable {
+    case notConfigured
+    case binary(String)
+    case endpoint(URL)
+}
+
+/// SD-5: the service's decisions and the pane's four visible outcomes — needs-a-tool, a file, a resolver
+/// failure, a run/transport failure — with no `Process`, `URLSession` or AppKit in the way, so the mapping is
+/// tested directly instead of mocked. The service keeps only the effects: starting the process, the request,
+/// and revealing the finished file.
+struct MediaResolveState: Equatable, Sendable {
+    private(set) var isResolving = false
+    private(set) var lastFile: URL?
+    private(set) var lastFailure: String?
+
+    /// `http(s)` is posted to; anything else is a path, with `~` expanded; nothing usable means no resolver.
+    static func route(tool: String?) -> MediaResolveRoute {
+        guard let raw = tool?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+            return .notConfigured
+        }
+        if raw.hasPrefix("http") {
+            // A malformed endpoint ("https://") is neither run as a binary nor silently ignored: it is simply
+            // not configured yet, which is what the pane says.
+            guard let remote = URL(string: raw), MediaResolver.isSupported(remote) else { return .notConfigured }
+            return .endpoint(remote)
+        }
+        let expanded = (raw as NSString).expandingTildeInPath
+        return expanded.isEmpty ? .notConfigured : .binary(expanded)
+    }
+
+    /// A finished local run: the named file wins. Otherwise a non-zero exit is a failure carrying the tool's
+    /// last line, and a clean exit that named nothing is still a failure — silence must not read as success.
+    static func binaryOutcome(terminationStatus: Int32, output: String) -> Result<URL, MediaResolverFailure> {
+        if let named = MediaResolver.parseDestination(output) {
+            return .success(URL(fileURLWithPath: named))
+        }
+        if terminationStatus != 0 {
+            return .failure(.binaryFailed(output.split(separator: "\n").last.map(String.init) ?? ""))
+        }
+        return .failure(.noFileProduced)
+    }
+
+    /// A finished endpoint answer: 2xx plus a `path` is the file, anything else says why.
+    static func endpointOutcome(status: Int, data: Data?) -> Result<URL, MediaResolverFailure> {
+        guard (200..<300).contains(status) else { return .failure(.endpointFailed(status)) }
+        let object = data.flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any]
+        guard let path = object?["path"] as? String, !path.isEmpty else { return .failure(.noFileProduced) }
+        return .success(URL(fileURLWithPath: path))
+    }
+
+    /// The one funnel: whatever happened, the pane ends up showing either a file or a sentence.
+    mutating func begin() {
+        isResolving = true
+        lastFile = nil
+        lastFailure = nil
+    }
+
+    mutating func finish(_ result: Result<URL, MediaResolverFailure>) {
+        isResolving = false
+        switch result {
+        case .success(let file):
+            lastFile = file
+            lastFailure = nil
+        case .failure(let failure):
+            lastFailure = failure.message
+            lastFile = nil
+        }
+    }
+}

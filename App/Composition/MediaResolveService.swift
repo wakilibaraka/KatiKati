@@ -13,9 +13,12 @@ final class MediaResolveService: ObservableObject {
     /// One field for either kind of tool: an `http(s)` URL is posted to, anything else is run as a binary.
     static let toolKey = "com.katikati.mediaResolver.tool"
 
-    @Published private(set) var isResolving = false
-    @Published private(set) var lastFile: URL?
-    @Published private(set) var lastFailure: String?
+    /// Everything the pane shows. `begin()`/`finish()` on this struct are the single funnel.
+    @Published private(set) var state = MediaResolveState()
+
+    var isResolving: Bool { state.isResolving }
+    var lastFile: URL? { state.lastFile }
+    var lastFailure: String? { state.lastFailure }
 
     /// Resolved files land beside ordinary downloads.
     var outputDirectory: URL {
@@ -23,36 +26,33 @@ final class MediaResolveService: ObservableObject {
             ?? FileManager.default.temporaryDirectory
     }
 
-    /// What the owner configured, expanded and trimmed — nil when they have not chosen a tool yet.
-    var configuredTool: String? {
-        guard let raw = UserDefaults.standard.string(forKey: Self.toolKey)?
-            .trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return nil }
-        return raw.hasPrefix("http") ? raw : (raw as NSString).expandingTildeInPath
+    /// Where the configured tool points: nowhere, a local binary, or an endpoint.
+    var route: MediaResolveRoute {
+        MediaResolveState.route(tool: UserDefaults.standard.string(forKey: Self.toolKey))
     }
 
+    var hasTool: Bool { route != .notConfigured }
+
     func resolve(url: URL, options: MediaResolveOptions) {
-        guard !isResolving else { return }
-        lastFile = nil
-        lastFailure = nil
+        guard !state.isResolving else { return }
+        state.begin()
         guard MediaResolver.isSupported(url) else {
-            lastFailure = MediaResolverFailure.unsupportedURL.message
+            finish(.failure(.unsupportedURL))
             return
         }
-        guard let tool = configuredTool else {
-            lastFailure = MediaResolverFailure.notConfigured.message
-            return
-        }
-        if let remote = URL(string: tool), tool.hasPrefix("http") {
-            post(to: remote, url: url, options: options)
-        } else {
-            run(tool, url: url, options: options)
+        switch route {
+        case .notConfigured:
+            finish(.failure(.notConfigured))
+        case .endpoint(let endpoint):
+            post(to: endpoint, url: url, options: options)
+        case .binary(let binary):
+            run(binary, url: url, options: options)
         }
     }
 
     // MARK: - A local yt-dlp
 
     private func run(_ binary: String, url: URL, options: MediaResolveOptions) {
-        isResolving = true
         let arguments = MediaResolver.arguments(for: url, options: options,
                                                 outputDirectory: outputDirectory.path)
         Task.detached(priority: .userInitiated) {
@@ -71,15 +71,8 @@ final class MediaResolveService: ObservableObject {
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             process.waitUntilExit()
             let output = String(decoding: data, as: UTF8.self)
-            let result: Result<URL, MediaResolverFailure>
-            if let named = MediaResolver.parseDestination(output) {
-                result = .success(URL(fileURLWithPath: named))
-            } else if process.terminationStatus != 0 {
-                let detail = output.split(separator: "\n").last.map(String.init) ?? ""
-                result = .failure(.binaryFailed(detail))
-            } else {
-                result = .failure(.noFileProduced)
-            }
+            let result = MediaResolveState.binaryOutcome(terminationStatus: process.terminationStatus,
+                                                        output: output)
             await MainActor.run { self.finish(result) }
         }
     }
@@ -88,10 +81,9 @@ final class MediaResolveService: ObservableObject {
 
     private func post(to endpoint: URL, url: URL, options: MediaResolveOptions) {
         guard let body = MediaResolver.endpointBody(for: url, options: options) else {
-            lastFailure = MediaResolverFailure.noFileProduced.message
+            finish(.failure(.noFileProduced))
             return
         }
-        isResolving = true
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -104,28 +96,17 @@ final class MediaResolveService: ObservableObject {
                     self.finish(.failure(.binaryFailed(error.localizedDescription)))
                     return
                 }
-                if let status = (response as? HTTPURLResponse)?.statusCode, !(200..<300).contains(status) {
-                    self.finish(.failure(.endpointFailed(status)))
-                    return
-                }
-                let object = data.flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any]
-                guard let path = object?["path"] as? String, !path.isEmpty else {
-                    self.finish(.failure(.noFileProduced))
-                    return
-                }
-                self.finish(.success(URL(fileURLWithPath: path)))
+                let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                self.finish(MediaResolveState.endpointOutcome(status: status, data: data))
             }
         }.resume()
     }
 
+    /// The single funnel: the pure state records the outcome, and the one effect left here reveals the file.
     private func finish(_ result: Result<URL, MediaResolverFailure>) {
-        isResolving = false
-        switch result {
-        case .success(let file):
-            lastFile = file
+        state.finish(result)
+        if case .success(let file) = result {
             NSWorkspace.shared.activateFileViewerSelecting([file])
-        case .failure(let failure):
-            lastFailure = failure.message
         }
     }
 }
