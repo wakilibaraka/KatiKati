@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795564933.1997752,
-    "seen": 1795565193.5449212,
-    "ast_hash": "73781eafa9c5024c66a953a5170af82a",
+    "mtime": 1795567222.5883813,
+    "seen": 1795567609.148312,
+    "ast_hash": "b89050bf7fa1b32469001c9826ed3a4a",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1656,9 +1656,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1795566787.7360203,
-    "seen": 1795566944.345967,
-    "ast_hash": "d6ff41dcef94839a8d4e9d5545fd2f61",
+    "mtime": 1795567128.4747572,
+    "seen": 1795567609.148468,
+    "ast_hash": "53ff94b8bbce62c57f622bfb991b7e8e",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
@@ -4614,9 +4614,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1795314650.5977607,
-    "seen": 1795534644.457242,
-    "ast_hash": "cdab0f50f2fa2dc57194ab788ac8f608",
+    "mtime": 1795567348.270143,
+    "seen": 1795567609.148373,
+    "ast_hash": "9f4d1c6348f904cf7be199ab549a7945",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
@@ -6654,9 +6654,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ControlCenterScrollTests.swift": {
-    "mtime": 1795566413.9453692,
-    "seen": 1795566944.3463209,
-    "ast_hash": "0b12c4de92b6e64d5ee39133933bbf97",
+    "mtime": 1795567223.1020703,
+    "seen": 1795567609.1489952,
+    "ast_hash": "16b8d7fd016f592c05c88b0580e46986",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherPresentationTests.swift": {
@@ -8112,8 +8112,8 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795552678.2170517,
-    "seen": 1795552844.133774,
+    "mtime": 1795567588.2258432,
+    "seen": 1795567609.1493819,
     "ast_hash": "d96c36ef64628271c1a1e37d11700175",
     "semantic_hash": ""
   },
