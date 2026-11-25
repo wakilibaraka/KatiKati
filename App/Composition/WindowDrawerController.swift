@@ -444,7 +444,7 @@ private struct WindowDrawerView: View {
         switch controller.tab {
         case .windows: windows
         case .notifications: SideDeckNotificationsView(controller: controller)
-        case .downloads: SideDeckDownloadsView()
+        case .downloads: SideDeckDownloadsPane(feed: LiveActivityFeed.shared)
         case .storage: SideDeckStorageView()
         case .weather: SideDeckWeatherView()
         case .aiMissionControl: SideDeckAIMissionControlView()

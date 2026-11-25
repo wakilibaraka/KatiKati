@@ -1,11 +1,11 @@
 import AppKit
 import SwiftUI
 
-// Phase 33e addition — Page 4: Download Manager & Torrent Hub
-// Bento Card A: Browser Downloads & In-Flight Transfers
-// Bento Card B: Torrent & Direct URL Ingestion Hub (Magnet / .torrent / Direct HTTP)
+// SD-3a: the deck's Downloads & Torrents pane, moved out of the notch (it wore `.notchCard()` there and read
+// as a notch page sitting inside the deck). Two cards: browser/direct in-flight transfers, and the torrent
+// and link ingestion hub. The bento reskin lands in SD-4; this move changes ownership and surface only.
 
-struct NotchDownloadsPageView: View {
+struct SideDeckDownloadsPane: View {
     @ObservedObject var feed: LiveActivityFeed
     @ObservedObject private var downloadService = DownloadManagerService.shared
 
@@ -14,7 +14,7 @@ struct NotchDownloadsPageView: View {
     @State private var successToast: String? = nil
 
     var body: some View {
-        HStack(spacing: NotchDesignSpec.cardSpacing) {
+        HStack(spacing: 12) {
             // Card A: Browser Downloads & In-Flight Transfers
             cardABrowserDownloads
 
@@ -83,9 +83,9 @@ struct NotchDownloadsPageView: View {
                 }
             }
         }
-        .padding(NotchDesignSpec.cardPadding)
+        .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .notchCard()
+        .sideDeckCard()
     }
 
     private func browserItemRow(_ item: DownloadItem) -> some View {
@@ -260,9 +260,9 @@ struct NotchDownloadsPageView: View {
                 }
             }
         }
-        .padding(NotchDesignSpec.cardPadding)
+        .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .notchCard()
+        .sideDeckCard()
     }
 
     private func torrentItemRow(_ item: DownloadItem) -> some View {

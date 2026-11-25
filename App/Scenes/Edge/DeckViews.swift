@@ -865,12 +865,21 @@ struct ScratchpadPane: View {
     }
 }
 
-struct SideDeckDownloadsView: View {
-    var body: some View {
-        NotchDownloadsPageView(feed: LiveActivityFeed.shared)
-            .padding(12)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+/// SD-3a: the one card surface every SideDeck page draws — 18 pt continuous radius on the deck's own glass
+/// (`EdgeGlassSurface`: system glass on macOS 26, frosted below it, solid under Reduce Transparency, hairline
+/// rim and one soft shadow). The notch's `.notchCard()` is deliberately not reused: its 0.10 white reads as the
+/// notch's palette and leaves deck text sitting on a surface that belongs to another panel.
+struct SideDeckCardSurface: ViewModifier {
+    var radius: CGFloat = 18
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        return content.background(EdgeGlassSurface(shape: shape))
     }
+}
+
+extension View {
+    func sideDeckCard(radius: CGFloat = 18) -> some View { modifier(SideDeckCardSurface(radius: radius)) }
 }
 
 struct SideDeckStorageView: View {
