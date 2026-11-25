@@ -385,3 +385,29 @@ enum ControlCenterAnimation: String, CaseIterable, Sendable {
         raw.flatMap(ControlCenterAnimation.init(rawValue:)) ?? .default
     }
 }
+
+/// The Bluetooth rune as geometry, so the drawn tile mark and its scaling test share one source.
+/// Strokes are unit-normalised: the stem, then the two crossed blades.
+enum BluetoothRuneGeometry {
+    static let strokes: [[CGPoint]] = [
+        [CGPoint(x: 0.50, y: 0.10), CGPoint(x: 0.50, y: 0.90)],
+        [CGPoint(x: 0.50, y: 0.10), CGPoint(x: 0.78, y: 0.30), CGPoint(x: 0.22, y: 0.70)],
+        [CGPoint(x: 0.50, y: 0.90), CGPoint(x: 0.78, y: 0.70), CGPoint(x: 0.22, y: 0.30)],
+    ]
+
+    static func points(in side: CGFloat) -> [[CGPoint]] {
+        strokes.map { stroke in stroke.map { CGPoint(x: $0.x * side, y: $0.y * side) } }
+    }
+
+    /// The rune's ink bounds inside a `side`-point square: never outside it, always proportional.
+    static func bounds(in side: CGFloat) -> CGRect {
+        let all = points(in: side).flatMap { $0 }
+        let xs = all.map(\.x), ys = all.map(\.y)
+        return CGRect(x: xs.min() ?? 0, y: ys.min() ?? 0,
+                      width: (xs.max() ?? 0) - (xs.min() ?? 0),
+                      height: (ys.max() ?? 0) - (ys.min() ?? 0))
+    }
+
+    /// Stroke weight stays visually constant relative to the square, with a 1.3 pt floor.
+    static func lineWidth(for side: CGFloat) -> CGFloat { max(1.3, side * 0.11) }
+}

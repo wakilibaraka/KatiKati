@@ -97,9 +97,17 @@ struct DockControlCenterWidgetView: View {
     }
 
     private func bluetoothButton(_ on: Bool) -> some View {
-        glyphButton(symbol: "dot.radiowaves.left.and.right", tint: on ? bluetoothCyan : DockWidgetStyle.ink.opacity(0.42),
-                    helpText: String(localized: "Bluetooth")) { toggles.perform(.bluetooth) }
-            .accessibilityLabel(Text("Bluetooth"))
+        Button { toggles.perform(.bluetooth) } label: {
+            ZStack {
+                Circle().fill(Color.white.opacity(0.10)).frame(width: 26, height: 26)
+                BluetoothGlyph(side: 13, color: on ? bluetoothCyan : DockWidgetStyle.ink.opacity(0.42))
+            }
+            .frame(width: 26, height: 26)
+            .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .help(Text("Bluetooth"))
+        .accessibilityLabel(Text("Bluetooth"))
     }
 
     private func volumeButton(_ vol: Double) -> some View {

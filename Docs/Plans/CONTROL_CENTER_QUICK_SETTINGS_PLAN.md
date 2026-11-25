@@ -1,6 +1,6 @@
 # Control Centre → Quick Settings Hub (`CC-1` → `CC-5`)
 
-> **Status:** Proposed (`2026-11-24`) · read-only investigation done, no code touched
+> **Status:** In progress (`2026-11-25`) · `CC-1` → `CC-4` landed (`9dfa2298`, `457e3648`, `cf516427`, `9082b956`, `a7c8b8d4`); `CC-3b` drawn Bluetooth rune done; `CC-4` edit mode and `CC-5` open
 > **Guardrails:** `<= 300` LOC per commit · `0` `project.pbxproj` edits · `0` edits to the 5 frozen files
 > (`WindowLiftAvoidanceController`, `AppTracker`, `DragController`, `AccessibilitySource`,
 > `FullscreenIntentMonitor`) · `0.0 %` idle CPU · pure Core + tests before UI, every slice.

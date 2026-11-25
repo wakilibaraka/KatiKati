@@ -60,6 +60,25 @@ final class ControlCenterScrollTests: XCTestCase {
 
 /// The switch grid's 4-or-5-per-row choice.
 final class ControlCenterLayoutTests: XCTestCase {
+    /// The Bluetooth tile's rune is geometry, not a symbol: it must stay inside its square and keep
+    /// the same optical proportion from the 11 pt Dock mark to the 32 pt hero tile.
+    func testBluetoothRuneFitsAndScalesAtEveryTileSize() {
+        let sides: [CGFloat] = [11, 13, 14, 16.6, 18, 32]
+        var ratios: [CGFloat] = []
+        for side in sides {
+            let box = BluetoothRuneGeometry.bounds(in: side)
+            XCTAssertGreaterThan(box.width, 0, "rune has no extent at \(side) pt")
+            XCTAssertGreaterThanOrEqual(box.minX, 0)
+            XCTAssertLessThanOrEqual(box.maxX, side)
+            XCTAssertLessThanOrEqual(box.maxY, side)
+            XCTAssertGreaterThan(BluetoothRuneGeometry.lineWidth(for: side), 0)
+            XCTAssertEqual(BluetoothRuneGeometry.strokes.count, 3)
+            ratios.append(box.width / side)
+        }
+        for ratio in ratios { XCTAssertEqual(ratio, ratios[0], accuracy: 0.0001) }
+        XCTAssertEqual(ratios[0], 0.56, accuracy: 0.0001)
+    }
+
     func testClassicPresetKeepsTodaysSectionOrder() {
         let classic = ControlCenterLayoutSpec.preset(.classic)
         XCTAssertEqual(classic.preset, .classic)

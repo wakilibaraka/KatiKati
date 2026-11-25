@@ -180,6 +180,37 @@ struct BluetoothFlyoutView: View {
 /// Layout, top to bottom: header (clock + battery), system & peripherals with live percentages,
 /// Wi-Fi / Bluetooth bento, now playing, the switch grid (4 or 5 per row, see `ControlCenterGrid`),
 /// the network row, three sliders, the utility row and the account footer.
+/// The Bluetooth rune, drawn rather than borrowed: macOS ships no Bluetooth SF Symbol, and one
+/// vector mark keeps the tile, the grid cell and the Dock widget telling the same story.
+struct BluetoothRune: Shape {
+    func path(in rect: CGRect) -> Path {
+        let x = rect.minX, y = rect.minY
+        let side = min(rect.width, rect.height)
+        var p = Path()
+        for stroke in BluetoothRuneGeometry.points(in: side) {
+            guard let first = stroke.first else { continue }
+            p.move(to: CGPoint(x: x + first.x, y: y + first.y))
+            for point in stroke.dropFirst() { p.addLine(to: CGPoint(x: x + point.x, y: y + point.y)) }
+        }
+        return p
+    }
+}
+
+/// One rune at any optical size; the stroke scales with the square so a 12 pt Dock mark and a
+/// 32 pt tile mark stay equally legible.
+struct BluetoothGlyph: View {
+    var side: CGFloat = 16
+    var color: Color = .primary
+
+    var body: some View {
+        BluetoothRune()
+            .stroke(color, style: StrokeStyle(lineWidth: BluetoothRuneGeometry.lineWidth(for: side),
+                                             lineCap: .round, lineJoin: .round))
+            .frame(width: side, height: side)
+            .accessibilityHidden(true)
+    }
+}
+
 /// The edge deck's second job once Control Centre moves to the menu bar: a compact list of the
 /// apps running without a window, reading the same store the drawer tab uses.
 struct BackgroundActivityDeckView: View {
@@ -638,10 +669,17 @@ struct ControlCenterView: View {
         return LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing)
     }
 
-    private func accentIcon(symbol: String, on: Bool, size: CGFloat = 32) -> some View {
-        Image(systemName: symbol)
-            .font(.system(size: size * 0.44, weight: .semibold))
-            .foregroundStyle(on ? Color.white : inkSoft)
+    @ViewBuilder
+    private func accentIcon(symbol: String, on: Bool, size: CGFloat = 32, rune: Bool = false) -> some View {
+        Group {
+            if rune {
+                BluetoothGlyph(side: size * 0.52, color: on ? .white : inkSoft)
+            } else {
+                Image(systemName: symbol)
+                    .font(.system(size: size * 0.44, weight: .semibold))
+                    .foregroundStyle(on ? Color.white : inkSoft)
+            }
+        }
             .frame(width: size, height: size)
             .background(Circle().fill(on ? AnyShapeStyle(palette.pillGradient)
                                           : AnyShapeStyle(Color.primary.opacity(0.09))))
@@ -657,7 +695,7 @@ struct ControlCenterView: View {
             ZStack(alignment: .topTrailing) {
                 Button { engine.perform(id) } label: {
                     VStack(alignment: .leading, spacing: 6) {
-                        accentIcon(symbol: id.symbolName, on: on)
+                        accentIcon(symbol: id.symbolName, on: on, rune: id == .bluetooth)
                         VStack(alignment: .leading, spacing: 1) {
                             id.title
                                 .font(.system(size: 12.5, weight: .semibold))
@@ -823,6 +861,22 @@ struct ControlCenterView: View {
         CGFloat(ControlCenterGrid.rows(count: quickActions.count, columns: ControlCenterGrid.baseColumns)) * Metrics.gridPitch
     }
 
+    /// The grid's 18 pt mark, with the rune where a symbol does not exist.
+    @ViewBuilder
+    private func gridGlyph(_ id: QuickToggleID, active: Bool) -> some View {
+        if engine.flash == id {
+            Image(systemName: "checkmark")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(active ? Color.white : ink)
+        } else if id == .bluetooth {
+            BluetoothGlyph(side: 18, color: active ? .white : ink)
+        } else {
+            Image(systemName: id.symbolName)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(active ? Color.white : ink)
+        }
+    }
+
     private func cell(_ id: QuickToggleID) -> some View {
         let on = engine.states[id] ?? false
         let gone = engine.unavailable.contains(id)
@@ -837,9 +891,7 @@ struct ControlCenterView: View {
             engine.perform(id)
         } label: {
             VStack(spacing: 4) {
-                Image(systemName: engine.flash == id ? "checkmark" : id.symbolName)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(on || armed ? Color.white : ink)
+                gridGlyph(id, active: on || armed)
                     .frame(width: Metrics.circle, height: Metrics.circle)
                     .background(Circle().fill(armed ? AnyShapeStyle(Color.red.opacity(0.9))
                                                     : on ? AnyShapeStyle(palette.pillGradient)
@@ -1262,7 +1314,7 @@ struct InlineQuickTogglePill: View {
     var body: some View {
         HStack(spacing: 6) {
             toggleBtn(icon: "wifi", active: wifiOn) { wifiOn.toggle() }
-            toggleBtn(icon: "wave.3.forward", active: bluetoothOn) { bluetoothOn.toggle() }
+            toggleBtn(icon: "wave.3.forward", active: bluetoothOn, rune: true) { bluetoothOn.toggle() }
             toggleBtn(icon: micMuted ? "mic.slash.fill" : "mic.fill", active: !micMuted) { micMuted.toggle() }
             toggleBtn(icon: "moon.fill", active: dndOn) { dndOn.toggle() }
         }
@@ -1272,11 +1324,17 @@ struct InlineQuickTogglePill: View {
         .overlay(Capsule().strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5))
     }
 
-    private func toggleBtn(icon: String, active: Bool, action: @escaping () -> Void) -> some View {
+    private func toggleBtn(icon: String, active: Bool, rune: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: icon)
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundStyle(active ? .blue : .secondary)
+            Group {
+                if rune {
+                    BluetoothGlyph(side: 11, color: active ? .blue : .secondary)
+                } else {
+                    Image(systemName: icon)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(active ? .blue : .secondary)
+                }
+            }
         }
         .buttonStyle(.plain)
     }
