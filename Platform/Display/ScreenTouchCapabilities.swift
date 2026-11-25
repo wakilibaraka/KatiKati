@@ -6,12 +6,19 @@ import Foundation
 enum ScreenTouchCapabilities {
     /// Returns true if the given `NSScreen` reports native hardware multi-touch capability on macOS 27+.
     static func hardwareSupportsMultiTouch(for screen: NSScreen) -> Bool {
+        // `#available` only guards the *runtime*: it cannot name a symbol the SDK has never carried,
+        // so the macOS 26 SDK that CI builds with could not parse this block at all (CI stayed red
+        // from the island port until 2026-11-25). Both gates are needed — the compiler one for the
+        // SDK, the availability one for a macOS 26 runtime. A 26-toolchain build answers "no
+        // multi-touch", which is also what macOS 26 hardware answers.
+        #if compiler(>=6.4)
         if #available(macOS 27.0, *) {
             if screen.touchCapabilities.contains(.multiTouch) {
                 return true
             }
             return NSEvent.isTouchSwipeNavigationEnabled && isBuiltinDisplay(screen)
         }
+        #endif
         return false
     }
 
