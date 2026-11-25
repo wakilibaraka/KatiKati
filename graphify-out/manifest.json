@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795557949.8614388,
-    "seen": 1795602213.1779552,
-    "ast_hash": "b3be2dd48f25d32192ecffdbcff83aa1",
+    "mtime": 1795602611.2902691,
+    "seen": 1795602837.822082,
+    "ast_hash": "7387bc8b773119332097f491f223d758",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -3612,9 +3612,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1795557958.5220523,
-    "seen": 1795602213.178564,
-    "ast_hash": "96c19d27889ed2534912f603f966be6d",
+    "mtime": 1795602612.9313018,
+    "seen": 1795602837.822751,
+    "ast_hash": "bfaf97c565f60e1ae16dc5548d081b19",
     "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
