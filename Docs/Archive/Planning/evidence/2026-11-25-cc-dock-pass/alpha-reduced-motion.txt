@@ -1,0 +1,14 @@
+t=  747ms alpha=1.00 x=1338 w=360
+t=  764ms alpha=1.00 x=1338 w=360
+t=  788ms alpha=1.00 x=1338 w=360
+t=  806ms alpha=1.00 x=1338 w=360
+t=  824ms alpha=1.00 x=1338 w=360
+t=  844ms alpha=1.00 x=1338 w=360
+t=  863ms alpha=1.00 x=1338 w=360
+t=  884ms alpha=1.00 x=1338 w=360
+t=  904ms alpha=1.00 x=1338 w=360
+t=  924ms alpha=1.00 x=1338 w=360
+t=  943ms alpha=1.00 x=1338 w=360
+t=  960ms alpha=1.00 x=1338 w=360
+t=  980ms alpha=1.00 x=1338 w=360
+t= 1004ms alpha=1.00 x=1338 w=360

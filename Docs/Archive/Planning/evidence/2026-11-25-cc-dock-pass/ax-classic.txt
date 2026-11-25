@@ -1,0 +1,62 @@
+AXWindow desc="" value="" 1338,50 360x994
+  AXGroup desc="" value="" 1338,50 360x994
+    AXStaticText desc="" value="Quick Settings" 1351,62 107x19
+    AXStaticText desc="" value="17:27" 1472,65 31x13
+    AXButton desc="Edit" value="" 1578,63 34x17
+    AXUnknown desc="Battery" value="" 1620,62 65x20
+    AXGroup desc="System & Peripherals" value="" 1350,91 336x55
+      AXButton desc="1 Device" value="" 1618,102 57x13
+      AXStaticText desc="" value="No connected devices rep" 1360,123 194x13
+    AXGroup desc="Wi-Fi" value="" 1350,155 164x87
+      AXButton desc="Wi-Fi, Not Connected" value="" 1350,155 164x87
+      AXButton desc="Forward" value="" 1488,155 25x28
+    AXGroup desc="Bluetooth" value="" 1522,155 164x87
+      AXButton desc="Bluetooth, Off" value="" 1522,155 164x87
+      AXButton desc="Forward" value="" 1660,155 25x28
+    AXOpaqueProviderGroup desc="" value="" 1350,353 336x303
+      AXButton desc="Dark Mode" value="On" 1350,353 81x55
+      AXButton desc="Keep Awake" value="Off" 1435,353 81x55
+      AXButton desc="Hide Desktop" value="On" 1520,353 81x55
+      AXButton desc="Hidden Files" value="On" 1605,353 81x55
+      AXButton desc="Dock Auto-hide" value="Off" 1350,415 81x55
+      AXButton desc="Path Bar" value="On" 1435,415 81x55
+      AXButton desc="Mute Mic" value="Off" 1520,415 81x55
+      AXButton desc="Empty Trash" value="Off" 1605,415 81x55
+      AXButton desc="Eject Disks" value="Off" 1350,477 81x55
+      AXButton desc="Night Shift" value="Off" 1435,477 81x55
+      AXButton desc="True Tone" value="On" 1520,477 81x55
+      AXButton desc="VPN" value="Off" 1605,477 81x55
+      AXButton desc="Muted" value="Off" 1350,539 81x55
+      AXButton desc="Clean Keyboard" value="Off" 1435,539 81x55
+      AXButton desc="Screen Saver" value="Off" 1520,539 81x55
+      AXButton desc="Lock Screen" value="Off" 1605,539 81x55
+      AXButton desc="Relaunch Finder" value="Off" 1350,601 81x55
+      AXButton desc="Screen Mirroring" value="Off" 1435,602 81x54
+    AXGroup desc="Network" value="" 1350,768 336x33
+      AXImage desc="arrow.down.up" value="" 1368,784 0x0
+      AXImage desc="Down" value="" 1563,780 8x9
+      AXStaticText desc="" value="8 KB/s" 1580,777 35x14
+      AXImage desc="Up" value="" 1624,780 8x9
+      AXStaticText desc="" value="2 KB/s" 1641,777 35x14
+    AXGroup desc="Volume" value="" 1350,810 336x30
+      AXImage desc="Volume High" value="" 1360,820 13x10
+      AXSlider desc="" value="" 1385,818 258x14
+        AXValueIndicator desc="" value="" 1430,818 18x14
+      AXStaticText desc="" value="19" 1663,818 15x14
+    AXGroup desc="Brightness" value="" 1350,846 336x31
+      AXImage desc="Brightness Higher" value="" 1360,855 13x13
+      AXSlider desc="" value="" 1385,854 258x14
+        AXValueIndicator desc="" value="" 1550,854 18x14
+      AXStaticText desc="" value="69" 1663,854 15x14
+    AXGroup desc="" value="" 1350,883 336x30
+      AXImage desc="Keyboard" value="" 1359,893 15x9
+      AXSlider desc="" value="" 1385,891 258x14
+        AXValueIndicator desc="" value="" 1385,891 18x14
+      AXStaticText desc="" value="0" 1670,891 7x14
+    AXButton desc="Settings" value="" 1350,923 62x47
+    AXButton desc="Launcher" value="" 1418,924 62x45
+    AXButton desc="Capture" value="" 1487,923 62x46
+    AXButton desc="Drawer" value="" 1555,922 62x49
+    AXButton desc="Quit" value="" 1623,923 62x47
+    AXGroup desc="Manage accounts" value="" 1350,980 336x52
+      AXButton desc="Emmanuel Baraka Ongau, Manage accounts" value="" 1358,988 320x36
