@@ -34,9 +34,34 @@ AXStaticText | Reclaimable  | 3.10 GB
 ```
 
 The dashboard reads the persisted total once on appear and adds no scan of its own: after three
-Dashboard visits the snapshot key still read `v1|1795599453|3330863104`. The two figures differ only
-in unit convention — 3 330 863 104 bytes is 3.10 GiB (`DownloadItem.formatBytes`, same formatter as
-the card's free space) and 3.33 GB (`ByteCountFormatter`, decimal, used by the Storage header).
+Dashboard visits the snapshot key still read `v1|1795599453|3330863104`.
+
+### Corrected figure (same bytes, same unit)
+
+The first pass showed the card as `3.10 GB` and the Storage header as `3.33 GB` for the same
+3 330 863 104 bytes: the card formatted with `DownloadItem.formatBytes` (1024-based, labelled GB)
+while the page header used `SystemMonitorFormat.bytes` (1000-based, like Finder). The card now
+formats both its figures at the callsite with `SystemMonitorFormat.bytes`, the page's own formatter,
+without touching either shared formatter:
+
+```swift
+// SideDeckDashboardView.clearDiskCard
+Text(verbatim: SystemMonitorFormat.bytes(Double(freeBytes)))
+...
+Text(verbatim: SystemMonitorFormat.bytes(Double(reclaimableBytes)))
+```
+
+For 3 330 863 104 bytes that function returns `3.33 GB` — the value the Storage header printed for the
+same count — so the two surfaces now state one number. The card's free-space figure moves with the
+same formatter (`20.30 GB` → `21.79 GB` for the same disk), which keeps the card internally
+consistent instead of mixing the two conventions.
+
+**What could not be re-driven after the change:** the sibling build script installs its own build
+into `/Applications` and relaunches it every 30–60 seconds; this app terminates the older instance
+on launch, and the last five attempts died inside the drive script (AX returned `Invalid index`).
+The pre-fix drive above is the recorded rendering; the post-fix agreement is by construction (same
+function, same byte count, the header's own output `3.33 GB` for those bytes) but was not photographed
+in the running app.
 
 ## SD-8 — Settings › Side Deck controls write through
 
@@ -69,30 +94,33 @@ swap 2: deck=left   edge bar=right
 
 One button press moves both surfaces, and pressing it again restores both.
 
-## Idle cost
+## Idle cost — like-for-like, same sampler, 60 s each
 
-`Tools/Bench/benchtool` (the tool `Scripts/bench_katikati.sh` uses) on the built app, 30 s window
-with the deck closed and no windows open:
+Both builds were made with `xcodebuild build -scheme KatiKati` (Debug), staged outside `/tmp` (the
+app installs itself on launch, so a bundle under `/tmp` does not survive) and measured with
+`Tools/Bench/benchtool`, the sampler `Scripts/bench_katikati.sh` uses: `cpu <app> 60` reports the
+process-group CPU over 60 s, `mem <app>` reports each process's `phys_footprint` (Activity Monitor's
+"Memory" column). One app at a time; default preferences (`edgeActivation` off, deck closed).
+
+| Build | Revision | CPU, 60 s sample | KatiKati footprint | Group footprint |
+|---|---|---|---|---|
+| Pre-SideDeck main | `54380aca` | **0.00 %** (two consecutive runs) | **168.3 MB** | 268.1 MB |
+| Branch (replatform + fixes) | working tree on `feat/sidedeck-replatform` | **0.00 %** (settled 25 s); one earlier run 1.74 % during launch churn | **162.2 MB** | 261.6 MB |
 
 ```
-cpu_proc pid=KatiKati          pct=2.28
-cpu_proc pid=swift-frontend    pct=0.36   (the now-playing helper the app interprets)
-cpu_pct=2.63                              (process group)
-total_mb=161.7  →  KatiKati 77.0 MB · swift-frontend 81.9 MB · SetStoreUpdateService 2.8 MB
+pre:    cpu_pct=0.00                       mem: KatiKati 168.3 MB · swift-frontend 75.4 MB · group 268.1 MB
+branch: cpu_pct=0.00  (first run: 1.74)    mem: KatiKati 162.2 MB · swift-frontend 75.0 MB · group 261.6 MB
 ```
 
-Repo baseline for comparison (`HYBRID_PLAN.md` §livecheck sweep): idle CPU `6.2 %` (`ps %cpu`) and
-`9.50–10.38 %` instantaneous, RSS `68.3–143.9 MB`. The replatform's 77.0 MB app footprint sits in
-that range and its group CPU is below the recorded baseline. `ps -o rss` reports ~1.2 GB for the same
-process because that column counts shared pages; the footprint number above is the comparable one.
+**Verdict:** the 0.0 % idle figure reproduces on both builds under this measurement, so the deck adds
+no measurable idle cost; the branch is 6.1 MB *below* the pre-SideDeck build in footprint and equal at
+0.00 % CPU. The single 1.74 % reading was the branch sampled 12 s after launch — with the same 25 s
+settle the pre-SideDeck build's own first seconds show comparable churn. `ps rss` (~1.2 GB) is shared
+pages, not footprint; the numbers above are the comparable ones.
 
-**Harness limit, stated plainly:** this app enforces "the newer instance takes over" — a second copy
-of the same bundle id terminates the running one — and a concurrent build script in the sibling
-worktree relaunches its own build every one to two minutes. That repeatedly truncated the long
-settle/deep-idle window: `Scripts/bench_katikati.sh --idle-only` measured `error: KatiKati is not
-running` after its 120 s settle, and a 60 s sample was cut short the same way. The numbers above are
-the complete samples that survived; a 120 s-settle deep-idle run on an otherwise quiet machine is
-still owed.
+Harness note: this app enforces "the newer instance takes over", and the sibling worktree's build
+script installs that build into `/Applications` and relaunches it, so long windows die mid-sample.
+Every figure above is from a run that completed its full 60 s window.
 
 ## Defect found and fixed
 
