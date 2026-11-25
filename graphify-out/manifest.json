@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795568009.442347,
-    "seen": 1795568098.53658,
-    "ast_hash": "15b9a2d008c20924a72a78b2a7f19ded",
+    "mtime": 1795570188.3574018,
+    "seen": 1795570413.294844,
+    "ast_hash": "c52373e5af091e23f42a583c8b84d128",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -8094,63 +8094,63 @@
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/03-menubar-control-center.png": {
-    "mtime": 1795569436.7163148,
-    "seen": 1795569519.030422,
-    "ast_hash": "afcb5e5962a973bbd65a91ec5556988d",
+    "mtime": 1795570256.9772584,
+    "seen": 1795570413.29586,
+    "ast_hash": "76a216edcb79bf69f08810baffc15a26",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/04-preset-classic.png": {
-    "mtime": 1795569525.644388,
-    "seen": 1795569862.435889,
-    "ast_hash": "c1929f00f2833570d299e17e9035e5bc",
+    "mtime": 1795570334.4690518,
+    "seen": 1795570413.29586,
+    "ast_hash": "6f61a81daf39bda5d4f33875a55aed29",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/05-dedupe-battery-off.png": {
-    "mtime": 1795569561.8412,
-    "seen": 1795569862.43589,
-    "ast_hash": "c070ae091abeb640cf387ddc57f68bf4",
+    "mtime": 1795570338.412879,
+    "seen": 1795570413.295861,
+    "ast_hash": "afa69bd0759d3e94f97c882cb1a56e7e",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/06-dedupe-battery-on.png": {
-    "mtime": 1795569625.7801988,
-    "seen": 1795569862.435891,
-    "ast_hash": "8baed01af8f926a636186b85ce2542f7",
+    "mtime": 1795570342.2791588,
+    "seen": 1795570413.295862,
+    "ast_hash": "9acbc57a97b6fcba558fe61f10ea7e84",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/07-preset-bento.png": {
-    "mtime": 1795569603.6592033,
-    "seen": 1795569862.4358919,
-    "ast_hash": "5d9aa43a61afce841fb61f5e528e661d",
+    "mtime": 1795570269.890315,
+    "seen": 1795570413.2958632,
+    "ast_hash": "66f5d1faf9126ec98901e4ea4a439990",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/07-preset-classic.png": {
-    "mtime": 1795569608.317505,
-    "seen": 1795569862.4358919,
-    "ast_hash": "48dce2dd2e600e5c1bfdb3915f408822",
+    "mtime": 1795570260.9852214,
+    "seen": 1795570413.295864,
+    "ast_hash": "4f50a543742361695cc61b048baaa476",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/07-preset-modular.png": {
-    "mtime": 1795569598.970203,
-    "seen": 1795569862.435893,
-    "ast_hash": "57adcafbd4a395bb577e50a6172fff67",
+    "mtime": 1795570265.4035058,
+    "seen": 1795570413.295864,
+    "ast_hash": "7e87a6b2c246b27bad501a769f1478a4",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/08-music-show-anyway-on.png": {
-    "mtime": 1795569713.0429544,
-    "seen": 1795569862.435894,
-    "ast_hash": "bf488f96ce4e3e12cddff33e2f4032a8",
+    "mtime": 1795570346.2034657,
+    "seen": 1795570413.295865,
+    "ast_hash": "66813b596335c488d00d989ef33fc401",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/09-music-hidden.png": {
-    "mtime": 1795569726.788744,
-    "seen": 1795569862.435895,
-    "ast_hash": "b974a4cdda8912cee2028e90891eee7c",
+    "mtime": 1795570350.0776033,
+    "seen": 1795570413.295866,
+    "ast_hash": "6da51d8de24636d8d54cdf942e20c7c3",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-control-center/10-music-single-off.png": {
-    "mtime": 1795569739.9711874,
-    "seen": 1795569862.435895,
-    "ast_hash": "354dac92ac58163658b30650187c0df6",
+    "mtime": 1795570353.9815261,
+    "seen": 1795570413.295867,
+    "ast_hash": "d0a82531f178bf51e2bdcf65882f94be",
     "semantic_hash": ""
   }
 }
