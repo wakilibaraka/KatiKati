@@ -44,6 +44,9 @@ extension SettingsLayoutPane {
                 }
             
                 SettingsDivider()
+                ControlCenterAppearanceSettings()
+
+                SettingsDivider()
                 SettingsSegmentedRow(Text("Animation"), selection: Binding(
                     get: { store.controlCenterAnimation },
                     set: { store.setControlCenterAnimation($0) }
@@ -158,6 +161,69 @@ extension SettingsLayoutPane {
         }
     }
 
+}
+
+/// CC-3/CC-4 — presets, finish and the dedupe switches. `@AppStorage` keeps the choice in the
+/// same defaults the panel reads at open, so a change applies on the next open and survives relaunch.
+private struct ControlCenterAppearanceSettings: View {
+    @AppStorage(ControlCenterPreset.storageKey) private var presetRaw = ControlCenterPreset.default.rawValue
+    @AppStorage(ControlCenterGlassStyle.storageKey) private var glassRaw = ControlCenterGlassStyle.default.rawValue
+    @AppStorage(ControlCenterDedupeOptions.singleBatteryKey) private var singleBattery = true
+    @AppStorage(ControlCenterDedupeOptions.singleNowPlayingKey) private var singleNowPlaying = true
+    @AppStorage(ControlCenterDedupeOptions.showNowPlayingAnywayKey) private var showAnyway = false
+
+    private var preset: ControlCenterPreset { ControlCenterPreset.parse(presetRaw) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Layout").font(.subheadline)
+            HStack(spacing: 6) {
+                ForEach([ControlCenterPreset.classic, .modular, .bento], id: \.self) { option in
+                    Button { presetRaw = option.rawValue } label: {
+                        presetLabel(option)
+                            .font(.system(size: 11, weight: preset == option ? .semibold : .regular))
+                            .frame(maxWidth: .infinity, minHeight: 30)
+                            .background(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(preset == option ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.045)))
+                            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(preset == option ? Color.accentColor.opacity(0.55) : Color.primary.opacity(0.09), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            if preset == .custom {
+                SettingsNote(Text("Based on your last preset. Choosing one above resets the tiles."))
+            }
+
+            SettingsSegmentedRow(Text("Finish"), selection: Binding(
+                get: { ControlCenterGlassStyle.parse(glassRaw) },
+                set: { glassRaw = $0.rawValue }
+            )) {
+                Text("Clear").tag(ControlCenterGlassStyle.clear)
+                Text("Semi").tag(ControlCenterGlassStyle.semi)
+                Text("Tinted").tag(ControlCenterGlassStyle.tinted)
+            }
+
+            SettingsToggleRow(Text("Single Battery"), isOn: $singleBattery,
+                              info: String(localized: "Keeps the battery reading in the header pill and hides the duplicate This Mac row."))
+            SettingsToggleRow(Text("Single Music"), isOn: $singleNowPlaying,
+                              info: String(localized: "Hides the panel's now-playing card while the notch or dock music surface is on."))
+            if singleNowPlaying {
+                SettingsToggleRow(Text("Show Anyway"), isOn: $showAnyway,
+                                  info: String(localized: "Keeps the now-playing card even when another music surface is on."))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func presetLabel(_ preset: ControlCenterPreset) -> some View {
+        switch preset {
+        case .classic: Text("Classic")
+        case .modular: Text("Modular")
+        case .bento: Text("Bento")
+        case .custom: Text("Custom")
+        }
+    }
 }
 
 /// PHN-3 — PingPlace's visual picker: the screen as a 3×3 grid, one click per zone, the dead centre

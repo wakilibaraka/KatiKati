@@ -240,19 +240,13 @@ struct ControlCenterView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.sectionGap) {
-            header
-            peripheralsCard
-            HStack(spacing: 8) {
-                ForEach(connectivity, id: \.self) { id in connectivityCard(id) }
+            ForEach(Array(packedSections.enumerated()), id: \.offset) { _, row in
+                HStack(alignment: .top, spacing: Metrics.sectionGap) {
+                    ForEach(row.tiles, id: \.id) { tile in
+                        sectionView(tile.id).frame(maxWidth: .infinity)
+                    }
+                }
             }
-            nowPlayingCard
-            switchGrid
-            if widgetTiles.contains(.network) {
-                card(padding: 9) { ControlCenterNetworkRow() }
-            }
-            sliderRows
-            utilityRow
-            card(padding: 8) { ControlCenterAccountRow() }
         }
         .padding(Metrics.padding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -261,6 +255,94 @@ struct ControlCenterView: View {
         .onAppear { engine.refresh(); status.acquire() }
         .onDisappear { status.release() }
         .task { await refreshPeripherals() }
+    }
+
+    // MARK: - Preset layout
+
+    private var storedPreset: ControlCenterPreset {
+        ControlCenterPreset.parse(UserDefaults.standard.string(forKey: ControlCenterPreset.storageKey))
+    }
+
+    /// A Custom layout only wins when it decodes; otherwise the preset renders, so a truncated
+    /// preferences value can never empty the panel.
+    private var layoutSpec: ControlCenterLayoutSpec {
+        let preset = storedPreset
+        if preset == .custom,
+           let stored = ControlCenterLayoutCodec.decode(UserDefaults.standard.string(forKey: ControlCenterLayoutCodec.storageKey)),
+           stored.preset == .custom {
+            return stored
+        }
+        return .preset(preset == .custom ? .classic : preset)
+    }
+
+    private var panelWidth: CGFloat {
+        ControlCenterSize.parse(UserDefaults.standard.string(forKey: ControlCenterSize.storageKey)).width
+    }
+
+    /// Section cards speak the packer's columns: a standard section shares its row, wider ones take
+    /// the full width. Below 400 pt every row becomes one column.
+    private var packedSections: [ControlCenterPackedRow] {
+        let columns = ControlCenterPacker.columns(width: panelWidth)
+        let tiles = layoutSpec.tiles.map { tile -> ControlCenterTileSpec in
+            tile.size == .standard
+                ? ControlCenterTileSpec(id: tile.id, size: .wide)
+                : ControlCenterTileSpec(id: tile.id, size: .hero)
+        }
+        return ControlCenterPacker.rows(tiles, columns: columns)
+    }
+
+    private var dedupeOptions: ControlCenterDedupeOptions { .stored() }
+
+    /// Music surfaces that already show a now-playing card. The notch wins over the dock widget,
+    /// but either one is enough to suppress this panel's card.
+    private var musicSurfaces: Set<ControlCenterMusicSurface> {
+        let defaults = UserDefaults.standard
+        var surfaces: Set<ControlCenterMusicSurface> = []
+        if defaults.object(forKey: "com.katikati.liveIsland.notch") as? Bool ?? false { surfaces.insert(.notch) }
+        if defaults.object(forKey: "com.katikati.music.widgetEnabled") as? Bool ?? false { surfaces.insert(.dock) }
+        return surfaces
+    }
+
+    private var hidesNowPlaying: Bool {
+        ControlCenterDedupe.hidesNowPlaying(surfacesOn: musicSurfaces, options: dedupeOptions)
+    }
+
+    private var hidesSystemRow: Bool {
+        ControlCenterDedupe.hidesSystemRow(hasBatteryPill: true, options: dedupeOptions)
+    }
+
+    @ViewBuilder
+    private func sectionView(_ id: ControlCenterTileID) -> some View {
+        switch id {
+        case .section(let section):
+            switch section {
+            case .header:
+                header
+            case .peripherals:
+                if widgetTiles.contains(.battery) || widgetTiles.contains(.batteries) { peripheralsCard }
+            case .connectivity:
+                HStack(spacing: 8) {
+                    ForEach(connectivity, id: \.self) { id in connectivityCard(id) }
+                }
+            case .nowPlaying:
+                // The switch grid rides with now-playing, so Classic keeps its pre-preset order
+                // (now-playing, grid, network) and the grid survives dedupe hiding the card.
+                VStack(alignment: .leading, spacing: Metrics.sectionGap) {
+                    if !hidesNowPlaying { nowPlayingCard }
+                    switchGrid
+                }
+            case .network:
+                if widgetTiles.contains(.network) { card(padding: 9) { ControlCenterNetworkRow() } }
+            case .sliders:
+                sliderRows
+            case .utilities:
+                utilityRow
+            case .account:
+                card(padding: 8) { ControlCenterAccountRow() }
+            }
+        case .toggle:
+            EmptyView()
+        }
     }
 
     // MARK: - Panel chrome (the dock theme's own)
@@ -381,7 +463,8 @@ struct ControlCenterView: View {
 
     @ViewBuilder
     private var peripheralsCard: some View {
-        let showsThisMac = widgetTiles.contains(.battery)
+        // Single battery readout: the header pill keeps the number, so the redundant row goes.
+        let showsThisMac = widgetTiles.contains(.battery) && !hidesSystemRow
         let showsDevices = widgetTiles.contains(.batteries)
         if showsThisMac || showsDevices {
             card {
