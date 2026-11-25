@@ -41,6 +41,38 @@ parity gaps between the hosts did not:
 7. With Control Centre back at the edge, the status item opens the Creative Hub again (`08`): the two
    homes remain mutually exclusive.
 
+## Operated round trip (installed 0.18.0 (54), same day)
+
+The fold-in fix was made so the Home row stays reachable in a menu-bar home, and this run operated that
+control on the installed Release instead of only looking at it. The prefs were backed up to
+`/tmp/kkprefs-rt/`, a distinctive layout was seeded (`preset=bento`, `toggles=darkMode,nightShift`), and
+the app was restarted so the store read it.
+
+1. Settings › Control Center › Home → **Menu Bar** (real click at the segment, 1265/1337 × 915 on this
+   screen) raised the fresh prompt (`09`); **Keep in Menu Bar** wrote `surface=menuBar` and
+   `menuBarRolePromptSeen=1`. In that state the Home row is on screen with **Menu Bar** tinted and
+   **Edge** beside it (`10`) — the row the old stacked note had pushed out.
+2. Repurposed surfaces before the switch: the deck is Background Apps with its undo footer, and the status
+   item opens Control Centre with bento cards and only Dark Mode / Night Shift.
+3. Clicking **Edge** in the same row wrote `surface=edge` with no second prompt, and Settings redrew with
+   **Edge** tinted (`11`). The standalone panel opened as the bento Control Centre with the same two
+   toggles and one battery pill (`12`), not the factory order.
+4. The status item then opened the Creative Hub (`13`) — the homes stayed exclusive.
+5. Back again: **Menu Bar** in the Home row wrote `surface=menuBar` again with no prompt (the key stays
+   `1`), the dropdown drew the stored bento layout (`14`) and the deck was Background Apps with the undo
+   footer (`15`).
+6. Prefs were restored from `/tmp/kkprefs-rt/` and the app relaunched: no `controlcenter.*` or test
+   shortcut key remains.
+
+One honest detail about `10`: at the default scroll position the Home row sits at the page's cut — the
+row and both segments are drawn and clickable, while the note folded under the label falls just past the
+viewport edge. One wheel turn over the page brings the whole row and the sentence "Creative Hub is paused
+while Control Centre is in the Menu Bar." into view (`16`) and the pane keeps scrolling to the rows below
+(`17`), so nothing about the revert control needs a workaround. (The earlier note that this pane "did not
+respond to synthetic wheel events" was a tooling artefact: plain `CGEvent` scrolls were ignored, while a
+wheel event carrying begin/changed/ended scroll phases moves it.) The click at the row's centre landed on
+the first attempt once the coordinate was taken from the segment rather than the gap beside it.
+
 ## After the pass
 
 The three test keys (`controlcenter.surface`, `.preset`, `.toggles`) and the pass-only
@@ -52,8 +84,8 @@ com.katikati.app` afterwards lists no `controlcenter.*` key beyond the app-writt
 
 ## Not checked here
 
-- The Settings **Home** row was confirmed on screen with its Edge / Menu Bar segments visible, but this
-  pass did not click the row back to Edge (pointing devices were busy elsewhere); the undo paths
-  exercised were the alert's second button and the deck footer (5).
+- The Settings **Home** row was later operated (see the round trip below); what this first pass did not
+  do was click it, so the undo paths exercised here were the alert's second button and the deck footer
+  (5).
 - No AX dump of the 360×792 dropdown: the menu-bar window is not exposed to System Events on this
   machine, so the reading above comes from the picture and the stored keys.

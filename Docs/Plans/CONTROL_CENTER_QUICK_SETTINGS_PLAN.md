@@ -263,6 +263,16 @@ A second pass over the shipped home choice closed the gaps between the two hosts
   `surface=edge` and the same panel returned as the bento Control Centre with the same two toggles
   (`05`); with the edge home restored the status item opened the Creative Hub again (`08`). Classic and
   modular remain visually distinct (`06`, `07`).
+- **The Home row operated on the installed Release.** With `preset=bento` and
+  `toggles=darkMode,nightShift` seeded, Settings › Control Center › Home → **Menu Bar** raised the prompt
+  (`09`); in that state the row stayed on screen with **Menu Bar** tinted (`10`). A real click on **Edge**
+  in the same row wrote `edge` with no second prompt (`11`), the standalone panel opened as the stored
+  bento Control Centre with the same two toggles (`12`), and the status item opened the Creative Hub
+  (`13`). Returning through the row to **Menu Bar** again brought the dropdown and the Background Apps
+  deck back without a second prompt (`14`, `15`). At the default scroll position the row sits at the
+  page's cut with both segments drawn and clickable; one wheel turn brings the whole row and its note
+  ("Creative Hub is paused while Control Centre is in the Menu Bar.") into view (`16`), and the pane
+  scrolls normally to the rows below (`17`). Prefs were restored from `/tmp/kkprefs-rt/` afterwards.
 - **Idle after this install** — `Scripts/bench_katikati.sh --idle-only` on the rebuilt 0.18.0 (54):
   **1.76 %** of one core, **207.4 MB** resident, 65 MB on disk, sampled in the fresh onboarding state.
   Lower than the earlier 358.2 MB figure because that run kept a static window and its state; the CPU
