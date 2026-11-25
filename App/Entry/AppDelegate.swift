@@ -387,13 +387,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ),
         taskbarHeader: { [weak self] menu in
             guard let self else { return nil }
-            return DockMenuChrome.stripHeader(
-                store: self.settingsStore,
-                menu: menu,
-                onSettings: { [weak self] in self?.openSettings(nil) },
-                onControlCenter: { [weak self] in self?.toggleControlCenter() },
-                onDockOptions: { [weak self] in self?.openSettings(selecting: .dockItems) }
-            )
+            return DockMenuChrome.stripHeader(store: self.settingsStore, menu: menu)
         }
     )
 

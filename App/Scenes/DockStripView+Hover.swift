@@ -154,6 +154,18 @@ extension DockStripView {
         )
     }
 
+    /// Whether a section's own widget menu may claim this right-click. A section overlay sits above
+    /// the chips inside it (utilities hosts trash and pinned folders), so it has to step aside for
+    /// any chip frame that is not its own reported one.
+    func sectionMenuZoneClaims(atScreen global: CGPoint, sectionID: String) -> Bool {
+        guard let point = stripPoint(from: global) else { return false }
+        return StripContextMenuZone.sectionClaims(
+            point: axisPoint(point),
+            ownID: sectionID,
+            frames: frames.chipRegistry.frames.mapValues(axisRect)
+        )
+    }
+
     /// Drag-to-resize grip (and its ▲▼ glyph): the right-click zones kept clear of the chips.
     func resizeGripZoneClaims(atScreen global: CGPoint) -> Bool {
         // The grip drags the bar's height with the pointer's y; a rail's thickness is its width,

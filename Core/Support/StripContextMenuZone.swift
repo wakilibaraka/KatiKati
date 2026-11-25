@@ -130,6 +130,15 @@ enum StripContextMenuZone {
         return !isEndInset || !hasDividerGap(chipFrames: chipFrames, minimumGapWidth: minimumGapWidth)
     }
 
+    /// A section-wide widget menu must not swallow a chip drawn inside it. The utilities island hosts
+    /// the trash chip and pinned folders, and its own menu overlay sits above them; this lets the
+    /// right-click fall through to the chip's menu while empty section padding still opens the
+    /// section's. `frames` is every chip frame by id, so the section's own reported frame (usually
+    /// named after the section) is the only one it keeps.
+    static func sectionClaims(point: CGPoint, ownID: String, frames: [String: CGRect]) -> Bool {
+        !frames.contains { id, frame in id != ownID && frame.contains(point) }
+    }
+
     /// Whether any chip-to-chip gap is wide enough to be a zone divider's — the same running-max
     /// walk as `claims`, so an overlap never reads as a gap.
     static func hasDividerGap(chipFrames: [CGRect], minimumGapWidth: CGFloat) -> Bool {

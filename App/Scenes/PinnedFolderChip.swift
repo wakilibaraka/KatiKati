@@ -148,6 +148,17 @@ struct PinnedFolderChip: View {
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
+        // One header across every Dock surface: the folder in the icon well, its name, the strip's
+        // placement/hide pill, then Settings / Control Center / Auto-Hide / Position.
+        if let store = AppDelegate.shared?.settingsStore {
+            menu.addItem(DockMenuChrome.dockHeader(
+                icon: PinnedFolderCoverStore.icon(forPath: path),
+                title: folderName,
+                store: store,
+                menu: menu
+            ))
+            menu.addItem(.separator())
+        }
         menu.addItem(ClosureMenuItem(String(localized: "Preview Contents")) { onPreview() })
         menu.addItem(ClosureMenuItem(String(localized: "Open in Finder")) { onOpenInFinder() })
         menu.addItem(.separator())

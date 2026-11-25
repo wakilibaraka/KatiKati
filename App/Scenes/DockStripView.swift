@@ -1642,7 +1642,7 @@ struct DockStripView: View {
                     WidgetEditOverlay(section: section, width: targetWidth * dockScale, isVertical: isRail)
                 }
             }
-            .floatingContextMenu {
+            .floatingContextMenu(shouldClaim: { sectionMenuZoneClaims(atScreen: $0, sectionID: section.rawValue) }) {
                 let menu = WidgetMenuBuilder.menu(for: section, store: settingsStore, isVertical: isRail)
                 // The Live Island chip's own controls ride in front of the widget menu: this overlay
                 // sits above the capsule, so a menu on the capsule itself would never be reached.

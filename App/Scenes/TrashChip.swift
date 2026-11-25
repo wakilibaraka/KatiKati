@@ -94,6 +94,18 @@ struct TrashChip: View {
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
         menu.autoenablesItems = false
+        // Same header as every other Dock surface: icon well, name, placement/hide pill, four tiles.
+        // Its custom view also makes this menu open natively instead of through the chip panel.
+        if let store = AppDelegate.shared?.settingsStore {
+            let icon = NSImage(named: isFull ? NSImage.trashFullName : NSImage.trashEmptyName)
+            menu.addItem(DockMenuChrome.dockHeader(
+                icon: icon,
+                title: String(localized: "Trash"),
+                store: store,
+                menu: menu
+            ))
+            menu.addItem(.separator())
+        }
         for item in menuItems {
             switch item {
             case .open:

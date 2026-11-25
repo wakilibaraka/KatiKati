@@ -241,6 +241,30 @@ final class StripContextMenuZoneTests: XCTestCase {
         XCTAssertEqual(registry.frames(in: .window), [:], "the pop is not a window chip")
     }
 
+    /// The utilities island sits above the chips it hosts. Its section frame must keep empty padding
+    /// and its own glyph, but step aside for the trash chip and pinned folders drawn inside it —
+    /// otherwise a right-click on them opened the widget menu instead of their own.
+    func testSectionMenuYieldsToChipsDrawnInsideIt() {
+        let section = CGRect(x: 1275, y: 0, width: 137, height: 46)
+        let trash = CGRect(x: 1378, y: 0, width: 34, height: 46)
+        let folder = CGRect(x: 1344, y: 0, width: 34, height: 46)
+        let frames = ["utilities": section, "trash": trash, "folder-/Downloads": folder]
+
+        XCTAssertTrue(StripContextMenuZone.sectionClaims(
+            point: CGPoint(x: 1290, y: 23), ownID: "utilities", frames: frames),
+            "empty padding of the section still opens the section menu")
+        XCTAssertFalse(StripContextMenuZone.sectionClaims(
+            point: CGPoint(x: trash.midX, y: trash.midY), ownID: "utilities", frames: frames),
+            "the trash chip keeps its own menu")
+        XCTAssertFalse(StripContextMenuZone.sectionClaims(
+            point: CGPoint(x: folder.midX, y: folder.midY), ownID: "utilities", frames: frames),
+            "a pinned folder keeps its own menu")
+
+        // A section with no child chips (the clock) still claims itself.
+        XCTAssertTrue(StripContextMenuZone.sectionClaims(
+            point: CGPoint(x: 1550, y: 23), ownID: "clock", frames: ["clock": section]))
+    }
+
     @MainActor
     func testTaskbarMenuAnchorOpensInwardAndClampsVertically() {
         let bounds = CGRect(x: 0, y: 0, width: 54, height: 800)

@@ -105,8 +105,9 @@ extension View {
 
     /// Right-click menu that floats **above** the dock (the chip panel) instead of covering it. Falls back
     /// to the native `NSMenu` where no presenter is injected (drawer, drag snapshots).
-    func floatingContextMenu(_ builder: @escaping () -> NSMenu) -> some View {
-        overlay(FloatingMenuHost(builder: builder))
+    func floatingContextMenu(shouldClaim: ((CGPoint) -> Bool)? = nil,
+                              _ builder: @escaping () -> NSMenu) -> some View {
+        overlay(FloatingMenuHost(builder: builder, shouldClaim: shouldClaim))
     }
 }
 
@@ -344,6 +345,9 @@ extension NSMenu {
 
 struct FloatingMenuHost: View {
     let builder: () -> NSMenu
+    /// Optional claim filter in screen coordinates (bottom-left, `NSEvent.mouseLocation`): a section
+    /// host uses it to yield to the chips it hosts. Nil claims everywhere, as before.
+    var shouldClaim: ((CGPoint) -> Bool)?
     @Environment(\.chipMenuPresenter) private var presenter
 
     var body: some View {
@@ -356,7 +360,7 @@ struct FloatingMenuHost: View {
             } else {
                 NSMenu.popUpContextMenu(menu, with: event, for: view)
             }
-        })
+        }, shouldClaim: shouldClaim)
     }
 }
 
@@ -649,16 +653,16 @@ enum DockMenuChrome {
 }
 
 extension DockMenuChrome {
-    /// The header for the strip's empty-area right-click: the Dock itself, where it sits, and the four
-    /// destinations its menu rows already carry further down. Reads only `store` properties — the same
-    /// no-readers/no-AX rule as the chip and folder headers, so the menu still opens synchronously.
+    /// The header every Dock surface opens with — the strip's empty area, app chips, pinned folders
+    /// and the trash chip. Icon well, surface name, the strip's placement and hide mode, then the four
+    /// destinations. Reads only `store` properties and cached images: no readers, timers, AX or disk
+    /// work, so the menu still opens on the right-click event.
     @MainActor
-    static func stripHeader(
+    static func dockHeader(
+        icon: NSImage?,
+        title: String,
         store: AppSettingsStore,
-        menu: NSMenu,
-        onSettings: @escaping () -> Void,
-        onControlCenter: @escaping () -> Void,
-        onDockOptions: @escaping () -> Void
+        menu: NSMenu
     ) -> NSMenuItem {
         let tiles = DockMenuModel.stripTiles()
         let placement: String
@@ -671,25 +675,36 @@ extension DockMenuChrome {
             ? String(localized: "Auto-Hide")
             : String(localized: "Always Visible")
         return header(
-            icon: NSApp.applicationIconImage,
-            title: String(localized: "Taskbar"),
+            icon: icon,
+            title: title,
             status: "\(placement) · \(hiding)",
             tiles: [
                 .init(symbol: tiles[0].symbol, caption: String(localized: "Settings")) {
                     // The menu is still tracking while the tile runs; open after it has closed so
                     // Settings comes up over the desktop, not under a lingering menu.
-                    DispatchQueue.main.async(execute: onSettings)
+                    DispatchQueue.main.async { AppDelegate.shared?.openSettings(nil) }
                 },
                 .init(symbol: tiles[1].symbol, caption: String(localized: "Control Center")) {
-                    DispatchQueue.main.async(execute: onControlCenter)
+                    DispatchQueue.main.async { AppDelegate.shared?.toggleControlCenter() }
                 },
                 .init(symbol: tiles[2].symbol, caption: String(localized: "Auto-Hide")) {
                     store.toggleEdgeAutoHideMode()
                 },
                 .init(symbol: tiles[3].symbol, caption: String(localized: "Position")) {
-                    DispatchQueue.main.async(execute: onDockOptions)
+                    DispatchQueue.main.async { AppDelegate.shared?.openSettings(selecting: .dockItems) }
                 },
             ],
+            menu: menu
+        )
+    }
+
+    /// The strip's empty-area right-click wears the Dock itself in the icon well.
+    @MainActor
+    static func stripHeader(store: AppSettingsStore, menu: NSMenu) -> NSMenuItem {
+        dockHeader(
+            icon: NSApp.applicationIconImage,
+            title: String(localized: "Taskbar"),
+            store: store,
             menu: menu
         )
     }
