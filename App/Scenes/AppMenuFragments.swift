@@ -336,6 +336,12 @@ extension EnvironmentValues {
     }
 }
 
+extension NSMenu {
+    /// A custom-view row (the hub-style header, the taskbar-size slider) has no text row to become,
+    /// so the floating chip panel cannot draw it — such menus must open natively.
+    var hasViewItem: Bool { items.contains { $0.view != nil } }
+}
+
 struct FloatingMenuHost: View {
     let builder: () -> NSMenu
     @Environment(\.chipMenuPresenter) private var presenter
@@ -344,7 +350,7 @@ struct FloatingMenuHost: View {
         NativeMenuHost(popUpHandler: { event, view in
             let menu = builder()
             guard !menu.items.isEmpty else { return }
-            if let presenter, let window = view.window {
+            if let presenter, let window = view.window, !menu.hasViewItem {
                 let rect = window.convertToScreen(view.convert(view.bounds, to: nil))
                 presenter(menu, rect)
             } else {
@@ -617,6 +623,10 @@ enum DockUtilityMenuBuilder {
 
 // MARK: - Dock menu chrome
 
+/// The header's fixed width. Menu rows are 300 pt wide, so this keeps a narrow inset inside the
+/// highlighted row while giving each of the four tiles room for labels like “Control Center”.
+private let dockMenuHeaderWidth: CGFloat = 288
+
 /// The visual header at the top of a Dock right-click menu: the same grammar as the Menu Bar hub —
 /// a 26 pt icon well, a 12.5 pt semibold name, a quiet status pill, and four action wells. It is a
 /// hosted SwiftUI view so the hub's type ramp and radii are reused rather than restyled; building
@@ -631,10 +641,57 @@ enum DockMenuChrome {
 
     static func header(icon: NSImage?, title: String, status: String?, tiles: [Tile], menu: NSMenu) -> NSMenuItem {
         let host = NSHostingView(rootView: DockMenuHeaderView(icon: icon, title: title, status: status, tiles: tiles, menu: menu))
-        host.frame = NSRect(x: 0, y: 0, width: 264, height: 94)
+        host.frame = NSRect(x: 0, y: 0, width: dockMenuHeaderWidth, height: 94)
         let item = NSMenuItem()
         item.view = host
         return item
+    }
+}
+
+extension DockMenuChrome {
+    /// The header for the strip's empty-area right-click: the Dock itself, where it sits, and the four
+    /// destinations its menu rows already carry further down. Reads only `store` properties — the same
+    /// no-readers/no-AX rule as the chip and folder headers, so the menu still opens synchronously.
+    @MainActor
+    static func stripHeader(
+        store: AppSettingsStore,
+        menu: NSMenu,
+        onSettings: @escaping () -> Void,
+        onControlCenter: @escaping () -> Void,
+        onDockOptions: @escaping () -> Void
+    ) -> NSMenuItem {
+        let tiles = DockMenuModel.stripTiles()
+        let placement: String
+        switch DockMenuModel.stripPlacementToken(store.stripPlacementMap.global) {
+        case "Left": placement = String(localized: "Left")
+        case "Right": placement = String(localized: "Right")
+        default: placement = String(localized: "Bottom")
+        }
+        let hiding = store.edgeAutoHideEnabled
+            ? String(localized: "Auto-Hide")
+            : String(localized: "Always Visible")
+        return header(
+            icon: NSApp.applicationIconImage,
+            title: String(localized: "Taskbar"),
+            status: "\(placement) · \(hiding)",
+            tiles: [
+                .init(symbol: tiles[0].symbol, caption: String(localized: "Settings")) {
+                    // The menu is still tracking while the tile runs; open after it has closed so
+                    // Settings comes up over the desktop, not under a lingering menu.
+                    DispatchQueue.main.async(execute: onSettings)
+                },
+                .init(symbol: tiles[1].symbol, caption: String(localized: "Control Center")) {
+                    DispatchQueue.main.async(execute: onControlCenter)
+                },
+                .init(symbol: tiles[2].symbol, caption: String(localized: "Auto-Hide")) {
+                    store.toggleEdgeAutoHideMode()
+                },
+                .init(symbol: tiles[3].symbol, caption: String(localized: "Position")) {
+                    DispatchQueue.main.async(execute: onDockOptions)
+                },
+            ],
+            menu: menu
+        )
     }
 }
 
@@ -674,7 +731,8 @@ private struct DockMenuHeaderView: View {
                     } label: {
                         VStack(spacing: 3) {
                             Image(systemName: tile.symbol).font(.system(size: 13, weight: .semibold)).frame(height: 17)
-                            Text(verbatim: tile.caption).font(.system(size: 9.5, weight: .medium)).lineLimit(1)
+                            Text(verbatim: tile.caption).font(.system(size: 9.5, weight: .medium))
+                                .lineLimit(1).minimumScaleFactor(0.85)
                         }
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.07)))
@@ -686,6 +744,6 @@ private struct DockMenuHeaderView: View {
         }
         .padding(.horizontal, 11)
         .padding(.vertical, 9)
-        .frame(width: 264, height: 94)
+        .frame(width: dockMenuHeaderWidth, height: 94)
     }
 }

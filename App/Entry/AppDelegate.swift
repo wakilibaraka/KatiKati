@@ -384,7 +384,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 QuickToggleEngine.shared.perform(id)
             },
             refreshToggleStates: { QuickToggleEngine.shared.refresh() }
-        )
+        ),
+        taskbarHeader: { [weak self] menu in
+            guard let self else { return nil }
+            return DockMenuChrome.stripHeader(
+                store: self.settingsStore,
+                menu: menu,
+                onSettings: { [weak self] in self?.openSettings(nil) },
+                onControlCenter: { [weak self] in self?.toggleControlCenter() },
+                onDockOptions: { [weak self] in self?.openSettings(selecting: .dockItems) }
+            )
+        }
     )
 
     func applicationDidFinishLaunching(_ notification: Notification) {

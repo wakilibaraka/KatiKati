@@ -127,6 +127,9 @@ enum ChipPanelMenuBridge {
             for item in items {
                 if item.isSeparatorItem { pendingSeparator = true; continue }
                 if item.isHidden { continue }
+                // Custom views (hub headers, sliders) have no title row; drawing their placeholder
+                // would put a stray “NSMenuItem” in the panel. Callers open such menus natively.
+                if item.view != nil { continue }
                 if item.isAlternate, let last = actions.indices.last {
                     let base = actions[last]
                     let main = base.handler

@@ -163,7 +163,9 @@ struct ChipView: View {
             } else {
                 let menu = buildChipMenu()
                 guard !menu.items.isEmpty else { return }
-                if let presenter = chipMenuPresenter, let window = view.window {
+                // The panel bridge cannot draw a custom-view row (this menu's hub header), so a
+                // header menu opens natively and keeps it.
+                if let presenter = chipMenuPresenter, let window = view.window, !menu.hasViewItem {
                     presenter(menu, window.convertToScreen(view.convert(view.bounds, to: nil)))
                 } else {
                     NSMenu.popUpContextMenu(menu, with: event, for: view)

@@ -108,6 +108,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         var refreshToggleStates: @MainActor () -> Void = {}
     }
     private let menuBarHub: MenuBarHubHooks
+    /// The strip background menu's hub-style header. Injected because `DockMenuChrome` lives in
+    /// `AppMenuFragments.swift`, which the unit-test target does not compile; nil there leaves the
+    /// menu exactly as it was. Never called for the menu-bar context menu.
+    private let taskbarHeader: (NSMenu) -> NSMenuItem?
+    /// Header + its trailing rule, present only while the taskbar-anchored menu is on screen.
+    private var taskbarHeaderItems: [NSMenuItem] = []
     private let menuBarContextMenu = NSMenu()
     private let desktopBoxesItem = NSMenuItem(title: String(localized: "Desktop Boxes"), action: nil, keyEquivalent: "")
     private let desktopBoxesMenu = NSMenu()
@@ -131,7 +137,8 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
          onQuit: @escaping () -> Void,
          connectedScreens: @escaping () -> [(uuid: String, title: String)] = { [] },
          desktopBoxes: DesktopBoxesMenuHooks = DesktopBoxesMenuHooks(),
-         menuBarHub: MenuBarHubHooks = MenuBarHubHooks()) {
+         menuBarHub: MenuBarHubHooks = MenuBarHubHooks(),
+         taskbarHeader: @escaping (NSMenu) -> NSMenuItem? = { _ in nil }) {
         self.store = store
         self.settingsCoordinator = settingsCoordinator
         self.isAccessibilityTrusted = isAccessibilityTrusted
@@ -149,6 +156,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.connectedScreens = connectedScreens
         self.desktopBoxes = desktopBoxes
         self.menuBarHub = menuBarHub
+        self.taskbarHeader = taskbarHeader
         super.init()
         configureStatusItem()
         HoverTrace.statusItem(site: "statusMenuController", length: statusItem.length, square: true,
@@ -438,6 +446,9 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     func popUpFromTaskbar(with event: NSEvent, in view: NSView) {
         isPresentedFromTaskbar = true
         prepareMenuForPresentation()
+        // Mounted before `menu.size` is measured: the anchor positions the whole menu by its top
+        // edge, so a header added after measuring would push the rows off the strip.
+        installTaskbarHeader()
         isPreparedForTaskbarPresentation = true
         let local = view.convert(event.locationInWindow, from: nil)
         let visibleInView = view.window.flatMap { w -> CGRect? in
@@ -448,6 +459,27 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
                                             placement: store.stripPlacementMap.global, visibleBoundsInView: visibleInView)
         menu.popUp(positioning: nil, at: anchor, in: view)
         isPreparedForTaskbarPresentation = false
+    }
+
+    /// Mounts the app-layer header on the shared menu for this presentation only. Removed again when
+    /// the menu closes: the same instance is the strip's whole menu, and the header's status pill must
+    /// be rebuilt from live settings on the next open, never left over from the last one.
+    private func installTaskbarHeader() {
+        removeTaskbarHeader()
+        guard let header = taskbarHeader(menu) else { return }
+        let rule = NSMenuItem.separator()
+        menu.insertItem(header, at: 0)
+        menu.insertItem(rule, at: 1)
+        taskbarHeaderItems = [header, rule]
+    }
+
+    private func removeTaskbarHeader() {
+        guard !taskbarHeaderItems.isEmpty else { return }
+        for item in taskbarHeaderItems {
+            let index = menu.index(of: item)
+            if index >= 0 { menu.removeItem(at: index) }
+        }
+        taskbarHeaderItems = []
     }
 
     static func taskbarMenuAnchor(
@@ -472,6 +504,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         }
         isMenuOpen = false
         isPresentedFromTaskbar = false
+        removeTaskbarHeader()
         // A menu dismissed mid-drag must not leave the bars in the resize transaction.
         settingsCoordinator.setTaskbarHeightEditing(false)
         onMenuVisibilityChanged(false)

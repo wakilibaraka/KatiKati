@@ -396,6 +396,28 @@ enum DockMenuModel {
     }
 
     static func fileStatus(isDirectory: Bool) -> String { isDirectory ? "Folder" : "File" }
+
+    /// The strip background menu's four destinations. They are shortcuts to rows that already exist
+    /// further down that menu (Settings…, Control Centre, auto-hide, Dock Layout), never a second
+    /// source of truth, and they stay fixed in count and order so the header never reflows.
+    static func stripTiles() -> [DockMenuTileDescriptor] {
+        [
+            DockMenuTileDescriptor(id: "settings", symbol: "gearshape"),
+            DockMenuTileDescriptor(id: "controlCenter", symbol: "switch.2"),
+            DockMenuTileDescriptor(id: "autoHide", symbol: "eye.slash"),
+            DockMenuTileDescriptor(id: "position", symbol: "rectangle.3.group"),
+        ]
+    }
+
+    /// Where the strip sits, as the menu's own word for it. Callers localize the words; Core only
+    /// names the edge so the header never grows a string the localizer has not seen.
+    static func stripPlacementToken(_ placement: StripPlacement) -> String {
+        switch placement {
+        case .bottom: return "Bottom"
+        case .left: return "Left"
+        case .right: return "Right"
+        }
+    }
 }
 
 extension HubSwitchID {

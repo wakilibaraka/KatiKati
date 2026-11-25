@@ -198,6 +198,11 @@ final class HubModuleTests: XCTestCase {
         XCTAssertNotEqual(folder[0].symbol, file[0].symbol)
         XCTAssertEqual(DockMenuModel.fileStatus(isDirectory: true), "Folder")
         XCTAssertEqual(DockMenuModel.fileStatus(isDirectory: false), "File")
+        let strip = DockMenuModel.stripTiles()
+        XCTAssertEqual(strip.count, 4)
+        XCTAssertEqual(strip.map(\.id), ["settings", "controlCenter", "autoHide", "position"])
+        XCTAssertEqual(Set(strip.map(\.symbol)).count, 4)
+        XCTAssertEqual(StripPlacement.allCases.map(DockMenuModel.stripPlacementToken), ["Bottom", "Left", "Right"])
     }
 
     func testSwitchRowsThatRepeatAnActionTileAreFlagged() {
