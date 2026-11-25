@@ -31,6 +31,10 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     private var segmentPlans: [UUID: DownloadSegmentPlan] = [:]
     private var segmentFiles: [UUID: [Int: URL]] = [:]
     private var segmentResumeCompleted: [UUID: [Int: Int64]] = [:]
+    /// SD-4b: the scheduler that decides queueing, stealing and reconnects, and the one flat `.part` file each
+    /// segmented transfer writes into.
+    private var engineStates: [UUID: DownloadEngineState] = [:]
+    private var partFiles: [UUID: URL] = [:]
     private var resumeDataMap: [UUID: Data] = [:]
 
     // Track previous byte counts for speed calculation
@@ -107,7 +111,37 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     // MARK: - Periodic Tick & Browser Downloads Scan
 
+    private func finaliseFlat(id: UUID, destination: URL, part: URL, plan: DownloadSegmentPlan) {
+        do {
+            try? FileManager.default.removeItem(at: destination)
+            try FileManager.default.moveItem(at: part, to: destination)
+            if let idx = items.firstIndex(where: { $0.id == id }) {
+                items[idx].totalBytes = plan.totalBytes
+                items[idx].bytesDownloaded = plan.totalBytes
+                items[idx].downloadSpeedBps = 0
+                items[idx].etaSeconds = nil
+                items[idx].state = .completed
+                items[idx].completedAt = Date()
+            }
+            segmentPlans.removeValue(forKey: id)
+            segmentFiles.removeValue(forKey: id)
+            engineStates.removeValue(forKey: id)
+            partFiles.removeValue(forKey: id)
+            segmentResumeCompleted.removeValue(forKey: id)
+            DownloadResumeRecord.remove(id: id)
+            previousBytes.removeValue(forKey: id)
+            reconcileTicker()
+        } catch {
+            if let idx = items.firstIndex(where: { $0.id == id }) {
+                items[idx].state = .failed(error.localizedDescription)
+                items[idx].downloadSpeedBps = 0
+            }
+            reconcileTicker()
+        }
+    }
+
     private func onTick() {
+        reconnectStalled()
         scanBrowserDownloads()
         refreshTorrents()
         updateAggregates()
@@ -375,23 +409,109 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     private func startSegmentTasks(id: UUID, url: URL, destination: URL, plan: DownloadSegmentPlan) {
         segmentPlans[id] = plan
-        // SD-4: fall back to the on-disk record so a transfer paused in an earlier launch resumes from its
-        // recorded offsets instead of starting the whole range again.
-        let completed = segmentResumeCompleted[id] ?? DownloadResumeRecord.read(id: id)?.completed ?? [:]
-        for segment in plan.segments where (completed[segment.index] ?? 0) < segment.length {
-            var request = URLRequest(url: url)
-            request.setValue(segment.rangeHeader, forHTTPHeaderField: "Range")
-            request.timeoutInterval = 60
-            let task = urlSession.downloadTask(with: request)
-            segmentTasks[task] = (id: id, index: segment.index)
-            task.resume()
+        let completed = segmentResumeCompleted[id] ?? [:]
+        var state = DownloadEngineState(plan: plan, policy: DownloadEnginePolicy.stored(), completed: completed)
+        engineStates[id] = state
+        // SD-4b: one output file. Every worker seeks into it at its own offset, so nothing is concatenated
+        // afterwards and a stolen or reconnected segment needs no repair pass.
+        let part = destination.deletingPathExtension().appendingPathExtension(destination.pathExtension + ".part")
+        if !FileManager.default.fileExists(atPath: part.path) {
+            _ = FileManager.default.createFile(atPath: part.path, contents: nil)
         }
-        if plan.segments.allSatisfy({ (completed[$0.index] ?? 0) >= $0.length }) {
-            assembleSegments(id: id, destination: destination, plan: plan)
+        partFiles[id] = part
+        fillSlots(id: id, url: url, destination: destination)
+        _ = state
+    }
+
+    /// SD-4b: open every connection the policy allows, one queued segment each.
+    private func fillSlots(id: UUID, url: URL, destination: URL) {
+        while var state = engineStates[id] {
+            let action = state.next(freeSlot: false)
+            engineStates[id] = state
+            switch action {
+            case .start(let index):
+                startSegment(id: id, url: url, index: index)
+            case .assemble:
+                assembleSegments(id: id, destination: destination, plan: state.plan)
+                return
+            case .steal, .wait:
+                return
+            }
+        }
+    }
+
+    /// SD-4b: a worker finished. Take the next queued segment, or steal the tail of the largest remaining one,
+    /// or assemble when everything has landed.
+    private func advanceAfterFinish(id: UUID) {
+        guard var state = engineStates[id] else { return }
+        let action = state.next(freeSlot: true)
+        engineStates[id] = state
+        guard let item = items.first(where: { $0.id == id }), let destination = item.destinationURL,
+              let source = item.sourceURL, let url = URL(string: source) else { return }
+        switch action {
+        case .start(let index):
+            startSegment(id: id, url: url, index: index)
+        case .steal(let victim, let tail):
+            // The victim's cancelled bytes are gone, so its offset resets to its own start before it restarts
+            // on the shortened range.
+            if var owning = engineStates[id] {
+                owning.reset(index: victim)
+                engineStates[id] = owning
+            }
+            cancelSegment(id: id, index: victim)
+            startSegment(id: id, url: url, index: victim)
+            startSegment(id: id, url: url, index: tail)
+        case .assemble:
+            assembleSegments(id: id, destination: destination, plan: state.plan)
+        case .wait:
+            break
+        }
+    }
+
+    private func startSegment(id: UUID, url: URL, index: Int) {
+        guard let state = engineStates[id],
+              let segment = state.plan.segments.first(where: { $0.index == index }) else { return }
+        let start = segment.start + (state.completed[index] ?? 0)
+        guard start <= segment.end else { return }
+        var request = URLRequest(url: url)
+        request.setValue("bytes=\(start)-\(segment.end)", forHTTPHeaderField: "Range")
+        request.timeoutInterval = 60
+        let task = urlSession.downloadTask(with: request)
+        segmentTasks[task] = (id: id, index: index)
+        task.resume()
+    }
+
+    private func cancelSegment(id: UUID, index: Int) {
+        for (task, owner) in segmentTasks where owner.id == id && owner.index == index {
+            task.cancel()
+            segmentTasks.removeValue(forKey: task)
+        }
+    }
+
+    /// SD-4b: the ticker's reconnect path. Throughput feeds the connection ramp and a transfer that has gone
+    /// quiet gets its furthest-behind segment restarted while the reconnect budget lasts.
+    private func reconnectStalled() {
+        for (id, var state) in engineStates {
+            let action = state.tick()
+            engineStates[id] = state
+            guard case .start(let index)? = action,
+                  let item = items.first(where: { $0.id == id }),
+                  let source = item.sourceURL, let url = URL(string: source) else { continue }
+            if var owning = engineStates[id] {
+                owning.reset(index: index)
+                engineStates[id] = owning
+            }
+            cancelSegment(id: id, index: index)
+            startSegment(id: id, url: url, index: index)
         }
     }
 
     private func assembleSegments(id: UUID, destination: URL, plan: DownloadSegmentPlan) {
+        // SD-4b: with flat writes the `.part` file is already the finished file.
+        if let part = partFiles[id] {
+            finaliseFlat(id: id, destination: destination, part: part, plan: plan)
+            return
+        }
         let files = segmentFiles[id] ?? [:]
         guard files.count == plan.segments.count else { return }
         let part = destination.deletingPathExtension().appendingPathExtension(destination.pathExtension + ".part")
@@ -636,43 +756,30 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                     }
                     return
                 }
-                let root = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("katikati-download-\(owner.id.uuidString)", isDirectory: true)
-                try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-                let segmentURL = root.appendingPathComponent("segment-\(owner.index)")
-                try? FileManager.default.removeItem(at: segmentURL)
-                guard (try? FileManager.default.moveItem(at: location, to: segmentURL)) != nil else { return }
-                var files = self.segmentFiles[owner.id] ?? [:]
-                files[owner.index] = segmentURL
-                self.segmentFiles[owner.id] = files
-                var plan = self.segmentPlans[owner.id]
-                if plan != nil {
-                    if let size = try? segmentURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
-                        let segmentIndex = owner.index
-                        var segments = plan!.segments
-                        segments[segmentIndex].completedBytes = Int64(size)
-                        plan = DownloadSegmentPlan(segments: segments, isMultiSegment: plan!.isMultiSegment)
-                        self.segmentPlans[owner.id] = plan
-                        var completed = self.segmentResumeCompleted[owner.id] ?? [:]
-                        completed[segmentIndex] = Int64(size)
-                        self.segmentResumeCompleted[owner.id] = completed
-                        // SD-4: persist what is already on disk, so a quit or a crash keeps the progress.
-                        if let item = self.items.first(where: { $0.id == owner.id }) {
-                            DownloadResumeRecord(source: item.sourceURL ?? "",
-                                                 destination: item.destinationURL?.path ?? "",
-                                                 totalBytes: plan!.totalBytes,
-                                                 isMultiSegment: plan!.isMultiSegment,
-                                                 completed: completed).write(id: owner.id)
-                        }
+                guard let part = self.partFiles[owner.id],
+                      let state = self.engineStates[owner.id],
+                      let segment = state.plan.segments.first(where: { $0.index == owner.index }) else { return }
+                // SD-4b: flat positioned write — this range's bytes go to its own offset in the one `.part`
+                // file, so a stolen, shortened or reconnected segment needs no reassembly pass.
+                if let data = try? Data(contentsOf: location) {
+                    try? DownloadFlatWriter.write(data, to: part, offset: state.writeOffset(for: owner.index))
+                    self.segmentResumeCompleted[owner.id, default: [:]][owner.index] = segment.start + Int64(data.count)
+                    if let item = self.items.first(where: { $0.id == owner.id }) {
+                        DownloadResumeRecord(source: item.sourceURL ?? "",
+                                             destination: item.destinationURL?.path ?? "",
+                                             totalBytes: state.plan.totalBytes,
+                                             isMultiSegment: state.plan.isMultiSegment,
+                                             completed: self.segmentResumeCompleted[owner.id] ?? [:])
+                            .write(id: owner.id)
                     }
                 }
+                try? FileManager.default.removeItem(at: location)
                 self.segmentTasks.removeValue(forKey: downloadTask)
-                if let plan = plan,
-                   files.count == plan.segments.count,
-                   let item = self.items.first(where: { $0.id == owner.id }),
-                   let dest = item.destinationURL {
-                    self.assembleSegments(id: owner.id, destination: dest, plan: plan)
+                if var owning = self.engineStates[owner.id] {
+                    owning.finish(index: owner.index)
+                    self.engineStates[owner.id] = owning
                 }
+                self.advanceAfterFinish(id: owner.id)
             }
             return
         }

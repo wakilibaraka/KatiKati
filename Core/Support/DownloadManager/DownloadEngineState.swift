@@ -111,6 +111,17 @@ struct DownloadEngineState: Sendable {
         }
     }
 
+    /// A cancelled in-flight segment has nothing on disk: the delegate only delivers completed ranges, so its
+    /// offset goes back to the segment's own start.
+    mutating func reset(index: Int) { completed[index] = 0 }
+
+    /// One ticker beat: ramp the connection count from the samples the delegate fed us, then ask the reconnect
+    /// path. The service calls exactly this from `onTick`.
+    mutating func tick(now: Date = Date()) -> Action? {
+        ramp(recent: detector.recentRate(now: now) ?? 0, peak: detector.peakRate() ?? 0)
+        return stalledAction(now: now)
+    }
+
     /// The ticker's reconnect path: a stalled transfer gets one reconnect per budget, for the segment that is
     /// furthest behind, then has to fail visibly.
     mutating func stalledAction(now: Date = Date()) -> Action? {
@@ -140,5 +151,18 @@ struct DownloadEngineState: Sendable {
         } else if recent < peak * 0.35 {
             connections = max(1, connections - 1)
         }
+    }
+}
+
+/// SD-4b: flat positioned writes — a range's bytes go to its own offset in the one output file, so a segment
+/// that was stolen, shortened or reconnected needs no concatenation pass and the file is whole the moment every
+/// range has landed.
+enum DownloadFlatWriter {
+    static func write(_ data: Data, to url: URL, offset: Int64) throws {
+        let handle = try FileHandle(forWritingTo: url)
+        defer { try? handle.close() }
+        try handle.seek(toOffset: UInt64(offset))
+        try handle.write(contentsOf: data)
+        try handle.synchronize()
     }
 }

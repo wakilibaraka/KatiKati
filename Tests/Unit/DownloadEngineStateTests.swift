@@ -106,6 +106,42 @@ final class DownloadEngineStateTests: XCTestCase {
         XCTAssertEqual(state.next(), .start(index: 1))
     }
 
+    /// The service's `onTick` calls exactly this: one beat narrows the ramp from the observed rate and, once a
+    /// whole window has been quiet, reconnects the segment furthest behind — then stops trying.
+    func testTickerBeatNarrowsTheRampAndReconnectsAQuietTransfer() {
+        var state = DownloadEngineState(plan: plan(segments: 4, sizeInMiB: 32),
+                                        policy: DownloadEnginePolicy(connections: 4, reconnectAttempts: 1))
+        let start = Date(timeIntervalSince1970: 9_000)
+        _ = state.next()   // start 0
+        _ = state.next()   // start 1
+        state.progress(index: 0, totalWritten: 6 * mib, at: start)
+        state.progress(index: 1, totalWritten: 1 * mib, at: start.addingTimeInterval(1))
+
+        XCTAssertEqual(state.tick(now: start.addingTimeInterval(1)), nil, "the transfer is healthy")
+        XCTAssertEqual(state.connections, 4, "a line that keeps up keeps its connections")
+
+        XCTAssertEqual(state.tick(now: start.addingTimeInterval(10)), .start(index: 1),
+                       "eight quiet seconds reconnect the segment furthest behind")
+        XCTAssertEqual(state.connections, 3, "and give one connection back")
+        XCTAssertEqual(state.tick(now: start.addingTimeInterval(40)), nil,
+                       "the reconnect budget is one: the next beat has to let the failure show")
+    }
+
+    /// Flat positioned writes: ranges land at their own offsets in the one output file, whatever order the
+    /// workers finish in. Appending instead of seeking leaves the file wrong, and this test goes red.
+    func testFlatWriterPutsEachRangeAtItsOwnOffset() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("FlatWriter-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: url) }
+        XCTAssertTrue(FileManager.default.createFile(atPath: url.path, contents: nil))
+
+        try DownloadFlatWriter.write(Data("BBB".utf8), to: url, offset: 3)
+        try DownloadFlatWriter.write(Data("AAA".utf8), to: url, offset: 0)
+
+        XCTAssertEqual(try String(contentsOf: url, encoding: .utf8), "AAABBB",
+                       "the second range went to offset 0, not to the end of what was already there")
+    }
+
     func testCompletePlanAsksForAssembly() {
         let plan = plan(segments: 4, sizeInMiB: 32)
         let done = Dictionary(uniqueKeysWithValues: plan.segments.map { ($0.index, $0.length) })
