@@ -131,6 +131,7 @@ struct SettingsWindowContent: View {
             case .music: SettingsMusicPane(store: store, tabState: tabState)
             case .notch: notchPane
             case .notifications: SettingsNotificationsPane(store: store)
+            case .sideDeck: SettingsSideDeckPane(store: store)
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .tiling: SettingsTilingPane(store: store)
             case .windowManagement: windowManagementPane

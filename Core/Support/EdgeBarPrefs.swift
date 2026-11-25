@@ -379,6 +379,8 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case windows
     case notifications
     case downloads
+    /// SD-6: the EasyDict page.
+    case dictionary
     case storage
     case weather
     case quickAccess
@@ -391,6 +393,8 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
     case scratchpad
     /// OW-5b: the opt-in FX / Gold / Crypto ticker.
     case markets
+    /// SD-7: the bento dashboard — downloads, disk, notification digest, today.
+    case dashboard
 
     var id: String { rawValue }
 
@@ -399,6 +403,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .windows: return String(localized: "Windows")
         case .notifications: return String(localized: "Notifications")
         case .downloads: return String(localized: "Downloads")
+        case .dictionary: return String(localized: "Dictionary")
         case .storage: return String(localized: "Storage")
         case .weather: return String(localized: "Weather")
         case .quickAccess: return String(localized: "Quick Access")
@@ -409,6 +414,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .tendedero: return String(localized: "Clothesline")
         case .scratchpad: return String(localized: "Scratchpad")
         case .markets: return String(localized: "Markets")
+        case .dashboard: return String(localized: "Dashboard")
         }
     }
 
@@ -417,6 +423,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .windows: return "macwindow.on.rectangle"
         case .notifications: return "bell.fill"
         case .downloads: return "arrow.down.circle.fill"
+        case .dictionary: return "character.book.closed"
         case .storage: return "internaldrive.fill"
         case .weather: return "cloud.sun.fill"
         case .quickAccess: return "bolt.fill"
@@ -427,6 +434,7 @@ enum SideDeckTab: String, CaseIterable, Identifiable, Sendable {
         case .tendedero: return "paperclip"
         case .scratchpad: return "square.and.pencil"
         case .markets: return "chart.line.uptrend.xyaxis"
+        case .dashboard: return "square.grid.2x2.fill"
         }
     }
 
@@ -441,6 +449,7 @@ enum SideDeckSearch {
         case .windows: return String(localized: "Search windows")
         case .notifications: return String(localized: "Search notifications")
         case .downloads: return String(localized: "Search downloads")
+        case .dictionary: return String(localized: "Look up a word")
         case .storage: return String(localized: "Search storage")
         case .weather: return String(localized: "Search weather")
         case .quickAccess: return String(localized: "Search quick access")
@@ -451,6 +460,7 @@ enum SideDeckSearch {
         case .tendedero: return String(localized: "Search shelf")
         case .scratchpad: return String(localized: "Scratchpad")
         case .markets: return String(localized: "Search markets")
+        case .dashboard: return String(localized: "Dashboard")
         }
     }
 }

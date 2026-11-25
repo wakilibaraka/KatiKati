@@ -140,7 +140,9 @@
 		FC11A0000000000000005501 /* SettingsLayoutPane+Launcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */; };
 		FC11A0000000000000005502 /* SettingsLayoutPane+Launcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */; };
 		FC11A0000000000000005601 /* SettingsLayoutPane+ControlCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */; };
+		F5C0DE00000000000000AA02 /* SettingsSideDeckPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */; };
 		FC11A0000000000000005602 /* SettingsLayoutPane+ControlCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */; };
+		F5C0DE00000000000000AA03 /* SettingsSideDeckPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */; };
 		FC11A0000000000000005701 /* SettingsLayoutPane+EdgeBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */; };
 		FC11A0000000000000005702 /* SettingsLayoutPane+EdgeBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */; };
 		FC11A0000000000000005801 /* SettingsLayoutPane+Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11A0000000000000005800 /* SettingsLayoutPane+Shortcuts.swift */; };
@@ -534,8 +536,21 @@
 		FB0000000000000000000050 /* ClaudeApprovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000051 /* ClaudeApprovalService.swift */; };
 		FA33B0000000000000000033 /* ClaudeHookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33B0000000000000000031 /* ClaudeHookInstaller.swift */; };
 		FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000D1 /* NotchAIPageView.swift */; };
-		FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000000F1 /* NotchStoragePageView.swift */; };
 		5D000000000000000000A011 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
+		DC000000000000000000C011 /* DevCacheCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C010 /* DevCacheCatalog.swift */; };
+		DE000000000000000000E011 /* DownloadEnginePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E010 /* DownloadEnginePolicy.swift */; };
+		DE000000000000000000E021 /* DownloadEngineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E020 /* DownloadEngineState.swift */; };
+		F2000000000000000000A011 /* MediaResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A010 /* MediaResolver.swift */; };
+		F2000000000000000000A021 /* MediaResolveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A020 /* MediaResolveService.swift */; };
+		F3000000000000000000B011 /* DictionaryDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3000000000000000000B010 /* DictionaryDeck.swift */; };
+		F3000000000000000000B012 /* DictionaryDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3000000000000000000B010 /* DictionaryDeck.swift */; };
+		F2000000000000000000A012 /* MediaResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A010 /* MediaResolver.swift */; };
+		DE000000000000000000E022 /* DownloadEngineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E020 /* DownloadEngineState.swift */; };
+		F1000000000000000000F011 /* SideDeckConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F010 /* SideDeckConfig.swift */; };
+		F1000000000000000000F021 /* SideDeckHandleWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F020 /* SideDeckHandleWindow.swift */; };
+		F1000000000000000000F012 /* SideDeckConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F010 /* SideDeckConfig.swift */; };
+		DE000000000000000000E012 /* DownloadEnginePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E010 /* DownloadEnginePolicy.swift */; };
+		DC000000000000000000C012 /* DevCacheCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C010 /* DevCacheCatalog.swift */; };
 		5D000000000000000000A012 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
 		5D000000000000000000A021 /* StorageScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A020 /* StorageScanService.swift */; };
 		5D000000000000000000A051 /* NotchDockChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A050 /* NotchDockChips.swift */; };
@@ -544,6 +559,18 @@
 		5D000000000000000000A081 /* NotchEdgeStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A080 /* NotchEdgeStyleTests.swift */; };
 		5D000000000000000000A061 /* NotchEventCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A060 /* NotchEventCard.swift */; };
 		5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A040 /* StorageScanMathTests.swift */; };
+		DC000000000000000000C041 /* DevCacheCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C040 /* DevCacheCatalogTests.swift */; };
+		DE000000000000000000E041 /* DownloadEnginePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E040 /* DownloadEnginePolicyTests.swift */; };
+		DE000000000000000000E051 /* DownloadEngineStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E050 /* DownloadEngineStateTests.swift */; };
+		F2000000000000000000A041 /* MediaResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A040 /* MediaResolverTests.swift */; };
+		F2000000000000000000A051 /* MediaResolveServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A050 /* MediaResolveServiceTests.swift */; };
+		F3000000000000000000B041 /* DictionaryDeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3000000000000000000B040 /* DictionaryDeckTests.swift */; };
+		F4000000000000000000C041 /* NotificationDigestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4000000000000000000C040 /* NotificationDigestTests.swift */; };
+		F4000000000000000000C021 /* SideDeckDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4000000000000000000C020 /* SideDeckDashboardView.swift */; };
+		F3000000000000000000B021 /* SideDeckDictionaryPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3000000000000000000B020 /* SideDeckDictionaryPane.swift */; };
+		F4000000000000000000C011 /* NotificationDigest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4000000000000000000C010 /* NotificationDigest.swift */; };
+		F4000000000000000000C012 /* NotificationDigest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4000000000000000000C010 /* NotificationDigest.swift */; };
+		F1000000000000000000F041 /* SideDeckConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F040 /* SideDeckConfigTests.swift */; };
 		FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000101 /* NotchProductivityPageView.swift */; };
 		FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
 		FA33A0000000000000000123 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
@@ -558,7 +585,7 @@
 		FA33A00000000000000001D3 /* PlayerAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001D1 /* PlayerAccess.swift */; };
 		FA33A00000000000000001C2 /* TorrentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001C1 /* TorrentEngine.swift */; };
 		FA33A00000000000000001C3 /* TorrentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A00000000000000001C1 /* TorrentEngine.swift */; };
-		FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000161 /* NotchDownloadsPageView.swift */; };
+		FA33A0000000000000000162 /* SideDeckDownloadsPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000161 /* SideDeckDownloadsPane.swift */; };
 		FA33A0000000000000000202 /* NotchMeetingControlBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000201 /* NotchMeetingControlBar.swift */; };
 		FA33A0000000000000000172 /* DownloadManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000171 /* DownloadManagerTests.swift */; };
 		7B500000000000000000010D /* NowPlayingProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B500000000000000000010E /* NowPlayingProgressTests.swift */; };
@@ -1577,6 +1604,7 @@
 		FC11A0000000000000005400 /* SettingsLayoutPane+Widgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+Widgets.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+Launcher.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+ControlCenter.swift"; sourceTree = "<group>"; };
+		F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsSideDeckPane.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+EdgeBars.swift"; sourceTree = "<group>"; };
 		FC11A0000000000000005800 /* SettingsLayoutPane+Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLayoutPane+Shortcuts.swift"; sourceTree = "<group>"; };
 		A0000000000000000001F090 /* SettingsTilingPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTilingPane.swift; sourceTree = "<group>"; };
@@ -1856,8 +1884,26 @@
 		FA33B0000000000000000031 /* ClaudeHookInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeHookInstaller.swift; path = App/Composition/ClaudeHookInstaller.swift; sourceTree = SOURCE_ROOT; };
 		FB0000000000000000000051 /* ClaudeApprovalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClaudeApprovalService.swift; path = App/Composition/ClaudeApprovalService.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000000D1 /* NotchAIPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchAIPageView.swift; path = App/Scenes/Notch/NotchAIPageView.swift; sourceTree = SOURCE_ROOT; };
-		FA33A00000000000000000F1 /* NotchStoragePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchStoragePageView.swift; path = App/Scenes/Notch/NotchStoragePageView.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A010 /* StorageScanMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMath.swift; path = Core/Support/StorageScanMath.swift; sourceTree = SOURCE_ROOT; };
+		DC000000000000000000C010 /* DevCacheCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevCacheCatalog.swift; path = Core/Support/DevCacheCatalog.swift; sourceTree = SOURCE_ROOT; };
+		DE000000000000000000E010 /* DownloadEnginePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEnginePolicy.swift; path = Core/Support/DownloadManager/DownloadEnginePolicy.swift; sourceTree = SOURCE_ROOT; };
+		DE000000000000000000E020 /* DownloadEngineState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEngineState.swift; path = Core/Support/DownloadManager/DownloadEngineState.swift; sourceTree = SOURCE_ROOT; };
+		F2000000000000000000A010 /* MediaResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaResolver.swift; path = Core/Support/MediaResolver.swift; sourceTree = SOURCE_ROOT; };
+		F2000000000000000000A040 /* MediaResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaResolverTests.swift; path = Tests/Unit/MediaResolverTests.swift; sourceTree = SOURCE_ROOT; };
+		F2000000000000000000A020 /* MediaResolveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaResolveService.swift; path = App/Composition/MediaResolveService.swift; sourceTree = SOURCE_ROOT; };
+		F2000000000000000000A050 /* MediaResolveServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaResolveServiceTests.swift; path = Tests/Unit/MediaResolveServiceTests.swift; sourceTree = SOURCE_ROOT; };
+		F3000000000000000000B010 /* DictionaryDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryDeck.swift; path = Core/Support/DictionaryDeck.swift; sourceTree = SOURCE_ROOT; };
+		F3000000000000000000B040 /* DictionaryDeckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryDeckTests.swift; path = Tests/Unit/DictionaryDeckTests.swift; sourceTree = SOURCE_ROOT; };
+		F4000000000000000000C010 /* NotificationDigest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationDigest.swift; path = Core/Support/NotificationDigest.swift; sourceTree = SOURCE_ROOT; };
+		F4000000000000000000C040 /* NotificationDigestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotificationDigestTests.swift; path = Tests/Unit/NotificationDigestTests.swift; sourceTree = SOURCE_ROOT; };
+		F4000000000000000000C020 /* SideDeckDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckDashboardView.swift; path = App/Scenes/Edge/SideDeckDashboardView.swift; sourceTree = SOURCE_ROOT; };
+		F3000000000000000000B020 /* SideDeckDictionaryPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckDictionaryPane.swift; path = App/Scenes/Edge/SideDeckDictionaryPane.swift; sourceTree = SOURCE_ROOT; };
+		DE000000000000000000E050 /* DownloadEngineStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEngineStateTests.swift; path = Tests/Unit/DownloadEngineStateTests.swift; sourceTree = SOURCE_ROOT; };
+		F1000000000000000000F010 /* SideDeckConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckConfig.swift; path = Core/Support/SideDeckConfig.swift; sourceTree = SOURCE_ROOT; };
+		F1000000000000000000F020 /* SideDeckHandleWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckHandleWindow.swift; path = App/Scenes/Edge/SideDeckHandleWindow.swift; sourceTree = SOURCE_ROOT; };
+		F1000000000000000000F040 /* SideDeckConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckConfigTests.swift; path = Tests/Unit/SideDeckConfigTests.swift; sourceTree = SOURCE_ROOT; };
+		DE000000000000000000E040 /* DownloadEnginePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEnginePolicyTests.swift; path = Tests/Unit/DownloadEnginePolicyTests.swift; sourceTree = SOURCE_ROOT; };
+		DC000000000000000000C040 /* DevCacheCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevCacheCatalogTests.swift; path = Tests/Unit/DevCacheCatalogTests.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A070 /* NotchEdgeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyle.swift; path = Core/Support/NotchEdgeStyle.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A080 /* NotchEdgeStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEdgeStyleTests.swift; path = Tests/Unit/NotchEdgeStyleTests.swift; sourceTree = SOURCE_ROOT; };
 		5D000000000000000000A060 /* NotchEventCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchEventCard.swift; path = App/Scenes/Notch/NotchEventCard.swift; sourceTree = SOURCE_ROOT; };
@@ -1872,7 +1918,7 @@
 		FA33A00000000000000001B1 /* Aria2RPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Aria2RPC.swift; path = Core/Support/Aria2RPC.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000001D1 /* PlayerAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlayerAccess.swift; path = Core/Support/PlayerAccess.swift; sourceTree = SOURCE_ROOT; };
 		FA33A00000000000000001C1 /* TorrentEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TorrentEngine.swift; path = App/Composition/TorrentEngine.swift; sourceTree = SOURCE_ROOT; };
-		FA33A0000000000000000161 /* NotchDownloadsPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchDownloadsPageView.swift; path = App/Scenes/Notch/NotchDownloadsPageView.swift; sourceTree = SOURCE_ROOT; };
+		FA33A0000000000000000161 /* SideDeckDownloadsPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckDownloadsPane.swift; path = App/Scenes/Edge/SideDeckDownloadsPane.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000201 /* NotchMeetingControlBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchMeetingControlBar.swift; path = App/Scenes/Notch/NotchMeetingControlBar.swift; sourceTree = SOURCE_ROOT; };
 		FA33A0000000000000000171 /* DownloadManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadManagerTests.swift; path = Tests/Unit/DownloadManagerTests.swift; sourceTree = SOURCE_ROOT; };
 		7B500000000000000000010E /* NowPlayingProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingProgressTests.swift; path = Tests/Unit/NowPlayingProgressTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2748,6 +2794,7 @@
 				FC11A0000000000000005400 /* SettingsLayoutPane+Widgets.swift */,
 				FC11A0000000000000005500 /* SettingsLayoutPane+Launcher.swift */,
 				FC11A0000000000000005600 /* SettingsLayoutPane+ControlCenter.swift */,
+				F5C0DE00000000000000AA01 /* SettingsSideDeckPane.swift */,
 				FC11A0000000000000005700 /* SettingsLayoutPane+EdgeBars.swift */,
 				FC11A0000000000000005800 /* SettingsLayoutPane+Shortcuts.swift */,
 				A0000000000000000001F090 /* SettingsTilingPane.swift */,
@@ -3472,6 +3519,7 @@
 				FC11A0000000000000005401 /* SettingsLayoutPane+Widgets.swift in Sources */,
 				FC11A0000000000000005501 /* SettingsLayoutPane+Launcher.swift in Sources */,
 				FC11A0000000000000005601 /* SettingsLayoutPane+ControlCenter.swift in Sources */,
+				F5C0DE00000000000000AA02 /* SettingsSideDeckPane.swift in Sources */,
 				FC11A0000000000000005701 /* SettingsLayoutPane+EdgeBars.swift in Sources */,
 				FC11A0000000000000005801 /* SettingsLayoutPane+Shortcuts.swift in Sources */,
 				A0000000000000000001F091 /* SettingsTilingPane.swift in Sources */,
@@ -3972,8 +4020,18 @@
 				FB0000000000000000000040 /* AgentApproval.swift in Sources */,
 				FA33B0000000000000000012 /* ClaudeHookConfig.swift in Sources */,
 				FA33A00000000000000000D2 /* NotchAIPageView.swift in Sources */,
-				FA33A00000000000000000F2 /* NotchStoragePageView.swift in Sources */,
 				5D000000000000000000A011 /* StorageScanMath.swift in Sources */,
+				DC000000000000000000C011 /* DevCacheCatalog.swift in Sources */,
+				DE000000000000000000E011 /* DownloadEnginePolicy.swift in Sources */,
+				DE000000000000000000E021 /* DownloadEngineState.swift in Sources */,
+				F2000000000000000000A011 /* MediaResolver.swift in Sources */,
+				F2000000000000000000A021 /* MediaResolveService.swift in Sources */,
+				F3000000000000000000B011 /* DictionaryDeck.swift in Sources */,
+				F3000000000000000000B021 /* SideDeckDictionaryPane.swift in Sources */,
+				F4000000000000000000C011 /* NotificationDigest.swift in Sources */,
+				F4000000000000000000C021 /* SideDeckDashboardView.swift in Sources */,
+				F1000000000000000000F011 /* SideDeckConfig.swift in Sources */,
+				F1000000000000000000F021 /* SideDeckHandleWindow.swift in Sources */,
 				5D000000000000000000A021 /* StorageScanService.swift in Sources */,
 				5D000000000000000000A051 /* NotchDockChips.swift in Sources */,
 				5D000000000000000000A061 /* NotchEventCard.swift in Sources */,
@@ -3996,7 +4054,7 @@
 				FB36A00000000000000D02 /* USBEjectPill.swift in Sources */,
 				FB36A00000000000000B02 /* DailyHelpersRules.swift in Sources */,
 				FB36A00000000000000A02 /* DailyHelpersService.swift in Sources */,
-				FA33A0000000000000000162 /* NotchDownloadsPageView.swift in Sources */,
+				FA33A0000000000000000162 /* SideDeckDownloadsPane.swift in Sources */,
 				FA33A0000000000000000202 /* NotchMeetingControlBar.swift in Sources */,
 				7B5000000000000000040C12 /* FileNoteKeyProvider.swift in Sources */,
 				7B5000000000000000040B12 /* HyperkeyService.swift in Sources */,
@@ -4386,6 +4444,21 @@
 				ED00000000000000000000EB /* SystemMonitorMathTests.swift in Sources */,
 				5D000000000000000000A012 /* StorageScanMath.swift in Sources */,
 				5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */,
+				DC000000000000000000C012 /* DevCacheCatalog.swift in Sources */,
+				DC000000000000000000C041 /* DevCacheCatalogTests.swift in Sources */,
+				DE000000000000000000E012 /* DownloadEnginePolicy.swift in Sources */,
+				DE000000000000000000E041 /* DownloadEnginePolicyTests.swift in Sources */,
+				DE000000000000000000E022 /* DownloadEngineState.swift in Sources */,
+				DE000000000000000000E051 /* DownloadEngineStateTests.swift in Sources */,
+				F2000000000000000000A012 /* MediaResolver.swift in Sources */,
+				F2000000000000000000A041 /* MediaResolverTests.swift in Sources */,
+				F2000000000000000000A051 /* MediaResolveServiceTests.swift in Sources */,
+				F3000000000000000000B012 /* DictionaryDeck.swift in Sources */,
+				F3000000000000000000B041 /* DictionaryDeckTests.swift in Sources */,
+				F4000000000000000000C012 /* NotificationDigest.swift in Sources */,
+				F4000000000000000000C041 /* NotificationDigestTests.swift in Sources */,
+				F1000000000000000000F012 /* SideDeckConfig.swift in Sources */,
+				F1000000000000000000F041 /* SideDeckConfigTests.swift in Sources */,
 				5D000000000000000000A072 /* NotchEdgeStyle.swift in Sources */,
 				5D000000000000000000A081 /* NotchEdgeStyleTests.swift in Sources */,
 				ED00000000000000000000DD /* CaptureController.swift in Sources */,
@@ -4565,6 +4638,7 @@
 				FC11A0000000000000005402 /* SettingsLayoutPane+Widgets.swift in Sources */,
 				FC11A0000000000000005502 /* SettingsLayoutPane+Launcher.swift in Sources */,
 				FC11A0000000000000005602 /* SettingsLayoutPane+ControlCenter.swift in Sources */,
+				F5C0DE00000000000000AA03 /* SettingsSideDeckPane.swift in Sources */,
 				FC11A0000000000000005702 /* SettingsLayoutPane+EdgeBars.swift in Sources */,
 				FC11A0000000000000005802 /* SettingsLayoutPane+Shortcuts.swift in Sources */,
 				A0000000000000000001F092 /* SettingsTilingPane.swift in Sources */,

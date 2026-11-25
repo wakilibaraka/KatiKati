@@ -33,7 +33,8 @@ struct TranslateCardView: View {
 }
 
 /// The offline Apple translation half, driven by `.translationTask`.
-private struct TranslationSection: View {
+/// Internal so the deck's dictionary page reuses this exact offline translation, not a second copy.
+struct TranslationSection: View {
     let text: String
     @State private var output: String?
     @State private var failed = false

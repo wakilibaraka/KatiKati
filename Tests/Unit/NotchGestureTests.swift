@@ -289,7 +289,7 @@ final class NotchGestureTests: XCTestCase {
 
     func testWideBarSpec() {
         XCTAssertEqual(NotchWideBarSpec.items(width: 300), [.time])
-        XCTAssertEqual(NotchWideBarSpec.items(width: 768).count, 8)
+        XCTAssertEqual(NotchWideBarSpec.items(width: 768).count, 7, "storage left the wide bar (SD-3b)")
         XCTAssertEqual(NotchWideBarSpec.items(width: 450), [.time, .battery, .status, .nowPlaying])
     }
 }

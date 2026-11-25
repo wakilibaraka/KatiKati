@@ -22,6 +22,7 @@ extension SettingsTab {
         case .music: return "music now playing album art widget poster stage card strip desktop lock screen lyrics volume wallpaper"
         case .notch: return "island skin style open panel"
         case .notifications: return "battery charging low power peripheral bluetooth history banners"
+        case .sideDeck: return "side deck edge width hover activation dwell identity strip weather handle swap"
         case .edgeBars: return "dock side bar auto hide edge"
         case .tiling: return "tiling snap gaps preset layout bsp monocle"
         case .windowManagement: return "window chips floating apps behaviour"
@@ -104,7 +105,7 @@ struct SettingsSidebar: View {
 
     private static let sections: [SidebarSection] = [
         .system([.general, .menuBar, .appearance, .wallpaper, .dockItems, .appIcons]),
-        .surfaces([.barWidgets, .widgets, .shelf, .desktop, .weather, .music, .notch, .notifications, .edgeBars]),
+        .surfaces([.barWidgets, .widgets, .shelf, .desktop, .weather, .music, .notch, .notifications, .sideDeck, .edgeBars]),
         .workspace([.tiling, .windowManagement, .missionControl, .launcher, .commandBar, .controlCenter]),
         .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
         .productivity([.aiTracking, .downloads, .clipboard, .tools]),

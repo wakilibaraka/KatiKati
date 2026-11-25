@@ -70,7 +70,7 @@ struct NotchIslandView: View {
     @AppStorage(CameraMirrorService.enabledKey) private var cameraMirrorPage = true
     @AppStorage(NotchPageLayout.defaultsKey) private var pageLayoutRaw = ""   // re-renders the page pill's roster
     @AppStorage(NotchEdgeStyle.sharpKey) private var sharpEdges = false
-    @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.dockChips.rawValue
+    @AppStorage(NotchRestContent.defaultsKey) private var restContent = NotchRestContent.timeBattery.rawValue
     @AppStorage(NotchBehavior.musicBatteryKey) private var musicBattery = true
     @AppStorage(NotchOpenAnimation.defaultsKey) private var openAnimation = NotchOpenAnimation.boring.rawValue
     @AppStorage(NotchSizePreset.outlineKey) private var showOutline = false

@@ -5,7 +5,11 @@ All notable changes to KatiKati are documented in this file.
 ## [Unreleased]
 
 ### Added
+- **SideDeck replatform (`SD-1`-`SD-8`):** the left deck is now a full-height glass workspace with its own `SideDeckConfig` (edge, 360-560 pt width, opt-in edge activation with a dwell, identity strip, merged weather handle), a detached rail and a resting 4 x 44 pt handle on a tracking area instead of the 7 Hz pointer poll, a header capsule, a bottom page dock, Downloads moved out of the Notch, Storage with the ClearDisk developer-cache catalogue, EasyDict, a grouped Notification Centre and a bento Dashboard. Downloads gains configurable connections, stall detection and persisted pause/resume; an opt-in media URL resolver sits behind the downloads pane. Settings gains a **Side Deck** page and both it and **Edge Bars** carry one shared **Swap Left / Right Sides** control.
 - **Opt-in Menu Bar modules (`MB-9`–`MB-11`, off by default):** Settings › Menu Bar gains a **Modules** card for three Tier B additions, each built only while its switch is on. **Agents** puts today's spend, the loadout profile and an approval-hook pause in the Creative Hub. **Audio Mixer** lists apps currently producing audio and sets a per-app level through a private CoreAudio process tap (100 % removes the route; closing the hub restores every app). **Uninstaller** opens a searchable app sheet that plans bundle + support-file removal with `AppRemovalPlanner` and stages everything in the Finder Trash — nothing is hard-deleted.
+
+### Changed
+- **ClearDisk reports what it can reclaim:** the Dashboard card now reads the developer-cache total the Storage page measured and persisted (`DevCacheSnapshotStore`) instead of only showing free space, and never starts a scan of its own; the dashboard card labels and the Dashboard tab title are localized, and the Side Deck pages ship in all twelve catalog locales.
 
 ## [0.18.0 beta 3] — 2026-11-24
 

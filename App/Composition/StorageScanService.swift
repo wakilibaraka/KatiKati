@@ -1,6 +1,6 @@
 import Foundation
 
-/// Walks the disk for the notch Storage page. Runs only while that page is on screen (`scan()` on appear,
+/// Walks the disk for the Side Deck's Storage page. Runs only while that page is on screen (`scan()` on appear,
 /// `cancel()` on disappear), off the main thread, and publishes the running top list as folders finish.
 /// Whole-disk reach needs Full Disk Access; `hasFullDiskAccess` probes a TCC-protected folder and the page
 /// shows a door to System Settings rather than ever prompting from code.

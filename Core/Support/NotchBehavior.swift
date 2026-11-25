@@ -96,48 +96,68 @@ enum NotchDisplaySkin {
 
 /// 51h: which wide-bar items fit at a given width (the bar is as wide as the open panel: 544 compact, 640 standard, 768 spacious) (time is always kept).
 enum NotchWideBarSpec {
-    enum Item: Sendable { case time, battery, status, nowPlaying, timer, weather, storage, system }
-    /// Drop order as the bar narrows: system, storage, weather, timer, now playing, Wi-Fi/volume, battery.
+    enum Item: Sendable { case time, battery, status, nowPlaying, timer, weather, system }
+    /// Drop order as the bar narrows: system, weather, timer, now playing, Wi-Fi/volume, battery.
+    /// SD-3b: storage left the resting notch for the Side Deck, so it is not a bar item any more.
     static func items(width: CGFloat) -> [Item] {
         let steps: [(CGFloat, Item)] = [(360, .battery), (400, .status), (440, .nowPlaying), (480, .timer),
-                                        (520, .weather), (580, .storage), (700, .system)]
+                                        (520, .weather), (700, .system)]
         return [.time] + steps.filter { width >= $0.0 }.map(\.1)
     }
 }
 
-/// What the closed island shows when nothing is live (vorssaint-utils' "At rest"). `dockChips` is
-/// KatiKati's original storage + battery pair.
+/// What the closed island shows when nothing is live (vorssaint-utils' "At rest").
+///
+/// SD-3b: storage left the resting notch for the Side Deck, so the `dockChips` and `storage` presets retired
+/// with it. Their raw values stay reserved; a stored "dockChips"/"storage" resolves to `.timeBattery`, so an
+/// existing install keeps a populated pair instead of a half-empty notch.
 enum NotchRestContent: String, CaseIterable, Identifiable, Sendable {
-    case dockChips, timeBattery, storage, time, battery, nothing
+    case timeBattery, time, battery, nothing
     var id: String { rawValue }
 
     /// Curated left/right pairs; single-item presets split symmetrically across both wings,
     /// while `nothing` leaves the bare notch.
     enum Ear: Equatable, Sendable {
-        case storage, storageLabel, time, date, battery, batteryIcon, batteryPercent
+        case time, date, battery, batteryIcon, batteryPercent
     }
     var left: Ear? {
         switch self {
-        case .dockChips: return .storage
         case .timeBattery: return .time
         case .battery: return .batteryIcon
-        case .storage: return .storageLabel
         case .time: return .date
         case .nothing: return nil
         }
     }
     var right: Ear? {
         switch self {
-        case .dockChips, .timeBattery: return .battery
+        case .timeBattery: return .battery
         case .battery: return .batteryPercent
-        case .storage: return .storage
         case .time: return .time
         case .nothing: return nil
         }
     }
     static let defaultsKey = "com.katikati.notch.restContent"
+    /// Raw values that used to name a storage preset. Reserved for good: never hand them to a new preset.
+    static let retiredRawValues: Set<String> = ["dockChips", "storage"]
+    static let migrationKey = "com.katikati.migration.notchRestContent.v1"
+
+    /// What a stored value means today. A retired preset and an unknown/empty one both read as
+    /// `.timeBattery`, so the notch is never left blank by an old preference.
+    static func resolved(raw: String) -> NotchRestContent {
+        if retiredRawValues.contains(raw) { return .timeBattery }
+        return NotchRestContent(rawValue: raw) ?? .timeBattery
+    }
+
+    /// One-way write of a retired preset into the live key, stamped so a later explicit choice survives.
+    static func migrateRetiredPresets(in d: UserDefaults = .standard) {
+        guard !d.bool(forKey: migrationKey) else { return }
+        let raw = d.string(forKey: defaultsKey) ?? ""
+        if retiredRawValues.contains(raw) { d.set(NotchRestContent.timeBattery.rawValue, forKey: defaultsKey) }
+        d.set(true, forKey: migrationKey)
+    }
+
     static func current(_ d: UserDefaults = .standard) -> NotchRestContent {
-        NotchRestContent(rawValue: d.string(forKey: defaultsKey) ?? "") ?? .dockChips
+        resolved(raw: d.string(forKey: defaultsKey) ?? "")
     }
 }
 

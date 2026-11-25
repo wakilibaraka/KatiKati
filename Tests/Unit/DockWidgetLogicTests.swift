@@ -118,7 +118,8 @@ final class DockWidgetLogicTests: XCTestCase {
     func testOldStoredLayoutGainsHiddenNewWidgets() {
         let old = WidgetLayout(instances: [.launcher, .weather, .apps, .media, .clock, .widgets].map { WidgetInstance(section: $0) })
         XCTAssertEqual(old.visibleOrder, [.launcher, .weather, .apps, .media, .clock, .widgets, .utilities], "Utilities starts visible, AI is opt-in, both appended after an old layout")
-        XCTAssertEqual(Set(old.order), Set(BarSection.allCases))
+        XCTAssertEqual(Set(old.order), Set(BarSection.allCases).subtracting([.drives]),
+                       "SD-3c: the retired Drives section is never appended")
     }
 
     func testNewPresetsAreRegistered() {

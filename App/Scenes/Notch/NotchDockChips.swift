@@ -1,15 +1,17 @@
 import SwiftUI
 
-/// The closed notch when nothing is live: free storage on the left of the hardware notch, battery on the
+/// The closed notch when nothing is live: time (or date) on the left of the hardware notch, battery on the
 /// right. Any live activity takes the two slots over, so the chips never compete with it.
+///
+/// SD-3b: storage left the resting notch for the Side Deck, so this view no longer reads free space — the
+/// 60 s `StorageScanService.freeBytes()` loop retired with the ear that displayed it.
 struct NotchDockChips: View {
     let metrics: NotchMetrics
     @StateObject private var power = SystemStatusService()
-    @State private var free: Int64 = 0
-    @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.dockChips.rawValue
+    @AppStorage(NotchRestContent.defaultsKey) private var rest = NotchRestContent.timeBattery.rawValue
 
     var body: some View {
-        let pair = NotchRestContent(rawValue: rest) ?? .dockChips
+        let pair = NotchRestContent.resolved(raw: rest)
         HStack(spacing: 0) {
             if let left = pair.left {
                 leftEarView(left)
@@ -34,12 +36,7 @@ struct NotchDockChips: View {
         .frame(maxHeight: metrics.closedSize.height)
         // lifecycle on a real view: modifiers on an empty Group never fire
         .background(Color.clear.onAppear { power.acquire() }.onDisappear { power.release() })
-        .task {
-            while !Task.isCancelled {
-                free = StorageScanService.freeBytes()
-                try? await Task.sleep(for: .seconds(60))
-            }
-        }
+        .onAppear { NotchRestContent.migrateRetiredPresets() }
     }
 
     @ViewBuilder
@@ -52,16 +49,6 @@ struct NotchDockChips: View {
         case .date:
             TimelineView(.everyMinute) { ctx in
                 Text(verbatim: ctx.date.formatted(.dateTime.weekday(.abbreviated).day()))
-            }
-        case .storage:
-            HStack(spacing: 3) {
-                Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
-                Text(verbatim: StorageScanMath.compact(free))
-            }
-        case .storageLabel:
-            HStack(spacing: 3) {
-                Image(systemName: "internaldrive.fill").font(.system(size: 10, weight: .semibold)).foregroundStyle(.cyan)
-                Text(verbatim: "SSD")
             }
         case .batteryIcon:
             if let level = power.status.battery.level {
@@ -84,13 +71,11 @@ struct NotchDockChips: View {
                 Text(verbatim: "\(level)%")
                     .foregroundStyle(power.status.battery.isCharging ? .green : .white)
             }
-        case .storage:
-            Text(verbatim: StorageScanMath.compact(free))
         case .time:
             TimelineView(.everyMinute) { ctx in
                 Text(verbatim: ctx.date.formatted(date: .omitted, time: .shortened))
             }
-        case .storageLabel, .date, .batteryIcon:
+        case .date, .batteryIcon:
             EmptyView()
         }
     }

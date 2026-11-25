@@ -901,32 +901,49 @@ struct ScratchpadPane: View {
     }
 }
 
-struct SideDeckDownloadsView: View {
-    var body: some View {
-        NotchDownloadsPageView(feed: LiveActivityFeed.shared)
-            .padding(12)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+/// SD-3a: the one card surface every SideDeck page draws — 18 pt continuous radius on the deck's own glass
+/// (`EdgeGlassSurface`: system glass on macOS 26, frosted below it, solid under Reduce Transparency, hairline
+/// rim and one soft shadow). The notch's `.notchCard()` is deliberately not reused: its 0.10 white reads as the
+/// notch's palette and leaves deck text sitting on a surface that belongs to another panel.
+struct SideDeckCardSurface: ViewModifier {
+    var radius: CGFloat = 18
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        return content.background(EdgeGlassSurface(shape: shape))
     }
+}
+
+extension View {
+    func sideDeckCard(radius: CGFloat = 18) -> some View { modifier(SideDeckCardSurface(radius: radius)) }
 }
 
 struct SideDeckStorageView: View {
     @ObservedObject private var scanner = StorageScanService.shared
     @ObservedObject private var cleaner = CleanerService.shared
+    /// SD-3b: the notch Storage page's "Scan App Leftovers" result, kept alive here now that the page is gone.
+    @State private var leftoverCandidates: [CleanupCandidate] = []
+    /// SD-3d: the developer-cache catalogue as measured on this machine, cheapest-to-reclaim totals included.
+    @State private var devCaches: [DevCacheReading] = []
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
                 capacity
                 categoryBreakdown
+                devCacheSection
                 HStack(alignment: .top, spacing: 8) {
                     itemColumn(title: "Large Files", items: scanner.files)
-                    itemColumn(title: "Developer & Caches", items: scanner.dev)
+                    itemColumn(title: String(localized: "Developer & Cache"), items: scanner.dev)
                 }
                 actions
             }
             .padding(12)
         }
-        .onAppear { scanner.scan() }
+        .onAppear {
+            scanner.scan()
+            measureDevCaches()
+        }
         .onDisappear { scanner.cancel() }
     }
 
@@ -934,6 +951,9 @@ struct SideDeckStorageView: View {
         let disk = SystemMonitorSampler.disk()
         let used = Double(disk.total > disk.free ? disk.total - disk.free : 0)
         let fraction = disk.total == 0 ? 0 : used / Double(disk.total)
+        let reclaimable = DevCacheCatalog.reclaimableBytes(devCaches)
+        let reclaimableFraction = disk.total == 0 ? 0
+            : min(fraction, Double(reclaimable) / Double(disk.total))
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Storage").font(.system(size: 13, weight: .semibold))
@@ -946,12 +966,127 @@ struct SideDeckStorageView: View {
                     Capsule().fill(Color.primary.opacity(0.10))
                     Capsule().fill(Color.accentColor)
                         .frame(width: max(4, geo.size.width * fraction))
+                    // SD-3d: the slice of that bar this card can reclaim in one click, so the gauge answers
+                    // "how much can I get back" and not just "how full am I".
+                    if reclaimableFraction > 0 {
+                        Capsule().fill(Color.orange)
+                            .frame(width: max(2, geo.size.width * reclaimableFraction))
+                    }
                 }
             }
             .frame(height: 8)
+            HStack(spacing: 4) {
+                Image(systemName: "hammer").font(.system(size: 8)).foregroundStyle(.orange)
+                Text(verbatim: ByteCountFormatter.string(fromByteCount: reclaimable, countStyle: .file))
+                    .font(.system(size: 9)).foregroundStyle(.secondary).monospacedDigit()
+                Text("Developer").font(.system(size: 9)).foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            }
         }
         .padding(10)
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    /// SD-3d: the ClearDisk-style catalogue. Each row is one known cache root with what it weighs and how
+    /// risky it is to reclaim; the levels are the already-localized Low / Medium / High, and only Low and
+    /// Medium are swept by the one-click reclaim, so an archive or a container image always needs its own
+    /// confirmation.
+    private var devCacheSection: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 6) {
+                Text("Developer").font(.system(size: 11, weight: .semibold))
+                Spacer(minLength: 4)
+                if !devCaches.isEmpty {
+                    Button("Move to Trash") { reclaimDevCaches() }
+                        .buttonStyle(.borderless)
+                        .font(.system(size: 9))
+                }
+            }
+            if devCaches.isEmpty {
+                Text("Nothing Large Found").font(.system(size: 9)).foregroundStyle(.secondary)
+            }
+            ForEach(DevCacheCatalog.ordered(devCaches)) { reading in
+                HStack(spacing: 5) {
+                    Image(systemName: reading.target.symbol)
+                        .font(.system(size: 9)).foregroundStyle(.secondary).frame(width: 12)
+                    Text(verbatim: reading.target.title).lineLimit(1)
+                    Text(verbatim: reading.target.risk.localizedTitle)
+                        .font(.system(size: 8, weight: .semibold))
+                        .padding(.horizontal, 4).padding(.vertical, 1)
+                        .background(Capsule().fill(riskTint(reading.target.risk).opacity(0.18)))
+                        .foregroundStyle(riskTint(reading.target.risk))
+                    Spacer(minLength: 4)
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: reading.bytes, countStyle: .file))
+                        .foregroundStyle(.secondary).monospacedDigit()
+                }
+                .font(.system(size: 9))
+                .help(Text(verbatim: reading.paths.joined(separator: "\n")))
+                .contextMenu {
+                    Button(String(localized: "Reveal")) {
+                        NSWorkspace.shared.activateFileViewerSelecting(reading.paths.map { URL(fileURLWithPath: $0) })
+                    }
+                    Button(String(localized: "Move to Trash"), role: .destructive) {
+                        reading.paths.forEach { try? FileManager.default.trashItem(at: URL(fileURLWithPath: $0), resultingItemURL: nil) }
+                        measureDevCaches()
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    private func riskTint(_ risk: DevCacheTarget.Risk) -> Color {
+        switch risk {
+        case .low: return .green
+        case .medium: return .orange
+        case .high: return .red
+        }
+    }
+
+    /// Measured on appear and after a reclaim — never on a timer, so a closed deck costs nothing.
+    private func measureDevCaches() {
+        let home = NSHomeDirectory()
+        Task.detached(priority: .utility) {
+            let readings = DevCacheCatalog.snapshot(
+                home: home,
+                isDirectory: { path in
+                    var isDirectory: ObjCBool = false
+                    return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
+                        && isDirectory.boolValue
+                },
+                size: { StorageScanService.size(of: $0) },
+                children: { path in
+                    ((try? FileManager.default.contentsOfDirectory(atPath: path)) ?? [])
+                        .filter { !$0.hasPrefix(".") }
+                        .map { path + "/" + $0 }
+                }
+            )
+            await MainActor.run {
+                devCaches = readings
+                // The page that measured is the only writer; the dashboard reads this instead of scanning.
+                DevCacheSnapshotStore.save(readings)
+            }
+        }
+    }
+
+    private func reclaimDevCaches() {
+        let sweep = DevCacheCatalog.ordered(devCaches).filter { $0.target.risk.isReclaimableInOneClick }
+        guard !sweep.isEmpty else { return }
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Move to Trash?")
+        alert.informativeText = String(format: String(localized: "%d items, %@."), sweep.reduce(0) { $0 + $1.paths.count },
+                                       ByteCountFormatter.string(fromByteCount: DevCacheCatalog.reclaimableBytes(devCaches),
+                                                                 countStyle: .file))
+        alert.addButton(withTitle: String(localized: "Move to Trash"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        for path in sweep.flatMap(\.paths) {
+            try? FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)
+        }
+        measureDevCaches()
     }
 
     private var categoryBreakdown: some View {
@@ -978,8 +1113,14 @@ struct SideDeckStorageView: View {
     private func itemColumn(title: String, items: [StorageItem]) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 11, weight: .semibold))
-            if scanner.state == .scanning, items.isEmpty {
-                ProgressView().controlSize(.small)
+            // The notch page's two empty states, carried over so a finished scan that found nothing says so
+            // instead of leaving a blank column. Both strings were already catalogued.
+            if items.isEmpty {
+                if scanner.state == .scanning {
+                    Text("Scanning…").font(.system(size: 9)).foregroundStyle(.secondary)
+                } else {
+                    Text("Nothing Large Found").font(.system(size: 9)).foregroundStyle(.secondary)
+                }
             }
             ForEach(items.prefix(5)) { item in
                 Button {
@@ -995,14 +1136,46 @@ struct SideDeckStorageView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
+                .contextMenu { rowMenu(for: item) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    /// SD-3b: the row menu the notch's Storage page carried — reveal, copy the path, or move the item to the
+    /// Trash (never an unlink, so every mistake is recoverable from the Trash).
+    @ViewBuilder
+    private func rowMenu(for item: StorageItem) -> some View {
+        Button(String(localized: "Reveal")) {
+            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: item.path)])
+        }
+        Button(String(localized: "Copy Path")) {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(item.path, forType: .string)
+        }
+        Button(String(localized: "Move to Trash"), role: .destructive) {
+            do {
+                try FileManager.default.trashItem(at: URL(fileURLWithPath: item.path), resultingItemURL: nil)
+            } catch {
+                let alert = NSAlert()
+                alert.messageText = String(localized: "Move to Trash is unavailable on this volume.")
+                alert.informativeText = error.localizedDescription
+                alert.addButton(withTitle: String(localized: "OK"))
+                alert.runModal()
+            }
+        }
+    }
+
     private var actions: some View {
-        HStack {
-            Button("Review Caches") { reviewCaches() }.buttonStyle(.borderless)
+        HStack(spacing: 10) {
+            Button("Review Caches") { reviewCachesTapped() }.buttonStyle(.borderless)
+            Button {
+                scanLeftovers()
+            } label: {
+                cleaner.isScanningLeftovers ? Text("Scanning…") : Text("Scan App Leftovers")
+            }
+            .buttonStyle(.borderless)
+            .disabled(cleaner.isScanningLeftovers)
             Spacer(minLength: 0)
             if !scanner.hasFullDiskAccess {
                 Button("Allow Full Disk Access") {
@@ -1011,29 +1184,103 @@ struct SideDeckStorageView: View {
                     }
                 }
                 .buttonStyle(.borderless)
+                .help(Text("Allow Full Disk Access for the Whole Disk"))
             }
         }
         .font(.system(size: 10, weight: .semibold))
     }
 
-    private func reviewCaches() {
+    /// SD-3b: ported from the notch Storage page, which owned the only confirmation that told the owner how
+    /// many cache folders it found, how much they weigh, and what actually happened afterwards.
+    private func reviewCachesTapped() {
         cleaner.scan {
             let candidates = cleaner.candidates
-            guard !candidates.isEmpty else { return }
+            guard !candidates.isEmpty else {
+                let empty = NSAlert()
+                empty.messageText = String(localized: "Nothing to Clean")
+                empty.informativeText = String(localized: "No cache folder older than a week and larger than 50 MB was found.")
+                NSApp.activate(ignoringOtherApps: true)
+                empty.runModal()
+                return
+            }
+            let total = ByteCountFormatter.string(fromByteCount: CleanupPlan.totalBytes(candidates), countStyle: .file)
+            let preview = candidates.prefix(8).map { candidate in
+                "• \(candidate.name) — \(ByteCountFormatter.string(fromByteCount: candidate.bytes, countStyle: .file))"
+            }.joined(separator: "\n")
             let alert = NSAlert()
             alert.messageText = String(localized: "Move Caches to the Trash?")
-            alert.informativeText = "\(candidates.count) items, \(ByteCountFormatter.string(fromByteCount: CleanupPlan.totalBytes(candidates), countStyle: .file))."
+            alert.informativeText = String(format: String(localized: "%d items, %@. They are moved to the Trash, so you can put them back; apps rebuild them as needed.\n\n%@"),
+                                           candidates.count, total, preview)
+            alert.alertStyle = .warning
             alert.addButton(withTitle: String(localized: "Move to Trash"))
             alert.addButton(withTitle: String(localized: "Cancel"))
+            NSApp.activate(ignoringOtherApps: true)
             guard alert.runModal() == .alertFirstButtonReturn else { return }
-            _ = cleaner.clean(candidates)
+            let outcome = cleaner.clean(candidates)
+            let done = NSAlert()
+            done.messageText = String(localized: "Caches Moved to the Trash")
+            let moved = String(format: String(localized: "%d items, %@."), outcome.moved,
+                               ByteCountFormatter.string(fromByteCount: outcome.bytes, countStyle: .file))
+            let failed = outcome.failed > 0
+                ? " " + String(format: String(localized: "%d could not be moved."), outcome.failed)
+                : ""
+            done.informativeText = moved + failed
+            NSApp.activate(ignoringOtherApps: true)
+            done.runModal()
         }
+    }
+
+    /// SD-3b: the notch page's app-leftover scan, same picker, same Trash-first confirmation.
+    private func scanLeftovers() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.application]
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.message = String(localized: "Scan App Leftovers")
+        NSApp.activate(ignoringOtherApps: true)
+        guard panel.runModal() == .OK, let appURL = panel.url else { return }
+        cleaner.scanLeftovers(forAppAt: appURL) {
+            leftoverCandidates = cleaner.leftoverCandidates
+            showLeftoverReview()
+        }
+    }
+
+    private func showLeftoverReview() {
+        guard !leftoverCandidates.isEmpty else {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "No Apps Found")
+            alert.informativeText = String(localized: "Nothing to Clean")
+            alert.addButton(withTitle: String(localized: "OK"))
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+            return
+        }
+        let preview = leftoverCandidates.prefix(8).map {
+            "• \($0.name) — \(ByteCountFormatter.string(fromByteCount: $0.bytes, countStyle: .file))"
+        }.joined(separator: "\n")
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Move to Trash?")
+        alert.informativeText = String(format: String(localized: "Scanned %d potential leftover locations in ~/Library.\n\n%@"),
+                                       leftoverCandidates.count, preview)
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Move to Trash"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        let outcome = cleaner.clean(leftoverCandidates)
+        let done = NSAlert()
+        done.messageText = String(localized: "Move to Trash")
+        done.informativeText = "\(outcome.moved) moved, \(outcome.failed) failed."
+        done.addButton(withTitle: String(localized: "OK"))
+        done.runModal()
     }
 }
 
 struct SideDeckWeatherView: View {
     @ObservedObject private var service = WeatherService.shared
 
+    /// SD-2: width-matched to the panel, so the forecast never sits in a narrow column in a wide deck.
     var body: some View {
         let state = service.currentState
         ScrollView {
@@ -1102,11 +1349,11 @@ struct SideDeckQuickAccessView: View {
     var body: some View {
         VStack(spacing: 12) {
             Text("Quick Access").font(.system(size: 13, weight: .semibold))
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 quickButton(title: "Launcher", symbol: "square.grid.2x2", action: onLauncher)
                 quickButton(title: "Command Bar", symbol: "command", action: onCommandBar)
             }
-            Spacer(minLength: 0)
+            .frame(maxHeight: .infinity)
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1118,7 +1365,8 @@ struct SideDeckQuickAccessView: View {
                 Image(systemName: symbol).font(.system(size: 22, weight: .medium))
                 Text(title).font(.system(size: 11, weight: .semibold))
             }
-            .frame(maxWidth: .infinity, minHeight: 88)
+            // SD-2: the Command Bar and Launcher entries fill the panel rather than sitting in two tiles.
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.07)))
         }
         .buttonStyle(.plain)
@@ -1226,11 +1474,29 @@ struct SideDeckNotificationsView: View {
         }
     }
 
+    /// SD-7: grouped by app, newest group first, each group carrying its own unread count. Selection follows
+    /// the entry's id, because a grouped list no longer has one flat row number per entry.
     private var rows: some View {
         ScrollView {
-            LazyVStack(spacing: 6) {
-                ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
-                    card(entry, selected: controller.notificationSelection.index == index)
+            LazyVStack(alignment: .leading, spacing: 10) {
+                ForEach(NotificationDigest.groups(entries)) { group in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Text(verbatim: NotificationDigest.label(for: group.bundleID))
+                                .font(.system(size: 10, weight: .heavy, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                            if group.unreadCount > 0 {
+                                Text(verbatim: "\(group.unreadCount)")
+                                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                    .padding(.horizontal, 5).padding(.vertical, 1)
+                                    .background(Capsule().fill(Color.accentColor.opacity(0.22)))
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        ForEach(group.entries) { entry in
+                            card(entry, selected: controller.selectedNotification?.id == entry.id)
+                        }
+                    }
                 }
             }
             .padding(.bottom, 4)

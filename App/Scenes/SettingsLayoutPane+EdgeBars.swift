@@ -24,6 +24,9 @@ extension SettingsLayoutPane {
                 ForEach(EdgeBarPreset.allCases, id: \.self) { Self.presetTitle($0).tag($0) }
             }
             SettingsDivider()
+            // SD-8: the same swap as Settings › Side Deck, in one write for both surfaces.
+            SettingsButtonRow(Text("Swap Left / Right Sides")) { SideDeckSettings.swapSides(store: store) }
+            SettingsDivider()
             SettingsRowPair(
                 left: {
                     SettingsToggleRow(Text("Keep Edge Bars Open"), isOn: Binding(

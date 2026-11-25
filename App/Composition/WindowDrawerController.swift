@@ -39,8 +39,8 @@ final class WindowDrawerController: ObservableObject {
     private var panel: DrawerPanel?
     private var clickMonitor: Any?
     private var keyMonitor: Any?
-    private var edgeTimer: Timer?
-    private var edgeSince: Date?
+    /// SD-1: the resting handle owns the edge now — its tracking area replaces the old location poll.
+    private var handle: SideDeckHandleWindow?
     private var peekWork: DispatchWorkItem?
     private var defaultsObserver: NSObjectProtocol?
     private let log = Logger(subsystem: "com.katikati.app", category: "drawer")
@@ -87,27 +87,23 @@ final class WindowDrawerController: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
     }
 
+    /// SD-1: the 7 Hz `NSEvent.mouseLocation` poll is retired. The resting handle is a window with its own
+    /// tracking area, so the deck learns about the pointer from the system instead of asking for it.
     private func applyEdgeHover() {
-        let on = UserDefaults.standard.bool(forKey: Self.edgeHoverKey)
-        if on, edgeTimer == nil {
-            edgeTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in
-                Task { @MainActor in self?.pollEdge() }
-            }
-        } else if !on {
-            edgeTimer?.invalidate(); edgeTimer = nil; edgeSince = nil
+        let config = SideDeckConfig.migrating(from: .standard)
+        guard config.edgeActivation else {
+            handle?.hide()
+            handle = nil
+            return
         }
-    }
-
-    /// Opens after the pointer has rested on a display's left edge for 0.4 s.
-    private func pollEdge() {
-        let mouse = NSEvent.mouseLocation
-        let atEdge = panel == nil && NSScreen.screens.contains { $0.frame.contains(mouse) && mouse.x <= $0.frame.minX + 2 }
-        guard atEdge else { edgeSince = nil; return }
-        if let since = edgeSince {
-            if Date().timeIntervalSince(since) >= 0.4 { edgeSince = nil; open() }
-        } else {
-            edgeSince = Date()
+        if handle == nil {
+            handle = SideDeckHandleWindow(onOpen: { [weak self] in
+                guard let self, self.panel == nil else { return }
+                self.open()
+            })
         }
+        let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
+        if let screen { handle?.show(on: screen, side: config.side) }
     }
 
     func toggle() { panel == nil ? open() : close() }
@@ -181,7 +177,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .downloads, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -189,7 +185,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .downloads, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -197,7 +193,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .downloads, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
         }
     }
 
@@ -246,7 +242,9 @@ final class WindowDrawerController: ObservableObject {
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? NSScreen.screens[0]
         let area = screen.visibleFrame
-        let frame = NSRect(x: area.minX + 8, y: area.minY + 8, width: 400, height: area.height - 16)
+        // SD-1: the shell's geometry is `SideDeckConfig`'s, not a literal — full height, inset below the menu
+        // bar and above the Dock, on whichever edge the owner chose.
+        let frame = SideDeckConfig.migrating(from: .standard).panelFrame(in: area)
         let panel = DrawerPanel(frame: frame)
         panel.onEscape = { [weak self] in self?.close() }
         panel.contentView = NSHostingView(rootView: WindowDrawerView(controller: self))
@@ -317,6 +315,10 @@ private struct WindowDrawerView: View {
     @AppStorage(WidgetHUDDensityMode.defaultsKey) private var densityRaw = WidgetHUDDensityMode.expanded.rawValue
     @AppStorage(WidgetTextScale.defaultsKey) private var textScaleRaw = WidgetTextScale.regular.rawValue
     @State private var holdsMonitor = false
+    /// SD-1: the shell's entry animation (0.98 → 1 with a fade) and the optional identity strip.
+    @State private var appeared = false
+    @State private var identityStripEnabled = SideDeckConfig.stored().identityStrip
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var searchFocused: Bool
 
     private var density: WidgetHUDDensityMode { WidgetHUDDensityMode.parse(densityRaw) }
@@ -324,22 +326,38 @@ private struct WindowDrawerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            searchBar
+            headerCapsule
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
             if density.isCompact {
                 compactStrip
             } else {
-                HStack(spacing: 0) {
+                // SD-1: the rail is a detached capsule, so nothing divides it from the panel and the gap is
+                // the plan's 12 pt rather than a rule.
+                HStack(spacing: 12) {
                     rail
-                    Divider()
+                    if identityStripEnabled { identityStrip }
                     content
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        // SD-1/SD-2: 20 ms behind the shell, the same deck spring.
+                        .opacity(appeared ? 1 : 0)
+                        .animation(.spring(response: 0.34, dampingFraction: 0.84).delay(0.02), value: appeared)
                 }
+                .padding(16)
+                pageDock
+                    .padding(.bottom, 10)
             }
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        // SD-1: one radius for the whole shell, the sanctioned deck glass radius (26).
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: EdgeStyleTokens.glassRadius, style: .continuous))
+        // SD-1: entry motion — the deck spring, a 0.98 → 1 scale and a fade. Reduce Motion keeps the fade.
+        .scaleEffect(appeared ? 1 : SideDeckConfig.entryScale(reduceMotion: reduceMotion))
+        .opacity(appeared ? 1 : 0)
+        .animation(.spring(response: 0.34, dampingFraction: 0.84), value: appeared)
         .onAppear {
             searchFocused = true
             syncMonitorHold()
+            appeared = true
         }
         .onChange(of: densityRaw) { _ in syncMonitorHold() }
         .onDisappear { releaseMonitorHold() }
@@ -390,6 +408,131 @@ private struct WindowDrawerView: View {
         .font(.system(size: size, weight: .medium, design: .rounded).monospacedDigit())
         .foregroundStyle(.secondary)
         .accessibilityElement(children: .combine)
+    }
+
+    /// SD-2 (render 2): the header capsule — 54 pt tall on a full radius, spanning the panel: avatar and the
+    /// owner's name, the translucent search pill with its 24 pt leading glyph, then the density pill and the
+    /// bell with its unread dot.
+    private var headerCapsule: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(Color.accentColor.opacity(0.18))
+                .frame(width: 34, height: 34)
+                .overlay(Text(verbatim: initials).font(.system(size: 13, weight: .semibold)))
+            Text(verbatim: NSFullUserName())
+                .font(.system(size: 15, weight: .semibold))
+                .lineLimit(1)
+            searchPill
+            Button { densityRaw = density.toggled.rawValue } label: {
+                Image(systemName: density.toggleSymbol).font(.system(size: 12, weight: .medium))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(.plain)
+            .help(density.isCompact ? Text("Expand") : Text("Compact"))
+            Button { controller.select(.notifications) } label: {
+                Image(systemName: SideDeckTab.notifications.symbol)
+                    .font(.system(size: 12, weight: .medium))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.08)))
+                    .overlay(alignment: .topTrailing) {
+                        if controller.unreadNotificationCount > 0 {
+                            Circle().fill(Color.accentColor).frame(width: 7, height: 7).offset(x: 2, y: -2)
+                        }
+                    }
+            }
+            .buttonStyle(.plain)
+            .help(Text("Notifications"))
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 54)
+        .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    /// The avatar's letters: the owner's initials, which need no localized string.
+    private var initials: String {
+        let letters = NSFullUserName().split(separator: " ").prefix(2).compactMap(\.first)
+        return letters.isEmpty ? "K" : String(letters).uppercased()
+    }
+
+    /// The translucent search pill: one field for every tab, its placeholder the pure tab helper.
+    private var searchPill: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+                .frame(width: 24)
+            TextField(controller.tab.searchPlaceholder, text: $controller.query)
+                .textFieldStyle(.plain)
+                .focused($searchFocused)
+            if !controller.query.isEmpty {
+                Button { controller.query = "" } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(Text("Clear"))
+            }
+            Menu {
+                ForEach(WidgetTextScale.allCases, id: \.self) { scale in
+                    Button { textScaleRaw = scale.rawValue } label: { textScaleTitle(scale) }
+                }
+            } label: {
+                Image(systemName: "textformat.size").font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(Text("Text Size"))
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 32)
+        .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    /// SD-2 (render 2): the floating page dock — a 44 pt capsule with a white selected pill and a trailing
+    /// "+". SD-8 owns page visibility, so the plus is wired to page selection here and nothing more.
+    private var pageDock: some View {
+        HStack(spacing: 4) {
+            ForEach([SideDeckTab.windows, .notifications, .downloads, .storage, .weather], id: \.self) { tab in
+                let selected = controller.tab == tab
+                Button { controller.select(tab) } label: {
+                    Text(verbatim: tab.title)
+                        .font(.system(size: 11, weight: selected ? .semibold : .regular))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(selected ? Color.white.opacity(0.92) : .clear))
+                        .foregroundStyle(selected ? Color.black.opacity(0.78) : Color.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            Menu {
+                ForEach(SideDeckTab.allCases, id: \.self) { tab in
+                    Button { controller.select(tab) } label: { Text(verbatim: tab.title) }
+                }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(Color.primary.opacity(0.10)))
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(Text("Open"))
+        }
+        .padding(.horizontal, 8)
+        .frame(height: 44)
+        .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.07)))
+        .overlay(Capsule(style: .continuous).strokeBorder(Color.white.opacity(0.12), lineWidth: 0.75))
+        .accessibilityElement(children: .contain)
+    }
+
+    /// SD-2: the bento column count, from the plan's breakpoints over the panel's content width. This is the
+    /// one place it is computed, so every grid in the deck agrees on it.
+    private var panelColumns: Int {
+        let contentWidth = SideDeckConfig.stored().width - 60 - 12 - 32
+        return SideDeckConfig.columns(forContentWidth: contentWidth)
     }
 
     /// SD-2: one field for every tab. Its placeholder is the pure tab helper, so it always names what
@@ -444,7 +587,9 @@ private struct WindowDrawerView: View {
         switch controller.tab {
         case .windows: windows
         case .notifications: SideDeckNotificationsView(controller: controller)
-        case .downloads: SideDeckDownloadsView()
+        case .downloads: SideDeckDownloadsPane(feed: LiveActivityFeed.shared)
+        case .dictionary: SideDeckDictionaryPane(query: $controller.query)
+        case .dashboard: SideDeckDashboardView { controller.select($0) }
         case .storage: SideDeckStorageView()
         case .weather: SideDeckWeatherView()
         case .aiMissionControl: SideDeckAIMissionControlView()
@@ -465,8 +610,34 @@ private struct WindowDrawerView: View {
         }
     }
 
+    /// SD-1 (render 3): the optional identity strip — a 90° caption, a hairline and a Settings capsule at its
+    /// foot. Off by default; the caption is the brand, so it is shown verbatim rather than as a new key.
+    private var identityStrip: some View {
+        VStack(spacing: 10) {
+            Text(verbatim: "KATIKATI")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(.secondary)
+                .rotationEffect(.degrees(-90))
+                .fixedSize()
+                .frame(maxHeight: .infinity)
+            Rectangle().fill(Color.primary.opacity(0.12)).frame(width: 1, height: 24)
+            Button {
+                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            } label: {
+                Image(systemName: "gearshape").font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 30, height: 30)
+                    .background(Circle().fill(Color.primary.opacity(0.07)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Settings"))
+        }
+        .padding(.vertical, 8)
+        .frame(width: 26)
+    }
+
     private var rail: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 10) {
             SideDeckRailButton(symbol: "magnifyingglass", title: Text("Search"), selected: false) { controller.runSearch() }
             SideDeckRailButton(symbol: SideDeckTab.windows.symbol, title: Text("Windows"),
                                selected: controller.tab == .windows) { controller.select(.windows) }
@@ -479,6 +650,10 @@ private struct WindowDrawerView: View {
                                badge: controller.unreadNotificationCount) { controller.select(.notifications) }
             SideDeckRailButton(symbol: SideDeckTab.downloads.symbol, title: Text("Downloads"),
                                selected: controller.tab == .downloads) { controller.select(.downloads) }
+            SideDeckRailButton(symbol: SideDeckTab.dictionary.symbol, title: Text("Dictionary"),
+                               selected: controller.tab == .dictionary) { controller.select(.dictionary) }
+            SideDeckRailButton(symbol: SideDeckTab.dashboard.symbol, title: Text(verbatim: "Dashboard"),
+                               selected: controller.tab == .dashboard) { controller.select(.dashboard) }
             SideDeckRailButton(symbol: SideDeckTab.storage.symbol, title: Text("Storage"),
                                selected: controller.tab == .storage) { controller.select(.storage) }
             SideDeckRailButton(symbol: SideDeckTab.weather.symbol, title: Text("Weather"),
@@ -508,13 +683,18 @@ private struct WindowDrawerView: View {
             .accessibilityLabel(Text("Pin Strip Open"))
         }
         .padding(8)
-        .frame(width: 52)
+        // SD-1 (renders 2–3): the rail is its own capsule — 60 pt wide, 26 pt radius, an 8 pt inset and a soft
+        // shadow that lifts it off the panel behind it.
+        .frame(width: 60)
+        .background(EdgeGlassSurface(shape: RoundedRectangle(cornerRadius: 26, style: .continuous)))
+        .shadow(color: .black.opacity(0.16), radius: 12, y: 4)
     }
 
     private var windows: some View {
         VStack(spacing: 10) {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: panelColumns),
+                          spacing: 10) {
                     ForEach(Array(controller.filtered.enumerated()), id: \.element.id) { index, item in
                         card(item, selected: controller.windowSelection.index == index)
                     }
