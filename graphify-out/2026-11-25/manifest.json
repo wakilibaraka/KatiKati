@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795607474.9386466,
-    "seen": 1795614091.003983,
-    "ast_hash": "e779f26632480ee0151d2349dfc514fa",
+    "mtime": 1795624924.011115,
+    "seen": 1795628297.014388,
+    "ast_hash": "2ab6a5f7761a3ecf9ccee49dd311fd39",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795623712.7317235,
-    "seen": 1795624193.3987992,
-    "ast_hash": "5ad975c53e5d9d4d1a7a02c8f58fe371",
+    "mtime": 1795624931.5450974,
+    "seen": 1795628297.0144398,
+    "ast_hash": "80bf5018adef28133ff26fc8585ff9c1",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1795603898.4263728,
-    "seen": 1795606909.622268,
-    "ast_hash": "9e5d83887752f65c83516db1c6885b37",
+    "mtime": 1795627423.0916834,
+    "seen": 1795628297.0146391,
+    "ast_hash": "f6972a0eab9e88071a192ec6480408a9",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
@@ -8052,9 +8052,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795624175.1548433,
-    "seen": 1795624193.3997571,
-    "ast_hash": "28a69ba6e28347d72232ca9c9f3ff730",
+    "mtime": 1795628198.9693775,
+    "seen": 1795628297.015559,
+    "ast_hash": "191540f5b88ee584c6a8384762842fe4",
     "semantic_hash": ""
   },
   "Scripts/check_input_hygiene.py": {
@@ -8949,6 +8949,60 @@
     "mtime": 1795624105.7787337,
     "seen": 1795624193.39988,
     "ast_hash": "ce46828a7fe05b5c63a21cc48b296166",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/README.md": {
+    "mtime": 1795628158.5424495,
+    "seen": 1795628297.015546,
+    "ast_hash": "9a1cc8c24e95739d029c995e77dc556d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/01-prompt.png": {
+    "mtime": 1795628141.977966,
+    "seen": 1795628297.015729,
+    "ast_hash": "099dd0efab2dc58ca7ebb6b65ecdf60d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/02-background-apps-undo.png": {
+    "mtime": 1795628136.4399881,
+    "seen": 1795628297.01573,
+    "ast_hash": "579259194afe7ed2170601db41a30d71",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/03-menubar-cc-bento-stored-toggles.png": {
+    "mtime": 1795628136.4420745,
+    "seen": 1795628297.0157309,
+    "ast_hash": "9c01784dcbf8e7d08a470ea713223d1e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/04-menubar-cc-launcher.png": {
+    "mtime": 1795628136.4441838,
+    "seen": 1795628297.015732,
+    "ast_hash": "54b22005eecfa0eb6152e72573c0d58d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/05-undo-restored-control-centre.png": {
+    "mtime": 1795628136.4461236,
+    "seen": 1795628297.015733,
+    "ast_hash": "5606a7547ebc511c3470319ef85dae5f",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/06-edge-classic.png": {
+    "mtime": 1795628136.4480124,
+    "seen": 1795628297.015734,
+    "ast_hash": "b344baa66a5d1d67bebe2bf1c0b86ff0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/07-edge-modular.png": {
+    "mtime": 1795628136.4503555,
+    "seen": 1795628297.015734,
+    "ast_hash": "a7ba75893722c012c68a6a9f5d00f12d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/08-hub-returned.png": {
+    "mtime": 1795628142.0133448,
+    "seen": 1795628297.0157351,
+    "ast_hash": "fac97602af6734be6820b9f001980b43",
     "semantic_hash": ""
   }
 }
