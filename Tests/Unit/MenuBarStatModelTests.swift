@@ -229,3 +229,33 @@ final class HubModuleTests: XCTestCase {
         XCTAssertEqual(HubCaretPlan.centerX(iconCenter: 10, panelWidth: 40), 20)
     }
 }
+
+final class HubAppearanceTests: XCTestCase {
+    func testPresetParsingDefaultsToGlass() {
+        XCTAssertEqual(HubAppearancePreset.parse(nil), .glass)
+        XCTAssertEqual(HubAppearancePreset.parse("bogus"), .glass)
+        XCTAssertEqual(HubAppearancePreset.parse("solid"), .solid)
+        XCTAssertEqual(HubAppearancePreset.allCases.count, 4)
+        XCTAssertEqual(Set(HubAppearancePreset.allCases.map(\.title)).count, 4)
+    }
+
+    func testMoreContrastMeansMoreScrimAndMoreCardFill() {
+        let ordered = HubAppearancePreset.allCases
+        let scrims = ordered.map(\.plateScrim)
+        let cards = ordered.map(\.cardScale)
+        XCTAssertEqual(scrims, scrims.sorted())
+        XCTAssertEqual(cards, cards.sorted())
+        XCTAssertLessThan(HubAppearancePreset.glass.plateScrim, HubAppearancePreset.contrast.plateScrim)
+        XCTAssertGreaterThan(HubAppearancePreset.glass.plateScrim, 0, "even glass keeps a legibility floor")
+        XCTAssertEqual(HubAppearancePreset.allCases.filter { $0.accentTint > 0 }, [.tinted])
+    }
+
+    func testSecondaryInkNeverFallsBelowTheReadableFloor() {
+        for preset in HubAppearancePreset.allCases {
+            XCTAssertGreaterThanOrEqual(preset.secondaryInk, HubReadability.minimumSecondaryInk)
+        }
+        XCTAssertEqual(HubReadability.secondaryInk(0.2), HubReadability.minimumSecondaryInk)
+        XCTAssertEqual(HubReadability.secondaryInk(0.95), 0.95)
+        XCTAssertEqual(HubReadability.secondaryInk(1.4), 1)
+    }
+}

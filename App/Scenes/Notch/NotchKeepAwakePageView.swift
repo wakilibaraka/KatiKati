@@ -3,24 +3,6 @@ import SwiftUI
 // Keep Awake notch page: Brewing card, duration chips, Lid closed + AI agents rows, battery floor.
 // Reads and drives `KeepAwakeService`; the old media-card timer and the hotkey go through the same service.
 
-enum StayAwakePreset: Int, CaseIterable {
-    case m15 = 15, m30 = 30, h1 = 60, h2 = 120, h5 = 300, indefinite = 0
-
-    var label: String {
-        switch self {
-        case .m15: return "15m"
-        case .m30: return "30m"
-        case .h1: return "1h"
-        case .h2: return "2h"
-        case .h5: return "5h"
-        case .indefinite: return "∞"
-        }
-    }
-
-    var seconds: Int? { rawValue == 0 ? nil : rawValue * 60 }
-    var duration: TimeInterval? { seconds.map(TimeInterval.init) }
-}
-
 struct NotchKeepAwakePageView: View {
     @ObservedObject private var service = KeepAwakeService.shared
     @AppStorage("com.katikati.stayawake.preset") private var presetRaw: Int = 30

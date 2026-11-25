@@ -296,6 +296,73 @@ struct StatusTrioRenderKey: Equatable, Hashable, Sendable {
     }
 }
 
+/// The hub's finish. These are readability presets, not a second theme: the dock theme still supplies
+/// the colours, while the preset raises the plate's scrim so text never sits on raw wallpaper.
+/// `glass` keeps today's look with a small legibility floor; the rest trade translucency for contrast.
+enum HubAppearancePreset: String, CaseIterable, Identifiable, Sendable {
+    case glass, tinted, solid, contrast
+
+    static let `default`: HubAppearancePreset = .glass
+    static let storageKey = "com.katikati.menuBarHub.appearance"
+
+    var id: String { rawValue }
+
+    static func parse(_ raw: String?) -> HubAppearancePreset {
+        raw.flatMap(HubAppearancePreset.init(rawValue:)) ?? .default
+    }
+
+    var title: String {
+        switch self {
+        case .glass: return String(localized: "Glass")
+        case .tinted: return String(localized: "Tinted")
+        case .solid: return String(localized: "Solid")
+        case .contrast: return String(localized: "High Contrast")
+        }
+    }
+
+    /// Opacity of a black (dark mode) or white (light mode) layer over the glass plate.
+    var plateScrim: Double {
+        switch self {
+        case .glass: return 0.10
+        case .tinted: return 0.22
+        case .solid: return 0.78
+        case .contrast: return 0.92
+        }
+    }
+
+    /// Cards need a little more fill as the plate becomes opaque, or their edges disappear.
+    var cardScale: Double {
+        switch self {
+        case .glass: return 1
+        case .tinted: return 1.15
+        case .solid: return 1.5
+        case .contrast: return 1.9
+        }
+    }
+
+    /// Secondary ink is drawn from the theme's primary ink at this alpha, never from a washed tint.
+    var secondaryInk: Double { HubReadability.secondaryInk(secondaryInkRaw) }
+
+    /// The one finish that adds colour to the plate instead of only dimming it.
+    var accentTint: Double { self == .tinted ? 0.16 : 0 }
+
+    private var secondaryInkRaw: Double {
+        switch self {
+        case .glass: return 0.82
+        case .tinted: return 0.84
+        case .solid: return 0.88
+        case .contrast: return 0.94
+        }
+    }
+}
+
+enum HubReadability {
+    /// Below this, a subtitle on a photograph stops being a label.
+    static let minimumSecondaryInk = 0.82
+
+    static func secondaryInk(_ raw: Double) -> Double { min(1, max(raw, minimumSecondaryInk)) }
+}
+
 enum MenuBarHubTab: String, CaseIterable, Identifiable, Sendable {
     case switches, statusAudio, shortcutsEvolutions, schedules
 

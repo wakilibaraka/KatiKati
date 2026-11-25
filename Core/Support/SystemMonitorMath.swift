@@ -74,6 +74,19 @@ struct DiskUsage: Equatable, Sendable {
     var free: UInt64
     var total: UInt64
     var usedFraction: Double { total == 0 ? 0 : min(1, max(0, 1 - Double(free) / Double(total))) }
+    var usedBytes: UInt64 { total > free ? total - free : 0 }
+    var usedPercent: Int { Int((usedFraction * 100).rounded()) }
+
+    /// Decimal-free, locale-stable sizes for the hub: "8.4 GB", "512 GB", "1.8 TB".
+    static func formatted(_ bytes: UInt64) -> String {
+        let gb = Double(bytes) / 1_073_741_824
+        if gb >= 1_024 { return String(format: "%.1f TB", gb / 1_024) }
+        if gb >= 100 { return String(format: "%.0f GB", gb) }
+        return String(format: "%.1f GB", gb)
+    }
+
+    var usedLabel: String { Self.formatted(usedBytes) }
+    var availableLabel: String { Self.formatted(free) }
 }
 
 /// OW-2 (behavior ported from `alztrk/OpenWidget`, MIT — see NOTICE): how often the telemetry sampler may

@@ -76,3 +76,12 @@ final class KeepAwakePolicyTests: XCTestCase {
         XCTAssertFalse(p.decide(i, now: t0).lidGuard, "no hold, no lid guard")
     }
 }
+
+final class StayAwakePresetTests: XCTestCase {
+    func testPresetDurationsAndLabels() {
+        XCTAssertEqual(StayAwakePreset.m15.duration, 15 * 60)
+        XCTAssertEqual(StayAwakePreset.h2.duration, 120 * 60)
+        XCTAssertNil(StayAwakePreset.indefinite.duration)
+        XCTAssertEqual(StayAwakePreset.allCases.map(\.label), ["15m", "30m", "1h", "2h", "5h", "∞"])
+    }
+}

@@ -48,3 +48,21 @@ final class SystemMonitorMathTests: XCTestCase {
         _ = SystemMonitorSampler.network()
     }
 }
+
+final class DiskUsageFormattingTests: XCTestCase {
+    func testUsedAndFreeAddUpAndFormatStably() {
+        let d = DiskUsage(free: 400_000_000_000, total: 1_000_000_000_000)
+        XCTAssertEqual(d.usedBytes, 600_000_000_000)
+        XCTAssertEqual(d.usedPercent, 60)
+        XCTAssertEqual(DiskUsage.formatted(d.usedBytes), "559 GB")
+        XCTAssertEqual(DiskUsage.formatted(d.free), "373 GB")
+    }
+
+    func testFormattingScalesToTerabytesAndGuardsOverflow() {
+        XCTAssertEqual(DiskUsage.formatted(2_000_000_000_000), "1.8 TB")
+        XCTAssertEqual(DiskUsage.formatted(0), "0.0 GB")
+        let empty = DiskUsage(free: 0, total: 0)
+        XCTAssertEqual(empty.usedFraction, 0)
+        XCTAssertEqual(empty.usedBytes, 0)
+    }
+}

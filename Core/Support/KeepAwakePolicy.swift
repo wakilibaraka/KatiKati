@@ -1,5 +1,25 @@
 import Foundation
 
+/// The duration chips shared by the notch page, the media card and the menu-bar hub. Raw values are
+/// minutes; `indefinite` (0) means until switched off.
+enum StayAwakePreset: Int, CaseIterable {
+    case m15 = 15, m30 = 30, h1 = 60, h2 = 120, h5 = 300, indefinite = 0
+
+    var label: String {
+        switch self {
+        case .m15: return "15m"
+        case .m30: return "30m"
+        case .h1: return "1h"
+        case .h2: return "2h"
+        case .h5: return "5h"
+        case .indefinite: return "∞"
+        }
+    }
+
+    var seconds: Int? { rawValue == 0 ? nil : rawValue * 60 }
+    var duration: TimeInterval? { seconds.map(TimeInterval.init) }
+}
+
 // Keep Awake policy: decides, from plain inputs, whether the Mac should be held awake. Pure and
 // time-injected so the rules are unit-testable; the Platform service feeds it and applies the result.
 
