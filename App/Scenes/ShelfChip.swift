@@ -115,12 +115,28 @@ struct ShelfChip: View {
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
-        menu.addItem(ClosureMenuItem(String(localized: "Open Shelf")) { onTap() })
+        var tiles: [DockMenuChrome.Tile] = [
+            .init(symbol: "tray.and.arrow.up", caption: String(localized: "Open Shelf")) { onTap() },
+        ]
         if itemCount > 0 {
-            menu.addItem(ClosureMenuItem(String(localized: "Clear Shelf")) { onClear() })
+            tiles.append(.init(symbol: "trash", caption: String(localized: "Clear Shelf")) { onClear() })
+        }
+        tiles.append(.init(symbol: "folder.badge.plus", caption: String(localized: "Add Folder…")) { onAddFolder() })
+        menu.addItem(DockMenuChrome.header(
+            icon: nil,
+            symbol: "tray.full",
+            title: String(localized: "Shelf"),
+            status: itemCount > 0 ? "\(itemCount)" : nil,
+            tiles: tiles,
+            menu: menu
+        ))
+        menu.addItem(.separator())
+        MenuChrome.action(String(localized: "Open Shelf"), symbol: "tray.and.arrow.up", in: menu) { onTap() }
+        if itemCount > 0 {
+            MenuChrome.action(String(localized: "Clear Shelf"), symbol: "trash", in: menu) { onClear() }
         }
         menu.addItem(.separator())
-        menu.addItem(ClosureMenuItem(String(localized: "Add Folder…")) { onAddFolder() })
+        MenuChrome.action(String(localized: "Add Folder…"), symbol: "folder.badge.plus", in: menu) { onAddFolder() }
         return menu
     }
 }

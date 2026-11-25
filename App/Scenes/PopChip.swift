@@ -267,25 +267,45 @@ struct DockAppGroupChip: View {
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
-        menu.addItem(ClosureMenuItem(String(localized: "Open")) { onTap() })
-        let gridMenu = NSMenu()
-        let item2 = ClosureMenuItem(String(localized: "2×2 Grid")) { groupStore.setIconGrid(.grid2x2, for: group.id) }
-        item2.state = group.iconGrid == .grid2x2 ? .on : .off
-        let item3 = ClosureMenuItem(String(localized: "3×3 Grid")) { groupStore.setIconGrid(.grid3x3, for: group.id) }
-        item3.state = group.iconGrid == .grid3x3 ? .on : .off
-        gridMenu.addItem(item2)
-        gridMenu.addItem(item3)
-        let gridItem = NSMenuItem(title: String(localized: "Icon Grid"), action: nil, keyEquivalent: "")
-        gridItem.submenu = gridMenu
-        menu.addItem(gridItem)
-        let syncItem = ClosureMenuItem(String(localized: "Sync with Launcher Folders")) {
+        let tiles: [DockMenuChrome.Tile] = [
+            .init(symbol: "arrow.up.forward.app", caption: String(localized: "Open")) { onTap() },
+            .init(symbol: "wand.and.stars", caption: String(localized: "Auto-Group Apps")) {
+                groupStore.autoGroupInstalledApps()
+            },
+            .init(symbol: "trash", caption: String(localized: "Delete")) {
+                groupStore.deleteGroup(group.id)
+            },
+        ]
+        menu.addItem(DockMenuChrome.header(
+            icon: nil,
+            symbol: "square.grid.2x2",
+            title: group.name,
+            status: "\(group.appIDs.count)",
+            tiles: tiles,
+            menu: menu
+        ))
+        menu.addItem(.separator())
+        MenuChrome.action(String(localized: "Open"), symbol: "arrow.up.forward.app", in: menu) { onTap() }
+        MenuChrome.submenu(String(localized: "Icon Grid"), symbol: "square.grid.2x2", in: menu) { sub in
+            let item2 = ClosureMenuItem(String(localized: "2×2 Grid")) { groupStore.setIconGrid(.grid2x2, for: group.id) }
+            item2.state = group.iconGrid == .grid2x2 ? .on : .off
+            let item3 = ClosureMenuItem(String(localized: "3×3 Grid")) { groupStore.setIconGrid(.grid3x3, for: group.id) }
+            item3.state = group.iconGrid == .grid3x3 ? .on : .off
+            sub.addItem(item2)
+            sub.addItem(item3)
+        }
+        let syncItem = MenuChrome.action(String(localized: "Sync with Launcher Folders"),
+                                        symbol: "arrow.triangle.2.circlepath", in: menu) {
             groupStore.setSyncWithLauncher(!groupStore.syncWithLauncherFolders)
         }
         syncItem.state = groupStore.syncWithLauncherFolders ? .on : .off
-        menu.addItem(syncItem)
-        menu.addItem(ClosureMenuItem(String(localized: "Auto-Group Apps")) { groupStore.autoGroupInstalledApps() })
+        MenuChrome.action(String(localized: "Auto-Group Apps"), symbol: "wand.and.stars", in: menu) {
+            groupStore.autoGroupInstalledApps()
+        }
         menu.addItem(.separator())
-        menu.addItem(ClosureMenuItem(String(localized: "Delete Group")) { groupStore.deleteGroup(group.id) })
+        MenuChrome.action(String(localized: "Delete Group"), symbol: "trash", in: menu) {
+            groupStore.deleteGroup(group.id)
+        }
         return menu
     }
 }

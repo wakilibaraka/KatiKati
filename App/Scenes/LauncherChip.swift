@@ -314,6 +314,38 @@ struct LauncherChip: View {
 
     private func buildLauncherMenu() -> NSMenu {
         let menu = NSMenu()
+        // The same header grammar as the Dock chips: the app's own icon and name, its state, then
+        // the four things a right-click on an app is actually for.
+        var tiles: [DockMenuChrome.Tile] = [
+            .init(symbol: "arrow.up.forward.app", caption: String(localized: "Open")) {
+                launch(firePrimaryAction: false)
+            },
+        ]
+        if isRunning {
+            tiles.append(.init(symbol: isHidden ? "eye" : "eye.slash",
+                               caption: String(localized: isHidden ? "Show" : "Hide")) {
+                for app in Self.regularRunningApplications(bundleID: bundleID) {
+                    if isHidden { _ = app.unhide() }
+                    else { _ = app.hide() }
+                }
+            })
+        }
+        tiles.append(.init(symbol: "paintpalette", caption: String(localized: "Edit")) {
+            DispatchQueue.main.async { IconStudioWindowController.shared.open(selectedBundleID: bundleID) }
+        })
+        if isRunning {
+            tiles.append(.init(symbol: "power", caption: String(localized: "Quit App")) {
+                for app in Self.regularRunningApplications(bundleID: bundleID) { _ = app.terminate() }
+            })
+        }
+        menu.addItem(DockMenuChrome.header(
+            icon: AppIconResolver.icon(for: bundleID),
+            title: displayName,
+            status: isHidden ? String(localized: "Hidden") : nil,
+            tiles: tiles,
+            menu: menu
+        ))
+        menu.addItem(.separator())
         // 只在右键这一刻求值一次；未运行的显示态连取都不取（列表判据跟着显示区走）。
         let windowEntries = isRunning ? windowEntriesProvider() : []
         // 菜单运行态跟随「图标所在区的显示态」(isRunning prop)，不再独立问 NSWorkspace——否则待启动区里
@@ -331,7 +363,9 @@ struct LauncherChip: View {
             case .open:
                 // 右键「打开」：复用 runtime 启动路径，但不触发 onPrimaryAction——
                 // 否则抽屉图标右键打开会顺手关掉抽屉。
-                menu.addItem(ClosureMenuItem(String(localized: "Open")) { launch(firePrimaryAction: false) })
+                MenuChrome.action(String(localized: "Open"), symbol: "arrow.up.forward.app", in: menu) {
+                    launch(firePrimaryAction: false)
+                }
             case .recentDocuments:
                 // 访达的「最近」是最近使用的文件夹（FXRecentFolders），与条上的访达卡同口径。
                 if FinderTaskbarPolicy.isFinder(bundleID) {
@@ -341,16 +375,16 @@ struct LauncherChip: View {
                 }
             case .show:
                 if !runningApps.isEmpty {
-                    menu.addItem(ClosureMenuItem(String(localized: "Show")) {
+                    MenuChrome.action(String(localized: "Show"), symbol: "eye", in: menu) {
                         for app in runningApps { _ = app.unhide() }
                         runningApps.first?.activate(options: .activateIgnoringOtherApps)
-                    })
+                    }
                 }
             case .hide:
                 if !runningApps.isEmpty {
-                    menu.addItem(ClosureMenuItem(String(localized: "Hide")) {
+                    MenuChrome.action(String(localized: "Hide"), symbol: "eye.slash", in: menu) {
                         for app in runningApps { _ = app.hide() }
-                    })
+                    }
                 }
             case .quit:
                 if !runningApps.isEmpty {
@@ -377,9 +411,9 @@ struct LauncherChip: View {
                     menu.addItem(AppMenuBuilder.membershipItem(item))
                 }
                 AppMenuBuilder.appendAppGroupMenu(to: menu, bundleID: bundleID)
-                menu.addItem(ClosureMenuItem(String(localized: "Customize Icon…")) {
+                MenuChrome.action(String(localized: "Customize Icon…"), symbol: "paintpalette", in: menu) {
                     IconStudioWindowController.shared.open(selectedBundleID: bundleID)
-                })
+                }
             }
         }
         return menu

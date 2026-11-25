@@ -598,37 +598,83 @@ enum LiveIslandMenuBuilder {
     static func menu(feed: LiveActivityFeed, keepAwakeOn: Bool, toggleKeepAwake: @escaping () -> Void) -> NSMenu {
         let services = ProductivityServices.shared
         let menu = NSMenu()
-        func header(_ title: String) {
-            if !menu.items.isEmpty { menu.addItem(.separator()) }
-            menu.addItem(NSMenuItem(title: title, action: nil, keyEquivalent: ""))
-        }
+        let activity = feed.activity
 
-        header(String(localized: "Focus"))
-        menu.addItem(ClosureMenuItem(String(localized: "Start / Pause")) { services.focus.toggle() })
-        menu.addItem(ClosureMenuItem(String(localized: "Skip")) { services.focus.skip() })
-        menu.addItem(ClosureMenuItem(String(localized: "Reset")) { services.focus.reset() })
-
-        header(String(localized: "Timer"))
-        for minutes in [5, 15, 25, 60] {
-            menu.addItem(ClosureMenuItem("\(minutes)m") {
-                services.timer.set(seconds: minutes * 60)
+        var tiles: [DockMenuChrome.Tile] = [
+            .init(symbol: "playpause", caption: String(localized: "Start / Pause")) {
+                services.focus.toggle()
+            },
+            .init(symbol: "timer", caption: "25m") {
+                services.timer.set(seconds: 25 * 60)
                 services.timer.toggle()
+            },
+            .init(symbol: "cup.and.saucer", caption: String(localized: "Keep Awake")) {
+                toggleKeepAwake()
+            },
+        ]
+        if case .music = activity.content {
+            tiles.append(.init(symbol: "music.note", caption: String(localized: "Play / Pause")) {
+                feed.togglePlayPause()
             })
         }
-        menu.addItem(ClosureMenuItem(String(localized: "Stop")) { services.timer.reset() })
+        menu.addItem(DockMenuChrome.header(
+            icon: nil,
+            symbol: symbol(for: activity.kind),
+            title: title(for: activity.kind),
+            status: nil,
+            tiles: tiles,
+            menu: menu
+        ))
+        menu.addItem(.separator())
 
-        header(String(localized: "Keep Awake"))
-        let awake = ClosureMenuItem(String(localized: "Keep Awake")) { toggleKeepAwake() }
+        MenuChrome.section(String(localized: "Focus"), symbol: "brain.head.profile", in: menu)
+        MenuChrome.action(String(localized: "Start / Pause"), symbol: "playpause", in: menu) { services.focus.toggle() }
+        MenuChrome.action(String(localized: "Skip"), symbol: "forward.end", in: menu) { services.focus.skip() }
+        MenuChrome.action(String(localized: "Reset"), symbol: "arrow.counterclockwise", in: menu) { services.focus.reset() }
+
+        MenuChrome.section(String(localized: "Timer"), symbol: "timer", in: menu)
+        for minutes in [5, 15, 25, 60] {
+            MenuChrome.action("\(minutes)m", symbol: "timer", in: menu) {
+                services.timer.set(seconds: minutes * 60)
+                services.timer.toggle()
+            }
+        }
+        MenuChrome.action(String(localized: "Stop"), symbol: "stop.fill", in: menu) { services.timer.reset() }
+
+        MenuChrome.section(String(localized: "Keep Awake"), symbol: "cup.and.saucer", in: menu)
+        let awake = MenuChrome.action(String(localized: "Keep Awake"), symbol: "cup.and.saucer", in: menu) {
+            toggleKeepAwake()
+        }
         awake.state = keepAwakeOn ? .on : .off
-        menu.addItem(awake)
 
-        if case .music = feed.activity.content {
-            header(String(localized: "Now Playing"))
-            menu.addItem(ClosureMenuItem(String(localized: "Play / Pause")) { feed.togglePlayPause() })
-            menu.addItem(ClosureMenuItem(String(localized: "Next Track")) { feed.nextTrack() })
-            menu.addItem(ClosureMenuItem(String(localized: "Previous Track")) { feed.previousTrack() })
+        if case .music = activity.content {
+            MenuChrome.section(String(localized: "Now Playing"), symbol: "music.note", in: menu)
+            MenuChrome.action(String(localized: "Play / Pause"), symbol: "playpause", in: menu) { feed.togglePlayPause() }
+            MenuChrome.action(String(localized: "Next Track"), symbol: "forward.end", in: menu) { feed.nextTrack() }
+            MenuChrome.action(String(localized: "Previous Track"), symbol: "backward.end", in: menu) { feed.previousTrack() }
         }
         return menu
+    }
+
+    private static func symbol(for kind: LiveActivityKind) -> String {
+        switch kind {
+        case .music: return "music.note"
+        case .focus: return "brain.head.profile"
+        case .countdown: return "calendar.badge.clock"
+        case .timer: return "timer"
+        case .stopwatch: return "stopwatch"
+        case .clock: return "clock"
+        }
+    }
+
+    private static func title(for kind: LiveActivityKind) -> String {
+        switch kind {
+        case .music: return String(localized: "Now Playing")
+        case .focus: return String(localized: "Focus")
+        case .countdown: return String(localized: "Calendar")
+        case .timer, .stopwatch: return String(localized: "Timer")
+        case .clock: return String(localized: "Clock")
+        }
     }
 }
 
@@ -641,38 +687,97 @@ enum DockUtilityMenuBuilder {
         onOpen: @escaping () -> Void
     ) -> NSMenu {
         let menu = NSMenu()
+        guard kind != .drawer, kind != .trash else { return menu }
+
+        var tiles: [DockMenuChrome.Tile] = [
+            .init(symbol: "arrow.up.forward.app", caption: String(localized: "Open")) { onOpen() },
+        ]
+        if kind == .screenshots {
+            tiles.insert(.init(symbol: "viewfinder", caption: String(localized: "Capture Area")) {
+                CaptureController.captureAreaToClipboard()
+            }, at: 0)
+        }
+        if kind == .clipboard {
+            let clipboard = ProductivityServices.shared.clipboard
+            if let latest = clipboard.history.displayOrder.first {
+                tiles.insert(.init(symbol: "doc.on.clipboard", caption: String(localized: "Paste Latest Plain")) {
+                    clipboard.pastePlain(latest)
+                }, at: 0)
+            }
+        }
+        tiles.append(.init(symbol: "eye.slash", caption: String(localized: "Hide")) {
+            store.setDockUtilityVisible(kind, false)
+        })
+        menu.addItem(DockMenuChrome.header(
+            icon: nil,
+            symbol: kind.symbolName,
+            title: title(for: kind),
+            status: nil,
+            tiles: tiles,
+            menu: menu
+        ))
+        menu.addItem(.separator())
+
         switch kind {
         case .screenshots:
-            menu.addItem(ClosureMenuItem(String(localized: "Capture Area")) { CaptureController.captureAreaToClipboard() })
-            menu.addItem(ClosureMenuItem(String(localized: "Open Screenshots")) { onOpen() })
+            MenuChrome.action(String(localized: "Capture Area"), symbol: "viewfinder", in: menu) {
+                CaptureController.captureAreaToClipboard()
+            }
+            MenuChrome.action(String(localized: "Open Screenshots"), symbol: "photo.on.rectangle", in: menu) { onOpen() }
             menu.addItem(.separator())
-            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.screenshots, false) })
+            MenuChrome.action(String(localized: "Hide"), symbol: "eye.slash", in: menu) {
+                store.setDockUtilityVisible(.screenshots, false)
+            }
         case .clipboard:
             let monitor = ProductivityServices.shared.clipboard
             if let latest = monitor.history.displayOrder.first {
-                menu.addItem(ClosureMenuItem(String(localized: "Paste Latest Plain")) { monitor.pastePlain(latest) })
-                menu.addItem(ClosureMenuItem(String(localized: "Clear Unpinned")) { monitor.clearAll(keepingPinned: true) })
+                MenuChrome.action(String(localized: "Paste Latest Plain"), symbol: "doc.on.clipboard", in: menu) {
+                    monitor.pastePlain(latest)
+                }
+                MenuChrome.action(String(localized: "Clear Unpinned"), symbol: "trash.slash", in: menu) {
+                    monitor.clearAll(keepingPinned: true)
+                }
                 menu.addItem(.separator())
             }
-            menu.addItem(ClosureMenuItem(String(localized: "Open Clipboard")) { onOpen() })
-            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.clipboard, false) })
+            MenuChrome.action(String(localized: "Open Clipboard"), symbol: "doc.on.clipboard", in: menu) { onOpen() }
+            MenuChrome.action(String(localized: "Hide"), symbol: "eye.slash", in: menu) {
+                store.setDockUtilityVisible(.clipboard, false)
+            }
         case .dictionary:
-            menu.addItem(ClosureMenuItem(String(localized: "Open Dictionary")) { onOpen() })
-            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.dictionary, false) })
+            MenuChrome.action(String(localized: "Open Dictionary"), symbol: "text.book.closed", in: menu) { onOpen() }
+            MenuChrome.action(String(localized: "Hide"), symbol: "eye.slash", in: menu) {
+                store.setDockUtilityVisible(.dictionary, false)
+            }
         case .terminal:
-            menu.addItem(ClosureMenuItem(String(localized: "Toggle Terminal")) { onOpen() })
-            menu.addItem(ClosureMenuItem(String(localized: "Hide Terminal")) { store.setDockUtilityVisible(.terminal, false) })
+            MenuChrome.action(String(localized: "Toggle Terminal"), symbol: "terminal", in: menu) { onOpen() }
+            MenuChrome.action(String(localized: "Hide Terminal"), symbol: "eye.slash", in: menu) {
+                store.setDockUtilityVisible(.terminal, false)
+            }
         case .downloads:
             if let path = downloadsPath {
-                menu.addItem(ClosureMenuItem(String(localized: "Open in Finder")) {
+                MenuChrome.action(String(localized: "Open in Finder"), symbol: "folder", in: menu) {
                     NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path)
-                })
+                }
             }
-            menu.addItem(ClosureMenuItem(String(localized: "Hide")) { store.setDockUtilityVisible(.downloads, false) })
+            MenuChrome.action(String(localized: "Hide"), symbol: "eye.slash", in: menu) {
+                store.setDockUtilityVisible(.downloads, false)
+            }
         case .drawer, .trash:
             break
         }
         return menu
+    }
+
+    private static func title(for kind: DockUtilityKind) -> String {
+        switch kind {
+        case .screenshots: return String(localized: "Screenshots")
+        case .clipboard: return String(localized: "Clipboard")
+        case .dictionary: return String(localized: "Dictionary")
+        case .terminal: return String(localized: "Terminal")
+        case .downloads: return String(localized: "Downloads")
+        case .drawer: return String(localized: "Drawer")
+        case .trash: return String(localized: "Trash")
+        }
     }
 }
 
