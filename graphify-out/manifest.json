@@ -8338,5 +8338,65 @@
     "seen": 1795586185.8854132,
     "ast_hash": "011905aaf8acc47b21909320a45f8477",
     "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/README.md": {
+    "mtime": 1795595280.9288318,
+    "seen": 1795595307.1173482,
+    "ast_hash": "2594aec7859350e60e872ac4f42553a1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/01-prompt.png": {
+    "mtime": 1795595092.1832542,
+    "seen": 1795595307.1174788,
+    "ast_hash": "823057197ad85e67e4adc05a88221341",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/02-menubar-cc.png": {
+    "mtime": 1795595123.8424923,
+    "seen": 1795595307.11748,
+    "ast_hash": "f462d3ec9e79474330c3fcd8a71a878c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/03-background-apps.png": {
+    "mtime": 1795595138.7699652,
+    "seen": 1795595307.117481,
+    "ast_hash": "91d45a3858c814ef5b2df1335ba055f6",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/04-relaunch-cc.png": {
+    "mtime": 1795595160.2681153,
+    "seen": 1795595307.117482,
+    "ast_hash": "23a1d7cbec24080467ef0448aee63d7b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/05-relaunch-background-apps.png": {
+    "mtime": 1795595170.2467437,
+    "seen": 1795595307.117483,
+    "ast_hash": "5a04e5f5dce9fd13bf33d1d651554e6a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/06-reverted-hub.png": {
+    "mtime": 1795595185.3800802,
+    "seen": 1795595307.117484,
+    "ast_hash": "72c15bfc04bfd4f1ce602064725f8144",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/07-standalone-cc.png": {
+    "mtime": 1795595193.9373991,
+    "seen": 1795595307.117484,
+    "ast_hash": "a5d35e30445715d5d082164729ac13fa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/08-trash-menu.png": {
+    "mtime": 1795595244.8595347,
+    "seen": 1795595307.117485,
+    "ast_hash": "4e89daed946ae0f5cf60e74e6ca2b87d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/09-folder-menu.png": {
+    "mtime": 1795595247.319051,
+    "seen": 1795595307.117486,
+    "ast_hash": "d641af105c3b5d0544997896047f388a",
+    "semantic_hash": ""
   }
 }
