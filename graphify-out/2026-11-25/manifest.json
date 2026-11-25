@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795624931.5450974,
-    "seen": 1795628297.0144398,
-    "ast_hash": "80bf5018adef28133ff26fc8585ff9c1",
+    "mtime": 1795629474.2363942,
+    "seen": 1795629480.4709098,
+    "ast_hash": "94237662e669a7077fe83c8d69471fea",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1795623656.4256299,
-    "seen": 1795624193.398998,
-    "ast_hash": "7efa4295c9a69d120c9143857f508628",
+    "mtime": 1795629474.2369907,
+    "seen": 1795629480.471099,
+    "ast_hash": "b610deb0dbb21491789c053b835752fe",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1795623609.2905178,
-    "seen": 1795624193.399056,
-    "ast_hash": "8416a4f120d42edb67038f74b5507752",
+    "mtime": 1795629474.2373984,
+    "seen": 1795629480.471154,
+    "ast_hash": "ef4f96572aac987241afe765d84bf482",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
@@ -2496,9 +2496,9 @@
     "semantic_hash": "c67500d2664875a06720b0a5c719a093"
   },
   "Core/Support/WelcomeGuideStep.swift": {
-    "mtime": 1795431929.4578903,
-    "seen": 1795606909.622593,
-    "ast_hash": "5833f56181fd06e801c1b66cf79c1f70",
+    "mtime": 1795629474.2378225,
+    "seen": 1795629480.471328,
+    "ast_hash": "c71036889c13b8d50685c479d55a27ad",
     "semantic_hash": ""
   },
   "Core/Support/WidgetLayoutModel.swift": {
@@ -8052,9 +8052,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795628198.9693775,
-    "seen": 1795628297.015559,
-    "ast_hash": "191540f5b88ee584c6a8384762842fe4",
+    "mtime": 1795629474.3915584,
+    "seen": 1795629480.471808,
+    "ast_hash": "8296f267086c161e11eb6dc69f9c648f",
     "semantic_hash": ""
   },
   "Scripts/check_input_hygiene.py": {
