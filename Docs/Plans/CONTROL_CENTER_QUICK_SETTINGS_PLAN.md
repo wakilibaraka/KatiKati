@@ -263,6 +263,10 @@ A second pass over the shipped home choice closed the gaps between the two hosts
   `surface=edge` and the same panel returned as the bento Control Centre with the same two toggles
   (`05`); with the edge home restored the status item opened the Creative Hub again (`08`). Classic and
   modular remain visually distinct (`06`, `07`).
+- **Idle after this install** — `Scripts/bench_katikati.sh --idle-only` on the rebuilt 0.18.0 (54):
+  **1.76 %** of one core, **207.4 MB** resident, 65 MB on disk, sampled in the fresh onboarding state.
+  Lower than the earlier 358.2 MB figure because that run kept a static window and its state; the CPU
+  figure is the same 1.7–1.9 % band.
 
 ### Dock-anchored pass
 
