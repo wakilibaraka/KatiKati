@@ -8052,9 +8052,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795569377.5211177,
-    "seen": 1795606909.623414,
-    "ast_hash": "dcc56538a603282a6528f8e124a1f1cf",
+    "mtime": 1795607035.264135,
+    "seen": 1795607051.472335,
+    "ast_hash": "f5115a92291aac205e0bc353f570b772",
     "semantic_hash": ""
   },
   "Scripts/check_input_hygiene.py": {
