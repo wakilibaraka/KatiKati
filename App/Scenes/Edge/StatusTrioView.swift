@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The three statuses the combined chip exposes; each opens its own popover (Phase 7A-5).
 enum StatusKind: CaseIterable, Hashable {
@@ -440,6 +441,12 @@ struct ControlCenterView: View {
     /// shells out to `system_profiler`, so it is never polled.
     @State private var peripherals: [BluetoothDevice] = []
     @State private var peripheralsLoading = true
+    /// `CC-4` edit mode: while on, a card can be dragged in front of another. It is a local state, not
+    /// a stored preference — the panel's Esc / outside-click behaviour is unchanged.
+    @State private var editing = false
+    @State private var dragging: ControlCenterTileID?
+    /// The layout the last drop produced, so the cards move now instead of on the next open.
+    @State private var editedLayout: ControlCenterLayoutSpec?
 
     var onSettings: () -> Void = {}
     var onLauncher: () -> Void = {}
@@ -489,7 +496,7 @@ struct ControlCenterView: View {
             ForEach(Array(packedSections.enumerated()), id: \.offset) { _, row in
                 HStack(alignment: .top, spacing: Metrics.sectionGap) {
                     ForEach(row.tiles, id: \.id) { tile in
-                        sectionView(tile.id).frame(maxWidth: .infinity)
+                        packedTile(tile).frame(maxWidth: .infinity)
                     }
                 }
             }
@@ -513,12 +520,39 @@ struct ControlCenterView: View {
     /// preferences value can never empty the panel.
     private var layoutSpec: ControlCenterLayoutSpec {
         let preset = storedPreset
+        // An edit made in this open wins over what was read at open, so the drop is visible at once.
+        if let editedLayout { return editedLayout }
         if preset == .custom,
            let stored = ControlCenterLayoutCodec.decode(UserDefaults.standard.string(forKey: ControlCenterLayoutCodec.storageKey)),
            stored.preset == .custom {
             return stored
         }
         return .preset(preset == .custom ? .classic : preset)
+    }
+
+    /// `CC-4`: a card is a drag source only in edit mode, so a normal click never starts a drag.
+    @ViewBuilder
+    private func packedTile(_ tile: ControlCenterTileSpec) -> some View {
+        if editing {
+            sectionView(tile.id)
+                .opacity(dragging == tile.id ? 0.4 : 1)
+                .onDrag {
+                    dragging = tile.id
+                    return NSItemProvider(object: tile.id.token as NSString)
+                }
+                .onDrop(of: [.utf8PlainText], delegate: ControlCenterDropDelegate(
+                    target: tile.id, dragging: $dragging, move: performMove))
+        } else {
+            sectionView(tile.id)
+        }
+    }
+
+    /// Writes the drop as a Custom layout. `ControlCenterLayoutCodec.store` sets both the layout and
+    /// the preset, so a relaunch reopens in Custom at the order the user just made.
+    private func performMove(_ moving: ControlCenterTileID, before target: ControlCenterTileID) {
+        guard let next = layoutSpec.move(moving, before: target) else { return }
+        ControlCenterLayoutCodec.store(next)
+        editedLayout = next
     }
 
     private var panelWidth: CGFloat {
@@ -578,13 +612,13 @@ struct ControlCenterView: View {
                     switchGrid
                 }
             case .network:
-                if widgetTiles.contains(.network) { card(padding: 9) { ControlCenterNetworkRow() } }
+                if widgetTiles.contains(.network) { card(padding: 9, label: Text("Network")) { ControlCenterNetworkRow() } }
             case .sliders:
                 sliderRows
             case .utilities:
                 utilityRow
             case .account:
-                card(padding: 8) { ControlCenterAccountRow() }
+                card(padding: 8, label: Text("Manage accounts")) { ControlCenterAccountRow() }
             }
         case .toggle:
             EmptyView()
@@ -639,7 +673,11 @@ struct ControlCenterView: View {
                                      startPoint: .topLeading, endPoint: .bottomTrailing))
     }
 
+    /// `label` names the card for VoiceOver, so a card reads as one group ("System & Peripherals,
+    /// group") instead of a run of loose buttons. Cards whose own heading already says the name keep
+    /// that heading out of the tree, so the name is never read twice.
     private func card<Content: View>(active: Bool = false, padding: CGFloat = Metrics.cardPadding,
+                                     label: Text? = nil,
                                      @ViewBuilder _ content: () -> Content) -> some View {
         content()
             .padding(padding)
@@ -654,6 +692,8 @@ struct ControlCenterView: View {
                                          : AnyShapeStyle(cardStroke),
                                   lineWidth: 1)
             )
+            .accessibilityElement(children: .contain)
+            .modifier(ControlCenterCardLabel(label: label))
     }
 
     // MARK: - Header
@@ -665,9 +705,31 @@ struct ControlCenterView: View {
                 .foregroundStyle(ink)
             clockPill
             Spacer(minLength: 4)
+            editPill
             batteryPill
         }
         .padding(.horizontal, 1)
+    }
+
+    /// `CC-4` toolbar pill: the only way in and out of edit mode, so a drag is never accidental.
+    private var editPill: some View {
+        Button {
+            editing.toggle()
+            if !editing { editedLayout = nil }
+            dragging = nil
+        } label: {
+            Text(editing ? "Done" : "Edit")
+                .font(.system(size: ControlCenterReadability.captionSize, weight: .semibold))
+                .foregroundStyle(editing ? Color.white : ink)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(editing ? AnyShapeStyle(palette.pillGradient)
+                                                  : AnyShapeStyle(Color.primary.opacity(0.08))))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .help(Text(editing ? "Done" : "Edit"))
+        .accessibilityLabel(Text(editing ? "Done" : "Edit"))
     }
 
     private var clockPill: some View {
@@ -706,6 +768,10 @@ struct ControlCenterView: View {
         .background(Capsule().fill(Color.primary.opacity(0.08)))
         .overlay(Capsule().strokeBorder(cardStroke, lineWidth: 0.5))
         .help(Text(verbatim: battery.facts.summary ?? ""))
+        // One reading, not an image description followed by a loose number.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Battery"))
+        .accessibilityValue(Text(verbatim: battery.level.map { "\($0)%" } ?? "–"))
     }
 
     // MARK: - System & peripherals
@@ -716,12 +782,14 @@ struct ControlCenterView: View {
         let showsThisMac = widgetTiles.contains(.battery) && !hidesSystemRow
         let showsDevices = widgetTiles.contains(.batteries)
         if showsThisMac || showsDevices {
-            card {
+            card(label: Text("System & Peripherals")) {
                 VStack(alignment: .leading, spacing: Metrics.rowGap) {
                     HStack(spacing: 6) {
                         Text("System & Peripherals")
                             .font(.system(size: 12.5, weight: .semibold))
                             .foregroundStyle(ink)
+                            // The card's own group label already says this.
+                            .accessibilityHidden(true)
                         if status.status.battery.isCharging {
                             Text("Charging")
                                 .font(.system(size: ControlCenterReadability.detailSize, weight: .semibold))
@@ -862,7 +930,7 @@ struct ControlCenterView: View {
 
     private func connectivityCard(_ id: QuickToggleID) -> some View {
         let on = engine.states[id] ?? false
-        return card(active: on, padding: 0) {
+        return card(active: on, padding: 0, label: id.title) {
             ZStack(alignment: .topTrailing) {
                 Button { engine.perform(id) } label: {
                     VStack(alignment: .leading, spacing: 6) {
@@ -928,7 +996,7 @@ struct ControlCenterView: View {
     private var nowPlayingCard: some View {
         let state = nowPlaying.state
         let hasTrack = state.title != nil
-        return card(padding: 9) {
+        return card(padding: 9, label: Text("Now Playing")) {
             VStack(spacing: 6) {
                 HStack(spacing: 9) {
                     artwork(state)
@@ -1095,6 +1163,8 @@ struct ControlCenterView: View {
         .opacity(gone ? 0.35 : 1)
         .disabled(gone)
         .animation(.spring(response: 0.28, dampingFraction: 0.78), value: on)
+        // A switch has to say whether it is on, not just look different.
+        .accessibilityValue(Text(on ? "On" : "Off"))
         .accessibilityAddTraits(on ? .isSelected : [])
         .contextMenu {
             if id == .vpn {
@@ -1120,7 +1190,7 @@ struct ControlCenterView: View {
         VStack(spacing: 6) {
             volumeRow
             if let brightness {
-                sliderRow(icon: "sun.max.fill",
+                sliderRow(icon: "sun.max.fill", label: Text("Brightness"),
                           value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
             }
             if let keyLight {
@@ -1133,6 +1203,7 @@ struct ControlCenterView: View {
     private var volumeRow: some View {
         let volume = status.status.volume
         return sliderRow(icon: volume.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill",
+                         label: Text("Volume"),
                          value: Binding(get: { Double(volume.level) }, set: { _ = status.setVolume(Float($0)) }))
             // Scrolling anywhere on the row nudges the volume. The catcher claims wheel events only, so the
             // slider underneath keeps its drag and clicks.
@@ -1180,13 +1251,13 @@ struct ControlCenterView: View {
         }
     }
 
-    private func sliderRow(icon: String, value: Binding<Double>) -> some View {
+    private func sliderRow(icon: String, label: Text? = nil, value: Binding<Double>) -> some View {
         if isPad { return AnyView(padSliderRow(icon: icon, value: value)) }
-        return AnyView(sliderRowClassic(icon: icon, value: value))
+        return AnyView(sliderRowClassic(icon: icon, label: label, value: value))
     }
 
-    private func sliderRowClassic(icon: String, value: Binding<Double>) -> some View {
-        card(padding: 8) {
+    private func sliderRowClassic(icon: String, label: Text? = nil, value: Binding<Double>) -> some View {
+        card(padding: 8, label: label) {
             HStack(spacing: 9) {
                 Image(systemName: icon)
                     .font(.system(size: 12))
@@ -1286,6 +1357,8 @@ private struct ControlCenterNetworkRow: View {
         HStack(spacing: 8) {
             Image(systemName: "arrow.down.up").font(.system(size: 12, weight: .medium)).frame(width: 18)
             Text("Network").font(.system(size: 12, weight: .semibold))
+                // The card's own group label already says this.
+                .accessibilityHidden(true)
             Spacer(minLength: 0)
             Image(systemName: "arrow.down").font(.system(size: 10, weight: .bold)).foregroundStyle(.secondary)
             Text(verbatim: SystemMonitorFormat.bytes(snapshot.down) + "/s").font(.system(size: 11.5)).monospacedDigit()
@@ -2774,5 +2847,39 @@ private struct HubPlateShape: Shape {
                            control: CGPoint(x: cx + half * 0.5, y: rect.minY + caretHeight * 0.12))
         caret.closeSubpath()
         return Path(body.union(caret))
+    }
+}
+
+// MARK: - Control Centre cards: VoiceOver grouping and edit-mode drag
+
+/// `CC-4`/VoiceOver: a card is one named group whose controls stay individually reachable. The label
+/// is optional so a card without a name is still a group, just an unnamed one.
+private struct ControlCenterCardLabel: ViewModifier {
+    let label: Text?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let label {
+            content.accessibilityLabel(label)
+        } else {
+            content
+        }
+    }
+}
+
+/// `CC-4`: a drop lands the dragged card in front of the card it was released on. The item provider is
+/// never read — the drag source lives in this panel, so `dragging` already carries the identity.
+private struct ControlCenterDropDelegate: DropDelegate {
+    let target: ControlCenterTileID
+    @Binding var dragging: ControlCenterTileID?
+    let move: (ControlCenterTileID, ControlCenterTileID) -> Void
+
+    func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: .move) }
+
+    func performDrop(info: DropInfo) -> Bool {
+        guard let dragging else { return false }
+        move(dragging, target)
+        self.dragging = nil
+        return true
     }
 }
