@@ -179,7 +179,7 @@ Output (exit 0):
   ✅ Settings gear  accessibility label present
   ✅ Storage        click 110,526 renders 'Developer & Cache', 'used'
   ✅ Downloads      click 110,388 renders 'URL RESOLVER', 'IN-FLIGHT TRANSFERS', 'TORRENT HUB'
-  ✅ collapse      click outside closed the deck
+  ✅ collapse      chevron 109,1000 removed the deck from windows and AX tree
   ✅ Settings      1080x700 — Side Deck pane is listed
 ```
 
@@ -189,14 +189,19 @@ not an `AXPress`; the panel then appeared at the configured 400 pt width, full h
 clicks at the positions AX reports, and the assertion is the pane text that appears afterwards, so a
 rail that stopped swapping panes would fail even though the window still opened.
 
-Two behaviours the render promised do not exist in this build. They are recorded rather than assumed:
+The rail's foot now carries the SD-1 chevron. It is a `SideDeckRailButton` — the same glyph size,
+36 x 36 pt frame, 10 pt spacing and filled-plate treatment as every rail item — with
+`chevron.left`/`chevron.right` chosen away from the docked edge, `Text("Collapse")` as its accessible
+name, and `controller.close()` as its action: the *same* close path the panel's click-away monitor
+uses, so there is one collapse mechanism, not a second one.
 
-- **There is no chevron control.** The rail's foot is the **Pin Strip Open** toggle; no view in
-  `WindowDrawerController` draws a collapse chevron. Collapse ships as a click outside the panel (its
-  global click monitor), which the check drives and asserts.
-- **Escape is inert.** `DrawerPanel.cancelOperation` exists, but the panel is a `nonactivatingPanel` in
-  an accessory app and never holds key focus. A synthetic Escape posted to the app's own event queue
-  left the panel open, with the process confirmed alive before and after.
+The chevron sits below the **Pin Strip Open** toggle, and the gear stays at the identity strip's foot.
+The two foot controls do not conflict — Pin holds the deck open, the chevron dismisses it — so the Pin
+control SD-1 still needs was kept rather than deleted to make room.
+
+**Escape is still inert.** `DrawerPanel.cancelOperation` exists, but the panel is a
+`nonactivatingPanel` in an accessory app and never holds key focus. A synthetic Escape posted to the
+app's own event queue left the panel open, with the process confirmed alive before and after.
 
 ## Defect found and fixed — the deck's Settings gear
 
@@ -225,7 +230,7 @@ below is a command's exit code or an accessibility read, not an inference.
 
 | Gate | Command | Result |
 | --- | --- | --- |
-| Ten suites | Settings, SideDeck config + logic, DevCacheCatalog, DevCacheSnapshot, DeckGeometry, ControlCenterLayout, ControlCenterReadability, NotificationDigest, DownloadEnginePolicy | **80 passed, 0 failed**, exit 0 (`/tmp/sidedeck-gate/xcodebuild-after-fix.log`) |
+| Ten suites | Settings, SideDeck config + logic, DevCacheCatalog, DevCacheSnapshot, DeckGeometry, ControlCenterLayout, ControlCenterReadability, NotificationDigest, DownloadEnginePolicy | **80 passed, 0 failed**, exit 0 (`/tmp/sidedeck-gate/xcodebuild-chevron.log`, this turn's build) |
 | Localization | `python3 Scripts/check_localization.py` | exit 0 — 2 630 keys × 12 locales, no orphans |
 | Debug switches | `python3 Scripts/check_debug_switches.py` | exit 0 — 94 registered |
 | Input hygiene | `python3 Scripts/check_input_hygiene.py` | exit 0 |
@@ -243,12 +248,12 @@ This was a gate defect, not a pane defect — no app source changed for it.
 
 ## Open / limitations
 
-- **No chevron control exists in the deck.** The render's bottom chevron never shipped; the rail's foot
-  is the **Pin Strip Open** toggle. Collapse is a click outside the panel, which the deck live-check
-  drives and asserts.
-- **Escape does not close the deck.** The panel is a `nonactivatingPanel` in an accessory app, so it
-  never holds key focus and `cancelOperation` never fires; an Escape posted to the app's own event
-  queue left it open with the process confirmed alive. A behaviour gap, named rather than glossed.
+- **Escape does not close the deck.** The chevron and click-away both collapse it, but the panel is a
+  `nonactivatingPanel` in an accessory app, so it never holds key focus and `cancelOperation` never
+  fires; an Escape posted to the app's own event queue left it open with the process confirmed alive.
+- **The chevron collapses, it does not animate a fold.** It calls `close()`, the same dismissal
+  click-away uses, so the panel disappears rather than sliding into the rail; the render's fold motion
+  is not implemented.
 - **The identity strip is off by default**, so its gear exists only with
   `com.katikati.sidedeck.prefs.v1.identityStrip = true`. The deck live-check saves, enables and
   restores that value and `edgeActivation` around its run; the user's own values were `0` and were put

@@ -318,6 +318,8 @@ private struct WindowDrawerView: View {
     /// SD-1: the shell's entry animation (0.98 → 1 with a fade) and the optional identity strip.
     @State private var appeared = false
     @State private var identityStripEnabled = SideDeckConfig.stored().identityStrip
+    /// SD-1: which edge the deck is docked to, so the foot chevron can point away from it.
+    @State private var deckSide = SideDeckConfig.stored().side
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var searchFocused: Bool
 
@@ -684,6 +686,13 @@ private struct WindowDrawerView: View {
             .frame(width: 36, height: 36)
             .help(Text("Pin Strip Open"))
             .accessibilityLabel(Text("Pin Strip Open"))
+            // SD-1 (render 2): the bottom chevron folds the deck away. It goes through the same
+            // `close()` the panel's click-away monitor uses — one close path, not a second one — and
+            // points away from the docked edge. The gear stays at the identity strip's foot, and the
+            // Pin toggle keeps its place above the chevron: pinning holds the deck open, collapsing
+            // dismisses it, so the two do not compete.
+            SideDeckRailButton(symbol: deckSide == .left ? "chevron.left" : "chevron.right",
+                               title: Text("Collapse"), selected: false) { controller.close() }
         }
         .padding(8)
         // SD-1 (renders 2–3): the rail is its own capsule — 60 pt wide, 26 pt radius, an 8 pt inset and a soft

@@ -172,6 +172,8 @@ on the merged build showing `Reclaimable 3.33 GB` beside the page header's `3.33
 
 ---
 
+**Follow-up (unmerged, `docs/sidedeck-closeout`):** after this merge the closeout branch added the SD-1 rail-foot collapse chevron, fixed the identity strip gear to open Settings › Side Deck through `AppDelegate`, and re-drove the deck end to end with `Scripts/live_check_side_deck.py`; `SIDEDECK_RUNTIME_EVIDENCE.md` carries the observed output and the remaining gaps (Escape is inert; the chevron dismisses rather than folding).
+
 ## 8. Verification gates
 
 Per slice, inside `../KatiKati-sidedeck` with an isolated build cache:
@@ -203,11 +205,11 @@ Downloads, Storage, notch rest, Dock) with before/after shots.
 | Settings livecheck | done — 34/34 pages, exit 0, 34 screenshots (`/tmp/sidedeck-livecheck-shots4/`) |
 | Livecheck harness | fixed — the wait was 7 s against a page that `AppDelegate` presents after 3 s; the poll now runs to 20 s (`Scripts/live_check_settings_tabs.py`) |
 | ClearDisk card on a post-fix build | done — `Reclaimable 3.33 GB` = header `3.33 GB`; snapshot epoch unchanged across Dashboard revisits |
-| Deck click path (handle → rail panes → collapse → gear) | done — `Scripts/live_check_side_deck.py` exit 0 on this tree: 16/16 rail buttons, 5/5 page-dock tabs, the Storage and Downloads pane text, click-away collapse, and the gear opening Settings with **Side Deck** listed |
+| Deck click path (handle → rail panes → chevron collapse → gear) | done — `Scripts/live_check_side_deck.py` exit 0 on this tree: 16/16 rail buttons, 5/5 page-dock tabs, the Storage and Downloads pane text, the foot chevron removing the deck from the window list and the AX tree, and the gear opening Settings with **Side Deck** listed |
 | Gear → Settings | fixed — the gear sent `showSettingsWindow:`, which no responder in the app implements; it now calls `AppDelegate.openSettings(selecting: .sideDeck)` and carries an accessible name |
 | Deck livecheck | added — asserts the rendered rail, page dock and pane content, not a window size |
 | Deck idle on this tree | done — 0.00 % CPU over 60 s, 214.6 MB footprint (group 312.2 MB), measured with the app's Settings surface held open |
-| Chevron collapse | not shipped — the rail's foot is the **Pin Strip Open** toggle; collapse is a click outside the panel, which the livecheck drives |
+| Chevron collapse | done — a `SideDeckRailButton` with `chevron.left`/`chevron.right` at the rail's foot, below the Pin toggle, calling the same `close()` the click-away monitor uses; the livecheck clicks it and asserts the panel leaves the window list and the AX tree |
 | Escape collapse | not working — the `nonactivatingPanel` never holds key focus, so `cancelOperation` never fires; recorded in the runtime evidence |
 
 ### 8.1 Risk register

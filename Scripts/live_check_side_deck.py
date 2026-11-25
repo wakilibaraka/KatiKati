@@ -23,7 +23,7 @@ What it checks, in order:
   4. clicking the Storage rail button swaps the pane to Storage content;
   5. clicking the Downloads rail button swaps it to the downloads pane;
   6. clicking the identity strip's gear opens Settings;
-  7. a click outside the panel collapses it (the deck has no chevron control; Escape is inert).
+  7. the rail's foot chevron collapses the deck and removes it from the accessibility tree.
 
 Exit code: 0 every step passed; 1 a step failed; 2 a setup problem (app running, no .app, no AX trust).
 
@@ -386,21 +386,27 @@ def main() -> int:
                 if not ok:
                     failures.append(f'pane-{step}')
 
-            # Collapse: the deck closes on a click outside it (DrawerPanel's global click monitor).
-            # The render's bottom chevron was never implemented — the rail's foot is the Pin toggle —
-            # and Escape reaches nothing because the nonactivating panel never becomes key, so
-            # click-away is the collapse path this build actually ships.
-            run(str(binary), 'click', '900', '500')
-            closed = False
-            for _ in range(12):
-                time.sleep(0.4)
-                if deck_window(binary) is None:
-                    closed = True
-                    break
-            print('  ✅ collapse      click outside closed the deck' if closed
-                  else '  ❌ collapse      click outside left the deck open')
-            if not closed:
-                failures.append('collapse')
+            # Collapse: the rail's foot chevron, driven by a HID click at the position AX reports.
+            # It must remove the panel from both the window list and the accessibility tree — a panel
+            # that only moved off-screen would still be in the tree.
+            pid = app_pid(args.app) or pid
+            chevron = find_point(binary, pid, 'Collapse')
+            if chevron is None:
+                fail('collapse', 'the rail has no Collapse chevron in the accessibility tree')
+            else:
+                run(str(binary), 'click', str(chevron[0]), str(chevron[1]))
+                closed = False
+                for _ in range(12):
+                    time.sleep(0.4)
+                    tree = run(str(binary), 'tree', str(pid)).stdout
+                    if deck_window(binary) is None and 'desc=Collapse' not in tree:
+                        closed = True
+                        break
+                print(f'  {"✅" if closed else "❌"} collapse      chevron {chevron[0]},{chevron[1]} '
+                      + ('removed the deck from windows and AX tree' if closed
+                         else 'left the deck in the window list or the accessibility tree'))
+                if not closed:
+                    failures.append('collapse')
 
             # Re-open through the handle (leave first: the tracking area only fires on a new enter),
             # then the identity strip's gear must open Settings.
@@ -456,7 +462,7 @@ def main() -> int:
     if failures:
         print('❌ failed: ' + ', '.join(failures))
         return 1
-    print('✅ the deck opens from its handle, its rail swaps panes, the gear opens Settings, click-away collapses it')
+    print('✅ the deck opens from its handle, its rail swaps panes, the foot chevron collapses it, the gear opens Settings')
     return 0
 
 
