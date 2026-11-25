@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1795596701.6395276,
-    "seen": 1795596702.143175,
-    "ast_hash": "1ad018851dd4434c454b970d869cfc4b",
+    "mtime": 1795596834.1569428,
+    "seen": 1795597093.3763158,
+    "ast_hash": "5db49e41eda109cc22592033736c7a7d",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LauncherChip.swift": {
-    "mtime": 1795534615.1926708,
-    "seen": 1795534644.457195,
-    "ast_hash": "729ba118d0b3c579355975c409a26079",
+    "mtime": 1795596767.9473057,
+    "seen": 1795597093.3763971,
+    "ast_hash": "087f40ae5120e8f871bee65339a944db",
     "semantic_hash": ""
   },
   "App/Scenes/LauncherFABView.swift": {
@@ -1170,10 +1170,10 @@
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
-    "mtime": 1792090570.0142932,
-    "seen": 1795534644.45725,
-    "ast_hash": "254f2ae14aee9850bc126cd823ba1cd7",
-    "semantic_hash": "254f2ae14aee9850bc126cd823ba1cd7"
+    "mtime": 1795596859.0090284,
+    "seen": 1795597093.376462,
+    "ast_hash": "43fc1fe86f51edf64efb3326fa29bc45",
+    "semantic_hash": ""
   },
   "App/Scenes/ShelfGridPopupView.swift": {
     "mtime": 1795445322.1096163,
@@ -6882,9 +6882,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PopChip.swift": {
-    "mtime": 1795427815.6972044,
-    "seen": 1795534644.4572291,
-    "ast_hash": "e7fa91c3fd70dc5626fb191a0fa992fb",
+    "mtime": 1795596859.51805,
+    "seen": 1795597093.376438,
+    "ast_hash": "bf45642888124c1b5ef981161d3e70b0",
     "semantic_hash": ""
   },
   "App/Scenes/PopGridPopupView.swift": {
