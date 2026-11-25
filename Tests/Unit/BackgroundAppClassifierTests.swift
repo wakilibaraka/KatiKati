@@ -50,3 +50,62 @@ extension BackgroundAppClassifierTests {
         XCTAssertTrue(BackgroundAppClassifier.isBackground(helper, shown))
     }
 }
+
+// MARK: - Control Centre's Background Apps deck
+
+extension BackgroundAppClassifierTests {
+    private func item(_ id: String, _ name: String,
+                      _ policy: BackgroundAppClassifier.Policy = .regular,
+                      helper: Bool = false) -> BackgroundActivity.Item {
+        BackgroundActivity.Item(bundleID: id, name: name, policy: policy, isHelper: helper)
+    }
+
+    /// OS machinery must never read as the user's own activity: prohibited processes and Apple's
+    /// accessory agents are filtered; third-party menu-bar apps and regular apps survive.
+    func testBackgroundActivityDropsOSMachineryButKeepsUserApps() {
+        let machinery = [
+            item("com.apple.loginwindow", "loginwindow", .prohibited),
+            item("com.apple.WindowManager", "WindowManager", .accessory),
+            item("com.apple.MenuBarAgent", "MenuBarAgent", .accessory),
+            item("com.apple.Wallpaper", "Wallpaper", .accessory),
+        ]
+        for entry in machinery {
+            XCTAssertFalse(BackgroundActivity.belongs(entry), "\(entry.name) is OS machinery")
+        }
+        let apps = [
+            item("com.google.Chrome", "Google Chrome"),
+            item("com.apple.Notes", "Notes"),
+            item("com.raycast.macos", "Raycast", .accessory),
+        ]
+        for app in apps {
+            XCTAssertTrue(BackgroundActivity.belongs(app), "\(app.name) is a person's app")
+        }
+        XCTAssertFalse(BackgroundActivity.belongs(item("com.apple.finder", "Finder")), "Finder is the desktop, not background activity")
+        XCTAssertFalse(BackgroundActivity.belongs(item("com.x.worker", "Worker", .regular, helper: true)))
+        XCTAssertFalse(BackgroundActivity.belongs(item("com.google.Chrome.helper", "Google Chrome Helper (Aperitif)")))
+        XCTAssertFalse(BackgroundActivity.belongs(item("", "Nameless")))
+    }
+
+    /// The deck is a glance: filtered, alphabetical, capped, and never contains duplicates.
+    func testVisibleListIsFilteredSortedAndCapped() {
+        var input = (1...12).map { item("com.x.app\($0)", "App \(String(format: "%02d", $0))") }
+        input.append(item("com.apple.WindowManager", "WindowManager", .accessory))
+        input.append(item("com.x.helper", "Helper", .regular, helper: true))
+        let visible = BackgroundActivity.visible(input)
+        XCTAssertEqual(visible.count, 10)
+        XCTAssertEqual(visible.first?.name, "App 01")
+        XCTAssertEqual(visible.last?.name, "App 10")
+        XCTAssertFalse(visible.contains { $0.name == "WindowManager" })
+        XCTAssertEqual(Set(visible.map(\.bundleID)).count, visible.count)
+    }
+
+    /// Every row without a resolvable bundle still has a typographic mark to carry.
+    func testMonogramFallbackIsAlwaysLegible() {
+        XCTAssertEqual(BackgroundActivity.monogram(for: "Google Chrome", bundleID: "com.google.Chrome"), "GC")
+        XCTAssertEqual(BackgroundActivity.monogram(for: "YouTube Music", bundleID: "com.google.YouTubeMusic"), "YM")
+        XCTAssertEqual(BackgroundActivity.monogram(for: "Freebuff", bundleID: "com.freebuff.app"), "F")
+        XCTAssertEqual(BackgroundActivity.monogram(for: "menu-bar-app", bundleID: "com.x.menubar"), "MB")
+        XCTAssertEqual(BackgroundActivity.monogram(for: "", bundleID: "com.x.notes"), "N")
+        XCTAssertEqual(BackgroundActivity.monogram(for: "", bundleID: ""), "?")
+    }
+}

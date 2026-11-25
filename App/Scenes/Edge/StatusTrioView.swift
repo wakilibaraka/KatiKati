@@ -219,39 +219,82 @@ struct BackgroundActivityDeckView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    private var palette: SettingsIridescentPalette { .resolve(style: dockThemeStyle, colorScheme: colorScheme) }
     private var ink: Color { theme.labelActive.color }
     private var inkSoft: Color { theme.labelSubtitle.color }
 
-    private var ids: [String] {
-        Array(store.facts.filter { !store.ignored.contains($0.bundleID) }.map(\.bundleID).prefix(10))
+    /// What a person would call their own background activity: `BackgroundActivity` drops the OS
+    /// machinery and nested helpers, so this list never shows loginwindow or WindowManager.
+    private var items: [BackgroundActivity.Item] {
+        BackgroundActivity.visible(store.facts
+            .filter { !store.ignored.contains($0.bundleID) }
+            .map { BackgroundActivity.Item(
+                bundleID: $0.bundleID,
+                name: AppDisplayNameResolver.displayName(for: $0.bundleID),
+                policy: $0.policy,
+                isHelper: $0.isHelper) })
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "square.stack.3d.up.fill")
                     .font(.system(size: 12, weight: .semibold)).foregroundStyle(inkSoft)
                 Text("Background Apps").font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
-                Spacer()
+                Spacer(minLength: 6)
+                if !items.isEmpty { countBadge }
             }
-            if ids.isEmpty {
+            if items.isEmpty {
                 Text("None").font(.system(size: 11)).foregroundStyle(inkSoft)
             } else {
-                ForEach(ids, id: \.self) { id in
-                    HStack(spacing: 8) {
-                        Image(nsImage: AppIconResolver.icon(for: id)).resizable().frame(width: 24, height: 24)
-                        Text(verbatim: AppDisplayNameResolver.displayName(for: id))
-                            .font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink).lineLimit(1)
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
-                }
+                ForEach(items, id: \.bundleID) { item in row(item) }
             }
             Spacer(minLength: 0)
         }
         .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var countBadge: some View {
+        Text(verbatim: "\(items.count)")
+            .font(.system(size: 10, weight: .semibold)).monospacedDigit()
+            .foregroundStyle(inkSoft)
+            .padding(.horizontal, 7).padding(.vertical, 2)
+            .background(Capsule().fill(Color.primary.opacity(0.07)))
+    }
+
+    private func row(_ item: BackgroundActivity.Item) -> some View {
+        HStack(spacing: 10) {
+            iconTile(item)
+            Text(verbatim: item.name)
+                .font(.system(size: 12, weight: .medium)).foregroundStyle(ink).lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 9).padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color.primary.opacity(0.055)))
+    }
+
+    /// A real bundle icon when the app resolves one; otherwise a monogram in the panel's accent
+    /// gradient, so no row is ever a bare white placeholder.
+    @ViewBuilder
+    private func iconTile(_ item: BackgroundActivity.Item) -> some View {
+        let icon = NSWorkspace.shared.urlForApplication(withBundleIdentifier: item.bundleID)
+            .map { NSWorkspace.shared.icon(forFile: $0.path) }
+        if let icon, !icon.representations.isEmpty, !icon.isTemplate {
+            Image(nsImage: icon).resizable().interpolation(.high)
+                .frame(width: 26, height: 26)
+        } else {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LinearGradient(colors: [palette.primaryAccent.opacity(0.85),
+                                                  palette.secondaryAccent.opacity(0.75)],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                Text(verbatim: BackgroundActivity.monogram(for: item.name, bundleID: item.bundleID))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.white)
+            }
+            .frame(width: 26, height: 26)
+        }
     }
 }
 
