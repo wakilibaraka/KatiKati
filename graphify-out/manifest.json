@@ -1656,9 +1656,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1795595325.7413368,
-    "seen": 1795595419.573499,
-    "ast_hash": "19f898817f303e1a97f6789a5d0fd205",
+    "mtime": 1795595765.5920885,
+    "seen": 1795595814.084515,
+    "ast_hash": "e520ec4c409a32302ce86fc5d0854d0b",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
@@ -8340,9 +8340,9 @@
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/README.md": {
-    "mtime": 1795595280.9288318,
-    "seen": 1795595307.1173482,
-    "ast_hash": "2594aec7859350e60e872ac4f42553a1",
+    "mtime": 1795595794.6410968,
+    "seen": 1795595814.085147,
+    "ast_hash": "aab7247ca53a1bb0f99d0648b1140aed",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/01-prompt.png": {
@@ -8397,6 +8397,18 @@
     "mtime": 1795595247.319051,
     "seen": 1795595307.117486,
     "ast_hash": "d641af105c3b5d0544997896047f388a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/10-head-menubar-cc.png": {
+    "mtime": 1795595761.8574843,
+    "seen": 1795595814.085276,
+    "ast_hash": "c595d75db6eb454968ed507a1eac992c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-livecheck/11-head-background-apps.png": {
+    "mtime": 1795595764.547168,
+    "seen": 1795595814.0852768,
+    "ast_hash": "d648beb8be4f9eb1f30c853659f6bae9",
     "semantic_hash": ""
   }
 }
