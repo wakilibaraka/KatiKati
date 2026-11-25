@@ -5,14 +5,9 @@
 # full unit-test suite. No signing, no notarization, no artifacts - release packaging is
 # Scripts/package_release.sh on the maintainer's machine (Docs/29).
 #
-# Runner: xcode-27 (arm64, macOS 27 + Xcode 27 SDK). The code names macOS 27 AppKit
-# symbols (NSScreen.touchCapabilities, NSEvent.isTouchSwipeNavigationEnabled) inside
-# #available(macOS 27.0, *) — a runtime guard, not an SDK one — so the macOS 26 SDK's
-# Xcode 26 cannot even parse the file. The Xcode-27 image is arm64 only; that is fine
-# for a project whose only supported OS is Apple silicon.
-#
-# (Historically macos-26/Xcode 26: it could not compile the island port, which is what
-# kept CI red until 2026-11-25.)
+# Runner: macos-26 (arm64). The code targets the macOS 26 SDK (Liquid Glass path uses
+# NSGlassEffectView behind #available(macOS 26.0, *)), so the macos-15 image's Xcode 16
+# cannot compile it.
 name: CI
 
 on:
@@ -28,13 +23,17 @@ concurrency:
 jobs:
   test:
     name: Localization check + unit tests
-    runs-on: xcode-27
+    runs-on: macos-26
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show toolchain
-        run: xcodebuild -version
+      - name: Select newest Xcode 26
+        run: |
+          XCODE="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -n 1)"
+          echo "Using $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
 
       - name: Localization catalog check
         run: python3 Scripts/check_localization.py
