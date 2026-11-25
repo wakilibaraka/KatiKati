@@ -38,7 +38,8 @@ enum DownloadSegmentPlanner {
             )
         }
         let maximumSegments = max(1, length / max(1, minimumSegmentBytes))
-        let count = min(segmentCount, Int(maximumSegments), 16)
+        // SD-4: the engine's ceiling is 32 connections (DownloadEnginePolicy), not the old 16.
+        let count = min(max(1, segmentCount), Int(maximumSegments), DownloadEnginePolicy.connectionsRange.upperBound)
         guard count > 1 else {
             return DownloadSegmentPlan(segments: [DownloadSegment(index: 0, start: 0, end: length - 1)], isMultiSegment: false)
         }

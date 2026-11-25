@@ -356,7 +356,9 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             if let idx = self.items.firstIndex(where: { $0.id == id }) {
                 self.items[idx].totalBytes = length ?? 0
             }
-            let plan = DownloadSegmentPlanner.plan(contentLength: length, acceptRanges: acceptsRanges)
+            let policy = DownloadEnginePolicy.stored()
+            let plan = DownloadSegmentPlanner.plan(contentLength: length, acceptRanges: acceptsRanges,
+                                                   segmentCount: policy.segmentCount(forContentLength: length))
             if plan.isMultiSegment {
                 self.startSegmentTasks(id: id, url: url, destination: destination, plan: plan)
             } else {
@@ -373,7 +375,9 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     private func startSegmentTasks(id: UUID, url: URL, destination: URL, plan: DownloadSegmentPlan) {
         segmentPlans[id] = plan
-        let completed = segmentResumeCompleted[id] ?? [:]
+        // SD-4: fall back to the on-disk record so a transfer paused in an earlier launch resumes from its
+        // recorded offsets instead of starting the whole range again.
+        let completed = segmentResumeCompleted[id] ?? DownloadResumeRecord.read(id: id)?.completed ?? [:]
         for segment in plan.segments where (completed[segment.index] ?? 0) < segment.length {
             var request = URLRequest(url: url)
             request.setValue(segment.rangeHeader, forHTTPHeaderField: "Range")
@@ -423,6 +427,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
             segmentPlans.removeValue(forKey: id)
             segmentFiles.removeValue(forKey: id)
             segmentResumeCompleted.removeValue(forKey: id)
+            DownloadResumeRecord.remove(id: id)
             reconcileTicker()
         } catch {
             try? FileManager.default.removeItem(at: part)
@@ -651,6 +656,14 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                         var completed = self.segmentResumeCompleted[owner.id] ?? [:]
                         completed[segmentIndex] = Int64(size)
                         self.segmentResumeCompleted[owner.id] = completed
+                        // SD-4: persist what is already on disk, so a quit or a crash keeps the progress.
+                        if let item = self.items.first(where: { $0.id == owner.id }) {
+                            DownloadResumeRecord(source: item.sourceURL ?? "",
+                                                 destination: item.destinationURL?.path ?? "",
+                                                 totalBytes: plan!.totalBytes,
+                                                 isMultiSegment: plan!.isMultiSegment,
+                                                 completed: completed).write(id: owner.id)
+                        }
                     }
                 }
                 self.segmentTasks.removeValue(forKey: downloadTask)
