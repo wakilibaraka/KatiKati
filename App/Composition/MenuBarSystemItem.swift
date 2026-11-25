@@ -577,6 +577,16 @@ final class MenuBarHubPanelController {
     var onOpenSettings: () -> Void = {}
     var themeStyle: () -> DockThemeStyle = { .auto }
     var themeTuning: () -> ThemeTuning = { .identity }
+    /// The hosted Control Centre is the same panel as the deck's: same stored toggles and widget
+    /// tiles, so moving the home never changes which switches a person sees.
+    var toggleOrder: () -> [QuickToggleID] = { QuickToggleID.defaultOrder }
+    var widgets: () -> [TileKind] = { TileKind.controlCenterDefault }
+    /// The footer row is part of that panel, so its four buttons drive the same actions instead of
+    /// being drawn and doing nothing.
+    var onLauncher: () -> Void = {}
+    var onCapture: () -> Void = {}
+    var onDrawer: () -> Void = {}
+    var onQuit: () -> Void = {}
     var isShown: Bool { panel?.isVisible ?? false }
 
     func toggle(relativeTo button: NSStatusBarButton) { isShown ? hide() : show(relativeTo: button) }
@@ -608,10 +618,14 @@ final class MenuBarHubPanelController {
         let root: AnyView = hostResolution.menuBarShowsControlCentre
             ? AnyView(ControlCenterView(
                 engine: .shared,
-                order: QuickToggleID.defaultOrder,
-                widgetTiles: TileKind.controlCenterDefault,
+                order: toggleOrder(),
+                widgetTiles: widgets().filter(TileKind.controlCenterDefault.contains),
                 style: ControlCenterStyle.parse(UserDefaults.standard.string(forKey: ControlCenterStyle.storageKey)),
-                onSettings: { [weak self] in self?.hide(); self?.onOpenSettings() })
+                onSettings: { [weak self] in self?.hide(); self?.onOpenSettings() },
+                onLauncher: onLauncher,
+                onCapture: onCapture,
+                onDrawer: onDrawer,
+                onQuit: onQuit)
                 .frame(width: size.width, height: size.height)
                 // The edge deck supplies this plate itself; the menu-bar panel has no plate, so
                 // without it the packed cards sit on bare desktop and turn illegible.

@@ -104,6 +104,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hub.themeStyle = { [weak self] in self?.settingsStore.themeMaterial ?? .auto }
         hub.themeTuning = { [weak self] in self?.settingsStore.themeTuning ?? .identity }
         hub.onOpenSettings = { [weak self] in self?.openSettings(selecting: .menuBar) }
+        // The hosted Control Centre reads the same stored toggles and tiles as the edge deck, so the
+        // two homes are one panel rather than two that drift apart.
+        hub.toggleOrder = { [weak self] in self?.settingsStore.controlCenterToggles ?? QuickToggleID.defaultOrder }
+        hub.widgets = { [weak self] in
+            (self?.settingsStore.controlCenterWidgets ?? TileKind.controlCenterDefault)
+                .filter(TileKind.controlCenterDefault.contains)
+        }
+        // Its footer buttons drive the same destinations the deck's do; the hub closes first so the
+        // menu panel never sits on top of the thing it just opened.
+        hub.onLauncher = { [weak self] in self?.menuBarHubPanel.hide(); self?.launcherPanel.toggle() }
+        hub.onCapture = { [weak self] in self?.menuBarHubPanel.hide(); ScreenshotCommand.run() }
+        hub.onDrawer = { [weak self] in self?.menuBarHubPanel.hide(); self?.panelCoordinator?.toggleDrawer() }
+        hub.onQuit = { NSApp.terminate(nil) }
         hub.onWillShow = { [weak self] in
             self?.controlCenterPanel.hide()
             self?.launcherPanel.dismiss()
