@@ -885,6 +885,8 @@ extension View {
 struct SideDeckStorageView: View {
     @ObservedObject private var scanner = StorageScanService.shared
     @ObservedObject private var cleaner = CleanerService.shared
+    /// SD-3b: the notch Storage page's "Scan App Leftovers" result, kept alive here now that the page is gone.
+    @State private var leftoverCandidates: [CleanupCandidate] = []
 
     var body: some View {
         ScrollView {
@@ -893,7 +895,7 @@ struct SideDeckStorageView: View {
                 categoryBreakdown
                 HStack(alignment: .top, spacing: 8) {
                     itemColumn(title: "Large Files", items: scanner.files)
-                    itemColumn(title: "Developer & Caches", items: scanner.dev)
+                    itemColumn(title: String(localized: "Developer & Cache"), items: scanner.dev)
                 }
                 actions
             }
@@ -951,8 +953,14 @@ struct SideDeckStorageView: View {
     private func itemColumn(title: String, items: [StorageItem]) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 11, weight: .semibold))
-            if scanner.state == .scanning, items.isEmpty {
-                ProgressView().controlSize(.small)
+            // The notch page's two empty states, carried over so a finished scan that found nothing says so
+            // instead of leaving a blank column. Both strings were already catalogued.
+            if items.isEmpty {
+                if scanner.state == .scanning {
+                    Text("Scanning…").font(.system(size: 9)).foregroundStyle(.secondary)
+                } else {
+                    Text("Nothing Large Found").font(.system(size: 9)).foregroundStyle(.secondary)
+                }
             }
             ForEach(items.prefix(5)) { item in
                 Button {
@@ -968,14 +976,46 @@ struct SideDeckStorageView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
+                .contextMenu { rowMenu(for: item) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    /// SD-3b: the row menu the notch's Storage page carried — reveal, copy the path, or move the item to the
+    /// Trash (never an unlink, so every mistake is recoverable from the Trash).
+    @ViewBuilder
+    private func rowMenu(for item: StorageItem) -> some View {
+        Button(String(localized: "Reveal")) {
+            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: item.path)])
+        }
+        Button(String(localized: "Copy Path")) {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(item.path, forType: .string)
+        }
+        Button(String(localized: "Move to Trash"), role: .destructive) {
+            do {
+                try FileManager.default.trashItem(at: URL(fileURLWithPath: item.path), resultingItemURL: nil)
+            } catch {
+                let alert = NSAlert()
+                alert.messageText = String(localized: "Move to Trash is unavailable on this volume.")
+                alert.informativeText = error.localizedDescription
+                alert.addButton(withTitle: String(localized: "OK"))
+                alert.runModal()
+            }
+        }
+    }
+
     private var actions: some View {
-        HStack {
-            Button("Review Caches") { reviewCaches() }.buttonStyle(.borderless)
+        HStack(spacing: 10) {
+            Button("Review Caches") { reviewCachesTapped() }.buttonStyle(.borderless)
+            Button {
+                scanLeftovers()
+            } label: {
+                cleaner.isScanningLeftovers ? Text("Scanning…") : Text("Scan App Leftovers")
+            }
+            .buttonStyle(.borderless)
+            .disabled(cleaner.isScanningLeftovers)
             Spacer(minLength: 0)
             if !scanner.hasFullDiskAccess {
                 Button("Allow Full Disk Access") {
@@ -984,23 +1024,96 @@ struct SideDeckStorageView: View {
                     }
                 }
                 .buttonStyle(.borderless)
+                .help(Text("Allow Full Disk Access for the Whole Disk"))
             }
         }
         .font(.system(size: 10, weight: .semibold))
     }
 
-    private func reviewCaches() {
+    /// SD-3b: ported from the notch Storage page, which owned the only confirmation that told the owner how
+    /// many cache folders it found, how much they weigh, and what actually happened afterwards.
+    private func reviewCachesTapped() {
         cleaner.scan {
             let candidates = cleaner.candidates
-            guard !candidates.isEmpty else { return }
+            guard !candidates.isEmpty else {
+                let empty = NSAlert()
+                empty.messageText = String(localized: "Nothing to Clean")
+                empty.informativeText = String(localized: "No cache folder older than a week and larger than 50 MB was found.")
+                NSApp.activate(ignoringOtherApps: true)
+                empty.runModal()
+                return
+            }
+            let total = ByteCountFormatter.string(fromByteCount: CleanupPlan.totalBytes(candidates), countStyle: .file)
+            let preview = candidates.prefix(8).map { candidate in
+                "• \(candidate.name) — \(ByteCountFormatter.string(fromByteCount: candidate.bytes, countStyle: .file))"
+            }.joined(separator: "\n")
             let alert = NSAlert()
             alert.messageText = String(localized: "Move Caches to the Trash?")
-            alert.informativeText = "\(candidates.count) items, \(ByteCountFormatter.string(fromByteCount: CleanupPlan.totalBytes(candidates), countStyle: .file))."
+            alert.informativeText = String(format: String(localized: "%d items, %@. They are moved to the Trash, so you can put them back; apps rebuild them as needed.\n\n%@"),
+                                           candidates.count, total, preview)
+            alert.alertStyle = .warning
             alert.addButton(withTitle: String(localized: "Move to Trash"))
             alert.addButton(withTitle: String(localized: "Cancel"))
+            NSApp.activate(ignoringOtherApps: true)
             guard alert.runModal() == .alertFirstButtonReturn else { return }
-            _ = cleaner.clean(candidates)
+            let outcome = cleaner.clean(candidates)
+            let done = NSAlert()
+            done.messageText = String(localized: "Caches Moved to the Trash")
+            let moved = String(format: String(localized: "%d items, %@."), outcome.moved,
+                               ByteCountFormatter.string(fromByteCount: outcome.bytes, countStyle: .file))
+            let failed = outcome.failed > 0
+                ? " " + String(format: String(localized: "%d could not be moved."), outcome.failed)
+                : ""
+            done.informativeText = moved + failed
+            NSApp.activate(ignoringOtherApps: true)
+            done.runModal()
         }
+    }
+
+    /// SD-3b: the notch page's app-leftover scan, same picker, same Trash-first confirmation.
+    private func scanLeftovers() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.application]
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.message = String(localized: "Scan App Leftovers")
+        NSApp.activate(ignoringOtherApps: true)
+        guard panel.runModal() == .OK, let appURL = panel.url else { return }
+        cleaner.scanLeftovers(forAppAt: appURL) {
+            leftoverCandidates = cleaner.leftoverCandidates
+            showLeftoverReview()
+        }
+    }
+
+    private func showLeftoverReview() {
+        guard !leftoverCandidates.isEmpty else {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "No Apps Found")
+            alert.informativeText = String(localized: "Nothing to Clean")
+            alert.addButton(withTitle: String(localized: "OK"))
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+            return
+        }
+        let preview = leftoverCandidates.prefix(8).map {
+            "• \($0.name) — \(ByteCountFormatter.string(fromByteCount: $0.bytes, countStyle: .file))"
+        }.joined(separator: "\n")
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Move to Trash?")
+        alert.informativeText = String(format: String(localized: "Scanned %d potential leftover locations in ~/Library.\n\n%@"),
+                                       leftoverCandidates.count, preview)
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String(localized: "Move to Trash"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        let outcome = cleaner.clean(leftoverCandidates)
+        let done = NSAlert()
+        done.messageText = String(localized: "Move to Trash")
+        done.informativeText = "\(outcome.moved) moved, \(outcome.failed) failed."
+        done.addButton(withTitle: String(localized: "OK"))
+        done.runModal()
     }
 }
 

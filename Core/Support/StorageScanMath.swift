@@ -1,6 +1,6 @@
 import Foundation
 
-/// Pure logic for the notch Storage page (largest items on the Mac). The platform scanner feeds sizes in;
+/// Pure logic for the Side Deck's Storage page (largest items on the Mac). The platform scanner feeds sizes in;
 /// ranking, shares and the "which roots to walk" rule live here so they are testable without a disk.
 struct StorageItem: Equatable, Identifiable, Sendable {
     var path: String
