@@ -563,6 +563,7 @@
 		F2000000000000000000A041 /* MediaResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A040 /* MediaResolverTests.swift */; };
 		F2000000000000000000A051 /* MediaResolveServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000A050 /* MediaResolveServiceTests.swift */; };
 		F3000000000000000000B041 /* DictionaryDeckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3000000000000000000B040 /* DictionaryDeckTests.swift */; };
+		F3000000000000000000B021 /* SideDeckDictionaryPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3000000000000000000B020 /* SideDeckDictionaryPane.swift */; };
 		F1000000000000000000F041 /* SideDeckConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F040 /* SideDeckConfigTests.swift */; };
 		FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000101 /* NotchProductivityPageView.swift */; };
 		FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
@@ -1886,6 +1887,7 @@
 		F2000000000000000000A050 /* MediaResolveServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaResolveServiceTests.swift; path = Tests/Unit/MediaResolveServiceTests.swift; sourceTree = SOURCE_ROOT; };
 		F3000000000000000000B010 /* DictionaryDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryDeck.swift; path = Core/Support/DictionaryDeck.swift; sourceTree = SOURCE_ROOT; };
 		F3000000000000000000B040 /* DictionaryDeckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DictionaryDeckTests.swift; path = Tests/Unit/DictionaryDeckTests.swift; sourceTree = SOURCE_ROOT; };
+		F3000000000000000000B020 /* SideDeckDictionaryPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckDictionaryPane.swift; path = App/Scenes/Edge/SideDeckDictionaryPane.swift; sourceTree = SOURCE_ROOT; };
 		DE000000000000000000E050 /* DownloadEngineStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEngineStateTests.swift; path = Tests/Unit/DownloadEngineStateTests.swift; sourceTree = SOURCE_ROOT; };
 		F1000000000000000000F010 /* SideDeckConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckConfig.swift; path = Core/Support/SideDeckConfig.swift; sourceTree = SOURCE_ROOT; };
 		F1000000000000000000F020 /* SideDeckHandleWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckHandleWindow.swift; path = App/Scenes/Edge/SideDeckHandleWindow.swift; sourceTree = SOURCE_ROOT; };
@@ -4013,6 +4015,7 @@
 				F2000000000000000000A011 /* MediaResolver.swift in Sources */,
 				F2000000000000000000A021 /* MediaResolveService.swift in Sources */,
 				F3000000000000000000B011 /* DictionaryDeck.swift in Sources */,
+				F3000000000000000000B021 /* SideDeckDictionaryPane.swift in Sources */,
 				F1000000000000000000F011 /* SideDeckConfig.swift in Sources */,
 				F1000000000000000000F021 /* SideDeckHandleWindow.swift in Sources */,
 				5D000000000000000000A021 /* StorageScanService.swift in Sources */,
