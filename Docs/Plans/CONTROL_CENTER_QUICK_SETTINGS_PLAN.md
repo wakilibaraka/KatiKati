@@ -138,6 +138,11 @@ gets a different job instead of duplicating it.
   `ControlCenterHosting` exposes `menuBarShowsControlCentre`, `standaloneShowsBackgroundActivity` and
   `isExclusive` (`menuBarShowsControlCentre != standaloneShowsControlCentre`), pinned by
   `testHostResolvesExactlyOneSurfacePerMode` for every case, so the Hub and the dropdown can never stack.
+- **One panel, two homes.** `MenuBarHubPanelController` draws the same `ControlCenterView` from the
+  owner's stored state: toggle order (`settingsStore.controlCenterToggles`), widget tiles
+  (`controlCenterWidgets`, filtered to the Control Centre set) and the same footer actions the edge
+  deck passes (Launcher, Capture, Drawer, Quit). Moving the home cannot change which switches a
+  person sees, and no footer button is drawn dead.
 - **The panel becomes Background Apps, and says so once.** `ControlCenterEdgeRole.implied(by:hasBeenTold:)`
   returns `needsPrompt` only when the deck takes the `backgroundActivity` role and the owner has not been
   told (`com.katikati.controlcenter.menuBarRolePromptSeen`). Settings › Control Center › **Home** shows the
@@ -193,13 +198,16 @@ Plan CC-1..CC-5 exactly as written in Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_P
 ## 7. Verification record
 
 Run on the installed `/Applications/KatiKati.app`, 0.18.0 (54), built by `Scripts/install_local_release.sh`
-from this branch. Three evidence folders:
+from this branch. Four evidence folders:
 
 - `Docs/Archive/Planning/evidence/2026-11-25-cc-presets/` — menu-bar host, presets, ink crops, bench numbers.
 - `Docs/Archive/Planning/evidence/2026-11-25-cc-edge-pass/` — edge host: presets, drag → Custom, Reduce
   Motion, AX dumps. Its `README.md` carries the method, the raw numbers and the limits.
 - `Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/` — dock-anchored panel (`side=right`,
   `anchor=bottom`): presets, drag → Custom, Reduce Motion, AX dumps, plus the dock-strip door measurement.
+- `Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/` — the second menu-bar pass: the prompt,
+  Background Apps with its undo footer, the dropdown drawing the stored toggles and preset, its Launcher
+  button, the undo round trip, and the Hub returning at the status item.
 
 ### Verified here
 
@@ -234,6 +242,27 @@ from this branch. Three evidence folders:
   install enables AppKit automatic termination, and 0.32 % / 82.5 MB of the group is the existing
   `NowPlayingService` `swift-frontend` helper, not the panel. `powermetrics` rows are `n/a` (no passwordless
   sudo on this Mac).
+
+### Menu-bar parity pass
+
+A second pass over the shipped home choice closed the gaps between the two hosts and is recorded in
+`Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-parity/`:
+
+- **The dropdown draws the owner's layout.** `MenuBarHubPanelController` no longer builds
+  `ControlCenterView` from `QuickToggleID.defaultOrder` / `TileKind.controlCenterDefault`; it takes
+  `controlCenterToggles` and `controlCenterWidgets` from the store, filtered to what a menu-bar panel
+  can drive. Observed with `toggles=darkMode,nightShift` and `preset=bento`: the 360×792 dropdown drew
+  the bento cards and exactly those two toggles (`03`).
+- **Its footer acts.** Settings / Launcher / Capture / Drawer / Quit were no-op closures; they now close
+  the hub before opening the launcher or drawer, run the capture command and quit. Pressing **Launcher**
+  opened the apps grid (`04`).
+- **The way back stays on screen.** The *Creative Hub is paused…* note now rides on the **Home** row
+  instead of stacking above it, which had pushed the Edge / Menu Bar segments out of the fixed-height
+  detail pane in a menu-bar home.
+- **Undo round trip re-checked on this build.** **Use Edge Instead** in the Background Apps footer wrote
+  `surface=edge` and the same panel returned as the bento Control Centre with the same two toggles
+  (`05`); with the edge home restored the status item opened the Creative Hub again (`08`). Classic and
+  modular remain visually distinct (`06`, `07`).
 
 ### Dock-anchored pass
 
