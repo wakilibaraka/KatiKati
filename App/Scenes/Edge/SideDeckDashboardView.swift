@@ -72,7 +72,9 @@ struct SideDeckDashboardView: View {
 
     private var clearDiskCard: some View {
         card(title: "Storage", symbol: SideDeckTab.storage.symbol) {
-            Text(verbatim: DownloadItem.formatBytes(freeBytes))
+            // SD-7: the ClearDisk card and the Storage page must state the same number for the same bytes,
+            // so both figures here use the page's formatter (`SystemMonitorFormat.bytes`, 1000-based).
+            Text(verbatim: SystemMonitorFormat.bytes(Double(freeBytes)))
                 .font(.system(size: 26, weight: .semibold, design: .rounded))
             if let reclaimableBytes {
                 HStack(spacing: 5) {
@@ -81,7 +83,7 @@ struct SideDeckDashboardView: View {
                     Text("Reclaimable")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
                     Spacer(minLength: 0)
-                    Text(verbatim: DownloadItem.formatBytes(reclaimableBytes))
+                    Text(verbatim: SystemMonitorFormat.bytes(Double(reclaimableBytes)))
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(.secondary)
