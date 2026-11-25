@@ -70,9 +70,11 @@ struct DownloadStallDetector: Sendable {
     /// sample, so its recent rate is 0 rather than "unknown" — which is exactly what a stall looks like.
     func recentRate(now: Date = Date()) -> Double? {
         guard let newest = samples.last else { return nil }
+        // A whole window with nothing recorded is the stall this exists to catch: the rate is 0, not unknown.
+        if now.timeIntervalSince(newest.at) >= window { return 0 }
         let cutoff = now.addingTimeInterval(-window)
-        let baseline = samples.last { $0.at <= cutoff } ?? newest
-        let span = now.timeIntervalSince(baseline.at)
+        let baseline = samples.last { $0.at <= cutoff } ?? samples[0]
+        let span = newest.at.timeIntervalSince(baseline.at)
         guard span > 0 else { return nil }
         return Double(max(0, newest.bytes - baseline.bytes)) / span
     }

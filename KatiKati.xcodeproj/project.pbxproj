@@ -537,6 +537,8 @@
 		5D000000000000000000A011 /* StorageScanMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A010 /* StorageScanMath.swift */; };
 		DC000000000000000000C011 /* DevCacheCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C010 /* DevCacheCatalog.swift */; };
 		DE000000000000000000E011 /* DownloadEnginePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E010 /* DownloadEnginePolicy.swift */; };
+		DE000000000000000000E021 /* DownloadEngineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E020 /* DownloadEngineState.swift */; };
+		DE000000000000000000E022 /* DownloadEngineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E020 /* DownloadEngineState.swift */; };
 		F1000000000000000000F011 /* SideDeckConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F010 /* SideDeckConfig.swift */; };
 		F1000000000000000000F021 /* SideDeckHandleWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F020 /* SideDeckHandleWindow.swift */; };
 		F1000000000000000000F012 /* SideDeckConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F010 /* SideDeckConfig.swift */; };
@@ -552,6 +554,7 @@
 		5D000000000000000000A041 /* StorageScanMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D000000000000000000A040 /* StorageScanMathTests.swift */; };
 		DC000000000000000000C041 /* DevCacheCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC000000000000000000C040 /* DevCacheCatalogTests.swift */; };
 		DE000000000000000000E041 /* DownloadEnginePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E040 /* DownloadEnginePolicyTests.swift */; };
+		DE000000000000000000E051 /* DownloadEngineStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE000000000000000000E050 /* DownloadEngineStateTests.swift */; };
 		F1000000000000000000F041 /* SideDeckConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000F040 /* SideDeckConfigTests.swift */; };
 		FA33A0000000000000000102 /* NotchProductivityPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000101 /* NotchProductivityPageView.swift */; };
 		FA33A0000000000000000122 /* NotchFallbackPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA33A0000000000000000121 /* NotchFallbackPlan.swift */; };
@@ -1868,6 +1871,8 @@
 		5D000000000000000000A010 /* StorageScanMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageScanMath.swift; path = Core/Support/StorageScanMath.swift; sourceTree = SOURCE_ROOT; };
 		DC000000000000000000C010 /* DevCacheCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DevCacheCatalog.swift; path = Core/Support/DevCacheCatalog.swift; sourceTree = SOURCE_ROOT; };
 		DE000000000000000000E010 /* DownloadEnginePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEnginePolicy.swift; path = Core/Support/DownloadManager/DownloadEnginePolicy.swift; sourceTree = SOURCE_ROOT; };
+		DE000000000000000000E020 /* DownloadEngineState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEngineState.swift; path = Core/Support/DownloadManager/DownloadEngineState.swift; sourceTree = SOURCE_ROOT; };
+		DE000000000000000000E050 /* DownloadEngineStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DownloadEngineStateTests.swift; path = Tests/Unit/DownloadEngineStateTests.swift; sourceTree = SOURCE_ROOT; };
 		F1000000000000000000F010 /* SideDeckConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckConfig.swift; path = Core/Support/SideDeckConfig.swift; sourceTree = SOURCE_ROOT; };
 		F1000000000000000000F020 /* SideDeckHandleWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckHandleWindow.swift; path = App/Scenes/Edge/SideDeckHandleWindow.swift; sourceTree = SOURCE_ROOT; };
 		F1000000000000000000F040 /* SideDeckConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SideDeckConfigTests.swift; path = Tests/Unit/SideDeckConfigTests.swift; sourceTree = SOURCE_ROOT; };
@@ -3990,6 +3995,7 @@
 				5D000000000000000000A011 /* StorageScanMath.swift in Sources */,
 				DC000000000000000000C011 /* DevCacheCatalog.swift in Sources */,
 				DE000000000000000000E011 /* DownloadEnginePolicy.swift in Sources */,
+				DE000000000000000000E021 /* DownloadEngineState.swift in Sources */,
 				F1000000000000000000F011 /* SideDeckConfig.swift in Sources */,
 				F1000000000000000000F021 /* SideDeckHandleWindow.swift in Sources */,
 				5D000000000000000000A021 /* StorageScanService.swift in Sources */,
@@ -4408,6 +4414,8 @@
 				DC000000000000000000C041 /* DevCacheCatalogTests.swift in Sources */,
 				DE000000000000000000E012 /* DownloadEnginePolicy.swift in Sources */,
 				DE000000000000000000E041 /* DownloadEnginePolicyTests.swift in Sources */,
+				DE000000000000000000E022 /* DownloadEngineState.swift in Sources */,
+				DE000000000000000000E051 /* DownloadEngineStateTests.swift in Sources */,
 				F1000000000000000000F012 /* SideDeckConfig.swift in Sources */,
 				F1000000000000000000F041 /* SideDeckConfigTests.swift in Sources */,
 				5D000000000000000000A072 /* NotchEdgeStyle.swift in Sources */,
