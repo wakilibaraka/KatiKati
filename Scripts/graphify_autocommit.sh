@@ -75,6 +75,57 @@ install() {
     fi
 }
 
+# A rebuild mints source-less stub nodes for types it cannot resolve; the ones no edge references
+# are pure visual noise (Bool, URL, ...). Prune only degree-0 stubs, so every surviving edge still
+# resolves. Fail-open: a changed JSON shape, a failed prune or a failed HTML re-export leaves the
+# original pair untouched and the commit proceeds.
+prune_isolated() {
+    local graph="$ROOT/graphify-out/graph.json" html="$ROOT/graphify-out/graph.html" tmp
+    [ -f "$graph" ] && [ -f "$html" ] && command -v graphify >/dev/null 2>&1 || return 0
+    tmp="$(mktemp -d)" || return 0
+    cp "$graph" "$tmp/graph.json" || { rm -rf "$tmp"; return 0; }
+    python3 - "$tmp/graph.json" <<'PY'
+import json, os, sys
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    data = json.load(handle)
+nodes, links = data.get("nodes"), data.get("links")
+if not isinstance(nodes, list) or not isinstance(links, list):
+    raise SystemExit(1)
+linked = set()
+for link in links:
+    if isinstance(link, dict):
+        linked.update(v for v in (link.get("source"), link.get("target")) if v is not None)
+data["nodes"] = [
+    node for node in nodes
+    if not (isinstance(node, dict) and node.get("source_file") == "" and node.get("id") not in linked)
+]
+temporary = path + ".tmp"
+with open(temporary, "w", encoding="utf-8") as handle:
+    json.dump(data, handle, ensure_ascii=False, separators=(",", ":"))
+os.replace(temporary, path)
+PY
+    if [ $? -ne 0 ]; then
+        trace "prune skipped: graph schema not recognised"
+        rm -rf "$tmp"
+        return 0
+    fi
+    if cmp -s "$tmp/graph.json" "$graph"; then
+        rm -rf "$tmp"
+        return 0
+    fi
+    if ! graphify export html --graph "$tmp/graph.json" \
+            --labels "$ROOT/graphify-out/.graphify_labels.json" >/dev/null 2>&1 \
+       || [ ! -f "$tmp/graph.html" ]; then
+        trace "prune skipped: graph.html re-export failed"
+        rm -rf "$tmp"
+        return 0
+    fi
+    mv "$tmp/graph.json" "$graph" && mv "$tmp/graph.html" "$html"
+    rm -rf "$tmp"
+    trace "pruned isolated sourceless nodes"
+}
+
 # One commit of graph output only. Returns 1 when it declined, so selftest can assert.
 commit_once() {
     local staged
@@ -85,6 +136,7 @@ commit_once() {
     done
     # Staged work belongs to whoever staged it; never fold it into a graph commit.
     [ -n "$(git -C "$ROOT" diff --cached --name-only)" ] && { trace "skip: index has staged work"; return 1; }
+    prune_isolated
     git -C "$ROOT" add -u -- graphify-out 2>/dev/null || return 1
     staged="$(git -C "$ROOT" diff --cached --name-only)"
     [ -z "$staged" ] && { trace "skip: nothing staged after add -u"; return 1; }
@@ -291,6 +343,30 @@ selftest() {
         GRAPHIFY_AUTOCOMMIT_GRACE=10 GRAPHIFY_AUTOCOMMIT_BUSY_FILE="$busy2" "$SELF" >/dev/null
     wait
     [ -z "$(git -C "$tmp" status --porcelain -- graphify-out)" ] && echo "PASS late-starting rebuild is waited for" || { echo "FAIL exited before the rebuild had written"; fails=1; }
+
+    # 10. only source-less degree-0 stubs are pruned; a referenced stub stays, and graph.html is
+    #     regenerated from the pruned graph. A fake graphify stands in for the real export.
+    mkdir -p "$tmp/bin"
+    cat > "$tmp/bin/graphify" <<'SH'
+#!/bin/sh
+while [ $# -gt 0 ]; do [ "$1" = "--graph" ] && graph="$2"; shift; done
+printf 'regenerated\n' > "$(dirname "$graph")/graph.html"
+SH
+    chmod +x "$tmp/bin/graphify"
+    printf '%s\n' '{"nodes":[],"links":[]}' > "$tmp/graphify-out/graph.json"
+    printf 'old\n' > "$tmp/graphify-out/graph.html"
+    git -C "$tmp" add -A && git -C "$tmp" commit -qm "prune fixture base"
+    printf '%s\n' '{"nodes":[{"id":"keep","label":"Keep","source_file":"src/a.swift"},{"id":"isolated","label":"Bool","source_file":""},{"id":"linked","label":"URL","source_file":""}],"links":[{"source":"keep","target":"linked"}]}' > "$tmp/graphify-out/graph.json"
+    before=$(git -C "$tmp" rev-list --count HEAD)
+    PATH="$tmp/bin:$PATH" GRAPHIFY_AUTOCOMMIT_ROOT="$tmp" GRAPHIFY_AUTOCOMMIT_QUIET=0 GRAPHIFY_AUTOCOMMIT_TIMEOUT=5 "$SELF" >/dev/null
+    python3 - "$tmp/graphify-out/graph.json" <<'PY'
+import json, sys
+nodes = {n["id"] for n in json.load(open(sys.argv[1]))["nodes"]}
+assert "keep" in nodes and "linked" in nodes and "isolated" not in nodes, nodes
+PY
+    [ $? -eq 0 ] && echo "PASS only isolated stubs pruned" || { echo "FAIL stub prune"; fails=1; }
+    [ "$(cat "$tmp/graphify-out/graph.html")" = "regenerated" ] && echo "PASS graph.html re-exported" || { echo "FAIL graph.html stale"; fails=1; }
+    [ "$(git -C "$tmp" rev-list --count HEAD)" -gt "$before" ] && echo "PASS pruned graph committed" || { echo "FAIL pruned graph not committed"; fails=1; }
     return "$fails"
 }
 

@@ -1,0 +1,4 @@
+# Release history and superseded plans: keep them out of code queries, not out of git.
+CHANGELOG.md
+HYBRID_PLAN.md
+Docs/Releases/
