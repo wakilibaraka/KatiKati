@@ -4710,9 +4710,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1791999137.4496274,
-    "seen": 1795606909.62194,
-    "ast_hash": "ffc18cf4f22e51b4284b2b1b9bb950e3",
+    "mtime": 1795632143.8835168,
+    "seen": 1795632168.206995,
+    "ast_hash": "948b0c921dafab42b65f65aadc2cbd5d",
     "semantic_hash": ""
   },
   "BASELINE_RULES.md": {
