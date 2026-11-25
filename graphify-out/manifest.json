@@ -864,8 +864,8 @@
     "semantic_hash": "7c68b62cf2125911e696a333173f8a74"
   },
   "App/Scenes/Edge/DeckViews.swift": {
-    "mtime": 1795470679.236933,
-    "seen": 1795534644.457182,
+    "mtime": 1795568507.0511913,
+    "seen": 1795569411.222618,
     "ast_hash": "ccf75481a8cac9649b2608dbd527d9b1",
     "semantic_hash": ""
   },
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795567875.7185593,
-    "seen": 1795568098.5371258,
-    "ast_hash": "8f3ef0c058c8e507115e8d819a009e0d",
+    "mtime": 1795568591.3538196,
+    "seen": 1795569411.222624,
+    "ast_hash": "812e81adac85779d658b19a13793eebe",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1656,9 +1656,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1795567128.4747572,
-    "seen": 1795567609.148468,
-    "ast_hash": "53ff94b8bbce62c57f622bfb991b7e8e",
+    "mtime": 1795568589.4197361,
+    "seen": 1795569411.222784,
+    "ast_hash": "df1dfeda50859bd0589774e063923020",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
@@ -6654,9 +6654,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ControlCenterScrollTests.swift": {
-    "mtime": 1795567223.1020703,
-    "seen": 1795567609.1489952,
-    "ast_hash": "16b8d7fd016f592c05c88b0580e46986",
+    "mtime": 1795568599.8800786,
+    "seen": 1795569411.223201,
+    "ast_hash": "532b330df025b84187550e95312ad042",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherPresentationTests.swift": {
@@ -7086,8 +7086,8 @@
     "semantic_hash": ""
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1795546590.2372098,
-    "seen": 1795546853.7382588,
+    "mtime": 1795568507.0501592,
+    "seen": 1795569411.222519,
     "ast_hash": "9e56f633cf1a49cbdedd2a3cf6f76c13",
     "semantic_hash": ""
   },
@@ -7464,9 +7464,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift": {
-    "mtime": 1795446002.5571132,
-    "seen": 1795534644.4571662,
-    "ast_hash": "2ce559cc3ea193264ac9a346b91262ca",
+    "mtime": 1795568253.6925204,
+    "seen": 1795569411.222599,
+    "ast_hash": "c143135c7636c2825c74da55bc87b712",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockFriendsWidgetView.swift": {
@@ -8112,9 +8112,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795567588.2258432,
-    "seen": 1795567609.1493819,
-    "ast_hash": "d96c36ef64628271c1a1e37d11700175",
+    "mtime": 1795569377.5211177,
+    "seen": 1795569411.2235498,
+    "ast_hash": "dcc56538a603282a6528f8e124a1f1cf",
     "semantic_hash": ""
   },
   "Scripts/check_input_hygiene.py": {
@@ -8127,6 +8127,18 @@
     "mtime": 1795558498.2608235,
     "seen": 1795558675.0878122,
     "ast_hash": "52ace7837343629057386ac0a470d33c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/01-settings-control-center.png": {
+    "mtime": 1795569337.2902777,
+    "seen": 1795569411.223684,
+    "ast_hash": "236a70e12edf2a7bfce6b7acc7432a91",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/02-menu-bar-prompt.png": {
+    "mtime": 1795569356.7937799,
+    "seen": 1795569411.223685,
+    "ast_hash": "29235dfd579b19e9d58a93100f9a2bc8",
     "semantic_hash": ""
   }
 }
