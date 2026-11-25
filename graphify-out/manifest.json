@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795583055.5117128,
-    "seen": 1795584158.093892,
-    "ast_hash": "47ff41d6e11a2966decd07c4e2ba7ed3",
+    "mtime": 1795584554.654754,
+    "seen": 1795584799.84211,
+    "ast_hash": "e77ff9c0ceb82ac26e280bc001efbcc2",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1795583804.6323845,
-    "seen": 1795584158.093921,
-    "ast_hash": "61f33508da878d7386e9e6cd7541beb2",
+    "mtime": 1795584554.153475,
+    "seen": 1795584799.8421388,
+    "ast_hash": "6f68a8eadc88d26ec36281ed3cf29521",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Hover.swift": {
-    "mtime": 1795427821.4210248,
-    "seen": 1795534644.4571588,
-    "ast_hash": "5a97ccb0e42b4eb4ae80a60d04215750",
+    "mtime": 1795584532.7336996,
+    "seen": 1795584799.8421671,
+    "ast_hash": "fb66febd5438a86f29766f7b10ef59f0",
     "semantic_hash": ""
   },
   "App/Scenes/DockStripView+Projection.swift": {
@@ -792,9 +792,9 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795556329.2981813,
-    "seen": 1795556636.270753,
-    "ast_hash": "1e79c7facb32dc7789449d5aa7e43ebc",
+    "mtime": 1795584553.0104427,
+    "seen": 1795584799.842169,
+    "ast_hash": "93eed44ba7c8bc5765df1650146ee579",
     "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/PinnedFolderChip.swift": {
-    "mtime": 1794910490.263038,
-    "seen": 1795534644.4572291,
-    "ast_hash": "7edcc71362061491d22008a55e5d8f74",
+    "mtime": 1795584568.3677645,
+    "seen": 1795584799.8422341,
+    "ast_hash": "8d648f5dbcbfc4edfa4db679482f42fc",
     "semantic_hash": ""
   },
   "App/Scenes/RadialDial/RadialDialCenterHub.swift": {
@@ -1272,9 +1272,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/TrashChip.swift": {
-    "mtime": 1793367814.969074,
-    "seen": 1795534644.457265,
-    "ast_hash": "5a47c0890b4c04cbce5cd122634a7bd1",
+    "mtime": 1795584567.8552191,
+    "seen": 1795584799.842269,
+    "ast_hash": "9eb2e80ddd28eec3d15f4df7ab310f87",
     "semantic_hash": ""
   },
   "App/Scenes/TrashGridPopupView.swift": {
@@ -2304,9 +2304,9 @@
     "semantic_hash": "976bf3cf9a4f6d21f42b9e4ceaed3ed0"
   },
   "Core/Support/StripContextMenuZone.swift": {
-    "mtime": 1793805643.1224113,
-    "seen": 1795534644.4574668,
-    "ast_hash": "663b0d6c2017cf9cb98b81e769bbd970",
+    "mtime": 1795584532.2326107,
+    "seen": 1795584799.842457,
+    "ast_hash": "b5d8f22ce0c7f55d1577f5bb902e8c2f",
     "semantic_hash": ""
   },
   "Core/Support/StripDisplayFilter.swift": {
@@ -4104,9 +4104,9 @@
     "semantic_hash": "3675ae1ea1188e5dfe2986cb81e6b04c"
   },
   "Tests/Unit/StripContextMenuZoneTests.swift": {
-    "mtime": 1795027986.642275,
-    "seen": 1795534644.457788,
-    "ast_hash": "de1aadcfd5aa1dfb148d932e5d6a9b34",
+    "mtime": 1795584580.6096942,
+    "seen": 1795584799.842751,
+    "ast_hash": "1cb9f017f200c26b8c9460d52a6f2158",
     "semantic_hash": ""
   },
   "Tests/Unit/StripDisplayFilterTests.swift": {
@@ -8172,9 +8172,9 @@
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/README.md": {
-    "mtime": 1795584089.3580263,
-    "seen": 1795584158.094719,
-    "ast_hash": "ac38449b18c86861a76e11b0e5ae08a8",
+    "mtime": 1795584746.0199184,
+    "seen": 1795584799.842898,
+    "ast_hash": "a9e590e18610b7a5d2f7eb56e35fd2ef",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/01-strip-menu.png": {
@@ -8223,6 +8223,42 @@
     "mtime": 1795584053.4259632,
     "seen": 1795584158.094862,
     "ast_hash": "3764cd0371872376c9890bd8788a2880",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/10-trash-chip-menu.png": {
+    "mtime": 1795584643.0134256,
+    "seen": 1795584799.8430238,
+    "ast_hash": "ebaf0a8740a2910c53ee5a97ab2b35a0",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/10b-trash-header-closeup.png": {
+    "mtime": 1795584755.0104318,
+    "seen": 1795584799.843025,
+    "ast_hash": "e65855fd79e6a8481c7a14b1a0c92b2a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/11-trash-settings-tile.png": {
+    "mtime": 1795584669.0164144,
+    "seen": 1795584799.843025,
+    "ast_hash": "9585444ea1fb00df5920595da3d69eba",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/12-folder-chip-menu.png": {
+    "mtime": 1795584678.08144,
+    "seen": 1795584799.843026,
+    "ast_hash": "41e3ef1a254de45e3c7134e21a838cec",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/12b-folder-header-closeup.png": {
+    "mtime": 1795584755.0129094,
+    "seen": 1795584799.8430269,
+    "ast_hash": "6ce0272b438bd4aa13d24ca7b44891c9",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/13-folder-control-center-tile.png": {
+    "mtime": 1795584687.5079556,
+    "seen": 1795584799.843028,
+    "ast_hash": "dcad064edd4545831b07623bc5c40611",
     "semantic_hash": ""
   }
 }
