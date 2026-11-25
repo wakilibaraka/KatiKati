@@ -39,8 +39,8 @@ final class WindowDrawerController: ObservableObject {
     private var panel: DrawerPanel?
     private var clickMonitor: Any?
     private var keyMonitor: Any?
-    private var edgeTimer: Timer?
-    private var edgeSince: Date?
+    /// SD-1: the resting handle owns the edge now — its tracking area replaces the old location poll.
+    private var handle: SideDeckHandleWindow?
     private var peekWork: DispatchWorkItem?
     private var defaultsObserver: NSObjectProtocol?
     private let log = Logger(subsystem: "com.katikati.app", category: "drawer")
@@ -87,27 +87,23 @@ final class WindowDrawerController: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
     }
 
+    /// SD-1: the 7 Hz `NSEvent.mouseLocation` poll is retired. The resting handle is a window with its own
+    /// tracking area, so the deck learns about the pointer from the system instead of asking for it.
     private func applyEdgeHover() {
-        let on = UserDefaults.standard.bool(forKey: Self.edgeHoverKey)
-        if on, edgeTimer == nil {
-            edgeTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in
-                Task { @MainActor in self?.pollEdge() }
-            }
-        } else if !on {
-            edgeTimer?.invalidate(); edgeTimer = nil; edgeSince = nil
+        let config = SideDeckConfig.migrating(from: .standard)
+        guard config.edgeActivation else {
+            handle?.hide()
+            handle = nil
+            return
         }
-    }
-
-    /// Opens after the pointer has rested on a display's left edge for 0.4 s.
-    private func pollEdge() {
-        let mouse = NSEvent.mouseLocation
-        let atEdge = panel == nil && NSScreen.screens.contains { $0.frame.contains(mouse) && mouse.x <= $0.frame.minX + 2 }
-        guard atEdge else { edgeSince = nil; return }
-        if let since = edgeSince {
-            if Date().timeIntervalSince(since) >= 0.4 { edgeSince = nil; open() }
-        } else {
-            edgeSince = Date()
+        if handle == nil {
+            handle = SideDeckHandleWindow(onOpen: { [weak self] in
+                guard let self, self.panel == nil else { return }
+                self.open()
+            })
         }
+        let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
+        if let screen { handle?.show(on: screen, side: config.side) }
     }
 
     func toggle() { panel == nil ? open() : close() }
@@ -319,6 +315,10 @@ private struct WindowDrawerView: View {
     @AppStorage(WidgetHUDDensityMode.defaultsKey) private var densityRaw = WidgetHUDDensityMode.expanded.rawValue
     @AppStorage(WidgetTextScale.defaultsKey) private var textScaleRaw = WidgetTextScale.regular.rawValue
     @State private var holdsMonitor = false
+    /// SD-1: the shell's entry animation (0.98 → 1 with a fade) and the optional identity strip.
+    @State private var appeared = false
+    @State private var identityStripEnabled = SideDeckConfig.stored().identityStrip
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var searchFocused: Bool
 
     private var density: WidgetHUDDensityMode { WidgetHUDDensityMode.parse(densityRaw) }
@@ -330,19 +330,27 @@ private struct WindowDrawerView: View {
             if density.isCompact {
                 compactStrip
             } else {
-                HStack(spacing: 0) {
+                // SD-1: the rail is a detached capsule, so nothing divides it from the panel and the gap is
+                // the plan's 12 pt rather than a rule.
+                HStack(spacing: 12) {
                     rail
-                    Divider()
+                    if identityStripEnabled { identityStrip }
                     content
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .padding(16)
             }
         }
         // SD-1: one radius for the whole shell, the sanctioned deck glass radius (26).
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: EdgeStyleTokens.glassRadius, style: .continuous))
+        // SD-1: entry motion — the deck spring, a 0.98 → 1 scale and a fade. Reduce Motion keeps the fade.
+        .scaleEffect(appeared ? 1 : SideDeckConfig.entryScale(reduceMotion: reduceMotion))
+        .opacity(appeared ? 1 : 0)
+        .animation(.spring(response: 0.34, dampingFraction: 0.84), value: appeared)
         .onAppear {
             searchFocused = true
             syncMonitorHold()
+            appeared = true
         }
         .onChange(of: densityRaw) { _ in syncMonitorHold() }
         .onDisappear { releaseMonitorHold() }
@@ -468,8 +476,34 @@ private struct WindowDrawerView: View {
         }
     }
 
+    /// SD-1 (render 3): the optional identity strip — a 90° caption, a hairline and a Settings capsule at its
+    /// foot. Off by default; the caption is the brand, so it is shown verbatim rather than as a new key.
+    private var identityStrip: some View {
+        VStack(spacing: 10) {
+            Text(verbatim: "KATIKATI")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(.secondary)
+                .rotationEffect(.degrees(-90))
+                .fixedSize()
+                .frame(maxHeight: .infinity)
+            Rectangle().fill(Color.primary.opacity(0.12)).frame(width: 1, height: 24)
+            Button {
+                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            } label: {
+                Image(systemName: "gearshape").font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 30, height: 30)
+                    .background(Circle().fill(Color.primary.opacity(0.07)))
+            }
+            .buttonStyle(.plain)
+            .help(Text("Settings"))
+        }
+        .padding(.vertical, 8)
+        .frame(width: 26)
+    }
+
     private var rail: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 10) {
             SideDeckRailButton(symbol: "magnifyingglass", title: Text("Search"), selected: false) { controller.runSearch() }
             SideDeckRailButton(symbol: SideDeckTab.windows.symbol, title: Text("Windows"),
                                selected: controller.tab == .windows) { controller.select(.windows) }
@@ -511,7 +545,11 @@ private struct WindowDrawerView: View {
             .accessibilityLabel(Text("Pin Strip Open"))
         }
         .padding(8)
-        .frame(width: 52)
+        // SD-1 (renders 2–3): the rail is its own capsule — 60 pt wide, 26 pt radius, an 8 pt inset and a soft
+        // shadow that lifts it off the panel behind it.
+        .frame(width: 60)
+        .background(EdgeGlassSurface(shape: RoundedRectangle(cornerRadius: 26, style: .continuous)))
+        .shadow(color: .black.opacity(0.16), radius: 12, y: 4)
     }
 
     private var windows: some View {
