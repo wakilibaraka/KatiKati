@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "App/Composition/CameraMirrorService.swift": {
-    "mtime": 1795620617.2602737,
-    "seen": 1795621495.993261,
-    "ast_hash": "9692d36204a4be2ea8d1eda83f96a2aa",
+    "mtime": 1795623609.290753,
+    "seen": 1795624193.398706,
+    "ast_hash": "2087a1b2ac62a76b356027b1bc1cc413",
     "semantic_hash": ""
   },
   "App/Composition/ChipSnapshotter.swift": {
@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795620617.2604828,
-    "seen": 1795621495.9933062,
-    "ast_hash": "20f886cafadbb1f4288b400d3d995d09",
+    "mtime": 1795623609.290906,
+    "seen": 1795624193.398751,
+    "ast_hash": "d0c9d405f33e4cc032f247368954f792",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795585974.9241784,
-    "seen": 1795606909.62204,
-    "ast_hash": "459472ac6fafa3799aa08487e4df8956",
+    "mtime": 1795623712.7317235,
+    "seen": 1795624193.3987992,
+    "ast_hash": "5ad975c53e5d9d4d1a7a02c8f58fe371",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1795620595.5472326,
-    "seen": 1795621495.993551,
-    "ast_hash": "d3b45ee86a49794c316861fa38c99994",
+    "mtime": 1795623656.4256299,
+    "seen": 1795624193.398998,
+    "ast_hash": "7efa4295c9a69d120c9143857f508628",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1795294039.431251,
-    "seen": 1795606909.622423,
-    "ast_hash": "7e7532a96f83e4b1af590dc4e8de417c",
+    "mtime": 1795623609.2905178,
+    "seen": 1795624193.399056,
+    "ast_hash": "8416a4f120d42edb67038f74b5507752",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
@@ -8052,9 +8052,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md": {
-    "mtime": 1795621521.528191,
-    "seen": 1795621533.206929,
-    "ast_hash": "ace48362792671510aaced6deb36fbb7",
+    "mtime": 1795624175.1548433,
+    "seen": 1795624193.3997571,
+    "ast_hash": "28a69ba6e28347d72232ca9c9f3ff730",
     "semantic_hash": ""
   },
   "Scripts/check_input_hygiene.py": {
@@ -8778,9 +8778,9 @@
     "semantic_hash": ""
   },
   "App/Composition/PermissionBootstrap.swift": {
-    "mtime": 1795620617.227979,
-    "seen": 1795621495.993323,
-    "ast_hash": "bae0c9d11de152eff4fee9be0f990668",
+    "mtime": 1795623609.2900822,
+    "seen": 1795624193.3987682,
+    "ast_hash": "71a099c1221e971a2a863aeb5459926b",
     "semantic_hash": ""
   },
   "Scripts/live_check_dock_layout.py": {
@@ -8877,6 +8877,78 @@
     "mtime": 1795621306.5873084,
     "seen": 1795621495.994421,
     "ast_hash": "287198211f5d7534cb993b85418ec6d4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/README.md": {
+    "mtime": 1795624145.0600653,
+    "seen": 1795624193.399731,
+    "ast_hash": "13eca5829f5e7151587254504fc42be7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/alpha-reduced-motion.txt": {
+    "mtime": 1795624105.7817845,
+    "seen": 1795624193.3997319,
+    "ast_hash": "7da54650a6db70f3ebb612ffea73dfe9",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/ax-bento.txt": {
+    "mtime": 1795624105.7920842,
+    "seen": 1795624193.399733,
+    "ast_hash": "27acaf7cbdda6e9a4a96b51370c94dd5",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/ax-classic.txt": {
+    "mtime": 1795624105.7842932,
+    "seen": 1795624193.399734,
+    "ast_hash": "2885c28c595e88e4924d3923d42018c4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/ax-custom-after-relaunch.txt": {
+    "mtime": 1795624105.79619,
+    "seen": 1795624193.399735,
+    "ast_hash": "7aac7a2a77c80d4c2bde7f47f1d74229",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/ax-modular.txt": {
+    "mtime": 1795624105.787093,
+    "seen": 1795624193.399735,
+    "ast_hash": "9b1bf7bd167a73850e11832ed4ad62b1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/drag-in-progress.png": {
+    "mtime": 1795624105.769598,
+    "seen": 1795624193.399876,
+    "ast_hash": "78c175b11be15527c2624aacf9caaa74",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/panel-bento.png": {
+    "mtime": 1795624105.7312236,
+    "seen": 1795624193.399877,
+    "ast_hash": "884b35fbec5bbde33e34260a66c8a1ef",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/panel-classic.png": {
+    "mtime": 1795624105.682447,
+    "seen": 1795624193.399877,
+    "ast_hash": "da3593e32762a3453b52bfad36492813",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/panel-custom-after-relaunch.png": {
+    "mtime": 1795624105.7564995,
+    "seen": 1795624193.3998778,
+    "ast_hash": "0aa90dbd91c9abf81aae58583af7608c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/panel-modular.png": {
+    "mtime": 1795624105.7116675,
+    "seen": 1795624193.399879,
+    "ast_hash": "27d8757c73dcc9872bdb8bdf2460f31a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/reduced-motion-bento.png": {
+    "mtime": 1795624105.7787337,
+    "seen": 1795624193.39988,
+    "ast_hash": "ce46828a7fe05b5c63a21cc48b296166",
     "semantic_hash": ""
   }
 }
