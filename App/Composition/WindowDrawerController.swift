@@ -326,7 +326,9 @@ private struct WindowDrawerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            searchBar
+            headerCapsule
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
             if density.isCompact {
                 compactStrip
             } else {
@@ -337,6 +339,9 @@ private struct WindowDrawerView: View {
                     if identityStripEnabled { identityStrip }
                     content
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        // SD-1/SD-2: 20 ms behind the shell, the same deck spring.
+                        .opacity(appeared ? 1 : 0)
+                        .animation(.spring(response: 0.34, dampingFraction: 0.84).delay(0.02), value: appeared)
                 }
                 .padding(16)
             }
@@ -401,6 +406,93 @@ private struct WindowDrawerView: View {
         .font(.system(size: size, weight: .medium, design: .rounded).monospacedDigit())
         .foregroundStyle(.secondary)
         .accessibilityElement(children: .combine)
+    }
+
+    /// SD-2 (render 2): the header capsule — 54 pt tall on a full radius, spanning the panel: avatar and the
+    /// owner's name, the translucent search pill with its 24 pt leading glyph, then the density pill and the
+    /// bell with its unread dot.
+    private var headerCapsule: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(Color.accentColor.opacity(0.18))
+                .frame(width: 34, height: 34)
+                .overlay(Text(verbatim: initials).font(.system(size: 13, weight: .semibold)))
+            Text(verbatim: NSFullUserName())
+                .font(.system(size: 15, weight: .semibold))
+                .lineLimit(1)
+            searchPill
+            Button { densityRaw = density.toggled.rawValue } label: {
+                Image(systemName: density.toggleSymbol).font(.system(size: 12, weight: .medium))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(.plain)
+            .help(density.isCompact ? Text("Expand") : Text("Compact"))
+            Button { controller.select(.notifications) } label: {
+                Image(systemName: SideDeckTab.notifications.symbol)
+                    .font(.system(size: 12, weight: .medium))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color.primary.opacity(0.08)))
+                    .overlay(alignment: .topTrailing) {
+                        if controller.unreadNotificationCount > 0 {
+                            Circle().fill(Color.accentColor).frame(width: 7, height: 7).offset(x: 2, y: -2)
+                        }
+                    }
+            }
+            .buttonStyle(.plain)
+            .help(Text("Notifications"))
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 54)
+        .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.06)))
+    }
+
+    /// The avatar's letters: the owner's initials, which need no localized string.
+    private var initials: String {
+        let letters = NSFullUserName().split(separator: " ").prefix(2).compactMap(\.first)
+        return letters.isEmpty ? "K" : String(letters).uppercased()
+    }
+
+    /// The translucent search pill: one field for every tab, its placeholder the pure tab helper.
+    private var searchPill: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+                .frame(width: 24)
+            TextField(controller.tab.searchPlaceholder, text: $controller.query)
+                .textFieldStyle(.plain)
+                .focused($searchFocused)
+            if !controller.query.isEmpty {
+                Button { controller.query = "" } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(Text("Clear"))
+            }
+            Menu {
+                ForEach(WidgetTextScale.allCases, id: \.self) { scale in
+                    Button { textScaleRaw = scale.rawValue } label: { textScaleTitle(scale) }
+                }
+            } label: {
+                Image(systemName: "textformat.size").font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(Text("Text Size"))
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 32)
+        .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    /// SD-2: the bento column count, from the plan's breakpoints over the panel's content width. This is the
+    /// one place it is computed, so every grid in the deck agrees on it.
+    private var panelColumns: Int {
+        let contentWidth = SideDeckConfig.stored().width - 60 - 12 - 32
+        return SideDeckConfig.columns(forContentWidth: contentWidth)
     }
 
     /// SD-2: one field for every tab. Its placeholder is the pure tab helper, so it always names what
@@ -555,7 +647,8 @@ private struct WindowDrawerView: View {
     private var windows: some View {
         VStack(spacing: 10) {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: panelColumns),
+                          spacing: 10) {
                     ForEach(Array(controller.filtered.enumerated()), id: \.element.id) { index, item in
                         card(item, selected: controller.windowSelection.index == index)
                     }
