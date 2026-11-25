@@ -168,10 +168,10 @@
     "semantic_hash": "fe9cb695ca97be6d556dd5af4f636b47"
   },
   "App/Composition/FileItemMenuBuilder.swift": {
-    "mtime": 1791999130.8133802,
-    "seen": 1795534644.457043,
-    "ast_hash": "bc651ae8e62e8415695f659879ccd214",
-    "semantic_hash": "bc651ae8e62e8415695f659879ccd214"
+    "mtime": 1795565529.3337014,
+    "seen": 1795565919.473313,
+    "ast_hash": "614f9d6548751d193d740396013bcca4",
+    "semantic_hash": ""
   },
   "App/Composition/FileMover.swift": {
     "mtime": 1791999130.8126767,
@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1795428162.7814791,
-    "seen": 1795534644.457128,
-    "ast_hash": "27603a15c660b38f79d023ead93428d5",
+    "mtime": 1795565516.9336379,
+    "seen": 1795565919.473405,
+    "ast_hash": "1a790b5711da7f8ec21f6500635d3837",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -720,9 +720,9 @@
     "semantic_hash": "12cd1551b6e625ea172af6c8a788e53d"
   },
   "App/Scenes/ChipView.swift": {
-    "mtime": 1795534615.1917222,
-    "seen": 1795534644.4571362,
-    "ast_hash": "b2deffb956077d2119ea7038b363c834",
+    "mtime": 1795565540.3008153,
+    "seen": 1795565919.4734132,
+    "ast_hash": "c5cfd3649df0e54cc9239e69d6c8a0f9",
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795564932.2852893,
-    "seen": 1795565193.545176,
-    "ast_hash": "825c8b61c3b4cdfd3aec5f28437906cf",
+    "mtime": 1795565466.9807212,
+    "seen": 1795565919.473709,
+    "ast_hash": "348a886949e5de845ce2500a8c2026dc",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6384,9 +6384,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795564933.7018445,
-    "seen": 1795565193.545532,
-    "ast_hash": "c1457efddd4d9e7533cea4ded89497b2",
+    "mtime": 1795565468.0163794,
+    "seen": 1795565919.474037,
+    "ast_hash": "7913b0f5c8f410977ca223ea3812189c",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
