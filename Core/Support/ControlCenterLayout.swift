@@ -215,6 +215,24 @@ extension ControlCenterLayoutSpec {
     ]
 }
 
+extension ControlCenterLayoutSpec {
+    /// `CC-4`: exactly what one drop produces. `moving` leaves its slot and lands in front of
+    /// `target`; the result is a `custom` layout that still remembers the preset it started from, so
+    /// Reset has somewhere to go. `nil` means the drag changed nothing (same tile, or a target that is
+    /// no longer in the layout), and the caller writes no preferences for it.
+    func move(_ moving: ControlCenterTileID, before target: ControlCenterTileID) -> ControlCenterLayoutSpec? {
+        guard moving != target,
+              let from = tiles.firstIndex(where: { $0.id == moving }) else { return nil }
+        var next = self
+        let tile = next.tiles.remove(at: from)
+        guard let to = next.tiles.firstIndex(where: { $0.id == target }) else { return nil }
+        next.tiles.insert(tile, at: to)
+        next.basedOn = preset == .custom ? basedOn : preset
+        next.preset = .custom
+        return next
+    }
+}
+
 /// A finish layered on the dock theme's own colours — not a second theme system.
 enum ControlCenterGlassStyle: String, CaseIterable, Sendable {
     case clear, semi, tinted
@@ -403,6 +421,13 @@ enum ControlCenterLayoutCodec {
         }
         guard !tiles.isEmpty else { return nil }
         return ControlCenterLayoutSpec(preset: preset, basedOn: basedOn, tiles: tiles)
+    }
+
+    /// One write for one edit: the layout and the preset that selects it, so a crash between the two
+    /// can never leave `custom` selected with nothing behind it.
+    static func store(_ spec: ControlCenterLayoutSpec, _ defaults: UserDefaults = .standard) {
+        defaults.set(encode(spec), forKey: storageKey)
+        defaults.set(spec.preset.rawValue, forKey: ControlCenterPreset.storageKey)
     }
 }
 

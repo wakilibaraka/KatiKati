@@ -342,3 +342,70 @@ final class ControlCenterReadabilityTests: XCTestCase {
                              "a squeeze must not shrink a caption to six points")
     }
 }
+
+/// CC-4 edit mode: a drop is one pure function, and the result is what gets stored, so the panel and
+/// the relaunch read the same order.
+final class ControlCenterEditTests: XCTestCase {
+    private let account = ControlCenterTileID.section(.account)
+    private let utilities = ControlCenterTileID.section(.utilities)
+    private let network = ControlCenterTileID.section(.network)
+
+    func testMoveLandsTheTileInFrontOfItsTarget() {
+        let start = ControlCenterLayoutSpec.preset(.modular)
+        let moved = start.move(account, before: network)
+        XCTAssertNotNil(moved)
+        guard let moved else { return }
+        XCTAssertEqual(moved.preset, .custom, "an edit is a Custom layout")
+        XCTAssertEqual(moved.basedOn, .modular, "Custom remembers the preset it came from")
+        XCTAssertEqual(moved.tiles.count, start.tiles.count)
+        let ids = moved.tiles.map(\.id)
+        guard let accountIndex = ids.firstIndex(of: account),
+              let networkIndex = ids.firstIndex(of: network) else {
+            return XCTFail("the moved tile or its target disappeared")
+        }
+        XCTAssertEqual(accountIndex + 1, networkIndex)
+    }
+
+    func testMoveUpwardsKeepsEveryOtherTileInOrder() {
+        let start = ControlCenterLayoutSpec.preset(.classic)
+        let moved = start.move(account, before: .section(.header))
+        guard let moved else { return XCTFail("moving to the top was refused") }
+        XCTAssertEqual(moved.tiles.first?.id, account)
+        XCTAssertEqual(moved.tiles.dropFirst().map(\.id),
+                       start.tiles.map(\.id).filter { $0 != account })
+    }
+
+    func testMoveThatChangesNothingIsRefused() {
+        let start = ControlCenterLayoutSpec.preset(.bento)
+        XCTAssertNil(start.move(account, before: account))
+        XCTAssertNil(start.move(.section(.header), before: .toggle(.vpn)),
+                     "a target outside the layout would silently drop the drag")
+        XCTAssertNil(start.move(.toggle(.vpn), before: account))
+    }
+
+    func testACustomEditKeepsItsOriginalBasedOn() {
+        guard let edited = ControlCenterLayoutSpec.preset(.classic).move(account, before: network),
+              let again = edited.move(utilities, before: network) else {
+            return XCTFail("second edit refused")
+        }
+        XCTAssertEqual(again.preset, .custom)
+        XCTAssertEqual(again.basedOn, .classic)
+    }
+
+    func testStoreWritesTheLayoutAndThePresetTogether() throws {
+        let suite = try XCTUnwrap(UserDefaults(suiteName: "cc-edit-store-tests"))
+        suite.removePersistentDomain(forName: "cc-edit-store-tests")
+        defer { suite.removePersistentDomain(forName: "cc-edit-store-tests") }
+        guard let edited = ControlCenterLayoutSpec.preset(.classic).move(account, before: network) else {
+            return XCTFail("move refused")
+        }
+        ControlCenterLayoutCodec.store(edited, suite)
+
+        XCTAssertEqual(suite.string(forKey: ControlCenterPreset.storageKey),
+                       ControlCenterPreset.custom.rawValue)
+        let stored = ControlCenterLayoutCodec.decode(suite.string(forKey: ControlCenterLayoutCodec.storageKey))
+        XCTAssertEqual(stored, edited, "what is stored is what the panel will draw after relaunch")
+        XCTAssertEqual(stored?.preset, .custom)
+        XCTAssertEqual(stored?.basedOn, .classic)
+    }
+}
