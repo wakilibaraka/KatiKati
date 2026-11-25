@@ -344,6 +344,8 @@ private struct WindowDrawerView: View {
                         .animation(.spring(response: 0.34, dampingFraction: 0.84).delay(0.02), value: appeared)
                 }
                 .padding(16)
+                pageDock
+                    .padding(.bottom, 10)
             }
         }
         // SD-1: one radius for the whole shell, the sanctioned deck glass radius (26).
@@ -486,6 +488,44 @@ private struct WindowDrawerView: View {
         .padding(.horizontal, 10)
         .frame(height: 32)
         .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.05)))
+    }
+
+    /// SD-2 (render 2): the floating page dock — a 44 pt capsule with a white selected pill and a trailing
+    /// "+". SD-8 owns page visibility, so the plus is wired to page selection here and nothing more.
+    private var pageDock: some View {
+        HStack(spacing: 4) {
+            ForEach([SideDeckTab.windows, .notifications, .downloads, .storage, .weather], id: \.self) { tab in
+                let selected = controller.tab == tab
+                Button { controller.select(tab) } label: {
+                    Text(verbatim: tab.title)
+                        .font(.system(size: 11, weight: selected ? .semibold : .regular))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(selected ? Color.white.opacity(0.92) : .clear))
+                        .foregroundStyle(selected ? Color.black.opacity(0.78) : Color.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            Menu {
+                ForEach(SideDeckTab.allCases, id: \.self) { tab in
+                    Button { controller.select(tab) } label: { Text(verbatim: tab.title) }
+                }
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(Color.primary.opacity(0.10)))
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(Text("Open"))
+        }
+        .padding(.horizontal, 8)
+        .frame(height: 44)
+        .background(Capsule(style: .continuous).fill(Color.primary.opacity(0.07)))
+        .overlay(Capsule(style: .continuous).strokeBorder(Color.white.opacity(0.12), lineWidth: 0.75))
+        .accessibilityElement(children: .contain)
     }
 
     /// SD-2: the bento column count, from the plan's breakpoints over the panel's content width. This is the

@@ -1240,6 +1240,7 @@ struct SideDeckStorageView: View {
 struct SideDeckWeatherView: View {
     @ObservedObject private var service = WeatherService.shared
 
+    /// SD-2: width-matched to the panel, so the forecast never sits in a narrow column in a wide deck.
     var body: some View {
         let state = service.currentState
         ScrollView {
@@ -1308,11 +1309,11 @@ struct SideDeckQuickAccessView: View {
     var body: some View {
         VStack(spacing: 12) {
             Text("Quick Access").font(.system(size: 13, weight: .semibold))
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 quickButton(title: "Launcher", symbol: "square.grid.2x2", action: onLauncher)
                 quickButton(title: "Command Bar", symbol: "command", action: onCommandBar)
             }
-            Spacer(minLength: 0)
+            .frame(maxHeight: .infinity)
         }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1324,7 +1325,8 @@ struct SideDeckQuickAccessView: View {
                 Image(systemName: symbol).font(.system(size: 22, weight: .medium))
                 Text(title).font(.system(size: 11, weight: .semibold))
             }
-            .frame(maxWidth: .infinity, minHeight: 88)
+            // SD-2: the Command Bar and Launcher entries fill the panel rather than sitting in two tiles.
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.07)))
         }
         .buttonStyle(.plain)
