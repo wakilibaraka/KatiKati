@@ -539,7 +539,7 @@ struct DeckTab: View {
         .accessibilityLabel(Text(verbatim: note.displayTitle))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(.default) { action(.zero) }
-        .contextMenu { contextMenuItems }
+        .nativeContextMenu { buildContextMenu() }
     }
 
     /// One gesture, not a tap competing with a long-press: a press that never travels is a tap; anything past the
@@ -563,16 +563,52 @@ struct DeckTab: View {
             }
     }
 
-    @ViewBuilder private var contextMenuItems: some View {
-        Button { menu(.togglePin) } label: { note.pinned ? Text("Unpin") : Text("Pin") }
-        Menu {
-            ForEach(0..<NotePalette.all.count, id: \.self) { i in
-                Button { menu(.color(i)) } label: { Self.colorName(i) }
+    /// The note tab's right-click, wearing the same header as every other surface: the note's name,
+    /// its pin state, and the three actions a glance at the rail actually offers.
+    private func buildContextMenu() -> NSMenu {
+        let nsMenu = NSMenu()
+        nsMenu.addItem(DockMenuChrome.header(
+            icon: nil,
+            symbol: "note.text",
+            title: note.displayTitle,
+            status: note.pinned ? String(localized: "Pin") : nil,
+            tiles: [
+                .init(symbol: note.pinned ? "pin.slash" : "pin",
+                      caption: note.pinned ? String(localized: "Unpin") : String(localized: "Pin")) {
+                    menu(.togglePin)
+                },
+                .init(symbol: "tray.and.arrow.down", caption: String(localized: "Archive")) {
+                    menu(.archive)
+                },
+                .init(symbol: "trash", caption: String(localized: "Delete")) {
+                    menu(.delete)
+                },
+            ],
+            menu: nsMenu
+        ))
+        nsMenu.addItem(.separator())
+        let pinRow = MenuChrome.action(note.pinned ? String(localized: "Unpin") : String(localized: "Pin"),
+                                       symbol: note.pinned ? "pin.slash" : "pin", in: nsMenu) {
+            menu(.togglePin)
+        }
+        pinRow.state = note.pinned ? .on : .off
+        MenuChrome.submenu(String(localized: "Color"), symbol: "paintpalette", in: nsMenu) { sub in
+            for index in 0..<NotePalette.all.count {
+                let item = ClosureMenuItem(Self.colorTitle(index)) { menu(.color(index)) }
+                item.state = index == note.color ? .on : .off
+                sub.addItem(item)
             }
-        } label: { Text("Color") }
-        Button { menu(.archive) } label: { Text("Archive") }
-        Divider()
-        Button { menu(.delete) } label: { Text("Delete") }
+        }
+        MenuChrome.action(String(localized: "Archive"), symbol: "tray.and.arrow.down", in: nsMenu) {
+            menu(.archive)
+        }
+        nsMenu.addItem(.separator())
+        MenuChrome.action(String(localized: "Delete"), symbol: "trash", in: nsMenu) { menu(.delete) }
+        return nsMenu
+    }
+
+    static func colorTitle(_ index: Int) -> String {
+        NotePalette.entry(at: index).name
     }
 
     static func colorName(_ index: Int) -> Text {
