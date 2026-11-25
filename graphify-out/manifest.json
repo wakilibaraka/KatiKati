@@ -8410,5 +8410,41 @@
     "seen": 1795595814.0852768,
     "ast_hash": "d648beb8be4f9eb1f30c853659f6bae9",
     "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-modern-menus/README.md": {
+    "mtime": 1795597328.7361653,
+    "seen": 1795597374.895338,
+    "ast_hash": "1b16abbc333f8f6180adfbf7c1d39c4b",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-modern-menus/01-widget-menu-weather.png": {
+    "mtime": 1795597273.8761857,
+    "seen": 1795597374.895514,
+    "ast_hash": "08b3798fd4e9b64c3aa87807aab7c0ae",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-modern-menus/02-app-chip-finder.png": {
+    "mtime": 1795597273.889466,
+    "seen": 1795597374.895514,
+    "ast_hash": "81c8e9e107f07ba36cd078314bc177f9",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-modern-menus/03-app-chip-whatsapp.png": {
+    "mtime": 1795597273.9063835,
+    "seen": 1795597374.895515,
+    "ast_hash": "ef2f5355905dcd308436c2ec0b49d5b7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-modern-menus/04-utility-clipboard.png": {
+    "mtime": 1795597273.9228792,
+    "seen": 1795597374.895516,
+    "ast_hash": "1934a884b741960e48b817609a0d9e1a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-modern-menus/05-island-menu.png": {
+    "mtime": 1795597273.9360902,
+    "seen": 1795597374.8955169,
+    "ast_hash": "bbe2c6b10cce56006616d8d2a94aee08",
+    "semantic_hash": ""
   }
 }
