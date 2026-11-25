@@ -553,6 +553,21 @@ private final class HubFlyoutPanel: NSPanel {
 }
 
 @MainActor
+/// The adaptive plate the menu-bar Control Centre needs (the edge deck gets one from its flyout).
+private struct HubPlate: NSViewRepresentable {
+    nonisolated init() {}
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .popover
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ view: NSVisualEffectView, context: Context) {}
+}
+
 final class MenuBarHubPanelController {
     private var panel: HubFlyoutPanel?
     private var outsideMonitor: Any?
@@ -578,7 +593,7 @@ final class MenuBarHubPanelController {
         // Centre when they moved it to the menu bar (the two stay mutually exclusive).
         let surfaceMode = ControlCenterSurfaceMode.parse(UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey))
         let size = surfaceMode == .menuBar
-            ? CGSize(width: ControlCenterSize.parse(UserDefaults.standard.string(forKey: ControlCenterSize.storageKey)).width, height: 520)
+            ? CGSize(width: ControlCenterSize.parse(UserDefaults.standard.string(forKey: ControlCenterSize.storageKey)).width, height: 792)
             : CGSize(width: MenuBarCreativeHubView.panelWidth,
                      height: MenuBarCreativeHubView.panelHeight + HubCaretPlan.height)
         let x = min(max(buttonRect.midX - size.width / 2, visible.minX), visible.maxX - size.width)
@@ -597,6 +612,10 @@ final class MenuBarHubPanelController {
                 style: ControlCenterStyle.parse(UserDefaults.standard.string(forKey: ControlCenterStyle.storageKey)),
                 onSettings: { [weak self] in self?.hide(); self?.onOpenSettings() })
                 .frame(width: size.width, height: size.height)
+                // The edge deck supplies this plate itself; the menu-bar panel has no plate, so
+                // without it the packed cards sit on bare desktop and turn illegible.
+                .background(HubPlate().ignoresSafeArea())
+                .clipShape(RoundedRectangle(cornerRadius: ControlCenterView.cornerRadius, style: .continuous))
                 .environment(\.dockThemeStyle, themeStyle())
                 .environment(\.themeTuning, themeTuning()))
             : AnyView(MenuBarCreativeHubView(
