@@ -250,9 +250,50 @@ struct BackgroundActivityDeckView: View {
                 ForEach(items, id: \.bundleID) { item in row(item) }
             }
             Spacer(minLength: 0)
+            homeBar
         }
         .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// The visible way out, right on the deck that took the new job: what happened, and one click
+    /// back to the standalone Control Centre. The alert on the switch is the first telling; this is
+    /// the one that stays until the owner decides.
+    private var homeBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "menubar.rectangle")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(inkSoft)
+            Text("Control Centre is now in the Menu Bar")
+                .font(.system(size: 10.5, weight: .medium))
+                .foregroundStyle(inkSoft)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 4)
+            Button { useEdgeInstead() } label: {
+                Text("Use Edge Instead")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(ink)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(Color.primary.opacity(0.09)))
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .help(Text("Use Edge Instead"))
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color.primary.opacity(0.045)))
+    }
+
+    private func useEdgeInstead() {
+        UserDefaults.standard.set(ControlCenterSurfaceMode.edge.rawValue,
+                                  forKey: ControlCenterSurfaceMode.storageKey)
+        NotificationCenter.default.post(name: .controlCenterSurfaceDidChange, object: nil)
+        // The notification closes this deck; reopen in place as the Control Centre grid so the undo
+        // is something the owner sees, not just a preference that changed underneath them.
+        DispatchQueue.main.async { AppDelegate.shared?.toggleControlCenter() }
     }
 
     private var countBadge: some View {
@@ -272,6 +313,53 @@ struct BackgroundActivityDeckView: View {
         }
         .padding(.horizontal, 9).padding(.vertical, 6)
         .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color.primary.opacity(0.055)))
+        .nativeContextMenu { menu(for: item) }
+    }
+
+    /// Row right-click, in the shared menu grammar: the app's icon and name, Open / Show / Quit
+    /// tiles, then the same actions as rows plus hiding the app from this deck.
+    private func menu(for item: BackgroundActivity.Item) -> NSMenu {
+        let nsMenu = NSMenu()
+        let appIcon = NSWorkspace.shared.urlForApplication(withBundleIdentifier: item.bundleID)
+            .map { NSWorkspace.shared.icon(forFile: $0.path) }
+        nsMenu.addItem(DockMenuChrome.header(
+            icon: appIcon,
+            title: item.name,
+            status: nil,
+            tiles: [
+                .init(symbol: "arrow.up.forward.app", caption: String(localized: "Open")) { activate(item) },
+                .init(symbol: "eye", caption: String(localized: "Show")) { show(item) },
+                .init(symbol: "power", caption: String(localized: "Quit App")) { quit(item) },
+            ],
+            menu: nsMenu
+        ))
+        nsMenu.addItem(.separator())
+        MenuChrome.action(String(localized: "Open"), symbol: "arrow.up.forward.app", in: nsMenu) { activate(item) }
+        MenuChrome.action(String(localized: "Show"), symbol: "eye", in: nsMenu) { show(item) }
+        MenuChrome.action(String(localized: "Quit App"), symbol: "power", in: nsMenu) { quit(item) }
+        nsMenu.addItem(.separator())
+        MenuChrome.action(String(localized: "Hide from Background Apps"), symbol: "eye.slash", in: nsMenu) {
+            store.ignore(item.bundleID)
+        }
+        return nsMenu
+    }
+
+    private func runningApp(_ item: BackgroundActivity.Item) -> NSRunningApplication? {
+        NSRunningApplication.runningApplications(withBundleIdentifier: item.bundleID).first
+    }
+
+    private func activate(_ item: BackgroundActivity.Item) {
+        runningApp(item)?.activate(options: [.activateIgnoringOtherApps])
+    }
+
+    private func show(_ item: BackgroundActivity.Item) {
+        guard let app = runningApp(item) else { return }
+        app.unhide()
+        app.activate(options: [.activateIgnoringOtherApps])
+    }
+
+    private func quit(_ item: BackgroundActivity.Item) {
+        runningApp(item)?.terminate()
     }
 
     /// A real bundle icon when the app resolves one; otherwise a monogram in the panel's accent

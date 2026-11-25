@@ -247,6 +247,12 @@ private struct ControlCenterAppearanceSettings: View {
                                   info: String(localized: "Keeps the now-playing card even when another music surface is on."))
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .controlCenterSurfaceDidChange)) { _ in
+            // The Background Apps deck can undo the home from inside its own footer; Settings is
+            // often still open when it does, so the Home row must follow the real preference.
+            surfaceRaw = UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey)
+                ?? ControlCenterSurfaceMode.default.rawValue
+        }
     }
 
     @ViewBuilder
