@@ -335,7 +335,8 @@ final class KeyGuardSharedTests: XCTestCase {
 
     /// A settings/frontmost push in the middle of a hold must not cancel the keyUp that fires the quit.
     func testUpdatePreservesAnInProgressHold() {
-        let shared = KeyGuardShared()
+        // Secure Input belongs to the host, not this state machine: pin it off.
+        let shared = KeyGuardShared(secureInput: { false })
         shared.update(state: KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true))
         let down = shared.decide(.keyDown(keyCode: q, modifiers: [.command]))
         XCTAssertEqual(down.decision, .consumeAndFire(.slowQuitPressed))
@@ -375,7 +376,7 @@ final class KeyGuardSharedTests: XCTestCase {
     /// 24e: the tap thread does this work for every key event. The shared holder (lock + reduce + keycap
     /// buffer) must stay far under one 60 Hz frame, so a stuck key can never back the system up.
     func testTapPathStaysSubFrameUnderLoad() {
-        let shared = KeyGuardShared()
+        let shared = KeyGuardShared(secureInput: { false })
         shared.setVisualizer(enabled: true)
         shared.update(state: KeyGuardState(slowQuitEnabled: true, slowQuitApplies: true))
         let q = KeyGuardPipeline.quitKeyCode

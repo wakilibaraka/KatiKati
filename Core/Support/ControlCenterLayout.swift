@@ -277,6 +277,21 @@ enum ControlCenterSurfaceMode: String, CaseIterable, Sendable {
     }
 }
 
+extension ControlCenterSurfaceMode {
+    /// The status item hosts Control Centre in the menu bar only in this mode; otherwise it hosts
+    /// the Creative Hub. Named so the host choice is testable without opening a panel.
+    var hostsControlCentreInMenuBar: Bool { self == .menuBar }
+
+    /// What the standalone panel shows under this mode. Menu-bar mode hands its content to the
+    /// status item, so the panel takes the Background Apps job instead of duplicating the grid.
+    var edgeDeckRole: ControlCenterEdgeRole {
+        switch self {
+        case .edge: return .controlCenter
+        case .menuBar: return .backgroundActivity
+        }
+    }
+}
+
 /// What the edge deck does once Control Centre moves to the menu bar. Choosing the menu-bar home is
 /// the only thing that switches this, so nobody's deck changes job without asking.
 extension Notification.Name {
@@ -290,8 +305,8 @@ enum ControlCenterEdgeRole: String, CaseIterable, Sendable {
 
     /// The role a surface mode implies, plus whether the owner still needs to be told about it.
     static func implied(by mode: ControlCenterSurfaceMode, hasBeenTold: Bool) -> (role: ControlCenterEdgeRole, needsPrompt: Bool) {
-        guard mode == .menuBar else { return (.controlCenter, false) }
-        return (.backgroundActivity, !hasBeenTold)
+        let role = mode.edgeDeckRole
+        return (role, role == .backgroundActivity && !hasBeenTold)
     }
 
     static let promptSeenKey = "com.katikati.controlcenter.menuBarRolePromptSeen"

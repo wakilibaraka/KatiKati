@@ -226,8 +226,8 @@ private struct ControlCenterAppearanceSettings: View {
                     // The deck changes job only when this switch is what moved Control Centre to the
                     // menu bar, and the owner hears about it exactly once. Both buttons dismiss; the
                     // second is the way back, so the change is never a trap.
-                    guard next == .menuBar,
-                          !UserDefaults.standard.bool(forKey: ControlCenterEdgeRole.promptSeenKey) else { return }
+                    let told = UserDefaults.standard.bool(forKey: ControlCenterEdgeRole.promptSeenKey)
+                    guard ControlCenterEdgeRole.implied(by: next, hasBeenTold: told).needsPrompt else { return }
                     UserDefaults.standard.set(true, forKey: ControlCenterEdgeRole.promptSeenKey)
                     let alert = NSAlert()
                     alert.messageText = String(localized: "Control Centre is now in the Menu Bar")
