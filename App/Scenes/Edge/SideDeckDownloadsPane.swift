@@ -13,13 +13,26 @@ struct SideDeckDownloadsPane: View {
     @State private var inputError: String? = nil
     @State private var successToast: String? = nil
 
-    var body: some View {
-        HStack(spacing: 12) {
-            // Card A: Browser Downloads & In-Flight Transfers
-            cardABrowserDownloads
+    // SD-5: the URL resolver is opt-in and owner-supplied — a yt-dlp they installed, or an endpoint they host.
+    @AppStorage(MediaResolveService.enabledKey) private var resolverEnabled = false
+    @AppStorage(MediaResolveService.toolKey) private var resolverTool = ""
+    @ObservedObject private var resolver = MediaResolveService.shared
+    @State private var resolveQuality: MediaQuality = .best
+    @State private var resolveMute = false
+    @State private var resolveName = ""
 
-            // Card B: Torrent & Link Ingestion Hub
-            cardBTorrentIngestion
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                // Card A: Browser Downloads & In-Flight Transfers
+                cardABrowserDownloads
+
+                // Card B: Torrent & Link Ingestion Hub
+                cardBTorrentIngestion
+            }
+
+            // SD-5: the opt-in resolver, under both cards so it is on the path the pane already has.
+            resolverBar
         }
         .onAppear {
             downloadService.retain()
@@ -27,6 +40,112 @@ struct SideDeckDownloadsPane: View {
         .onDisappear {
             downloadService.release()
         }
+    }
+
+    // MARK: - SD-5: media URL resolver (opt-in)
+
+    private var resolverBar: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Toggle(isOn: $resolverEnabled) {
+                    Text(verbatim: "URL RESOLVER")
+                        .font(.system(size: 10, weight: .heavy, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+
+                if resolverEnabled {
+                    TextField(toolPrompt, text: $resolverTool)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 11, design: .monospaced))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(Color.white.opacity(0.08)))
+                        .frame(maxWidth: 280)
+
+                    Menu {
+                        ForEach(MediaQuality.allCases, id: \.self) { quality in
+                            Button(quality.label) { resolveQuality = quality }
+                        }
+                    } label: {
+                        Text(verbatim: resolveQuality.label)
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+
+                    Toggle(isOn: $resolveMute) {
+                        Text(verbatim: "MUTE")
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    }
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                    .disabled(resolveQuality == .audio)
+
+                    TextField(namePrompt, text: $resolveName)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 11, design: .monospaced))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(Color.white.opacity(0.08)))
+                        .frame(maxWidth: 180)
+                }
+
+                Spacer()
+
+                if resolverEnabled {
+                    Button {
+                        resolver.resolve(url: resolveTarget, options: resolveOptions)
+                    } label: {
+                        if resolver.isResolving {
+                            ProgressView().controlSize(.mini)
+                        } else {
+                            Text(verbatim: "Resolve")
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(resolver.isResolving)
+                    .opacity(resolveTargetIsValid ? 1 : 0.4)
+                }
+            }
+
+            if resolverEnabled {
+                if let failure = resolver.lastFailure {
+                    Text(verbatim: failure)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.orange)
+                } else if let file = resolver.lastFile {
+                    Text(verbatim: file.lastPathComponent)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.green)
+                } else if resolver.configuredTool == nil {
+                    Text(verbatim: "Point it at a yt-dlp you installed or an endpoint you host.")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.45))
+                }
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white.opacity(0.05)))
+    }
+
+    /// Plain `String` placeholders (a literal would become a localized key): the tool path is technical text.
+    private var toolPrompt: String { "yt-dlp path or https endpoint" }
+    private var namePrompt: String { "file name (optional)" }
+
+    /// The link the resolver would use: whatever the owner typed into the pane's ingestion field.
+    private var resolveTarget: URL {
+        URL(string: inputURLText.trimmingCharacters(in: .whitespacesAndNewlines)) ?? URL(string: "about:blank")!
+    }
+
+    private var resolveTargetIsValid: Bool { MediaResolver.isSupported(resolveTarget) }
+
+    private var resolveOptions: MediaResolveOptions {
+        MediaResolveOptions(quality: resolveQuality, mute: resolveMute, fileName: resolveName)
     }
 
     // MARK: - Card A: Browser Downloads & In-Flight Transfers
