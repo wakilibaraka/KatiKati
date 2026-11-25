@@ -2598,9 +2598,9 @@
     "semantic_hash": "235553434f6be4b7097f30d1f64b2d71"
   },
   "Platform/Accessibility/AXWindowReader.swift": {
-    "mtime": 1795342412.7609758,
-    "seen": 1795606909.622607,
-    "ast_hash": "c4ab5f81b957e72aed2b1312b2e2ac3f",
+    "mtime": 1795630822.246911,
+    "seen": 1795631093.869688,
+    "ast_hash": "ac463ac2005f9264d144c087725e109f",
     "semantic_hash": ""
   },
   "Platform/Accessibility/AccessibilitySource.swift": {
