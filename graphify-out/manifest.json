@@ -8098,5 +8098,59 @@
     "seen": 1795569519.030422,
     "ast_hash": "afcb5e5962a973bbd65a91ec5556988d",
     "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/04-preset-classic.png": {
+    "mtime": 1795569525.644388,
+    "seen": 1795569862.435889,
+    "ast_hash": "c1929f00f2833570d299e17e9035e5bc",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/05-dedupe-battery-off.png": {
+    "mtime": 1795569561.8412,
+    "seen": 1795569862.43589,
+    "ast_hash": "c070ae091abeb640cf387ddc57f68bf4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/06-dedupe-battery-on.png": {
+    "mtime": 1795569625.7801988,
+    "seen": 1795569862.435891,
+    "ast_hash": "8baed01af8f926a636186b85ce2542f7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/07-preset-bento.png": {
+    "mtime": 1795569603.6592033,
+    "seen": 1795569862.4358919,
+    "ast_hash": "5d9aa43a61afce841fb61f5e528e661d",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/07-preset-classic.png": {
+    "mtime": 1795569608.317505,
+    "seen": 1795569862.4358919,
+    "ast_hash": "48dce2dd2e600e5c1bfdb3915f408822",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/07-preset-modular.png": {
+    "mtime": 1795569598.970203,
+    "seen": 1795569862.435893,
+    "ast_hash": "57adcafbd4a395bb577e50a6172fff67",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/08-music-show-anyway-on.png": {
+    "mtime": 1795569713.0429544,
+    "seen": 1795569862.435894,
+    "ast_hash": "bf488f96ce4e3e12cddff33e2f4032a8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/09-music-hidden.png": {
+    "mtime": 1795569726.788744,
+    "seen": 1795569862.435895,
+    "ast_hash": "b974a4cdda8912cee2028e90891eee7c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/10-music-single-off.png": {
+    "mtime": 1795569739.9711874,
+    "seen": 1795569862.435895,
+    "ast_hash": "354dac92ac58163658b30650187c0df6",
+    "semantic_hash": ""
   }
 }
