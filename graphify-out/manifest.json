@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795568591.3538196,
-    "seen": 1795569411.222624,
-    "ast_hash": "812e81adac85779d658b19a13793eebe",
+    "mtime": 1795570957.2712214,
+    "seen": 1795571371.190201,
+    "ast_hash": "2f3d82ea0fc25c7f62c7856e5dc96310",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1524,10 +1524,10 @@
     "semantic_hash": "a553a21089e0353297698385c9f17766"
   },
   "Core/Support/BackgroundAppClassifier.swift": {
-    "mtime": 1791999130.7534826,
-    "seen": 1795534644.45731,
-    "ast_hash": "f17a2406b8b8a0433cf5d6db03d1b9d7",
-    "semantic_hash": "f17a2406b8b8a0433cf5d6db03d1b9d7"
+    "mtime": 1795571217.949439,
+    "seen": 1795571371.190326,
+    "ast_hash": "7892551115f363a75595aea53bab5bf9",
+    "semantic_hash": ""
   },
   "Core/Support/BadgeReadPlan.swift": {
     "mtime": 1791999130.7400606,
@@ -3192,10 +3192,10 @@
     "semantic_hash": "a8b28cb423b2c6dbf4012400a8e8fedd"
   },
   "Tests/Unit/BackgroundAppClassifierTests.swift": {
-    "mtime": 1791999130.9456482,
-    "seen": 1795534644.457623,
-    "ast_hash": "b37a6e1ae2c435f7098f2cea10dca565",
-    "semantic_hash": "b37a6e1ae2c435f7098f2cea10dca565"
+    "mtime": 1795571219.10756,
+    "seen": 1795571371.190638,
+    "ast_hash": "c8bcb76f1b08d0722a39412a15f33626",
+    "semantic_hash": ""
   },
   "Tests/Unit/BadgeReadPlanTests.swift": {
     "mtime": 1791999130.9569783,
@@ -8157,6 +8157,18 @@
     "mtime": 1795570662.3864517,
     "seen": 1795570703.992895,
     "ast_hash": "c7ccfcdf841f72fa81e1cf2fd5fa4abe",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/12-background-apps-deck.md": {
+    "mtime": 1795571327.255787,
+    "seen": 1795571371.190965,
+    "ast_hash": "82a8072bb2f5a731f248668cf3ffdf8e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-control-center/12-background-apps-deck.png": {
+    "mtime": 1795571296.8180602,
+    "seen": 1795571371.191094,
+    "ast_hash": "a37402d15c7f522f75247db65e4e580c",
     "semantic_hash": ""
   }
 }
