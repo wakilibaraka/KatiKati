@@ -207,13 +207,8 @@ private struct ControlCenterAppearanceSettings: View {
             }
 
             // The Hub is the other tenant of that icon, so choosing this home is also the moment
-            // it becomes unavailable. Say so above the row, where it cannot be mistaken for a
-            // broken Hub later.
-            if ControlCenterSurfaceMode.parse(surfaceRaw) == .menuBar {
-                SettingsNote(Text("Creative Hub is paused while Control Centre is in the Menu Bar."))
-                    .padding(.vertical, SettingsMetrics.rowVerticalPadding)
-            }
-
+            // it becomes unavailable. The note rides on the row itself: this pane is a fixed
+            // height, and a note stacked above pushed the way back out of view.
             SettingsSegmentedRow(Text("Home"), selection: Binding(
                 get: { ControlCenterSurfaceMode.parse(surfaceRaw) },
                 set: { next in
@@ -241,7 +236,9 @@ private struct ControlCenterAppearanceSettings: View {
                         NotificationCenter.default.post(name: .controlCenterSurfaceDidChange, object: nil)
                     }
                 }
-            )) {
+            ), note: ControlCenterSurfaceMode.parse(surfaceRaw) == .menuBar
+                ? Text("Creative Hub is paused while Control Centre is in the Menu Bar.")
+                : nil) {
                 Text("Edge").tag(ControlCenterSurfaceMode.edge)
                 Text("Menu Bar").tag(ControlCenterSurfaceMode.menuBar)
             }
