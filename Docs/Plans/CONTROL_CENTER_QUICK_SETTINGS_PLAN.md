@@ -161,32 +161,6 @@ gets a different job instead of duplicating it.
 - The home choice is the only thing that moves Control Centre, and the default keeps today's arrangement;
   Background Apps is the deck's replacement job because it already exists as a full view.
 
-## 7. Verification record (closed) and what is still owed
-
-Closed in this pass, on the installed Release 0.18.0 (54), evidence in
-`Docs/Archive/Planning/evidence/2026-11-25-cc-presets/`:
-
-- **Idle CPU/RSS** — `Scripts/bench_katikati.sh --idle-only`: **1.85 %** of one core for KatiKati and
-  **2.16 %** for its process group, **358.2 MB** resident (442.8 MB group) after a 120 s settle and a
-  60 s sample. Two honest caveats: the sample needs one static window open because a not-yet-trusted fresh
-  install enables AppKit automatic termination, and 0.32 % / 82.5 MB of the group is the existing
-  `NowPlayingService` `swift-frontend` helper, not the panel. `powermetrics` rows are `n/a` (no passwordless
-  sudo on this Mac).
-- **Presets** — `classic`, `modular` and `bento` captured from the shipped panel, from the menu-bar home,
-  plus 1:1 crops of the title, footer and note ink. Switching preset and reopening the panel applies
-  without relaunch; single-battery keeps the header pill and shows no `This Mac` row.
-- **Readability** — footer tiles, `Manage accounts` and `No connected devices report a battery` are all
-  legible at 1:1; no ink change was needed.
-- **Profile** — the pre-existing `com.katikati.app.plist` was backed up to
-  `/tmp/katikati-prefs-cc-20261125/` before any run and imported back afterwards; the app was then left on
-  a wiped profile for onboarding.
-
-Still owed (not blockers, just not done here):
-
-- The edge-hosted panel at each preset (only the menu-bar home was captured), Reduced Motion and VoiceOver
-  order, and a pointer pass over drag-to-reorder inside the panel.
-- Longer `powermetrics` wakeup figures once a passwordless sudo path exists on the bench machine.
-
 ## 5. Risks
 - `StatusTrioView.swift` is already 1,515 lines and holds the hub too; adding four tile sizes risks a file
   that is hard to review. Mitigation: one view per size as small `@ViewBuilder` helpers, and each slice's
@@ -215,3 +189,29 @@ there is no SF Symbol named "bluetooth" (verified on macOS 27), so the Bluetooth
 
 Plan CC-1..CC-5 exactly as written in Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md.
 ```
+
+## 7. Verification record (closed) and what is still owed
+
+Closed in this pass, on the installed Release 0.18.0 (54), evidence in
+`Docs/Archive/Planning/evidence/2026-11-25-cc-presets/`:
+
+- **Idle CPU/RSS** — `Scripts/bench_katikati.sh --idle-only`: **1.85 %** of one core for KatiKati and
+  **2.16 %** for its process group, **358.2 MB** resident (442.8 MB group) after a 120 s settle and a
+  60 s sample. Two honest caveats: the sample needs one static window open because a not-yet-trusted fresh
+  install enables AppKit automatic termination, and 0.32 % / 82.5 MB of the group is the existing
+  `NowPlayingService` `swift-frontend` helper, not the panel. `powermetrics` rows are `n/a` (no passwordless
+  sudo on this Mac).
+- **Presets** — `classic`, `modular` and `bento` captured from the shipped panel, from the menu-bar home,
+  plus 1:1 crops of the title, footer and note ink. Switching preset and reopening the panel applies
+  without relaunch; single-battery keeps the header pill and shows no `This Mac` row.
+- **Readability** — footer tiles, `Manage accounts` and `No connected devices report a battery` are all
+  legible at 1:1; no ink change was needed.
+- **Profile** — the pre-existing `com.katikati.app.plist` was backed up to
+  `/tmp/katikati-prefs-cc-20261125/` before any run and imported back afterwards; the app was then left on
+  a wiped profile for onboarding.
+
+Still owed (not blockers, just not done here):
+
+- The edge-hosted panel at each preset (only the menu-bar home was captured), Reduced Motion and VoiceOver
+  order, and a pointer pass over drag-to-reorder inside the panel.
+- Longer `powermetrics` wakeup figures once a passwordless sudo path exists on the bench machine.
