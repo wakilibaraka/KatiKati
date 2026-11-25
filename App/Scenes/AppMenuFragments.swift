@@ -389,151 +389,202 @@ enum WidgetMenuBuilder {
         let menu = NSMenu()
         guard section != .apps else { return menu }
         let layout = store.widgetLayout
+        let instance = layout.instance(for: section)
+
+        var status: [String] = []
+        if section.supportsWidgetSizes { status.append(sizeTitle(instance.size)) }
+        if instance.stack != nil { status.append(String(localized: "Smart Stack")) }
+        menu.addItem(DockMenuChrome.header(
+            icon: nil,
+            symbol: symbol(for: section),
+            title: section.title,
+            status: status.isEmpty ? nil : status.joined(separator: " · "),
+            tiles: [
+                .init(symbol: "gearshape", caption: String(localized: "Settings")) {
+                    DispatchQueue.main.async {
+                        AppDelegate.shared?.openSettings(selecting: section == .weather ? .weather : .dockItems)
+                    }
+                },
+                .init(symbol: "slider.horizontal.3",
+                      caption: String(localized: WidgetEditMode.shared.isEditing ? "Done" : "Edit")) {
+                    WidgetEditMode.shared.toggle()
+                },
+                .init(symbol: "eye.slash", caption: String(localized: "Hide")) {
+                    store.setWidgetLayout(store.widgetLayout.updating(section) { $0.isVisible = false })
+                },
+            ],
+            menu: menu
+        ))
+        menu.addItem(.separator())
 
         if section.supportsWidgetSizes {
-            let current = layout.instance(for: section).size
-            let sizeMenu = NSMenu(title: String(localized: "Size"))
-            for (size, title) in [(WidgetSize.small, String(localized: "Small")),
-                                  (.medium, String(localized: "Medium")),
-                                  (.large, String(localized: "Large"))] {
-                let item = ClosureMenuItem(title) { store.setWidgetSize(size, for: section) }
-                item.state = size == current ? .on : .off
-                sizeMenu.addItem(item)
+            MenuChrome.section(String(localized: "Size"), symbol: "rectangle.3.group", in: menu)
+            for size in [WidgetSize.small, WidgetSize.medium, WidgetSize.large] {
+                let row = MenuChrome.action(sizeTitle(size), symbol: sizeSymbol(size), in: menu) {
+                    store.setWidgetSize(size, for: section)
+                }
+                row.state = size == instance.size ? .on : .off
             }
-            let sizeItem = NSMenuItem(title: String(localized: "Size"), action: nil, keyEquivalent: "")
-            sizeItem.submenu = sizeMenu
-            menu.addItem(sizeItem)
         }
 
         if section == .clock {
-            let current = UserDefaults.standard.string(forKey: "com.katikati.clock.preset") ?? ClockPreset.stackedCard.rawValue
-            let styleMenu = NSMenu(title: String(localized: "Clock Style"))
-            for (preset, title) in [(ClockPreset.stackedCard, String(localized: "Stacked")),
-                                    (ClockPreset.minimal, String(localized: "Minimal")),
-                                    (ClockPreset.modernMac, String(localized: "Modern")),
-                                    (.pixelRetro, String(localized: "Pixel")),
-                                    (.flipTiles, String(localized: "Flip clock"))] {
-                let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.clock.preset") }
-                item.state = preset.rawValue == current ? .on : .off
-                styleMenu.addItem(item)
+            MenuChrome.submenu(String(localized: "Clock Style"), symbol: "clock", in: menu) { sub in
+                let current = UserDefaults.standard.string(forKey: "com.katikati.clock.preset") ?? ClockPreset.stackedCard.rawValue
+                for (preset, title) in [(ClockPreset.stackedCard, String(localized: "Stacked")),
+                                        (ClockPreset.minimal, String(localized: "Minimal")),
+                                        (ClockPreset.modernMac, String(localized: "Modern")),
+                                        (.pixelRetro, String(localized: "Pixel")),
+                                        (.flipTiles, String(localized: "Flip clock"))] {
+                    let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.clock.preset") }
+                    item.state = preset.rawValue == current ? .on : .off
+                    sub.addItem(item)
+                }
             }
-            let styleItem = NSMenuItem(title: String(localized: "Clock Style"), action: nil, keyEquivalent: "")
-            styleItem.submenu = styleMenu
-            menu.addItem(styleItem)
         }
         if section == .weather {
-            let current = UserDefaults.standard.string(forKey: WeatherUnits.temperatureKey) ?? TemperatureUnit.celsius.rawValue
-            let unitMenu = NSMenu(title: String(localized: "Temperature Unit"))
-            for (unit, title) in [(TemperatureUnit.celsius, "°C"), (.fahrenheit, "°F")] {
-                let item = ClosureMenuItem(title) { UserDefaults.standard.set(unit.rawValue, forKey: WeatherUnits.temperatureKey) }
-                item.state = unit.rawValue == current ? .on : .off
-                unitMenu.addItem(item)
+            MenuChrome.submenu(String(localized: "Temperature Unit"), symbol: "thermometer.medium", in: menu) { sub in
+                let current = UserDefaults.standard.string(forKey: WeatherUnits.temperatureKey) ?? TemperatureUnit.celsius.rawValue
+                for (unit, title) in [(TemperatureUnit.celsius, "°C"), (.fahrenheit, "°F")] {
+                    let item = ClosureMenuItem(title) { UserDefaults.standard.set(unit.rawValue, forKey: WeatherUnits.temperatureKey) }
+                    item.state = unit.rawValue == current ? .on : .off
+                    sub.addItem(item)
+                }
             }
-            let unitItem = NSMenuItem(title: String(localized: "Temperature Unit"), action: nil, keyEquivalent: "")
-            unitItem.submenu = unitMenu
-            menu.addItem(unitItem)
-
-            let currentPreset = UserDefaults.standard.string(forKey: "com.katikati.weather.chipPreset") ?? WeatherChipPreset.modern.rawValue
-            let styleMenu = NSMenu(title: String(localized: "Weather Style"))
-            // The offered styles (retired ones only while one is stored), via `pickerCases`.
-            for preset in WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: currentPreset) ?? .modern) {
-                let item = ClosureMenuItem(Self.weatherPresetMenuTitle(preset)) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.weather.chipPreset") }
-                item.state = preset.rawValue == currentPreset ? .on : .off
-                styleMenu.addItem(item)
+            MenuChrome.submenu(String(localized: "Weather Style"), symbol: "cloud.sun", in: menu) { sub in
+                let currentPreset = UserDefaults.standard.string(forKey: "com.katikati.weather.chipPreset") ?? WeatherChipPreset.modern.rawValue
+                for preset in WeatherChipPreset.pickerCases(current: WeatherChipPreset(rawValue: currentPreset) ?? .modern) {
+                    let item = ClosureMenuItem(Self.weatherPresetMenuTitle(preset)) {
+                        UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.weather.chipPreset")
+                    }
+                    item.state = preset.rawValue == currentPreset ? .on : .off
+                    sub.addItem(item)
+                }
             }
-            let styleItem = NSMenuItem(title: String(localized: "Weather Style"), action: nil, keyEquivalent: "")
-            styleItem.submenu = styleMenu
-            menu.addItem(styleItem)
         }
         if section == .widgets {
-            let current = UserDefaults.standard.string(forKey: "com.katikati.widgets.fabStyle") ?? "gauge"
-            let styleMenu = NSMenu(title: String(localized: "FAB Style"))
-            for (key, title) in [("gauge", String(localized: "Dynamic Gauge")),
-                                 ("classic", String(localized: "Classic Glyph"))] {
-                let item = ClosureMenuItem(title) { UserDefaults.standard.set(key, forKey: "com.katikati.widgets.fabStyle") }
-                item.state = key == current ? .on : .off
-                styleMenu.addItem(item)
+            MenuChrome.submenu(String(localized: "FAB Style"), symbol: "dial.medium", in: menu) { sub in
+                let current = UserDefaults.standard.string(forKey: "com.katikati.widgets.fabStyle") ?? "gauge"
+                for (key, title) in [("gauge", String(localized: "Dynamic Gauge")),
+                                     ("classic", String(localized: "Classic Glyph"))] {
+                    let item = ClosureMenuItem(title) { UserDefaults.standard.set(key, forKey: "com.katikati.widgets.fabStyle") }
+                    item.state = key == current ? .on : .off
+                    sub.addItem(item)
+                }
             }
-            let styleItem = NSMenuItem(title: String(localized: "FAB Style"), action: nil, keyEquivalent: "")
-            styleItem.submenu = styleMenu
-            menu.addItem(styleItem)
         }
         if section == .media {
-            let current = UserDefaults.standard.string(forKey: "com.katikati.media.preset") ?? NowPlayingPreset.accentCard.rawValue
-            let styleMenu = NSMenu(title: String(localized: "Media Player Style"))
-            for (preset, title) in [(NowPlayingPreset.accentCard, "Accent Wash Card"),
-                                    (NowPlayingPreset.graphiteCard, String(localized: "Graphite Card")),
-                                    (NowPlayingPreset.expandedCard, String(localized: "Expanded Card")),
-                                    (NowPlayingPreset.miniChip, String(localized: "Mini Chip"))] {
-                let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.media.preset") }
-                item.state = preset.rawValue == current ? .on : .off
-                styleMenu.addItem(item)
+            MenuChrome.submenu(String(localized: "Media Player Style"), symbol: "music.note", in: menu) { sub in
+                let current = UserDefaults.standard.string(forKey: "com.katikati.media.preset") ?? NowPlayingPreset.accentCard.rawValue
+                for (preset, title) in [(NowPlayingPreset.accentCard, "Accent Wash Card"),
+                                        (NowPlayingPreset.graphiteCard, String(localized: "Graphite Card")),
+                                        (NowPlayingPreset.expandedCard, String(localized: "Expanded Card")),
+                                        (NowPlayingPreset.miniChip, String(localized: "Mini Chip"))] {
+                    let item = ClosureMenuItem(title) { UserDefaults.standard.set(preset.rawValue, forKey: "com.katikati.media.preset") }
+                    item.state = preset.rawValue == current ? .on : .off
+                    sub.addItem(item)
+                }
             }
-            let styleItem = NSMenuItem(title: String(localized: "Media Player Style"), action: nil, keyEquivalent: "")
-            styleItem.submenu = styleMenu
-            menu.addItem(styleItem)
         }
+
         if section.supportsWidgetSizes {
-            let stacked = layout.instance(for: section).stack != nil
-            let stackItem = ClosureMenuItem(String(localized: "Smart Stack")) {
+            let stacked = instance.stack != nil
+            MenuChrome.section(String(localized: "Layout"), symbol: "square.stack.3d.up", in: menu)
+            let stackRow = MenuChrome.action(String(localized: "Smart Stack"), symbol: "square.stack.3d.up", in: menu) {
                 store.setWidgetLayout(store.widgetLayout.updating(section) {
                     $0.stack = stacked ? nil : StackRelevance.defaultMembers
                 })
             }
-            stackItem.state = stacked ? .on : .off
-            menu.addItem(stackItem)
+            stackRow.state = stacked ? .on : .off
             if StackRelevance.defaultMembers.contains(section) {
                 let glance = StackRelevance.glanceMembers
-                let members = layout.instance(for: section).stack ?? []
+                let members = instance.stack ?? []
                 let glanceOn = glance.allSatisfy(members.contains)
-                let glanceItem = ClosureMenuItem(String(localized: "Calendar, System & Devices in Stack")) {
+                let glanceRow = MenuChrome.action(String(localized: "Calendar, System & Devices in Stack"),
+                                                  symbol: "checklist", in: menu) {
                     store.setWidgetLayout(store.widgetLayout.updating(section) {
                         let base = $0.stack ?? [section]
                         $0.stack = glanceOn ? base.filter { !glance.contains($0) } : base + glance.filter { !base.contains($0) }
                         if $0.stack?.count ?? 0 < 2 { $0.stack = nil }
                     })
                 }
-                glanceItem.state = glanceOn ? .on : .off
-                menu.addItem(glanceItem)
+                glanceRow.state = glanceOn ? .on : .off
             }
-            if stacked, let members = layout.instance(for: section).stack {
-                menu.addItem(ClosureMenuItem(String(localized: "Show Next in Stack")) {
+            if stacked, let members = instance.stack {
+                MenuChrome.action(String(localized: "Show Next in Stack"), symbol: "forward.end", in: menu) {
                     SmartStackState.shared.showNext(host: section, members: members)
-                })
+                }
             }
         }
 
-        if let index = layout.order.firstIndex(of: section) {
+        if let index = layout.order.firstIndex(of: section), layout.order.count > 1 {
+            MenuChrome.section(String(localized: "Position"), symbol: "arrow.left.and.right", in: menu)
             if index > 0 {
-                let prevTitle = isVertical ? String(localized: "Move Up") : String(localized: "Move Left")
-                menu.addItem(ClosureMenuItem(prevTitle) {
+                MenuChrome.action(isVertical ? String(localized: "Move Up") : String(localized: "Move Left"),
+                                  symbol: isVertical ? "arrow.up" : "arrow.left", in: menu) {
                     store.setWidgetLayout(store.widgetLayout.moving(from: IndexSet(integer: index), to: index - 1))
-                })
+                }
             }
             if index < layout.order.count - 1 {
-                let nextTitle = isVertical ? String(localized: "Move Down") : String(localized: "Move Right")
-                menu.addItem(ClosureMenuItem(nextTitle) {
+                MenuChrome.action(isVertical ? String(localized: "Move Down") : String(localized: "Move Right"),
+                                  symbol: isVertical ? "arrow.down" : "arrow.right", in: menu) {
                     store.setWidgetLayout(store.widgetLayout.moving(from: IndexSet(integer: index), to: index + 2))
-                })
+                }
             }
         }
+
         menu.addItem(.separator())
-        menu.addItem(ClosureMenuItem(String(localized: "Widget Settings…")) {
-            AppDelegate.shared?.openSettings(selecting: section == .weather ? .weather : .dockItems)
-        })
-        let presetMenu = NSMenu(title: String(localized: "Apply Preset"))
-        for preset in WidgetPresets.builtIns { presetMenu.addItem(ClosureMenuItem(preset.localizedTitle) { store.applyWidgetPreset(preset) }) }
-        for preset in store.userWidgetPresets { presetMenu.addItem(ClosureMenuItem(preset.name) { store.applyWidgetPreset(preset) }) }
-        let presetItem = NSMenuItem(title: String(localized: "Apply Preset"), action: nil, keyEquivalent: "")
-        presetItem.submenu = presetMenu
-        menu.addItem(presetItem)
-        menu.addItem(ClosureMenuItem(WidgetEditMode.shared.isEditing ? String(localized: "Done Editing Widgets") : String(localized: "Edit Widgets")) {
+        MenuChrome.action(String(localized: "Widget Settings…"), symbol: "gearshape", in: menu) {
+            DispatchQueue.main.async {
+                AppDelegate.shared?.openSettings(selecting: section == .weather ? .weather : .dockItems)
+            }
+        }
+        MenuChrome.submenu(String(localized: "Apply Preset"), symbol: "wand.and.stars", in: menu) { sub in
+            for preset in WidgetPresets.builtIns { sub.addItem(ClosureMenuItem(preset.localizedTitle) { store.applyWidgetPreset(preset) }) }
+            for preset in store.userWidgetPresets { sub.addItem(ClosureMenuItem(preset.name) { store.applyWidgetPreset(preset) }) }
+        }
+        MenuChrome.action(WidgetEditMode.shared.isEditing ? String(localized: "Done Editing Widgets") : String(localized: "Edit Widgets"),
+                          symbol: "slider.horizontal.3", in: menu) {
             WidgetEditMode.shared.toggle()
-        })
-        menu.addItem(ClosureMenuItem(String(localized: "Hide")) {
+        }
+        MenuChrome.action(String(localized: "Hide"), symbol: "eye.slash", in: menu) {
             store.setWidgetLayout(store.widgetLayout.updating(section) { $0.isVisible = false })
-        })
+        }
         return menu
+    }
+
+    private static func sizeTitle(_ size: WidgetSize) -> String {
+        switch size {
+        case .small: return String(localized: "Small")
+        case .medium: return String(localized: "Medium")
+        default: return String(localized: "Large")
+        }
+    }
+
+    private static func sizeSymbol(_ size: WidgetSize) -> String {
+        switch size {
+        case .small: return "rectangle.portrait"
+        case .medium: return "rectangle.grid.1x2"
+        default: return "rectangle.grid.2x2"
+        }
+    }
+
+    private static func symbol(for section: BarSection) -> String {
+        switch section {
+        case .weather: return "cloud.sun"
+        case .clock: return "clock"
+        case .media: return "music.note"
+        case .calendar: return "calendar"
+        case .system: return "gauge.medium"
+        case .devices: return "airpods"
+        case .drives: return "externaldrive"
+        case .dictionary: return "text.book.closed"
+        case .terminal: return "terminal"
+        case .ai: return "sparkles"
+        case .widgets: return "square.grid.2x2"
+        case .utilities: return "wrench.and.screwdriver"
+        case .launcher: return "square.grid.3x3"
+        case .apps: return "square.grid.2x2"
+        }
     }
 }
 
