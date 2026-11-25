@@ -193,11 +193,13 @@ Plan CC-1..CC-5 exactly as written in Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_P
 ## 7. Verification record
 
 Run on the installed `/Applications/KatiKati.app`, 0.18.0 (54), built by `Scripts/install_local_release.sh`
-from this branch. Two evidence folders:
+from this branch. Three evidence folders:
 
 - `Docs/Archive/Planning/evidence/2026-11-25-cc-presets/` — menu-bar host, presets, ink crops, bench numbers.
 - `Docs/Archive/Planning/evidence/2026-11-25-cc-edge-pass/` — edge host: presets, drag → Custom, Reduce
   Motion, AX dumps. Its `README.md` carries the method, the raw numbers and the limits.
+- `Docs/Archive/Planning/evidence/2026-11-25-cc-dock-pass/` — dock-anchored panel (`side=right`,
+  `anchor=bottom`): presets, drag → Custom, Reduce Motion, AX dumps, plus the dock-strip door measurement.
 
 ### Verified here
 
@@ -233,6 +235,39 @@ from this branch. Two evidence folders:
   `NowPlayingService` `swift-frontend` helper, not the panel. `powermetrics` rows are `n/a` (no passwordless
   sudo on this Mac).
 
+### Dock-anchored pass
+
+`side = right`, `anchor = bottom`, the panel flush to the dock's side of the screen. Method and raw
+numbers in that folder's `README.md`; the head lines:
+
+- **There is no separate dock-hosted panel object.** One `ControlCenterPanelController`, placed by
+  `com.katikati.controlcenter.side` and `.anchor`. Measured: at the shipped height (994 pt, the whole band
+  between menu bar and dock) `anchor = top` and `anchor = bottom` both land on `1338,50 360×994`, so the
+  anchor picker changes nothing a user can see.
+- **The dock strip is not a door to it.** A real `CGEvent` click on the strip's control chip (and an
+  `AXPress` on the same element) opened a 660×620 popover at `64,428`; the standalone panel stayed ordered
+  out (`onscreen=?`, absent from `AXWindows`). The drawer-capsule region changed no window. Captures in
+  this pass therefore opened the panel with the app's own Quick Settings shortcut.
+- **Presets redraw from the stored key** on the dock-anchored panel, one close/reopen each, three distinct
+  frames (`panel-classic.png`, `panel-modular.png`, `panel-bento.png`).
+- **Drag → Custom.** A `CGEvent` press/move/release from the toggle grid onto the Network card wrote
+  `preset = custom` and `v1|custom|bento|…network:wide…`; after quit + relaunch the panel drew that layout
+  (`panel-custom-after-relaunch.png`). Host difference from the edge run: the release must land on a card
+  that does **not** re-flow; dropping into a toggle slot lifts the drag (`drag-in-progress.png`) but no
+  delegate sees the drop, because the grid re-flows under the cursor mid-drag.
+- **Reduced Motion.** `alpha=1.00 x=1338` on the first sampled frame with Reduce Motion on — instant
+  branch, final geometry, no dependence on the fade/slide (`alpha-reduced-motion.txt`,
+  `reduced-motion-bento.png`).
+- **AX.** Panel window alone, 62 lines per preset: 7 named `AXGroup`s, 18 toggles with `value="On"/"Off"`,
+  exactly one `desc="Battery"`, no `This Mac` row (`ax-classic.txt`, `ax-modular.txt`, `ax-bento.txt`,
+  `ax-custom-after-relaunch.txt`).
+
+### Commit size history
+
+Every commit in this plan is under the 300-line cap except `8336876a` (the edge-pass evidence commit,
+466 diff lines of raw AX dumps). `git reset` and `git commit --amend` are refused in this environment,
+so that commit stands as the single over-cap exception; it is evidence-only and changes no source.
+
 ### Blocked, with the specific gate
 
 - **Accessibility grant.** `Scripts/install_local_release.sh` runs `tccutil reset`, the Privacy pane shows no
@@ -249,6 +284,12 @@ from this branch. Two evidence folders:
 
 ### Still open
 
+- `ControlCenterAnchor` is a no-op while the panel fills the band; either size the panel to content or drop
+  the picker — not changed here, it needs a design call on the fill rule.
+- The dock strip exposes no Control Centre door: its chips open their own popover. Either wire one to
+  `onToggleControlCenter` or stop presenting the strip as a CC host.
+- A drag dropped into a re-flowing toggle slot is lost; the release needs to resolve against the
+  pre-drag frame (or the grid must not re-flow while `dragging != nil`).
 - The live Reduce Motion toggle (above), if it turns out not to be a first-frame artifact.
 - A real-TCC-grant pass over the global gestures once the grant can be given at the keyboard.
 - Longer `powermetrics` wakeup figures once a passwordless sudo path exists on the bench machine.
