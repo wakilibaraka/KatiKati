@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795599994.0409708,
-    "seen": 1795602213.178082,
-    "ast_hash": "0107318c7061edd3434fb8055acf5a78",
+    "mtime": 1795605580.9726944,
+    "seen": 1795605614.543741,
+    "ast_hash": "e1144bce9f5048f22df77d492876faf5",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -2352,9 +2352,9 @@
     "semantic_hash": ""
   },
   "Core/Support/SystemMonitorMath.swift": {
-    "mtime": 1795012974.8871713,
-    "seen": 1795602213.1783512,
-    "ast_hash": "ca503f0d6d96976c66abfc504e5f9ef7",
+    "mtime": 1795604951.1041439,
+    "seen": 1795605614.5440571,
+    "ast_hash": "14177c437ddfd774f95c38f212248369",
     "semantic_hash": ""
   },
   "Core/Support/SystemStatus.swift": {
@@ -4164,10 +4164,10 @@
     "semantic_hash": "fcd1ba84937e153a63505bec4e9f8596"
   },
   "Tests/Unit/SystemMonitorMathTests.swift": {
-    "mtime": 1791999130.9432611,
-    "seen": 1795602213.1786501,
-    "ast_hash": "831fd8e76e113bc1043a0e961dd7a974",
-    "semantic_hash": "831fd8e76e113bc1043a0e961dd7a974"
+    "mtime": 1795605449.3056872,
+    "seen": 1795605614.5444028,
+    "ast_hash": "c8829a7cf09534bae6b4a7abc8cf9967",
+    "semantic_hash": ""
   },
   "Tests/Unit/SystemStatusTests.swift": {
     "mtime": 1795558941.9620616,
@@ -6330,9 +6330,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795583051.086913,
-    "seen": 1795602213.17829,
-    "ast_hash": "ea8d9128d76d285b96e179c3e4494660",
+    "mtime": 1795605580.446541,
+    "seen": 1795605614.543985,
+    "ast_hash": "3a2a9a163e5bfcc56e5b41b8b18f4cca",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6342,9 +6342,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795583052.8432727,
-    "seen": 1795602213.178582,
-    "ast_hash": "6d7310d5b600774bb3aa4085abc044ce",
+    "mtime": 1795605581.476355,
+    "seen": 1795605614.544325,
+    "ast_hash": "d1efec27a4fa83d757da142319a5c776",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
@@ -7074,15 +7074,15 @@
     "semantic_hash": ""
   },
   "Core/Support/KeepAwakePolicy.swift": {
-    "mtime": 1794844603.0820649,
-    "seen": 1795602213.1782742,
-    "ast_hash": "651e0c0cc8fe540faf75a5e470850adb",
+    "mtime": 1795604949.1389694,
+    "seen": 1795605614.543967,
+    "ast_hash": "82543a61ccf8195a2849937ea85d8763",
     "semantic_hash": ""
   },
   "Tests/Unit/KeepAwakePolicyTests.swift": {
-    "mtime": 1794844603.121278,
-    "seen": 1795602213.1785622,
-    "ast_hash": "44f91647b67a3027192566e54ddd212d",
+    "mtime": 1795604987.5635588,
+    "seen": 1795605614.544301,
+    "ast_hash": "4a8fbb4dd4ee4641cae26bc7eb86ddaa",
     "semantic_hash": ""
   },
   "Core/Support/AgentProcessScan.swift": {
@@ -7122,9 +7122,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchKeepAwakePageView.swift": {
-    "mtime": 1795358433.7043831,
-    "seen": 1795602213.178106,
-    "ast_hash": "7a53b1fd9bfd0ba6b9d821879a1bd8f1",
+    "mtime": 1795604950.0992146,
+    "seen": 1795605614.54377,
+    "ast_hash": "6339dad0ec08fb145b2236005455edc3",
     "semantic_hash": ""
   },
   "Core/Support/DictionaryEntry.swift": {
