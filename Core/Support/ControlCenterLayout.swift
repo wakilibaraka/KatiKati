@@ -250,6 +250,12 @@ enum ControlCenterSurfaceMode: String, CaseIterable, Sendable {
 
 /// What the edge deck does once Control Centre moves to the menu bar. Choosing the menu-bar home is
 /// the only thing that switches this, so nobody's deck changes job without asking.
+extension Notification.Name {
+    /// Posted when the Control Centre home changes. The Settings pane can only write the key, so
+    /// the app layer listens and closes the surface it just left (Hub or standalone panel).
+    static let controlCenterSurfaceDidChange = Notification.Name("com.katikati.controlcenter.surfaceDidChange")
+}
+
 enum ControlCenterEdgeRole: String, CaseIterable, Sendable {
     case controlCenter, backgroundActivity
 

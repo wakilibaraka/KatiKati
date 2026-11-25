@@ -269,7 +269,15 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             menuBarContextMenu.addItem(item)
         }
         if !tokens.isEmpty { menuBarContextMenu.addItem(.separator()) }
-        let hubItem = NSMenuItem(title: String(localized: "Open Creative Hub"), action: #selector(openCreativeHubFromMenu), keyEquivalent: "")
+        // The status item hosts one surface: Control Centre when the owner moved it to the menu
+        // bar, otherwise the Creative Hub. Name the row for the surface it actually opens.
+        let menuBarSurface = ControlCenterSurfaceMode.parse(
+            UserDefaults.standard.string(forKey: ControlCenterSurfaceMode.storageKey)
+        )
+        let hubTitle = menuBarSurface == .menuBar
+            ? String(localized: "Control Centre")
+            : String(localized: "Open Creative Hub")
+        let hubItem = NSMenuItem(title: hubTitle, action: #selector(openCreativeHubFromMenu), keyEquivalent: "")
         hubItem.target = self
         menuBarContextMenu.addItem(hubItem)
         let settings = NSMenuItem(title: String(localized: "KatiKati Settings…"), action: #selector(showSettings), keyEquivalent: ",")

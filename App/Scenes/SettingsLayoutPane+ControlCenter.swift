@@ -209,14 +209,29 @@ private struct ControlCenterAppearanceSettings: View {
             SettingsSegmentedRow(Text("Home"), selection: Binding(
                 get: { ControlCenterSurfaceMode.parse(surfaceRaw) },
                 set: { next in
+                    guard next != ControlCenterSurfaceMode.parse(surfaceRaw) else { return }
                     surfaceRaw = next.rawValue
+                    // One surface at a time: the app layer closes whatever is open (Hub or Control
+                    // Centre) so the next click shows the home just chosen and two panels never
+                    // stack. A notification keeps this file compilable by the test target.
+                    NotificationCenter.default.post(name: .controlCenterSurfaceDidChange, object: nil)
+                    // The deck changes job only when this switch is what moved Control Centre to the
+                    // menu bar, and the owner hears about it exactly once. Both buttons dismiss; the
+                    // second is the way back, so the change is never a trap.
                     guard next == .menuBar,
                           !UserDefaults.standard.bool(forKey: ControlCenterEdgeRole.promptSeenKey) else { return }
                     UserDefaults.standard.set(true, forKey: ControlCenterEdgeRole.promptSeenKey)
                     let alert = NSAlert()
                     alert.messageText = String(localized: "Control Centre is now in the Menu Bar")
                     alert.informativeText = String(localized: "The edge Control Panel now shows Background Apps. Open the Control Centre from the menu bar icon.")
-                    alert.runModal()
+                    alert.addButton(withTitle: String(localized: "Keep in Menu Bar"))
+                    let revert = alert.addButton(withTitle: String(localized: "Use Edge Instead"))
+                    revert.keyEquivalent = "\u{1b}"
+                    NSApp.activate(ignoringOtherApps: true)
+                    if alert.runModal() == .alertSecondButtonReturn {
+                        surfaceRaw = ControlCenterSurfaceMode.edge.rawValue
+                        NotificationCenter.default.post(name: .controlCenterSurfaceDidChange, object: nil)
+                    }
                 }
             )) {
                 Text("Edge").tag(ControlCenterSurfaceMode.edge)

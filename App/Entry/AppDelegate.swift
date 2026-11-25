@@ -193,6 +193,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }()
     /// Shown from the edge deck's wifi button (`AppDelegate.shared?.toggleControlCenter()`).
     func toggleControlCenter() { controlCenterPanel.toggle() }
+
+    /// The menu-bar item hosts the Creative Hub or Control Centre, never both. Switching the
+    /// Control Centre home closes whichever menu-bar surface and standalone panel are open, so the
+    /// next click opens the chosen home and the old one cannot linger beside it. Posted by the
+    /// Settings pane, which cannot reference this class (the test target compiles it).
+    func controlCenterSurfaceDidChange() {
+        menuBarHubPanel.hide()
+        controlCenterPanel.hide()
+    }
     /// Shown from the radial dial / command bar (`AppDelegate.shared?.toggleShelf()`).
     func toggleShelf() { panelCoordinator?.toggleShelf() }
     /// Toggled from double-tap ⌘, shortcut, or search button.
@@ -411,6 +420,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             MainActor.assumeIsolated {
                 MissionControlSession.shared.applyEnabled(MissionControlSettings.isEnabled())
             }
+        }
+        NotificationCenter.default.addObserver(
+            forName: .controlCenterSurfaceDidChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.controlCenterSurfaceDidChange() }
         }
         MusicSurfaceConfig.ensureWallpaperDefaultMigrated()
         MusicDesktopWidgetController.shared.start()
