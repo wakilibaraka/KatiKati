@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795557382.433948,
-    "seen": 1795557897.209408,
-    "ast_hash": "03ff6ad3e037a8a5b795ae3a14314239",
+    "mtime": 1795583055.5117128,
+    "seen": 1795584158.093892,
+    "ast_hash": "47ff41d6e11a2966decd07c4e2ba7ed3",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795557806.2015128,
-    "seen": 1795557897.209434,
-    "ast_hash": "7bf8fac536e7e3933d71e430a1ef13e6",
+    "mtime": 1795583052.3981638,
+    "seen": 1795584158.093917,
+    "ast_hash": "654976d19bad50cd483f1008715f30f6",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -678,9 +678,9 @@
     "semantic_hash": "dfb22b35e47af4d2a9ce82268479613f"
   },
   "App/Scenes/AppMenuFragments.swift": {
-    "mtime": 1795565516.9336379,
-    "seen": 1795565919.473405,
-    "ast_hash": "1a790b5711da7f8ec21f6500635d3837",
+    "mtime": 1795583804.6323845,
+    "seen": 1795584158.093921,
+    "ast_hash": "61f33508da878d7386e9e6cd7541beb2",
     "semantic_hash": ""
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/ChipPanel/ChipPanelModel.swift": {
-    "mtime": 1795098905.381386,
-    "seen": 1795534644.457134,
-    "ast_hash": "5b72c332c7b4bc741fc3b78628575f9e",
+    "mtime": 1795583814.1954713,
+    "seen": 1795584158.093926,
+    "ast_hash": "f33f0f6a0149726b40ec659129241844",
     "semantic_hash": ""
   },
   "App/Scenes/ChipPanel/ChipPanelView.swift": {
@@ -720,9 +720,9 @@
     "semantic_hash": "12cd1551b6e625ea172af6c8a788e53d"
   },
   "App/Scenes/ChipView.swift": {
-    "mtime": 1795565540.3008153,
-    "seen": 1795565919.4734132,
-    "ast_hash": "c5cfd3649df0e54cc9239e69d6c8a0f9",
+    "mtime": 1795583813.638373,
+    "seen": 1795584158.093929,
+    "ast_hash": "e496a289690dbced42c34d7df520b542",
     "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
@@ -6342,9 +6342,9 @@
     "semantic_hash": ""
   },
   "Core/Support/MenuBarStatModel.swift": {
-    "mtime": 1795565466.9807212,
-    "seen": 1795565919.473709,
-    "ast_hash": "348a886949e5de845ce2500a8c2026dc",
+    "mtime": 1795583051.086913,
+    "seen": 1795584158.094188,
+    "ast_hash": "ea8d9128d76d285b96e179c3e4494660",
     "semantic_hash": ""
   },
   "Core/Support/StartupUIPolicy.swift": {
@@ -6354,9 +6354,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/MenuBarStatModelTests.swift": {
-    "mtime": 1795565468.0163794,
-    "seen": 1795565919.474037,
-    "ast_hash": "7913b0f5c8f410977ca223ea3812189c",
+    "mtime": 1795583052.8432727,
+    "seen": 1795584158.094496,
+    "ast_hash": "6d7310d5b600774bb3aa4085abc044ce",
     "semantic_hash": ""
   },
   "Tests/Unit/StartupUIPolicyTests.swift": {
@@ -8169,6 +8169,60 @@
     "mtime": 1795571296.8180602,
     "seen": 1795571371.191094,
     "ast_hash": "a37402d15c7f522f75247db65e4e580c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/README.md": {
+    "mtime": 1795584089.3580263,
+    "seen": 1795584158.094719,
+    "ast_hash": "ac38449b18c86861a76e11b0e5ae08a8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/01-strip-menu.png": {
+    "mtime": 1795583301.6273184,
+    "seen": 1795584158.094851,
+    "ast_hash": "c1bd8abe4d200faeebe143093050b76a",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/02-strip-menu-wide-header.png": {
+    "mtime": 1795583738.3411338,
+    "seen": 1795584158.0948522,
+    "ast_hash": "989835ab9afe425cac102c438f6b0611",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/03-after-control-center-tile.png": {
+    "mtime": 1795583750.2273815,
+    "seen": 1795584158.0948532,
+    "ast_hash": "60f002c28944d0ceb533454dba945a2e",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/04-app-chip-menu-before-panel-fix.png": {
+    "mtime": 1795583760.061794,
+    "seen": 1795584158.0948591,
+    "ast_hash": "528b8793fcd111594c652aeded733915",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/05-app-chip-menu.png": {
+    "mtime": 1795583905.9037733,
+    "seen": 1795584158.09486,
+    "ast_hash": "425eb5ba9f5d6b161c64d271fa3102bb",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/07-strip-menu-reopened.png": {
+    "mtime": 1795584032.974325,
+    "seen": 1795584158.094861,
+    "ast_hash": "efe4322b71df7e33ffa6a55ca88a1046",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/08-strip-header-closeup.png": {
+    "mtime": 1795584052.9360971,
+    "seen": 1795584158.094862,
+    "ast_hash": "04c4c9e2e7f71ab8b471525b14a7678c",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-strip-menu/09-app-chip-header-closeup.png": {
+    "mtime": 1795584053.4259632,
+    "seen": 1795584158.094862,
+    "ast_hash": "3764cd0371872376c9890bd8788a2880",
     "semantic_hash": ""
   }
 }
