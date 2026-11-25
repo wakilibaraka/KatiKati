@@ -294,9 +294,9 @@
     "semantic_hash": "46b031a23b71f21274e605b24b2661b8"
   },
   "App/Composition/MenuBarSystemItem.swift": {
-    "mtime": 1795570188.3574018,
-    "seen": 1795602213.177964,
-    "ast_hash": "c52373e5af091e23f42a583c8b84d128",
+    "mtime": 1795603897.9525173,
+    "seen": 1795604580.267478,
+    "ast_hash": "91f1b284c50746126d11b5af5252c437",
     "semantic_hash": ""
   },
   "App/Composition/MessagingAppStore.swift": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "App/Entry/EdgeFlyoutController.swift": {
-    "mtime": 1795567639.7761915,
-    "seen": 1795602213.1780019,
-    "ast_hash": "22f2522dadaa50b8ce539da6d31e92fa",
+    "mtime": 1795603897.4379618,
+    "seen": 1795604580.267616,
+    "ast_hash": "e54a094f0fb8bd478e53a44ba2325827",
     "semantic_hash": ""
   },
   "App/Entry/EdgeNotesPopupController.swift": {
@@ -1650,9 +1650,9 @@
     "semantic_hash": "3303919dc1af4fbbd8415d39cae3c7c8"
   },
   "Core/Support/ControlCenterLayout.swift": {
-    "mtime": 1795595828.872106,
-    "seen": 1795602213.1782122,
-    "ast_hash": "19f898817f303e1a97f6789a5d0fd205",
+    "mtime": 1795603896.8848534,
+    "seen": 1795604580.268327,
+    "ast_hash": "74a79621f9f31d50dc93d9edc9ce23b6",
     "semantic_hash": ""
   },
   "Core/Support/CustomCommands.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1795600401.5810723,
-    "seen": 1795602213.178132,
-    "ast_hash": "4bfdfb2f92e406a4650a21cc9ecc674b",
+    "mtime": 1795603898.4263728,
+    "seen": 1795604580.268049,
+    "ast_hash": "9e5d83887752f65c83516db1c6885b37",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
@@ -6612,9 +6612,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/ControlCenterScrollTests.swift": {
-    "mtime": 1795595350.8475091,
-    "seen": 1795602213.1785018,
-    "ast_hash": "89d43fa2ff1a4099277ca7761091432c",
+    "mtime": 1795603917.594863,
+    "seen": 1795604580.269282,
+    "ast_hash": "5ab0ebda1f8dd1f45fb3d2629a80c421",
     "semantic_hash": ""
   },
   "Tests/Unit/LauncherPresentationTests.swift": {
