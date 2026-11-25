@@ -206,6 +206,14 @@ private struct ControlCenterAppearanceSettings: View {
                 Text("Tinted").tag(ControlCenterGlassStyle.tinted)
             }
 
+            // The Hub is the other tenant of that icon, so choosing this home is also the moment
+            // it becomes unavailable. Say so above the row, where it cannot be mistaken for a
+            // broken Hub later.
+            if ControlCenterSurfaceMode.parse(surfaceRaw) == .menuBar {
+                SettingsNote(Text("Creative Hub is paused while Control Centre is in the Menu Bar."))
+                    .padding(.vertical, SettingsMetrics.rowVerticalPadding)
+            }
+
             SettingsSegmentedRow(Text("Home"), selection: Binding(
                 get: { ControlCenterSurfaceMode.parse(surfaceRaw) },
                 set: { next in

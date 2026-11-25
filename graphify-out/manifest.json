@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "App/Entry/StatusMenuController.swift": {
-    "mtime": 1795585443.3398352,
-    "seen": 1795598824.351819,
-    "ast_hash": "ff684f3e37f0b1fcefecec37609a3224",
+    "mtime": 1795601309.592172,
+    "seen": 1795601597.6072981,
+    "ast_hash": "1c97d00a29b4a53330bb80bb9c73cef4",
     "semantic_hash": ""
   },
   "App/Entry/TaskbarScreenOrchestrator.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795598776.0656693,
-    "seen": 1795598824.351886,
-    "ast_hash": "37caf93346f6aa76a5f3c9a3d4e8dbaf",
+    "mtime": 1795599994.0409708,
+    "seen": 1795601597.60737,
+    "ast_hash": "0107318c7061edd3434fb8055acf5a78",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795598775.9250677,
-    "seen": 1795598824.351949,
-    "ast_hash": "be569be0b2a9e5862f036c3878233e5d",
+    "mtime": 1795599996.0654314,
+    "seen": 1795601597.607435,
+    "ast_hash": "7ffaac3516055c2babb0e73c5d66f17d",
     "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
@@ -4602,9 +4602,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+ControlCenter.swift": {
-    "mtime": 1795598776.0659528,
-    "seen": 1795598824.351941,
-    "ast_hash": "27f5472efa354224b901011ff230bd8c",
+    "mtime": 1795600401.5810723,
+    "seen": 1795601597.6074262,
+    "ast_hash": "4bfdfb2f92e406a4650a21cc9ecc674b",
     "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
@@ -8649,6 +8649,84 @@
     "mtime": 1795598979.3811023,
     "seen": 1795599309.381908,
     "ast_hash": "77fdbe8a7775150b76c6cb2fe92b8bf4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/README.md": {
+    "mtime": 1795601570.0451052,
+    "seen": 1795601597.608175,
+    "ast_hash": "bc6ce108a1a791bdc3a36fd1cb0e2591",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/01-settings-home-edge.png": {
+    "mtime": 1795601530.2567482,
+    "seen": 1795601597.608486,
+    "ast_hash": "56ae4a33ad3ad06479421e1134dffff6",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/02-hub-on-edge.png": {
+    "mtime": 1795600170.980288,
+    "seen": 1795601597.608487,
+    "ast_hash": "97ae52c35365a74d9e3ca6bf769b1bc1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/03-settings-home-menubar-paused-note.png": {
+    "mtime": 1795601495.6982436,
+    "seen": 1795601597.6084878,
+    "ast_hash": "1baa3502728d02db8080b52fe4eea0c8",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/04-menubar-control-centre.png": {
+    "mtime": 1795600576.9970999,
+    "seen": 1795601597.608489,
+    "ast_hash": "5e8899b105f309c84e8a3924d92c3601",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/05-menubar-hub-paused-menu.png": {
+    "mtime": 1795601492.1774917,
+    "seen": 1795601597.60849,
+    "ast_hash": "e6593b8b952856ef1465bb5ad9bd2330",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/07-hub-restored-on-edge.png": {
+    "mtime": 1795601526.8989964,
+    "seen": 1795601597.60849,
+    "ast_hash": "ca2b720d6d47e43ff0df975702e43ea3",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/08-deck-on-menubar.png": {
+    "mtime": 1795600703.5101278,
+    "seen": 1795601597.608491,
+    "ast_hash": "4b1403c330ae1f3ab4026ad84feac7aa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/09-row-menu.png": {
+    "mtime": 1795600725.608038,
+    "seen": 1795601597.6084921,
+    "ast_hash": "28b50bc83ea8b0e10f3a8f78c2b8d7ab",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/10-hidden-app-reflected-undo.png": {
+    "mtime": 1795600739.4590516,
+    "seen": 1795601597.608493,
+    "ast_hash": "7c679a33072c5443a3abb3b34c6ff4f7",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/11-hidden-apps-restored.png": {
+    "mtime": 1795600748.6143157,
+    "seen": 1795601597.608494,
+    "ast_hash": "10fc51beed1e2a4aa5e9620144e493ec",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/12-row-open-show-effect.png": {
+    "mtime": 1795600803.4788928,
+    "seen": 1795601597.608494,
+    "ast_hash": "3787993cbcdc80d9f8d650e473c0e2b1",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-25-cc-exclusive-menus/13-row-quit-effect.png": {
+    "mtime": 1795601204.3745728,
+    "seen": 1795601597.608495,
+    "ast_hash": "728091b0e635c7348e6d0b520952a470",
     "semantic_hash": ""
   }
 }

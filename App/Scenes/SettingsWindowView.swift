@@ -1041,6 +1041,7 @@ private struct MenuBarHubSettingsBlock: View {
     @AppStorage(MenuBarHubTab.visibleTabsKey) private var visibleTabsRaw = MenuBarHubTab.serialize(MenuBarHubTab.allCases)
     @AppStorage(MenuBarRightClickConfig.defaultsKey) private var rightClickRaw = MenuBarRightClickConfig.serialize(MenuBarRightClickConfig.defaultTokens)
     @AppStorage(HubModule.storageKey) private var modulesRaw = ""
+    @AppStorage(ControlCenterSurfaceMode.storageKey) private var surfaceRaw = ControlCenterSurfaceMode.default.rawValue
 
     var body: some View {
         SettingsCard(Text("Menu Bar Icon")) {
@@ -1065,6 +1066,10 @@ private struct MenuBarHubSettingsBlock: View {
         }
 
         SettingsCard(Text("Left-Click Creative Hub")) {
+            if ControlCenterSurfaceMode.parse(surfaceRaw) == .menuBar {
+                SettingsNote(Text("Creative Hub is paused while Control Centre is in the Menu Bar."))
+                SettingsDivider()
+            }
             SettingsRowPair(
                 left: { slotPicker(Text("Slot 1"), index: 0) },
                 right: { slotPicker(Text("Slot 2"), index: 1) }
