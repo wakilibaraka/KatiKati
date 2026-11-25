@@ -68,7 +68,12 @@ final class ControlCenterLayoutTests: XCTestCase {
             .section(.nowPlaying), .section(.network), .section(.sliders),
             .section(.utilities), .section(.account),
         ])
-        XCTAssertEqual(classic.tiles.first?.size, .hero)
+        // Classic parity: every section is full width, so packing at four columns stacks them exactly
+        // as the shipped panel did (one section per row, same order).
+        XCTAssertTrue(classic.tiles.allSatisfy { $0.size == .hero })
+        let rows = ControlCenterPacker.rows(classic.tiles, columns: 4)
+        XCTAssertEqual(rows.map { $0.tiles.map(\.id) }, classic.tiles.map { [$0.id] })
+        XCTAssertEqual(rows.map(\.columnsUsed), Array(repeating: 4, count: classic.tiles.count))
         XCTAssertEqual(ControlCenterLayoutSpec.preset(.custom), classic)
     }
 

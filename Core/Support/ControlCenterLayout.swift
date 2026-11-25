@@ -202,15 +202,16 @@ extension ControlCenterLayoutSpec {
         }
     }
 
+    /// Classic is the pre-preset panel: every section stacked, full width, in today's order.
     static let classicTiles: [ControlCenterTileSpec] = [
         .init(id: .section(.header), size: .hero),
-        .init(id: .section(.peripherals)),
-        .init(id: .section(.connectivity)),
-        .init(id: .section(.nowPlaying)),
-        .init(id: .section(.network)),
-        .init(id: .section(.sliders)),
-        .init(id: .section(.utilities)),
-        .init(id: .section(.account)),
+        .init(id: .section(.peripherals), size: .hero),
+        .init(id: .section(.connectivity), size: .hero),
+        .init(id: .section(.nowPlaying), size: .hero),
+        .init(id: .section(.network), size: .hero),
+        .init(id: .section(.sliders), size: .hero),
+        .init(id: .section(.utilities), size: .hero),
+        .init(id: .section(.account), size: .hero),
     ]
 }
 
@@ -271,6 +272,20 @@ struct ControlCenterDedupeOptions: Equatable, Sendable {
     var singleBattery = true
     var singleNowPlaying = true
     var showNowPlayingAnyway = false
+
+    static let singleBatteryKey = "com.katikati.controlcenter.singleBattery"
+    static let singleNowPlayingKey = "com.katikati.controlcenter.singleNowPlaying"
+    static let showNowPlayingAnywayKey = "com.katikati.controlcenter.showNowPlayingAnyway"
+
+    /// Missing keys keep the approved defaults (both on), so existing profiles gain the dedupe
+    /// without a migration.
+    static func stored(_ defaults: UserDefaults = .standard) -> ControlCenterDedupeOptions {
+        var options = ControlCenterDedupeOptions()
+        if let value = defaults.object(forKey: singleBatteryKey) as? Bool { options.singleBattery = value }
+        if let value = defaults.object(forKey: singleNowPlayingKey) as? Bool { options.singleNowPlaying = value }
+        options.showNowPlayingAnyway = defaults.bool(forKey: showNowPlayingAnywayKey)
+        return options
+    }
 }
 
 /// Dedupe is opt-out, never magic: it only hides the row the header already answers, and the
