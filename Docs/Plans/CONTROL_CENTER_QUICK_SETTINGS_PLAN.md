@@ -190,28 +190,65 @@ there is no SF Symbol named "bluetooth" (verified on macOS 27), so the Bluetooth
 Plan CC-1..CC-5 exactly as written in Docs/Plans/CONTROL_CENTER_QUICK_SETTINGS_PLAN.md.
 ```
 
-## 7. Verification record (closed) and what is still owed
+## 7. Verification record
 
-Closed in this pass, on the installed Release 0.18.0 (54), evidence in
-`Docs/Archive/Planning/evidence/2026-11-25-cc-presets/`:
+Run on the installed `/Applications/KatiKati.app`, 0.18.0 (54), built by `Scripts/install_local_release.sh`
+from this branch. Two evidence folders:
 
+- `Docs/Archive/Planning/evidence/2026-11-25-cc-presets/` — menu-bar host, presets, ink crops, bench numbers.
+- `Docs/Archive/Planning/evidence/2026-11-25-cc-edge-pass/` — edge host: presets, drag → Custom, Reduce
+  Motion, AX dumps. Its `README.md` carries the method, the raw numbers and the limits.
+
+### Verified here
+
+- **Presets on both hosts.** Menu-bar home captured earlier; the standalone edge panel captured now for
+  `classic`, `modular` and `bento` from the shipped build, each built from the stored preset after closing
+  and reopening the surface. AX reading order per preset matches the pictures
+  (`ax-classic.txt`, `ax-modular.txt`, `ax-bento.txt`).
+- **Drag → Custom, real pointer.** With the header's Edit pill pressed, a `CGEvent` pointer drag from the
+  System & Peripherals card to the Network card moved it; `com.katikati.controlcenter.preset` became
+  `custom` and the layout string moved `section.peripherals` after `section.nowPlaying`. After quitting and
+  relaunching, the preset was still `custom` and the panel drew the dragged order
+  (`drag-after-drop-edit-mode.png`, `drag-after-relaunch.png`, `ax-custom-after-relaunch.txt`). Repeated
+  from a clean `classic` preset; both runs ended identically. The edit path's logic also passes 14
+  standalone assertions over `move(_:before:)` and the codec/store.
+- **Reduced Motion.** With the panel animation set to `slide` (the only animated choice; the shipping
+  default is `instant`), window-server samples while opening show `alpha=0.00 x=1356 → alpha=1.00 x=1338`
+  with motion on, and `alpha=1.00 x=1338` on the first sampled frame with Reduce Motion on: no slide, no
+  fade, nothing behind an animation (`alpha-motion-on-slide.txt`, `alpha-reduced-motion-slide.txt`). Panel
+  open/close and a preset switch were exercised under Reduce Motion; the panel was visible and reachable
+  in AX immediately (`reduced-motion-modular.png`).
+- **Accessibility per preset.** Every card is one named `AXGroup` (`System & Peripherals`, `Wi-Fi`,
+  `Bluetooth`, `Network`, `Volume`, `Brightness`, `Manage accounts`). The 18 toggles are `AXButton`s that
+  carry `value="On"/"Off"`. The battery pill is a single element (`desc="Battery"`,
+  `AXValueDescription = 90%`) and the panel has no `This Mac` row, so the readout is not duplicated. The
+  Network card's inner heading is hidden from AX so the card name is announced once.
+- **Gates.** `check_localization.py`, `check_input_hygiene.py` and `check_debug_switches.py` all pass;
+  Release build and install succeed; no new localized keys were introduced (Edit/Done/On/Off/Battery and
+  the card titles already existed).
 - **Idle CPU/RSS** — `Scripts/bench_katikati.sh --idle-only`: **1.85 %** of one core for KatiKati and
   **2.16 %** for its process group, **358.2 MB** resident (442.8 MB group) after a 120 s settle and a
   60 s sample. Two honest caveats: the sample needs one static window open because a not-yet-trusted fresh
   install enables AppKit automatic termination, and 0.32 % / 82.5 MB of the group is the existing
   `NowPlayingService` `swift-frontend` helper, not the panel. `powermetrics` rows are `n/a` (no passwordless
   sudo on this Mac).
-- **Presets** — `classic`, `modular` and `bento` captured from the shipped panel, from the menu-bar home,
-  plus 1:1 crops of the title, footer and note ink. Switching preset and reopening the panel applies
-  without relaunch; single-battery keeps the header pill and shows no `This Mac` row.
-- **Readability** — footer tiles, `Manage accounts` and `No connected devices report a battery` are all
-  legible at 1:1; no ink change was needed.
-- **Profile** — the pre-existing `com.katikati.app.plist` was backed up to
-  `/tmp/katikati-prefs-cc-20261125/` before any run and imported back afterwards; the app was then left on
-  a wiped profile for onboarding.
 
-Still owed (not blockers, just not done here):
+### Blocked, with the specific gate
 
-- The edge-hosted panel at each preset (only the menu-bar home was captured), Reduced Motion and VoiceOver
-  order, and a pointer pass over drag-to-reorder inside the panel.
+- **Accessibility grant.** `Scripts/install_local_release.sh` runs `tccutil reset`, the Privacy pane shows no
+  Accessibility row for the app, and adding it raises the Touch ID/password sheet, which is a user-only
+  action. Behaviour above therefore ran with the project's existing `DOCK_DEV_SKIP_PERMISSIONS=1` switch;
+  the AX and window-server evidence is unaffected by it, and only the global gesture paths it stands in
+  for remain untested against a real TCC grant.
+- **Reduce Motion toggled while running.** A system toggle changed mid-session was not picked up until the
+  next launch in this build; launch-time behaviour is the verified half. Recorded as open below.
+- **XCTest execution.** `xcodebuild build-for-testing` fails on this machine before reaching any test:
+  `CameraMirrorService.swift:82 cannot find 'PermissionBootstrap' in scope` in the Debug configuration
+  (exit 65), a build-graph problem unrelated to the Control Centre files. The new `ControlCenterEditTests`
+  are therefore committed but unexecuted; the same assertions were run as a standalone harness instead.
+
+### Still open
+
+- The live Reduce Motion toggle (above), if it turns out not to be a first-frame artifact.
+- A real-TCC-grant pass over the global gestures once the grant can be given at the keyboard.
 - Longer `powermetrics` wakeup figures once a passwordless sudo path exists on the bench machine.

@@ -1,0 +1,65 @@
+=== window 8 frame=1710x1112 at -100000,100000 ===
+AXWindow(AXSystemDialog)
+=== window 9 frame=360x994 at 1338,50 ===
+AXWindow(AXSystemDialog)
+  AXGroup(AXHostingView) children=18
+    AXStaticText value="Quick Settings"
+    AXStaticText value="16:33"
+    AXButton desc="Edit" help="Edit"
+    AXUnknown desc="Battery"
+    AXGroup desc="Wi-Fi" children=2
+      AXButton desc="Wi-Fi, Not Connected"
+      AXButton desc="Forward" help="Open System Settings…"
+    AXGroup desc="Bluetooth" children=2
+      AXButton desc="Bluetooth, 0 Devices"
+      AXButton desc="Forward" help="Open System Settings…"
+    AXGroup desc="Network" children=5
+      AXImage desc="arrow.down.up"
+      AXImage desc="Down"
+      AXStaticText value="1 KB/s"
+      AXImage desc="Up"
+      AXStaticText value="0 B/s"
+    AXOpaqueProviderGroup(AXOpaqueProviderGrid) children=18
+      AXButton desc="Dark Mode" value="Off"
+      AXButton desc="Keep Awake" value="Off"
+      AXButton desc="Hide Desktop" value="On"
+      AXButton desc="Hidden Files" value="On"
+      AXButton desc="Dock Auto-hide" value="Off"
+      AXButton desc="Path Bar" value="On"
+      AXButton desc="Mute Mic" value="Off"
+      AXButton desc="Empty Trash" value="Off"
+      AXButton desc="Eject Disks" value="Off"
+      AXButton desc="Night Shift" value="Off"
+      AXButton desc="True Tone" value="On"
+      AXButton desc="VPN" value="Off"
+      AXButton desc="Muted" value="Off"
+      AXButton desc="Clean Keyboard" value="Off"
+      AXButton desc="Screen Saver" value="Off"
+      AXButton desc="Lock Screen" value="Off"
+      AXButton desc="Relaunch Finder" value="Off"
+      AXButton desc="Screen Mirroring" value="Off"
+    AXGroup desc="Volume" children=3
+      AXImage desc="Volume High"
+      AXSlider value="0.1875000149011612" children=1
+        AXValueIndicator
+      AXStaticText value="19"
+    AXGroup desc="Brightness" children=3
+      AXImage desc="Brightness Higher"
+      AXSlider value="0.6875000596046448" children=1
+        AXValueIndicator
+      AXStaticText value="69"
+    AXGroup children=3
+      AXImage desc="Keyboard"
+      AXSlider value="0.001000000047497451" children=1
+        AXValueIndicator
+      AXStaticText value="0"
+    AXButton desc="Settings"
+    AXButton desc="Launcher"
+    AXButton desc="Capture"
+    AXButton desc="Drawer"
+    AXButton desc="Quit"
+    AXGroup desc="Manage accounts" children=1
+      AXButton desc="Emmanuel Baraka Ongau, Manage accounts"
+    AXGroup desc="System & Peripherals" children=2
+      AXButton desc="1 Device" help="Refresh"
+      AXStaticText value="No connected devices report a battery"
