@@ -643,8 +643,8 @@ enum DockMenuChrome {
         let action: () -> Void
     }
 
-    static func header(icon: NSImage?, title: String, status: String?, tiles: [Tile], menu: NSMenu) -> NSMenuItem {
-        let host = NSHostingView(rootView: DockMenuHeaderView(icon: icon, title: title, status: status, tiles: tiles, menu: menu))
+    static func header(icon: NSImage?, symbol: String? = nil, title: String, status: String?, tiles: [Tile], menu: NSMenu) -> NSMenuItem {
+        let host = NSHostingView(rootView: DockMenuHeaderView(icon: icon, symbol: symbol, title: title, status: status, tiles: tiles, menu: menu))
         host.frame = NSRect(x: 0, y: 0, width: dockMenuHeaderWidth, height: 94)
         let item = NSMenuItem()
         item.view = host
@@ -710,8 +710,63 @@ extension DockMenuChrome {
     }
 }
 
+/// The small grammar shared by every modernised context menu: 15 pt template symbols on rows,
+/// a quiet symbol + caption section label, and submenus that keep the same icon language.
+@MainActor
+enum MenuChrome {
+    static func icon(_ name: String, pointSize: CGFloat = 11.5) -> NSImage? {
+        let config = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .regular)
+        let image = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
+            .withSymbolConfiguration(config)
+        image?.size = NSSize(width: 15, height: 15)
+        image?.isTemplate = true
+        return image
+    }
+
+    /// A grayed, non-clickable section label with a leading symbol. Adds the separator before itself
+    /// when the menu already has rows, so callers never stack two rules.
+    static func section(_ title: String, symbol: String, in menu: NSMenu) {
+        if let last = menu.items.last, !last.isSeparatorItem { menu.addItem(.separator()) }
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.image = icon(symbol)
+        item.isEnabled = false
+        menu.addItem(item)
+    }
+
+    @discardableResult
+    static func action(
+        _ title: String,
+        symbol: String? = nil,
+        in menu: NSMenu,
+        handler: @escaping () -> Void
+    ) -> NSMenuItem {
+        let item = ClosureMenuItem(title, handler: handler)
+        if let symbol { item.image = icon(symbol) }
+        menu.addItem(item)
+        return item
+    }
+
+    @discardableResult
+    static func submenu(
+        _ title: String,
+        symbol: String,
+        in menu: NSMenu,
+        build: (NSMenu) -> Void
+    ) -> NSMenuItem {
+        let sub = NSMenu(title: title)
+        build(sub)
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.image = icon(symbol)
+        item.submenu = sub
+        menu.addItem(item)
+        return item
+    }
+}
+
 private struct DockMenuHeaderView: View {
     let icon: NSImage?
+    /// SF Symbol used when the surface has no app icon to show (widgets, utilities).
+    let symbol: String?
     let title: String
     let status: String?
     let tiles: [DockMenuChrome.Tile]
@@ -721,7 +776,9 @@ private struct DockMenuHeaderView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 9) {
                 Group {
-                    if let icon {
+                    if let symbol {
+                        Image(systemName: symbol).font(.system(size: 15, weight: .semibold))
+                    } else if let icon {
                         Image(nsImage: icon).resizable().interpolation(.high)
                     } else {
                         Image(systemName: "app.dashed").font(.system(size: 15, weight: .medium))
