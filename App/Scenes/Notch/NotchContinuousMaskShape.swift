@@ -13,15 +13,18 @@ struct NotchContinuousMaskShape: Shape {
     var topCornerRadius: CGFloat
     var bottomCornerRadius: CGFloat
     var flaringTopEars: Bool
+    var usesBoringOutline: Bool
 
     init(
         topCornerRadius: CGFloat? = nil,
         bottomCornerRadius: CGFloat? = nil,
-        flaringTopEars: Bool = true
+        flaringTopEars: Bool = true,
+        usesBoringOutline: Bool = false
     ) {
         self.topCornerRadius = topCornerRadius ?? NotchDesignSpec.closedCornerRadii.topFlaring
         self.bottomCornerRadius = bottomCornerRadius ?? NotchDesignSpec.closedCornerRadii.bottomSquircle
         self.flaringTopEars = flaringTopEars
+        self.usesBoringOutline = usesBoringOutline
     }
 
     var animatableData: AnimatablePair<CGFloat, CGFloat> {
@@ -41,6 +44,10 @@ struct NotchContinuousMaskShape: Shape {
         let maxRadius = min(rect.width / 4, rect.height / 2)
         let topR = min(max(0, topCornerRadius), maxRadius)
         let bottomR = min(max(0, bottomCornerRadius), maxRadius)
+
+        if usesBoringOutline && flaringTopEars {
+            return NotchShape(topCornerRadius: topR, bottomCornerRadius: bottomR).path(in: rect)
+        }
 
         if flaringTopEars {
             // MARK: - Hardware Notch (Bezel-Flared Ears + Bottom Squircle)

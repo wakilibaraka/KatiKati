@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795705730.695296,
-    "seen": 1795706266.994106,
-    "ast_hash": "d4dfd86b956b98c5b1a8e1d9995f297f",
+    "mtime": 1795717009.735947,
+    "seen": 1795717359.562963,
+    "ast_hash": "f3ad2ea31246bc94c065a480570945f1",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -4536,14 +4536,14 @@
     "semantic_hash": "c56d40a10d10354f907d39ea96c9ea46"
   },
   "Vendor/boring.notch/BoringNotchWindow.swift": {
-    "mtime": 1791999153.347052,
-    "seen": 1795606909.623157,
+    "mtime": 1795717357.568483,
+    "seen": 1795717359.563661,
     "ast_hash": "0e755f518843f5fd7e0bc783e20bba51",
     "semantic_hash": "0e755f518843f5fd7e0bc783e20bba51"
   },
   "Vendor/boring.notch/NotchShape.swift": {
-    "mtime": 1791999153.3450387,
-    "seen": 1795606909.6231601,
+    "mtime": 1795717357.554584,
+    "seen": 1795717359.563661,
     "ast_hash": "e6018d3493d5659ece33e2ee261a1524",
     "semantic_hash": "e6018d3493d5659ece33e2ee261a1524"
   },
@@ -5448,9 +5448,9 @@
     "semantic_hash": ""
   },
   "Vendor/boring.notch/MANIFEST.txt": {
-    "mtime": 1791999153.3463953,
-    "seen": 1795606909.6234481,
-    "ast_hash": "616e8ebe13dafc5b89dbead119e9b556",
+    "mtime": 1795717357.5803697,
+    "seen": 1795717359.563796,
+    "ast_hash": "d8558266eddf6838a3bbe27fd099404b",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Advanced.png": {

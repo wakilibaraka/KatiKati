@@ -1204,7 +1204,7 @@ struct ControlCenterView: View {
                           value: Binding(get: { displayVolume }, set: { self.displayVolume = $0; DisplayBrightness.setVolumeOnCursorScreen($0) }))
             }
             if let keyLight {
-                sliderRow(icon: "keyboard",
+                sliderRow(icon: "keyboard", label: Text("Keyboard"),
                           value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
             }
         }
@@ -1229,7 +1229,10 @@ struct ControlCenterView: View {
     }
 
     /// iPadOS skin: a thick capsule whose fill is the value, icon on the left and number on the right.
-    private func padSliderRow(icon: String, value: Binding<Double>) -> some View {
+    /// The label rides inside the capsule (the classic skin puts it above the card). This panel has
+    /// two speaker rows — system volume and the external display's own volume — so without the text
+    /// they are indistinguishable both to the eye and to VoiceOver.
+    private func padSliderRow(icon: String, label: Text? = nil, value: Binding<Double>) -> some View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule().fill(colorScheme == .dark ? Color.white.opacity(0.12) : Color.black.opacity(0.08))
@@ -1237,9 +1240,14 @@ struct ControlCenterView: View {
                     .fill(LinearGradient(colors: [palette.primaryAccent, palette.secondaryAccent],
                                          startPoint: .leading, endPoint: .trailing))
                     .frame(width: max(44, proxy.size.width * CGFloat(value.wrappedValue)))
-                HStack {
+                HStack(spacing: 6) {
                     Image(systemName: icon).font(.system(size: 15, weight: .semibold))
-                    Spacer()
+                    if let label {
+                        label.font(.system(size: 11.5, weight: .semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    Spacer(minLength: 4)
                     Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))")
                         .font(.system(size: 12, weight: .semibold)).monospacedDigit()
                 }
@@ -1254,6 +1262,7 @@ struct ControlCenterView: View {
         }
         .frame(height: 44)
         .accessibilityElement()
+        .accessibilityLabel(label ?? Text(verbatim: ""))
         .accessibilityValue(Text(verbatim: "\(Int((value.wrappedValue * 100).rounded()))"))
         .accessibilityAdjustableAction { direction in
             let step = direction == .increment ? 0.05 : -0.05
@@ -1262,7 +1271,7 @@ struct ControlCenterView: View {
     }
 
     private func sliderRow(icon: String, label: Text? = nil, value: Binding<Double>) -> some View {
-        if isPad { return AnyView(padSliderRow(icon: icon, value: value)) }
+        if isPad { return AnyView(padSliderRow(icon: icon, label: label, value: value)) }
         return AnyView(sliderRowClassic(icon: icon, label: label, value: value))
     }
 

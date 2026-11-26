@@ -13,7 +13,9 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
     case studioHub = 9      // Multipurpose Studio & System Hub
     case teleprompter = 4   // Opt-in Teleprompter page
     case cameraMirror = 5   // Camera & Mic Check-in
-    case keepAwake = 7      // Always last: brewing card, lid, and AI-agent rows
+    case keepAwake = 7
+    case home = 11
+    case shelf = 12
     // Raw values 0 and 1 belonged to Downloads and Storage. Both pages moved to SideDeck and those
     // retired values remain absent so stored notch layouts cannot reintroduce their old surfaces.
 
@@ -23,6 +25,8 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         switch self {
         case .aiTracker: return "AI Mission Control"
         case .audioDeck: return "Music"
+        case .home: return String(localized: "Home")
+        case .shelf: return String(localized: "Shelf")
         case .calendar: return "Calendar"
         case .peripherals: return String(localized: "Peripherals")
         case .studioHub: return "Studio Hub"
@@ -38,6 +42,8 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
         switch self {
         case .aiTracker: return "sparkles"
         case .audioDeck: return "music.note"
+        case .home: return "house.fill"
+        case .shelf: return "tray.fill"
         case .calendar: return "calendar"
         case .peripherals: return "airpodspro"
         case .studioHub: return "slider.horizontal.2.square"
@@ -153,9 +159,11 @@ enum NotchPagingPolicy {
         nowPlayingActive: Bool,
         aiTurnActive: Bool,
         downloadsActive: Bool = false,
-        userPinnedPage: NotchPage? = nil
+        userPinnedPage: NotchPage? = nil,
+        usesBoringHome: Bool = false
     ) -> NotchPage {
         if let pinned = userPinnedPage { return pinned }
+        if usesBoringHome { return .home }
         if aiTurnActive { return .aiTracker }
         if nowPlayingActive { return .audioDeck }
         return .audioDeck

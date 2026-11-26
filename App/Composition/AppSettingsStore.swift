@@ -1933,6 +1933,11 @@ final class AppSettingsStore: ObservableObject {
     /// and a process-level assert would abort the whole test run on the first one.
     ///
     /// An existing key means the user chose, even if they chose off: always respected, never overwritten.
+    func seedNotchStyleForFreshInstall(lineage: InstallLineage) {
+        guard lineage == .pristine, defaults.string(forKey: Keys.notchSkin) == LiveIslandSkin.liquid.rawValue else { return }
+        setNotchSkin(.boring)
+    }
+
     func seedWindowLiftEnabledForFreshInstall(lineage: InstallLineage) {
         guard lineage == .pristine else { return }
         guard defaults.object(forKey: Keys.windowLiftEnabled) == nil else { return }

@@ -20,7 +20,7 @@ final class NotchModel: ObservableObject {
     @Published var islandBridge: IslandLiveBridge?
     /// 0...1 lift of the music glow; the controller sets 1 on a track change and eases it back (50d).
     @Published var glowBoost = 0.0
-    @Published var tab: NotchTab = .home
+    @Published var showsPagePicker = false
     @Published var activePage: NotchPage = .audioDeck
     /// Last paging direction (+1 forward, -1 back); drives the slide edge in `NotchHomeView`.
     @Published var pageDirection = 1
@@ -182,7 +182,8 @@ struct NotchIslandView: View {
         let maskShape = NotchContinuousMaskShape(
             topCornerRadius: calculatedLayout.topCornerRadius,
             bottomCornerRadius: calculatedLayout.bottomCornerRadius,
-            flaringTopEars: calculatedLayout.flaringTopEars
+            flaringTopEars: calculatedLayout.flaringTopEars,
+            usesBoringOutline: model.skin == .boring
         )
         ZStack(alignment: .top) {
             // NS-2: vibrancy exists only while the plate is genuinely see-through. The default opaque
@@ -210,10 +211,10 @@ struct NotchIslandView: View {
                     let full = NotchGeometry.openSize
                     let scale = model.openSize.width / full.width
                     NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                        .transition(openTransition(style))
                         .frame(width: full.width, height: full.height, alignment: .top)
                         .scaleEffect(scale, anchor: .top)
                         .frame(width: full.width * scale, height: full.height * scale, alignment: .top)
+                        .transition(model.skin == .boring || reduceMotion ? .identity : openTransition(style))
                 } else {
                     openContent(activity).padding(.horizontal, 24).transition(openTransition(style))
                 }
@@ -231,7 +232,7 @@ struct NotchIslandView: View {
             let autoOpen = UserDefaults.standard.object(forKey: ShelfPolicy.notchAutoOpenOnDragKey) as? Bool ?? true
             guard targeted, autoOpen else { return }
             if !model.isExpanded { model.requestOpen() }
-            if model.activePage != .studioHub { model.goToPage(.studioHub) }
+            if model.activePage != .shelf { model.goToPage(.shelf) }
         }
         .contextMenu {
             Section {
@@ -288,7 +289,7 @@ struct NotchIslandView: View {
                         store?.stash(paths: [u.path])
                         DroppyFileTrayStore().add(urls: [u])
                         if !model.isExpanded { model.requestOpen() }
-                        model.goToPage(.studioHub)
+                        model.goToPage(.shelf)
                     }
                 }
             } else if p.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
@@ -300,7 +301,7 @@ struct NotchIslandView: View {
                             DroppyFileTrayStore().add(urls: [fileURL])
                         }
                         if !model.isExpanded { model.requestOpen() }
-                        model.goToPage(.studioHub)
+                        model.goToPage(.shelf)
                     }
                 }
             } else if p.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
@@ -312,7 +313,7 @@ struct NotchIslandView: View {
                             DroppyFileTrayStore().add(urls: [fileURL])
                         }
                         if !model.isExpanded { model.requestOpen() }
-                        model.goToPage(.studioHub)
+                        model.goToPage(.shelf)
                     }
                 }
             }

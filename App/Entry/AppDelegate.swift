@@ -461,6 +461,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if isFreshInstall {
             settingsStore.seedWindowLiftEnabledForFreshInstall(lineage: installLineage)
             settingsStore.seedSnapDragEnabledForFreshInstall(lineage: installLineage)
+            settingsStore.seedNotchStyleForFreshInstall(lineage: installLineage)
             settingsStore.armTaskbarPerDisplaySeedForFreshInstall(lineage: installLineage)
             keptAppStore.seedDefaultAppsForFreshInstall(lineage: installLineage) {
                 NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0) != nil
