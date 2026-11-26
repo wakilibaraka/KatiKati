@@ -209,3 +209,22 @@ Studio Lighting HDRI (CC0)
 mooziac (MIT License)
 Copyright (c) shirkeharsh (https://github.com/shirkeharsh/mooziac)
 Used as the design reference for the shared music surface themes, card layouts (hero artwork with 3-line lyrics), scrubber shapes, and wallpaper style presets. Re-expressed as KatiKati pure models; no streaming-client code is copied.
+
+--------------------------------------------------------------------------------
+KatiKati onboarding — design references
+--------------------------------------------------------------------------------
+
+GlassIntroKit — https://github.com/Jiaxu-Li/GlassIntroKit
+  Copyright (c) 2026 Jiaxu Li. Licensed under the Apache License, Version 2.0.
+  KatiKati's onboarding opener (kinetic word-by-word titles, the ambient glass
+  stage, the act transitions) is a clean-room SwiftUI implementation written
+  against macOS 15. No GlassIntroKit source, resource or shader is vendored,
+  linked or copied; the sequencing and motion ideas are derived from that
+  project and are credited here. It is not a build dependency: GlassIntroKit
+  requires swift-tools-version 6.3 and macOS 26, while KatiKati's deployment
+  target is macOS 15.
+
+boring.notch — https://github.com/TheBoredTeam/boring.notch
+  Licensed under GPL-3.0. Used as a UX reference only (borderless setup window,
+  live permission-status rows). No code, asset or shader was copied, so no
+  GPL-3.0 obligation attaches to KatiKati from this reference.

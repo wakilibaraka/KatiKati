@@ -1,12 +1,11 @@
 import XCTest
 @testable import KatiKati
 
-/// 首次运行欢迎引导的弹出判据。
+/// 首次运行引导的弹出判据。
 ///
-/// 这里真正要锁住的是**「读不到」和「读到了 false」必须分开处理**这一条：
-/// 前者是瞬时故障、下次再问，后者才是"该弹"。两者混淆的方向不同、代价也不同——
-/// 混成「弹」会在读不到时骚扰用户，混成「标记已看过」会因为一次 CFPreferences 抖动
-/// 永久吞掉引导，而后者用户完全无从察觉。
+/// OB-1 之后这里锁的是**「要不要弹」与「弹出来给不给系统 Dock 选项」是两件事**：
+/// 沙箱和 CFPreferences 抖动都只影响后者。旧实现把两者混成一条，于是一次读取失败或一次
+/// 只读卷运行就能永久吞掉整扇引导，而用户完全无从察觉。
 final class WelcomeGuideDecisionTests: XCTestCase {
     func testPresentsWhenDockIsVisibleAndNothingHasBeenSeen() {
         XCTAssertEqual(
@@ -15,22 +14,24 @@ final class WelcomeGuideDecisionTests: XCTestCase {
                 canWriteDockPreferences: true,
                 dockAutohideEnabled: false
             ),
-            .present
+            .present(offersNativeDock: true)
         )
     }
 
     func testAlreadySeenNeverPresentsAgain() {
         // 看过就是看过，后面几个条件都不该推翻它——包括用户看完之后又把 Dock 改回常驻。
-        for dockAutohide in [true, false, nil] as [Bool?] {
-            XCTAssertEqual(
-                WelcomeGuideDecision.evaluate(
-                    hasSeenWelcome: true,
-                    canWriteDockPreferences: true,
-                    dockAutohideEnabled: dockAutohide
-                ),
-                .skipAndMarkSeen,
-                "dockAutohideEnabled = \(String(describing: dockAutohide))"
-            )
+        for canWrite in [true, false] {
+            for dockAutohide in [true, false, nil] as [Bool?] {
+                XCTAssertEqual(
+                    WelcomeGuideDecision.evaluate(
+                        hasSeenWelcome: true,
+                        canWriteDockPreferences: canWrite,
+                        dockAutohideEnabled: dockAutohide
+                    ),
+                    .skipAndMarkSeen,
+                    "canWrite = \(canWrite), dockAutohideEnabled = \(String(describing: dockAutohide))"
+                )
+            }
         }
     }
 
@@ -47,43 +48,77 @@ final class WelcomeGuideDecisionTests: XCTestCase {
         )
     }
 
-    func testSandboxedSkipsAndMarksSeen() {
-        // 沙箱里写不了 Dock 偏好，给一个必然失败的按钮不如不给。
-        // 沙箱是永久属性，所以直接销掉这台机器上的引导。
+    /// **OB-1 的行为变更。** 沙箱里写不了 Dock 偏好，只意味着第三幕不该出现那组系统 Dock
+    /// 选项——引导本身（Dock、Island、菜单栏枢纽、权限、节奏）全都和沙箱无关，没有理由
+    /// 让一台沙箱机器永远看不到产品首秀。
+    func testSandboxedPresentsWithoutTheNativeDockOptions() {
         XCTAssertEqual(
             WelcomeGuideDecision.evaluate(
                 hasSeenWelcome: false,
                 canWriteDockPreferences: false,
                 dockAutohideEnabled: false
             ),
-            .skipAndMarkSeen
+            .present(offersNativeDock: false)
         )
     }
 
-    /// **这条是整个类型存在的理由。**
-    ///
     /// `currentAutohideState()` 返回 nil 表示"这次没读到"，不表示"Dock 没自动隐藏"。
-    /// 此时既不能弹（无凭据），更不能标记已看过——那会让一次瞬时读取失败永久吞掉引导。
-    func testUnreadableDockStateSkipsWithoutMarking() {
+    /// 读取失败不再能吞掉引导：照弹，只是别把「已看过」写下去——那只该由用户自己结束时写。
+    func testUnreadableDockStateStillPresents() {
         XCTAssertEqual(
             WelcomeGuideDecision.evaluate(
                 hasSeenWelcome: false,
                 canWriteDockPreferences: true,
                 dockAutohideEnabled: nil
             ),
-            .skipWithoutMarking
+            .present(offersNativeDock: true)
         )
     }
 
-    /// 读不到 + 沙箱：沙箱那条优先，因为它是永久的，不该每次启动都白读一次。
-    func testSandboxWinsOverUnreadableState() {
+    /// 沙箱 + 读不到：仍然弹，仍然不给那组选项。
+    func testSandboxWithUnreadableStatePresentsWithoutOptions() {
         XCTAssertEqual(
             WelcomeGuideDecision.evaluate(
                 hasSeenWelcome: false,
                 canWriteDockPreferences: false,
                 dockAutohideEnabled: nil
             ),
-            .skipAndMarkSeen
+            .present(offersNativeDock: false)
+        )
+    }
+
+    // MARK: - 跳过之后不能被晾着
+
+    /// 全新 Mac、还没给辅助功能、用户在首秀里按了 Skip：恢复窗必须接手，否则任务条停在
+    /// 受限模式，而屏幕上没有任何一扇窗解释权限该去哪开。
+    func testSkipWithoutAccessibilityHandsOverToTheRecoveryWindow() {
+        XCTAssertTrue(
+            WelcomeGuideHandover.shouldPresentRecoveryWindow(
+                isFirstRunDeferred: true,
+                isTrusted: false,
+                hasPresentation: true
+            )
+        )
+    }
+
+    func testNoHandoverWhenTheGrantLandedWithoutLeavingTheGuide() {
+        XCTAssertFalse(
+            WelcomeGuideHandover.shouldPresentRecoveryWindow(
+                isFirstRunDeferred: true,
+                isTrusted: true,
+                hasPresentation: true
+            )
+        )
+    }
+
+    /// 「Show Setup Guide Again」是后置入口，关掉它不该凭空弹出一扇权限窗。
+    func testReplayNeverHandsOverToTheRecoveryWindow() {
+        XCTAssertFalse(
+            WelcomeGuideHandover.shouldPresentRecoveryWindow(
+                isFirstRunDeferred: false,
+                isTrusted: false,
+                hasPresentation: true
+            )
         )
     }
 

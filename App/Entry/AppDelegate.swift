@@ -4,6 +4,7 @@ import Combine
 import ServiceManagement
 import QuartzCore
 import SwiftUI
+import UserNotifications
 import os
 
 @MainActor
@@ -805,7 +806,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // `startApp` runs and panels render with no AX grant — the untrusted path would fire
         // `requestSystemPrompt` + onboarding (the prompt this switch exists to skip). Watchdog,
         // guide and suspension effects stay guarded below, so no revocation episode can follow.
+        // OB-1 (onboarding): on a pristine install the reveal owns first launch. Arm the deferral
+        // *before* `launched` so the Accessibility window cannot race it — this is what turns a
+        // first run from "a permission checklist" into "the product".
+        defersPermissionWindowForFirstRun = StartupUIPolicy.shouldPresentWelcomeGuide(
+            isFirstRun: installLineage == .pristine,
+            launchHidden: UserDefaults.standard.bool(forKey: StartupUIPolicy.launchHiddenKey)
+        ) && !settingsStore.hasSeenWelcome
         coordinator.launched(trusted: trusted || skipsPermissionGate)
+        presentWelcomeGuideIfNeeded()
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
@@ -947,6 +956,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - 首次运行欢迎引导
 
+    /// OB-1: the reveal was presented ahead of the Accessibility gate on this launch, so the
+    /// recovery window is held back until the guide closes. Cleared on handover, and also on a
+    /// Settings replay (which never arms it).
+    private var defersPermissionWindowForFirstRun = false
+
     /// 首次运行的一次性引导：建议把系统 Dock 收起来。
     ///
     /// 只在 `startTaskbarRuntime()` 末尾调一次，也就是「权限已授、面板已建、任务条真的在跑」
@@ -964,31 +978,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !settingsStore.hasSeenWelcome else { return }
 
         let canWrite = nativeDockPreferencesService.isAvailable
-        guard canWrite else {
-            _ = WelcomeGuideDecision.evaluate(
-                hasSeenWelcome: false,
-                canWriteDockPreferences: false,
-                dockAutohideEnabled: nil
-            )
-            settingsStore.setHasSeenWelcome(true)
-            return
-        }
-
         Task { @MainActor [weak self] in
             guard let self else { return }
-            let state = await self.nativeDockPreferencesService.currentAutohideState()
+            // A sandboxed copy can't read the pane either, so there is no round trip to make.
+            let state = canWrite ? await self.nativeDockPreferencesService.currentAutohideState() : nil
             // 这一轮 await 期间用户可能已经从别处看过/改过了，所以重新读一遍标记。
             switch WelcomeGuideDecision.evaluate(
                 hasSeenWelcome: self.settingsStore.hasSeenWelcome,
-                canWriteDockPreferences: true,
+                canWriteDockPreferences: canWrite,
                 dockAutohideEnabled: state?.enabled
             ) {
-            case .present:
-                self.showWelcomeWindow()
+            case let .present(offersNativeDock):
+                self.showWelcomeWindow(offersNativeDock: offersNativeDock)
             case .skipAndMarkSeen:
+                // Nothing will appear (seen already, or the Dock is already auto-hidden). The
+                // deferral must be released here too, or a fresh Mac with no Accessibility would
+                // end up with *no* window at all — the one outcome worse than a checklist.
                 self.settingsStore.setHasSeenWelcome(true)
-            case .skipWithoutMarking:
-                break
+                self.handOverToPermissionWindowIfNeeded()
             }
         }
     }
@@ -1057,7 +1064,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func showWelcomeWindow() {
+    /// - Parameter offersNativeDock: `nil` reads `NativeDockPreferencesService.isAvailable`. The
+    ///   Settings replay passes nothing on purpose: replaying on a sandboxed copy should still show
+    ///   the acts that work there.
+    private func showWelcomeWindow(offersNativeDock: Bool? = nil) {
         if let welcomeWindow {
             welcomeWindow.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
@@ -1067,7 +1077,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let layoutContext = WelcomeGuideLayoutContext(
             initialMode: settingsStore.barLayoutMode,
             inputs: settingsStore.layoutThumbnailInputs,
-            onPick: { [weak self] mode in self?.settingsStore.setBarLayoutMode(mode) },
             initialStyleID: settingsStore.currentDockStyle?.id ?? DockStyle.freshInstall.id,
             onPickStyle: { [weak self] style in
                 self?.settingsStore.applyDockStyle(style, screenWidth: NSScreen.main?.frame.width ?? 1440)
@@ -1075,7 +1084,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             initialTheme: settingsStore.themeMaterial,
             onPickTheme: { [weak self] theme in self?.settingsStore.setThemeMaterial(theme) },
             notchEnabled: settingsStore.notchIslandEnabled,
-            notchSkin: settingsStore.notchSkin,
             onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) },
             initialVisibleSections: Set(settingsStore.widgetLayout.visibleOrder),
             onToggleSection: { [weak self] section, on in
@@ -1101,6 +1109,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             searchCities: { [weak self] query in await self?.weatherService.searchCities(query) ?? [] },
             onAddCity: { [weak self] city in _ = self?.weatherService.addCity(city) },
             onPickCity: { [weak self] selection in self?.weatherService.select(selection) },
+            notificationsAuthorized: {
+                let settings = await UNUserNotificationCenter.current().notificationSettings()
+                return settings.authorizationStatus == .authorized
+            },
             aiTrackingEnabled: settingsStore.dockSlotLayout.visibleItems.contains(.aiTracking),
             onSetAITracking: { [weak self] on in self?.settingsStore.setDockSlotItem(.aiTracking, hidden: !on) },
             launcherDoubleTap: settingsStore.shortcutBindings[.launcher] == .doubleTap(.leftCommand)
@@ -1121,35 +1133,68 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             layout: layoutContext,
             onApply: { [weak self] selection in self?.applyWelcomeSelection(selection) },
             onDismiss: { [weak self] in self?.dismissWelcomeGuide() },
+            offersNativeDock: offersNativeDock ?? nativeDockPreferencesService.isAvailable,
             startAt: DebugSwitch.welcomeStep.value().flatMap(WelcomeGuideStep.named)
         )
-        let hosting = NSHostingView(rootView: content)
+        let hosting = WelcomeGuideView.pinnedHostingView(content)
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: WelcomeGuideView.contentWidth, height: 320),
+            contentRect: NSRect(origin: .zero, size: WelcomeGuideView.contentSize),
             // 和权限引导不同，这一扇**可关**：权限没授时 app 根本不能用，那扇窗关掉没有意义；
             // 这一扇只是个建议，用户有权直接叉掉（叉掉等同「以后再说」，见 windowWillClose）。
-            styleMask: [.titled, .closable],
+            // OB-2: borderless glass — the content draws its own rounded edge over the ambient stage.
+            styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         window.title = Self.localizedDisplayName
+        window.titleVisibility = NSWindow.TitleVisibility.hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
-        window.contentView = hosting
+        // The hosting view is **not** the window's content view: SwiftUI's `NSHostingView` grows the
+        // window from `windowDidLayout` (`updateAnimatedWindowSize`) to fit the root's ideal height —
+        // the root asks for 640, SwiftUI builds a 640+32 titlebar frame, and it re-applies that after
+        // every correction, so no amount of re-pinning wins. A plain container as content view keeps
+        // SwiftUI out of the window's geometry; the hosting view just fills the container.
+        let container = NSView(frame: NSRect(origin: .zero, size: WelcomeGuideView.contentSize))
+        hosting.autoresizingMask = [.width, .height]
+        hosting.frame = container.bounds
+        container.addSubview(hosting)
+        window.contentView = container
+        hosting.sizingOptions = []
+        // The hosting view is already pinned by `pinnedHostingView` (no sizing vote, no safe-area
+        // inset); pin the window's **frame** too, so nothing downstream — a future act, a stray
+        // `.frame` — can reshape the panel either. Frame-based on purpose: content-based min/max let
+        // AppKit add the titlebar on top and the panel became 720x672 in the live run.
+        WelcomeGuideView.pinPanelWindow(window)
+        // **No `setContentSize` here.** It records a *content* size, and the first time a titled window
+        // is shown AppKit turns that into a frame of content + 32 pt titlebar — the panel opened at
+        // 720x640 and was 720x672 two seconds later in the live run. Geometry comes from `setFrame`
+        // alone, in frame space, which `.fullSizeContentView` makes identical to the content box.
         window.delegate = self
         welcomeWindow = window
 
-        // 高度量法同权限引导：根视图外面套了 ScrollView，得用一次性探针量不加滚动时的自然高度。
-        let probe = NSHostingView(rootView: WelcomeGuideView(layout: layoutContext, onApply: { _ in }, onDismiss: {}))
-        probe.setFrameSize(NSSize(width: WelcomeGuideView.contentWidth, height: 0))
-        probe.layoutSubtreeIfNeeded()
-        let available = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 900
-        window.setContentSize(NSSize(
-            width: WelcomeGuideView.contentWidth,
-            height: max(200, min(probe.fittingSize.height, available - 80))
-        ))
-
-        window.center()
+        // OB-2: the window is a fixed size, so there is nothing to measure. The old probe solved the
+        // taller step once and froze that height for the window's life — which is what forced every
+        // act to be the same height and made `comeBackNote` fade instead of collapse.
+        //
+        // Size first, then position. `center()` reads the window's *current* frame, so calling it
+        // before the real content size has landed centres a placeholder and leaves the panel
+        // drifting upward by half the difference. Centring is computed against `visibleFrame` so the
+        // panel sits in the usable area rather than in the middle of the physical display.
+        // `.fullSizeContentView`: the frame *is* the content box, so no `frameRect(forContentRect:)`
+        // titlebar addition here either.
+        let frameSize = WelcomeGuideView.contentSize
+        let visibleFrame = (window.screen ?? NSScreen.main)?.visibleFrame ?? .zero
+        let panelFrame = WelcomeGuideView.centeredFrame(in: visibleFrame, frameSize: frameSize)
+        window.setFrame(panelFrame, display: true)
         window.makeKeyAndOrderFront(nil)
+        // Re-assert once the window is actually on screen: SwiftUI can still move a panel after it has
+        // been ordered front, and the fixed size is a promise this panel keeps.
+        DispatchQueue.main.async { [weak window] in
+            guard let window else { return }
+            if window.frame != panelFrame { window.setFrame(panelFrame, display: true) }
+        }
         // 钨极此刻是 accessory app，不主动 activate 的话这扇窗会被压在前台应用后面，
         // 和 2026-07-29 那次「检查更新看起来失效」是同一个坑。
         // 注意**不要**顺手改成 .regular——那会让程序坞里冒出一个钨极图标，
@@ -1197,14 +1242,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = welcomeWindow else { return }
         welcomeWindow = nil
         window.delegate = nil
+        // Order matters on teardown: the hosting view goes first, so the ambient stage's animations
+        // stop with it and the closed window keeps no display-list work alive.
+        window.contentView = nil
         window.orderOut(nil)
         window.close()
+        handOverToPermissionWindowIfNeeded()
+    }
+
+    /// OB-1: the reveal runs ahead of the Accessibility gate on a pristine install, so closing it
+    /// has to hand the stage back. Skipping the guide with no grant must never leave the taskbar in
+    /// limited mode with no window explaining where the permission lives.
+    private func handOverToPermissionWindowIfNeeded() {
+        let shouldHandOver = WelcomeGuideHandover.shouldPresentRecoveryWindow(
+            isFirstRunDeferred: defersPermissionWindowForFirstRun,
+            isTrusted: permissionService.hasRequiredPermissions(),
+            hasPresentation: permissionCoordinator?.presentation != nil
+        )
+        defersPermissionWindowForFirstRun = false
+        guard shouldHandOver else { return }
+        showPermissionWindow()
     }
 
     /// 引导窗口。文案长度随状态变化很大（排障区展开时几乎翻倍），
     /// 所以宽度固定、高度跟着内容走，并以当前屏幕可视高度封顶。
     private func showPermissionWindow() {
         guard let coordinator = permissionCoordinator else { return }
+        // OB-1: the first-run reveal is on screen. The Accessibility window follows it, not the
+        // other way round — `handOverToPermissionWindowIfNeeded()` raises it when the guide closes.
+        guard !defersPermissionWindowForFirstRun else { return }
         if let permissionWindow {
             resizePermissionWindowToFit()
             permissionWindow.makeKeyAndOrderFront(nil)
@@ -2020,6 +2086,7 @@ extension AppDelegate: NSWindowDelegate {
         welcomeWindow = nil
         window.delegate = nil
         settingsStore.setHasSeenWelcome(true)
+        handOverToPermissionWindowIfNeeded()
     }
 }
 

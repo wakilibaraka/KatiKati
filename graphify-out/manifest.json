@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795629474.2363942,
-    "seen": 1795629480.4709098,
-    "ast_hash": "94237662e669a7077fe83c8d69471fea",
+    "mtime": 1795659382.5385919,
+    "seen": 1795659876.2175791,
+    "ast_hash": "b01f4994de9939990e49f31045ae3980",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/WelcomeGuideView.swift": {
-    "mtime": 1795629474.2369907,
-    "seen": 1795629480.471099,
-    "ast_hash": "b610deb0dbb21491789c053b835752fe",
+    "mtime": 1795659402.9873934,
+    "seen": 1795659876.217768,
+    "ast_hash": "83799681790ef8a33b68168425def26e",
     "semantic_hash": ""
   },
   "App/Scenes/WiFiVolumeFABView.swift": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": ""
   },
   "Core/Support/DebugSwitch.swift": {
-    "mtime": 1795629474.2373984,
-    "seen": 1795629480.471154,
-    "ast_hash": "ef4f96572aac987241afe765d84bf482",
+    "mtime": 1795651626.6802185,
+    "seen": 1795659876.217823,
+    "ast_hash": "3a140494b28a753d159e76245eb575bd",
     "semantic_hash": ""
   },
   "Core/Support/DeckGeometry.swift": {
@@ -2484,10 +2484,10 @@
     "semantic_hash": "c36f19bb59f05cd06848715f66868f1b"
   },
   "Core/Support/WelcomeGuideDecision.swift": {
-    "mtime": 1791999130.738903,
-    "seen": 1795606909.622591,
-    "ast_hash": "8c4728229c664750aa69c15463c8e68c",
-    "semantic_hash": "8c4728229c664750aa69c15463c8e68c"
+    "mtime": 1795649388.1198251,
+    "seen": 1795659876.2179961,
+    "ast_hash": "46bf4e39a6b1e0b895b7aedebc6bda04",
+    "semantic_hash": ""
   },
   "Core/Support/WelcomeGuideSelection.swift": {
     "mtime": 1791999130.7523272,
@@ -2496,9 +2496,9 @@
     "semantic_hash": "c67500d2664875a06720b0a5c719a093"
   },
   "Core/Support/WelcomeGuideStep.swift": {
-    "mtime": 1795629474.2378225,
-    "seen": 1795629480.471328,
-    "ast_hash": "c71036889c13b8d50685c479d55a27ad",
+    "mtime": 1795649387.2185895,
+    "seen": 1795659876.217997,
+    "ast_hash": "5f420ecfd791f34d716c2159a9294d21",
     "semantic_hash": ""
   },
   "Core/Support/WidgetLayoutModel.swift": {
@@ -4284,15 +4284,15 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WelcomeGuideDecisionTests.swift": {
-    "mtime": 1791999130.9485197,
-    "seen": 1795606909.6230662,
-    "ast_hash": "95ea6b80e13237dae8450c33b7c239bc",
-    "semantic_hash": "95ea6b80e13237dae8450c33b7c239bc"
+    "mtime": 1795649388.5785034,
+    "seen": 1795659876.21832,
+    "ast_hash": "ee2235bc3eee5a2a02031bc438104bc6",
+    "semantic_hash": ""
   },
   "Tests/Unit/WelcomeGuideOnboardingTests.swift": {
-    "mtime": 1795431935.2467887,
-    "seen": 1795606909.6230679,
-    "ast_hash": "d16872fca2a6349684e2ce640b09dd66",
+    "mtime": 1795657879.8517327,
+    "seen": 1795659876.21832,
+    "ast_hash": "0a23c770472e8f4a410cc83ddcfd33dc",
     "semantic_hash": ""
   },
   "Tests/Unit/WidgetLayoutModelTests.swift": {

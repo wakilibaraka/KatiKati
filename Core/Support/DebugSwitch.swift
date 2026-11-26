@@ -119,6 +119,11 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     /// Value switch: `DOCK_WELCOME_STEP=permissions` opens the guide on that step, so the first-run
     /// pass can be driven and observed without synthetic clicks. Unset in normal use.
     case welcomeStep = "DOCK_WELCOME_STEP"
+    /// Live-check aid: render the guide's Access act **inertly** (=1) — the one-pass permission
+    /// request is skipped and no `Grant` button is drawn, so a capture run cannot raise a TCC
+    /// dialog even from a stray click. Row status still comes from the non-prompting probes
+    /// (`AXIsProcessTrusted`, `CGPreflightScreenCaptureAccess`, …). Never ships on.
+    case welcomeGuideNoPrompts = "DOCK_WELCOME_NOPROMPTS"
 
     /// Phase 24e: the key-guard pipeline's per-event log (category keyguard); =1 prints
     case keyGuardTrace = "DOCK_KEYGUARD_TRACE"
@@ -255,7 +260,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace, .touchIsland, .desktopCanvas,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,
              .spaceIntentTrace, .scrollReverserTrace, .windowLiftTrace, .minimizeAppFallback,
-             .devSkipPermissions, .welcomeGuide, .edgeBars, .edgeFan, .keyGuardTrace, .keyGuardOff:
+             .devSkipPermissions, .welcomeGuide, .welcomeGuideNoPrompts, .edgeBars, .edgeFan,
+             .keyGuardTrace, .keyGuardOff:
             return .trace
         case .reconcileAxTimeoutMs, .seedAxTimeoutMs, .dragFlightMs, .labelAnim, .inventoryLog,
              .panelLevel, .panelMaterial, .panelSaturation, .panelThickness,
