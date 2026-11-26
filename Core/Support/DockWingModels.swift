@@ -21,6 +21,14 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
     case musicAtmospheric
     case musicLyrics
     case musicQueue
+    // WG-1: today's word, read from the bundled catalogue.
+    case wordOfTheDay
+    case yearProgress
+    case keepAwake
+    case habitStreak
+    case storageGlance
+    case pinnedNote
+    case quickPasteClipboard
 
     var id: String { rawValue }
 
@@ -45,6 +53,13 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .musicAtmospheric: return "music.note.house"
         case .musicLyrics: return "quote.bubble"
         case .musicQueue: return "list.bullet"
+        case .wordOfTheDay: return "book.closed.fill"
+        case .yearProgress: return "chart.pie.fill"
+        case .keepAwake: return "cup.and.saucer.fill"
+        case .habitStreak: return "flame.fill"
+        case .storageGlance: return "internaldrive"
+        case .pinnedNote: return "pin.fill"
+        case .quickPasteClipboard: return "doc.on.clipboard"
         }
     }
 
@@ -66,6 +81,13 @@ enum DockWidgetPresetType: String, Codable, CaseIterable, Identifiable, Sendable
         case .musicAtmospheric: return String(localized: "Music Atmospheric")
         case .musicLyrics: return String(localized: "Music Lyrics")
         case .musicQueue: return String(localized: "Music Queue")
+        case .wordOfTheDay: return String(localized: "Word of the Day")
+        case .yearProgress: return String(localized: "Year Progress")
+        case .keepAwake: return String(localized: "Keep Awake")
+        case .habitStreak: return String(localized: "Habit Streak")
+        case .storageGlance: return String(localized: "Storage")
+        case .pinnedNote: return String(localized: "Pinned Note")
+        case .quickPasteClipboard: return String(localized: "Quick-Paste Clipboard")
         }
     }
 }
@@ -304,6 +326,27 @@ enum DockWingDimensions {
         case (.musicQueue, .small): return 112
         case (.musicQueue, .medium): return 196
         case (.musicQueue, .large): return 256
+        case (.wordOfTheDay, .small): return 112
+        case (.wordOfTheDay, .medium): return 192
+        case (.wordOfTheDay, .large): return 248
+        case (.yearProgress, .small): return 112
+        case (.yearProgress, .medium): return 188
+        case (.yearProgress, .large): return 236
+        case (.keepAwake, .small): return 104
+        case (.keepAwake, .medium): return 168
+        case (.keepAwake, .large): return 208
+        case (.habitStreak, .small): return 104
+        case (.habitStreak, .medium): return 168
+        case (.habitStreak, .large): return 208
+        case (.storageGlance, .small): return 112
+        case (.storageGlance, .medium): return 180
+        case (.storageGlance, .large): return 220
+        case (.pinnedNote, .small): return 108
+        case (.pinnedNote, .medium): return 176
+        case (.pinnedNote, .large): return 220
+        case (.quickPasteClipboard, .small): return 112
+        case (.quickPasteClipboard, .medium): return 184
+        case (.quickPasteClipboard, .large): return 228
         }
     }
 

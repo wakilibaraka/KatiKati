@@ -321,7 +321,14 @@ private struct DesktopFeatureWidgetRows: View {
             Feature(kind: .glance, title: String(localized: "Glance"), hint: String(localized: "Glance: today's date with the lunar date, solar term and festivals.")),
             Feature(kind: .weather, title: String(localized: "Weather"), hint: String(localized: "Weather: live conditions, temperature and today's high and low.")),
             Feature(kind: .music, title: String(localized: "Vinyl Music"), hint: String(localized: "Vinyl Music: a spinning record for what is playing, with play, pause and skip.")),
-            Feature(kind: .search, title: String(localized: "Search"), hint: String(localized: "Search: one pill for Spotlight files, apps, Settings pages, notes and to-dos, with ⌘/⇧ multi-select and batch actions."))
+            Feature(kind: .search, title: String(localized: "Search"), hint: String(localized: "Search: one pill for Spotlight files, apps, Settings pages, notes and to-dos, with ⌘/⇧ multi-select and batch actions.")),
+            Feature(kind: .wordOfTheDay, title: String(localized: "Word of the Day"), hint: String(localized: "Word of the Day: today's word with its offline definition, a speaker and a lookup field.")),
+            Feature(kind: .yearProgress, title: String(localized: "Year Progress"), hint: String(localized: "Year Progress: how much of the year and the month have gone, and the days left.")),
+            Feature(kind: .keepAwake, title: String(localized: "Keep Awake"), hint: String(localized: "Keep Awake: one tap for 15 minutes, an hour or off, with the countdown on the tile.")),
+            Feature(kind: .habitStreak, title: String(localized: "Habit Streak"), hint: String(localized: "Habit Streak: today's habits with a one-click check-off and the streak count.")),
+            Feature(kind: .storageGlance, title: String(localized: "Storage"), hint: String(localized: "Storage: free space at rest, live download speed while a transfer runs.")),
+            Feature(kind: .pinnedNote, title: String(localized: "Pinned Note"), hint: String(localized: "Pinned Note: the notes you pinned in the edge deck, kept in sight on the desktop.")),
+            Feature(kind: .quickPasteClipboard, title: String(localized: "Quick-Paste Clipboard"), hint: String(localized: "Quick-Paste Clipboard: your latest copies, one click puts one back on the clipboard."))
         ]
     }
 

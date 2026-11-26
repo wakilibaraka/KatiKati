@@ -187996,6 +187996,329 @@
         "zh-Hans" : { "stringUnit" : { "state" : "needs_review", "value" : "侧边面板现在显示后台应用。从菜单栏图标打开控制中心。" } },
         "zh-Hant" : { "stringUnit" : { "state" : "needs_review", "value" : "側邊面板現在顯示背景應用程式。從選單列圖示開啟控制中心。" } }
       }
+    },
+    "Word of the Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wort des Tages" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Word of the Day" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Palabra del día" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Palabra del día" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot du jour" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Parola del giorno" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "今日の単語" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "오늘의 단어" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Palavra do dia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Palavra do dia" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每日一词" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "每日一詞" } }
+      }
+    },
+    "Word of the Day: today's word with its offline definition, a speaker and a lookup field." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wort des Tages: das heutige Wort mit Offline-Definition, Vorlesen und Suchfeld." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Word of the Day: today's word with its offline definition, a speaker and a lookup field." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Palabra del día: la palabra de hoy con su definición sin conexión, voz y un campo de búsqueda." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Palabra del día: la palabra de hoy con su definición sin conexión, voz y un campo de búsqueda." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot du jour : le mot du jour avec sa définition hors ligne, la lecture vocale et un champ de recherche." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Parola del giorno: la parola di oggi con definizione offline, sintesi vocale e campo di ricerca." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "今日の単語：今日の単語、オフラインの語義、読み上げボタン、検索欄。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "오늘의 단어: 오늘의 단어와 오프라인 뜻, 읽어 주기 버튼, 검색창." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Palavra do dia: a palavra de hoje com definição offline, leitura em voz alta e campo de busca." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Palavra do dia: a palavra de hoje com definição offline, leitura em voz alta e campo de pesquisa." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每日一词：今天的单词、离线释义、朗读按钮和查词框。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "每日一詞：今天的單詞、離線釋義、朗讀按鈕和查詞框。" } }
+      }
+    },
+    "Free space" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Freier Speicher" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Free space" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Espacio libre" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Free space" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Espace libre" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Spazio libero" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "空き容量" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "여유 공간" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Espaço livre" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Espaço livre" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "可用空间" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "可用空間" } }
+      }
+    },
+    "Month" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Monat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Month" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mes" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Month" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mois" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mese" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "今月" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이번 달" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mês" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mês" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本月" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "本月" } }
+      }
+    },
+    "No habits yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch keine Gewohnheiten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No habits yet" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay hábitos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "No habits yet" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas encore d’habitudes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ancora nessuna abitudine" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだ習慣がありません" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아직 습관이 없습니다" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ainda sem hábitos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ainda sem hábitos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "还没有习惯" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "還沒有習慣" } }
+      }
+    },
+    "Year Progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Jahresfortschritt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Year Progress" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Progreso del año" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Year Progress" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Progression de l’année" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Avanzamento dell’anno" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "年間の進捗" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연간 진행률" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Progresso do ano" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Progresso do ano" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "年度进度" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "年度進度" } }
+      }
+    },
+    "Habit Streak" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gewohnheitsserie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Habit Streak" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Racha de hábitos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Habit Streak" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Série d’habitudes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Serie di abitudini" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "習慣ストリーク" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "습관 연속 기록" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sequência de hábitos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sequência de hábitos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "习惯连续记录" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "習慣連續紀錄" } }
+      }
+    },
+    "Year Progress: how much of the year and the month have gone, and the days left." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Jahresfortschritt: wie viel des Jahres und des Monats vergangen sind und wie viele Tage bleiben." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Year Progress: how much of the year and the month have gone, and the days left." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Progreso del año: cuánto del año y del mes han pasado y cuántos días quedan." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Year Progress: how much of the year and the month have gone, and the days left." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Progression de l’année : la part de l’année et du mois écoulée, et les jours restants." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Avanzamento dell’anno: quanto di anno e mese è passato e quanti giorni restano." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "年間の進捗：年間と今月の経過割合と残り日数。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연간 진행률: 올해와 이번 달이 얼마나 지났는지, 남은 날짜." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Progresso do ano: quanto do ano e do mês já passou e quantos dias restam." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Progresso do ano: quanto do ano e do mês já passou e quantos dias faltam." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "年度进度：今年和本月已过多少，还剩多少天。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "年度進度：今年和本月已過多少，還剩多少天。" } }
+      }
+    },
+    "Keep Awake: one tap for 15 minutes, an hour or off, with the countdown on the tile." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wachhalten: ein Tipp für 15 Minuten, eine Stunde oder aus, mit Countdown auf der Kachel." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keep Awake: one tap for 15 minutes, an hour or off, with the countdown on the tile." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mantener despierto: un toque para 15 minutos, una hora o apagado, con la cuenta atrás." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Keep Awake: one tap for 15 minutes, an hour or off, with the countdown on the tile." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Garder éveillé : un clic pour 15 minutes, une heure ou désactivé, avec le compte à rebours." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mantieni attivo: un clic per 15 minuti, un’ora o spento, con il conto alla rovescia." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スリープ防止：ワンタップで15分・1時間・オフ、カウントダウン付き。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠자기 방지: 한 번 눌러 15분, 1시간, 끄기, 남은 시간 표시." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Manter acordado: um toque para 15 minutos, uma hora ou desligado, com a contagem." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Manter acordado: um toque para 15 minutos, uma hora ou desligado, com a contagem." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保持唤醒：一键 15 分钟、1 小时或关闭，块上显示倒计时。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "保持喚醒：一鍵 15 分鐘、1 小時或關閉，磚上顯示倒數。" } }
+      }
+    },
+    "Habit Streak: today's habits with a one-click check-off and the streak count." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gewohnheitsserie: heutige Gewohnheiten mit Ein-Klick-Häkchen und Serienzähler." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Habit Streak: today's habits with a one-click check-off and the streak count." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Racha de hábitos: los hábitos de hoy con un clic para marcarlos y el contador de racha." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Habit Streak: today's habits with a one-click check-off and the streak count." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Série d’habitudes : les habitudes du jour à cocher en un clic et le compteur de série." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Serie di abitudini: le abitudini di oggi con un clic e il contatore della serie." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "習慣ストリーク：今日の習慣をワンクリックで記録し、連続日数を表示。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "습관 연속 기록: 오늘의 습관을 한 번에 체크하고 연속 일수를 표시." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sequência de hábitos: os hábitos de hoje com um clique e o contador da sequência." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sequência de hábitos: os hábitos de hoje com um clique e o contador da sequência." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "习惯连续记录：一键勾选今天的习惯，并显示连续天数。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "習慣連續紀錄：一鍵勾選今天的習慣，並顯示連續天數。" } }
+      }
+    },
+    "Storage: free space at rest, live download speed while a transfer runs." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Speicher: freier Platz in Ruhe, Live-Downloadrate während einer Übertragung." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Storage: free space at rest, live download speed while a transfer runs." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Almacenamiento: espacio libre en reposo, velocidad de descarga en vivo durante una transferencia." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Storage: free space at rest, live download speed while a transfer runs." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Stockage : espace libre au repos, débit de téléchargement en direct pendant un transfert." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Archiviazione: spazio libero a riposo, velocità di download in tempo reale durante un trasferimento." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ストレージ：待機中は空き容量、転送中はダウンロード速度。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "저장 공간: 대기 중에는 여유 공간, 전송 중에는 다운로드 속도." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Armazenamento: espaço livre em repouso, velocidade de download ao vivo durante a transferência." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Armazenamento: espaço livre em repouso, velocidade de descarga em direto durante a transferência." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "存储：空闲时显示可用空间，传输时显示实时下载速度。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "儲存：閒置時顯示可用空間，傳輸時顯示即時下載速度。" } }
+      }
+    },
+    "Pinned Note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Angeheftete Notiz" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pinned Note" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nota fijada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nota fijada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Note épinglée" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nota fissata" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピン留めしたノート" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "고정한 메모" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nota fixada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nota fixada" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "置顶笔记" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "置頂筆記" } }
+      }
+    },
+    "Pinned Note: the notes you pinned in the edge deck, kept in sight on the desktop." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Angeheftete Notiz: die im Rand-Deck angehefteten Notizen, auf dem Schreibtisch im Blick." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pinned Note: the notes you pinned in the edge deck, kept in sight on the desktop." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nota fijada: las notas que fijaste en el panel lateral, a la vista en el escritorio." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nota fijada: las notas que fijaste en el panel lateral, a la vista en el escritorio." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Note épinglée : les notes épinglées dans le panneau latéral, visibles sur le bureau." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nota fissata: le note fissate nel pannello laterale, sempre visibili sul desktop." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピン留めしたノート：エッジデッキでピン留めしたノートをデスクトップに表示します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "고정한 메모: 가장자리 덱에서 고정한 메모를 데스크탑에 표시합니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nota fixada: as notas fixadas no painel lateral, à vista na mesa." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nota fixada: as notas fixadas no painel lateral, à vista no ambiente de trabalho." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "置顶笔记：把边缘面板里置顶的笔记留在桌面上。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "置頂筆記：把邊緣面板裡置頂的筆記留在桌面上。" } }
+      }
+    },
+    "Quick-Paste Clipboard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zwischenablage zum Schnelleinfügen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick-Paste Clipboard" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles de pegado rápido" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles de pegado rápido" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Presse-papiers à collage rapide" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Appunti per incolla rapido" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クイック貼り付けクリップボード" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "빠른 붙여넣기 클립보드" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Área de transferência de colagem rápida" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Área de transferência de colagem rápida" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快捷粘贴剪贴板" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "快速貼上剪貼簿" } }
+      }
+    },
+    "Quick-Paste Clipboard: your latest copies, one click puts one back on the clipboard." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zwischenablage zum Schnelleinfügen: die letzten Kopien, ein Klick legt eine zurück in die Zwischenablage." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick-Paste Clipboard: your latest copies, one click puts one back on the clipboard." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles de pegado rápido: tus últimas copias; un clic devuelve una al portapapeles." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles de pegado rápido: tus últimas copias; un clic devuelve una al portapapeles." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Presse-papiers à collage rapide : vos dernières copies ; un clic en remet une dans le presse-papiers." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Appunti per incolla rapido: le ultime copie; un clic ne rimette una negli appunti." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クイック貼り付けクリップボード：最近コピーした内容を表示し、クリックでクリップボードに戻します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "빠른 붙여넣기 클립보드: 최근 복사한 내용을 보여 주고, 클릭하면 클립보드로 되돌립니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Área de transferência de colagem rápida: as últimas cópias; um clique devolve uma à área de transferência." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Área de transferência de colagem rápida: as últimas cópias; um clique devolve uma à área de transferência." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快捷粘贴剪贴板：最近复制的内容，点一下即可放回剪贴板。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "快速貼上剪貼簿：最近複製的內容，點一下即可放回剪貼簿。" } }
+      }
+    },
+    "No pinned notes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine angehefteten Notizen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No pinned notes" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No hay notas fijadas" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "No hay notas fijadas" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune note épinglée" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessuna nota fissata" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ピン留めしたノートはありません" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "고정한 메모 없음" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhuma nota fixada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nenhuma nota fixada" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "没有置顶笔记" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "沒有置頂筆記" } }
+      }
+    },
+    "Pin a note in the edge deck to keep it here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hefte eine Notiz im Rand-Deck an, um sie hier zu behalten." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pin a note in the edge deck to keep it here." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fija una nota en el panel lateral para tenerla aquí." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Fija una nota en el panel lateral para tenerla aquí." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Épinglez une note dans le panneau latéral pour la garder ici." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Fissa una nota nel pannello laterale per tenerla qui." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "エッジデッキでノートをピン留めするとここに表示されます。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "가장자리 덱에서 메모를 고정하면 여기에 표시됩니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fixe uma nota no painel lateral para mantê-la aqui." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fixe uma nota no painel lateral para a manter aqui." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在边缘面板里置顶一条笔记，它就会留在这里。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在邊緣面板裡置頂一則筆記，它就會留在這裡。" } }
+      }
+    },
+    "Clipboard is empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zwischenablage ist leer" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard is empty" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles está vacío" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles está vacío" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le presse-papiers est vide" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Gli appunti sono vuoti" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クリップボードは空です" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "클립보드가 비어 있습니다" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "A área de transferência está vazia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "A área de transferência está vazia" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "剪贴板是空的" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "剪貼簿是空的" } }
+      }
+    },
+    "Clipboard recording is off" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zwischenablage-Aufzeichnung ist aus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard recording is off" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La grabación del portapapeles está desactivada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "La grabación del portapapeles está desactivada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L’enregistrement du presse-papiers est désactivé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "La registrazione degli appunti è disattivata" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クリップボードの記録はオフです" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "클립보드 기록이 꺼져 있습니다" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "A gravação da área de transferência está desligada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "A gravação da área de transferência está desligada" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "剪贴板记录已关闭" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "剪貼簿記錄已關閉" } }
+      }
     }
   },
   "version" : "1.0"

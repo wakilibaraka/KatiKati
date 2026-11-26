@@ -67,6 +67,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lastOpenedAtProvider: { [pinnedFolderStore] path in pinnedFolderStore.lastOpenedAt(for: path) }
     )
     private var panelCoordinator: TaskbarScreenOrchestrator?
+    /// The notes controller the edge deck and the desktop widgets share (nil when the notes folder is unusable).
+    @MainActor var notesController: NotesController? { panelCoordinator?.liveNotesController }
     private var windowLiftAvoidanceController: WindowLiftAvoidanceController?
     private lazy var launchAtLoginService = LaunchAtLoginService()
     private lazy var nativeDockPreferencesService = NativeDockPreferencesService()
@@ -1085,20 +1087,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             onPickTheme: { [weak self] theme in self?.settingsStore.setThemeMaterial(theme) },
             notchEnabled: settingsStore.notchIslandEnabled,
             onNotchToggle: { [weak self] on in self?.settingsStore.setNotchIslandEnabled(on) },
-            initialVisibleSections: Set(settingsStore.widgetLayout.visibleOrder),
+            // The grid reports what the bar draws and writes it back through `setBarSection`: the
+            // strip's render order (slot layout plus the slot-less sections spliced from the widget
+            // model). Reading `widgetLayout` alone showed Now Playing unchecked while its slot was on
+            // the bar, and the four sections with no slot had no switch at all.
+            initialVisibleSections: Set(DockModularityValidator.renderOrder(
+                for: settingsStore.dockSlotLayout,
+                mode: settingsStore.barLayoutMode,
+                legacyOrder: settingsStore.widgetLayout.visibleOrder)),
             onToggleSection: { [weak self] section, on in
-                guard let item: DockSlotItem = {
-                    switch section {
-                    case .weather: return .weather
-                    case .media: return .music
-                    case .clock: return .clockCalendar
-                    case .dictionary: return .dictionary
-                    case .terminal: return .terminal
-                    case .ai: return .aiTracking
-                    default: return nil
-                    }
-                }() else { return }
-                self?.settingsStore.setDockSlotItem(item, hidden: !on)
+                self?.settingsStore.setBarSection(section, visible: on)
             },
             initialWings: settingsStore.dockWings,
             onPickWing: { [weak self] placement, preset in self?.settingsStore.setDockWing(preset, placement: placement) },

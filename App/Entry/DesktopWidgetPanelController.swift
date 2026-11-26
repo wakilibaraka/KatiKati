@@ -159,6 +159,20 @@ private struct DesktopWidgetRootView: View {
                     )
                 case .search:
                     DesktopSearchPillView()
+                case .wordOfTheDay:
+                    DesktopWordOfTheDayBoxView()
+                case .yearProgress:
+                    DesktopYearProgressBoxView()
+                case .keepAwake:
+                    DesktopKeepAwakeBoxView()
+                case .habitStreak:
+                    DesktopHabitStreakBoxView()
+                case .storageGlance:
+                    DesktopStorageGlanceBoxView()
+                case .pinnedNote:
+                    DesktopPinnedNoteBoxView(controller: AppDelegate.shared?.notesController)
+                case .quickPasteClipboard:
+                    DesktopClipboardBoxView()
                 default:
                     DesktopFolderBoxView(
                         item: hostState.item,

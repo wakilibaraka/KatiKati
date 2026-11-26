@@ -114,7 +114,28 @@ struct NotchIslandView: View {
     /// The closed chips only fade: blur or scale on a 32pt strip reads as a jump.
     private static let closedFade = AnyTransition.opacity
 
+    /// The scheme the notch's own content is drawn in.
+    ///
+    /// Not the app's appearance: the notch paints its plate itself, and every stored preset is black
+    /// or near-black (`NotchColorPreset.baseHex`), as is the liquid skin — so in Light appearance
+    /// `.primary`/`.secondary` inside the open panel resolved to black on black (`NotchMusicPanel`,
+    /// `NotchMeetingControlBar`, `NotchAIPageView`). The plate decides, with the same luminance test
+    /// used elsewhere for artwork: only a pale custom plate flips the content back to dark ink.
+    private var plateContentScheme: ColorScheme {
+        guard model.skin != .liquid else { return .dark }
+        let plate = surfaceAppearance.effectiveAppearance(
+            isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled).baseColor
+        let luminance = 0.2126 * plate.r + 0.7152 * plate.g + 0.0722 * plate.b
+        return luminance > 0.55 ? .light : .dark
+    }
+
     var body: some View {
+        notchContent
+            .environment(\.colorScheme, plateContentScheme)
+    }
+
+    @ViewBuilder
+    private var notchContent: some View {
         if model.skin == .liquid {
             LiquidNotchShellView(model: model, feed: feed, metrics: metrics)
         } else if model.skin == .dynamicIsland, let bridge = model.islandBridge {

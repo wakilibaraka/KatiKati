@@ -421,6 +421,10 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         }
     }
 
+    /// The one notes controller, created on first need. The edge deck and the desktop widgets read the
+    /// same instance: a second controller over the same directory would race its debounced autosave.
+    var liveNotesController: NotesController? { notesController() }
+
     private func edgeBarsActive() -> Bool {
         settingsStore.edgeBarPreset != .off
             || DebugSwitch.edgeBars.isEnabled(in: ProcessInfo.processInfo.environment)

@@ -477,7 +477,10 @@ final class AppSettingsStore: ObservableObject {
             Keys.edgeGap: Double(PanelGeometry.edgeBarDefaultBottomGap),
             Keys.edgeMargin: 8.0,
             Keys.notesSync: false,
-            Keys.dockIslandEnabled: false,
+            // On by default (owner 2026-11-26): the dock's `music` slot is part of the fresh slot
+            // layout, so leaving this off reserved a Now Playing width that `NowPlayingChip` then
+            // filled with nothing — a blank gap in the bar.
+            Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: true,
             Keys.notchSkin: LiveIslandSkin.liquid.rawValue,
             Keys.islandTouchMode: IslandTouchModeSetting.automatic.rawValue,
@@ -1831,6 +1834,28 @@ final class AppSettingsStore: ObservableObject {
             defaults.set(true, forKey: DockAITrackingDefault.explicitChoiceKey)
         }
         setWidgetLayout(widgetLayout.updating(section) { $0.isVisible = isVisible })
+    }
+
+    /// Turns a bar section on or off in whichever model actually draws it.
+    ///
+    /// The strip renders `dockSlotLayout` (MD-3a) and splices back the sections that have no slot —
+    /// `calendar`, `system`, `devices`, `widgets` — from `WidgetLayout`. A switch that writes only one
+    /// model is how the welcome guide's grid drifted from the bar: it read the widget model, wrote the
+    /// slot model for six sections, and did nothing for the remaining six.
+    func setBarSection(_ section: BarSection, visible: Bool) {
+        if section == .utilities {
+            // The Utilities island is several slots (drawer / screenshots / clipboard / downloads /
+            // trash). Off hides them all; on restores the set a fresh dock shows, so a Drawer the
+            // owner keeps hidden does not reappear just because the group came back.
+            for item in DockSlotItem.allCases where item.islandUtility {
+                setDockSlotItem(item, hidden: !visible || DockSlotLayout.defaultHidden.contains(item))
+            }
+        } else if let slot = DockSlotItem.allCases.first(where: { $0.section == section }) {
+            setDockSlotItem(slot, hidden: !visible)
+        }
+        // The widget model still owns the four slot-less sections and feeds the catalogue, hover
+        // previews and the Settings widget pane, so it follows the same switch.
+        setWidgetVisible(visible, for: section)
     }
 
     func setShowBackgroundApps(_ value: Bool) {

@@ -29,21 +29,23 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.stripPlacement(forDisplay: "D2"), .right)
     }
 
-    /// Live Island surfaces (8b-5): dock island off by default, notch island on, events auto-routed; all persist.
+    /// Live Island surfaces (8b-5): dock island on by default (owner 2026-11-26 — the dock's music
+    /// slot is visible out of the box, so the island has to render), notch island on, events
+    /// auto-routed; all persist.
     func testLiveIslandSurfaceDefaultsAndPersistence() {
         let defaults = makeDefaults()
         let store = AppSettingsStore(defaults: defaults)
-        XCTAssertFalse(store.dockIslandEnabled)
+        XCTAssertTrue(store.dockIslandEnabled)
         XCTAssertTrue(store.notchIslandEnabled)
         XCTAssertEqual(store.liveEventRoute, .automatic)
         XCTAssertTrue(store.liveEventOSBanners)
 
         store.setLiveEventOSBanners(false)
-        store.setDockIslandEnabled(true)
+        store.setDockIslandEnabled(false)
         store.setNotchIslandEnabled(true)
         store.setLiveEventRoute(.both)
         let reloaded = AppSettingsStore(defaults: defaults)
-        XCTAssertTrue(reloaded.dockIslandEnabled)
+        XCTAssertFalse(reloaded.dockIslandEnabled)
         XCTAssertTrue(reloaded.notchIslandEnabled)
         XCTAssertEqual(reloaded.liveEventRoute, .both)
         XCTAssertFalse(reloaded.liveEventOSBanners)

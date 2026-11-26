@@ -310,7 +310,9 @@ struct WelcomeGuideView: View {
 
     private var currentSections: Set<BarSection> { visibleSections ?? layout.initialVisibleSections }
     private var currentWings: DockWingsConfiguration { wingsConfig ?? layout.initialWings }
-    private var configurableSections: [BarSection] { BarSection.canonicalOrder.filter { $0 != .apps } }
+    /// Every section the act's grid offers, in canonical order. `apps` is structural (the running-app
+    /// chips), so it is not a switch. Internal so the regression test walks exactly these switches.
+    static let configurableSections: [BarSection] = BarSection.canonicalOrder.filter { $0 != .apps }
     private var currentMode: BarLayoutMode { pickedMode ?? layout.initialMode }
     private var currentTheme: DockThemeStyle { pickedTheme ?? layout.initialTheme }
 
@@ -902,7 +904,7 @@ struct WelcomeGuideView: View {
     private var sectionGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
                   spacing: 8) {
-            ForEach(configurableSections, id: \.self) { section in
+            ForEach(Self.configurableSections, id: \.self) { section in
                 let isOn = currentSections.contains(section)
                 Button {
                     var next = currentSections

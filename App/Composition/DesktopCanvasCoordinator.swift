@@ -278,6 +278,13 @@ final class DesktopCanvasCoordinator {
         case .weather: title = String(localized: "Weather"); size = CGSize(width: 260, height: 200)
         case .music: title = String(localized: "Vinyl Music"); size = CGSize(width: 260, height: 280)
         case .search: title = String(localized: "Search"); size = CGSize(width: 320, height: 96)
+        case .wordOfTheDay: title = String(localized: "Word of the Day"); size = CGSize(width: 300, height: 200)
+        case .yearProgress: title = String(localized: "Year Progress"); size = CGSize(width: 240, height: 190)
+        case .keepAwake: title = String(localized: "Keep Awake"); size = CGSize(width: 240, height: 150)
+        case .habitStreak: title = String(localized: "Habit Streak"); size = CGSize(width: 240, height: 200)
+        case .storageGlance: title = String(localized: "Storage"); size = CGSize(width: 240, height: 190)
+        case .pinnedNote: title = String(localized: "Pinned Note"); size = CGSize(width: 260, height: 220)
+        case .quickPasteClipboard: title = String(localized: "Quick-Paste Clipboard"); size = CGSize(width: 260, height: 230)
         case .folder: return
         }
         let target = screenContaining(point: NSEvent.mouseLocation)

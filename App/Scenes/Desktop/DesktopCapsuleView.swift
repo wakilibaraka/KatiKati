@@ -41,6 +41,13 @@ struct DesktopCapsuleView: View {
         case .weather: return "cloud.sun.fill"
         case .music: return "opticaldisc.fill"
         case .search: return "magnifyingglass"
+        case .wordOfTheDay: return "book.closed.fill"
+        case .yearProgress: return "chart.pie.fill"
+        case .keepAwake: return "cup.and.saucer.fill"
+        case .habitStreak: return "flame.fill"
+        case .storageGlance: return "internaldrive"
+        case .pinnedNote: return "pin.fill"
+        case .quickPasteClipboard: return "doc.on.clipboard"
         }
     }
 

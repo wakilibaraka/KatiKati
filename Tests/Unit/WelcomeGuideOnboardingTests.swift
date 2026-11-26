@@ -263,6 +263,35 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
         XCTAssertEqual(host.fittingSize.height, 52, accuracy: 0.5)
     }
 
+    /// The bar act and the bar must answer the same question with the same state.
+    ///
+    /// The strip draws `dockSlotLayout` and splices the sections that have no slot (`calendar`,
+    /// `system`, `devices`, `widgets`) back from `WidgetLayout`. The act used to read only the widget
+    /// model and write only six slot-backed sections, so half the grid showed the wrong state while
+    /// four switches did nothing; Now Playing read unchecked with its slot on the bar.
+    func testEverySectionSwitchInTheActReachesTheBar() {
+        let store = AppSettingsStore(defaults: TestDefaults.make("com.katikati.tests.guide.sections", for: self))
+        /// Exactly what the strip renders: the slot layout plus the legacy sections it has no slot for.
+        func barSections() -> Set<BarSection> {
+            Set(DockModularityValidator.renderOrder(for: store.dockSlotLayout,
+                                                    mode: store.barLayoutMode,
+                                                    legacyOrder: store.widgetLayout.visibleOrder))
+        }
+
+        XCTAssertEqual(Set(WelcomeGuideView.configurableSections),
+                       Set(BarSection.canonicalOrder.filter { $0 != .apps }),
+                       "the act offers every section the bar can draw, once")
+
+        for section in WelcomeGuideView.configurableSections {
+            store.setBarSection(section, visible: false)
+            XCTAssertFalse(barSections().contains(section),
+                           "\(section) still draws after the act switched it off")
+            store.setBarSection(section, visible: true)
+            XCTAssertTrue(barSections().contains(section),
+                          "\(section) never reaches the bar, so its switch does nothing")
+        }
+    }
+
     func testNotchPreviewKeepsThePanelProportionsInEveryColumn() {
         for skin in LiveIslandSkin.allCases {
             let panel = NotchGeometry.previewSize(for: skin, expanded: true)

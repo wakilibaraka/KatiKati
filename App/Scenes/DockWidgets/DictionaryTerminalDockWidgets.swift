@@ -379,5 +379,55 @@ struct AIDockPopoverView: View {
             NotchAIPageView().frame(width: 600, height: 215).padding(8)
                 .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.black.opacity(0.9)))
         }.padding(10).frame(width: 636)
+        // The popover's only plate is the black card the AI page sits on, so its labels have to be
+        // drawn for a dark surface even when the app is in Light appearance (a popover inherits the
+        // app's appearance, not the plate's). `NotchAIPageView` is shared with the notch, which sets
+        // the same scheme at its own root.
+        .environment(\.colorScheme, .dark)
+    }
+}
+
+/// WG-1: the Dock chip form of Word of the Day. One cached dictionary read a day (shared with the Desktop card),
+/// so the strip draws a chip without touching the dictionary per frame.
+struct DockWordOfTheDayChipView: View {
+    @Environment(\.dockWingVertical) private var vertical
+
+    var body: some View {
+        let today = WordOfTheDayWidget.today()
+        Group {
+            if vertical {
+                VStack(spacing: 3) {
+                    Image(systemName: "book.closed.fill").font(.system(size: 13, weight: .semibold))
+                    Text(verbatim: today.word.capitalized)
+                        .font(.system(size: 9, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+            } else {
+                HStack(spacing: 7) {
+                    Image(systemName: "book.closed.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.75))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(verbatim: today.word.capitalized)
+                            .font(.system(size: 12, weight: .semibold))
+                            .lineLimit(1)
+                        if let pos = today.entry?.blocks.first?.partOfSpeech, !pos.isEmpty {
+                            Text(verbatim: pos)
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.6))
+                                .lineLimit(1)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, vertical ? 4 : 9)
+        .padding(.vertical, vertical ? 6 : 4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: vertical ? .center : .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: today.word))
     }
 }

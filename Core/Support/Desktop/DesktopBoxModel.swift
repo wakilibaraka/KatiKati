@@ -243,7 +243,8 @@ enum MusicSurfaceConfig {
 }
 
 enum DesktopWidgetKind: String, Codable, CaseIterable, Sendable {
-    case folder, todo, quickCapture, glance, weather, music, search
+    case folder, todo, quickCapture, glance, weather, music, search, wordOfTheDay,
+         yearProgress, keepAwake, habitStreak, storageGlance, pinnedNote, quickPasteClipboard
 }
 
 enum DesktopFolderViewStyle: String, Codable, CaseIterable, Sendable {

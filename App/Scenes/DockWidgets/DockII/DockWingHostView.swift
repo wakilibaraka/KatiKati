@@ -177,6 +177,20 @@ struct DockWingHostView: View {
             DockMusicLyricsWingView()
         case .musicQueue:
             DockMusicQueueWingView()
+        case .wordOfTheDay:
+            DockWordOfTheDayChipView()
+        case .yearProgress:
+            DockYearProgressChipView()
+        case .keepAwake:
+            DockKeepAwakeChipView()
+        case .habitStreak:
+            DockHabitStreakChipView()
+        case .storageGlance:
+            DockStorageGlanceChipView()
+        case .pinnedNote:
+            DockPinnedNoteChipView()
+        case .quickPasteClipboard:
+            DockClipboardChipView()
         }
     }
 
@@ -368,6 +382,20 @@ struct DockUniversalWidgetCard: View {
             DockMusicLyricsWingView()
         case .musicQueue:
             DockMusicQueueWingView()
+        case .wordOfTheDay:
+            DockWordOfTheDayChipView()
+        case .yearProgress:
+            DockYearProgressChipView()
+        case .keepAwake:
+            DockKeepAwakeChipView()
+        case .habitStreak:
+            DockHabitStreakChipView()
+        case .storageGlance:
+            DockStorageGlanceChipView()
+        case .pinnedNote:
+            DockPinnedNoteChipView()
+        case .quickPasteClipboard:
+            DockClipboardChipView()
         }
     }
 
@@ -663,5 +691,199 @@ struct DockAIWingWidgetView: View {
         .popover(isPresented: $showPopover, arrowEdge: edge) { AIDockPopoverView() }
         .onAppear { usage.startMonitoring() }
         .accessibilityElement(children: .combine).accessibilityLabel(Text("AI")).accessibilityAddTraits(.isButton)
+    }
+}
+
+// MARK: - WG-2 / WG-3 / WG-4 Dock chips
+
+/// WG-2: the year's percentage as a compact ring.
+struct DockYearProgressChipView: View {
+    var body: some View {
+        let progress = YearProgress(date: Date())
+        HStack(spacing: 7) {
+            ZStack {
+                Circle().stroke(Color.white.opacity(0.18), lineWidth: 3)
+                Circle()
+                    .trim(from: 0, to: progress.fraction)
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            .frame(width: 22, height: 22)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(progress.percent)%")
+                    .font(.system(size: 12, weight: .semibold))
+                    .monospacedDigit()
+                Text(verbatim: String(format: String(localized: "%d days left"), progress.daysLeft))
+                    .font(.system(size: 9))
+                    .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: "\(progress.percent)%"))
+    }
+}
+
+/// WG-2: keep-awake state and its countdown.
+struct DockKeepAwakeChipView: View {
+    @ObservedObject private var keepAwake = KeepAwakeService.shared
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: keepAwake.manualOn ? "cup.and.saucer.fill" : "cup.and.saucer")
+                .font(.system(size: 13, weight: .semibold))
+            if let end = keepAwake.manualEnd {
+                Text(end, style: .timer)
+                    .font(.system(size: 12, weight: .semibold))
+                    .monospacedDigit()
+            } else {
+                Text(String(localized: "Off"))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+/// WG-3: the streak count, with today's completion when the store has habits.
+struct DockHabitStreakChipView: View {
+    @ObservedObject private var store = HabitStreakStore.shared
+
+    var body: some View {
+        let done = store.habits.filter(\.isDoneToday).count
+        HStack(spacing: 6) {
+            Image(systemName: "flame.fill").font(.system(size: 13, weight: .semibold))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(store.streakCount)")
+                    .font(.system(size: 13, weight: .semibold))
+                    .monospacedDigit()
+                if !store.habits.isEmpty {
+                    Text(verbatim: "\(done)/\(store.habits.count)")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+/// WG-4: live speed while a transfer runs, otherwise the quiet free-space pill.
+struct DockStorageGlanceChipView: View {
+    @ObservedObject private var downloads = DownloadManagerService.shared
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: downloads.aggregateDownloadBps > 0 ? "arrow.down.circle.fill" : "internaldrive")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.75))
+            Text(verbatim: downloads.aggregateDownloadBps > 0
+                 ? "\(DesktopStorageGlanceBoxView.bytes(downloads.aggregateDownloadBps))/s"
+                 : DesktopStorageGlanceBoxView.bytes(DesktopStorageGlanceBoxView.freeBytes))
+                .font(.system(size: 12, weight: .semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+
+/// WG-5: how many notes are pinned, with the newest title when there is room.
+struct DockPinnedNoteChipView: View {
+    private let notes = AppDelegate.shared?.notesController
+
+    var body: some View {
+        if let notes {
+            DockPinnedNoteBody(controller: notes)
+        } else {
+            DockPinnedNoteIdle()
+        }
+    }
+}
+
+private struct DockPinnedNoteBody: View {
+    @ObservedObject var controller: NotesController
+
+    var body: some View {
+        let pinned = controller.notes.filter { $0.pinned && !$0.archived }
+        HStack(spacing: 6) {
+            Image(systemName: "pin.fill").font(.system(size: 12, weight: .semibold))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(pinned.count)")
+                    .font(.system(size: 13, weight: .semibold))
+                    .monospacedDigit()
+                if let first = pinned.first, !first.displayTitle.isEmpty {
+                    Text(verbatim: first.displayTitle)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+private struct DockPinnedNoteIdle: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "pin").font(.system(size: 12, weight: .semibold))
+            Text(verbatim: "\u{2014}")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.white.opacity(0.7))
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+/// WG-5: how many copies are remembered, with the newest one's first line.
+struct DockClipboardChipView: View {
+    @ObservedObject private var monitor = ProductivityServices.shared.clipboard
+
+    var body: some View {
+        let entries = monitor.history.displayOrder
+        HStack(spacing: 6) {
+            Image(systemName: "doc.on.clipboard").font(.system(size: 12, weight: .semibold))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: "\(entries.count)")
+                    .font(.system(size: 13, weight: .semibold))
+                    .monospacedDigit()
+                if let first = entries.first {
+                    Text(verbatim: ClipboardHistory.previewLine(first.text))
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .lineLimit(1)
+                } else if !monitor.isRecording {
+                    Text(String(localized: "Off"))
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .foregroundStyle(.white)
+        .padding(.horizontal, 9)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 }

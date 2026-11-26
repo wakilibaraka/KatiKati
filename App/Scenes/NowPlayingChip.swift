@@ -47,6 +47,27 @@ public struct NowPlayingChip: View {
             } else {
                 LiveIslandDockCapsule()
             }
+        } else {
+            // The `music` slot stays in the bar's layout when the island is off, so returning an
+            // `EmptyView` here left a reserved, blank gap the width of a chip. A static label keeps
+            // the slot honest without starting the feed's tick (that stays the island's job).
+            HStack(spacing: 5) {
+                Image(systemName: "music.note")
+                    .font(.system(size: 10, weight: .semibold))
+                if !isVertical {
+                    Text(String(localized: "Now Playing"))
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .lineLimit(1)
+                }
+            }
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.06)))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+            )
         }
     }
 }
