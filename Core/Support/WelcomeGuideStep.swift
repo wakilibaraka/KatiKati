@@ -27,16 +27,19 @@ enum WelcomeGuideStep: Int, CaseIterable, Sendable {
     static let first: WelcomeGuideStep = .reveal
 
     /// The `DOCK_WELCOME_STEP` spelling of an act, so a live check can open the guide on one act.
-    /// The DP-8 names stay valid: an existing live-check script that says `layout` or `permissions`
-    /// must keep landing somewhere real rather than silently starting at act 1.
+    ///
+    /// One spelling per act, plus the three DP-8 page names (`layout`, `widgets`, `permissions`): a
+    /// script written against the old three-page guide has to land on a real act instead of silently
+    /// starting at act 1. Nothing else — synonyms invented here (`style`, `triggers`, `ready`) were
+    /// never shipped, so no script can be relying on them.
     static func named(_ name: String) -> WelcomeGuideStep? {
         switch name.lowercased() {
-        case "reveal", "welcome": return .reveal
-        case "bar", "layout": return .bar
-        case "feel", "style", "theme": return .feel
+        case "reveal": return .reveal
+        case "bar", "layout", "widgets": return .bar
+        case "feel": return .feel
         case "access", "permissions": return .access
-        case "rhythm", "triggers": return .rhythm
-        case "finale", "ready": return .finale
+        case "rhythm": return .rhythm
+        case "finale": return .finale
         default: return nil
         }
     }

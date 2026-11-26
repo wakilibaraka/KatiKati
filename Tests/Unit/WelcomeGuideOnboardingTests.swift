@@ -17,8 +17,9 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
     /// swatches were labelled `Text(verbatim: style.token)`, so every locale heard "obsidianDark".
     /// The names are the catalogue's existing theme keys, via `DockThemeStyle.menuTitle`.
     func testThemeSwatchesAnnounceTheLocalizedNameNotTheToken() {
-        let choices: [DockThemeStyle] = [.auto, .translucent, .obsidianDark, .auroraGlow]
-        let names = choices.map(WelcomeGuideView.themeChoiceName)
+        let choices = WelcomeGuideView.themeChoices
+        XCTAssertEqual(choices.count, 4, "one row of swatches")
+        let names = choices.map(\.menuTitle)
         for (style, name) in zip(choices, names) {
             XCTAssertFalse(name.isEmpty, "\(style.token) has no VoiceOver name")
             XCTAssertNotEqual(name, style.token, "VoiceOver would read the internal token '\(style.token)'")
@@ -40,12 +41,17 @@ final class WelcomeGuideOnboardingTests: XCTestCase {
         }
     }
 
-    /// The DP-8 debug spellings stay valid, so an existing live-check script keeps working.
+    /// The DP-8 debug spellings stay valid, so an existing live-check script keeps working — while a
+    /// synonym that was never shipped is not silently accepted in its place.
     func testDebugSwitchNamesKeepTheOldSpellings() {
         XCTAssertEqual(WelcomeGuideStep.named("layout"), .bar)
+        XCTAssertEqual(WelcomeGuideStep.named("widgets"), .bar)
         XCTAssertEqual(WelcomeGuideStep.named("permissions"), .access)
-        XCTAssertEqual(WelcomeGuideStep.named("reveal"), .reveal)
-        XCTAssertEqual(WelcomeGuideStep.named("finale"), .finale)
+        for step in WelcomeGuideStep.allCases {
+            XCTAssertEqual(WelcomeGuideStep.named("\(step)"), step, "the act's own name")
+        }
+        XCTAssertNil(WelcomeGuideStep.named("theme"))
+        XCTAssertNil(WelcomeGuideStep.named("ready"))
         XCTAssertNil(WelcomeGuideStep.named("nope"))
     }
 

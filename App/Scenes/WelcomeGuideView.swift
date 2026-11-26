@@ -27,6 +27,13 @@ struct WelcomeGuideWindowContent: View {
                          onDismiss: onDismiss,
                          offersNativeDock: offersNativeDock,
                          startAt: startAt)
+            // The stage is `AmbientMesh` — fixed dark navy in **every** appearance. In Light
+            // appearance the semantic label colours therefore resolved to black-on-black (the footer's
+            // `Back` was the worst case, but body copy and `Skip` suffered too). Declaring the panel
+            // dark, exactly as `ChipPanelView` and `StackPopupChrome` do for their plates, is what
+            // makes `.primary`/`.secondary`/`.tertiary` the standard light-on-dark label ladder
+            // instead of a second guess about what is behind the glass.
+            .environment(\.colorScheme, .dark)
             .frame(width: WelcomeGuideView.contentSize.width,
                    height: WelcomeGuideView.contentSize.height)
     }
@@ -326,14 +333,15 @@ struct WelcomeGuideView: View {
                     }
                     // Read from the real scroll geometry rather than from "this act is Access", so the
                     // cue leaves the moment the last row is reached and no act that fits shows it.
-                    .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                    //
+                    // The transform answers the question and the action only stores the answer: no
+                    // detour through the main queue, because this action is called from the scroll
+                    // transaction rather than from `body`.
+                    .onScrollGeometryChange(for: Bool.self) { geometry in
                         geometry.contentSize.height - geometry.containerSize.height
-                            - geometry.contentOffset.y
-                    } action: { _, overflow in
-                        let show = overflow > Self.overflowCueThreshold
-                        // The write is handed back to the main queue rather than made here: this
-                        // action runs inside a layout pass.
-                        DispatchQueue.main.async { canScrollFurther = show }
+                            - geometry.contentOffset.y > Self.overflowCueThreshold
+                    } action: { _, hasMoreBelow in
+                        canScrollFurther = hasMoreBelow
                     }
                     .overlay(alignment: .bottom) {
                         // Always laid out and faded in and out: the cue never changes the layout, and
@@ -400,8 +408,23 @@ struct WelcomeGuideView: View {
     private var footer: some View {
         HStack(spacing: 10) {
             if let previous = step.previous {
-                Button(String(localized: "Back")) { advance(to: previous) }
-                    .fixedSize()
+                // Not a default-styled push button: over this glass panel AppKit drew its bezel as a
+                // near-black slab whose label was just as dark. A glass pill on the panel's own label
+                // ladder reads at full contrast, and the fill stays neutral — `Color.primary` at low
+                // alpha is white here because the panel declares a dark scheme — so `Continue` keeps
+                // the accent weight.
+                Button { advance(to: previous) } label: {
+                    Text(String(localized: "Back"))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(Color.primary.opacity(0.12)))
+                        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.22), lineWidth: 0.5))
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .fixedSize()
             }
             Spacer(minLength: 0)
             Button(primaryTitle) { primaryAction() }
@@ -445,7 +468,6 @@ struct WelcomeGuideView: View {
         .frame(maxWidth: .infinity, maxHeight: 44, alignment: .bottom)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .transition(.opacity)
     }
 
     private var primaryTitle: String {
@@ -512,7 +534,7 @@ struct WelcomeGuideView: View {
                 .fixedSize(horizontal: false, vertical: true)
             Text(String(localized: "Six short steps, and everything below is already changing on your Mac as you choose it."))
                 .font(.callout)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             actTail
         }
@@ -540,16 +562,17 @@ struct WelcomeGuideView: View {
                 .font(.callout)
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
-            Picker(String(localized: "Edge"), selection: Binding(
-                get: { pickedPlacement ?? layout.initialPlacement },
-                set: { pickedPlacement = $0; layout.onPickPlacement($0) }
-            )) {
-                Text(String(localized: "Bottom")).tag(StripPlacement.bottom)
-                Text(String(localized: "Left")).tag(StripPlacement.left)
-                Text(String(localized: "Right")).tag(StripPlacement.right)
+            // Chips, not a segmented control: on this dark plate macOS drew the segmented track as a
+            // pale glass bar while keeping its labels white — about 2:1, the worst contrast in the
+            // panel. These use the same fill/selection language as the section grid just below, so
+            // the edge reads as one more choice in this act rather than a system control dropped in.
+            HStack(spacing: 6) {
+                edgeChip(String(localized: "Bottom"), .bottom)
+                edgeChip(String(localized: "Left"), .left)
+                edgeChip(String(localized: "Right"), .right)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(Text(String(localized: "Edge")))
             Divider()
             sectionGrid
             HStack(spacing: 12) {
@@ -592,7 +615,7 @@ struct WelcomeGuideView: View {
                                         .strokeBorder(isPicked ? Color.accentColor : Color.primary.opacity(0.12),
                                                       lineWidth: isPicked ? 2 : 1)
                                 )
-                            Text(verbatim: Self.themeChoiceName(style))
+                            Text(verbatim: style.menuTitle)
                                 .font(.system(size: 11, weight: isPicked ? .semibold : .regular))
                                 .foregroundStyle(isPicked ? Color.primary : Color.secondary)
                                 .lineLimit(1)
@@ -604,7 +627,7 @@ struct WelcomeGuideView: View {
                     .buttonStyle(.plain)
                     // The catalogue's own theme name, never the internal token: this used to be
                     // `Text(verbatim: style.token)`, so VoiceOver read "obsidianDark".
-                    .accessibilityLabel(Text(verbatim: Self.themeChoiceName(style)))
+                    .accessibilityLabel(Text(verbatim: style.menuTitle))
                     .accessibilityAddTraits(isPicked ? .isSelected : [])
                 }
             }
@@ -728,7 +751,7 @@ struct WelcomeGuideView: View {
         // Grants can change in System Settings while this act is up, so they are re-read once a
         // second. As a `task` rather than `Timer.publish(...).autoconnect()`: the loop lives and dies
         // with the act (no guard needed to scope it), and it keeps no Combine publisher on the view.
-        .task(id: step) {
+        .task {
             while !Task.isCancelled {
                 refreshGrants()
                 try? await Task.sleep(for: .seconds(1))
@@ -739,8 +762,7 @@ struct WelcomeGuideView: View {
         // `DOCK_WELCOME_NOPROMPTS=1` 把这一幕变成**只读**：不跑那一趟请求，也不画 `Grant` 按钮，
         // 这样一次供截图用的启动不可能弹出任何 TCC 面板（连误点都不会）。行状态仍然来自
         // 不弹窗的探测函数。
-        .task(id: step) {
-            guard step == .access else { return }
+        .task {
             guard !DebugSwitch.welcomeGuideNoPrompts.isEnabled() else { return }
             await requestEveryPermissionOnce()
         }
@@ -803,7 +825,7 @@ struct WelcomeGuideView: View {
             }
             Text(String(localized: "The Launcher itself lives on the bar’s left button — this is only the keyboard way in."))
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             actTail
         }
@@ -822,7 +844,7 @@ struct WelcomeGuideView: View {
             if offersNativeDock {
                 Text(String(localized: "The screen will flash once when you apply this."))
                     .font(.callout)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             actTail
@@ -846,17 +868,36 @@ struct WelcomeGuideView: View {
         Text(title.uppercased())
             .font(.system(size: 10, weight: .semibold))
             .tracking(0.8)
-            .foregroundStyle(.tertiary)
+            .foregroundStyle(.secondary)
             .padding(.top, 4)
     }
 
-    private static let themeChoices: [DockThemeStyle] = [.auto, .translucent, .obsidianDark, .auroraGlow]
+    /// The four tints the Feel act offers. Not every preset: four fits one row at 88 pt a swatch, and
+    /// these are the ones a first run is most likely to want.
+    static let themeChoices: [DockThemeStyle] = [.auto, .translucent, .obsidianDark, .auroraGlow]
 
-    /// What a swatch is called out loud: the localized name the Appearance page and the Theme menu
-    /// already use (`DockThemeStyle.menuTitle`, whose keys exist in every locale), so the guide needs
-    /// no strings of its own. A named function rather than an inline expression so the name can be
-    /// pinned by a test instead of re-derived from `token` at the call site.
-    static func themeChoiceName(_ style: DockThemeStyle) -> String { style.menuTitle }
+    /// One edge choice. Selected is the accent fill with a white label — the same weight `Continue`
+    /// carries — and unselected is the panel's own translucent plate, so both states clear 4.5:1
+    /// against the glass.
+    private func edgeChip(_ title: String, _ placement: StripPlacement) -> some View {
+        let isPicked = (pickedPlacement ?? layout.initialPlacement) == placement
+        return Button {
+            pickedPlacement = placement
+            layout.onPickPlacement(placement)
+        } label: {
+            Text(title)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(isPicked ? Color.white : Color.primary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 5)
+                .background(Capsule().fill(isPicked ? Color.accentColor : Color.primary.opacity(0.10)))
+                .overlay(Capsule().strokeBorder(Color.primary.opacity(isPicked ? 0 : 0.16), lineWidth: 0.5))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .fixedSize()
+        .accessibilityAddTraits(isPicked ? .isSelected : [])
+    }
 
     private var sectionGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
@@ -1087,6 +1128,10 @@ struct WelcomeGuideView: View {
     }
 
     /// Every row's status, from the non-prompting probes only — nothing here can raise a panel.
+    ///
+    /// Notifications is the one asynchronous read, so it goes out as its own short task: the once-a-
+    /// second poll never blocks on it, and it reads the injected
+    /// `WelcomeGuideLayoutContext.notificationsAuthorized` instead of touching UserNotifications.
     private func refreshGrants() {
         accessibilityGranted = AXIsProcessTrusted()
         screenRecordingGranted = CGPreflightScreenCaptureAccess()
@@ -1095,17 +1140,11 @@ struct WelcomeGuideView: View {
         cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
         calendarGranted = EKEventStore.authorizationStatus(for: .event) == .fullAccess
         remindersGranted = EKEventStore.authorizationStatus(for: .reminder) == .fullAccess
-        refreshNotificationsGranted()
-        locationGranted = locationManager.authorizationStatus == .authorizedAlways
-    }
-
-    /// 通知状态只能异步读；每秒一次的轮询里发一个短任务，不阻塞主线程。读的是注入的闭包（见
-    /// `WelcomeGuideLayoutContext.notificationsAuthorized`），这一幕自己不碰 UserNotifications。
-    private func refreshNotificationsGranted() {
         Task {
             let granted = await layout.notificationsAuthorized()
             await MainActor.run { notificationsGranted = granted }
         }
+        locationGranted = locationManager.authorizationStatus == .authorizedAlways
     }
 }
 
