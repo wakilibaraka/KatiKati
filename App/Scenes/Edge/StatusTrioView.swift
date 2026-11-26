@@ -1275,13 +1275,26 @@ struct ControlCenterView: View {
         return AnyView(sliderRowClassic(icon: icon, label: label, value: value))
     }
 
+    /// Classic skin: the row's name is drawn in the leading column, next to its glyph. This panel has
+    /// two speaker rows (system volume and the external display's own volume) and the value numbers
+    /// alone never say which is which, so the name is part of the drawing, not only of the AX tree —
+    /// `card(label:)` names the group for VoiceOver, which is invisible on screen.
     private func sliderRowClassic(icon: String, label: Text? = nil, value: Binding<Double>) -> some View {
         card(padding: 8, label: label) {
-            HStack(spacing: 9) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 12))
                     .foregroundStyle(inkSoft)
                     .frame(width: 18)
+                    .accessibilityHidden(true)
+                if let label {
+                    label.font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(inkSoft)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .frame(width: 84, alignment: .leading)
+                        .accessibilityHidden(true)
+                }
                 Slider(value: value, in: 0...1)
                     .controlSize(.small)
                     .tint(palette.primaryAccent)
@@ -1290,6 +1303,7 @@ struct ControlCenterView: View {
                     .monospacedDigit()
                     .foregroundStyle(inkSoft)
                     .frame(width: 26, alignment: .trailing)
+                    .accessibilityHidden(true)
             }
         }
     }
@@ -2046,7 +2060,7 @@ struct MenuBarCreativeHubView: View {
                             }
                         }.buttonStyle(.plain)
                     }
-                    hubSlider(icon: vol.symbolName, value: Binding(get: { Double(vol.level) }, set: { _ = status.setVolume(Float($0)) }))
+                    hubSlider(icon: vol.symbolName, label: Text("Volume"), value: Binding(get: { Double(vol.level) }, set: { _ = status.setVolume(Float($0)) }))
                     if modules.contains(.audioMixer) {
                         Divider().overlay(cardStroke)
                         HubAudioMixerSection()
@@ -2061,13 +2075,13 @@ struct MenuBarCreativeHubView: View {
                             Spacer()
                         }
                         if let brightness {
-                            hubSlider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayBrightness.setOnCursorScreen($0) }))
+                            hubSlider(icon: "sun.max.fill", label: Text("Brightness"), value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayBrightness.setOnCursorScreen($0) }))
                         }
                         if let displayVolume {
-                            hubSlider(icon: "speaker.wave.2.fill", value: Binding(get: { displayVolume }, set: { self.displayVolume = $0; DisplayBrightness.setVolumeOnCursorScreen($0) }))
+                            hubSlider(icon: "speaker.wave.2.fill", label: Text("Display Volume"), value: Binding(get: { displayVolume }, set: { self.displayVolume = $0; DisplayBrightness.setVolumeOnCursorScreen($0) }))
                         }
                         if let keyLight {
-                            hubSlider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
+                            hubSlider(icon: "keyboard", label: Text("Keyboard"), value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))
                         }
                     }
                     .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
@@ -2140,10 +2154,19 @@ struct MenuBarCreativeHubView: View {
 
     /// iPadOS-style level: a 34 pt capsule with a large white knob and the glyph sitting in the fill.
     /// The native slider is kept underneath at near-zero opacity so dragging, keyboard and
-    /// Accessibility (AXSlider) behave exactly as before; only the drawing is bolder.
-    private func hubSlider(icon: String, value: Binding<Double>) -> some View {
+    /// Accessibility (AXSlider) behave exactly as before; only the drawing is bolder. The name sits in
+    /// a leading column rather than inside the capsule: the fill can be as narrow as the knob, and text
+    /// riding on it would change colour as the value moved. This hub has the same two-speaker problem as
+    /// the Control Centre panel — system volume in one card, the external panel's own volume in another.
+    private func hubSlider(icon: String, label: Text, value: Binding<Double>) -> some View {
         let fraction = min(max(value.wrappedValue, 0), 1)
-        return HStack(spacing: 8) {
+        return HStack(spacing: 7) {
+            label.font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(inkSoft)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(width: 92, alignment: .leading)
+                .accessibilityHidden(true)
             GeometryReader { geo in
                 let height = geo.size.height
                 let knob = height - 8
@@ -2175,6 +2198,14 @@ struct MenuBarCreativeHubView: View {
             Text(verbatim: "\(Int((fraction * 100).rounded()))")
                 .font(.system(size: 11, weight: .semibold)).monospacedDigit()
                 .foregroundStyle(inkSoft).frame(width: 28, alignment: .trailing)
+                .accessibilityHidden(true)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(Text(verbatim: "\(Int((fraction * 100).rounded()))"))
+        .accessibilityAdjustableAction { direction in
+            let step = direction == .increment ? 0.05 : -0.05
+            value.wrappedValue = min(1, max(0, value.wrappedValue + step))
         }
     }
 

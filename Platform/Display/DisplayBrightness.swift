@@ -67,10 +67,11 @@ final class DDCTransport {
     /// Reads a VCP: current value and its maximum, or nil when the panel does not answer.
     ///
     /// Measured on this desk's LG: the first request after an idle gap is dropped, and an empty
-    /// reply (`6E 80 BE …`, length byte 0) arrives as often as a real one. So each attempt writes
-    /// the request twice, and a few attempts are made before deciding the panel does not answer —
-    /// a valid reply arrived within 1–3 attempts every time it was measured.
-    static func read(_ service: Service, vcp: UInt8, attempts: Int = 3) -> (current: UInt16, maximum: UInt16)? {
+    /// reply (`6E 80 BE …`, length byte 0) arrives as often as a real one — a 2026-11-26 run of
+    /// back-to-back reads lost roughly one reply in three on both VCPs, whether or not the chip was
+    /// primed first. So each attempt writes the request twice, several attempts are made before
+    /// deciding the panel does not answer, and callers cache what they read instead of polling.
+    static func read(_ service: Service, vcp: UInt8, attempts: Int = 4) -> (current: UInt16, maximum: UInt16)? {
         let request = DDCCommand.read(vcp: vcp)
         for _ in 0..<max(1, attempts) {
             guard write(service, request), write(service, request) else { continue }
@@ -78,6 +79,9 @@ final class DDCTransport {
             var reply = [UInt8](repeating: 0, count: 11)
             guard readBytes(service, &reply) else { continue }
             guard reply[0] == DDCCommand.destination, reply[2] == 0x02 else { continue }
+            // The frame names the VCP it answers: matching it is what tells a real brightness reply
+            // from the previous volume reply the panel repeated.
+            guard reply[4] == vcp else { continue }
             guard reply[10] == DDCCommand.replyChecksum(Array(reply[0..<10])) else { continue }
             let maximum = UInt16(reply[6]) << 8 | UInt16(reply[7])
             let current = UInt16(reply[8]) << 8 | UInt16(reply[9])
