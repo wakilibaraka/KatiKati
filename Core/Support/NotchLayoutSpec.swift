@@ -15,6 +15,60 @@ enum LiveIslandSkin: String, CaseIterable, Sendable {
     case classic
     case boring
     case dynamicIsland
+
+    /// `true` when expanding from rest opens directly to the Bento suite (`NotchHomeView`),
+    /// turning `boring` ("Full") and `classic` ("Compact") into layout presets on the single `islandcn` engine.
+    var opensDirectlyToBentoSuite: Bool {
+        switch self {
+        case .boring, .classic: return true
+        case .liquid, .dynamicIsland: return false
+        }
+    }
+
+    /// `true` when this skin defaults to the opt-in Metal SDF liquid morph backdrop.
+    var usesMetalLiquidMorph: Bool {
+        self == .liquid
+    }
+
+    var preferredExpandedSize: CGSize {
+        NotchGeometry.openSize(for: self)
+    }
+}
+
+/// Pure HUD routing spec for `IslandLiveBridge` (dual-compiled so `IslandEngineTests` verifies priority,
+/// slot reuse, alert expansion, and lifetimes without linking App-layer `NSPanel` controllers).
+struct IslandHUDRouteSpec: Equatable, Sendable {
+    let activityID: String
+    let priority: Int
+    let alert: Bool
+    let lifetime: TimeInterval
+
+    static func hardwareHUD() -> IslandHUDRouteSpec {
+        IslandHUDRouteSpec(activityID: "katikati.hardwareHUD", priority: 9, alert: false, lifetime: 1.6)
+    }
+
+    static func bluetoothAccessory(isLowBattery: Bool) -> IslandHUDRouteSpec {
+        IslandHUDRouteSpec(activityID: "katikati.bluetooth", priority: 8, alert: isLowBattery, lifetime: 4.0)
+    }
+
+    static func event(_ event: LiveEvent) -> IslandHUDRouteSpec? {
+        switch event {
+        case .trackChanged:
+            return nil
+        case .clipboardCopied:
+            return IslandHUDRouteSpec(activityID: "katikati.hud", priority: 9, alert: true, lifetime: 3.5)
+        case .clipboardPasted:
+            return IslandHUDRouteSpec(activityID: "katikati.hud", priority: 9, alert: false, lifetime: 2.2)
+        case .notice(.capsLockOn, _), .notice(.capsLockOff, _):
+            return IslandHUDRouteSpec(activityID: "katikati.hud", priority: 9, alert: false, lifetime: 1.8)
+        case .notice(.batteryHigh, _), .notice(.batteryFull, _):
+            return IslandHUDRouteSpec(activityID: "katikati.hud", priority: 9, alert: true, lifetime: 3.8)
+        case .notice(.hydrate, _), .notice(.pause, _):
+            return IslandHUDRouteSpec(activityID: "katikati.hud", priority: 9, alert: true, lifetime: 4.5)
+        case .focusPhaseChanged, .focusCycleCompleted, .downloadFinished, .timerFinished, .alarmDue, .severeWeather, .stopwatchStopped, .countdownReachedToday:
+            return IslandHUDRouteSpec(activityID: "katikati.hud", priority: 9, alert: true, lifetime: 4.2)
+        }
+    }
 }
 
 typealias NotchShellPreset = LiveIslandSkin
@@ -264,6 +318,78 @@ struct LiquidShapeState: Equatable, Sendable {
     var auraL: Double = 0.7
     var auraA: Double = 0.1
     var auraB: Double = -0.1
+
+    /// Converts an `IslandFrameGeometry` solved by `IslandChoreography` into the Metal SDF uniforms state,
+    /// keeping `IslandChoreography` as the single source of motion truth.
+    static func from(
+        islandFrame frame: IslandFrameGeometry,
+        stageWidth: Double,
+        topology: IslandDisplayTopology,
+        isExpanded: Bool,
+        auraLab: SIMD3<Double>? = nil
+    ) -> LiquidShapeState {
+        let halfStage = stageWidth / 2.0
+        let hasCutout = topology.cutout.isPhysicalCutout
+        let pillCenterOffset = (frame.pill.x + frame.pill.width / 2.0) - halfStage
+        let drawnCenterOffset = (frame.drawn.x + frame.drawn.width / 2.0) - halfStage
+
+        var state: LiquidShapeState
+        if hasCutout {
+            if isExpanded {
+                state = LiquidShapeState(
+                    mainHalfWidth: max(0, frame.pill.width / 2.0),
+                    mainHeight: max(0, min(frame.pill.height, topology.safeAreaTop > 0 ? topology.safeAreaTop : 36)),
+                    mainRadius: 10,
+                    cardHalfWidth: max(0, frame.drawn.width / 2.0),
+                    cardTop: max(0, frame.drawn.y),
+                    cardHeight: max(0, frame.drawn.height),
+                    cardRadius: max(12, frame.drawn.radius),
+                    cardX: drawnCenterOffset,
+                    mainX: pillCenterOffset,
+                    kBezel: 6.0,
+                    glowIntensity: auraLab != nil ? 0.42 : 0.0
+                )
+            } else {
+                state = LiquidShapeState(
+                    mainHalfWidth: max(0, frame.drawn.width / 2.0),
+                    mainHeight: max(0, frame.drawn.y + frame.drawn.height),
+                    mainRadius: max(8, frame.drawn.radius),
+                    mainX: drawnCenterOffset,
+                    kBezel: 6.0,
+                    glowIntensity: auraLab != nil ? 0.35 : 0.0
+                )
+            }
+        } else {
+            // Non-notched / external display: render via `card` so the floating pill respects `y > 0`
+            // below the menu bar instead of fusing with the top bezel.
+            state = LiquidShapeState(
+                mainHalfWidth: 0,
+                mainHeight: 0,
+                mainRadius: 0,
+                cardHalfWidth: max(0, frame.drawn.width / 2.0),
+                cardTop: max(0, frame.drawn.y),
+                cardHeight: max(0, frame.drawn.height),
+                cardRadius: max(8, frame.drawn.radius),
+                cardX: drawnCenterOffset,
+                mainX: 0,
+                kBezel: 0.0,
+                glowIntensity: auraLab != nil ? 0.38 : 0.0
+            )
+        }
+
+        if frame.bubble.width > 0.5, frame.bubble.height > 0.5 {
+            state.dropRadius = min(frame.bubble.width, frame.bubble.height) / 2.0
+            state.dropX = (frame.bubble.x + frame.bubble.width / 2.0) - halfStage
+            state.dropY = frame.bubble.y + frame.bubble.height / 2.0
+        }
+
+        if let auraLab {
+            state.auraL = auraLab.x
+            state.auraA = auraLab.y
+            state.auraB = auraLab.z
+        }
+        return state
+    }
 }
 
 /// Byte-for-byte mirror of `Uniforms` in the embedded LiquidShape Metal shader.

@@ -228,3 +228,14 @@ boring.notch — https://github.com/TheBoredTeam/boring.notch
   Licensed under GPL-3.0. Used as a UX reference only (borderless setup window,
   live permission-status rows). No code, asset or shader was copied, so no
   GPL-3.0 obligation attaches to KatiKati from this reference.
+
+## ungive/mediaremote-adapter (2026-11-26 — MediaRemote Perl/ObjC adapter, BSD-3-Clause)
+- Repository: https://github.com/ungive/mediaremote-adapter
+- Copyright (c) 2025-2026, Jonas van den Berg and contributors
+- License: BSD 3-Clause License — full text in `Vendor/mediaremote-adapter/LICENSE`
+- Description: Verbatim Objective-C adapter library (`MediaRemoteAdapter.framework`) and
+  `/usr/bin/perl` `DynaLoader` launcher (`bin/mediaremote-adapter.pl`) pinned at commit
+  `2ef957c736256cee7905c9f3f1c7e279087bf195` in `Vendor/mediaremote-adapter/MANIFEST.txt`
+  (maintained via `Scripts/sync_mediaremote_adapter.sh`). Used by `NowPlayingHelper` on
+  macOS 15.4+ so system-wide Now Playing metadata, artwork, and transport commands work
+  without Xcode Command Line Tools or spawning `swift-frontend`.

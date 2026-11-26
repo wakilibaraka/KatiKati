@@ -44,6 +44,7 @@ struct LiveIslandSettingsBlock: View {
 
     @ViewBuilder
     private var advancedSettings: some View {
+        IslandGlassAndMorphCard(store: store)
         if store.notchSkin == .liquid {
             SettingsCard(
                 Text("Liquid Notch"),
@@ -52,46 +53,44 @@ struct LiveIslandSettingsBlock: View {
                 LiquidExtrasSettingsRows()
             }
         }
-        if store.notchSkin == .dynamicIsland {
-            SettingsCard(Text("Dynamic Island")) {
-                SettingsRow(Text("Touch Optimization")) {
-                    Picker(
-                        "Touch Optimization",
-                        selection: Binding(get: { store.islandTouchMode }, set: { store.setIslandTouchMode($0) })
-                    ) {
-                        Text("Automatic").tag(IslandTouchModeSetting.automatic)
-                        Text("Always On").tag(IslandTouchModeSetting.alwaysOn)
-                        Text("Off").tag(IslandTouchModeSetting.off)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
+        SettingsCard(Text("Dynamic Island")) {
+            SettingsRow(Text("Touch Optimization")) {
+                Picker(
+                    "Touch Optimization",
+                    selection: Binding(get: { store.islandTouchMode }, set: { store.setIslandTouchMode($0) })
+                ) {
+                    Text("Automatic").tag(IslandTouchModeSetting.automatic)
+                    Text("Always On").tag(IslandTouchModeSetting.alwaysOn)
+                    Text("Off").tag(IslandTouchModeSetting.off)
                 }
-                SettingsDivider()
-                SettingsRow(Text("Non-Notch Idle")) {
-                    Picker(
-                        "Non-Notch Idle",
-                        selection: Binding(get: { store.islandNonNotchBehavior }, set: { store.setIslandNonNotchBehavior($0) })
-                    ) {
-                        Text("Floating Pill").tag(IslandNonNotchIdleBehavior.compactPill)
-                        Text("Auto-Hide").tag(IslandNonNotchIdleBehavior.autoHideAtRest)
-                        Text("Wide Bar").tag(IslandNonNotchIdleBehavior.wideBarAtRest)
-                    }
-                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
+            SettingsRow(Text("Non-Notch Idle")) {
+                Picker(
+                    "Non-Notch Idle",
+                    selection: Binding(get: { store.islandNonNotchBehavior }, set: { store.setIslandNonNotchBehavior($0) })
+                ) {
+                    Text("Floating Pill").tag(IslandNonNotchIdleBehavior.compactPill)
+                    Text("Auto-Hide").tag(IslandNonNotchIdleBehavior.autoHideAtRest)
+                    Text("Wide Bar").tag(IslandNonNotchIdleBehavior.wideBarAtRest)
                 }
-                SettingsDivider()
-                SettingsToggleRow(
-                    Text("OLED Keyline"),
-                    isOn: Binding(get: { store.islandKeylineEnabled }, set: { store.setIslandKeylineEnabled($0) })
-                )
-                SettingsDivider()
-                SettingsRow(Text("Island Playground")) {
-                    Button(String(localized: "Open Playground")) {
-                        showPlayground = true
-                    }
-                    .buttonStyle(.bordered)
+                .labelsHidden().pickerStyle(.menu).fixedSize()
+            }
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("OLED Keyline"),
+                isOn: Binding(get: { store.islandKeylineEnabled }, set: { store.setIslandKeylineEnabled($0) })
+            )
+            SettingsDivider()
+            SettingsRow(Text("Island Playground")) {
+                Button(String(localized: "Open Playground")) {
+                    showPlayground = true
                 }
-                .sheet(isPresented: $showPlayground) {
-                    IslandPlaygroundSheet(store: store)
-                }
+                .buttonStyle(.bordered)
+            }
+            .sheet(isPresented: $showPlayground) {
+                IslandPlaygroundSheet(store: store)
             }
         }
         if store.notchSkin == .boring || store.notchSkin == .classic {
@@ -108,6 +107,27 @@ struct LiveIslandSettingsBlock: View {
                 Button("Reset") { timeTravel.resetSuggestionBackoff() }
                     .buttonStyle(.bordered)
             }
+        }
+    }
+}
+
+private struct IslandGlassAndMorphCard: View {
+    @ObservedObject var store: AppSettingsStore
+    @AppStorage(IslandSurfaceGlassPolicy.liquidGlassEnabledKey) private var liquidGlassEnabled = true
+    @AppStorage(IslandSurfaceGlassPolicy.metalMorphOptInKey) private var metalMorphOptIn = false
+
+    var body: some View {
+        SettingsCard(
+            Text("Surface Material"),
+            note: Text("Built-in hardware notches stay pure OLED black when closed; Liquid Glass applies when expanded and on notchless displays.")
+        ) {
+            SettingsToggleRow(Text("Liquid Glass Surface"), isOn: $liquidGlassEnabled)
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Metal Liquid Morph (Opt-In)"),
+                isOn: $metalMorphOptIn
+            )
+            .help(Text("Enables GPU SDF liquid morphing across all notch presets (disabled in Low Power Mode and Reduce Motion)."))
         }
     }
 }

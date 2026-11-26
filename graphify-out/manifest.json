@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795719611.3587677,
-    "seen": 1795719809.397862,
-    "ast_hash": "fd3cb52f458dce05ba161ee332c2d04b",
+    "mtime": 1795721579.6894052,
+    "seen": 1795723455.296887,
+    "ast_hash": "6d95e044e2ccef9a0c150219adb423b4",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795717009.735947,
-    "seen": 1795717359.562963,
-    "ast_hash": "f3ad2ea31246bc94c065a480570945f1",
+    "mtime": 1795720623.3891137,
+    "seen": 1795723455.29706,
+    "ast_hash": "c869139f8bb5c23920fbf80d6740b458",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1795719202.214704,
-    "seen": 1795719809.397964,
-    "ast_hash": "25db05c8fdc4ff511bc3e7b247e2dd04",
+    "mtime": 1795721569.8211498,
+    "seen": 1795723455.297089,
+    "ast_hash": "a5a385e678f7b815fcf7aef7a973d26f",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1044,9 +1044,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1795719611.3590803,
-    "seen": 1795719809.3979871,
-    "ast_hash": "278903ed98e62562ec80ba2b62c641bb",
+    "mtime": 1795721569.1660206,
+    "seen": 1795723455.297136,
+    "ast_hash": "b490dbcebc5790cc3feec6dfc65fef32",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -1506,9 +1506,9 @@
     "semantic_hash": ""
   },
   "Core/Support/AppleScriptNowPlaying.swift": {
-    "mtime": 1795515361.953413,
-    "seen": 1795606909.622399,
-    "ast_hash": "b074f2a3156a73927bedb2006c2bfab9",
+    "mtime": 1795723973.9675772,
+    "seen": 1795725246.599387,
+    "ast_hash": "eeab3e456c176b11a82eca348b86c2bc",
     "semantic_hash": ""
   },
   "Core/Support/Aria2RPC.swift": {
@@ -2046,9 +2046,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
-    "mtime": 1795556314.3631666,
-    "seen": 1795606909.622514,
-    "ast_hash": "ace11b193e33dbc00acf2bb1fb8d13ab",
+    "mtime": 1795721459.4111047,
+    "seen": 1795723455.297565,
+    "ast_hash": "875a3092da264b042d5778df09b39249",
     "semantic_hash": ""
   },
   "Core/Support/NotchGestureSupport.swift": {
@@ -2064,9 +2064,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchLayoutSpec.swift": {
-    "mtime": 1795717866.245125,
-    "seen": 1795719809.398201,
-    "ast_hash": "7a00014244bbd862d1094be3abe849c4",
+    "mtime": 1795722737.9243035,
+    "seen": 1795723455.29757,
+    "ast_hash": "154c19c9faafcbc69d88824f8f5f6b05",
     "semantic_hash": ""
   },
   "Core/Support/NotchMotionSpec.swift": {
@@ -2130,9 +2130,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NowPlayingService.swift": {
-    "mtime": 1795546014.7659793,
-    "seen": 1795606909.622527,
-    "ast_hash": "b572f73acfb93e19f6940c61883be871",
+    "mtime": 1795724009.7642927,
+    "seen": 1795725246.599585,
+    "ast_hash": "33b5b7bffca1fdbd2c9f1393b96ffc36",
     "semantic_hash": ""
   },
   "Core/Support/PDFReducePlan.swift": {
@@ -3882,9 +3882,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingProgressTests.swift": {
-    "mtime": 1795548632.1682556,
-    "seen": 1795606909.622852,
-    "ast_hash": "4ce4ba6e064714b057942945c04f9223",
+    "mtime": 1795724022.3159318,
+    "seen": 1795725246.6000729,
+    "ast_hash": "a4ebd2917089d6681bbdfc6715a4439a",
     "semantic_hash": ""
   },
   "Tests/Unit/NowPlayingServiceTests.swift": {
@@ -7290,9 +7290,9 @@
     "semantic_hash": ""
   },
   "App/Composition/IslandLiveBridge.swift": {
-    "mtime": 1795717797.0221238,
-    "seen": 1795719809.397799,
-    "ast_hash": "18c19735f4b3912b3a5be002358cd469",
+    "mtime": 1795722739.169216,
+    "seen": 1795723455.29673,
+    "ast_hash": "beb7dcb30446c902ab76168d780c46b9",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandKit.swift": {
@@ -7302,27 +7302,27 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPresets.swift": {
-    "mtime": 1795717759.4411454,
-    "seen": 1795719809.397969,
-    "ast_hash": "489106a0b570e974051708d42dd681bb",
+    "mtime": 1795721522.8547137,
+    "seen": 1795723455.297098,
+    "ast_hash": "8a5c65d55b52f4a3eb231b12080b4dee",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandPrimitives.swift": {
-    "mtime": 1795544603.299059,
-    "seen": 1795606909.622199,
-    "ast_hash": "6e941f61ac5ee48d3216d4e7091bb7b7",
+    "mtime": 1795721461.164762,
+    "seen": 1795723455.297099,
+    "ast_hash": "ce46e6b343d08ad3ea33f3838f4179e8",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandSurfaceDriver.swift": {
-    "mtime": 1795544602.161391,
-    "seen": 1795606909.6222,
-    "ast_hash": "113ed9c1df1666fb067e1ff4f7c9dfd0",
+    "mtime": 1795721517.666636,
+    "seen": 1795723455.297101,
+    "ast_hash": "9c16172ded573f913e8a944bd6d9b6b7",
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandSurfaceView.swift": {
-    "mtime": 1794914965.4247673,
-    "seen": 1795606909.6222012,
-    "ast_hash": "2d0330a62ac15bbe645a447c0cb7cd78",
+    "mtime": 1795721519.2133768,
+    "seen": 1795723455.297102,
+    "ast_hash": "6d1770298a3c766eb57f84b18bdc4d59",
     "semantic_hash": ""
   },
   "Core/Support/Island/IslandChoreography.swift": {
@@ -7332,9 +7332,9 @@
     "semantic_hash": ""
   },
   "Core/Support/Island/IslandDisplayTopology.swift": {
-    "mtime": 1795717569.770316,
-    "seen": 1795719809.398164,
-    "ast_hash": "35e61355b8b52bcd2b08869db125ce36",
+    "mtime": 1795721458.3972304,
+    "seen": 1795723455.297493,
+    "ast_hash": "b13bbaed63d60bfa049b5b0a610792e7",
     "semantic_hash": ""
   },
   "Core/Support/Island/IslandKeyline.swift": {
@@ -7386,9 +7386,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/IslandEngineTests.swift": {
-    "mtime": 1795544642.1432512,
-    "seen": 1795606909.622787,
-    "ast_hash": "39af61221920d7ef11dbb267f38aef6a",
+    "mtime": 1795722740.3338237,
+    "seen": 1795723455.298166,
+    "ast_hash": "a320ba475851a45fb0816302f0843e0f",
     "semantic_hash": ""
   },
   "App/Composition/DockFriendsStore.swift": {
@@ -9066,9 +9066,9 @@
     "semantic_hash": ""
   },
   "Platform/Display/DisplayBrightness.swift": {
-    "mtime": 1795718060.016282,
-    "seen": 1795719809.398338,
-    "ast_hash": "5ec5520c541c28215901baef138654e4",
+    "mtime": 1795721236.827408,
+    "seen": 1795723455.297843,
+    "ast_hash": "53524136afd8f38846ab8251eeb2b8ef",
     "semantic_hash": ""
   },
   "Tests/Unit/MultiDisplayOptimizationTests.swift": {
@@ -9081,6 +9081,186 @@
     "mtime": 1795716312.3013802,
     "seen": 1795716344.0061498,
     "ast_hash": "40c0466175f20437a88656580dc077ca",
+    "semantic_hash": ""
+  },
+  "Scripts/build_mediaremote_adapter.sh": {
+    "mtime": 1795723911.6300285,
+    "seen": 1795725246.599827,
+    "ast_hash": "f23d3a696326e67b6a10f9f8e06813e0",
+    "semantic_hash": ""
+  },
+  "Scripts/sync_mediaremote_adapter.sh": {
+    "mtime": 1795723912.6204584,
+    "seen": 1795725246.599853,
+    "ast_hash": "7ebc9e76120e61856ca10fdb99caf246",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/include/MediaRemoteAdapter.h": {
+    "mtime": 1795723884.774849,
+    "seen": 1795725246.600227,
+    "ast_hash": "1956a9d20e325df388615beaa7c48846",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/commands.h": {
+    "mtime": 1795723885.0451655,
+    "seen": 1795725246.600228,
+    "ast_hash": "2ff288f2f95ea81e6d9ac0126062d424",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/commands.m": {
+    "mtime": 1795723885.3657658,
+    "seen": 1795725246.600229,
+    "ast_hash": "63ae1e89c4f87cb8a1f633cdd9528266",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/env.h": {
+    "mtime": 1795723885.7190206,
+    "seen": 1795725246.60023,
+    "ast_hash": "271a434ca79341f0baac1c2662ecc3b3",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/env.m": {
+    "mtime": 1795723886.0252304,
+    "seen": 1795725246.600231,
+    "ast_hash": "cc4c4410e179842be3392ec70e99ab83",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/get.h": {
+    "mtime": 1795723886.3804064,
+    "seen": 1795725246.600232,
+    "ast_hash": "2a5080460400c7891ff0164db90bebf8",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/get.m": {
+    "mtime": 1795723886.7169726,
+    "seen": 1795725246.600233,
+    "ast_hash": "d9de56caadb57157b0eb324a85efa877",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/globals.h": {
+    "mtime": 1795723887.1080275,
+    "seen": 1795725246.600235,
+    "ast_hash": "6ffc78971679f4dc5a6e556740dbb9e3",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/globals.m": {
+    "mtime": 1795723887.348245,
+    "seen": 1795725246.600236,
+    "ast_hash": "c9b809728a8a2e3c7200b301cf48ff61",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/keys.h": {
+    "mtime": 1795723887.6319246,
+    "seen": 1795725246.600236,
+    "ast_hash": "7988c1301edbec86bfe2d0f075400bff",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/keys.m": {
+    "mtime": 1795723887.8854463,
+    "seen": 1795725246.6002371,
+    "ast_hash": "d0665da3ff5fd8aa41454e3471cb8fe4",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/now_playing.h": {
+    "mtime": 1795723888.2155545,
+    "seen": 1795725246.600238,
+    "ast_hash": "ad24ded32e428e828a5fc190a8ab94e8",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/now_playing.m": {
+    "mtime": 1795723888.4741035,
+    "seen": 1795725246.600239,
+    "ast_hash": "01a91a992c1cd3e74ef287c74842f942",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/repeat.m": {
+    "mtime": 1795723888.76384,
+    "seen": 1795725246.6002402,
+    "ast_hash": "90edf10b33eb3d45ebe4d6c3a202e6d6",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/seek.m": {
+    "mtime": 1795723889.0748124,
+    "seen": 1795725246.600241,
+    "ast_hash": "579accc23e83174d7db9d296ec8f3f41",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/send.m": {
+    "mtime": 1795723889.337032,
+    "seen": 1795725246.600242,
+    "ast_hash": "2639d2dc795eac358ef6ab4293a8588f",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/shuffle.m": {
+    "mtime": 1795723889.7471087,
+    "seen": 1795725246.6002429,
+    "ast_hash": "9fe6b9b2774f7ba49233a5ea8ddaf861",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/speed.m": {
+    "mtime": 1795723890.0049937,
+    "seen": 1795725246.600244,
+    "ast_hash": "4fde91b46a988773e82e49e7bc0f1934",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/stream.m": {
+    "mtime": 1795723890.2736487,
+    "seen": 1795725246.600245,
+    "ast_hash": "452112f7cb292c54b6a7796b666e04c7",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/adapter/test.m": {
+    "mtime": 1795723890.5580177,
+    "seen": 1795725246.600246,
+    "ast_hash": "e028ecf0962d7f1087c9dd28d0991d5a",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/private/MediaRemote.h": {
+    "mtime": 1795723890.8065035,
+    "seen": 1795725246.6002471,
+    "ast_hash": "e5c2aab2278f03242ca29c1ad55e96c8",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/private/MediaRemote.m": {
+    "mtime": 1795723891.114659,
+    "seen": 1795725246.600248,
+    "ast_hash": "21b96955b12d9fe3a95f0627d7fea4bd",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/test/NowPlayingTest.h": {
+    "mtime": 1795723891.3714097,
+    "seen": 1795725246.600249,
+    "ast_hash": "b5ed6f6aa93194186133ca4308fc8dbd",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/utility/Debounce.h": {
+    "mtime": 1795723891.74836,
+    "seen": 1795725246.60025,
+    "ast_hash": "7112146944cd1a6fe5b8dedbfe0460f8",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/utility/Debounce.m": {
+    "mtime": 1795723892.2189102,
+    "seen": 1795725246.600251,
+    "ast_hash": "680665341af86de5a64b6c2b1fd61f71",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/utility/helpers.h": {
+    "mtime": 1795723892.6532128,
+    "seen": 1795725246.600252,
+    "ast_hash": "8032b08c05c75cad4a33a945bde33869",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/src/utility/helpers.m": {
+    "mtime": 1795723892.9314578,
+    "seen": 1795725246.6002529,
+    "ast_hash": "bd5137d44c6c56a296fe847701391c5b",
+    "semantic_hash": ""
+  },
+  "Vendor/mediaremote-adapter/MANIFEST.txt": {
+    "mtime": 1795723896.4738154,
+    "seen": 1795725246.600461,
+    "ast_hash": "25f9e4b8600582c4b87f8e2cc92311a4",
     "semantic_hash": ""
   }
 }

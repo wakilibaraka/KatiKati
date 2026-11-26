@@ -149,9 +149,7 @@ struct NotchIslandView: View {
 
     @ViewBuilder
     private var notchContent: some View {
-        if model.skin == .liquid {
-            LiquidNotchShellView(model: model, feed: feed, metrics: metrics)
-        } else if model.skin == .dynamicIsland, let bridge = model.islandBridge {
+        if let bridge = model.islandBridge {
             let resolution = NotchTheme.resolve(
                 hasHardwareNotch: metrics.hasHardwareNotch,
                 tintsPlate: !metrics.hasHardwareNotch,
@@ -159,12 +157,27 @@ struct NotchIslandView: View {
             )
             Color.clear.overlay(alignment: .top) {
                 IslandSurfaceView(driver: bridge.driver, registry: bridge.registry, themeResolution: resolution) {
-                    NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
-                        .frame(maxWidth: .infinity, maxHeight: 140)
+                    bentoSuiteView
                 }
             }
         } else {
             legacyNotchBody
+        }
+    }
+
+    @ViewBuilder
+    private var bentoSuiteView: some View {
+        let full = NotchGeometry.openSize
+        let targetWidth = max(model.openSize.width, 320)
+        let scale = model.skin == .classic ? (targetWidth / full.width) : 1.0
+        if scale < 0.99 {
+            NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                .frame(width: full.width, height: full.height, alignment: .top)
+                .scaleEffect(scale, anchor: .top)
+                .frame(width: full.width * scale, height: full.height * scale, alignment: .top)
+        } else {
+            NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 

@@ -118,7 +118,12 @@ enum NotchGeometry {
             let height = min(60, max(44, metrics.closedSize.height + 14))
             return CGSize(width: width, height: height)
         case .boring, .classic:
-            return isExpanded ? openSize : closedSize
+            if isExpanded {
+                return CGSize(width: max(560, openSize.width + 64), height: max(240, openSize.height + 50))
+            }
+            let width = isWide ? openSize.width : max(closedSize.width, 340)
+            let height = min(60, max(44, metrics.closedSize.height + 16))
+            return CGSize(width: width, height: height)
         }
     }
 
@@ -135,16 +140,6 @@ enum NotchGeometry {
         menuBarHeight: CGFloat,
         hasCompactActivity: Bool = true
     ) -> CGRect {
-        if skin != .liquid, skin != .dynamicIsland, !isWide, !metrics.hasHardwareNotch {
-            return NotchGeometryCalculator.calculate(
-                screenBounds: screenBounds,
-                topInset: topInset,
-                menuBarHeight: menuBarHeight,
-                closedSize: closedSize,
-                openSize: openSize,
-                isExpanded: isExpanded
-            ).panelFrame
-        }
         let size = stageSize(
             for: skin,
             isExpanded: isExpanded,
@@ -154,6 +149,10 @@ enum NotchGeometry {
             openSize: openSize,
             hasCompactActivity: hasCompactActivity
         )
-        return panelFrame(size: size, in: screenBounds)
+        var frame = panelFrame(size: size, in: screenBounds)
+        if !metrics.hasHardwareNotch, !isWide, menuBarHeight > 0 {
+            frame.origin.y -= menuBarHeight
+        }
+        return frame
     }
 }

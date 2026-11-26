@@ -320,3 +320,177 @@ struct MediaSessionSwitcher: Equatable, Sendable {
         return ids[next]
     }
 }
+
+// MARK: - P1: ungive/mediaremote-adapter JSON stream & diff parser (BSD-3-Clause)
+
+/// Stateful parser for `mediaremote-adapter.pl ... stream --micros` NDJSON output plus argument builders
+/// for `stream`, `send`, and `seek`. Kept pure and dual-compiled so tests exercise diff merging,
+/// microsecond scaling, `NSNull` clearing, WebKit parent bundle resolution, and malformed input handling.
+struct MediaRemoteAdapterStream {
+    struct Update: Equatable {
+        var hasTrack: Bool
+        var isPlaying: Bool = false
+        var title: String?
+        var artist: String?
+        var album: String?
+        var bundleIdentifier: String?
+        var processIdentifier: Int32?
+        var duration: TimeInterval?
+        var elapsed: TimeInterval?
+        var timestamp: Date?
+        var rate: Double = 0
+        var artworkData: Data?
+    }
+
+    private(set) var accumulatedPayload: [String: Any] = [:]
+    private(set) var cachedArtworkData: Data?
+    private(set) var cachedIdentityKey: String?
+
+    mutating func reset() {
+        accumulatedPayload.removeAll()
+        cachedArtworkData = nil
+        cachedIdentityKey = nil
+    }
+
+    mutating func consume(jsonLine: Data, now: Date = Date()) -> Update? {
+        guard !jsonLine.isEmpty,
+              let root = try? JSONSerialization.jsonObject(with: jsonLine) as? [String: Any] else {
+            return nil
+        }
+        if let type = root["type"] as? String, type != "data" {
+            return nil
+        }
+        guard let payload = root["payload"] as? [String: Any] else {
+            return nil
+        }
+
+        let isDiff = (root["diff"] as? Bool) ?? false
+        if isDiff {
+            for (key, value) in payload {
+                if value is NSNull {
+                    accumulatedPayload.removeValue(forKey: key)
+                    if key == "artworkData" { cachedArtworkData = nil }
+                } else {
+                    accumulatedPayload[key] = value
+                }
+            }
+        } else {
+            if payload.isEmpty {
+                reset()
+                return Update(hasTrack: false)
+            }
+            var fresh: [String: Any] = [:]
+            for (key, value) in payload where !(value is NSNull) {
+                fresh[key] = value
+            }
+            accumulatedPayload = fresh
+        }
+
+        let rawTitle = accumulatedPayload["title"] as? String
+        let title = rawTitle?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let title, !title.isEmpty else {
+            reset()
+            return Update(hasTrack: false)
+        }
+
+        let artist = (accumulatedPayload["artist"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+        let album = (accumulatedPayload["album"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+        let parentBundle = (accumulatedPayload["parentApplicationBundleIdentifier"] as? String)
+            .flatMap { $0.isEmpty ? nil : $0 }
+        let clientBundle = (accumulatedPayload["bundleIdentifier"] as? String)
+            .flatMap { $0.isEmpty ? nil : $0 }
+        let bundleIdentifier = parentBundle ?? clientBundle
+        let pid = (accumulatedPayload["processIdentifier"] as? NSNumber)?.int32Value
+
+        let rateNum = (accumulatedPayload["playbackRate"] as? NSNumber)?.doubleValue
+        let playingFlag = (accumulatedPayload["playing"] as? NSNumber)?.boolValue
+        let isPlaying = playingFlag ?? ((rateNum ?? 0) > 0)
+        let rate = rateNum ?? (isPlaying ? 1.0 : 0.0)
+
+        let duration: TimeInterval? = {
+            if let micros = (accumulatedPayload["durationMicros"] as? NSNumber)?.doubleValue,
+               micros.isFinite, micros > 0 {
+                return micros / 1_000_000.0
+            }
+            if let secs = (accumulatedPayload["duration"] as? NSNumber)?.doubleValue,
+               secs.isFinite, secs > 0 {
+                return secs
+            }
+            return nil
+        }()
+
+        let elapsed: TimeInterval? = {
+            if let micros = (accumulatedPayload["elapsedTimeMicros"] as? NSNumber)?.doubleValue,
+               micros.isFinite, micros >= 0 {
+                return micros / 1_000_000.0
+            }
+            if let secs = (accumulatedPayload["elapsedTime"] as? NSNumber)?.doubleValue,
+               secs.isFinite, secs >= 0 {
+                return secs
+            }
+            return nil
+        }()
+
+        let timestamp: Date = {
+            if let epochMicros = (accumulatedPayload["timestampEpochMicros"] as? NSNumber)?.doubleValue,
+               epochMicros.isFinite, epochMicros > 0 {
+                return Date(timeIntervalSince1970: epochMicros / 1_000_000.0)
+            }
+            if let isoString = accumulatedPayload["timestamp"] as? String,
+               let parsed = Self.isoFormatter.date(from: isoString) {
+                return parsed
+            }
+            return now
+        }()
+
+        let identityKey = "\(bundleIdentifier ?? "")|\(title)|\(artist ?? "")|\(album ?? "")"
+        if identityKey != cachedIdentityKey {
+            cachedIdentityKey = identityKey
+            cachedArtworkData = nil
+        }
+
+        if let artworkBase64 = payload["artworkData"] as? String,
+           let decoded = Data(base64Encoded: artworkBase64), !decoded.isEmpty {
+            cachedArtworkData = decoded
+        } else if cachedArtworkData == nil,
+                  let artworkBase64 = accumulatedPayload["artworkData"] as? String,
+                  let decoded = Data(base64Encoded: artworkBase64), !decoded.isEmpty {
+            cachedArtworkData = decoded
+        }
+
+        return Update(
+            hasTrack: true,
+            isPlaying: isPlaying,
+            title: title,
+            artist: artist,
+            album: album,
+            bundleIdentifier: bundleIdentifier,
+            processIdentifier: pid,
+            duration: duration,
+            elapsed: elapsed,
+            timestamp: timestamp,
+            rate: rate,
+            artworkData: cachedArtworkData
+        )
+    }
+
+    static func streamArguments(scriptPath: String, frameworkPath: String) -> [String] {
+        [scriptPath, frameworkPath, "stream", "--micros", "--debounce=100"]
+    }
+
+    static func sendArguments(scriptPath: String, frameworkPath: String, command: UInt) -> [String] {
+        [scriptPath, frameworkPath, "send", "--force", "\(command)"]
+    }
+
+    static func seekArguments(scriptPath: String, frameworkPath: String, seconds: Double) -> [String] {
+        let clamped = seconds.isFinite ? max(0, seconds) : 0
+        let micros = Int64((clamped * 1_000_000.0).rounded())
+        return [scriptPath, frameworkPath, "seek", "\(micros)"]
+    }
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+}

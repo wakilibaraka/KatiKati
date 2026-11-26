@@ -391,3 +391,40 @@ public enum IslandTouchHitPolicy {
         }
     }
 }
+
+/// Pure eligibility policy for macOS 26+ Liquid Glass and opt-in Metal SDF liquid morph on the unified island surface.
+/// Enforces that closed/compact/minimal hardware notches remain pure `#000000` black with zero seam over the cutout.
+public enum IslandSurfaceGlassPolicy {
+    public static let metalMorphOptInKey = "com.katikati.island.metalMorphOptIn"
+    public static let liquidGlassEnabledKey = "com.katikati.island.liquidGlassEnabled"
+
+    public static func isMetalMorphOptIn(_ defaults: UserDefaults = .standard) -> Bool {
+        defaults.bool(forKey: metalMorphOptInKey)
+    }
+
+    public static func isLiquidGlassEnabled(_ defaults: UserDefaults = .standard) -> Bool {
+        defaults.object(forKey: liquidGlassEnabledKey) as? Bool ?? true
+    }
+
+    public static func shouldUseLiquidGlass(
+        hasPhysicalCutout: Bool,
+        isOLED: Bool,
+        presentation: IslandPresentationKind,
+        glassEnabled: Bool,
+        isLowPowerMode: Bool
+    ) -> Bool {
+        if (hasPhysicalCutout || isOLED) && presentation != .expanded {
+            return false
+        }
+        return glassEnabled && !isLowPowerMode
+    }
+
+    public static func shouldUseMetalMorph(
+        usesMetalPreset: Bool,
+        optInEnabled: Bool,
+        isLowPowerMode: Bool,
+        reduceMotion: Bool
+    ) -> Bool {
+        (usesMetalPreset || optInEnabled) && !isLowPowerMode && !reduceMotion
+    }
+}

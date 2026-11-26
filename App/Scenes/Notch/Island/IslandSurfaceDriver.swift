@@ -24,6 +24,12 @@ final class IslandSurfaceDriver: ObservableObject {
     @Published var nonNotchIdleBehavior: IslandNonNotchIdleBehavior = .compactPill
     @Published var keylineSetting: IslandKeylineSetting = .auto
     @Published var topology: IslandDisplayTopology
+    @Published var skin: LiveIslandSkin = .liquid
+    @Published var isWideBar: Bool = false
+    @Published var glassEnabled: Bool = IslandSurfaceGlassPolicy.isLiquidGlassEnabled()
+    @Published var metalMorphOptIn: Bool = IslandSurfaceGlassPolicy.isMetalMorphOptIn()
+    @Published var artworkAuraLab: SIMD3<Double>? = nil
+    @Published var preferredExpandedSize: CGSize = NotchGeometry.liquidOpenSize
 
     var metrics: IslandMetrics {
         didSet {
@@ -134,7 +140,37 @@ final class IslandSurfaceDriver: ObservableObject {
         topology = nextTopology
         touchMode = touchEnabled
         nonNotchIdleBehavior = nonNotchBehavior
-        metrics = nextTopology.islandMetrics(nonNotchBehavior: nonNotchBehavior, touchEnabled: touchEnabled)
+        var nextMetrics = nextTopology.islandMetrics(nonNotchBehavior: nonNotchBehavior, touchEnabled: touchEnabled)
+        applySkinMetrics(&nextMetrics, openSize: preferredExpandedSize, isWide: isWideBar, skin: skin)
+        metrics = nextMetrics
+    }
+
+    func applySkinAndSize(skin nextSkin: LiveIslandSkin, openSize: CGSize, isWide: Bool) {
+        let changed = skin != nextSkin || preferredExpandedSize != openSize || isWideBar != isWide
+        skin = nextSkin
+        preferredExpandedSize = openSize
+        isWideBar = isWide
+        guard changed else { return }
+        var nextMetrics = topology.islandMetrics(nonNotchBehavior: nonNotchIdleBehavior, touchEnabled: touchMode)
+        applySkinMetrics(&nextMetrics, openSize: openSize, isWide: isWide, skin: nextSkin)
+        metrics = nextMetrics
+    }
+
+    private func applySkinMetrics(
+        _ m: inout IslandMetrics,
+        openSize: CGSize,
+        isWide: Bool,
+        skin: LiveIslandSkin
+    ) {
+        if isWide {
+            m.idle.width = max(m.idle.width, Double(openSize.width))
+        }
+        let targetW = max(Double(openSize.width), m.idle.width + 64.0)
+        m.screen.width = targetW + 2.0 * m.expanded.sideInset
+        m.expanded.maxHeight = max(m.expanded.maxHeight, Double(openSize.height))
+        if skin.opensDirectlyToBentoSuite || isShowingBentoSuite {
+            m.expanded.minHeight = max(m.expanded.minHeight, Double(openSize.height))
+        }
     }
 
     func updateContentMeasure(_ nextMeasure: IslandContentMeasure) {

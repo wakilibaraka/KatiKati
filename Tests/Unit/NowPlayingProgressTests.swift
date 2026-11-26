@@ -253,6 +253,101 @@ final class NowPlayingProgressTests: XCTestCase {
         XCTAssertEqual(FloatingPlayerSize.player.defaultDimensions.width, 280)
         XCTAssertEqual(FloatingPlayerSize.expanded.defaultDimensions.width, 340)
     }
+
+    // MARK: - P1: ungive/mediaremote-adapter stream & diff parser
+
+    func testMediaRemoteAdapterStreamParsesFullAndDiffPayloadsAndNullClears() throws {
+        var stream = MediaRemoteAdapterStream()
+        let artBytes = Data([0x89, 0x50, 0x4E, 0x47])
+        let artB64 = artBytes.base64EncodedString()
+
+        let fullJSON: [String: Any] = [
+            "type": "data",
+            "diff": false,
+            "payload": [
+                "title": "X-Men Story",
+                "artist": "JarToon",
+                "album": "",
+                "bundleIdentifier": "com.apple.WebKit.GPU",
+                "parentApplicationBundleIdentifier": "com.apple.Safari",
+                "processIdentifier": 1236,
+                "playing": true,
+                "playbackRate": 1.0,
+                "durationMicros": 120_000_000,
+                "elapsedTimeMicros": 15_500_000,
+                "timestampEpochMicros": 1_700_000_000_000_000,
+                "artworkData": artB64
+            ]
+        ]
+        let fullData = try JSONSerialization.data(withJSONObject: fullJSON)
+        let first = try XCTUnwrap(stream.consume(jsonLine: fullData, now: t0))
+        XCTAssertTrue(first.hasTrack)
+        XCTAssertTrue(first.isPlaying)
+        XCTAssertEqual(first.title, "X-Men Story")
+        XCTAssertEqual(first.artist, "JarToon")
+        XCTAssertNil(first.album)
+        XCTAssertEqual(first.bundleIdentifier, "com.apple.Safari")
+        XCTAssertEqual(first.processIdentifier, 1236)
+        XCTAssertEqual(first.duration ?? 0, 120.0, accuracy: 0.001)
+        XCTAssertEqual(first.elapsed ?? 0, 15.5, accuracy: 0.001)
+        XCTAssertEqual(first.timestamp?.timeIntervalSince1970 ?? 0, 1_700_000_000.0, accuracy: 0.001)
+        XCTAssertEqual(first.artworkData, artBytes)
+
+        // Diff payload omits artwork & title, pauses playback, updates elapsed, clears artist via NSNull.
+        let diffJSON: [String: Any] = [
+            "type": "data",
+            "diff": true,
+            "payload": [
+                "playing": false,
+                "playbackRate": 0.0,
+                "elapsedTimeMicros": 25_000_000,
+                "artist": NSNull()
+            ]
+        ]
+        let diffData = try JSONSerialization.data(withJSONObject: diffJSON)
+        let second = try XCTUnwrap(stream.consume(jsonLine: diffData, now: t0))
+        XCTAssertTrue(second.hasTrack)
+        XCTAssertFalse(second.isPlaying)
+        XCTAssertEqual(second.rate, 0.0)
+        XCTAssertEqual(second.title, "X-Men Story")
+        XCTAssertNil(second.artist)
+        XCTAssertEqual(second.elapsed ?? 0, 25.0, accuracy: 0.001)
+        XCTAssertEqual(second.artworkData, artBytes)
+
+        // Empty full payload clears active track.
+        let emptyData = try JSONSerialization.data(withJSONObject: ["type": "data", "diff": false, "payload": [:]])
+        let cleared = try XCTUnwrap(stream.consume(jsonLine: emptyData, now: t0))
+        XCTAssertFalse(cleared.hasTrack)
+        XCTAssertNil(cleared.artworkData)
+    }
+
+    func testMediaRemoteAdapterStreamHandlesMalformedJsonAndCommandArgumentsGracefully() {
+        var stream = MediaRemoteAdapterStream()
+        XCTAssertNil(stream.consume(jsonLine: Data("not json".utf8), now: t0))
+        XCTAssertNil(stream.consume(jsonLine: Data("{\"type\":\"error\",\"payload\":{}}".utf8), now: t0))
+        XCTAssertNil(stream.consume(jsonLine: Data(), now: t0))
+
+        XCTAssertEqual(
+            MediaRemoteAdapterStream.streamArguments(scriptPath: "/R/mra.pl", frameworkPath: "/F/MRA.framework"),
+            ["/R/mra.pl", "/F/MRA.framework", "stream", "--micros", "--debounce=100"]
+        )
+        XCTAssertEqual(
+            MediaRemoteAdapterStream.sendArguments(scriptPath: "/R/mra.pl", frameworkPath: "/F/MRA.framework", command: 4),
+            ["/R/mra.pl", "/F/MRA.framework", "send", "--force", "4"]
+        )
+        XCTAssertEqual(
+            MediaRemoteAdapterStream.seekArguments(scriptPath: "/R/mra.pl", frameworkPath: "/F/MRA.framework", seconds: 12.5),
+            ["/R/mra.pl", "/F/MRA.framework", "seek", "12500000"]
+        )
+        XCTAssertEqual(
+            MediaRemoteAdapterStream.seekArguments(scriptPath: "/R/mra.pl", frameworkPath: "/F/MRA.framework", seconds: -5),
+            ["/R/mra.pl", "/F/MRA.framework", "seek", "0"]
+        )
+        XCTAssertEqual(
+            MediaRemoteAdapterStream.seekArguments(scriptPath: "/R/mra.pl", frameworkPath: "/F/MRA.framework", seconds: .nan),
+            ["/R/mra.pl", "/F/MRA.framework", "seek", "0"]
+        )
+    }
 }
 
 // MARK: - OW-5a: several players, one switcher

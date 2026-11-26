@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import Foundation
+import SwiftUI
 
 /// Reactive bridge synchronizing KatiKati live subsystems into the `IslandStore` priority/split
 /// queue (`Now Playing`, `Timer`/`Focus`, `Downloads`, `Shelf`, `Battery`, `Camera/Recording`,
@@ -22,7 +23,10 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
     private var cancellables = Set<AnyCancellable>()
     private var shelfCancellables = Set<AnyCancellable>()
     private var transientWorkItems: [String: DispatchWorkItem] = [:]
+    private var activeHardwareHUDKey: String?
     private var isStarted = false
+
+    var onOpenAudioDeck: (() -> Void)?
 
     private enum ActivityID {
         static let music = "katikati.music"
@@ -32,7 +36,9 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         static let shelf = "katikati.shelf"
         static let agent = "katikati.agent"
         static let battery = "katikati.battery"
+        static let bluetooth = "katikati.bluetooth"
         static let hud = "katikati.hud"
+        static let hardwareHUD = "katikati.hardwareHUD"
         static let playgroundA = "katikati.playground.a"
         static let playgroundB = "katikati.playground.b"
     }
@@ -144,34 +150,198 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
     func show(_ event: LiveEvent) { show(event, onOpen: nil) }
 
     func show(_ event: LiveEvent, onOpen: (() -> Void)?) {
+        guard let spec = IslandHUDRouteSpec.event(event) else {
+            syncMediaAndProductivity()
+            return
+        }
         let presentation = LiveEventPresentation(event)
-        let id = ActivityID.hud
-        let views = IslandPresets.systemHUD(
-            title: presentation.headline,
-            subtitle: presentation.detail,
-            systemImage: presentation.symbol,
-            progress: nil,
-            accent: IslandTheme.Accent.sky,
-            onOpen: onOpen
-        )
+        let id = spec.activityID
+        let views: IslandActivityViews
+
+        switch event {
+        case .trackChanged:
+            return
+
+        case let .clipboardCopied(preview, linkCleaned):
+            views = IslandPresets.clipboardHUD(
+                title: presentation.headline,
+                preview: preview,
+                isPaste: false,
+                linkCleaned: linkCleaned,
+                appIcon: NSWorkspace.shared.frontmostApplication?.icon,
+                onPastePlain: {
+                    if let latest = ProductivityServices.shared.clipboard.history.displayOrder.first {
+                        ProductivityServices.shared.clipboard.pastePlain(latest)
+                    }
+                },
+                onOpenHistory: onOpen
+            )
+
+        case let .clipboardPasted(preview):
+            views = IslandPresets.clipboardHUD(
+                title: presentation.headline,
+                preview: preview,
+                isPaste: true,
+                linkCleaned: false,
+                appIcon: NSWorkspace.shared.frontmostApplication?.icon,
+                onPastePlain: nil,
+                onOpenHistory: onOpen
+            )
+
+        case let .focusPhaseChanged(phase):
+            let symbol = phase == .focus ? "brain.head.profile" : "cup.and.saucer.fill"
+            views = IslandPresets.focusHUD(
+                title: presentation.headline,
+                subtitle: String(localized: "Focus Timer"),
+                systemImage: symbol,
+                accent: phase == .focus ? IslandTheme.Accent.purple : IslandTheme.Accent.lagoon,
+                onOpen: onOpen
+            )
+
+        case let .focusCycleCompleted(count):
+            views = IslandPresets.focusHUD(
+                title: presentation.headline,
+                subtitle: "\(count) completed",
+                systemImage: "checkmark.circle.fill",
+                accent: IslandTheme.Accent.green,
+                onOpen: onOpen
+            )
+
+        case let .notice(kind, detail):
+            switch kind {
+            case .capsLockOn, .capsLockOff:
+                views = IslandPresets.systemHUD(
+                    title: presentation.headline,
+                    subtitle: nil,
+                    systemImage: presentation.symbol,
+                    progress: nil,
+                    accent: kind == .capsLockOn ? IslandTheme.Accent.yellow : IslandTheme.Ink.secondary,
+                    onOpen: nil
+                )
+            case .batteryHigh, .batteryFull:
+                views = IslandPresets.battery(
+                    level: kind == .batteryFull ? 1.0 : 0.8,
+                    charging: true,
+                    deviceName: "MacBook",
+                    detail: detail ?? presentation.headline
+                )
+            case .hydrate, .pause:
+                views = IslandPresets.systemHUD(
+                    title: presentation.headline,
+                    subtitle: detail,
+                    systemImage: presentation.symbol,
+                    progress: nil,
+                    accent: IslandTheme.Accent.lagoon,
+                    onOpen: onOpen
+                )
+            }
+
+        case .downloadFinished:
+            views = IslandPresets.systemHUD(
+                title: presentation.headline,
+                subtitle: presentation.detail,
+                systemImage: presentation.symbol,
+                progress: 1.0,
+                accent: IslandTheme.Accent.green,
+                onOpen: onOpen
+            )
+
+        case .timerFinished, .alarmDue:
+            views = IslandPresets.systemHUD(
+                title: presentation.headline,
+                subtitle: presentation.detail,
+                systemImage: presentation.symbol,
+                progress: nil,
+                accent: IslandTheme.Accent.orange,
+                onOpen: onOpen
+            )
+
+        case .severeWeather:
+            views = IslandPresets.systemHUD(
+                title: presentation.headline,
+                subtitle: presentation.detail,
+                systemImage: presentation.symbol,
+                progress: nil,
+                accent: IslandTheme.Accent.red,
+                onOpen: onOpen
+            )
+
+        case .stopwatchStopped, .countdownReachedToday:
+            views = IslandPresets.systemHUD(
+                title: presentation.headline,
+                subtitle: presentation.detail,
+                systemImage: presentation.symbol,
+                progress: nil,
+                accent: IslandTheme.Accent.sky,
+                onOpen: onOpen
+            )
+        }
+
         registry.register(id: id, views: views)
         driver.store.start(
             IslandActivitySpec(
                 id: id,
                 label: presentation.headline,
-                priority: 9,
-                alert: true
+                priority: spec.priority,
+                alert: spec.alert
             )
         )
-        scheduleEnd(id: id, afterSeconds: 4.5)
+        scheduleEnd(id: id, afterSeconds: spec.lifetime)
     }
 
-    func showHardwareHUD(id: String, icon: String, title: String, level: Double) {
+    func showHardwareHUD(
+        id: String,
+        icon: String,
+        title: String,
+        level: Double,
+        onScrub: ((Double) -> Void)? = nil
+    ) {
+        activeHardwareHUDKey = id
+        let spec = IslandHUDRouteSpec.hardwareHUD()
         let showsPercentage = UserDefaults.standard.object(forKey: NotchHUDPresentation.showPercentageKey) as? Bool ?? true
-        let subtitle = showsPercentage ? level.formatted(.percent.precision(.fractionLength(0))) : nil
-        registry.register(id: id, views: IslandPresets.systemHUD(title: title, subtitle: subtitle, systemImage: icon, progress: level))
-        driver.store.start(IslandActivitySpec(id: id, label: title, priority: 9, alert: true))
-        scheduleEnd(id: id, afterSeconds: 1.5)
+        let accent: Color = {
+            if id == "hud.brightness" { return IslandTheme.Accent.yellow }
+            if id == "hud.keyboard" { return IslandTheme.Accent.orange }
+            return level <= 0 ? IslandTheme.Ink.secondary : IslandTheme.Accent.sky
+        }()
+        registry.register(
+            id: spec.activityID,
+            views: IslandPresets.hardwareLevelHUD(
+                title: title,
+                subtitle: nil,
+                systemImage: icon,
+                level: level,
+                accent: accent,
+                showsPercentage: showsPercentage,
+                onScrub: onScrub
+            )
+        )
+        driver.store.start(IslandActivitySpec(id: spec.activityID, label: title, priority: spec.priority, alert: spec.alert))
+        scheduleEnd(id: spec.activityID, afterSeconds: spec.lifetime)
+    }
+
+    func showBluetoothAccessoryHUD(device: BluetoothDevice, isLowBattery: Bool) {
+        let spec = IslandHUDRouteSpec.bluetoothAccessory(isLowBattery: isLowBattery)
+        let level = Double(device.lowestBattery ?? 0) / 100.0
+        let detail = isLowBattery
+            ? String(localized: "Low Battery")
+            : (device.batteryBreakdown ?? String(localized: "Connected"))
+        let views = IslandPresets.battery(
+            level: level,
+            charging: false,
+            deviceName: device.name,
+            detail: detail
+        )
+        registry.register(id: spec.activityID, views: views)
+        driver.store.start(
+            IslandActivitySpec(
+                id: spec.activityID,
+                label: device.name,
+                priority: spec.priority,
+                alert: spec.alert
+            )
+        )
+        scheduleEnd(id: spec.activityID, afterSeconds: spec.lifetime)
     }
 
     private static let pagesPlaceholderID = "katikati.pages"
@@ -207,16 +377,41 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
 
         let isMusicActive = primary.kind == .music || secondary?.kind == .music || nowState.isPlaying
         if isMusicActive {
+            let now = Date()
             let art = nowState.artworkData.flatMap { NSImage(data: $0) }
+            let accentRGBA = ArtworkAccentCache.accent(for: nowState.artworkData)
+            let accent = accentRGBA.map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? IslandTheme.Accent.pink
+            driver.artworkAuraLab = accentRGBA.map { LiquidOKLab.fromSRGB(SIMD3($0.red, $0.green, $0.blue)) }
+
+            let elapsed = NowPlayingProgress.elapsed(
+                at: now,
+                elapsed: nowState.elapsed,
+                asOf: nowState.elapsedAsOf,
+                rate: nowState.rate,
+                duration: nowState.duration
+            )
+            let lyricLine: String? = {
+                guard UserDefaults.standard.bool(forKey: LyricsTrack.enabledKey), let elapsed else { return nil }
+                LyricsStore.shared.loadIfNeeded(title: nowState.title, artist: nowState.artist)
+                let lines = LyricsStore.shared.lines(title: nowState.title, artist: nowState.artist)
+                return LyricsTrack.activeLine(in: lines, at: elapsed)
+            }()
+
             let views = IslandPresets.nowPlaying(
                 title: nowState.title ?? "Now Playing",
                 artist: nowState.artist ?? nowState.appName ?? "",
                 artwork: art,
-                progress: nowState.progress(at: Date()),
+                progress: nowState.progress(at: now),
+                elapsed: elapsed,
+                duration: nowState.duration,
+                lyricsLine: lyricLine,
                 isPlaying: nowState.isPlaying,
+                accent: accent,
                 onTogglePlayPause: { [weak self] in self?.liveActivityFeed.togglePlayPause() },
                 onPrevious: { [weak self] in self?.liveActivityFeed.previousTrack() },
-                onNext: { [weak self] in self?.liveActivityFeed.nextTrack() }
+                onNext: { [weak self] in self?.liveActivityFeed.nextTrack() },
+                onSeek: { [weak self] seconds in self?.liveActivityFeed.seek(to: seconds) },
+                onOpenAudioDeck: onOpenAudioDeck
             )
             registry.register(id: ActivityID.music, views: views)
             driver.store.start(
@@ -227,6 +422,7 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
                 )
             )
         } else {
+            driver.artworkAuraLab = nil
             driver.store.end(ActivityID.music)
             registry.unregister(id: ActivityID.music)
         }

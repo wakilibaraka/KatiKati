@@ -14,6 +14,7 @@ enum IslandTheme {
         static let sky = Color(red: 0x64 / 255.0, green: 0xD2 / 255.0, blue: 0xFF / 255.0)
         static let pink = Color(red: 0xFF / 255.0, green: 0x37 / 255.0, blue: 0x5F / 255.0)
         static let purple = Color(red: 0xBF / 255.0, green: 0x5A / 255.0, blue: 0xF2 / 255.0)
+        static let indigo = Color(red: 0x5E / 255.0, green: 0x5C / 255.0, blue: 0xE6 / 255.0)
     }
 
     enum Ink {
@@ -200,6 +201,47 @@ struct IslandLinearProgress: View {
             .animation(reduceMotion ? nil : .spring(response: 0.36, dampingFraction: 0.9), value: clamped)
         }
         .frame(height: height)
+    }
+}
+
+/// Interactive scrubbable progress/level bar shared by Volume/Brightness HUDs and Music Scrubbers.
+struct IslandInteractiveLevelBar: View {
+    let value: Double
+    var color: Color = IslandTheme.Accent.blue
+    var track: Color = IslandTheme.Ink.track
+    var height: CGFloat = 6
+    var onScrub: ((Double) -> Void)? = nil
+
+    @State private var dragFraction: Double?
+
+    var body: some View {
+        let displayed = min(1, max(0, dragFraction ?? value))
+        if let onScrub {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(track)
+                    Capsule().fill(color)
+                        .frame(width: max(displayed > 0 ? height : 0, geo.size.width * displayed), height: height)
+                }
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { drag in
+                            let frac = min(1, max(0, drag.location.x / max(1, geo.size.width)))
+                            dragFraction = frac
+                            onScrub(frac)
+                        }
+                        .onEnded { drag in
+                            let frac = min(1, max(0, drag.location.x / max(1, geo.size.width)))
+                            dragFraction = nil
+                            onScrub(frac)
+                        }
+                )
+            }
+            .frame(height: max(height, 12))
+        } else {
+            IslandLinearProgress(value: displayed, color: color, track: track, height: height)
+        }
     }
 }
 

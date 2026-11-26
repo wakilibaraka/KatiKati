@@ -194,4 +194,105 @@ final class IslandEngineTests: XCTestCase {
         XCTAssertFalse(IslandSurfacePublishPolicy.shouldPublishDimMultiplier(current: 1.0, next: 1.00001))
         XCTAssertTrue(IslandSurfacePublishPolicy.shouldPublishDimMultiplier(current: 1.0, next: 0.995))
     }
+
+    func testGlassAndMetalMorphPolicyGuardsClosedHardwareNotchAndLowPower() {
+        for presentation in [IslandPresentationKind.idle, .compact, .minimal] {
+            XCTAssertFalse(IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+                hasPhysicalCutout: true, isOLED: false, presentation: presentation, glassEnabled: true, isLowPowerMode: false
+            ))
+            XCTAssertFalse(IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+                hasPhysicalCutout: true, isOLED: true, presentation: presentation, glassEnabled: true, isLowPowerMode: false
+            ))
+        }
+        XCTAssertTrue(IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+            hasPhysicalCutout: true, isOLED: false, presentation: .expanded, glassEnabled: true, isLowPowerMode: false
+        ))
+        XCTAssertFalse(IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+            hasPhysicalCutout: true, isOLED: false, presentation: .expanded, glassEnabled: true, isLowPowerMode: true
+        ))
+        XCTAssertTrue(IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+            hasPhysicalCutout: false, isOLED: false, presentation: .idle, glassEnabled: true, isLowPowerMode: false
+        ))
+
+        XCTAssertTrue(IslandSurfaceGlassPolicy.shouldUseMetalMorph(
+            usesMetalPreset: false, optInEnabled: true, isLowPowerMode: false, reduceMotion: false
+        ))
+        XCTAssertFalse(IslandSurfaceGlassPolicy.shouldUseMetalMorph(
+            usesMetalPreset: true, optInEnabled: true, isLowPowerMode: true, reduceMotion: false
+        ))
+        XCTAssertFalse(IslandSurfaceGlassPolicy.shouldUseMetalMorph(
+            usesMetalPreset: true, optInEnabled: true, isLowPowerMode: false, reduceMotion: true
+        ))
+    }
+
+    func testSkinPresetsAndLiquidShapeBridgeFromIslandFrame() {
+        XCTAssertTrue(LiveIslandSkin.boring.opensDirectlyToBentoSuite)
+        XCTAssertTrue(LiveIslandSkin.classic.opensDirectlyToBentoSuite)
+        XCTAssertFalse(LiveIslandSkin.dynamicIsland.opensDirectlyToBentoSuite)
+        XCTAssertTrue(LiveIslandSkin.liquid.usesMetalLiquidMorph)
+
+        let notchedTopo = IslandDisplayTopology.resolve(
+            screenWidth: 1728, screenHeight: 1117, safeAreaTop: 38,
+            auxLeftWidth: 760, auxRightWidth: 760, menuBarHeight: 38,
+            isBuiltinDisplay: true, isOLED: false, supportsMultiTouch: false
+        )
+        let metrics = notchedTopo.islandMetrics()
+        let compactTarget = IslandChoreography.shapeTarget(kind: .compact, measure: IslandContentMeasure(leading: 24, trailing: 40), screenWidth: 520, metrics: metrics)
+        let anim = IslandShapeAnimation(target: compactTarget, metrics: metrics)
+        let frame = IslandChoreography.frameAt(anim, at: 0, stageWidth: 520, metrics: metrics)
+
+        let liquidNotch = LiquidShapeState.from(
+            islandFrame: frame, stageWidth: 520, topology: notchedTopo, isExpanded: false, auraLab: SIMD3(0.7, 0.2, -0.1)
+        )
+        XCTAssertEqual(liquidNotch.kBezel, 6.0)
+        XCTAssertGreaterThan(liquidNotch.mainHalfWidth, 80)
+        XCTAssertEqual(liquidNotch.glowIntensity, 0.35)
+
+        let externalTopo = IslandDisplayTopology.resolve(
+            screenWidth: 2560, screenHeight: 1440, safeAreaTop: 0,
+            auxLeftWidth: nil, auxRightWidth: nil, menuBarHeight: 24,
+            isBuiltinDisplay: false, isOLED: false, supportsMultiTouch: false
+        )
+        let extMetrics = externalTopo.islandMetrics()
+        let extTarget = IslandChoreography.shapeTarget(kind: .idle, measure: .empty, screenWidth: 520, metrics: extMetrics)
+        let extAnim = IslandShapeAnimation(target: extTarget, metrics: extMetrics)
+        let extFrame = IslandChoreography.frameAt(extAnim, at: 0, stageWidth: 520, metrics: extMetrics)
+        let liquidExt = LiquidShapeState.from(islandFrame: extFrame, stageWidth: 520, topology: externalTopo, isExpanded: false)
+        XCTAssertEqual(liquidExt.kBezel, 0.0)
+        XCTAssertEqual(liquidExt.mainHalfWidth, 0.0)
+        XCTAssertGreaterThan(liquidExt.cardTop, 0.0)
+        XCTAssertGreaterThan(liquidExt.cardHalfWidth, 60.0)
+    }
+
+    func testIslandHUDRouteSpecAndStorePriorityScheduling() {
+        let clock = ManualIslandClock(initialMs: 0)
+        let store = IslandStore(clock: clock)
+
+        let hw = IslandHUDRouteSpec.hardwareHUD()
+        XCTAssertFalse(hw.alert)
+        store.start(IslandActivitySpec(id: hw.activityID, label: "Volume", priority: hw.priority, alert: hw.alert))
+        XCTAssertEqual(store.presentation, .compact)
+
+        let copy = IslandHUDRouteSpec.event(.clipboardCopied(preview: "https://example.com", linkCleaned: true))!
+        XCTAssertTrue(copy.alert)
+        store.start(IslandActivitySpec(id: copy.activityID, label: "Copied", priority: copy.priority, alert: copy.alert))
+        XCTAssertEqual(store.presentation, .expanded)
+        XCTAssertEqual(store.snapshot.expanded?.id, "katikati.hud")
+
+        let paste = IslandHUDRouteSpec.event(.clipboardPasted(preview: "hello"))!
+        XCTAssertFalse(paste.alert)
+
+        let focus = IslandHUDRouteSpec.event(.focusPhaseChanged(phase: .focus))!
+        XCTAssertTrue(focus.alert)
+
+        let battery = IslandHUDRouteSpec.event(.notice(.batteryHigh, detail: "80%"))!
+        XCTAssertTrue(battery.alert)
+
+        let bt = IslandHUDRouteSpec.bluetoothAccessory(isLowBattery: true)
+        XCTAssertTrue(bt.alert)
+        store.start(IslandActivitySpec(id: bt.activityID, label: "AirPods Pro", priority: bt.priority, alert: bt.alert))
+        XCTAssertTrue(store.snapshot.activities.contains(where: { $0.id == "katikati.bluetooth" }))
+
+        XCTAssertNil(IslandHUDRouteSpec.event(.trackChanged(title: "A", artist: "B")))
+    }
 }

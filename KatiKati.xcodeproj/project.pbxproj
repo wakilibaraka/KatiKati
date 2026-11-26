@@ -3329,6 +3329,7 @@
 				A0000000000000000000003A /* Sources */,
 				A0000000000000000000001A /* Frameworks */,
 				A0000000000000000000003B /* Resources */,
+				MRA000000000000000000001 /* Embed MediaRemoteAdapter */,
 			);
 			buildRules = (
 			);
@@ -3448,6 +3449,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		MRA000000000000000000001 /* Embed MediaRemoteAdapter */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Vendor/mediaremote-adapter/MANIFEST.txt",
+				"$(SRCROOT)/Scripts/build_mediaremote_adapter.sh",
+			);
+			name = "Embed MediaRemoteAdapter";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/MediaRemoteAdapter.framework/MediaRemoteAdapter",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/mediaremote-adapter.pl",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "\"$SRCROOT/Scripts/build_mediaremote_adapter.sh\" \"$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A0000000000000000000003A /* Sources */ = {

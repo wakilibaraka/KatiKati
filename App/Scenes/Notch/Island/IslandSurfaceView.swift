@@ -70,6 +70,29 @@ struct IslandSurfaceView<SuiteContent: View>: View {
         return Color(red: plate.r, green: plate.g, blue: plate.b, opacity: plate.a)
     }
 
+    private var isLowPowerMode: Bool {
+        ProcessInfo.processInfo.isLowPowerModeEnabled
+    }
+
+    private var usesMetalLiquidMorph: Bool {
+        IslandSurfaceGlassPolicy.shouldUseMetalMorph(
+            usesMetalPreset: driver.skin.usesMetalLiquidMorph,
+            optInEnabled: driver.metalMorphOptIn,
+            isLowPowerMode: isLowPowerMode,
+            reduceMotion: effectiveReduceMotion
+        )
+    }
+
+    private var usesLiquidGlass: Bool {
+        IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+            hasPhysicalCutout: driver.topology.cutout.isPhysicalCutout,
+            isOLED: driver.topology.isOLED,
+            presentation: driver.scene.presentation,
+            glassEnabled: driver.glassEnabled,
+            isLowPowerMode: isLowPowerMode
+        )
+    }
+
     private var hidesAtRest: Bool {
         driver.topology.hidesAtRest(
             activeCount: driver.snapshot.activities.count,
@@ -90,7 +113,9 @@ struct IslandSurfaceView<SuiteContent: View>: View {
             )
         }
         if driver.isShowingBentoSuite && driver.scene.presentation == .expanded {
-            combined.expandedHeight = max(combined.expandedHeight, 132)
+            let pad = driver.metrics.expanded.padding
+            let suiteTargetHeight = max(132.0, Double(driver.preferredExpandedSize.height) - pad.top - pad.bottom)
+            combined.expandedHeight = max(combined.expandedHeight, suiteTargetHeight)
         }
         return combined
     }
@@ -102,6 +127,7 @@ struct IslandSurfaceView<SuiteContent: View>: View {
         let pullOffset = driver.dragPullOffset
         let isExpanded = scene.presentation == .expanded
         let isSplit = scene.presentation == .minimal && frame.bubble.width > 0
+        let stageHeight = max(driver.metrics.expanded.maxHeight + driver.metrics.top + 32, 220)
 
         ZStack(alignment: .topLeading) {
             IslandDisplayLinkAnchor(driver: driver)
@@ -121,31 +147,12 @@ struct IslandSurfaceView<SuiteContent: View>: View {
                     .offset(y: s.tailOffsetY)
             }
 
-            // Combined metaball silhouette (main pill + bridge neck + detached bubble).
-            ZStack(alignment: .topLeading) {
-                Path(frame.pillPath).fill(surfaceFillColor)
-                if !frame.bubblePath.isEmpty {
-                    Path(frame.bubblePath).fill(surfaceFillColor)
-                }
-                if !frame.bridgePath.isEmpty {
-                    Path(frame.bridgePath).fill(surfaceFillColor)
-                }
+            // Combined surface silhouette: opt-in Metal SDF morph, macOS 26+ Liquid Glass (expanded / non-notch only),
+            // or pure #000000 black (always enforced on closed/compact/minimal hardware notches).
+            surfaceBackdropLayer(frame: frame, isExpanded: isExpanded, stageHeight: stageHeight)
+                .offset(y: pullOffset * 0.35)
 
-                // Rec. 709 luma-adaptive rim keyline.
-                if resolvedKeylineAlpha > 0.005 {
-                    let strokeColor = Color.white.opacity(resolvedKeylineAlpha)
-                    Path(frame.pillPath).stroke(strokeColor, lineWidth: driver.metrics.keyline.width)
-                    if !frame.bubblePath.isEmpty {
-                        Path(frame.bubblePath).stroke(strokeColor, lineWidth: driver.metrics.keyline.width)
-                    }
-                    if !frame.bridgePath.isEmpty {
-                        Path(frame.bridgePath).stroke(strokeColor, lineWidth: driver.metrics.keyline.width)
-                    }
-                }
-            }
-            .offset(y: pullOffset * 0.35)
-
-            // Main Pill or Expanded Content Layer
+            // Main Pill, Idle Wide Bar, or Expanded Content Layer
             if isExpanded, let primary = scene.primary {
                 let views = registry.views(for: primary)
                 expandedContentLayer(views: views, frame: frame)
@@ -171,6 +178,10 @@ struct IslandSurfaceView<SuiteContent: View>: View {
                     .position(x: frame.bubble.x + frame.bubble.width / 2, y: frame.bubble.y + frame.bubble.height / 2 + pullOffset * 0.35)
                     .clipShape(Path(frame.bubbleClipPath))
                     .gesture(bubbleInteractionGesture)
+            } else if scene.presentation == .idle, driver.isWideBar {
+                NotchWideBarView(width: max(0, frame.pill.width), height: max(0, frame.pill.height))
+                    .position(x: frame.pill.x + frame.pill.width / 2, y: frame.pill.y + frame.pill.height / 2 + pullOffset * 0.35)
+                    .clipShape(Path(frame.clipPath))
             }
 
             // Interactive pill hit box (`>= 44x44 pt` in touch mode).
@@ -184,7 +195,7 @@ struct IslandSurfaceView<SuiteContent: View>: View {
                     .gesture(pillInteractionGesture)
             }
         }
-        .frame(width: driver.stageWidth, height: max(driver.metrics.expanded.maxHeight + driver.metrics.top + 32, 220), alignment: .topLeading)
+        .frame(width: driver.stageWidth, height: stageHeight, alignment: .topLeading)
         .opacity(hidesAtRest ? 0.0 : 1.0)
         .allowsHitTesting(!hidesAtRest)
         .environment(\.islandTouchMode, driver.touchMode)
@@ -203,6 +214,83 @@ struct IslandSurfaceView<SuiteContent: View>: View {
         }
         .onChange(of: driver.scene.contentKey) { _, _ in
             driver.updateContentMeasure(activeMeasures)
+        }
+    }
+
+    // MARK: - Backdrop Surfaces
+
+    @ViewBuilder
+    private func surfaceBackdropLayer(frame: IslandFrameGeometry, isExpanded: Bool, stageHeight: Double) -> some View {
+        if usesMetalLiquidMorph {
+            let liquidState = LiquidShapeState.from(
+                islandFrame: frame,
+                stageWidth: driver.stageWidth,
+                topology: driver.topology,
+                isExpanded: isExpanded,
+                auraLab: driver.artworkAuraLab
+            )
+            let hasCutout = driver.topology.cutout.isPhysicalCutout
+            LiquidSurfaceRepresentable(
+                target: liquidState,
+                notchHalfWidth: hasCutout ? driver.metrics.idle.width / 2.0 : 0,
+                notchHeight: hasCutout ? driver.metrics.idle.height : 0,
+                reduceMotion: true
+            )
+            .frame(width: driver.stageWidth, height: stageHeight)
+            .allowsHitTesting(false)
+        } else {
+            ZStack(alignment: .topLeading) {
+                if usesLiquidGlass {
+                    let glassTint = DockRGBA(r: 0.04, g: 0.05, b: 0.07, a: 0.62)
+                    let glassOverlay = DockRGBA(r: 0, g: 0, b: 0, a: 0.36)
+                    DockGlassBackdrop(
+                        material: .hudWindow,
+                        usesLiquidGlass: true,
+                        cornerRadius: CGFloat(max(8, frame.drawn.radius)),
+                        baseTint: glassTint,
+                        plateOverlay: glassOverlay
+                    )
+                    .frame(width: driver.stageWidth, height: stageHeight)
+                    .clipShape(Path(frame.pillPath))
+                    .allowsHitTesting(false)
+
+                    if !frame.bubblePath.isEmpty {
+                        DockGlassBackdrop(
+                            material: .hudWindow,
+                            usesLiquidGlass: true,
+                            cornerRadius: CGFloat(max(8, frame.bubble.height / 2.0)),
+                            baseTint: glassTint,
+                            plateOverlay: glassOverlay
+                        )
+                        .frame(width: driver.stageWidth, height: stageHeight)
+                        .clipShape(Path(frame.bubblePath))
+                        .allowsHitTesting(false)
+                    }
+                    if !frame.bridgePath.isEmpty {
+                        Path(frame.bridgePath).fill(surfaceFillColor)
+                    }
+                } else {
+                    Path(frame.pillPath).fill(surfaceFillColor)
+                    if !frame.bubblePath.isEmpty {
+                        Path(frame.bubblePath).fill(surfaceFillColor)
+                    }
+                    if !frame.bridgePath.isEmpty {
+                        Path(frame.bridgePath).fill(surfaceFillColor)
+                    }
+                }
+
+                // Rec. 709 luma-adaptive rim keyline.
+                if resolvedKeylineAlpha > 0.005 {
+                    let strokeColor = Color.white.opacity(resolvedKeylineAlpha)
+                    Path(frame.pillPath).stroke(strokeColor, lineWidth: driver.metrics.keyline.width)
+                    if !frame.bubblePath.isEmpty {
+                        Path(frame.bubblePath).stroke(strokeColor, lineWidth: driver.metrics.keyline.width)
+                    }
+                    if !frame.bridgePath.isEmpty {
+                        Path(frame.bridgePath).stroke(strokeColor, lineWidth: driver.metrics.keyline.width)
+                    }
+                }
+            }
         }
     }
 
@@ -250,29 +338,34 @@ struct IslandSurfaceView<SuiteContent: View>: View {
 
     @ViewBuilder
     private func expandedContentLayer(views: IslandActivityViews, frame: IslandFrameGeometry) -> some View {
-        let pad = driver.metrics.expanded.padding
-        VStack(alignment: .leading, spacing: driver.metrics.expanded.rowGap) {
-            HStack(alignment: .center, spacing: 10) {
-                views.expandedLeading
-                views.expandedCenter
-                Spacer(minLength: 4)
-                VStack(alignment: .trailing, spacing: 6) {
-                    views.expandedTrailing
-                    expandedModeSwitchPill
+        let isAlert = driver.snapshot.expanded?.reason == .alert
+        if driver.isShowingBentoSuite && !isAlert {
+            suiteContent()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .gesture(expandedPullUpGesture)
+                .transition(.opacity)
+        } else {
+            let pad = driver.metrics.expanded.padding
+            VStack(alignment: .leading, spacing: driver.metrics.expanded.rowGap) {
+                HStack(alignment: .center, spacing: 10) {
+                    views.expandedLeading
+                    views.expandedCenter
+                    Spacer(minLength: 4)
+                    VStack(alignment: .trailing, spacing: 6) {
+                        views.expandedTrailing
+                        expandedModeSwitchPill
+                    }
+                }
+                if let bottom = views.expandedBottom {
+                    bottom
                 }
             }
-            if driver.isShowingBentoSuite {
-                suiteContent()
-                    .transition(.opacity)
-            } else if let bottom = views.expandedBottom {
-                bottom
-            }
+            .padding(.top, pad.top)
+            .padding(.leading, pad.side)
+            .padding(.trailing, pad.trailing)
+            .padding(.bottom, pad.bottom)
+            .gesture(expandedPullUpGesture)
         }
-        .padding(.top, pad.top)
-        .padding(.leading, pad.side)
-        .padding(.trailing, pad.trailing)
-        .padding(.bottom, pad.bottom)
-        .gesture(expandedPullUpGesture)
     }
 
     private var expandedModeSwitchPill: some View {

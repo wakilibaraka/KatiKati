@@ -18,15 +18,22 @@ enum IslandPresets {
         artist: String,
         artwork: NSImage?,
         progress: Double?,
+        elapsed: Double? = nil,
+        duration: Double? = nil,
+        lyricsLine: String? = nil,
         isPlaying: Bool,
         accent: Color = IslandTheme.Accent.pink,
         onTogglePlayPause: @escaping () -> Void,
         onPrevious: @escaping () -> Void,
-        onNext: @escaping () -> Void
+        onNext: @escaping () -> Void,
+        onSeek: ((Double) -> Void)? = nil,
+        onOpenAudioDeck: (() -> Void)? = nil
     ) -> IslandActivityViews {
         let thumbCompact = IslandTileArtwork(image: artwork, systemImage: "music.note", accent: accent, size: 22, radius: 6)
         let meter = IslandLevelMeter(bars: 4, color: accent, height: 15, barWidth: 2.8, gap: 2, active: isPlaying)
-        let progressValue = progress ?? 0.35
+        let progressValue = progress ?? 0.0
+        let totalDuration = duration ?? 0
+        let elapsedSec = elapsed ?? (totalDuration > 0 ? progressValue * totalDuration : 0)
 
         return IslandActivityViews(
             measure: IslandContentMeasure(
@@ -38,32 +45,71 @@ enum IslandPresets {
                     attached: IslandSlotPair(leading: 20, trailing: 18),
                     detached: IslandSlotPair(leading: 20, trailing: 18)
                 ),
-                expandedHeight: 92
+                expandedHeight: 112
             ),
             compactLeading: AnyView(thumbCompact),
             compactTrailing: AnyView(meter),
             minimal: AnyView(thumbCompact),
             expandedLeading: AnyView(
-                IslandTileArtwork(image: artwork, systemImage: "music.note", accent: accent, size: 52, radius: 12)
+                Button { onOpenAudioDeck?() } label: {
+                    IslandTileArtwork(image: artwork, systemImage: "music.note", accent: accent, size: 52, radius: 12)
+                }
+                .buttonStyle(.plain)
             ),
             expandedCenter: AnyView(
-                IslandTitleStack(title: title.isEmpty ? "Now Playing" : title, subtitle: artist)
+                VStack(alignment: .leading, spacing: 2) {
+                    IslandTitleStack(title: title.isEmpty ? "Now Playing" : title, subtitle: artist)
+                    if let lyricsLine, !lyricsLine.isEmpty {
+                        Text(verbatim: lyricsLine)
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundStyle(accent.opacity(0.92))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                }
             ),
             expandedTrailing: AnyView(
-                IslandLevelMeter(bars: 4, color: accent, height: 18, barWidth: 3, gap: 2.2, active: isPlaying)
+                HStack(spacing: 8) {
+                    IslandLevelMeter(bars: 4, color: accent, height: 18, barWidth: 3, gap: 2.2, active: isPlaying)
+                    LiquidRoutePickerView()
+                        .frame(width: 22, height: 22)
+                }
             ),
             expandedBottom: AnyView(
                 VStack(spacing: 8) {
-                    IslandLinearProgress(value: progressValue, color: accent, height: 5, ends: .square)
+                    VStack(spacing: 3) {
+                        IslandInteractiveLevelBar(
+                            value: progressValue,
+                            color: accent,
+                            height: 5,
+                            onScrub: (onSeek != nil && totalDuration > 0) ? { frac in
+                                onSeek?(frac * totalDuration)
+                            } : nil
+                        )
+                        if totalDuration > 0 {
+                            HStack {
+                                Text(verbatim: islandFormatClock(ms: elapsedSec * 1000.0))
+                                Spacer()
+                                Text(verbatim: "-" + islandFormatClock(ms: max(0, totalDuration - elapsedSec) * 1000.0))
+                            }
+                            .font(.system(size: 10, weight: .medium).monospacedDigit())
+                            .foregroundStyle(IslandTheme.Ink.secondary)
+                        }
+                    }
                     HStack(spacing: 12) {
-                        IslandRoundButton(size: 36, accessibilityLabel: "Previous", action: onPrevious) {
+                        IslandRoundButton(size: 34, accessibilityLabel: "Previous", action: onPrevious) {
                             Image(systemName: "backward.fill").font(.system(size: 13, weight: .semibold))
                         }
-                        IslandRoundButton(size: 40, fill: accent.opacity(0.24), foreground: accent, accessibilityLabel: isPlaying ? "Pause" : "Play", action: onTogglePlayPause) {
+                        IslandRoundButton(size: 38, fill: accent.opacity(0.24), foreground: accent, accessibilityLabel: isPlaying ? "Pause" : "Play", action: onTogglePlayPause) {
                             Image(systemName: isPlaying ? "pause.fill" : "play.fill").font(.system(size: 15, weight: .semibold))
                         }
-                        IslandRoundButton(size: 36, accessibilityLabel: "Next", action: onNext) {
+                        IslandRoundButton(size: 34, accessibilityLabel: "Next", action: onNext) {
                             Image(systemName: "forward.fill").font(.system(size: 13, weight: .semibold))
+                        }
+                        if let onOpenAudioDeck {
+                            IslandRoundButton(size: 34, accessibilityLabel: "Lyrics & Queue", action: onOpenAudioDeck) {
+                                Image(systemName: "quote.bubble").font(.system(size: 12, weight: .semibold))
+                            }
                         }
                     }
                 }
@@ -571,6 +617,165 @@ enum IslandPresets {
         )
     }
 
+    // MARK: 9b. Hardware Volume / Brightness / Keyboard HUD
+
+    static func hardwareLevelHUD(
+        title: String,
+        subtitle: String? = nil,
+        systemImage: String,
+        level: Double,
+        accent: Color = IslandTheme.Accent.sky,
+        showsPercentage: Bool = true,
+        onScrub: ((Double) -> Void)? = nil
+    ) -> IslandActivityViews {
+        let clamped = min(1, max(0, level))
+        let pct = Int((clamped * 100).rounded())
+
+        return IslandActivityViews(
+            measure: IslandContentMeasure(
+                leading: 26,
+                trailing: showsPercentage ? 76 : 48,
+                attached: 22,
+                detached: 22,
+                split: IslandSplitMeasure(
+                    attached: IslandSlotPair(leading: 20, trailing: 44),
+                    detached: IslandSlotPair(leading: 20, trailing: 0)
+                ),
+                expandedHeight: 74
+            ),
+            compactLeading: AnyView(
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(accent)
+            ),
+            compactTrailing: AnyView(
+                HStack(spacing: 6) {
+                    IslandInteractiveLevelBar(value: clamped, color: accent, height: 5, onScrub: onScrub)
+                        .frame(width: 38)
+                    if showsPercentage {
+                        IslandNumberText(value: "\(pct)%", fontSize: 12, weight: .semibold, color: IslandTheme.Ink.primary)
+                    }
+                }
+            ),
+            minimal: AnyView(
+                Image(systemName: systemImage)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(accent)
+            ),
+            expandedLeading: AnyView(
+                IslandTileArtwork(systemImage: systemImage, accent: accent, size: 48, radius: 12)
+            ),
+            expandedCenter: AnyView(
+                IslandTitleStack(title: title, subtitle: subtitle)
+            ),
+            expandedTrailing: AnyView(
+                Group {
+                    if showsPercentage {
+                        IslandNumberText(value: "\(pct)%", fontSize: 22, weight: .bold, color: accent)
+                    }
+                }
+            ),
+            expandedBottom: AnyView(
+                IslandInteractiveLevelBar(value: clamped, color: accent, height: 7, onScrub: onScrub)
+            )
+        )
+    }
+
+    // MARK: 9c. Clipboard Copy / Paste HUD
+
+    static func clipboardHUD(
+        title: String,
+        preview: String,
+        isPaste: Bool,
+        linkCleaned: Bool = false,
+        appIcon: NSImage? = nil,
+        onPastePlain: (() -> Void)? = nil,
+        onOpenHistory: (() -> Void)? = nil
+    ) -> IslandActivityViews {
+        let accent: Color = linkCleaned ? IslandTheme.Accent.green : (isPaste ? IslandTheme.Accent.indigo : IslandTheme.Accent.sky)
+        let symbol = linkCleaned ? "link.badge.plus" : (isPaste ? "doc.on.clipboard.fill" : "doc.on.clipboard")
+
+        let compactIcon = Group {
+            if let appIcon {
+                Image(nsImage: appIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 18, height: 18)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+            } else {
+                Image(systemName: symbol)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(accent)
+            }
+        }
+
+        return IslandActivityViews(
+            measure: IslandContentMeasure(
+                leading: 24,
+                trailing: 76,
+                attached: 22,
+                detached: 22,
+                split: IslandSplitMeasure(
+                    attached: IslandSlotPair(leading: 20, trailing: 52),
+                    detached: IslandSlotPair(leading: 20, trailing: 0)
+                ),
+                expandedHeight: 82
+            ),
+            compactLeading: AnyView(compactIcon),
+            compactTrailing: AnyView(
+                Text(verbatim: preview.isEmpty ? title : preview)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(IslandTheme.Ink.primary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: 72, alignment: .trailing)
+            ),
+            minimal: AnyView(compactIcon),
+            expandedLeading: AnyView(
+                IslandTileArtwork(image: appIcon, systemImage: symbol, accent: accent, size: 48, radius: 12)
+            ),
+            expandedCenter: AnyView(
+                IslandTitleStack(title: title, subtitle: preview, subtitleColor: IslandTheme.Ink.secondary)
+            ),
+            expandedTrailing: AnyView(
+                HStack(spacing: 6) {
+                    if let onPastePlain {
+                        IslandPillButton(fill: accent.opacity(0.24), foreground: accent, minHeight: 28, horizontalPadding: 10, accessibilityLabel: "Paste Plain", action: onPastePlain) {
+                            Text("Paste")
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                    }
+                    if let onOpenHistory {
+                        IslandRoundButton(size: 32, accessibilityLabel: "Clipboard History", action: onOpenHistory) {
+                            Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                        }
+                    }
+                }
+            ),
+            expandedBottom: nil
+        )
+    }
+
+    // MARK: 9d. Focus / Do Not Disturb HUD
+
+    static func focusHUD(
+        title: String,
+        subtitle: String? = nil,
+        systemImage: String = "moon.fill",
+        accent: Color = IslandTheme.Accent.purple,
+        progress: Double? = nil,
+        onOpen: (() -> Void)? = nil
+    ) -> IslandActivityViews {
+        systemHUD(
+            title: title,
+            subtitle: subtitle,
+            systemImage: systemImage,
+            progress: progress,
+            accent: accent,
+            onOpen: onOpen
+        )
+    }
+
     // MARK: 10. Reusable ETA Activity Template (Playground / Future Extensions)
 
     static func etaTemplate(
@@ -964,13 +1169,14 @@ final class LiquidMetalNSView: NSView {
             scale: scale,
             notchHalfWidth: max(0, notchHalfWidth - 1),
             notchHeight: max(0, notchHeight - 1),
+            kNotch: notchHalfWidth > 0 ? 10 : 0,
             cardNeck: cardNeck
         )
         renderer?.draw(to: metalLayer, uniforms: uniforms)
     }
 }
 
-private struct LiquidSurfaceRepresentable: NSViewRepresentable {
+struct LiquidSurfaceRepresentable: NSViewRepresentable {
     let target: LiquidShapeState
     let notchHalfWidth: Double
     let notchHeight: Double
@@ -1397,7 +1603,7 @@ private struct LiquidPlayerCardView: View {
     }
 }
 
-private struct LiquidRoutePickerView: NSViewRepresentable {
+struct LiquidRoutePickerView: NSViewRepresentable {
     func makeNSView(context: Context) -> AVRoutePickerView {
         let v = AVRoutePickerView()
         v.isRoutePickerButtonBordered = false

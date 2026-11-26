@@ -54,7 +54,7 @@ final class NotchPanelController: LiveEventSink {
         didSet { guard keylineEnabled != oldValue else { return }; syncDynamicIslandConfiguration() }
     }
     var skin: LiveIslandSkin = .boring {
-        didSet { guard skin != oldValue else { return }; model.skin = skin; syncDynamicIslandConfiguration(); syncModelSizes(); syncWindow(immediate: skin == .dynamicIsland) }
+        didSet { guard skin != oldValue else { return }; model.skin = skin; syncModelSizes(); syncDynamicIslandConfiguration(); syncWindow(immediate: true) }
     }
 
     func bindShelfStore(_ store: ShelfStore) {
@@ -93,13 +93,14 @@ final class NotchPanelController: LiveEventSink {
         model.skin = skin
         model.islandBridge = islandBridge
         model.shelfStore = shelfStore ?? AppDelegate.shared?.shelfStore
-        syncDynamicIslandConfiguration()
+        islandBridge.onOpenAudioDeck = { [weak self] in self?.openPage(.audioDeck) }
         model.collapse = { [weak self] in self?.collapse() }
         model.openSettings = { [weak self] in self?.onOpenSettings() }
         model.requestOpen = { [weak self] in self?.openByClick() }
         model.requestShelf = { [weak self] in self?.openPage(.shelf) }
         model.stageDraggedItems = { [weak self] in self?.stageDrop(NSPasteboard(name: .drag)) ?? false }
         syncModelSizes()
+        syncDynamicIslandConfiguration()
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
         window.acceptsMouseMovedEvents = true
@@ -151,8 +152,14 @@ final class NotchPanelController: LiveEventSink {
             if scale != self.lastSizeScale {
                 self.lastSizeScale = scale
                 self.syncModelSizes()
+                self.syncDynamicIslandConfiguration()
                 self.syncWindow(immediate: true)
             }
+            let driver = self.islandBridge.driver
+            let nextGlass = IslandSurfaceGlassPolicy.isLiquidGlassEnabled()
+            let nextMorph = IslandSurfaceGlassPolicy.isMetalMorphOptIn()
+            if driver.glassEnabled != nextGlass { driver.glassEnabled = nextGlass }
+            if driver.metalMorphOptIn != nextMorph { driver.metalMorphOptIn = nextMorph }
             guard let screen = self.targetScreen(),
                   NotchDefaultsReaction.shouldRebuildPanelForScreenChange(
                       hasPanel: self.panel != nil,
@@ -188,8 +195,8 @@ final class NotchPanelController: LiveEventSink {
             guard let self, self.panel != nil else { return }
             let result = BatteryBuddyPolicy.update(alreadyLow: self.batteryLow, devices: devices)
             self.batteryLow = result.low
-            if let device = result.alerts.first, !self.model.isExpanded, let frame = self.panel?.frame {
-                self.batteryPill.show(below: frame) { AnyView(NotchBatteryPillView(model: $0, device: device)) }
+            if let device = result.alerts.first, self.islandBridge.driver.scene.presentation != .expanded {
+                self.islandBridge.showBluetoothAccessoryHUD(device: device, isLowBattery: true)
             }
         }
     }
@@ -224,39 +231,12 @@ final class NotchPanelController: LiveEventSink {
     // MARK: LiveEventSink
 
     func show(_ event: LiveEvent) {
-        guard let panel else { return }
-        if skin == .dynamicIsland {
-            islandBridge.show(event) { [weak self] in self?.openDetails(for: event) }
-            return
-        }
-        // 50d/50e: a new song brightens the ear glow and drops a small pill instead of opening the notch.
+        guard panel != nil else { return }
         if case .trackChanged = event {
             model.glowBoost = 1
             withAnimation(.easeOut(duration: 1.4)) { model.glowBoost = 0 }
-            if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: panel.frame) { AnyView(NotchTrackPillView(model: $0)) } }
-            return
         }
-        let presentation = LiveEventPresentation(event)
-        let now = Date()
-        model.activityQueue.enqueue(
-            NotchActivityItem(
-                id: "event.\(presentation.symbol)",
-                priority: .notification,
-                title: presentation.headline,
-                subtitle: presentation.detail,
-                icon: presentation.symbol,
-                timeout: NotchMotionSpec.eventLifetime,
-                createdAt: now
-            ),
-            now: now
-        )
-        scheduleHUDExpiration()
-        let anchor = targetScreen().map { windowFrame(on: $0, expanded: false) } ?? panel.frame
-        trackPill.show(below: model.isExpanded ? panel.frame : anchor) { pill in
-            AnyView(NotchEventPillView(model: pill, event: presentation) { [weak self] in
-                self?.openDetails(for: event)
-            })
-        }
+        islandBridge.show(event) { [weak self] in self?.openDetails(for: event) }
     }
 
     private func openDetails(for event: LiveEvent) {
@@ -274,13 +254,11 @@ final class NotchPanelController: LiveEventSink {
     }
 
     private func openPage(_ page: NotchPage) {
-        if skin == .dynamicIsland {
-            model.goToPage(page)
-            islandBridge.openPages()
-        } else {
-            openByClick()
-            model.goToPage(page)
-        }
+        model.goToPage(page)
+        hover.forceOpen()
+        model.isOpen = true
+        islandBridge.openPages()
+        startHoverPolling()
     }
 
     // MARK: hover
@@ -304,18 +282,17 @@ final class NotchPanelController: LiveEventSink {
     private func evaluateHover(now: Date = Date()) {
         guard panel != nil, let screen = targetScreen() else { return }
         let cursor = NSEvent.mouseLocation
-        let closedSize = skin == .liquid
-            ? CGSize(width: max(model.closedSize.width, metrics.closedSize.width + 132), height: metrics.closedSize.height)
-            : model.closedSize
-        let closed = skin == .liquid
-            ? NotchGeometry.panelFrame(size: closedSize, in: screen.frame)
-            : windowFrame(on: screen, expanded: false)
-        let open = skin == .liquid
-            ? NotchGeometry.panelFrame(
-                size: CGSize(width: max(model.openSize.width, 480), height: metrics.closedSize.height + 16 + max(model.openSize.height, 220)),
-                in: screen.frame
-              )
-            : windowFrame(on: screen, expanded: true)
+        let closedStage = windowFrame(on: screen, expanded: false)
+        let pill = islandBridge.driver.frame.pill
+        let closed = pill.width > 1
+            ? CGRect(
+                x: closedStage.minX + pill.x,
+                y: closedStage.maxY - pill.y - pill.height,
+                width: max(pill.width, model.closedSize.width),
+                height: max(pill.height, metrics.closedSize.height)
+            )
+            : closedStage
+        let open = windowFrame(on: screen, expanded: true)
         let inTrigger = NotchHoverZones.trigger(closedFrame: closed).contains(cursor)
         hover.openDelay = NotchBehavior.hoverDelay()
         hover.closeDelay = NotchBehavior.closeDelay()
@@ -360,21 +337,27 @@ final class NotchPanelController: LiveEventSink {
             let wanted = NotchPagingPolicy.defaultPage(
                 aiTurnActive: AgentUsageService.shared.snapshot.activeTurn != nil,
                 userPinnedPage: NotchPagingPolicy.storedPinnedPage(d),
-                usesBoringHome: skin == .boring
+                usesBoringHome: skin.opensDirectlyToBentoSuite
             )
-            // 51c: a hidden default page falls back to the first shown one.
             let shown = NotchPage.visible(teleprompter: NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d),
                                           mirror: NotchPage.isEnabled(CameraMirrorService.enabledKey, in: d))
             model.activePage = shown.contains(wanted.navigationPage) ? wanted : (shown.first ?? .home)
         }
-        // Grow the NSPanel synchronously *before* flipping `model.isOpen = true`, so SwiftUI's open
-        // spring never runs inside the 32 pt closed window (which caused top-half vertical clipping).
         if hover.isOpen, let panel, let screen = targetScreen() {
             pendingShrink?.work.cancel(); pendingShrink = nil
             panel.setFrame(windowFrame(on: screen, expanded: true), display: false)
         }
         model.isOpen = hover.isOpen
-        if hover.isOpen { panel?.contentView?.needsDisplay = true }
+        if hover.isOpen {
+            if skin.opensDirectlyToBentoSuite || islandBridge.driver.snapshot.activities.isEmpty {
+                islandBridge.openPages()
+            } else {
+                islandBridge.driver.store.expand()
+            }
+            panel?.contentView?.needsDisplay = true
+        } else {
+            islandBridge.driver.store.collapse()
+        }
         LiveActivityFeed.shared.isNotchExpanded = model.isExpanded
         if !hover.isOpen { syncWindow() }
     }
@@ -382,21 +365,17 @@ final class NotchPanelController: LiveEventSink {
     /// Shortcut paging: open the notch if closed, then step one page (the dots' mouse-only gap).
     func stepPage(forward: Bool) {
         guard panel != nil else { return }
-        if skin == .dynamicIsland {
-            model.stepPage(forward: forward)
-            islandBridge.openPages()
-            return
-        }
         hover.forceOpen()
-        applyOpenState()
+        model.isOpen = true
         model.stepPage(forward: forward)
+        islandBridge.openPages()
         startHoverPolling()
     }
 
     /// Phase 9d shortcut: open the notch on its Tools tab, or close it if it is already showing it.
     func toggleTools() {
         guard panel != nil else { return }
-        let expanded = model.isOpen || (skin == .dynamicIsland && islandBridge.driver.snapshot.expanded != nil)
+        let expanded = model.isOpen || islandBridge.driver.snapshot.expanded != nil
         if expanded, model.activePage == .studioHub { collapse(); return }
         openPage(.studioHub)
     }
@@ -411,7 +390,7 @@ final class NotchPanelController: LiveEventSink {
     func collapse() {
         hover.forceClose()
         model.isOpen = false
-        if skin == .dynamicIsland { islandBridge.driver.store.collapse() }
+        islandBridge.driver.store.collapse()
         LiveActivityFeed.shared.isNotchExpanded = false
         syncWindow()
     }
@@ -436,6 +415,7 @@ final class NotchPanelController: LiveEventSink {
         lastScreenFrame = screen.frame
         metrics = Self.metrics(for: screen)
         syncModelSizes()
+        syncDynamicIslandConfiguration()
         panel?.contentView = container(for: NotchIslandView(model: model, metrics: metrics, theme: theme(), wideBar: isWide))
         syncWindow(immediate: true)
     }
@@ -464,23 +444,19 @@ final class NotchPanelController: LiveEventSink {
 
     private func showHardwareHUD(id: String, icon: String, title: String, level: Double) {
         guard panel != nil else { return }
-        if skin == .dynamicIsland, islandBridge.driver.snapshot.expanded == nil {
-            islandBridge.showHardwareHUD(id: id, icon: icon, title: title, level: level)
-            return
+        let onScrub: ((Double) -> Void)?
+        switch id {
+        case "hud.volume":
+            onScrub = { [weak self] next in _ = self?.statusService.setVolume(Float(next)) }
+        case "hud.brightness":
+            onScrub = { [weak self] next in
+                guard let self, let screen = self.targetScreen() else { return }
+                DisplayBrightness.shared.set(next, for: screen)
+            }
+        default:
+            onScrub = nil
         }
-        let now = Date()
-        let item = NotchActivityItem(
-            id: id,
-            priority: .systemInfo,
-            title: title,
-            icon: icon,
-            timeout: 1.5,
-            level: level,
-            createdAt: now
-        )
-        model.activityQueue.enqueue(item, now: now)
-        syncWindow()
-        scheduleHUDExpiration()
+        islandBridge.showHardwareHUD(id: id, icon: icon, title: title, level: level, onScrub: onScrub)
     }
 
     private func scheduleHUDExpiration() {
@@ -511,7 +487,7 @@ final class NotchPanelController: LiveEventSink {
     /// The window is as large as the larger of the shapes involved: it grows at once (so the shape never
     /// clips while it animates open) and shrinks only after the close spring has finished.
     private func windowFrame(on screen: NSScreen, expanded: Bool? = nil) -> CGRect {
-        let islandExpanded = skin == .dynamicIsland && islandBridge.driver.scene.presentation == .expanded
+        let islandExpanded = islandBridge.driver.scene.presentation == .expanded
         let isExpanded = (expanded ?? model.isExpanded) || islandExpanded
         return NotchGeometry.stageFrame(
             for: skin,
@@ -623,14 +599,6 @@ final class NotchPanelController: LiveEventSink {
     }
 
     private func syncDynamicIslandConfiguration() {
-        guard skin == .dynamicIsland else {
-            islandBridge.stop()
-            islandStateSubscription?.cancel()
-            islandStateSubscription = nil
-            removeIslandOutsideClickMonitor()
-            panel?.ignoresMouseEvents = false
-            return
-        }
         if panel != nil {
             islandBridge.start()
         }
@@ -639,7 +607,10 @@ final class NotchPanelController: LiveEventSink {
         let touchEnabled = ScreenTouchCapabilities.isTouchModeActive(for: screen, setting: touchModeSetting)
         let driver = islandBridge.driver
         driver.keylineSetting = topology.keylineSetting(userEnabled: keylineEnabled)
+        driver.glassEnabled = IslandSurfaceGlassPolicy.isLiquidGlassEnabled()
+        driver.metalMorphOptIn = IslandSurfaceGlassPolicy.isMetalMorphOptIn()
         driver.stageWidth = max(560, Double(model.openSize.width + 64))
+        driver.applySkinAndSize(skin: skin, openSize: model.openSize, isWide: isWide)
         driver.updateDisplayTopology(topology, touchEnabled: touchEnabled, nonNotchBehavior: nonNotchBehavior)
         syncDynamicIslandPanelInteraction()
 
@@ -647,13 +618,24 @@ final class NotchPanelController: LiveEventSink {
             islandStateSubscription = driver.$scene
                 .combineLatest(driver.$snapshot)
                 .receive(on: RunLoop.main)
-                .sink { [weak self] scene, _ in
+                .sink { [weak self] scene, snapshot in
                     guard let self else { return }
                     self.syncDynamicIslandPanelInteraction()
                     self.syncWindow(immediate: scene.presentation == .expanded)
                     if scene.presentation == .expanded {
+                        if snapshot.expanded?.reason == .user, !self.hover.isOpen {
+                            self.hover.forceOpen()
+                            self.model.isOpen = true
+                            LiveActivityFeed.shared.isNotchExpanded = true
+                            self.startHoverPolling()
+                        }
                         self.installIslandOutsideClickMonitor()
                     } else {
+                        if self.hover.isOpen {
+                            self.hover.forceClose()
+                            self.model.isOpen = false
+                            LiveActivityFeed.shared.isNotchExpanded = false
+                        }
                         self.islandBridge.removePagesPlaceholder()
                         self.removeIslandOutsideClickMonitor()
                     }
@@ -662,10 +644,6 @@ final class NotchPanelController: LiveEventSink {
     }
 
     private func syncDynamicIslandPanelInteraction() {
-        guard skin == .dynamicIsland else {
-            panel?.ignoresMouseEvents = false
-            return
-        }
         let driver = islandBridge.driver
         let hidesAtRest = driver.topology.hidesAtRest(
             activeCount: driver.snapshot.activities.count,
@@ -680,14 +658,14 @@ final class NotchPanelController: LiveEventSink {
         guard islandOutsideClickMonitor == nil else { return }
         islandOutsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self, self.skin == .dynamicIsland, self.islandBridge.driver.scene.presentation == .expanded else { return }
+                guard let self, self.islandBridge.driver.scene.presentation == .expanded else { return }
                 let loc = NSEvent.mouseLocation
                 guard let panelFrame = self.panel?.frame else {
-                    self.islandBridge.driver.store.collapse()
+                    self.collapse()
                     return
                 }
                 if !panelFrame.contains(loc) {
-                    self.islandBridge.driver.store.collapse()
+                    self.collapse()
                 }
             }
         }
@@ -725,31 +703,13 @@ final class NotchPanelController: LiveEventSink {
     private func container<V: View>(for view: V) -> NSView {
         let container = NotchTrackingContainer(frame: .zero)
         container.onEnter = { [weak self] in
-            guard let self, self.skin != .dynamicIsland else { return }
-            self.startHoverPolling()
+            self?.startHoverPolling()
         }
         container.onScroll = { [weak self] event in
-            guard let self, self.skin != .dynamicIsland else { return false }
-            return self.handleScroll(event)
+            self?.handleScroll(event) ?? false
         }
         container.shouldAcceptHit = { [weak self, weak container] point in
             guard let self, let container else { return true }
-            if self.skin == .liquid {
-                let topDownY = container.bounds.height - point.y
-                let centerX = container.bounds.width / 2
-                if self.model.isExpanded {
-                    return topDownY <= self.metrics.closedSize.height + 20 + max(self.model.openSize.height, 220) + 12
-                        && abs(point.x - centerX) <= max(self.model.openSize.width, 480) / 2 + 16
-                }
-                return topDownY <= self.metrics.closedSize.height + 18
-                    && abs(point.x - centerX) <= (self.metrics.closedSize.width / 2 + 96)
-            }
-            if self.skin != .dynamicIsland {
-                if self.model.isExpanded { return true }
-                let size = self.model.closedSize
-                return abs(point.x - container.bounds.midX) <= size.width / 2
-                    && container.bounds.maxY - point.y <= size.height
-            }
             let driver = self.islandBridge.driver
             let frame = driver.frame
             let topDownY = container.bounds.height - point.y
