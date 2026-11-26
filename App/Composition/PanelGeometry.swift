@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 struct CursorPopoverInsets: Equatable, Sendable {
@@ -13,6 +14,16 @@ struct CursorPopoverInsets: Equatable, Sendable {
 
 enum CursorPopoverGeometry {
     static let cursorGap: CGFloat = 12
+
+    /// MD-3: the display a cursor-anchored popover belongs on — the one under the pointer, else the
+    /// main display, else the first. A popover must not open on a screen the user is not looking at
+    /// just because that screen owns the menu bar.
+    @MainActor
+    static func screen(for cursor: CGPoint = NSEvent.mouseLocation,
+                       screens: [NSScreen] = NSScreen.screens,
+                       main: NSScreen? = NSScreen.main) -> NSScreen? {
+        screens.first { $0.frame.contains(cursor) } ?? main ?? screens.first
+    }
     static func frame(cursor: CGPoint, size requestedSize: CGSize, visibleFrame: CGRect,
                       insets: CursorPopoverInsets = CursorPopoverInsets()) -> CGRect {
         let insetFrame = CGRect(

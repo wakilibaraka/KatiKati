@@ -37,6 +37,9 @@ struct SnapGaps: Equatable, Sendable {
     static let innerKey = "com.katikati.snap.innerGap"
     static let range: ClosedRange<CGFloat> = 0...32
     static let zero = SnapGaps(outer: 0, inner: 0)
+    /// MD-2: how long the pointer must rest on a seam edge before that edge may resolve a snap.
+    /// Crossing to the other display never stops there, so the preview never fires.
+    static let seamDwell: TimeInterval = 0.45
 
     let outer: CGFloat
     let inner: CGFloat
@@ -160,11 +163,12 @@ enum SnapZonePlanner {
                         in area: CGRect,
                         layout: Layout = .edgesAndCorners,
                         edgeMargin: CGFloat = 12,
-                        gaps: SnapGaps = .zero) -> Zone? {
+                        gaps: SnapGaps = .zero,
+                        suppressed: Set<ScreenEdge> = []) -> Zone? {
         guard area.width > 0, area.height > 0 else { return nil }
         switch layout {
         case .edgesAndCorners:
-            guard let position = edgeZone(at: point, in: area, edgeMargin: edgeMargin) else { return nil }
+            guard let position = edgeZone(at: point, in: area, edgeMargin: edgeMargin, suppressed: suppressed) else { return nil }
             return Zone(position: position, frame: previewFrame(for: position, in: area, gaps: gaps))
         case .thirds:
             guard area.contains(point) else { return nil }
@@ -181,19 +185,21 @@ enum SnapZonePlanner {
     }
 
     /// Resolves a pointer to a half or quarter when it is inside `edgeMargin` of an edge. Returns
-    /// nil in the middle so a normal drag never turns into an accidental snap.
+    /// nil in the middle so a normal drag never turns into an accidental snap. A `suppressed` edge
+    /// (a seam to another display) never resolves; its corners fall back to the other axis.
     static func edgeZone(at point: CGPoint,
                          in area: CGRect,
-                         edgeMargin: CGFloat = 12) -> SnapPosition? {
+                         edgeMargin: CGFloat = 12,
+                         suppressed: Set<ScreenEdge> = []) -> SnapPosition? {
         guard area.width > 0, area.height > 0 else { return nil }
         let margin = max(0, edgeMargin)
         let bounds = area.insetBy(dx: -margin, dy: -margin)
         guard bounds.contains(point) else { return nil }
 
-        let nearLeft = point.x <= area.minX + margin
-        let nearRight = point.x >= area.maxX - margin
-        let nearTop = point.y >= area.maxY - margin
-        let nearBottom = point.y <= area.minY + margin
+        let nearLeft = point.x <= area.minX + margin && !suppressed.contains(.left)
+        let nearRight = point.x >= area.maxX - margin && !suppressed.contains(.right)
+        let nearTop = point.y >= area.maxY - margin && !suppressed.contains(.top)
+        let nearBottom = point.y <= area.minY + margin && !suppressed.contains(.bottom)
 
         if nearLeft {
             if nearTop { return .topLeft }
@@ -290,6 +296,25 @@ struct SnapDragSession: Equatable, Sendable {
 
     mutating func reset() {
         phase = .idle
+    }
+}
+
+/// MD-4: maps a window between two work areas while keeping its place and proportions. A different
+/// resolution is the point: a half-width window stays half-width, a window hugging the left edge
+/// stays against the left edge.
+enum WindowThrow {
+    /// Both rectangles in the same coordinate space (Quartz in the snapper, Cocoa in tests).
+    static func relativeFrame(from frame: CGRect, source: CGRect, destination: CGRect) -> CGRect {
+        guard source.width > 0, source.height > 0, destination.width > 0, destination.height > 0 else { return frame }
+        let width = min(frame.width, destination.width)
+        let height = min(frame.height, destination.height)
+        let x = destination.minX + (frame.minX - source.minX) / source.width * destination.width
+        let y = destination.minY + (frame.minY - source.minY) / source.height * destination.height
+        let maxX = max(destination.minX, destination.maxX - width)
+        let maxY = max(destination.minY, destination.maxY - height)
+        return CGRect(x: min(max(x, destination.minX), maxX),
+                      y: min(max(y, destination.minY), maxY),
+                      width: width, height: height)
     }
 }
 

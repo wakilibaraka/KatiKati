@@ -617,8 +617,9 @@ extension SettingsLayoutPane {
         }
     }
 
-    /// The thirteen feature shortcuts (every action that neither snaps nor tiles), filtered by the
-    /// find field. Declaration order is the menu order, so the page never reorders itself.
+    /// The feature shortcuts (every action that neither snaps nor tiles — including `cursorNextDisplay`,
+    /// which moves the pointer rather than a window), filtered by the find field. Declaration order is
+    /// the menu order, so the page never reorders itself.
     var filteredFeatureShortcuts: [ShortcutAction] {
         ShortcutAction.allCases
             .filter { $0.snapPosition == nil && !$0.isTilingAction }

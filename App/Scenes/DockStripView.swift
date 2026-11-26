@@ -153,6 +153,22 @@ struct DockStripView: View {
     /// 上一轮已渲染的标签表：算这次标签变化让内容总宽变了多少（只算真的画出标题的卡，形态 `.multi`）。
     @State private var renderedLabelTitles: [String: String] = [:]
 
+    /// MD-6 strip polish: the UUID of the display macOS currently calls focused, kept current by app
+    /// activation and display changes only — no pointer polling, so a resting desk costs nothing.
+    @State private var activeDisplayUUID: String?
+    /// The dock on the focused display wears the highlighted rim, so a two-dock desk reads which one
+    /// is live. Single-display desks are deliberately untouched (`ActiveDockCue.shows`).
+    private var isActiveDock: Bool {
+        ActiveDockCue.shows(stripUUID: displayUUID, activeUUID: activeDisplayUUID,
+                            screenCount: NSScreen.screens.count)
+    }
+    private func refreshActiveDisplay() {
+        guard let screen = NSScreen.main else { activeDisplayUUID = nil; return }
+        let uuid = DisplayIdentity.uuidString(for: screen)
+        // Only write on a real change: every write re-evaluates the whole bar.
+        if uuid != activeDisplayUUID { activeDisplayUUID = uuid }
+    }
+
     /// 中转格 frame（"strip" 空间）。**独立上报,不塞进 folderChipFrames**（评审：那个字典专属
     /// 文件夹 chip,后续还喂文件夹重排 hit-test,不能混 sentinel）。喂中转弹窗锚点 + drop 路由。
     var shelfFrame: CGRect { frames.shelfFrame }
@@ -317,6 +333,13 @@ struct DockStripView: View {
             .onReceive(NotificationCenter.default.publisher(for: .dockFocusToggle)) { _ in
                 toggleDockFocus()
             }
+            .onReceive(NotificationCenter.default.publisher(for: NSWorkspace.didActivateApplicationNotification)) { _ in
+                refreshActiveDisplay()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
+                refreshActiveDisplay()
+            }
+            .onAppear { refreshActiveDisplay() }
             .mask(alignment: .center) {
                 if isRail {
                     VStack(spacing: 0) {
@@ -391,8 +414,8 @@ struct DockStripView: View {
         }
         .dockPanelRim(
             cornerRadius: taskbarCornerRadius,
-            style: theme.panelRimStyle(highlighted: false),
-            lineWidth: theme.panelRimLineWidth(highlighted: false),
+            style: theme.panelRimStyle(highlighted: isActiveDock),
+            lineWidth: theme.panelRimLineWidth(highlighted: isActiveDock),
             usesLiquidGlass: usesLiquidGlass,
             visible: !fluidTheme
         )

@@ -664,8 +664,25 @@ private struct NotchDisplayRows: View {
     @State private var screens = NSScreen.screens
     @State private var storedDesigns = NotchDesign.stored()
     @State private var storedSkins = NotchDisplaySkin.stored()
+    /// MD-3: topology-level placement above the per-display design rows.
+    @State private var placementMode = IslandPlacementMode.current().rawValue
 
     var body: some View {
+        SettingsRow(Text("Island Placement")) {
+            Picker(selection: Binding(
+                get: { placementMode },
+                set: { raw in
+                    placementMode = raw
+                    UserDefaults.standard.set(raw, forKey: IslandPlacementMode.defaultsKey)
+                }
+            )) {
+                Text("All Displays").tag(IslandPlacementMode.allDisplays.rawValue)
+                Text("Built-in Display Only").tag(IslandPlacementMode.builtInOnly.rawValue)
+                Text("Follow the Pointer").tag(IslandPlacementMode.followActiveDisplay.rawValue)
+                Text("Floating Pill on Other Displays").tag(IslandPlacementMode.externalFloatingPill.rawValue)
+            } label: { Text("Island Placement") }
+            .labelsHidden().pickerStyle(.menu).fixedSize()
+        }
         ForEach(screens, id: \.displayID) { screen in
             let id = String(screen.displayID ?? 0)
             let uuid = DisplayIdentity.uuidString(for: screen)

@@ -14,7 +14,14 @@ final class ScreenIdentifyOverlayController {
     func present(duration: TimeInterval = 1.8) {
         dismiss()
         let screens = NSScreen.screens
-        for (index, screen) in screens.enumerated() {
+        // MD-3: number by the UUID-keyed attribution order the Displays page lists, so badge "2"
+        // names the same display as row 2. Any screen without a UUID keeps its array order at the end.
+        let attributed = DisplayIdentity.attributionTable(screens: screens).displays.map(\.uuid)
+        var ordered: [NSScreen] = attributed.compactMap { uuid in
+            screens.first { DisplayIdentity.uuidString(for: $0) == uuid }
+        }
+        for screen in screens where !ordered.contains(where: { $0 === screen }) { ordered.append(screen) }
+        for (index, screen) in ordered.enumerated() {
             let panel = NSPanel(
                 contentRect: screen.frame,
                 styleMask: [.borderless, .nonactivatingPanel],

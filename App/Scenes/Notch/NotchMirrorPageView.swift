@@ -209,7 +209,7 @@ private struct MeetingControlsCard: View {
             if let level = brightness {
                 HStack(spacing: 6) {
                     Image(systemName: "sun.max.fill").font(.system(size: 10)).foregroundStyle(.white.opacity(0.7))
-                    Slider(value: Binding(get: { level }, set: { brightness = $0; DisplayServicesBrightness.set($0) }), in: 0.05...1)
+                    Slider(value: Binding(get: { level }, set: { brightness = $0; DisplayBrightness.setOnCursorScreen($0) }), in: 0.05...1)
                         .controlSize(.mini)
                         .accessibilityLabel(Text(verbatim: "Brightness"))
                 }
@@ -221,7 +221,7 @@ private struct MeetingControlsCard: View {
         .notchCard()
         .task {
             // CoreAudio's device list is a synchronous HAL query: it fills in after the swap has drawn.
-            brightness = DisplayServicesBrightness.current()
+            brightness = DisplayBrightness.levelForCursorScreen()
             inputs = await Task.detached(priority: .userInitiated) {
                 AudioOutputSwitcher.devices(input: true)
             }.value

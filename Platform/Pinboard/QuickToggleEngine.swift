@@ -260,19 +260,21 @@ enum DisplayServicesBrightness {
     }
 
     /// 0...1 for the built-in panel, or nil when the symbols are gone / no built-in display.
-    static func current() -> Double? {
-        guard let h = handle, let sym = dlsym(h, "DisplayServicesGetBrightness") else { return nil }
-        let id = builtInDisplay()
-        guard id != 0 else { return nil }
+    static func current() -> Double? { current(for: builtInDisplay()) }
+
+    /// MD-5: native brightness of a specific display. Only the built-in panel answers; externals
+    /// go through `DisplayBrightness` (DDC, then gamma).
+    static func current(for id: CGDirectDisplayID) -> Double? {
+        guard id != 0, let h = handle, let sym = dlsym(h, "DisplayServicesGetBrightness") else { return nil }
         var value: Float = 0
         guard unsafeBitCast(sym, to: GetFn.self)(id, &value) == 0, value >= 0, value <= 1.5 else { return nil }
         return Double(min(1, max(0, value)))
     }
 
-    static func set(_ level: Double) {
-        guard let h = handle, let sym = dlsym(h, "DisplayServicesSetBrightness") else { return }
-        let id = builtInDisplay()
-        guard id != 0 else { return }
+    static func set(_ level: Double) { set(level, for: builtInDisplay()) }
+
+    static func set(_ level: Double, for id: CGDirectDisplayID) {
+        guard id != 0, let h = handle, let sym = dlsym(h, "DisplayServicesSetBrightness") else { return }
         let clamped = min(1, max(0, level))
         _ = unsafeBitCast(sym, to: SetFn.self)(id, Float(clamped))
         NotificationCenter.default.post(name: Notification.Name("com.katikati.displayBrightnessChanged"), object: clamped)

@@ -221,6 +221,119 @@ public struct IslandDisplayTopology: Equatable, Sendable {
     }
 }
 
+// MARK: - Topology-level island placement (MD-3)
+
+/// Which displays host a live island at all. The per-display `NotchDesign` still chooses the skin
+/// (notch / wide bar / off) and always wins; this is the topology-level decision above it.
+public enum IslandPlacementMode: String, CaseIterable, Codable, Hashable, Sendable {
+    /// Today's behaviour: every display hosts an island.
+    case allDisplays
+    /// Only the Mac's own panel (the one with the hardware notch on a laptop).
+    case builtInOnly
+    /// One island, on the display under the pointer.
+    case followActiveDisplay
+    /// The notch screen keeps its notch; every other display gets a floating pill.
+    case externalFloatingPill
+
+    public static let defaultsKey = "com.katikati.island.placementMode"
+    public static let `default`: IslandPlacementMode = .allDisplays
+
+    public static func current(_ defaults: UserDefaults = .standard) -> IslandPlacementMode {
+        guard let raw = defaults.string(forKey: defaultsKey) else { return .default }
+        return IslandPlacementMode(rawValue: raw) ?? .default
+    }
+}
+
+/// What one display gets from the placement resolution.
+public enum IslandRole: String, Equatable, Hashable, Sendable {
+    /// Hugs the hardware cutout.
+    case notch
+    /// The wide utility strip a notchless display shows.
+    case wideBar
+    /// A floating pill, explicitly not pretending to be a notch.
+    case floatingPill
+    /// No island on this display.
+    case hidden
+
+    public var showsIsland: Bool { self != .hidden }
+}
+
+/// Pure placement of island roles across the connected displays, plus the clamshell handover
+/// decision (built-in disappears → the external keeps the island instead of it being torn down).
+public enum IslandPlacement {
+    public struct Display: Equatable, Sendable {
+        public let uuid: String
+        public let hasHardwareNotch: Bool
+        public let isBuiltIn: Bool
+
+        public init(uuid: String, hasHardwareNotch: Bool, isBuiltIn: Bool) {
+            self.uuid = uuid
+            self.hasHardwareNotch = hasHardwareNotch
+            self.isBuiltIn = isBuiltIn
+        }
+    }
+
+    public static func role(for mode: IslandPlacementMode, display: Display, isActive: Bool) -> IslandRole {
+        switch mode {
+        case .allDisplays:
+            return display.hasHardwareNotch ? .notch : .wideBar
+        case .builtInOnly:
+            guard display.isBuiltIn else { return .hidden }
+            return display.hasHardwareNotch ? .notch : .wideBar
+        case .followActiveDisplay:
+            guard isActive else { return .hidden }
+            return display.hasHardwareNotch ? .notch : .wideBar
+        case .externalFloatingPill:
+            return display.hasHardwareNotch ? .notch : .floatingPill
+        }
+    }
+
+    /// `activeUUID` is the display under the pointer (nil when it cannot be resolved — then the first
+    /// display is treated as active so `followActiveDisplay` never blanks every screen).
+    public static func resolve(
+        mode: IslandPlacementMode,
+        displays: [Display],
+        activeUUID: String?
+    ) -> [String: IslandRole] {
+        let active = activeUUID ?? displays.first?.uuid
+        var result: [String: IslandRole] = [:]
+        for display in displays {
+            result[display.uuid] = role(for: mode, display: display, isActive: display.uuid == active)
+        }
+        return result
+    }
+
+    /// A role that moved from one display to another between two resolutions: the same controller can
+    /// be re-targeted instead of torn down and rebuilt, so an open island survives a lid close.
+    public struct Handover: Equatable, Sendable {
+        public let movedFrom: String?
+        public let movedTo: String?
+        public let role: IslandRole?
+
+        public init(movedFrom: String? = nil, movedTo: String? = nil, role: IslandRole? = nil) {
+            self.movedFrom = movedFrom
+            self.movedTo = movedTo
+            self.role = role
+        }
+
+        public var isRetarget: Bool { movedFrom != nil && movedTo != nil && role != nil }
+    }
+
+    /// The first display that lost a visible role and the first display that gained the same role.
+    public static func handover(previous: [String: IslandRole], current: [String: IslandRole]) -> Handover {
+        let lost = previous.filter { $0.value.showsIsland && (current[$0.key] ?? .hidden) == .hidden }
+            .sorted { $0.key < $1.key }
+        let gained = current.filter { $0.value.showsIsland && (previous[$0.key] ?? .hidden) == .hidden }
+            .sorted { $0.key < $1.key }
+        for (from, role) in lost {
+            if let to = gained.first(where: { $0.value == role }) {
+                return Handover(movedFrom: from, movedTo: to.key, role: role)
+            }
+        }
+        return Handover()
+    }
+}
+
 /// Touch ergonomic policies (HIG `>= 44x44 pt` targets, rubber-band drag curve, velocity handoff).
 public enum IslandTouchHitPolicy {
     public static let minimumTouchTargetSize = CGSize(width: 44.0, height: 44.0)

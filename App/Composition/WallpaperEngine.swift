@@ -481,7 +481,8 @@ final class WallpaperEngine: ObservableObject {
             WallpaperOverlay.shared.hide()
             return
         }
-        guard let screenFrame = (NSScreen.main ?? NSScreen.screens.first)?.frame else {
+        // MD-3: the overlay follows the display the pointer is on, not the menu-bar display.
+        guard let screenFrame = CursorPopoverGeometry.screen()?.frame else {
             desktopCovered = false
             WallpaperOverlay.shared.update(atmosphere: atmosphere, active: true)
             return
@@ -537,8 +538,14 @@ final class WallpaperEngine: ObservableObject {
         }
     }
 
+    /// MD-2 / M5: per-display wallpaper identity is the EDID UUID, like every other per-display
+    /// store. `CGDirectDisplayID` changes when the monitor comes back on another port, which used to
+    /// repaint a display that had already been given its own picture. The numeric id stays as a
+    /// fallback for a display with no UUID, and `lastApplied` is memory-only, so nothing stale is
+    /// carried across a relaunch.
     private static func screenKey(_ screen: NSScreen) -> String {
-        (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.stringValue ?? screen.localizedName
+        if let uuid = DisplayIdentity.uuidString(for: screen), !uuid.isEmpty { return uuid }
+        return (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.stringValue ?? screen.localizedName
     }
 
     // MARK: - Packs

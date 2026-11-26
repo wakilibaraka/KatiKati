@@ -25184,6 +25184,125 @@
         }
       }
     },
+    "Display Volume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Display-Lautstärke" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Display Volume" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Volumen de la pantalla" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Volumen de la pantalla" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Volume de l’écran" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Volume dello schermo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ディスプレイ音量" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "디스플레이 음량" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Volume da tela" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Volume do ecrã" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示器音量" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "顯示器音量" } }
+      }
+    },
+    "Jump to Next Display" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zum nächsten Display springen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Jump to Next Display" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Saltar a la pantalla siguiente" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Saltar a la pantalla siguiente" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aller à l’écran suivant" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Vai allo schermo successivo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "次のディスプレイへジャンプ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다음 디스플레이로 이동" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ir para a próxima tela" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ir para o próximo ecrã" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳到下一个显示器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "跳到下一個顯示器" } }
+      }
+    },
+    "All Displays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle Displays" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Displays" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Todas las pantallas" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Todas las pantallas" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tous les écrans" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tutti gli schermi" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すべてのディスプレイ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "모든 디스플레이" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Todas as telas" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Todos os ecrãs" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "所有显示器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "所有顯示器" } }
+      }
+    },
+    "Built-in Display Only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur integriertes Display" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Built-in Display Only" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo la pantalla integrada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Solo la pantalla integrada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Écran intégré uniquement" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Solo display integrato" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "内蔵ディスプレイのみ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "내장 디스플레이만" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apenas a tela integrada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apenas o ecrã integrado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅内建显示器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "僅內建顯示器" } }
+      }
+    },
+    "Floating Pill on Other Displays" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Schwebende Pille auf anderen Displays" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Floating Pill on Other Displays" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Píldora flotante en las demás pantallas" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Píldora flotante en las demás pantallas" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pastille flottante sur les autres écrans" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pillola flottante sugli altri schermi" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "他のディスプレイはフローティングピル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다른 디스플레이에 플로팅 알약" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pílula flutuante nas outras telas" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Pílula flutuante nos outros ecrãs" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "其他显示器显示浮动胶囊" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "其他顯示器顯示浮動膠囊" } }
+      }
+    },
+    "Follow the Pointer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dem Zeiger folgen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Follow the Pointer" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Seguir el puntero" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Seguir el puntero" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suivre le pointeur" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Segui il puntatore" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ポインタに追従" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "포인터 따라가기" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Seguir o ponteiro" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Seguir o ponteiro" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跟随指针" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "跟隨指標" } }
+      }
+    },
+    "Island Placement" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Insel-Platzierung" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Island Placement" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ubicación de la isla" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Ubicación de la isla" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Position de l’île" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Posizione dell’isola" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アイランドの配置" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아일랜드 위치" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Posição da ilha" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Posição da ilha" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "灵动岛位置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "靈動島位置" } }
+      }
+    },
     "Brightness" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -433,7 +433,9 @@ struct ControlCenterView: View {
     @ObservedObject private var nowPlaying = NowPlayingService.shared
     @State private var confirming: QuickToggleID?
     /// Phase 16i: read once on appear; nil when the private API is unavailable (slider hidden).
-    @State private var brightness: Double? = DisplayServicesBrightness.current()
+    @State private var brightness: Double? = DisplayBrightness.levelForCursorScreen()
+    /// MD-5: the external panel's own volume; nil when it does not answer VCP `0x62` (row hidden).
+    @State private var displayVolume: Double?
     @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
     /// 57a: wheel travel left over between events on the volume row.
     @State private var volumeScroll = ControlCenterScroll.State()
@@ -507,7 +509,11 @@ struct ControlCenterView: View {
         .overlay(plateRim)
         .onAppear { engine.refresh(); status.acquire() }
         .onDisappear { status.release() }
-        .task { await refreshPeripherals() }
+        .task {
+            await refreshPeripherals()
+            // DDC read once per open, off the view build so the popover never waits on I2C.
+            displayVolume = DisplayBrightness.volumeForCursorScreen()
+        }
     }
 
     // MARK: - Preset layout
@@ -1191,7 +1197,11 @@ struct ControlCenterView: View {
             volumeRow
             if let brightness {
                 sliderRow(icon: "sun.max.fill", label: Text("Brightness"),
-                          value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
+                          value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayBrightness.setOnCursorScreen($0) }))
+            }
+            if let displayVolume {
+                sliderRow(icon: "speaker.wave.2.fill", label: Text("Display Volume"),
+                          value: Binding(get: { displayVolume }, set: { self.displayVolume = $0; DisplayBrightness.setVolumeOnCursorScreen($0) }))
             }
             if let keyLight {
                 sliderRow(icon: "keyboard",
@@ -1605,7 +1615,9 @@ struct MenuBarCreativeHubView: View {
     @State private var boxSlots: [HubActionSlotID] = HubActionSlotID.slots()
     @State private var btAudioDevices: [BluetoothDevice] = []
     @State private var listeningMode: String? = AudioOutputSwitcher.bluetoothListeningMode()
-    @State private var brightness: Double? = DisplayServicesBrightness.current()
+    @State private var brightness: Double? = DisplayBrightness.levelForCursorScreen()
+    /// MD-5: external volume, read once per open; nil hides the slider.
+    @State private var displayVolume: Double?
     @State private var keyLight: Double? = KeyboardBacklight.isAvailable ? KeyboardBacklight.current() : nil
     @State private var shortcutNames: [String] = []
     @State private var shortcutsLoaded = false
@@ -1675,6 +1687,8 @@ struct MenuBarCreativeHubView: View {
         .onAppear {
             engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
             if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
+            // MD-5: the external panel's own volume, read once per open (nil hides the slider).
+            displayVolume = DisplayBrightness.volumeForCursorScreen()
         }
         .onDisappear { status.release() }
         .onChange(of: selectedTab) { _, _ in query = "" }
@@ -2030,7 +2044,7 @@ struct MenuBarCreativeHubView: View {
                     }
                 }
                 .padding(9).background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(cardFill))
-                if brightness != nil || keyLight != nil {
+                if brightness != nil || keyLight != nil || displayVolume != nil {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 5) {
                             Image(systemName: "sun.max.fill").font(.system(size: 10.5)).foregroundStyle(palette.primaryAccent)
@@ -2038,7 +2052,10 @@ struct MenuBarCreativeHubView: View {
                             Spacer()
                         }
                         if let brightness {
-                            hubSlider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayServicesBrightness.set($0) }))
+                            hubSlider(icon: "sun.max.fill", value: Binding(get: { brightness }, set: { self.brightness = $0; DisplayBrightness.setOnCursorScreen($0) }))
+                        }
+                        if let displayVolume {
+                            hubSlider(icon: "speaker.wave.2.fill", value: Binding(get: { displayVolume }, set: { self.displayVolume = $0; DisplayBrightness.setVolumeOnCursorScreen($0) }))
                         }
                         if let keyLight {
                             hubSlider(icon: "keyboard", value: Binding(get: { keyLight }, set: { self.keyLight = $0; KeyboardBacklight.set($0) }))

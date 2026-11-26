@@ -13,8 +13,10 @@ import SwiftUI
 final class NotchPanelController: LiveEventSink {
     private var panel: BoringNotchWindow?
     /// 51g: one controller per display; the coordinator owns the set.
-    let displayID: CGDirectDisplayID
-    let design: NotchDesign
+    /// MD-3: both are re-targetable so a clamshell handover can move this controller to another
+    /// display (open state and page intact) instead of tearing it down.
+    private(set) var displayID: CGDirectDisplayID
+    private(set) var design: NotchDesign
     private let model = NotchModel()
     private var cancellables = Set<AnyCancellable>()
     private var eventWork: DispatchWorkItem?
@@ -62,6 +64,15 @@ final class NotchPanelController: LiveEventSink {
     }
 
     init(displayID: CGDirectDisplayID, design: NotchDesign) { self.displayID = displayID; self.design = design }
+
+    /// MD-3: move this island to another display without rebuilding it. `screensChanged()` re-reads
+    /// the new screen's metrics and re-frames the panel, so an open island survives the lid closing.
+    func retarget(displayID: CGDirectDisplayID, design: NotchDesign) {
+        guard displayID != self.displayID || design != self.design else { return }
+        self.displayID = displayID
+        self.design = design
+        screensChanged()
+    }
 
     private var isWide: Bool { design == .wideBar }
 
@@ -737,6 +748,8 @@ extension NSScreen {
 final class NotchPanelCoordinator: LiveEventSink {
     private var controllers: [CGDirectDisplayID: NotchPanelController] = [:]
     private var designs: [CGDirectDisplayID: NotchDesign] = [:]
+    /// MD-3: last topology-level placement, so a clamshell handover is recognised in one pass.
+    private var lastRoles: [String: IslandRole] = [:]
     private var enabled = false
     private var observers = Set<AnyCancellable>()
     var theme: () -> NowPlayingTheme = { .auto } { didSet { controllers.values.forEach { $0.theme = theme } } }
@@ -767,19 +780,47 @@ final class NotchPanelCoordinator: LiveEventSink {
     /// shortcut: `reconcile` runs on every UserDefaults change (cheap dictionary diff), fine until a hot key writes defaults per frame.
     private func reconcile() {
         var wanted: [CGDirectDisplayID: NotchDesign] = [:]
+        var rolesByDisplay: [CGDirectDisplayID: IslandRole] = [:]
+        var roles: [String: IslandRole] = [:]
         if enabled {
             let stored = NotchDesign.stored()
+            roles = islandRoles()
             for screen in NSScreen.screens {
                 guard let id = screen.displayID else { continue }
+                let uuid = DisplayIdentity.uuidString(for: screen)
+                let role = uuid.flatMap { roles[$0] } ?? .wideBar
+                guard role.showsIsland else { continue }
                 let design = NotchDesign.resolve(
                     display: String(id),
-                    displayUUID: DisplayIdentity.uuidString(for: screen),
-                    hasHardwareNotch: screen.safeAreaInsets.top > 0,
+                    displayUUID: uuid,
+                    // MD-3: the placement mode decides the default shape (notch vs wide bar); the
+                    // per-display override still wins.
+                    hasHardwareNotch: role == .notch,
                     stored: stored
                 )
-                if design != .off { wanted[id] = design }
+                if design != .off {
+                    wanted[id] = design
+                    rolesByDisplay[id] = role
+                }
             }
         }
+
+        // MD-3 clamshell handover: when a role moves to another display in one pass (the lid closed
+        // and the external took over) re-target the existing controller instead of tearing it down,
+        // so an open island and its page survive.
+        let handover = IslandPlacement.handover(previous: lastRoles, current: roles)
+        if enabled, handover.isRetarget, let from = handover.movedFrom, let to = handover.movedTo,
+           let fromID = NSScreen.screens.first(where: { DisplayIdentity.uuidString(for: $0) == from })?.displayID,
+           let toID = NSScreen.screens.first(where: { DisplayIdentity.uuidString(for: $0) == to })?.displayID,
+           let controller = controllers[fromID], let design = wanted[toID] {
+            controllers[fromID] = nil
+            designs[fromID] = nil
+            controller.retarget(displayID: toID, design: design)
+            controllers[toID] = controller
+            designs[toID] = design
+        }
+        lastRoles = roles
+
         for (id, c) in controllers where wanted[id] != designs[id] { c.setEnabled(false); controllers[id] = nil }
         designs = wanted
         let storedSkins = NotchDisplaySkin.stored()
@@ -791,19 +832,40 @@ final class NotchPanelCoordinator: LiveEventSink {
                 fallback: skin,
                 stored: storedSkins
             )
+            // A floating-pill role keeps the wide-bar panel but rests as a compact capsule.
+            let role = rolesByDisplay[id] ?? .wideBar
+            let behavior: IslandNonNotchIdleBehavior = role == .floatingPill ? .compactPill : nonNotchBehavior
             if let existing = controllers[id] {
                 if existing.skin != displaySkin { existing.skin = displaySkin }
+                if existing.nonNotchBehavior != behavior { existing.nonNotchBehavior = behavior }
                 continue
             }
             let c = NotchPanelController(displayID: id, design: design)
             c.theme = theme; c.onOpenSettings = onOpenSettings; c.skin = displaySkin
             c.touchModeSetting = touchModeSetting
-            c.nonNotchBehavior = nonNotchBehavior
+            c.nonNotchBehavior = behavior
             c.keylineEnabled = keylineEnabled
             if let shelfStore { c.bindShelfStore(shelfStore) }
             controllers[id] = c
             c.setEnabled(true)
         }
+    }
+
+    /// MD-3: topology-level placement for the connected screens. `followActiveDisplay` uses the
+    /// display under the pointer, so moving the pointer (or the lid) moves the one island.
+    private func islandRoles() -> [String: IslandRole] {
+        let screens = NSScreen.screens
+        let displays: [IslandPlacement.Display] = screens.compactMap { screen in
+            guard let uuid = DisplayIdentity.uuidString(for: screen) else { return nil }
+            let isBuiltIn = screen.displayID.map { CGDisplayIsBuiltin($0) != 0 } ?? false
+            return IslandPlacement.Display(uuid: uuid,
+                                           hasHardwareNotch: screen.safeAreaInsets.top > 0,
+                                           isBuiltIn: isBuiltIn)
+        }
+        let cursor = NSEvent.mouseLocation
+        let activeUUID = (screens.first { $0.frame.contains(cursor) } ?? NSScreen.main)
+            .flatMap { DisplayIdentity.uuidString(for: $0) }
+        return IslandPlacement.resolve(mode: IslandPlacementMode.current(), displays: displays, activeUUID: activeUUID)
     }
 
     func show(_ event: LiveEvent) { controllers.values.forEach { $0.show(event) } }

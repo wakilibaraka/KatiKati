@@ -437,10 +437,17 @@ final class TaskbarScreenOrchestrator: NSObject, WindowLiftAvoidanceHost {
         if let connectedKeys { lastConnectedKeys = connectedKeys }
         let contentBySide = edgeContentBySide()
         updateStatusServiceHold(contentBySide)
+        // MD-2: a deck only lives on a display whose edge is really the end of the desktop. With two
+        // side-by-side displays the right deck used to exist on both sides of the shared seam.
+        let topology = ScreenEdgeTopology.resolve(displays: DisplayIdentity.topologyDisplays())
+        let outerOnly = UserDefaults.standard.object(forKey: EdgeBarPlacement.outerOnlyKey) as? Bool
+            ?? EdgeBarPlacement.outerOnlyDefault(displayCount: NSScreen.screens.count)
         let desired = EdgeSlotSet.desiredSlots(
             placement: settingsStore.taskbarScreenPlacement,
             connectedKeys: lastConnectedKeys,
-            sides: Set(contentBySide.keys)
+            sides: Set(contentBySide.keys),
+            topology: topology,
+            outerOnly: outerOnly
         )
         let desiredSet = Set(desired)
         for (key, controller) in edgeControllers where !desiredSet.contains(key) {

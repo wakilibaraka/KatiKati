@@ -46,6 +46,16 @@ enum DisplayIdentity {
         )
     }
 
+    /// MD-2: the connected displays as topology values (Cocoa frames), for `ScreenEdgeTopology`.
+    /// One read of `NSScreen.screens`; cheap enough for the per-drag seam check.
+    @MainActor
+    static func topologyDisplays(screens: [NSScreen] = NSScreen.screens) -> [TopologyDisplay] {
+        screens.compactMap { screen in
+            guard let uuid = uuidString(for: screen) else { return nil }
+            return TopologyDisplay(uuid: uuid, screenFrame: screen.frame, visibleFrame: screen.visibleFrame)
+        }
+    }
+
     /// Derives the physical display count, the ordered UUIDs and the attribution table from a
     /// single read.
     @MainActor

@@ -184,6 +184,7 @@ struct SettingsLayoutPane: View {
         case .snapCenter: return String(localized: "Snap Center")
         case .snapMaximize: return String(localized: "Snap Maximize")
         case .snapNextDisplay: return String(localized: "Move to Next Display")
+        case .cursorNextDisplay: return String(localized: "Jump to Next Display")
         // Phase 26b tiling actions
         case .toggleTiling: return String(localized: "Toggle Tiling")
         case .cycleTilingLayout: return String(localized: "Cycle Tiling Layout")

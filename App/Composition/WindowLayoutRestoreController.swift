@@ -21,6 +21,9 @@ final class WindowLayoutRestoreController {
     private var isFrozen = false
     private var settleTask: Task<Void, Never>?
     private var saveTask: Task<Void, Never>?
+    /// MD-4: a rapid unplug/replug must not race the wake path — wait out the storm, then settle.
+    private static let hotPlugDebounceNanoseconds: UInt64 = 1_000_000_000
+    private static let settleNanoseconds: UInt64 = 3_000_000_000
     private let log = Logger(subsystem: "com.katikati.app", category: "layout-restore")
 
     nonisolated static var defaultURL: URL {
@@ -68,6 +71,22 @@ final class WindowLayoutRestoreController {
         WindowLayoutMemory.topologyKey(displayUUIDs: displayTable().displays.map(\.uuid))
     }
 
+    /// MD-4: each display's visible area in Quartz space, the space the snapshot's window bounds use,
+    /// so a remembered frame can be expressed as fractions of the display it sat on.
+    private func memoryDisplays() -> [WindowLayoutMemory.Display] {
+        let screens = NSScreen.screens
+        guard let primary = screens.first else { return [] }
+        return screens.compactMap { screen in
+            guard let uuid = DisplayIdentity.uuidString(for: screen) else { return nil }
+            let cocoa = screen.visibleFrame
+            return WindowLayoutMemory.Display(
+                uuid: uuid,
+                visibleFrame: CGRect(origin: SnapPosition.accessibilityOrigin(of: cocoa, primaryMaxY: primary.frame.maxY),
+                                     size: cocoa.size)
+            )
+        }
+    }
+
     private func layoutWindows(_ snapshot: DockSnapshot) -> [WindowLayoutMemory.Window] {
         snapshot.windows.values.compactMap { w in
             guard w.status == .active || w.status == .inactive, let frame = w.bounds,
@@ -79,7 +98,7 @@ final class WindowLayoutRestoreController {
     private func record(_ snapshot: DockSnapshot) {
         guard !isFrozen, isEnabled else { return }
         let previous = memory
-        memory.record(topology: topologyKey, windows: layoutWindows(snapshot))
+        memory.record(topology: topologyKey, windows: layoutWindows(snapshot), displays: memoryDisplays())
         if memory != previous { scheduleSave() }
     }
 
@@ -121,7 +140,9 @@ final class WindowLayoutRestoreController {
         isFrozen = true
         settleTask?.cancel()
         settleTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            try? await Task.sleep(nanoseconds: Self.hotPlugDebounceNanoseconds)
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(nanoseconds: Self.settleNanoseconds)
             guard !Task.isCancelled else { return }
             self?.restoreNow(force: false)
         }
@@ -140,7 +161,7 @@ final class WindowLayoutRestoreController {
             }
         }
         guard force || isEnabled else { return }
-        let moves = memory.plan(topology: topologyKey, current: layoutWindows(runtime.snapshot))
+        let moves = memory.plan(topology: topologyKey, current: layoutWindows(runtime.snapshot), displays: memoryDisplays())
         guard !moves.isEmpty else { return }
         // WM revamp §4: a remembered frame must land in the work area tiling would use today — the
         // layout may have been saved on a bigger display or behind a Dock that has since grown.

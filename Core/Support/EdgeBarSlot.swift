@@ -22,16 +22,46 @@ enum EdgeSlotSet {
 
     /// Desired edge slots: each display key from `TaskbarDisplaySet.desiredUnitKeys` crossed
     /// with the enabled sides, sides in `EdgeSide.allCases` order (left, right).
+    ///
+    /// MD-2: `outerOnly` keeps a deck off a seam. With two side-by-side displays the right deck then
+    /// exists on the display whose right edge is really the end of the desktop, instead of on both.
     static func desiredSlots(
         placement: TaskbarScreenPlacement,
         connectedKeys: [String],
-        sides: Set<EdgeSide>
+        sides: Set<EdgeSide>,
+        topology: ScreenEdgeTopology? = nil,
+        outerOnly: Bool = false
     ) -> [SlotKey] {
         guard !sides.isEmpty else { return [] }
         let displayKeys = TaskbarDisplaySet.desiredUnitKeys(placement: placement, connectedKeys: connectedKeys)
         return displayKeys.flatMap { display in
-            EdgeSide.allCases.filter(sides.contains).map { SlotKey(display: display, side: $0) }
+            EdgeSide.allCases
+                .filter(sides.contains)
+                .filter { EdgeBarPlacement.hosts(side: $0, displayKey: display, topology: topology, outerOnly: outerOnly) }
+                .map { SlotKey(display: display, side: $0) }
         }
+    }
+}
+
+/// MD-2: which display hosts a deck for a given side. The `follow settings` slot (nil) is never
+/// filtered — it already renders on exactly one display.
+enum EdgeBarPlacement {
+    static let outerOnlyKey = "com.katikati.edge.outerOnly.v1"
+
+    /// Outer-only defaults on for the right deck as soon as there is more than one display, and off
+    /// for a single display (where every edge is outer anyway, so the answer is the same list).
+    static func outerOnlyDefault(displayCount: Int) -> Bool { displayCount > 1 }
+
+    /// Whether `displayKey` hosts the deck for `side`. The follow-settings slot (`nil`) always does.
+    static func hosts(
+        side: EdgeSide,
+        displayKey: String?,
+        topology: ScreenEdgeTopology?,
+        outerOnly: Bool
+    ) -> Bool {
+        guard outerOnly, let topology, let displayKey, !displayKey.isEmpty else { return true }
+        let edge: ScreenEdge = side == .left ? .left : .right
+        return topology.isOuter(edge, on: displayKey)
     }
 }
 

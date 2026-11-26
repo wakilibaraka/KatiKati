@@ -84,11 +84,9 @@ enum WindowSnapService {
         let to = screens[DisplayMove.destination(from: index, count: screens.count, step: step)]
         func area(_ s: NSScreen) -> CGRect { workArea(of: s) }
         func quartz(_ r: CGRect) -> CGRect { CGRect(origin: SnapPosition.accessibilityOrigin(of: r, primaryMaxY: primary.maxY), size: r.size) }
-        let a = quartz(area(from)), b = quartz(area(to))
-        let w = min(f.width, b.width), h = min(f.height, b.height)
-        let target = CGRect(x: b.minX + (f.minX - a.minX) / max(a.width, 1) * b.width,
-                            y: b.minY + (f.minY - a.minY) / max(a.height, 1) * b.height, width: w, height: h)
-        place(window, quartzFrame: WindowFit.shifted(target, into: b), within: b)
+        // MD-4: one pure mapping, shared with the throw hot keys and covered by `WindowThrowTests`.
+        let target = WindowThrow.relativeFrame(from: f, source: quartz(area(from)), destination: quartz(area(to)))
+        place(window, quartzFrame: target, within: quartz(area(to)))
         return .moved
     }
 
@@ -282,6 +280,9 @@ final class SnapDragMonitor {
     private var style = SnapPreviewStyle.outline
     private var edgeMargin: CGFloat = 12
     private var preview: NSPanel?
+    /// MD-2: when the pointer first touched each seam edge group. Its own edge resolves a snap only
+    /// once the pointer has rested there for `SnapGaps.seamDwell`; a crossing never does.
+    private var seamHold: (key: String, since: Date)?
 
     func setEnabled(_ enabled: Bool, style: SnapPreviewStyle, edgeMargin: CGFloat = 12) {
         self.style = style
@@ -304,6 +305,7 @@ final class SnapDragMonitor {
         monitors.removeAll()
         session.reset()
         axProbe.clear()
+        seamHold = nil
         activeZone = nil
         preview?.orderOut(nil)
         preview = nil
@@ -344,19 +346,52 @@ final class SnapDragMonitor {
         }
         let area = WindowSnapService.workArea(of: screen)
         let gaps = SnapGaps.current()
+        let suppressed = suppressedSeamEdges(for: screen, area: area, at: mouse)
         let layout: SnapZonePlanner.Layout = NSEvent.modifierFlags.contains(.option) ? .thirds : .edgesAndCorners
         let previous = layout == .edgesAndCorners ? activeZone.flatMap {
             (![SnapPosition.leftThird, .centerThird, .rightThird].contains($0.position)
              && $0.frame == SnapZonePlanner.previewFrame(for: $0.position, in: area, gaps: gaps)
              && $0.frame.insetBy(dx: -8, dy: -8).contains(mouse)) ? $0 : nil
         } : nil
-        guard let zone = previous ?? SnapZonePlanner.resolve(at: mouse, in: area, layout: layout, edgeMargin: edgeMargin, gaps: gaps) else {
+        guard let zone = previous ?? SnapZonePlanner.resolve(
+            at: mouse, in: area, layout: layout, edgeMargin: edgeMargin, gaps: gaps, suppressed: suppressed
+        ) else {
             activeZone = nil
             preview?.orderOut(nil)
             return
         }
         activeZone = zone
         show(zone)
+    }
+
+    /// MD-2: edges of this display that are seams to a neighbour *and* that the pointer is touching.
+    /// Empty while `⌥` is held (the user asked for thirds explicitly) and once the dwell has elapsed,
+    /// so deliberately parking the pointer on a seam still snaps.
+    private func suppressedSeamEdges(for screen: NSScreen, area: CGRect, at mouse: CGPoint) -> Set<ScreenEdge> {
+        guard !NSEvent.modifierFlags.contains(.option),
+              let uuid = DisplayIdentity.uuidString(for: screen) else {
+            seamHold = nil
+            return []
+        }
+        let displays = DisplayIdentity.topologyDisplays()
+        guard displays.count > 1 else { seamHold = nil; return [] }
+        let seams = ScreenEdgeTopology.resolve(displays: displays).seamEdges(for: uuid)
+        guard !seams.isEmpty else { seamHold = nil; return [] }
+        let margin = max(1, edgeMargin)
+        var touching: Set<ScreenEdge> = []
+        if mouse.x <= area.minX + margin { touching.insert(.left) }
+        if mouse.x >= area.maxX - margin { touching.insert(.right) }
+        if mouse.y >= area.maxY - margin { touching.insert(.top) }
+        if mouse.y <= area.minY + margin { touching.insert(.bottom) }
+        let relevant = seams.intersection(touching)
+        guard !relevant.isEmpty else {
+            seamHold = nil
+            return []
+        }
+        let key = relevant.map(\.rawValue).sorted().joined(separator: ",")
+        let since = seamHold?.key == key ? (seamHold?.since ?? Date()) : Date()
+        seamHold = (key, since)
+        return Date().timeIntervalSince(since) >= SnapGaps.seamDwell ? [] : relevant
     }
 
     private func released() {

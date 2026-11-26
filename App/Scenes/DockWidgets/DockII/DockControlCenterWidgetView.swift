@@ -10,9 +10,11 @@ struct DockControlCenterWidgetView: View {
     @ObservedObject private var toggles = QuickToggleEngine.shared
     @StateObject private var systemStatus = SystemStatusService()
     @State private var showSliderCard = false
-    @State private var brightness: Double = DisplayServicesBrightness.current() ?? 0.75
+    @State private var brightness: Double = DisplayBrightness.levelForCursorScreen() ?? 0.75
+    /// MD-5: the external panel's own volume; nil when it does not answer VCP `0x62`.
+    @State private var displayVolume: Double?
     @State private var keyLight: Double? = KeyboardBacklight.current()
-    private let brightnessAvailable = DisplayServicesBrightness.current() != nil
+    private let brightnessAvailable = DisplayBrightness.levelForCursorScreen() != nil
 
     private let airplayGreen = Color(red: 0.25, green: 0.85, blue: 0.45)
     private let bluetoothCyan = Color(red: 0.22, green: 0.75, blue: 0.98)
@@ -36,7 +38,9 @@ struct DockControlCenterWidgetView: View {
                     get: { Double(systemStatus.currentVolumeLevel) },
                     set: { systemStatus.setVolume(Float(min(1, max(0, $0)))) }
                 ),
-                onBrightnessChange: { DisplayServicesBrightness.set($0) },
+                displayVolume: $displayVolume,
+                onBrightnessChange: { DisplayBrightness.setOnCursorScreen($0) },
+                onDisplayVolumeChange: { DisplayBrightness.setVolumeOnCursorScreen($0) },
                 onKeyLightChange: { KeyboardBacklight.set($0) },
                 onOpenDisplays: { toggles.perform(.screenMirroring) }
             )
@@ -44,9 +48,10 @@ struct DockControlCenterWidgetView: View {
         .onAppear {
             systemStatus.acquire()
             toggles.refresh()
-            if let current = DisplayServicesBrightness.current() {
+            if let current = DisplayBrightness.levelForCursorScreen() {
                 brightness = current
             }
+            displayVolume = DisplayBrightness.volumeForCursorScreen()
             keyLight = KeyboardBacklight.current()
         }
         .onDisappear {
@@ -83,7 +88,7 @@ struct DockControlCenterWidgetView: View {
     private var brightnessButton: some View {
         glyphButton(symbol: "sun.max.fill", tint: brightness > 0.05 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.45),
                     helpText: String(localized: "Brightness & Volume")) {
-            brightness = DisplayServicesBrightness.current() ?? brightness
+            brightness = DisplayBrightness.levelForCursorScreen() ?? brightness
             keyLight = KeyboardBacklight.current()
             showSliderCard.toggle()
         }
@@ -113,7 +118,7 @@ struct DockControlCenterWidgetView: View {
     private func volumeButton(_ vol: Double) -> some View {
         glyphButton(symbol: volumeSymbol(for: vol), tint: vol > 0.01 ? DockWidgetStyle.ink : DockWidgetStyle.ink.opacity(0.42),
                     helpText: String(localized: "Volume & Brightness")) {
-            brightness = DisplayServicesBrightness.current() ?? brightness
+            brightness = DisplayBrightness.levelForCursorScreen() ?? brightness
             keyLight = KeyboardBacklight.current()
             showSliderCard.toggle()
         }
@@ -155,7 +160,10 @@ private struct DockControlCenterSliderCard: View {
     let brightnessAvailable: Bool
     @Binding var keyLight: Double?
     @Binding var volume: Double
+    /// MD-5: the external display's own volume, nil when the panel does not answer DDC `0x62`.
+    @Binding var displayVolume: Double?
     let onBrightnessChange: (Double) -> Void
+    let onDisplayVolumeChange: (Double) -> Void
     let onKeyLightChange: (Double) -> Void
     let onOpenDisplays: () -> Void
 
@@ -186,6 +194,34 @@ private struct DockControlCenterSliderCard: View {
                             )
                             Image(systemName: "sun.max.fill")
                                 .font(.system(size: 14))
+                        }
+                    }
+                }
+
+                if let currentDisplayVolume = displayVolume {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("Display Volume").font(.system(size: 12, weight: .semibold))
+                            Spacer()
+                            Text(verbatim: "\(Int((currentDisplayVolume * 100).rounded()))%")
+                                .dockCaption()
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "speaker.fill")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                            Slider(
+                                value: Binding(
+                                    get: { currentDisplayVolume },
+                                    set: {
+                                        displayVolume = $0
+                                        onDisplayVolumeChange($0)
+                                    }
+                                ),
+                                in: 0...1.0
+                            )
+                            Image(systemName: "speaker.wave.2.fill")
+                                .font(.system(size: 13))
                         }
                     }
                 }

@@ -622,6 +622,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self.radialDialPanel.toggle(page: .tools)
                 case .snapNextDisplay:
                     WindowSnapService.moveToNextDisplay()
+                case .cursorNextDisplay:
+                    DisplayBrightness.shared.jumpCursor()
                 case .spaceNext:
                     self.spaceTransition.switchSpace(.right)
                 case .spacePrevious:
@@ -939,6 +941,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Give the system Dock back as the user had it before KatiKati hid it (next launch re-hides it).
         nativeDockPreferencesService.restoreOriginal()
         WallpaperEngine.shared.restoreForQuit()
+        DisplayBrightness.shared.restoreAll()   // MD-5: never leave a display gamma-dimmed
         SystemResizeCursor.shared.reset()   // never leave the ▲▼ or a hidden pointer behind us
         SystemCursorHider.shared.show()
         trashSettingSubscription = nil
