@@ -10,8 +10,13 @@ struct NotchMusicPanel: View {
     @AppStorage(LyricsTrack.enabledKey) private var showLyrics = false
     @State private var showQueuePopover = false
     @State private var upcomingQueue: [NowPlayingQueueItem] = []
+    @AppStorage(NotchTransportControl.defaultsKey) private var transportRaw = NotchTransportControl.initialRaw
     var isIdle = false
+    var compact = false
+    var onExpand: (() -> Void)?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var artworkSize: CGFloat { compact ? 82 : NotchLayoutSpec.albumArtSize }
 
     /// The artwork's reduced colour, white when the art is grey or missing.
     private func accent(_ state: NowPlayingState) -> Color {
@@ -23,7 +28,20 @@ struct NotchMusicPanel: View {
         // A player we may not read says so, instead of the card claiming nothing is playing (Phase 45).
         let unreadable = isIdle ? feed.playerAccess.unreadableMessage : nil
         HStack(alignment: .top, spacing: 12) {
-            art(isIdle ? nil : state.artworkData, isPlaying: !isIdle && state.isPlaying)
+            VStack(spacing: 4) {
+                art(isIdle ? nil : state.artworkData, isPlaying: !isIdle && state.isPlaying)
+                if let onExpand {
+                    Button(action: onExpand) {
+                        Image(systemName: "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 9, weight: .semibold))
+                            .frame(width: 26, height: 18)
+                            .background(Capsule().fill(.white.opacity(0.10)))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Music"))
+                    .help(Text("Open Details"))
+                }
+            }
             VStack(alignment: .leading, spacing: 6) {
                 if isIdle {
                     VStack(alignment: .leading, spacing: 1) {
@@ -46,22 +64,24 @@ struct NotchMusicPanel: View {
                 } else {
                     HStack(alignment: .top, spacing: 8) {
                         VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(state.isPlaying ? accent(state) : Color.orange)
-                                    .frame(width: 5, height: 5)
-                                Text(verbatim: state.isPlaying ? "PLAYING" : "PAUSED")
-                                    .font(.system(size: 8.5, weight: .bold, design: .rounded))
-                                    .foregroundStyle(state.isPlaying ? accent(state) : Color.orange)
+                            if !compact {
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(state.isPlaying ? accent(state) : Color.orange)
+                                        .frame(width: 5, height: 5)
+                                    Text(verbatim: state.isPlaying ? "PLAYING" : "PAUSED")
+                                        .font(.system(size: 8.5, weight: .bold, design: .rounded))
+                                        .foregroundStyle(state.isPlaying ? accent(state) : Color.orange)
+                                }
+                                .padding(.horizontal, 6).padding(.vertical, 2)
+                                .background(Capsule().fill((state.isPlaying ? accent(state) : Color.orange).opacity(0.16)))
                             }
-                            .padding(.horizontal, 6).padding(.vertical, 2)
-                            .background(Capsule().fill((state.isPlaying ? accent(state) : Color.orange).opacity(0.16)))
                             // NP-3: a still title that shrinks before it truncates. The marquee started
                             // scrolling after 1.2 s, so every capture clipped the title on both edges.
                             Text(verbatim: state.title ?? "")
                                 .font(.system(size: 15, weight: .bold, design: .rounded))
                                 .foregroundStyle(.white)
-                                .lineLimit(1)
+                                .lineLimit(compact ? 2 : 1)
                                 .minimumScaleFactor(0.8)
                             Text(verbatim: state.artist ?? "")
                                 .font(.system(size: 12))
@@ -80,12 +100,16 @@ struct NotchMusicPanel: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         }
-        .frame(height: NotchLayoutSpec.albumArtSize)
+        .frame(height: compact ? 104 : NotchLayoutSpec.albumArtSize)
         .foregroundStyle(.white)
         .background {
             if !isIdle {
                 // Artwork wash: the accent fades out left to right behind the card.
-                LinearGradient(colors: [accent(state).opacity(0.30), .clear], startPoint: .leading, endPoint: .trailing)
+                LinearGradient(
+                    colors: [accent(state).opacity(compact ? 0.38 : 0.30), .clear],
+                    startPoint: compact ? .topLeading : .leading,
+                    endPoint: compact ? .bottomTrailing : .trailing
+                )
                     .padding(-10).blur(radius: 14).allowsHitTesting(false)
                     .animation(.easeInOut(duration: 0.6), value: state.artworkData?.count)
             }
@@ -96,7 +120,7 @@ struct NotchMusicPanel: View {
     /// track is playing (Phase 43 — it used to be a static note glyph either way).
     private func art(_ data: Data?, isPlaying: Bool) -> some View {
         let glow = ArtworkAccentCache.accent(for: data).map { Color(red: $0.red, green: $0.green, blue: $0.blue) } ?? Color.black
-        let size = NotchLayoutSpec.albumArtSize
+        let size = artworkSize
         return Group {
             if let data, let image = NSImage(data: data) {
                 Image(nsImage: image).resizable().aspectRatio(contentMode: .fill)
@@ -118,9 +142,9 @@ struct NotchMusicPanel: View {
             let fraction = state.progress(at: context.date) ?? 0
             let duration = state.duration ?? 0
             let elapsed = fraction * duration
-            let lyricLines = showLyrics ? lyricsStore.lines(title: state.title, artist: state.artist) : []
+            let lyricLines = showLyrics && !compact ? lyricsStore.lines(title: state.title, artist: state.artist) : []
             VStack(alignment: .leading, spacing: 3) {
-                if showLyrics {
+                if showLyrics && !compact {
                     let window = LyricTimelineMatcher.window(in: lyricLines, at: elapsed, windowSize: 2)
                     VStack(alignment: .leading, spacing: 1) {
                         ForEach(Array(window.enumerated()), id: \.offset) { _, line in
@@ -142,10 +166,10 @@ struct NotchMusicPanel: View {
                 .foregroundStyle(.white.opacity(0.55))
             }
             .onAppear {
-                if showLyrics { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
+                if showLyrics && !compact { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
             }
             .onChange(of: state.title) { _, _ in
-                if showLyrics { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
+                if showLyrics && !compact { lyricsStore.loadIfNeeded(title: state.title, artist: state.artist) }
             }
         }
     }
@@ -156,38 +180,63 @@ struct NotchMusicPanel: View {
     }
 
     private func transport(_ state: NowPlayingState) -> some View {
-        HStack(spacing: 16) {
-            Button { feed.previousTrack() } label: { Image(systemName: "backward.end.fill").font(.system(size: 15)) }
-            Button { feed.togglePlayPause() } label: {
-                Image(systemName: state.isPlaying && !isIdle ? "pause.fill" : "play.fill")
-                    .font(.system(size: 14, weight: .bold)).foregroundStyle(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Circle().fill(Color.white.opacity(0.16)))
-                    .overlay(Circle().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
+        HStack(spacing: compact ? 12 : 16) {
+            ForEach(NotchTransportControl.decode(transportRaw)) { control in
+                transportButton(control, state: state)
             }
-            Button { feed.nextTrack() } label: { Image(systemName: "forward.end.fill").font(.system(size: 15)) }
-            Button { showQueuePopover.toggle() } label: {
-                Image(systemName: "list.bullet")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.white.opacity(showQueuePopover ? 1.0 : 0.6))
-            }
-            .popover(isPresented: $showQueuePopover) {
-                NotchQueuePopoverView(queue: $upcomingQueue)
-            }
-            Button { showLyrics.toggle() } label: {
-                Image(systemName: "quote.bubble.fill")
-                    .font(.system(size: 12))
-                    .foregroundStyle(showLyrics ? accent(state) : .white.opacity(0.55))
-            }
-            AudioOutputMenu {
-                Image(systemName: "airplayaudio")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.white.opacity(0.6))
+            if !compact {
+                Button { showQueuePopover.toggle() } label: {
+                    Image(systemName: "list.bullet")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(showQueuePopover ? 1.0 : 0.6))
+                }
+                .popover(isPresented: $showQueuePopover) {
+                    NotchQueuePopoverView(queue: $upcomingQueue)
+                }
+                Button { showLyrics.toggle() } label: {
+                    Image(systemName: "quote.bubble.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(showLyrics ? accent(state) : .white.opacity(0.55))
+                }
+                AudioOutputMenu {
+                    Image(systemName: "airplayaudio")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
             }
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)
     }
+
+    private func transportButton(_ control: NotchTransportControl, state: NowPlayingState) -> some View {
+        let isPrimary = control == .playPause
+        let isPlaying = state.isPlaying && !isIdle
+        return Button {
+            switch control {
+            case .previous: feed.previousTrack()
+            case .playPause: feed.togglePlayPause()
+            case .next: feed.nextTrack()
+            case .backward, .forward:
+                guard let duration = state.duration, let progress = state.progress(at: Date()) else { return }
+                let offset: Double = control == .backward ? -15 : 15
+                feed.seek(to: min(duration, max(0, progress * duration + offset)))
+            }
+        } label: {
+            Image(systemName: isPrimary && isPlaying ? "pause.fill" : control.symbol)
+                .font(.system(size: isPrimary ? 14 : 13, weight: isPrimary ? .bold : .medium))
+                .frame(width: isPrimary ? 30 : 16, height: 30)
+                .background {
+                    if isPrimary {
+                        Circle().fill(Color.white.opacity(0.16))
+                            .overlay(Circle().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
+                    }
+                }
+        }
+        .disabled((control == .backward || control == .forward) && state.progress(at: Date()) == nil)
+        .accessibilityLabel(Text(verbatim: isPrimary ? (isPlaying ? String(localized: "Pause") : String(localized: "Play")) : control.title))
+    }
+
 }
 
 /// Dedicated full-width Music page (split from Calendar): full-width player card with optional

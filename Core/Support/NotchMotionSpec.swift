@@ -50,8 +50,7 @@ enum NotchMotionSpec {
     }
 }
 
-/// How the notch opens and closes. `boring` is the default and matches Boring Notch's springs
-/// with no overshoot (all critically damped); only `bounce` overshoots, on request.
+/// The default follows Boring Notch's open and close springs. The other presets share the same shell.
 enum NotchOpenAnimation: String, CaseIterable, Identifiable, Sendable {
     case boring, liquid, snap, bounce
 
@@ -60,36 +59,25 @@ enum NotchOpenAnimation: String, CaseIterable, Identifiable, Sendable {
 
     var openSpring: SpringParameters {
         switch self {
-        case .boring: return SpringParameters(response: 0.42, dampingRatio: 0.80)
+        case .boring: return NotchMotionSpec.openSpring
         case .liquid: return SpringParameters(response: 0.46, dampingRatio: 1.0)
         case .snap: return SpringParameters(response: 0.26, dampingRatio: 1.0)
-        case .bounce: return SpringParameters(response: 0.5, dampingRatio: 0.58)
+        case .bounce: return SpringParameters(response: 0.44, dampingRatio: 0.72)
         }
     }
 
     var closeSpring: SpringParameters {
         switch self {
-        case .boring: return SpringParameters(response: 0.45, dampingRatio: 1.0)
+        case .boring: return NotchMotionSpec.closeSpring
         case .liquid: return SpringParameters(response: 0.4, dampingRatio: 1.0)
         case .snap: return SpringParameters(response: 0.22, dampingRatio: 1.0)
-        case .bounce: return SpringParameters(response: 0.42, dampingRatio: 0.9)
-        }
-    }
-
-    /// Open content: plain fade, blur-and-scale pour, fade with a small drop, or a springy pop.
-    enum Reveal: Sendable { case fade, pour, drop, pop }
-    var reveal: Reveal {
-        switch self {
-        case .boring: return .fade
-        case .liquid: return .pour
-        case .snap: return .drop
-        case .bounce: return .pop
+        case .bounce: return SpringParameters(response: 0.40, dampingRatio: 1.0)
         }
     }
 
     var title: String {
         switch self {
-        case .boring: return "Classic"
+        case .boring: return "Boring Notch"
         case .liquid: return "Liquid"
         case .snap: return "Snap"
         case .bounce: return "Bounce"
@@ -99,9 +87,9 @@ enum NotchOpenAnimation: String, CaseIterable, Identifiable, Sendable {
     var summary: String {
         switch self {
         case .boring: return "Smooth spring, light overshoot"
-        case .liquid: return "Content pours in, soft settle"
+        case .liquid: return "Gentle reveal, soft settle"
         case .snap: return "Fast and crisp, no overshoot"
-        case .bounce: return "Springy, clear overshoot"
+        case .bounce: return "Elastic open, steady close"
         }
     }
 }

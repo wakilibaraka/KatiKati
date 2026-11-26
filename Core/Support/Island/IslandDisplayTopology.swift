@@ -330,6 +330,9 @@ public enum IslandPlacement {
                 return Handover(movedFrom: from, movedTo: to.key, role: role)
             }
         }
+        if lost.count == 1, gained.count == 1, let from = lost.first, let to = gained.first {
+            return Handover(movedFrom: from.key, movedTo: to.key, role: to.value)
+        }
         return Handover()
     }
 }

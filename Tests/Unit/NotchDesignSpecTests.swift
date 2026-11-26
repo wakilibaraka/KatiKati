@@ -86,6 +86,9 @@ final class NotchDesignSpecTests: XCTestCase {
         // Open spring follows boring.notch physics (0.42 response, 0.80 damping)
         XCTAssertEqual(NotchMotionSpec.openSpring.response, 0.42)
         XCTAssertEqual(NotchMotionSpec.openSpring.dampingRatio, 0.80)
+        XCTAssertEqual(NotchOpenAnimation.boring.openSpring, NotchMotionSpec.openSpring)
+        XCTAssertEqual(NotchOpenAnimation.boring.closeSpring, NotchMotionSpec.closeSpring)
+        XCTAssertEqual(NotchOpenAnimation.bounce.closeSpring.dampingRatio, 1)
 
         // Close spring is critically damped (1.0) to prevent bouncing past the screen bezel
         XCTAssertEqual(NotchMotionSpec.closeSpring.dampingRatio, 1.0)
@@ -143,7 +146,7 @@ final class NotchDesignSpecTests: XCTestCase {
 
     func testOnlyBounceAndBoringOpenOvershoot() {
         for style in NotchOpenAnimation.allCases {
-            XCTAssertEqual(style.closeSpring.dampingRatio, style == .bounce ? 0.9 : 1.0, "\(style)")
+            XCTAssertEqual(style.closeSpring.dampingRatio, 1.0, "\(style)")
             if style != .bounce && style != .boring {
                 XCTAssertEqual(style.openSpring.dampingRatio, 1.0, "\(style)")
             }

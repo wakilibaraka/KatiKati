@@ -26,6 +26,51 @@ enum NotchDefaultsReaction {
 // how long it waits, and which design each screen gets. Pure and dual-compiled; the settings pane and
 // `NotchPanelController` both read through here.
 
+enum NotchTransportControl: String, CaseIterable, Identifiable, Sendable {
+    case previous, playPause, next, backward, forward
+
+    static let defaultsKey = "com.katikati.notch.transport"
+    static let initial: [Self] = [.previous, .playPause, .next]
+    static let initialRaw = encode(initial)
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .previous: return String(localized: "Previous Track")
+        case .playPause: return String(localized: "Play / Pause")
+        case .next: return String(localized: "Next Track")
+        case .backward: return String(localized: "Back 15 Seconds")
+        case .forward: return String(localized: "Forward 15 Seconds")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .previous: return "backward.end.fill"
+        case .playPause: return "play.fill"
+        case .next: return "forward.end.fill"
+        case .backward: return "gobackward.15"
+        case .forward: return "goforward.15"
+        }
+    }
+
+    static func decode(_ raw: String) -> [Self] {
+        var seen = Set<Self>()
+        let choices = raw.split(separator: ",").compactMap { Self(rawValue: String($0)) }
+            .filter { seen.insert($0).inserted }
+        return choices.isEmpty ? initial : choices
+    }
+
+    static func encode(_ controls: [Self]) -> String {
+        controls.map(\.rawValue).joined(separator: ",")
+    }
+}
+
+enum NotchHUDPresentation {
+    static let showWhenOpenKey = "com.katikati.notch.hud.open"
+    static let showPercentageKey = "com.katikati.notch.hud.percentage"
+}
+
 enum NotchOpenMode: String, CaseIterable, Identifiable, Sendable {
     case hover, click
     var id: String { rawValue }

@@ -122,9 +122,10 @@ enum GammaDim {
         min(max(level, Double(DisplayBrightnessConfig.gammaMinimum)), 1)
     }
 
-    static func apply(_ level: Double, to displayID: CGDirectDisplayID) {
+    @discardableResult
+    static func apply(_ level: Double, to displayID: CGDirectDisplayID) -> Bool {
         let value = Float(clamp(level))
-        CGSetDisplayTransferByFormula(displayID, 0, value, 1, 0, value, 1, 0, value, 1)
+        return CGSetDisplayTransferByFormula(displayID, 0, value, 1, 0, value, 1, 0, value, 1) == .success
     }
 
     static func restore(_ displayID: CGDirectDisplayID) {
@@ -215,10 +216,11 @@ final class DisplayBrightness {
         if let service = services[uuid], let maximum = maximums[uuid], DisplayBrightnessConfig.ddcEnabled() {
             ddcLevels[uuid] = clamped
             offerDDC(uuid: uuid, vcp: DisplayVCP.brightness, level: clamped, maximum: maximum, service: service)
-            return
+        } else if GammaDim.apply(clamped, to: id) {
+            let applied = GammaDim.clamp(clamped)
+            gammaLevels[id] = applied
+            DisplayServicesBrightness.postChange(applied, for: id)
         }
-        gammaLevels[id] = GammaDim.clamp(clamped)
-        GammaDim.apply(clamped, to: id)
     }
 
     // MARK: Volume (VCP 0x62)
@@ -365,7 +367,14 @@ final class DisplayBrightness {
     private func send(_ write: DDCWriteCoalescer.Write, service: DDCTransport.Service, maximum: UInt16) {
         let value = DDCValue.raw(byte: write.value, maximum: maximum)
         queue.async {
-            DDCTransport.write(service, vcp: write.key.vcp, value: value)
+            let succeeded = DDCTransport.write(service, vcp: write.key.vcp, value: value)
+            guard succeeded, write.key.vcp == DisplayVCP.brightness, maximum > 0 else { return }
+            DispatchQueue.main.async {
+                guard let id = NSScreen.screens.first(where: {
+                    DisplayIdentity.uuidString(for: $0) == write.key.displayUUID
+                })?.displayID else { return }
+                DisplayServicesBrightness.postChange(Double(value) / Double(maximum), for: id)
+            }
         }
     }
 }

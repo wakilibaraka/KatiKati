@@ -26,6 +26,13 @@ struct NotchHomeView: View {
 
             Group {
                 switch model.activePage {
+                case .home:
+                    overview
+                case .shelf:
+                    DroppyFileTrayView(accentColor: .accentColor, expanded: true, isDropTargeted: model.isDropTargeted)
+                        .padding(NotchDesignSpec.cardPadding)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                        .notchCard()
                 case .aiTracker:
                     NotchAIPageView()
                 case .audioDeck:
@@ -39,7 +46,7 @@ struct NotchHomeView: View {
                 case .cameraMirror:
                     NotchMirrorPageView()
                 case .studioHub:
-                    NotchToolsView()
+                    NotchToolsView(isDropTargeted: model.isDropTargeted)
                 case .keepAwake:
                     NotchKeepAwakePageView()
                 }
@@ -47,12 +54,39 @@ struct NotchHomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.top, 4)
             .transition(reduceMotion ? .opacity : (model.pageDirection >= 0 ? Self.forward : Self.backward))
-            .id(model.activePage)
+            .id(model.activePage.navigationPage)
         }
         // Inset by flaring top ear radius and horizontal grid padding
         .padding(.horizontal, NotchDesignSpec.openCornerRadii.topFlaring + NotchDesignSpec.gridPadding.leading)
         .padding(.bottom, NotchDesignSpec.gridPadding.bottom)
     }
+
+    private var overview: some View {
+        HStack(alignment: .top, spacing: NotchLayoutSpec.homeSpacing) {
+            NotchMusicPanel(feed: feed, isIdle: (feed.nowPlayingState.title ?? "").isEmpty, compact: true) {
+                openDetails(.audioDeck)
+            }
+                .padding(NotchLayoutSpec.cardPadding)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .notchCard()
+            if calendarEnabled {
+                NotchCalendarPanel(calendar: ProductivityServices.shared.calendar) {
+                    openDetails(.calendar)
+                }
+                    .padding(NotchLayoutSpec.cardPadding)
+                    .frame(width: NotchLayoutSpec.calendarColumnWidth, alignment: .leading)
+                    .frame(maxHeight: .infinity, alignment: .topLeading)
+                    .notchCard()
+            }
+        }
+    }
+
+    private func openDetails(_ page: NotchPage) {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.16)) {
+            model.goToPage(page)
+        }
+    }
+
 }
 
 /// NP-2: the open notch's one card. Every page wears the same 0.10 white fill, 1 pt 0.08 rim and 18 pt
@@ -84,6 +118,7 @@ struct NotchPeripheralsPageView: View {
     @ObservedObject private var telemetry = DockTelemetryFeed.shared
     @ObservedObject private var devicesFeed = DockDevicesFeed.shared
     @State private var audioOutputs: [AudioOutputDevice] = []
+    @State private var showsDeviceInfo = false
 
     private var overview: DockPeripheralBatteryOverview {
         DockPeripheralBatteryOverview.build(
@@ -102,8 +137,9 @@ struct NotchPeripheralsPageView: View {
                 .notchCard()
 
             peripheralsListCard
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
                 .notchCard()
+                .frame(maxHeight: .infinity, alignment: .top)
         }
         .onAppear {
             telemetry.retain()
@@ -214,6 +250,18 @@ struct NotchPeripheralsPageView: View {
     private var peripheralsListCard: some View {
         let activeAudioName = audioOutputs.first(where: \.isDefault)?.name
         return VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text("Bluetooth devices").font(.system(size: 11, weight: .semibold))
+                Spacer()
+                Button { showsDeviceInfo.toggle() } label: { Image(systemName: "info.circle") }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text("About device battery levels"))
+                    .popover(isPresented: $showsDeviceInfo) {
+                        Text("Shows Mac and Bluetooth accessories. macOS does not share iPhone or Apple Watch battery levels with third-party apps.")
+                            .frame(width: 235)
+                            .padding()
+                    }
+            }
             if overview.connectedPeripherals.isEmpty {
                 VStack(spacing: 6) {
                     Image(systemName: "airpodspro")
@@ -226,63 +274,65 @@ struct NotchPeripheralsPageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 5) {
-                        ForEach(overview.connectedPeripherals) { device in
-                            let isAudioActive = device.isAudioPeripheral && (activeAudioName?.localizedCaseInsensitiveCompare(device.name) == .orderedSame)
-                            HStack(spacing: 8) {
-                                Image(systemName: device.richSymbolName)
-                                    .font(.system(size: 12.5, weight: .semibold))
-                                    .foregroundStyle(batteryColor(device.lowestBattery))
-                                    .frame(width: 18)
-
-                                VStack(alignment: .leading, spacing: 1) {
-                                    HStack(spacing: 4) {
-                                        Text(verbatim: device.name)
-                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                            .foregroundStyle(.white)
-                                            .lineLimit(1)
-                                        if isAudioActive {
-                                            Image(systemName: "speaker.wave.2.fill")
-                                                .font(.system(size: 9))
-                                                .foregroundStyle(.green)
-                                        }
-                                    }
-                                    if let breakdown = device.batteryBreakdown {
-                                        Text(verbatim: breakdown)
-                                            .font(.system(size: 9, design: .rounded).monospacedDigit())
-                                            .foregroundStyle(.white.opacity(0.55))
-                                            .lineLimit(1)
-                                    }
-                                }
-
-                                Spacer(minLength: 4)
-
-                                if let level = device.lowestBattery {
-                                    miniBar(fraction: Double(level) / 100.0, tint: batteryColor(level))
-                                        .frame(width: 32)
-                                    Text(verbatim: "\(level)%")
-                                        .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
-                                        .foregroundStyle(batteryColor(level))
-                                        .frame(minWidth: 30, alignment: .trailing)
-                                } else {
-                                    Text("Connected")
-                                        .font(.system(size: 9.5, weight: .medium))
-                                        .foregroundStyle(.white.opacity(0.55))
-                                }
-                            }
-                        }
+                ViewThatFits(in: .vertical) {
+                    peripheralRows(activeAudioName: activeAudioName)
+                    ScrollView(.vertical, showsIndicators: false) {
+                        peripheralRows(activeAudioName: activeAudioName)
                     }
                 }
             }
-
-            Text("Shows Mac and Bluetooth accessories. macOS does not share iPhone or Apple Watch battery levels with third-party apps.")
-                .font(.system(size: 8.5))
-                .foregroundStyle(.white.opacity(0.48))
-                .lineLimit(2)
         }
         .padding(NotchDesignSpec.cardPadding)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    private func peripheralRows(activeAudioName: String?) -> some View {
+        VStack(spacing: 5) {
+            ForEach(overview.connectedPeripherals) { device in
+                let isAudioActive = device.isAudioPeripheral && (activeAudioName?.localizedCaseInsensitiveCompare(device.name) == .orderedSame)
+                HStack(spacing: 8) {
+                    Image(systemName: device.richSymbolName)
+                        .font(.system(size: 12.5, weight: .semibold))
+                        .foregroundStyle(batteryColor(device.lowestBattery))
+                        .frame(width: 18)
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        HStack(spacing: 4) {
+                            Text(verbatim: device.name)
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            if isAudioActive {
+                                Image(systemName: "speaker.wave.2.fill")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.green)
+                            }
+                        }
+                        if let breakdown = device.batteryBreakdown {
+                            Text(verbatim: breakdown)
+                                .font(.system(size: 9, design: .rounded).monospacedDigit())
+                                .foregroundStyle(.white.opacity(0.55))
+                                .lineLimit(1)
+                        }
+                    }
+
+                    Spacer(minLength: 4)
+
+                    if let level = device.lowestBattery {
+                        miniBar(fraction: Double(level) / 100.0, tint: batteryColor(level))
+                            .frame(width: 32)
+                        Text(verbatim: "\(level)%")
+                            .font(.system(size: 10.5, weight: .semibold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(batteryColor(level))
+                            .frame(minWidth: 30, alignment: .trailing)
+                    } else {
+                        Text("Connected")
+                            .font(.system(size: 9.5, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                }
+            }
+        }
     }
 
     private func miniBar(fraction: Double, tint: Color) -> some View {

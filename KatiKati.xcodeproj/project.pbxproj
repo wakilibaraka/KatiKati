@@ -445,6 +445,7 @@
 		FB41A00000000000000E03 /* NotchPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB41A00000000000000E01 /* NotchPreview.swift */; };
 		7B5000000000000000000172 /* BoringNotchWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000171 /* BoringNotchWindow.swift */; };
 		7B5000000000000000000162 /* NotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000161 /* NotchShape.swift */; };
+		7B5000000000000000000168 /* NotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000161 /* NotchShape.swift */; };
 		7B5000000000000000000152 /* NotchPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000151 /* NotchPanelController.swift */; };
 		7B5000000000000000000142 /* LiveIslandStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000141 /* LiveIslandStyle.swift */; };
 		7B5000000000000000000132 /* NotchIslandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000000131 /* NotchIslandView.swift */; };
@@ -4276,6 +4277,7 @@
 				FA3200000000000000000013 /* WidgetMotionSpec.swift in Sources */,
 				FA3200000000000000000033 /* WidgetMotionAnimation.swift in Sources */,
 				FA33A0000000000000000033 /* NotchContinuousMaskShape.swift in Sources */,
+				7B5000000000000000000168 /* NotchShape.swift in Sources */,
 				FA33A0000000000000000053 /* NotchSectionPaging.swift in Sources */,
 				FA33A0000000000000000063 /* NotchGestureSupport.swift in Sources */,
 				FA33A0000000000000000083 /* AgentUsageModels.swift in Sources */,

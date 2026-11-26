@@ -4,25 +4,34 @@ import SwiftUI
 /// next event or the empty state.
 struct NotchCalendarPanel: View {
     @ObservedObject var calendar: CalendarService
+    var onExpand: (() -> Void)?
 
     var body: some View {
-        let now = Date()
+        let date = calendar.selectedDate
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(verbatim: now.formatted(.dateTime.month(.abbreviated))).font(.system(size: 18, weight: .bold, design: .rounded))
-                    Text(verbatim: now.formatted(.dateTime.year())).font(.system(size: 12)).foregroundStyle(.white.opacity(0.6))
+                    Text(verbatim: date.formatted(.dateTime.month(.abbreviated))).font(.system(size: 18, weight: .bold, design: .rounded))
+                    Text(verbatim: date.formatted(.dateTime.year())).font(.system(size: 12)).foregroundStyle(.white.opacity(0.6))
                 }
                 Spacer()
+                if let onExpand {
+                    Button(action: onExpand) {
+                        Image(systemName: "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 9, weight: .semibold))
+                            .frame(width: 26, height: 20)
+                            .background(Capsule().fill(.white.opacity(0.10)))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Calendar"))
+                    .help(Text("Open Details"))
+                }
             }
-            weekStrip(now)
-            events(now)
+            weekStrip(date)
+            events(for: date)
             Spacer(minLength: 0)
         }
-        .onAppear {
-            if calendar.eventsAccess == .unknown { calendar.start() }
-            if !Foundation.Calendar.current.isDateInToday(calendar.selectedDate) { calendar.selectedDate = Date() }
-        }
+        .onAppear { calendar.startEvents(requestAccess: false) }
     }
 
     private func weekStrip(_ now: Date) -> some View {
@@ -42,9 +51,17 @@ struct NotchCalendarPanel: View {
     }
 
     @ViewBuilder
-    private func events(_ now: Date) -> some View {
-        let upcoming = calendar.events.filter { $0.isAllDay || $0.end > now }
-        if let next = upcoming.first {
+    private func events(for date: Date) -> some View {
+        let isToday = Calendar.current.isDateInToday(date)
+        let now = Date()
+        let upcoming = calendar.events.filter { !isToday || $0.isAllDay || $0.end > now }
+        if calendar.eventsAccess == .unknown {
+            Button("Connect Calendar") { calendar.startEvents() }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+        } else if calendar.eventsAccess == .denied {
+            Text("Calendar access is off").font(.system(size: 11)).foregroundStyle(.secondary)
+        } else if let next = upcoming.first {
             HStack(spacing: 8) {
                 RoundedRectangle(cornerRadius: 2).fill(next.color).frame(width: 3, height: 30)
                 VStack(alignment: .leading, spacing: 1) {
@@ -57,10 +74,8 @@ struct NotchCalendarPanel: View {
             }
         } else {
             HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("No events today").font(.system(size: 12, weight: .semibold))
-                    Text("Enjoy your free time!").font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
-                }
+                (isToday ? Text("No events today") : Text("No events"))
+                    .font(.system(size: 12, weight: .semibold))
                 Spacer(minLength: 0)
                 Image(systemName: "calendar").font(.system(size: 22)).foregroundStyle(.white.opacity(0.4))
             }

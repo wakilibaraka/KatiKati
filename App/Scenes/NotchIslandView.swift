@@ -10,6 +10,24 @@ import UniformTypeIdentifiers
 // transport/progress, or the event headline. The window itself is sized by `NotchPanelController`; this
 // view just fills it.
 
+extension NotchOpenAnimation {
+    var contentTransition: AnyTransition {
+        switch self {
+        case .boring:
+            // Boring Notch's content transition at b7611bb, paired with its separate shell springs.
+            return .scale(scale: 0.8, anchor: .top)
+                .combined(with: .opacity)
+                .animation(.smooth(duration: 0.35))
+        case .liquid:
+            return .scale(scale: 0.94, anchor: .top).combined(with: .opacity)
+        case .snap:
+            return .opacity
+        case .bounce:
+            return .scale(scale: 0.92, anchor: .top).combined(with: .opacity)
+        }
+    }
+}
+
 @MainActor
 final class NotchModel: ObservableObject {
     /// Driven by `NotchPanelController`'s hover state machine (not by SwiftUI hover, which fed back into
@@ -20,18 +38,14 @@ final class NotchModel: ObservableObject {
     @Published var islandBridge: IslandLiveBridge?
     /// 0...1 lift of the music glow; the controller sets 1 on a track change and eases it back (50d).
     @Published var glowBoost = 0.0
-    @Published var showsPagePicker = false
-    @Published var activePage: NotchPage = .audioDeck
+    @Published var activePage: NotchPage = .home
     /// Last paging direction (+1 forward, -1 back); drives the slide edge in `NotchHomeView`.
     @Published var pageDirection = 1
     /// Slice DN-1/DN-2: Priority-ordered queue for transient hardware HUDs and live activities.
     @Published var activityQueue = NotchActivityQueue(maxItems: 8)
     @Published var isDropTargeted = false
     weak var shelfStore: ShelfStore?
-    var activeHUDItem: NotchActivityItem? {
-        guard let top = activityQueue.current, top.level != nil else { return nil }
-        return top
-    }
+    var activeHUDItem: NotchActivityItem? { activityQueue.items.first { $0.level != nil } }
     var isExpanded: Bool { isOpen || event != nil }
     /// Shape sizes, set by the controller (closed width grows with the activity "sneak"). The window is
     /// as large as the larger of the two while a transition runs, so the shape animates inside it.
@@ -42,14 +56,16 @@ final class NotchModel: ObservableObject {
     var openSettings: () -> Void = {}
     /// Set by the controller: open the notch now (the click-to-open mode).
     var requestOpen: () -> Void = {}
+    var requestShelf: () -> Void = {}
+    var stageDraggedItems: () -> Bool = { false }
 
     func stepPage(forward: Bool) {
         pageDirection = forward ? 1 : -1
         let tp = NotchPage.isEnabled(TeleprompterModel.enabledKey)
         let mirror = NotchPage.isEnabled(CameraMirrorService.enabledKey)
         activePage = forward
-            ? activePage.next(wrap: true, teleprompter: tp, mirror: mirror)
-            : activePage.previous(wrap: true, teleprompter: tp, mirror: mirror)
+            ? activePage.navigationPage.next(wrap: true, teleprompter: tp, mirror: mirror)
+            : activePage.navigationPage.previous(wrap: true, teleprompter: tp, mirror: mirror)
     }
 
     /// Direct jumps (header icons, dots, context menu) animate toward the target page.
@@ -57,7 +73,7 @@ final class NotchModel: ObservableObject {
         let tp = NotchPage.isEnabled(TeleprompterModel.enabledKey)
         let mirror = NotchPage.isEnabled(CameraMirrorService.enabledKey)
         pageDirection = NotchPageDirection.between(
-            from: activePage, to: page,
+            from: activePage.navigationPage, to: page.navigationPage,
             visible: NotchPage.visible(teleprompter: tp, mirror: mirror))
         activePage = page
     }
@@ -75,6 +91,7 @@ struct NotchIslandView: View {
     @AppStorage(NotchOpenAnimation.defaultsKey) private var openAnimation = NotchOpenAnimation.boring.rawValue
     @AppStorage(NotchSizePreset.outlineKey) private var showOutline = false
     @AppStorage(NotchSizePreset.translucentKey) private var translucent = false
+    @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
     @AppStorage(NotchMusicGlow.defaultsKey) private var glowStyle = NotchMusicGlow.default.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// NS-2: the stored plate look, read straight from defaults so Settings repaints the notch live.
@@ -100,17 +117,6 @@ struct NotchIslandView: View {
         feed.detectedMeetingPlatform
     }
 
-    private func openTransition(_ style: NotchOpenAnimation) -> AnyTransition {
-        switch style.reveal {
-        case .fade: return .opacity
-        case .pour:
-            return AnyTransition.modifier(active: LiquidBlur(amount: 8), identity: LiquidBlur(amount: 0))
-                .combined(with: .scale(scale: 0.92, anchor: .top)).combined(with: .opacity)
-        case .drop: return .scale(scale: 0.96, anchor: .top).combined(with: .opacity)
-        case .pop: return .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
-        }
-    }
-
     /// The closed chips only fade: blur or scale on a 32pt strip reads as a jump.
     private static let closedFade = AnyTransition.opacity
 
@@ -132,6 +138,13 @@ struct NotchIslandView: View {
     var body: some View {
         notchContent
             .environment(\.colorScheme, plateContentScheme)
+            .onDrop(of: [.fileURL, .url, .plainText], isTargeted: $model.isDropTargeted) { _ in
+                model.stageDraggedItems()
+            }
+            .onChange(of: model.isDropTargeted) { _, targeted in
+                let autoOpen = UserDefaults.standard.object(forKey: ShelfPolicy.notchAutoOpenOnDragKey) as? Bool ?? true
+                if targeted, autoOpen { model.requestShelf() }
+            }
     }
 
     @ViewBuilder
@@ -174,8 +187,9 @@ struct NotchIslandView: View {
         let spring = expanded ? style.openSpring : style.closeSpring
         let motion: Animation = reduceMotion
             ? .easeInOut(duration: NotchMotionSpec.reducedMotionDuration)
-            : .spring(response: spring.response, dampingFraction: spring.dampingRatio)
+            : .spring(response: spring.response, dampingFraction: spring.dampingRatio, blendDuration: 0)
         let size = expanded ? model.openSize : model.closedSize
+        let reveal = reduceMotion ? AnyTransition.opacity : style.contentTransition
         let surface = surfaceAppearance.effectiveAppearance(
             isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
         )
@@ -214,9 +228,9 @@ struct NotchIslandView: View {
                         .frame(width: full.width, height: full.height, alignment: .top)
                         .scaleEffect(scale, anchor: .top)
                         .frame(width: full.width * scale, height: full.height * scale, alignment: .top)
-                        .transition(model.skin == .boring || reduceMotion ? .identity : openTransition(style))
+                        .transition(reveal)
                 } else {
-                    openContent(activity).padding(.horizontal, 24).transition(openTransition(style))
+                    openContent(activity).padding(.horizontal, 24).transition(reveal)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -225,15 +239,6 @@ struct NotchIslandView: View {
         .clipShape(maskShape)
         .contentShape(Rectangle())
         .onTapGesture { if !expanded { model.requestOpen() } }
-        .onDrop(of: [.fileURL, .plainText, .url], isTargeted: $model.isDropTargeted) { providers in
-            handleNotchDrop(providers)
-        }
-        .onChange(of: model.isDropTargeted) { _, targeted in
-            let autoOpen = UserDefaults.standard.object(forKey: ShelfPolicy.notchAutoOpenOnDragKey) as? Bool ?? true
-            guard targeted, autoOpen else { return }
-            if !model.isExpanded { model.requestOpen() }
-            if model.activePage != .shelf { model.goToPage(.shelf) }
-        }
         .contextMenu {
             Section {
                 ForEach(NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)) { page in
@@ -244,7 +249,7 @@ struct NotchIslandView: View {
                     } label: {
                         HStack {
                             Text(page.title)
-                            if model.activePage == page {
+                            if model.activePage.navigationPage == page {
                                 Image(systemName: "checkmark")
                             }
                         }
@@ -272,53 +277,8 @@ struct NotchIslandView: View {
         .animation(motion, value: expanded)
         .animation(motion, value: model.closedSize)
         .animation(motion, value: model.activeHUDItem?.id)
-        .animation(reduceMotion ? nil : .interpolatingSpring(stiffness: 240, damping: 26), value: calculatedLayout.bottomCornerRadius)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .colorScheme(.dark)
-    }
-
-    private func handleNotchDrop(_ providers: [NSItemProvider]) -> Bool {
-        let store = model.shelfStore ?? AppDelegate.shared?.shelfStore
-        var accepted = false
-        for p in providers {
-            if p.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-                accepted = true
-                _ = p.loadObject(ofClass: URL.self) { u, _ in
-                    guard let u else { return }
-                    DispatchQueue.main.async {
-                        store?.stash(paths: [u.path])
-                        DroppyFileTrayStore().add(urls: [u])
-                        if !model.isExpanded { model.requestOpen() }
-                        model.goToPage(.shelf)
-                    }
-                }
-            } else if p.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                accepted = true
-                _ = p.loadObject(ofClass: URL.self) { u, _ in
-                    guard let u else { return }
-                    DispatchQueue.main.async {
-                        if let fileURL = store?.stashText(u.absoluteString, suggestedName: u.host) {
-                            DroppyFileTrayStore().add(urls: [fileURL])
-                        }
-                        if !model.isExpanded { model.requestOpen() }
-                        model.goToPage(.shelf)
-                    }
-                }
-            } else if p.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                accepted = true
-                _ = p.loadObject(ofClass: String.self) { s, _ in
-                    guard let s else { return }
-                    DispatchQueue.main.async {
-                        if let fileURL = store?.stashText(s) {
-                            DroppyFileTrayStore().add(urls: [fileURL])
-                        }
-                        if !model.isExpanded { model.requestOpen() }
-                        model.goToPage(.shelf)
-                    }
-                }
-            }
-        }
-        return accepted
     }
 
     // MARK: Closed — glyph left of the notch, value right of it
@@ -382,10 +342,12 @@ struct NotchIslandView: View {
                         }
                     }
                     .frame(width: 28, height: 4)
-                    Text(verbatim: "\(Int(round(level * 100)))%")
-                        .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
-                        .foregroundStyle(.white.opacity(0.85))
-                        .lineLimit(1)
+                    if showHUDPercentage {
+                        Text(level, format: .percent.precision(.fractionLength(0)))
+                            .font(.system(size: 10, weight: .semibold, design: .rounded).monospacedDigit())
+                            .foregroundStyle(.white.opacity(0.85))
+                            .lineLimit(1)
+                    }
                 }
                 .frame(width: NotchGeometry.sneakSide - 6, alignment: .trailing)
             }

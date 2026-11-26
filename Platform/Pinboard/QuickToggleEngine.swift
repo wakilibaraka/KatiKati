@@ -276,8 +276,16 @@ enum DisplayServicesBrightness {
     static func set(_ level: Double, for id: CGDirectDisplayID) {
         guard id != 0, let h = handle, let sym = dlsym(h, "DisplayServicesSetBrightness") else { return }
         let clamped = min(1, max(0, level))
-        _ = unsafeBitCast(sym, to: SetFn.self)(id, Float(clamped))
-        NotificationCenter.default.post(name: Notification.Name("com.katikati.displayBrightnessChanged"), object: clamped)
+        guard unsafeBitCast(sym, to: SetFn.self)(id, Float(clamped)) == 0 else { return }
+        DisplayServicesBrightness.postChange(clamped, for: id)
+    }
+
+    static func postChange(_ level: Double, for displayID: CGDirectDisplayID) {
+        NotificationCenter.default.post(
+            name: Notification.Name("com.katikati.displayBrightnessChanged"),
+            object: level,
+            userInfo: ["displayID": displayID]
+        )
     }
 }
 

@@ -141,7 +141,9 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
 
     // MARK: - LiveEventSink (transient alert expansion)
 
-    func show(_ event: LiveEvent) {
+    func show(_ event: LiveEvent) { show(event, onOpen: nil) }
+
+    func show(_ event: LiveEvent, onOpen: (() -> Void)?) {
         let presentation = LiveEventPresentation(event)
         let id = ActivityID.hud
         let views = IslandPresets.systemHUD(
@@ -149,7 +151,8 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
             subtitle: presentation.detail,
             systemImage: presentation.symbol,
             progress: nil,
-            accent: IslandTheme.Accent.sky
+            accent: IslandTheme.Accent.sky,
+            onOpen: onOpen
         )
         registry.register(id: id, views: views)
         driver.store.start(
@@ -161,6 +164,38 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
             )
         )
         scheduleEnd(id: id, afterSeconds: 4.5)
+    }
+
+    func showHardwareHUD(id: String, icon: String, title: String, level: Double) {
+        let showsPercentage = UserDefaults.standard.object(forKey: NotchHUDPresentation.showPercentageKey) as? Bool ?? true
+        let subtitle = showsPercentage ? level.formatted(.percent.precision(.fractionLength(0))) : nil
+        registry.register(id: id, views: IslandPresets.systemHUD(title: title, subtitle: subtitle, systemImage: icon, progress: level))
+        driver.store.start(IslandActivitySpec(id: id, label: title, priority: 9, alert: true))
+        scheduleEnd(id: id, afterSeconds: 1.5)
+    }
+
+    private static let pagesPlaceholderID = "katikati.pages"
+
+    func openPages() {
+        if driver.snapshot.expanded == nil {
+            if driver.snapshot.activities.isEmpty {
+                let id = Self.pagesPlaceholderID
+                let title = String(localized: "Notch Pages")
+                registry.register(id: id, views: IslandPresets.systemHUD(title: title, subtitle: nil, systemImage: "square.grid.2x2"))
+                driver.store.start(IslandActivitySpec(id: id, label: title, priority: 0))
+                driver.store.expand(id)
+            } else {
+                driver.store.expand()
+            }
+        }
+        driver.isShowingBentoSuite = true
+    }
+
+    func removePagesPlaceholder() {
+        let id = Self.pagesPlaceholderID
+        guard driver.snapshot.expanded == nil, driver.snapshot.activities.contains(where: { $0.id == id }) else { return }
+        driver.store.end(id)
+        registry.unregister(id: id)
     }
 
     // MARK: - Reactive Sync Handlers

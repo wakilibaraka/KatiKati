@@ -87,9 +87,10 @@ final class NotchHoverMachineTests: XCTestCase {
 
     func testNotchPagesNeverIncludeTheNotificationInbox() {
         let pages = NotchPage.visible()
-        XCTAssertEqual(pages.count, 7, "music, calendar, and the remaining core pages are active")
-        XCTAssertEqual(pages.first, .audioDeck)
-        XCTAssertEqual(pages.last, .keepAwake)
+        XCTAssertEqual(pages.count, 7)
+        XCTAssertEqual(Array(pages.prefix(2)), [.home, .shelf])
+        XCTAssertFalse(pages.contains(.audioDeck))
+        XCTAssertFalse(pages.contains(.calendar))
         XCTAssertTrue(pages.contains(.peripherals))
         XCTAssertEqual(NotchPage.peripherals.symbol, "airpodspro")
         XCTAssertFalse(pages.map(\.symbol).contains("bell.fill"), "the inbox moved to the Side Deck (SD-1)")
@@ -101,7 +102,7 @@ final class NotchHoverMachineTests: XCTestCase {
         XCTAssertFalse(NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d))
         d.set(NotchPage.calendar.rawValue, forKey: NotchPagingPolicy.pinnedDefaultPageKey)
         XCTAssertEqual(NotchPagingPolicy.storedPinnedPage(d), .calendar)
-        XCTAssertEqual(NotchPagingPolicy.defaultPage(nowPlayingActive: true, aiTurnActive: false, userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)), .calendar)
+        XCTAssertEqual(NotchPagingPolicy.defaultPage(aiTurnActive: false, userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)), .home)
     }
 
     func testRestContentSingleItemsSplitSymmetrically() {

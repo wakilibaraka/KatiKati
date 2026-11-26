@@ -42,6 +42,6 @@ final class CameraMirrorTests: XCTestCase {
         XCTAssertEqual(NotchPage.studioHub.next(teleprompter: false, mirror: true), .cameraMirror)
         XCTAssertEqual(NotchPage.cameraMirror.next(teleprompter: false, mirror: true), .keepAwake)
         XCTAssertEqual(NotchPage.cameraMirror.previous(teleprompter: false, mirror: true), .studioHub)
-        XCTAssertEqual(NotchPage.cameraMirror.next(teleprompter: false, mirror: false), .audioDeck)
+        XCTAssertEqual(NotchPage.cameraMirror.next(teleprompter: false, mirror: false), .home)
     }
 }

@@ -16,6 +16,9 @@ struct NotchHeaderView: View {
     /// 59d: the battery card hangs under the chip, over the page area. Read-only, so it never takes a
     /// click the page wanted; the chip's own tap toggles it.
     @State private var showsBatteryDetail = false
+    @AppStorage(NotchHUDPresentation.showWhenOpenKey) private var showOpenHUD = true
+    @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var pages: [NotchPage] {
         NotchPage.visible(teleprompter: teleprompterPage, mirror: cameraMirrorPage)
@@ -23,15 +26,38 @@ struct NotchHeaderView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            pagePill
-            Spacer(minLength: metrics.closedSize.width)
+            ViewThatFits(in: .horizontal) {
+                pageIcons.fixedSize(horizontal: true, vertical: false)
+                ScrollView(.horizontal) { pageIcons }
+                    .scrollIndicators(.hidden)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if metrics.hasHardwareNotch {
+                Color.clear.frame(width: metrics.closedSize.width).accessibilityHidden(true)
+            }
             HStack(spacing: 6) {
-                volume
-                if let level = power.status.battery.level {
-                    battery(level)
+                if pages.contains(.cameraMirror) { tab(.cameraMirror) }
+                if showOpenHUD, let hud = model.activeHUDItem, let level = hud.level {
+                    Label {
+                        ProgressView(value: level)
+                            .progressViewStyle(.linear)
+                            .frame(width: 38)
+                    } icon: {
+                        Image(systemName: hud.icon)
+                    }
+                    .font(.system(size: 11, weight: .semibold))
+                    .accessibilityLabel(Text(verbatim: hud.title))
+                    if showHUDPercentage {
+                        Text(level, format: .percent.precision(.fractionLength(0)))
+                            .font(.system(size: 10, weight: .semibold).monospacedDigit())
+                    }
+                } else {
+                    volume
+                    if let level = power.status.battery.level { battery(level) }
                 }
                 gearButton
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .foregroundStyle(.white)
         .frame(height: NotchLayoutSpec.headerHeight(closedHeight: metrics.closedSize.height))
@@ -39,44 +65,32 @@ struct NotchHeaderView: View {
         .onDisappear { power.release() }
     }
 
-    /// One capsule for the whole roster: the active page's glyph and name, a chevron, and a menu holding
-    /// every visible page in paging order. The title is still and shrinks before it truncates.
-    private var pagePill: some View {
-        Menu {
-            ForEach(pages) { page in
-                Button {
-                    withAnimation(.spring(response: NotchMotionSpec.pageStepSpring.response,
-                                          dampingFraction: NotchMotionSpec.pageStepSpring.dampingRatio)) {
-                        model.goToPage(page)
-                    }
-                } label: {
-                    Label(page.title, systemImage: model.activePage == page ? "checkmark" : page.symbol)
-                }
-            }
-        } label: {
-            HStack(spacing: NotchPageChrome.pillSpacing) {
-                Image(systemName: model.activePage.symbol)
-                    .font(.system(size: NotchPageChrome.pillIcon, weight: .semibold))
-                Text(verbatim: model.activePage.title)
-                    .font(.system(size: NotchPageChrome.pillTitleSize, weight: .semibold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-                    .frame(maxWidth: NotchPageChrome.pillMaxTitleWidth, alignment: .leading)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: NotchPageChrome.pillChevron, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.45))
-            }
-            .foregroundStyle(.white)
-            .padding(.horizontal, NotchPageChrome.pillHorizontalPadding)
-            .frame(height: NotchPageChrome.pillHeight)
-            .background(Capsule().fill(Color.white.opacity(0.12)))
-            .overlay(Capsule().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
-            .fixedSize()
+    private func tab(_ page: NotchPage) -> some View {
+        let selected = model.activePage.navigationPage == page
+        return Button { select(page) } label: {
+            Image(systemName: page.symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: page == .cameraMirror ? 24 : 26, height: 26)
+                .background(Capsule().fill(Color.white.opacity(selected ? 0.16 : 0)))
+                .foregroundStyle(selected ? .white : .secondary)
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize()
-        .help(Text(verbatim: "Switch notch page"))
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text(verbatim: page.title))
+        .help(Text(verbatim: page.title))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    private var pageIcons: some View {
+        HStack(spacing: 2) {
+            ForEach(pages.filter { $0 != .cameraMirror }) { page in tab(page) }
+        }
+    }
+
+    private func select(_ page: NotchPage) {
+        let spring = NotchMotionSpec.pageStepSpring
+        withAnimation(reduceMotion ? .easeOut(duration: 0.15) : .spring(response: spring.response, dampingFraction: spring.dampingRatio)) {
+            model.goToPage(page)
+        }
     }
 
     private func battery(_ level: Int) -> some View {

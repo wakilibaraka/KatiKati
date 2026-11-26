@@ -26,7 +26,7 @@ struct NotchAIPageView: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.white)
                     }
-                    Text(verbatim: snapshot.activeTurn?.model ?? snapshot.lastMeasuredModel ?? "No AI activity today")
+                    Text(verbatim: snapshot.activeTurn?.isActive == true ? (snapshot.activeTurn?.model ?? String(localized: "Active")) : String(localized: "Idle"))
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .lineLimit(1)
@@ -40,19 +40,17 @@ struct NotchAIPageView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Capsule().fill(Color.green.opacity(0.15)))
-                    } else {
-                        Text(verbatim: "IDLE").font(.system(size: 9, weight: .heavy)).foregroundStyle(.white.opacity(0.4))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.white.opacity(0.06)))
                     }
                 }
 
                 // Token velocity readout — measured rows only; no rows means no number, not a zero.
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayTokens)
-                        .font(.system(size: 26, weight: .heavy, design: .rounded))
-                        .foregroundStyle(snapshot.providerToday.isEmpty ? Color.white.opacity(0.3) : .white)
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(verbatim: snapshot.providerToday.isEmpty ? "—" : snapshot.formattedTodayTokens)
+                            .font(.system(size: 26, weight: .heavy, design: .rounded))
+                            .foregroundStyle(snapshot.providerToday.isEmpty ? Color.white.opacity(0.3) : .white)
+                        Text("Tokens today").font(.system(size: 10)).foregroundStyle(.secondary)
+                    }
                     Text(verbatim: sourceCaption(snapshot))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
@@ -85,7 +83,7 @@ struct NotchAIPageView: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.white)
                     }
-                    Text(verbatim: "AI Spend")
+                    Text("AI spend today")
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Spacer(minLength: 4)

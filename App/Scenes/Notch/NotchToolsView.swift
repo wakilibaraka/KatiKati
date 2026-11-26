@@ -1,19 +1,20 @@
 import AppKit
 import SwiftUI
-import UniformTypeIdentifiers
 
 /// Studio Hub / Droppy Shelf tab: renders user-configured shelf widgets (File Tray, Pomodoro Focus,
 /// Clipboard + Quick Note, System Stats) with Dynamic Glass / Liquid Glass / Solid OLED card chrome.
 struct NotchToolsView: View {
+    let isDropTargeted: Bool
     private let services = ProductivityServices.shared
 
     var body: some View {
-        DroppyShelfView(services: services)
+        DroppyShelfView(services: services, isDropTargeted: isDropTargeted)
     }
 }
 
 struct DroppyShelfView: View {
     let services: ProductivityServices
+    let isDropTargeted: Bool
     @AppStorage(DroppyShelfConfigStore.orderKey) private var orderRaw = ""
     @AppStorage(DroppyShelfConfigStore.hiddenKey) private var hiddenRaw = DroppyShelfConfigStore.encodeHidden(DroppyShelfConfigStore.defaultHidden)
     @AppStorage(DroppyShelfConfigStore.glassKey) private var glassRaw = DroppyGlassMaterial.dynamicGlass.rawValue
@@ -68,7 +69,7 @@ struct DroppyShelfView: View {
     private func widgetBody(for kind: DroppyShelfWidgetKind) -> some View {
         switch kind {
         case .fileTray:
-            DroppyFileTrayView(accentColor: accentColor)
+            DroppyFileTrayView(accentColor: accentColor, isDropTargeted: isDropTargeted)
         case .pomodoro:
             NotchFocusCard(focus: services.focus, timer: services.timer)
         case .clipboardNotes:
@@ -104,12 +105,15 @@ private enum NotchToolsFallbackShelf {
 
 struct DroppyFileTrayView: View {
     let accentColor: Color
-    @StateObject private var tray = DroppyFileTrayStore()
+    var expanded = false
+    let isDropTargeted: Bool
+    @ObservedObject private var tray = DroppyFileTrayStore.shared
     @ObservedObject private var shelfStore = AppDelegate.shared?.shelfStore ?? NotchToolsFallbackShelf.shared
     @AppStorage(ShelfPolicy.syncNotchTrayKey) private var syncNotchTray = true
-    @State private var isDropTargeted = false
     @State private var isBusy = false
     @State private var statusText: String?
+    @State private var selection = Set<String>()
+    @State private var selectionAnchor: String?
 
     private struct TrayEntry: Identifiable {
         let id: String
@@ -133,10 +137,12 @@ struct DroppyFileTrayView: View {
                 Image(systemName: "tray.and.arrow.down.fill")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(accentColor)
-                Text("File Tray")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.75))
-                    .lineLimit(1)
+                if !expanded {
+                    Text("File Tray")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.75))
+                        .lineLimit(1)
+                }
                 if !items.isEmpty {
                     Text(verbatim: "\(items.count)")
                         .font(.system(size: 9, weight: .bold, design: .rounded).monospacedDigit())
@@ -169,9 +175,15 @@ struct DroppyFileTrayView: View {
             if items.isEmpty {
                 VStack(spacing: 4) {
                     Spacer(minLength: 0)
-                    Image(systemName: "arrow.down.doc")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(isDropTargeted ? accentColor : .white.opacity(0.45))
+                    Image(systemName: expanded ? "tray.and.arrow.down" : "arrow.down.doc")
+                        .font(.system(size: expanded ? 20 : 15, weight: .medium))
+                        .foregroundStyle(isDropTargeted || expanded ? accentColor : .white.opacity(0.45))
+                        .frame(width: expanded ? 42 : nil, height: expanded ? 34 : nil)
+                        .background {
+                            if expanded {
+                                RoundedRectangle(cornerRadius: 9).fill(accentColor.opacity(isDropTargeted ? 0.22 : 0.10))
+                            }
+                        }
                     Text(verbatim: isDropTargeted ? "Release to stage" : "Drop files or click +")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.55))
@@ -181,7 +193,11 @@ struct DroppyFileTrayView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                        .fill(expanded ? accentColor.opacity(isDropTargeted ? 0.12 : 0.035) : .clear)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                        }
                         .foregroundStyle(isDropTargeted ? accentColor : .white.opacity(0.18))
                 )
             } else {
@@ -192,9 +208,20 @@ struct DroppyFileTrayView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 58)
+                .frame(maxHeight: expanded ? 68 : 58)
                 Spacer(minLength: 0)
                 HStack(spacing: 4) {
+                    if expanded {
+                        let picked = items.filter { selection.contains($0.id) }
+                        Button("Quick Look") {
+                            if let item = picked.first { ShelfCardQuickActions.quickLook(path: item.path) }
+                        }
+                        .disabled(picked.count != 1)
+                        Button("Share") { ShelfActions.share(picked.map(\.url)) }
+                            .disabled(picked.isEmpty)
+                        Button("AirDrop") { ShelfActions.airDrop(picked.map(\.url)) }
+                            .disabled(picked.isEmpty)
+                    }
                     transformChip("Zip") { runTransform(.zip) }
                     if items.contains(where: { FileTransformPlan.canRemoveBackground(for: $0.url) }) {
                         transformChip("Resize") { runTransform(.resize) }
@@ -220,32 +247,35 @@ struct DroppyFileTrayView: View {
                             .lineLimit(1)
                     }
                 }
+                .controlSize(.small)
             }
         }
         .foregroundStyle(.white)
-        .onDrop(of: [.fileURL, .plainText, .url], isTargeted: $isDropTargeted) { providers in
-            handleDrop(providers)
-        }
+        .onChange(of: items.map(\.id)) { _, ids in selection.formIntersection(ids) }
     }
 
     private func trayPill(_ item: TrayEntry) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 4) {
-                Image(nsImage: FolderIconResolver.resolve(item.path, size: 20))
+                Image(nsImage: FolderIconResolver.resolve(item.path, size: expanded ? 32 : 20))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 18, height: 18)
+                    .frame(width: expanded ? 28 : 18, height: expanded ? 28 : 18)
                 Spacer(minLength: 0)
                 Button { togglePin(item) } label: {
                     Image(systemName: item.isPinned ? "pin.fill" : "pin")
                         .font(.system(size: 8))
                         .foregroundStyle(item.isPinned ? accentColor : .white.opacity(0.55))
-                }.buttonStyle(.plain)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(item.isPinned ? Text("Unpin") : Text("Pin"))
                 Button { removeEntry(item) } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(.white.opacity(0.45))
-                }.buttonStyle(.plain)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Remove from Shelf"))
             }
             Text(verbatim: item.fileName)
                 .font(.system(size: 9.5, weight: .medium))
@@ -254,10 +284,43 @@ struct DroppyFileTrayView: View {
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 5)
-        .frame(width: 96, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white.opacity(0.09)))
-        .onTapGesture { NSWorkspace.shared.open(item.url) }
+        .frame(width: expanded ? 122 : 96, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
+            .fill(selection.contains(item.id) ? accentColor.opacity(0.35) : Color.white.opacity(0.09)))
+        .contentShape(Rectangle())
+        .onTapGesture(count: 2) { NSWorkspace.shared.open(item.url) }
+        .onTapGesture {
+            if expanded { select(item) } else { NSWorkspace.shared.open(item.url) }
+        }
+        .accessibilityAddTraits(selection.contains(item.id) ? .isSelected : [])
+        .accessibilityAction(named: Text("Open")) { NSWorkspace.shared.open(item.url) }
         .onDrag { FileDragItemProvider.make(for: item.url) }
+        .contextMenu {
+            Button("Open") { NSWorkspace.shared.open(item.url) }
+            Button("Quick Look") { ShelfCardQuickActions.quickLook(path: item.path) }
+            Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([item.url]) }
+            Button("Share") { ShelfActions.share([item.url]) }
+            Button("AirDrop") { ShelfActions.airDrop([item.url]) }
+            Divider()
+            Button(item.isPinned ? "Unpin" : "Pin") { togglePin(item) }
+            Button("Remove from Shelf") { removeEntry(item) }
+        }
+    }
+
+    private func select(_ item: TrayEntry) {
+        let flags = NSEvent.modifierFlags
+        if flags.contains(.shift),
+           let anchor = entries.firstIndex(where: { $0.id == selectionAnchor }),
+           let end = entries.firstIndex(where: { $0.id == item.id }) {
+            selection.formUnion(entries[min(anchor, end)...max(anchor, end)].map(\.id))
+        } else {
+            if flags.contains(.command) {
+                if selection.remove(item.id) == nil { selection.insert(item.id) }
+            } else {
+                selection = [item.id]
+            }
+            selectionAnchor = item.id
+        }
     }
 
     private func togglePin(_ entry: TrayEntry) {
@@ -292,34 +355,6 @@ struct DroppyFileTrayView: View {
             if !syncNotchTray { tray.add(urls: panel.urls) }
             shelfStore.stash(paths: panel.urls.map(\.path))
         }
-    }
-
-    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
-        var accepted = false
-        for provider in providers {
-            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-                accepted = true
-                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
-                    let url: URL? = (item as? URL) ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
-                    guard let url else { return }
-                    DispatchQueue.main.async {
-                        if !syncNotchTray { tray.add(urls: [url]) }
-                        shelfStore.stash(paths: [url.path])
-                    }
-                }
-            } else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                accepted = true
-                _ = provider.loadObject(ofClass: String.self) { text, _ in
-                    guard let text else { return }
-                    DispatchQueue.main.async {
-                        if let fileURL = shelfStore.stashText(text), !syncNotchTray {
-                            tray.add(urls: [fileURL])
-                        }
-                    }
-                }
-            }
-        }
-        return accepted
     }
 
     private enum TransformKind { case zip, resize, pdf }

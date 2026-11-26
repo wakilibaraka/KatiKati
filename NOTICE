@@ -71,10 +71,10 @@ This project is derived from and incorporates code from the following works:
 - Copyright (C) 2024-2026 The Boring Team and contributors (NotchShape: Kai Azim / DynamicNotchKit, modified)
 - License: GNU General Public License v3.0 (GPL-3.0) — full text in `Vendor/boring.notch/LICENSE`
 - Description: Two files are copied **verbatim** and pinned in `Vendor/boring.notch/MANIFEST.txt`:
-  `NotchShape.swift` (the notch outline) and `BoringNotchWindow.swift` (the panel recipe). Everything else
-  (geometry, view, controller, event routing) is KatiKati's own adapter code; boring.notch's other
-  sources need packages KatiKati does not use and were studied only. `Scripts/sync_boring_notch.sh`
-  reports upstream drift and refreshes the vendored files.
+  `NotchShape.swift` (the notch outline) and `BoringNotchWindow.swift` (the panel recipe). The Full
+  preset adapts the upstream Home and Shelf header, player/agenda composition and compact peeks
+  from commit `b7611bbf32c627a3427408fc142486900d71a23f` to KatiKati's services and display geometry.
+  `Scripts/sync_boring_notch.sh` reports upstream drift and refreshes the verbatim files.
 
 ## 12. OnlySwitch (Phase 16i & Menu Bar Creative Hub — technique & behavior studied, code re-derived)
 - Repository: https://github.com/jacklandrin/OnlySwitch

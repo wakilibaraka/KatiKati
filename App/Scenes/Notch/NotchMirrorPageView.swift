@@ -18,9 +18,12 @@ struct NotchMirrorPageView: View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
             // NP-4: the floating mic button over the preview was a second Mute next to the card's own.
             content
-                .aspectRatio(1, contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
             MeetingControlsCard(mirror: mirror, cameraName: currentName)
+                .frame(width: 174)
             meetingCheckInCard
+                .frame(width: 148)
         }
         .onAppear {
             // Only the cheap part runs before the first frame: `mirror.start()` hands the camera to its

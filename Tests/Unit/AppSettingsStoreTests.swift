@@ -502,6 +502,22 @@ final class AppSettingsStoreTests: XCTestCase {
         XCTAssertFalse(store.windowLiftEnabled)
     }
 
+    @MainActor
+    func testNotchStyleSeedPreservesExistingChoices() {
+        let fresh = makeDefaults()
+        let store = AppSettingsStore(defaults: fresh)
+        store.seedNotchStyleForFreshInstall(lineage: .pristine)
+        XCTAssertEqual(AppSettingsStore(defaults: fresh).notchSkin, .boring)
+
+        store.setNotchSkin(.liquid)
+        store.seedNotchStyleForFreshInstall(lineage: .pristine)
+        XCTAssertEqual(store.notchSkin, .liquid)
+
+        let existing = AppSettingsStore(defaults: makeDefaults())
+        existing.seedNotchStyleForFreshInstall(lineage: .priorUse)
+        XCTAssertEqual(existing.notchSkin, .liquid)
+    }
+
     /// Drag-to-edge snapping is seeded on for a fresh install (2026-11) and nowhere else: snapping
     /// moves windows the user dragged, so an upgrade never turns it on behind their back.
     @MainActor

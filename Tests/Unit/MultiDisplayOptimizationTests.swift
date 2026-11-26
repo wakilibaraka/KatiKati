@@ -298,11 +298,13 @@ final class IslandPlacementTests: XCTestCase {
         XCTAssertEqual(roles, ["A": .notch, "B": .floatingPill])
     }
 
-    func testClamshellHandoverMovesTheSameRole() {
+    func testClamshellHandoverAdaptsToDestinationRole() {
         let before = ["A": IslandRole.notch, "B": IslandRole.hidden]
         let after = ["B": IslandRole.wideBar]
-        XCTAssertFalse(IslandPlacement.handover(previous: before, current: after).isRetarget,
-                       "a notch does not become a wide bar behind the user's back")
+        let changedRole = IslandPlacement.handover(previous: before, current: after)
+        XCTAssertEqual(changedRole.movedFrom, "A")
+        XCTAssertEqual(changedRole.movedTo, "B")
+        XCTAssertEqual(changedRole.role, .wideBar)
 
         let wideBefore = ["A": IslandRole.wideBar, "B": IslandRole.hidden]
         let wideAfter = ["B": IslandRole.wideBar]

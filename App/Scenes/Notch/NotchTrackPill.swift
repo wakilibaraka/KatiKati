@@ -13,9 +13,8 @@ final class NotchTrackPillController {
     private var dismissWork: DispatchWorkItem?
     static let lifetime: TimeInterval = 3.5
 
-    func show(below closedHeight: CGFloat, content: (NotchTrackPillModel) -> AnyView) {
+    func show(below anchor: CGRect, content: (NotchTrackPillModel) -> AnyView) {
         hide(animated: false)
-        guard let screen = NSScreen.main else { return }
         let model = NotchTrackPillModel { [weak self] in self?.hide(animated: true) }
         let host = NSHostingView(rootView: content(model))
         let size = host.fittingSize
@@ -28,8 +27,8 @@ final class NotchTrackPillController {
         panel.hasShadow = false
         panel.level = .statusBar
         panel.hidesOnDeactivate = false
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
-        panel.setFrameOrigin(NSPoint(x: screen.frame.midX - size.width / 2, y: screen.frame.maxY - closedHeight - size.height - 4))
+        panel.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        panel.setFrameOrigin(NSPoint(x: anchor.midX - size.width / 2, y: anchor.minY - size.height - 4))
         panel.orderFrontRegardless()
         self.panel = panel
         self.model = model
@@ -122,7 +121,9 @@ struct NotchBatteryPillView: View {
 struct NotchEventPillView: View {
     @ObservedObject var model: NotchTrackPillModel
     let event: LiveEventPresentation
+    let onOpen: () -> Void
     @State private var drained = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var tint: Color {
         switch event.symbol {
@@ -158,6 +159,24 @@ struct NotchEventPillView: View {
                             .lineLimit(1)
                     }
                 }
+                Button {
+                    model.dismiss()
+                    onOpen()
+                } label: {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .semibold))
+                        .frame(width: 24, height: 24)
+                        .background(Circle().fill(Color.white.opacity(0.12)))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Open Details"))
+                Button(action: model.dismiss) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 9, weight: .semibold))
+                        .frame(width: 20, height: 24)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Dismiss"))
             }
             Capsule().fill(Color.white.opacity(0.14)).frame(height: 2)
                 .overlay(alignment: .leading) {
@@ -172,14 +191,15 @@ struct NotchEventPillView: View {
         .overlay(Capsule().stroke(tint.opacity(0.40), lineWidth: 1))
         .shadow(color: tint.opacity(0.30), radius: 8)
         .padding(14)
-        .scaleEffect(model.shown ? 1 : 0.5, anchor: .top)
-        .offset(y: model.shown ? 0 : -18)
+        .scaleEffect(model.shown || reduceMotion ? 1 : 0.8, anchor: .top)
+        .offset(y: model.shown || reduceMotion ? 0 : -10)
         .opacity(model.shown ? 1 : 0)
-        .contentShape(Capsule())
-        .onTapGesture { model.dismiss() }
-        .onAppear { withAnimation(.linear(duration: NotchTrackPillController.lifetime)) { drained = true } }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(verbatim: [event.headline, event.detail].compactMap { $0 }.joined(separator: " — ")))
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(.linear(duration: NotchTrackPillController.lifetime)) { drained = true }
+            }
+        }
+        .accessibilityElement(children: .contain)
     }
 }
 

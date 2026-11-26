@@ -23,14 +23,14 @@ struct NotchProductivityPageView: View {
     var body: some View {
         HStack(spacing: NotchDesignSpec.cardSpacing) {
             dateHeroCard
-                .frame(width: 248)
+                .frame(width: 232)
             agendaCard
         }
+        .frame(maxHeight: agenda.events.isEmpty ? 108 : .infinity, alignment: .top)
         .onAppear {
             // Events only: the notch's pages are built before the user opens one, so this `onAppear`
             // fires at launch and must not become a Reminders prompt.
             agenda.startEvents()
-            if !Calendar.current.isDateInToday(agenda.selectedDate) { agenda.selectedDate = Date() }
         }
     }
 

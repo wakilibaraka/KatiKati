@@ -265,6 +265,7 @@ struct DroppyFileTrayItem: Codable, Equatable, Identifiable, Sendable {
 }
 
 final class DroppyFileTrayStore: ObservableObject {
+    @MainActor static let shared = DroppyFileTrayStore()
     static let itemsKey = "com.katikati.droppy.fileTrayItems"
     @Published private(set) var items: [DroppyFileTrayItem] = []
     private let defaults: UserDefaults

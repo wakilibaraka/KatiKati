@@ -37,7 +37,7 @@ final class NotchPanelController: LiveEventSink {
     private var scheduledTickDeadline: Date?
     private var defaultsCoalesceWork: DispatchWorkItem?
     private var lastScreenFrame: CGRect?
-    private var shrinkWork: DispatchWorkItem?
+    private var pendingShrink: (frame: CGRect, work: DispatchWorkItem)?
     private weak var shelfStore: ShelfStore?
     var theme: () -> NowPlayingTheme = { .auto }
     var onOpenSettings: () -> Void = {}
@@ -69,6 +69,8 @@ final class NotchPanelController: LiveEventSink {
     /// the new screen's metrics and re-frames the panel, so an open island survives the lid closing.
     func retarget(displayID: CGDirectDisplayID, design: NotchDesign) {
         guard displayID != self.displayID || design != self.design else { return }
+        trackPill.hide(animated: false)
+        batteryPill.hide(animated: false)
         self.displayID = displayID
         self.design = design
         screensChanged()
@@ -95,6 +97,8 @@ final class NotchPanelController: LiveEventSink {
         model.collapse = { [weak self] in self?.collapse() }
         model.openSettings = { [weak self] in self?.onOpenSettings() }
         model.requestOpen = { [weak self] in self?.openByClick() }
+        model.requestShelf = { [weak self] in self?.openPage(.shelf) }
+        model.stageDraggedItems = { [weak self] in self?.stageDrop(NSPasteboard(name: .drag)) ?? false }
         syncModelSizes()
         let window = BoringNotchWindow(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.collectionBehavior.remove(.fullScreenAuxiliary)
@@ -118,9 +122,10 @@ final class NotchPanelController: LiveEventSink {
                 self?.showHardwareHUD(id: "hud.volume", icon: icon, title: volume.isMuted ? "Muted" : "Volume", level: volume.isMuted ? 0 : Double(volume.level))
             }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: Notification.Name("com.katikati.displayBrightnessChanged"))
-            .compactMap { $0.object as? Double }
-            .sink { [weak self] level in
-                self?.showHardwareHUD(id: "hud.brightness", icon: "sun.max.fill", title: "Brightness", level: level)
+            .sink { [weak self] note in
+                guard let self, let level = note.object as? Double,
+                      note.userInfo?["displayID"] as? CGDirectDisplayID == self.displayID else { return }
+                self.showHardwareHUD(id: "hud.brightness", icon: "sun.max.fill", title: "Brightness", level: level)
             }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: Notification.Name("com.katikati.keyboardBrightnessChanged"))
             .compactMap { $0.object as? Double }
@@ -183,8 +188,8 @@ final class NotchPanelController: LiveEventSink {
             guard let self, self.panel != nil else { return }
             let result = BatteryBuddyPolicy.update(alreadyLow: self.batteryLow, devices: devices)
             self.batteryLow = result.low
-            if let device = result.alerts.first, !self.model.isExpanded {
-                self.batteryPill.show(below: self.model.closedSize.height) { AnyView(NotchBatteryPillView(model: $0, device: device)) }
+            if let device = result.alerts.first, !self.model.isExpanded, let frame = self.panel?.frame {
+                self.batteryPill.show(below: frame) { AnyView(NotchBatteryPillView(model: $0, device: device)) }
             }
         }
     }
@@ -202,9 +207,10 @@ final class NotchPanelController: LiveEventSink {
         tickWork?.cancel(); tickWork = nil; scheduledTickDeadline = nil
         defaultsCoalesceWork?.cancel(); defaultsCoalesceWork = nil
         lastScreenFrame = nil
-        shrinkWork?.cancel(); shrinkWork = nil
+        pendingShrink?.work.cancel(); pendingShrink = nil
         eventWork?.cancel(); eventWork = nil
         hudExpireWork?.cancel(); hudExpireWork = nil
+        model.isDropTargeted = false
         model.event = nil; model.isOpen = false
         LiveActivityFeed.shared.isNotchExpanded = false
         hover.forceClose()
@@ -218,16 +224,16 @@ final class NotchPanelController: LiveEventSink {
     // MARK: LiveEventSink
 
     func show(_ event: LiveEvent) {
-        guard panel != nil else { return }
+        guard let panel else { return }
         if skin == .dynamicIsland {
-            islandBridge.show(event)
+            islandBridge.show(event) { [weak self] in self?.openDetails(for: event) }
             return
         }
         // 50d/50e: a new song brightens the ear glow and drops a small pill instead of opening the notch.
         if case .trackChanged = event {
             model.glowBoost = 1
             withAnimation(.easeOut(duration: 1.4)) { model.glowBoost = 0 }
-            if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: model.closedSize.height) { AnyView(NotchTrackPillView(model: $0)) } }
+            if !model.isExpanded, UserDefaults.standard.object(forKey: "com.katikati.notch.trackToast") as? Bool ?? true { trackPill.show(below: panel.frame) { AnyView(NotchTrackPillView(model: $0)) } }
             return
         }
         let presentation = LiveEventPresentation(event)
@@ -245,8 +251,35 @@ final class NotchPanelController: LiveEventSink {
             now: now
         )
         scheduleHUDExpiration()
-        if !model.isExpanded {
-            trackPill.show(below: model.closedSize.height) { AnyView(NotchEventPillView(model: $0, event: presentation)) }
+        let anchor = targetScreen().map { windowFrame(on: $0, expanded: false) } ?? panel.frame
+        trackPill.show(below: model.isExpanded ? panel.frame : anchor) { pill in
+            AnyView(NotchEventPillView(model: pill, event: presentation) { [weak self] in
+                self?.openDetails(for: event)
+            })
+        }
+    }
+
+    private func openDetails(for event: LiveEvent) {
+        switch event {
+        case .trackChanged: openPage(.audioDeck)
+        case .focusPhaseChanged, .focusCycleCompleted, .timerFinished, .stopwatchStopped:
+            openPage(.studioHub)
+        case .countdownReachedToday, .alarmDue: openPage(.calendar)
+        case .clipboardCopied, .clipboardPasted: AppDelegate.shared?.showSideDeck(.clipboard)
+        case .downloadFinished: AppDelegate.shared?.showSideDeck(.downloads)
+        case .severeWeather: AppDelegate.shared?.showSideDeck(.weather)
+        case .notice(.batteryHigh, _), .notice(.batteryFull, _): openPage(.peripherals)
+        case .notice: AppDelegate.shared?.showSideDeck(.notifications)
+        }
+    }
+
+    private func openPage(_ page: NotchPage) {
+        if skin == .dynamicIsland {
+            model.goToPage(page)
+            islandBridge.openPages()
+        } else {
+            openByClick()
+            model.goToPage(page)
         }
     }
 
@@ -274,13 +307,15 @@ final class NotchPanelController: LiveEventSink {
         let closedSize = skin == .liquid
             ? CGSize(width: max(model.closedSize.width, metrics.closedSize.width + 132), height: metrics.closedSize.height)
             : model.closedSize
-        let closed = NotchGeometry.panelFrame(size: closedSize, in: screen.frame)
+        let closed = skin == .liquid
+            ? NotchGeometry.panelFrame(size: closedSize, in: screen.frame)
+            : windowFrame(on: screen, expanded: false)
         let open = skin == .liquid
             ? NotchGeometry.panelFrame(
                 size: CGSize(width: max(model.openSize.width, 480), height: metrics.closedSize.height + 16 + max(model.openSize.height, 220)),
                 in: screen.frame
               )
-            : NotchGeometry.panelFrame(size: model.openSize, in: screen.frame)
+            : windowFrame(on: screen, expanded: true)
         let inTrigger = NotchHoverZones.trigger(closedFrame: closed).contains(cursor)
         hover.openDelay = NotchBehavior.hoverDelay()
         hover.closeDelay = NotchBehavior.closeDelay()
@@ -321,25 +356,25 @@ final class NotchPanelController: LiveEventSink {
     private func applyOpenState() {
         if hover.isOpen && !model.isOpen {
             if NotchBehavior.haptic() { NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now) }
-            let nowPlaying = LiveActivityFeed.shared.activity.kind == .music
             let d = UserDefaults.standard
             let wanted = NotchPagingPolicy.defaultPage(
-                nowPlayingActive: nowPlaying,
                 aiTurnActive: AgentUsageService.shared.snapshot.activeTurn != nil,
-                userPinnedPage: NotchPagingPolicy.storedPinnedPage(d)
+                userPinnedPage: NotchPagingPolicy.storedPinnedPage(d),
+                usesBoringHome: skin == .boring
             )
             // 51c: a hidden default page falls back to the first shown one.
             let shown = NotchPage.visible(teleprompter: NotchPage.isEnabled(TeleprompterModel.enabledKey, in: d),
                                           mirror: NotchPage.isEnabled(CameraMirrorService.enabledKey, in: d))
-            model.activePage = shown.contains(wanted) ? wanted : (shown.first ?? .audioDeck)
+            model.activePage = shown.contains(wanted.navigationPage) ? wanted : (shown.first ?? .home)
         }
         // Grow the NSPanel synchronously *before* flipping `model.isOpen = true`, so SwiftUI's open
         // spring never runs inside the 32 pt closed window (which caused top-half vertical clipping).
         if hover.isOpen, let panel, let screen = targetScreen() {
-            shrinkWork?.cancel(); shrinkWork = nil
-            panel.setFrame(windowFrame(on: screen, expanded: true), display: true)
+            pendingShrink?.work.cancel(); pendingShrink = nil
+            panel.setFrame(windowFrame(on: screen, expanded: true), display: false)
         }
         model.isOpen = hover.isOpen
+        if hover.isOpen { panel?.contentView?.needsDisplay = true }
         LiveActivityFeed.shared.isNotchExpanded = model.isExpanded
         if !hover.isOpen { syncWindow() }
     }
@@ -347,6 +382,11 @@ final class NotchPanelController: LiveEventSink {
     /// Shortcut paging: open the notch if closed, then step one page (the dots' mouse-only gap).
     func stepPage(forward: Bool) {
         guard panel != nil else { return }
+        if skin == .dynamicIsland {
+            model.stepPage(forward: forward)
+            islandBridge.openPages()
+            return
+        }
         hover.forceOpen()
         applyOpenState()
         model.stepPage(forward: forward)
@@ -356,11 +396,9 @@ final class NotchPanelController: LiveEventSink {
     /// Phase 9d shortcut: open the notch on its Tools tab, or close it if it is already showing it.
     func toggleTools() {
         guard panel != nil else { return }
-        if model.isOpen, model.tab == .tools { collapse(); return }
-        model.tab = .tools
-        hover.forceOpen()
-        applyOpenState()
-        startHoverPolling()
+        let expanded = model.isOpen || (skin == .dynamicIsland && islandBridge.driver.snapshot.expanded != nil)
+        if expanded, model.activePage == .studioHub { collapse(); return }
+        openPage(.studioHub)
     }
 
     private func openByClick() {
@@ -373,6 +411,7 @@ final class NotchPanelController: LiveEventSink {
     func collapse() {
         hover.forceClose()
         model.isOpen = false
+        if skin == .dynamicIsland { islandBridge.driver.store.collapse() }
         LiveActivityFeed.shared.isNotchExpanded = false
         syncWindow()
     }
@@ -425,6 +464,10 @@ final class NotchPanelController: LiveEventSink {
 
     private func showHardwareHUD(id: String, icon: String, title: String, level: Double) {
         guard panel != nil else { return }
+        if skin == .dynamicIsland, islandBridge.driver.snapshot.expanded == nil {
+            islandBridge.showHardwareHUD(id: id, icon: icon, title: title, level: level)
+            return
+        }
         let now = Date()
         let item = NotchActivityItem(
             id: id,
@@ -490,17 +533,23 @@ final class NotchPanelController: LiveEventSink {
         DispatchQueue.main.async { [weak self] in
             guard let self, let panel = self.panel, let screen = self.targetScreen() else { return }
             let target = self.windowFrame(on: screen)
-            self.shrinkWork?.cancel(); self.shrinkWork = nil
+            if self.pendingShrink?.frame == target, !immediate { return }
+            self.pendingShrink?.work.cancel()
+            self.pendingShrink = nil
+            guard target != panel.frame else { return }
             let grows = target.width >= panel.frame.width && target.height >= panel.frame.height
             if grows || immediate {
                 panel.setFrame(target, display: true)
             } else {
                 let work = DispatchWorkItem { [weak self] in
                     guard let self, let panel = self.panel, let screen = self.targetScreen() else { return }
+                    self.pendingShrink = nil
                     panel.setFrame(self.windowFrame(on: screen), display: true)
                 }
-                self.shrinkWork = work
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.55, execute: work)
+                self.pendingShrink = (target, work)
+                let style = NotchOpenAnimation(rawValue: UserDefaults.standard.string(forKey: NotchOpenAnimation.defaultsKey) ?? "") ?? .boring
+                let duration = self.skin == .liquid || self.skin == .dynamicIsland ? 0.55 : style.closeSpring.response + 0.10
+                DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: work)
             }
         }
     }
@@ -531,7 +580,7 @@ final class NotchPanelController: LiveEventSink {
         let x = NotchGestureSupport.movement(Double(event.scrollingDeltaX), precise: precise, inverted: inverted)
         let y = NotchGestureSupport.movement(Double(event.scrollingDeltaY), precise: precise, inverted: inverted)
 
-        let horizontalMode: NotchGestureSupport.HorizontalMode = (model.activePage == .audioDeck) ? .trackSkip : .pageNavigation
+        let horizontalMode: NotchGestureSupport.HorizontalMode = model.activePage == .audioDeck ? .trackSkip : .pageNavigation
 
         guard let action = gesture.handle(
             x: x,
@@ -605,6 +654,7 @@ final class NotchPanelController: LiveEventSink {
                     if scene.presentation == .expanded {
                         self.installIslandOutsideClickMonitor()
                     } else {
+                        self.islandBridge.removePagesPlaceholder()
                         self.removeIslandOutsideClickMonitor()
                     }
                 }
@@ -650,6 +700,25 @@ final class NotchPanelController: LiveEventSink {
         }
     }
 
+    private func stageDrop(_ pasteboard: NSPasteboard) -> Bool {
+        guard let shelf = model.shelfStore ?? AppDelegate.shared?.shelfStore else { return false }
+        let localTray = UserDefaults.standard.object(forKey: ShelfPolicy.syncNotchTrayKey) as? Bool == false
+        let files = (pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? [])
+            .filter(\.isFileURL)
+        if !files.isEmpty {
+            shelf.stash(paths: files.map(\.path))
+            if localTray { DroppyFileTrayStore.shared.add(urls: files) }
+        } else {
+            guard pasteboard.availableType(from: [.fileURL]) == nil else { return false }
+            let link = pasteboard.string(forType: .URL).flatMap { URL(string: $0) }
+            guard let text = link?.absoluteString ?? pasteboard.string(forType: .string),
+                  let saved = shelf.stashText(text, suggestedName: link?.host) else { return false }
+            if localTray { DroppyFileTrayStore.shared.add(urls: [saved]) }
+        }
+        openPage(.shelf)
+        return true
+    }
+
     /// The hosting view lives inside a plain autoresizing container so SwiftUI's intrinsic size can never
     /// drive the panel (that fed back into window sizing during an update-constraints pass and crashed).
     /// The container also owns the tracking area whose *enter* starts the hover poll.
@@ -675,7 +744,12 @@ final class NotchPanelController: LiveEventSink {
                 return topDownY <= self.metrics.closedSize.height + 18
                     && abs(point.x - centerX) <= (self.metrics.closedSize.width / 2 + 96)
             }
-            guard self.skin == .dynamicIsland else { return true }
+            if self.skin != .dynamicIsland {
+                if self.model.isExpanded { return true }
+                let size = self.model.closedSize
+                return abs(point.x - container.bounds.midX) <= size.width / 2
+                    && container.bounds.maxY - point.y <= size.height
+            }
             let driver = self.islandBridge.driver
             let frame = driver.frame
             let topDownY = container.bounds.height - point.y
@@ -710,7 +784,6 @@ final class NotchTrackingContainer: NSView {
     var onEnter: () -> Void = {}
     var onScroll: ((NSEvent) -> Bool)?
     var shouldAcceptHit: ((CGPoint) -> Bool)?
-
     override func hitTest(_ point: NSPoint) -> NSView? {
         if let shouldAcceptHit, !shouldAcceptHit(point) {
             return nil
@@ -742,14 +815,16 @@ extension NSScreen {
 }
 
 /// 51g: keeps one `NotchPanelController` per display whose `NotchDesign` is not `.off`, rebuilt when
-/// displays or the per-display choice change. Events fan out to every panel; shortcuts act on the
-/// panel under the pointer.
+/// displays or the per-display choice change. Events and shortcuts use the panel under the pointer.
 @MainActor
 final class NotchPanelCoordinator: LiveEventSink {
     private var controllers: [CGDirectDisplayID: NotchPanelController] = [:]
     private var designs: [CGDirectDisplayID: NotchDesign] = [:]
     /// MD-3: last topology-level placement, so a clamshell handover is recognised in one pass.
     private var lastRoles: [String: IslandRole] = [:]
+    private var lastDisplayIDs: [String: CGDirectDisplayID] = [:]
+    private var pointerScreenTimer: Timer?
+    private var pointerDisplayID: CGDirectDisplayID?
     private var enabled = false
     private var observers = Set<AnyCancellable>()
     var theme: () -> NowPlayingTheme = { .auto } { didSet { controllers.values.forEach { $0.theme = theme } } }
@@ -782,10 +857,16 @@ final class NotchPanelCoordinator: LiveEventSink {
         var wanted: [CGDirectDisplayID: NotchDesign] = [:]
         var rolesByDisplay: [CGDirectDisplayID: IslandRole] = [:]
         var roles: [String: IslandRole] = [:]
+        let screens = NSScreen.screens
+        let displayIDs = Dictionary(screens.compactMap { screen -> (String, CGDirectDisplayID)? in
+            guard let uuid = DisplayIdentity.uuidString(for: screen), let id = screen.displayID else { return nil }
+            return (uuid, id)
+        }, uniquingKeysWith: { first, _ in first })
+        updatePointerScreenTracking(screens: screens)
         if enabled {
             let stored = NotchDesign.stored()
             roles = islandRoles()
-            for screen in NSScreen.screens {
+            for screen in screens {
                 guard let id = screen.displayID else { continue }
                 let uuid = DisplayIdentity.uuidString(for: screen)
                 let role = uuid.flatMap { roles[$0] } ?? .wideBar
@@ -795,7 +876,7 @@ final class NotchPanelCoordinator: LiveEventSink {
                     displayUUID: uuid,
                     // MD-3: the placement mode decides the default shape (notch vs wide bar); the
                     // per-display override still wins.
-                    hasHardwareNotch: role == .notch,
+                    hasHardwareNotch: role == .notch || role == .floatingPill,
                     stored: stored
                 )
                 if design != .off {
@@ -810,9 +891,8 @@ final class NotchPanelCoordinator: LiveEventSink {
         // so an open island and its page survive.
         let handover = IslandPlacement.handover(previous: lastRoles, current: roles)
         if enabled, handover.isRetarget, let from = handover.movedFrom, let to = handover.movedTo,
-           let fromID = NSScreen.screens.first(where: { DisplayIdentity.uuidString(for: $0) == from })?.displayID,
-           let toID = NSScreen.screens.first(where: { DisplayIdentity.uuidString(for: $0) == to })?.displayID,
-           let controller = controllers[fromID], let design = wanted[toID] {
+           let fromID = lastDisplayIDs[from], let toID = displayIDs[to],
+           let controller = controllers[fromID], controllers[toID] == nil, let design = wanted[toID] {
             controllers[fromID] = nil
             designs[fromID] = nil
             controller.retarget(displayID: toID, design: design)
@@ -820,12 +900,13 @@ final class NotchPanelCoordinator: LiveEventSink {
             designs[toID] = design
         }
         lastRoles = roles
+        lastDisplayIDs = displayIDs
 
         for (id, c) in controllers where wanted[id] != designs[id] { c.setEnabled(false); controllers[id] = nil }
         designs = wanted
         let storedSkins = NotchDisplaySkin.stored()
         for (id, design) in wanted {
-            let screen = NSScreen.screens.first { $0.displayID == id }
+            let screen = screens.first { $0.displayID == id }
             let displaySkin = NotchDisplaySkin.resolve(
                 display: String(id),
                 displayUUID: screen.flatMap { DisplayIdentity.uuidString(for: $0) },
@@ -851,6 +932,33 @@ final class NotchPanelCoordinator: LiveEventSink {
         }
     }
 
+    private func updatePointerScreenTracking(screens: [NSScreen]) {
+        guard enabled, IslandPlacementMode.current() == .followActiveDisplay, screens.count > 1 else {
+            pointerScreenTimer?.invalidate()
+            pointerScreenTimer = nil
+            pointerDisplayID = nil
+            return
+        }
+        pointerDisplayID = Self.screenUnderPointer(screens)?.displayID
+        guard pointerScreenTimer == nil else { return }
+        // Tracking only runs for the explicit pointer-following mode, without a global mouse tap.
+        let timer = Timer(timeInterval: 0.15, repeats: true) { [weak self] timer in
+            MainActor.assumeIsolated {
+                guard let self else { timer.invalidate(); return }
+                let current = Self.screenUnderPointer(NSScreen.screens)?.displayID
+                if current != self.pointerDisplayID { self.reconcile() }
+            }
+        }
+        timer.tolerance = 0.04
+        RunLoop.main.add(timer, forMode: .common)
+        pointerScreenTimer = timer
+    }
+
+    private static func screenUnderPointer(_ screens: [NSScreen]) -> NSScreen? {
+        let cursor = NSEvent.mouseLocation
+        return screens.first { $0.frame.contains(cursor) } ?? NSScreen.main
+    }
+
     /// MD-3: topology-level placement for the connected screens. `followActiveDisplay` uses the
     /// display under the pointer, so moving the pointer (or the lid) moves the one island.
     private func islandRoles() -> [String: IslandRole] {
@@ -862,18 +970,18 @@ final class NotchPanelCoordinator: LiveEventSink {
                                            hasHardwareNotch: screen.safeAreaInsets.top > 0,
                                            isBuiltIn: isBuiltIn)
         }
-        let cursor = NSEvent.mouseLocation
-        let activeUUID = (screens.first { $0.frame.contains(cursor) } ?? NSScreen.main)
-            .flatMap { DisplayIdentity.uuidString(for: $0) }
+        let activeUUID = Self.screenUnderPointer(screens).flatMap { DisplayIdentity.uuidString(for: $0) }
         return IslandPlacement.resolve(mode: IslandPlacementMode.current(), displays: displays, activeUUID: activeUUID)
     }
 
-    func show(_ event: LiveEvent) { controllers.values.forEach { $0.show(event) } }
+    func show(_ event: LiveEvent) { underPointer?.show(event) }
 
     private var underPointer: NotchPanelController? {
         let p = NSEvent.mouseLocation
         let id = NSScreen.screens.first { $0.frame.contains(p) }?.displayID
-        return id.flatMap { controllers[$0] } ?? controllers.values.first
+        return id.flatMap { controllers[$0] }
+            ?? NSScreen.main?.displayID.flatMap { controllers[$0] }
+            ?? controllers.values.first
     }
 
     func toggleTools() { underPointer?.toggleTools() }

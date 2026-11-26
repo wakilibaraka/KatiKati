@@ -7,56 +7,43 @@ import SwiftUI
 struct LiveIslandSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var timeTravel = SurfaceTimeTravelCoordinator.shared
-    @Environment(\.settingsStageVisible) private var stageVisible
     @State private var showPlayground = false
 
     var body: some View {
-        // Rule 8: the preview above the rows is a demo, and it says so. The notch page is not signed
-        // off while the Compact skin's own decision is open (`Docs/SETTINGS.md` §4).
-        SettingsCard(
-            Text("Dynamic Notch"),
-            note: Text("The shape preview is a demo: the silhouette only, never live activity.")
-        ) {
-            if !stageVisible {
-                NotchPreview(skin: store.notchSkin, isEnabled: store.notchIslandEnabled)
-            }
+        SettingsCard(Text("Dynamic Notch")) {
             SettingsToggleRow(
                 Text("Show on Notch"),
                 isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) })
             )
             .help(Text("Shows or hides the Dynamic Notch at the top of the screen."))
             SettingsDivider()
-            SettingsRow(Text("Notch Style")) {
-                Picker("Notch Style", selection: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) })) {
-                    Text("Liquid").tag(LiveIslandSkin.liquid)
-                    Text("Full").tag(LiveIslandSkin.boring)
-                    Text("Compact").tag(LiveIslandSkin.classic)
-                    Text("Dynamic Island").tag(LiveIslandSkin.dynamicIsland)
-                }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            .help(Text("Liquid uses metaball physics and detached balls; Full and Compact preserve classic layouts."))
+            Text("Notch Style")
+                .font(.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity, alignment: .leading)
             NotchStylePreviewGallery(
                 selected: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) }),
                 isEnabled: store.notchIslandEnabled
             )
-            if store.notchSkin == .boring || store.notchSkin == .classic {
-                SettingsDivider()
-                NotchAnimationPicker()
-            }
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("Focus"),
-                isOn: $timeTravel.focusDeferralEnabled
-            )
-            .help(Text("Focus"))
-            SettingsRow(Text("Suggestions")) {
-                Button("Reset") {
-                    timeTravel.resetSuggestionBackoff()
-                }
-                .buttonStyle(.bordered)
-            }
+            .help(Text("The shape preview is a demo: the silhouette only, never live activity."))
         }
+        NotchBehaviorCard()
+        SettingsCard(Text("Displays")) {
+            NotchDisplayRows()
+        }
+        NotchPagesCard(store: store)
+        DisclosureGroup {
+            VStack(spacing: 12) {
+                advancedSettings
+            }
+            .padding(.top, 8)
+        } label: {
+            Text("Advanced")
+        }
+        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private var advancedSettings: some View {
         if store.notchSkin == .liquid {
             SettingsCard(
                 Text("Liquid Notch"),
@@ -107,13 +94,69 @@ struct LiveIslandSettingsBlock: View {
                 }
             }
         }
-        NotchBehaviorCard()
         if store.notchSkin == .boring || store.notchSkin == .classic {
             NotchAppearanceCard()
             NotchLayoutCard()
-            NotchPagesCard(store: store)
-            DroppyCustomizationCard()
             NotchActivityCard()
+            SettingsCard(Text("Appearance")) { NotchAnimationPicker() }
+        }
+        NotchControlsCard()
+        DroppyCustomizationCard()
+        SettingsCard(Text("Focus")) {
+            SettingsToggleRow(Text("Focus"), isOn: $timeTravel.focusDeferralEnabled)
+            SettingsRow(Text("Suggestions")) {
+                Button("Reset") { timeTravel.resetSuggestionBackoff() }
+                    .buttonStyle(.bordered)
+            }
+        }
+    }
+}
+
+private struct NotchControlsCard: View {
+    @AppStorage(NotchTransportControl.defaultsKey) private var transportRaw = NotchTransportControl.initialRaw
+    @AppStorage(NotchHUDPresentation.showWhenOpenKey) private var showOpenHUD = true
+    @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
+
+    var body: some View {
+        let controls = NotchTransportControl.decode(transportRaw)
+        SettingsCard(Text("Notch Controls")) {
+            SettingsRow(Text("Music Transport")) {
+                Button("Reset") { transportRaw = NotchTransportControl.initialRaw }
+                    .buttonStyle(.bordered)
+            }
+            List {
+                ForEach(controls) { control in
+                    HStack {
+                        Label(control.title, systemImage: control.symbol)
+                        Spacer()
+                        Button {
+                            transportRaw = NotchTransportControl.encode(controls.filter { $0 != control })
+                        } label: {
+                            Image(systemName: "minus.circle")
+                        }
+                        .buttonStyle(.borderless)
+                        .disabled(controls.count == 1)
+                        .accessibilityLabel(Text("Remove Control"))
+                    }
+                }
+                .onMove { source, destination in
+                    var reordered = controls
+                    reordered.move(fromOffsets: source, toOffset: destination)
+                    transportRaw = NotchTransportControl.encode(reordered)
+                }
+            }
+            .listStyle(.plain)
+            .scrollDisabled(true)
+            .frame(height: CGFloat(controls.count) * 27 + 8)
+            Menu("Add Control") {
+                ForEach(NotchTransportControl.allCases.filter { !controls.contains($0) }) { control in
+                    Button(control.title) { transportRaw = NotchTransportControl.encode(controls + [control]) }
+                }
+            }
+            .disabled(controls.count == NotchTransportControl.allCases.count)
+            SettingsDivider()
+            SettingsToggleRow(Text("Show HUD When Open"), isOn: $showOpenHUD)
+            SettingsToggleRow(Text("Show HUD Percentages"), isOn: $showHUDPercentage)
         }
     }
 }
@@ -212,22 +255,26 @@ private struct NotchAppearanceCard: View {
     }
 }
 
-/// Pick how the notch opens. Each card loops a miniature notch on that style's real springs, so the
-/// illustration is the animation itself. The cards sit under one label so the row stays compact.
+/// The miniature plays the same transition once when a style is selected.
 private struct NotchAnimationPicker: View {
     @AppStorage(NotchOpenAnimation.defaultsKey) private var stored = NotchOpenAnimation.boring.rawValue
     // The highlight lagged one pick behind the stored value in this pane, so it is local state that the
     // button sets together with the stored value.
     @State private var selected = UserDefaults.standard.string(forKey: NotchOpenAnimation.defaultsKey) ?? NotchOpenAnimation.boring.rawValue
+    @State private var previewRequest = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(verbatim: "Open Animation").font(.system(size: 13))
             HStack(spacing: 8) {
                 ForEach(NotchOpenAnimation.allCases) { style in
-                    Button { selected = style.rawValue; stored = style.rawValue } label: {
+                    Button {
+                        selected = style.rawValue
+                        stored = style.rawValue
+                        previewRequest += 1
+                    } label: {
                         VStack(spacing: 6) {
-                            NotchAnimationDemo(style: style)
+                            NotchAnimationDemo(style: style, request: selected == style.rawValue ? previewRequest : 0)
                             Text(verbatim: style.title).font(.system(size: 11, weight: .semibold))
                             Text(verbatim: style.summary)
                                 .font(.system(size: 9)).foregroundStyle(.secondary)
@@ -252,9 +299,9 @@ private struct NotchAnimationPicker: View {
 
 private struct NotchAnimationDemo: View {
     let style: NotchOpenAnimation
+    let request: Int
     @State private var open = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.settingsStageVisible) private var stageVisible
 
     var body: some View {
         let spring = open ? style.openSpring : style.closeSpring
@@ -270,33 +317,23 @@ private struct NotchAnimationDemo: View {
                             Capsule().fill(.white.opacity(0.4)).frame(width: 28, height: 3)
                         }
                         .padding(.top, 12)
-                        .transition(reveal)
+                        .transition(style.contentTransition)
                     }
                 }
         }
         .frame(height: 50)
         .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
         .animation(reduceMotion ? nil : .spring(response: spring.response, dampingFraction: spring.dampingRatio), value: open)
-        .task(id: stageVisible && !reduceMotion) {
-            guard stageVisible, !reduceMotion else {
-                open = false
-                return
-            }
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1.3))
-                if !Task.isCancelled, NSApp.isActive { open.toggle() }
-            }
+        .task(id: request) {
+            open = false
+            guard request > 0, !reduceMotion else { return }
+            try? await Task.sleep(for: .milliseconds(80))
+            guard !Task.isCancelled else { return }
+            open = true
+            try? await Task.sleep(for: .milliseconds(680))
+            if !Task.isCancelled { open = false }
         }
         .accessibilityHidden(true)
-    }
-
-    private var reveal: AnyTransition {
-        switch style.reveal {
-        case .fade: return .opacity
-        case .pour: return .scale(scale: 0.92, anchor: .top).combined(with: .opacity)
-        case .drop: return .opacity.combined(with: .offset(y: -6))
-        case .pop: return .scale(scale: 0.85, anchor: .top).combined(with: .opacity)
-        }
     }
 }
 
@@ -317,18 +354,19 @@ private struct NotchBehaviorCard: View {
                 } label: { Text(verbatim: "Opening") }
                 .labelsHidden().pickerStyle(.menu).fixedSize()
             }
-            if mode == NotchOpenMode.hover.rawValue {
-                SettingsDivider()
-                delay("Activation time", "Keep the pointer over the notch for this long to open it.",
-                      $hoverDelay, NotchBehavior.hoverDelayRange)
+            SettingsDivider()
+            DisclosureGroup {
+                if mode == NotchOpenMode.hover.rawValue {
+                    delay("Activation time", "Keep the pointer over the notch for this long to open it.",
+                          $hoverDelay, NotchBehavior.hoverDelayRange)
+                }
+                delay("Closing time", "Wait this long after the pointer leaves the notch before closing it.",
+                      $closeDelay, NotchBehavior.closeDelayRange)
+                SettingsToggleRow(Text(verbatim: "Haptic feedback"), isOn: $haptic)
+            } label: {
+                Text("Timing & Feedback")
             }
-            SettingsDivider()
-            delay("Closing time", "Wait this long after the pointer leaves the notch before closing it.",
-                  $closeDelay, NotchBehavior.closeDelayRange)
-            SettingsDivider()
-            SettingsToggleRow(Text(verbatim: "Haptic feedback"), isOn: $haptic)
-            SettingsDivider()
-            NotchDisplayRows()
+            .padding(.vertical, 4)
         }
     }
 
@@ -490,19 +528,27 @@ private struct NotchPagesCard: View {
     }
 
     var body: some View {
-        SettingsCard(Text(verbatim: "Notch Pages")) {
+        SettingsCard(Text("Notch Pages")) {
             HStack {
                 Text(verbatim: "Default Opening Page")
                     .font(.subheadline)
                 Spacer()
-                Picker(selection: $pinnedDefaultRaw) {
-                    Text(verbatim: "Auto (Music)").tag(-1)
+                Picker(selection: Binding(
+                    get: {
+                        guard let page = NotchPage(rawValue: pinnedDefaultRaw)?.navigationPage,
+                              pages.contains(page), !layout.hidden.contains(page) else { return -1 }
+                        return page.rawValue
+                    },
+                    set: { pinnedDefaultRaw = $0 }
+                )) {
+                    Text("Automatic").tag(-1)
                     ForEach(pages.filter { !layout.hidden.contains($0) }) { page in
                         Text(verbatim: page.title).tag(page.rawValue)
                     }
-                } label: { EmptyView() }
+                } label: { Text(verbatim: "Default Opening Page") }
                 .labelsHidden()
-                .frame(width: 190)
+                .pickerStyle(.menu)
+                .fixedSize()
             }
             SettingsDivider()
             List {
@@ -901,13 +947,14 @@ private struct LiquidExtrasSettingsRows: View {
 private struct NotchStylePreviewGallery: View {
     @Binding var selected: LiveIslandSkin
     let isEnabled: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 8) {
             ForEach(LiveIslandSkin.allCases, id: \.self) { skin in
                 let active = selected == skin
                 Button {
-                    withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) { selected = skin }
+                    withAnimation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.85)) { selected = skin }
                 } label: {
                     VStack(spacing: 6) {
                         thumbnail(for: skin)
@@ -930,6 +977,7 @@ private struct NotchStylePreviewGallery: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityAddTraits(active ? .isSelected : [])
             }
         }
         .opacity(isEnabled ? 1 : 0.45)

@@ -128,7 +128,7 @@ struct NotchKeepAwakePageView: View {
     private var floorRow: some View {
         HStack(spacing: 6) {
             Image(systemName: "battery.25percent").font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
-            Text("Sleep under battery")
+            Text("Allow sleep below")
                 .font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
             Spacer(minLength: 4)
             Stepper(value: $service.floorPercent, in: 5...80, step: 5) { Text(verbatim: "Battery floor") }

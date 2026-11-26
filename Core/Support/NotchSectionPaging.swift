@@ -6,28 +6,30 @@ import Foundation
 /// The dedicated pages of the redesigned Dynamic Island Notch bento gallery: five always-on pages, plus
 /// the teleprompter and the camera mirror, which exist only while their own switch is on.
 enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
-    case audioDeck = 3      // Page 1: Dedicated Music Player
-    case calendar = 8       // Page 2: Dedicated Calendar & Agenda
+    case home = 11
+    case shelf = 12
+    // Retained for older opening preferences and direct links into Home.
+    case audioDeck = 3
+    case calendar = 8
     case aiTracker = 2      // AI Mission Control (Claude, Codex, OpenCode, Copilot)
     case peripherals = 10   // Peripherals & AirPods battery hub (DO-8)
     case studioHub = 9      // Multipurpose Studio & System Hub
     case teleprompter = 4   // Opt-in Teleprompter page
     case cameraMirror = 5   // Camera & Mic Check-in
     case keepAwake = 7
-    case home = 11
-    case shelf = 12
     // Raw values 0 and 1 belonged to Downloads and Storage. Both pages moved to SideDeck and those
     // retired values remain absent so stored notch layouts cannot reintroduce their old surfaces.
 
     var id: Int { rawValue }
+    var navigationPage: NotchPage { self == .audioDeck || self == .calendar ? .home : self }
 
     var title: String {
         switch self {
         case .aiTracker: return "AI Mission Control"
-        case .audioDeck: return "Music"
+        case .audioDeck: return String(localized: "Music")
         case .home: return String(localized: "Home")
         case .shelf: return String(localized: "Shelf")
-        case .calendar: return "Calendar"
+        case .calendar: return String(localized: "Calendar")
         case .peripherals: return String(localized: "Peripherals")
         case .studioHub: return "Studio Hub"
         case .teleprompter: return "Teleprompter"
@@ -80,6 +82,7 @@ enum NotchPage: Int, CaseIterable, Identifiable, Sendable {
                         layout: NotchPageLayout = .stored) -> [NotchPage] {
         layout.apply(allCases.filter { page in
             switch page {
+            case .audioDeck, .calendar: return false
             case .teleprompter: return teleprompter
             case .cameraMirror: return mirror
             default: return true
@@ -156,17 +159,14 @@ enum NotchPagingPolicy {
     }
 
     static func defaultPage(
-        nowPlayingActive: Bool,
         aiTurnActive: Bool,
-        downloadsActive: Bool = false,
         userPinnedPage: NotchPage? = nil,
         usesBoringHome: Bool = false
     ) -> NotchPage {
-        if let pinned = userPinnedPage { return pinned }
+        if let pinned = userPinnedPage { return pinned.navigationPage }
         if usesBoringHome { return .home }
         if aiTurnActive { return .aiTracker }
-        if nowPlayingActive { return .audioDeck }
-        return .audioDeck
+        return .home
     }
 }
 

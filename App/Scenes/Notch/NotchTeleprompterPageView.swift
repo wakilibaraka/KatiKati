@@ -6,6 +6,7 @@ import SwiftUI
 struct NotchTeleprompterPageView: View {
     var body: some View {
         TeleprompterView(compact: true)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(NotchDesignSpec.cardPadding)
             .background(
                 RoundedRectangle(cornerRadius: NotchDesignSpec.cardCornerRadius, style: .continuous)

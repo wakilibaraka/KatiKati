@@ -482,7 +482,6 @@ final class AppSettingsStore: ObservableObject {
             // filled with nothing — a blank gap in the bar.
             Keys.dockIslandEnabled: true,
             Keys.notchIslandEnabled: true,
-            Keys.notchSkin: LiveIslandSkin.liquid.rawValue,
             Keys.islandTouchMode: IslandTouchModeSetting.automatic.rawValue,
             Keys.islandNonNotchBehavior: IslandNonNotchIdleBehavior.compactPill.rawValue,
             Keys.islandKeylineEnabled: true,
@@ -1934,7 +1933,7 @@ final class AppSettingsStore: ObservableObject {
     ///
     /// An existing key means the user chose, even if they chose off: always respected, never overwritten.
     func seedNotchStyleForFreshInstall(lineage: InstallLineage) {
-        guard lineage == .pristine, defaults.string(forKey: Keys.notchSkin) == LiveIslandSkin.liquid.rawValue else { return }
+        guard lineage == .pristine, defaults.object(forKey: Keys.notchSkin) == nil else { return }
         setNotchSkin(.boring)
     }
 

@@ -516,7 +516,8 @@ enum IslandPresets {
         subtitle: String?,
         systemImage: String,
         progress: Double? = nil,
-        accent: Color = IslandTheme.Accent.sky
+        accent: Color = IslandTheme.Accent.sky,
+        onOpen: (() -> Void)? = nil
     ) -> IslandActivityViews {
         IslandActivityViews(
             measure: IslandContentMeasure(
@@ -559,7 +560,13 @@ enum IslandPresets {
             expandedCenter: AnyView(
                 IslandTitleStack(title: title, subtitle: subtitle)
             ),
-            expandedTrailing: AnyView(EmptyView()),
+            expandedTrailing: AnyView(Group {
+                if let onOpen {
+                    IslandRoundButton(size: 32, accessibilityLabel: "Open Details", action: onOpen) {
+                        Image(systemName: "chevron.right")
+                    }
+                }
+            }),
             expandedBottom: progress.map { AnyView(IslandLinearProgress(value: $0, color: accent, height: 6)) }
         )
     }
@@ -1245,12 +1252,13 @@ struct LiquidNotchShellView: View {
         } else if showTray {
             LiquidTrayView(model: model, feed: feed) {
                 showTray = false
-                model.collapse()
             }
         } else if let pending = agentHub.pendingApproval {
             LiquidAgentApprovalCard(pending: pending) { decisionJSON in
                 agentHub.resolvePending(decisionJSON)
             }
+        } else if model.activePage != .audioDeck {
+            NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
         } else if hasMusic && showLyrics {
             LiquidSyncedLyricsView(
                 nowPlaying: nowPlaying,
@@ -1269,6 +1277,15 @@ struct LiquidNotchShellView: View {
                 onNext: { feed.nextTrack() },
                 onSeek: { feed.seek(to: $0) }
             )
+            .overlay(alignment: .topTrailing) {
+                Button { model.goToPage(.home) } label: {
+                    Image(systemName: "square.grid.2x2")
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Notch Pages"))
+                .padding(6)
+            }
         } else {
             NotchHomeView(model: model, feed: feed, metrics: metrics, calendarEnabled: true)
         }
@@ -1769,6 +1786,7 @@ private struct LiquidHUDView: View {
     let width: Double
     let height: Double
     @State private var dragLevel: Double?
+    @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
 
     var body: some View {
         let level = dragLevel ?? (hud.level ?? 0.5)
@@ -1789,6 +1807,10 @@ private struct LiquidHUDView: View {
                 })
             }
             .frame(height: 6)
+            if showHUDPercentage {
+                Text(level, format: .percent.precision(.fractionLength(0)))
+                    .font(.system(size: 10, weight: .semibold).monospacedDigit())
+            }
         }
         .padding(.horizontal, 14)
         .frame(width: width, height: height)
@@ -1829,7 +1851,7 @@ private struct LiquidTrayView: View {
                     onClose()
                 }
                 trayTile(symbol: "tray.full.fill", title: "Shelf", tint: .green) {
-                    model.goToPage(.peripherals)
+                    model.requestShelf()
                     onClose()
                 }
             }

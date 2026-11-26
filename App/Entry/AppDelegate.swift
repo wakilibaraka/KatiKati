@@ -138,6 +138,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let peek = PeekController()
     private lazy var windowStrip = WindowStripController(runtime: runtime)
     private lazy var windowBorder = WindowBorderController()
+    func showSideDeck(_ tab: SideDeckTab) { windowDrawer.show(tab) }
+
     private lazy var windowDrawer = WindowDrawerController(
         runtime: runtime,
         onSearch: { [weak self] in self?.commandBarPanel.toggle() },
@@ -750,7 +752,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .removeDuplicates()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] on in self?.notchPanel.keylineEnabled = on }
-            notchPanel.onOpenSettings = { [weak self] in self?.openSettings(nil) }
+            notchPanel.onOpenSettings = { [weak self] in self?.openSettings(selecting: .notch) }
             notchPanel.theme = { [weak self] in self?.settingsStore.nowPlayingTheme ?? .auto }
             liveEventCenter.register(sink: notchPanel, for: .notch)
             notchSubscription = settingsStore.$notchIslandEnabled
