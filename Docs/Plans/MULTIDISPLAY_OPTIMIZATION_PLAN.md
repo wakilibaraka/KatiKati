@@ -342,7 +342,9 @@ The desk reported the geometry from §1.1 exactly (built-in `1710×1112` at Quar
   maximum is 100. With `DDCCommand`'s frames the LG answered `6E 88 02 00 10 00 00 64 00 64 A4`
   (max 100, current 100) and accepted writes. The panel also drops the first request after idle and
   returns an empty reply about half the time, so each request is written twice and a read retries up
-  to three times.
+  to four times. Every reply is also matched to the VCP it answers (`reply[4] == vcp`): a stale frame
+  for the other value passes the checksum, and without the guard a brightness read could return the
+  volume reply the panel repeated.
 - **Live end-to-end through the shipped transport:** brightness `100/100`, volume `30/100`; set
   brightness 80 % → read-back `80/100`; restore → `100/100`; volume 30 → 50 → 30. `probeIfNeeded` now
   only latches on a display that answered, and a silent panel is asked at most twice, so a flaky bus
@@ -354,10 +356,46 @@ The desk reported the geometry from §1.1 exactly (built-in `1710×1112` at Quar
   fixed: LR1 failed the app's own dock plate/rail (now a bar/rail shape is legitimate), and LR4 flagged
   the plate's 18 pt shadow margin crossing onto the neighbouring display's menu-bar band (window level
   25 sits above the plate's 20), now a note rather than a failure.
-- **Not captured on screen:** the "Display Volume" row in the Control Center card. AX does not expose
-  the card's SwiftUI labels and the status-item click toggled the hub closed; its visibility rests on
-  the transport returning `30/100` for the pointer's display through `DisplayTargetRule`, not on a
-  screenshot.
+- **Display Volume row, captured on screen (21:40):** the first pass could not photograph the row —
+  AX does not expose the card's SwiftUI labels and the status-item click toggled the hub closed — so
+  it rested on the transport alone. It is now captured: the Quick Settings card draws four named
+  rows, **Volume 100**, **Brightness 100**, **Display Volume 30** and **Keyboard 1**
+  (`Docs/Archive/Planning/evidence/2026-11-26-multidisplay-live/01-quick-settings-labelled-rows.png`).
+  The display row reads 30 while the system volume reads 100, so the number is the LG's own VCP
+  `0x62` value reached through `DisplayTargetRule`, not a copy of the system slider.
+
+### Re-check on the delivered tree (2026-11-26 21:40, `2b732371`)
+
+Re-run after the last control-centre label fix and the delivered notch rebase, on the signed Debug
+build from that commit (the Accessibility grant followed the local signing identity; the app was
+relaunched from `build/DerivedData`, not from a test build). No behaviour needed fixing; the one
+gate that was red at `HEAD` — five strings of the Settings › Notch **Surface Material** card missing
+from the catalog — was closed by adding those five keys in all twelve locales (`check_localization.py`
+now prints `全部对上`), so the tree that is committed is green on all four gates.
+
+- **DDC/CI transport:** brightness `100 → 80 → 100` read back `80/100` then `100/100`; volume
+  `30 → 50 → 30` read back `50/100` then `30/100`. Both writes and every read-back agreed.
+- **Cursor jump across the seam:** from the LG at `(1174.27, 1367.27)` Cocoa, planned
+  `(1191.89, 1110.0)`, read-back `(1191.0, 1110.0)` — 0.89 pt off, `insideTarget=true`, pointer
+  restored to `(1174, 1367)` afterwards. With two displays both `step: 1` and `step: -1` land on the
+  other panel, which is the intended wrap.
+- **Hygiene gate, two displays:** exit 0; 13 windows on the built-in, 9 on the LG, 0 active
+  `.defaultTap`s (LR2 ✓). The only output beyond the summary is the four LR4 notes for the dock
+  plate's 18 pt shadow margin under the menu bar — the same benign case the gate was taught to report
+  as a note.
+- **Window inventory (MD-2/MD-3):** the island is on the built-in as a 340×54 notch and on the LG as
+  a 640×44 wide bar, which is exactly what the default placement mode `allDisplays` resolves
+  (`IslandPlacement.role`). Neither deck is on the seam: the built-in rail occupies `x 1696–1710` and
+  the LG rail `x 1742–1756`, both outer right edges (`EdgeBarPlacement`).
+- **Localization gate:** the five strings the new surface-material card draws (`Surface Material`, `Liquid Glass Surface`, `Metal Liquid Morph (Opt-In)` and the two explanatory notes) were absent from
+  `Resources/Localizable.xcstrings`, so a non-English user would have seen English there. They were
+  added in all twelve locales; the gate reports `✅ 全部对上`.
+- **Layout memory (MD-4):** `com.katikati.desktop.topologyArchive` holds a per-signature entry with a
+  `normalizedFrame` per window keyed by display UUID, including the two-display signature — the store
+  the hot-plug restore reads. The hot-plug itself still needs a hand at the desk (see below).
+- **Machine state after the pass:** Control Centre back on its default `edge` surface (the `menuBar`
+  override used for the capture was deleted and the app relaunched), LG left at brightness `100/100`
+  and volume `30/100`, pointer back over the built-in display.
 
 ### Still open — operator at the desk only
 

@@ -189440,6 +189440,91 @@
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "剪贴板记录已关闭" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "剪貼簿記錄已關閉" } }
       }
+    },
+    "Surface Material" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Oberflächenmaterial" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Surface Material" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Material de superficie" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Material de superficie" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Matériau de surface" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Materiale della superficie" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表面の素材" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "표면 재질" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Material da superfície" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Material da superfície" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "表面材质" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "表面材質" } }
+      }
+    },
+    "Built-in hardware notches stay pure OLED black when closed; Liquid Glass applies when expanded and on notchless displays." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Eingebaute Hardware-Notches bleiben geschlossen reines OLED-Schwarz; Flüssigglas gilt im ausgeklappten Zustand und auf Displays ohne Notch." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Built-in hardware notches stay pure OLED black when closed; Liquid Glass applies when expanded and on notchless displays." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Las muescas de hardware integradas siguen en negro OLED puro al cerrarse; el cristal líquido se aplica al expandirse y en pantallas sin muesca." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Las muescas de hardware integradas siguen en negro OLED puro al cerrarse; el cristal líquido se aplica al expandirse y en pantallas sin muesca." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les encoches matérielles intégrées restent en noir OLED pur une fois fermées ; le verre liquide s'applique déployé et sur les écrans sans encoche." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "I notch hardware integrati restano nero OLED puro da chiusi; il vetro liquido si applica da espansi e sui display senza notch." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "内蔵ハードウェアノッチは閉じている間は純粋な OLED ブラックのままです。リキッドグラスは展開時とノッチのないディスプレイに適用されます。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "내장 하드웨어 노치는 닫혀 있을 때 순수 OLED 블랙으로 유지됩니다. 리퀴드 글래스는 펼쳤을 때와 노치가 없는 디스플레이에 적용됩니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Os notches de hardware integrados permanecem em preto OLED puro quando fechados; o vidro líquido se aplica ao expandir e em telas sem notch." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Os entalhes de hardware integrados mantêm-se em preto OLED puro quando fechados; o vidro líquido aplica-se ao expandir e em ecrãs sem entalhe." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "内置硬件刘海在收起时保持纯 OLED 黑色；液态玻璃在展开时以及无刘海显示器上生效。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "內建硬體瀏海在收合時維持純 OLED 黑色；液態玻璃在展開時以及無瀏海顯示器上生效。" } }
+      }
+    },
+    "Liquid Glass Surface" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Flüssigglas-Oberfläche" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Liquid Glass Surface" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Superficie de cristal líquido" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Superficie de cristal líquido" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Surface en verre liquide" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Superficie in vetro liquido" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リキッドグラス表面" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "리퀴드 글래스 표면" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Superfície de vidro líquido" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Superfície de vidro líquido" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "液态玻璃表面" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "液態玻璃表面" } }
+      }
+    },
+    "Metal Liquid Morph (Opt-In)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Metall-Flüssigmorph (optional)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metal Liquid Morph (Opt-In)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Transformación líquida metálica (opcional)" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Transformación líquida metálica (opcional)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Morphing liquide métallique (facultatif)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Morphing liquido metallico (opzionale)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "メタルリキッドモーフ（オプトイン）" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "메탈 리퀴드 모프(선택)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Morph líquido metálico (opcional)" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Morph líquido metálico (opcional)" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "金属液态变形（可选）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "金屬液態變形（選用）" } }
+      }
+    },
+    "Enables GPU SDF liquid morphing across all notch presets (disabled in Low Power Mode and Reduce Motion)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviert GPU-SDF-Flüssigmorphing für alle Notch-Presets (deaktiviert im Energiesparmodus und bei „Bewegung reduzieren“)." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enables GPU SDF liquid morphing across all notch presets (disabled in Low Power Mode and Reduce Motion)." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activa la transformación líquida SDF por GPU en todos los presets de muesca (se desactiva en modo de bajo consumo y con Reducir movimiento)." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Activa la transformación líquida SDF por GPU en todos los presets de muesca (se desactiva en modo de bajo consumo y con Reducir movimiento)." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Active le morphing liquide SDF par GPU sur tous les préréglages d'encoche (désactivé en mode Économie d'énergie et avec Réduire les animations)." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva il morphing liquido SDF su GPU in tutti i preset del notch (disattivato in Risparmio energia e con Riduci movimento)." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すべてのノッチプリセットで GPU による SDF リキッドモーフを有効にします（低電力モードと「視差効果を減らす」では無効）。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "모든 노치 프리셋에 GPU SDF 리퀴드 모프를 적용합니다(저전력 모드 및 동작 줄이기 사용 시 비활성화)." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ativa o morph líquido SDF por GPU em todos os presets de notch (desativado no Modo de Baixo Consumo e em Reduzir Movimento)." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativa o morph líquido SDF por GPU em todas as predefinições de entalhe (desativado no Modo de Poupança de Energia e em Reduzir Movimento)." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在所有刘海预设上启用 GPU SDF 液态变形（低电量模式和减弱动态效果下禁用）。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在所有瀏海預設上啟用 GPU SDF 液態變形（低電量模式與減少動態效果下停用）。" } }
+      }
     }
   },
   "version" : "1.0"
