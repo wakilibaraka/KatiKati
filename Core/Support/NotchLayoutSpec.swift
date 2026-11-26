@@ -8,26 +8,42 @@ import simd
 // header row, a music half and a calendar half). Keeping them here, away from SwiftUI, lets the sizes,
 // the corner radii, the week strip and "which panels show" be unit-tested. Dual-compiled.
 
-/// Which look the notch uses. `liquid` is the Liquid Notch metaball shell (default);
-/// `boring` (Full), `classic` (Compact), and `dynamicIsland` are preserved as selectable presets.
+/// Which look the notch uses. All four original presets (`boring` Full, `classic` Compact,
+/// `liquid` Liquid, `dynamicIsland` Dynamic Island) are preserved alongside `superGlass` (the
+/// macOS 26 Liquid Glass / IslandSurfaceView layout) on a single shared backend.
 enum LiveIslandSkin: String, CaseIterable, Sendable {
-    case liquid
-    case classic
     case boring
+    case classic
+    case liquid
     case dynamicIsland
+    case superGlass
 
-    /// `true` when expanding from rest opens directly to the Bento suite (`NotchHomeView`),
-    /// turning `boring` ("Full") and `classic` ("Compact") into layout presets on the single `islandcn` engine.
+    /// `true` when rendered by `IslandSurfaceView` (`.dynamicIsland` and `.superGlass`).
+    /// `.boring` ("Full") and `.classic` ("Compact") render with `NotchContinuousMaskShape`,
+    /// and `.liquid` renders with `LiquidNotchShellView`.
+    var usesIslandSurfaceEngine: Bool {
+        switch self {
+        case .dynamicIsland, .superGlass: return true
+        case .boring, .classic, .liquid: return false
+        }
+    }
+
+    /// `true` when expanding from rest opens directly to the Bento suite (`NotchHomeView`).
     var opensDirectlyToBentoSuite: Bool {
         switch self {
-        case .boring, .classic: return true
+        case .boring, .classic, .superGlass: return true
         case .liquid, .dynamicIsland: return false
         }
     }
 
-    /// `true` when this skin defaults to the opt-in Metal SDF liquid morph backdrop.
+    /// `true` when this skin defaults to the Metal SDF liquid morph backdrop.
     var usesMetalLiquidMorph: Bool {
         self == .liquid
+    }
+
+    /// `true` when this skin uses the Liquid Glass + full-bleed Bento layout inside `IslandSurfaceView`.
+    var usesSuperGlassBackdrop: Bool {
+        self == .superGlass
     }
 
     var preferredExpandedSize: CGSize {

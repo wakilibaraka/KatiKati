@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795721579.6894052,
-    "seen": 1795723455.296887,
-    "ast_hash": "6d95e044e2ccef9a0c150219adb423b4",
+    "mtime": 1795726705.9964967,
+    "seen": 1795727057.316978,
+    "ast_hash": "3ce68866f2ad736fe0f2fc98242ef8b7",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -966,9 +966,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandSettingsBlock.swift": {
-    "mtime": 1795721569.8211498,
-    "seen": 1795723455.297089,
-    "ast_hash": "a5a385e678f7b815fcf7aef7a973d26f",
+    "mtime": 1795726744.230992,
+    "seen": 1795727057.317138,
+    "ast_hash": "f42887b1e1ac5c7f12e64ba89960d499",
     "semantic_hash": ""
   },
   "App/Scenes/LiveIslandStyle.swift": {
@@ -1044,15 +1044,15 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1795721569.1660206,
-    "seen": 1795723455.297136,
-    "ast_hash": "b490dbcebc5790cc3feec6dfc65fef32",
+    "mtime": 1795726643.997768,
+    "seen": 1795727057.317173,
+    "ast_hash": "9e4049327f3d3f24356e7f1b2788fccc",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
-    "mtime": 1795516463.7488682,
-    "seen": 1795606909.6222231,
-    "ast_hash": "f39a339fd5e2b3c22b342a03538875ef",
+    "mtime": 1795726655.835521,
+    "seen": 1795727057.317174,
+    "ast_hash": "b50169d7239fc755f3e09178f0dd5f6e",
     "semantic_hash": ""
   },
   "App/Scenes/NowPlayingChip.swift": {
@@ -2046,9 +2046,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchGeometry.swift": {
-    "mtime": 1795721459.4111047,
-    "seen": 1795723455.297565,
-    "ast_hash": "875a3092da264b042d5778df09b39249",
+    "mtime": 1795726632.6308763,
+    "seen": 1795727057.317507,
+    "ast_hash": "07aa8178ca40cd6118fefb7b1f9a8962",
     "semantic_hash": ""
   },
   "Core/Support/NotchGestureSupport.swift": {
@@ -2064,9 +2064,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchLayoutSpec.swift": {
-    "mtime": 1795722737.9243035,
-    "seen": 1795723455.29757,
-    "ast_hash": "154c19c9faafcbc69d88824f8f5f6b05",
+    "mtime": 1795726630.698727,
+    "seen": 1795727057.3175108,
+    "ast_hash": "adfc065519b0b7a22f61da2e17ad9d50",
     "semantic_hash": ""
   },
   "Core/Support/NotchMotionSpec.swift": {
@@ -4584,9 +4584,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1795545032.374367,
-    "seen": 1795606909.622257,
-    "ast_hash": "c759273dd67ef167626c4f0d8075d591",
+    "mtime": 1795726656.4636078,
+    "seen": 1795727057.3171961,
+    "ast_hash": "1d972d4a176fdbc0cae96cdbd186dc84",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
@@ -7320,9 +7320,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Notch/Island/IslandSurfaceView.swift": {
-    "mtime": 1795721519.2133768,
-    "seen": 1795723455.297102,
-    "ast_hash": "6d1770298a3c766eb57f84b18bdc4d59",
+    "mtime": 1795726645.6080756,
+    "seen": 1795727057.317149,
+    "ast_hash": "fd8a852334e76194280a8641ecc23c6d",
     "semantic_hash": ""
   },
   "Core/Support/Island/IslandChoreography.swift": {
@@ -7386,9 +7386,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/IslandEngineTests.swift": {
-    "mtime": 1795722740.3338237,
-    "seen": 1795723455.298166,
-    "ast_hash": "a320ba475851a45fb0816302f0843e0f",
+    "mtime": 1795726745.3005896,
+    "seen": 1795727057.3179588,
+    "ast_hash": "e87cb745f896d0dbbf4854a4a178f5a6",
     "semantic_hash": ""
   },
   "App/Composition/DockFriendsStore.swift": {

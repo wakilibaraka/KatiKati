@@ -149,7 +149,9 @@ struct NotchIslandView: View {
 
     @ViewBuilder
     private var notchContent: some View {
-        if let bridge = model.islandBridge {
+        if model.skin == .liquid {
+            LiquidNotchShellView(model: model, feed: feed, metrics: metrics)
+        } else if model.skin.usesIslandSurfaceEngine, let bridge = model.islandBridge {
             let resolution = NotchTheme.resolve(
                 hasHardwareNotch: metrics.hasHardwareNotch,
                 tintsPlate: !metrics.hasHardwareNotch,

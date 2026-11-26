@@ -8,6 +8,56 @@ struct LiveIslandSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var timeTravel = SurfaceTimeTravelCoordinator.shared
     @State private var showPlayground = false
+    @State private var screens = NSScreen.screens
+    @State private var selectedDisplayID: CGDirectDisplayID? = nil
+    @State private var storedDesigns = NotchDesign.stored()
+    @State private var storedSkins = NotchDisplaySkin.stored()
+    @State private var placementMode = IslandPlacementMode.current().rawValue
+
+    private var activeScreen: NSScreen? {
+        if let selectedDisplayID, let match = screens.first(where: { $0.displayID == selectedDisplayID }) {
+            return match
+        }
+        if let builtIn = screens.first(where: { ($0.displayID.map { CGDisplayIsBuiltin($0) != 0 } ?? false) || $0.safeAreaInsets.top > 0 }) {
+            return builtIn
+        }
+        return screens.first ?? NSScreen.main
+    }
+
+    private var activeHasNotch: Bool {
+        (activeScreen?.safeAreaInsets.top ?? 0) > 0
+    }
+
+    private var activeIsBuiltIn: Bool {
+        activeScreen?.displayID.map { CGDisplayIsBuiltin($0) != 0 } ?? activeHasNotch
+    }
+
+    private var activeDesign: NotchDesign {
+        guard let screen = activeScreen, let id = screen.displayID.map(String.init) else { return .notch }
+        return NotchDesign.resolve(
+            display: id,
+            displayUUID: DisplayIdentity.uuidString(for: screen),
+            hasHardwareNotch: activeHasNotch,
+            stored: storedDesigns
+        )
+    }
+
+    private var activeSkin: LiveIslandSkin {
+        guard let screen = activeScreen, let id = screen.displayID.map(String.init) else { return store.notchSkin }
+        return NotchDisplaySkin.resolve(
+            display: id,
+            displayUUID: DisplayIdentity.uuidString(for: screen),
+            fallback: store.notchSkin,
+            stored: storedSkins
+        )
+    }
+
+    private var activeDisplayHasSkinOverride: Bool {
+        guard let screen = activeScreen, let id = screen.displayID.map(String.init) else { return false }
+        let uuid = DisplayIdentity.uuidString(for: screen)
+        if let uuid, !uuid.isEmpty, storedSkins[uuid] != nil { return true }
+        return storedSkins[id] != nil
+    }
 
     var body: some View {
         SettingsCard(Text("Dynamic Notch")) {
@@ -16,91 +66,285 @@ struct LiveIslandSettingsBlock: View {
                 isOn: Binding(get: { store.notchIslandEnabled }, set: { store.setNotchIslandEnabled($0) })
             )
             .help(Text("Shows or hides the Dynamic Notch at the top of the screen."))
+
             SettingsDivider()
-            Text("Notch Style")
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            NotchStylePreviewGallery(
-                selected: Binding(get: { store.notchSkin }, set: { store.setNotchSkin($0) }),
-                isEnabled: store.notchIslandEnabled
-            )
-            .help(Text("The shape preview is a demo: the silhouette only, never live activity."))
-        }
-        NotchBehaviorCard()
-        SettingsCard(Text("Displays")) {
-            NotchDisplayRows()
-        }
-        NotchPagesCard(store: store)
-        DisclosureGroup {
-            VStack(spacing: 12) {
-                advancedSettings
+            screenContextHeader
+
+            if screens.count > 1 {
+                SettingsDivider()
+                SettingsRow(Text("Island Placement")) {
+                    Picker(selection: Binding(
+                        get: { placementMode },
+                        set: { raw in
+                            placementMode = raw
+                            UserDefaults.standard.set(raw, forKey: IslandPlacementMode.defaultsKey)
+                        }
+                    )) {
+                        Text("All Displays").tag(IslandPlacementMode.allDisplays.rawValue)
+                        Text("Built-in Display Only").tag(IslandPlacementMode.builtInOnly.rawValue)
+                        Text("Follow the Pointer").tag(IslandPlacementMode.followActiveDisplay.rawValue)
+                        Text("Floating Pill on Other Displays").tag(IslandPlacementMode.externalFloatingPill.rawValue)
+                    } label: { Text("Island Placement") }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
+                }
             }
-            .padding(.top, 8)
-        } label: {
-            Text("Advanced")
+
+            if activeDesign == .notch {
+                SettingsDivider()
+                HStack {
+                    Text("Notch Style")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    if activeDisplayHasSkinOverride, let id = activeScreen?.displayID.map(String.init) {
+                        Button {
+                            NotchDisplaySkin.set(nil, for: id)
+                            storedSkins = NotchDisplaySkin.stored()
+                        } label: {
+                            Text(verbatim: "Use Global Default")
+                        }
+                        .buttonStyle(.borderless)
+                        .font(.caption)
+                    }
+                }
+                NotchStylePreviewGallery(
+                    selected: Binding(
+                        get: { activeSkin },
+                        set: { next in
+                            if screens.count <= 1 || !activeDisplayHasSkinOverride {
+                                store.setNotchSkin(next)
+                            }
+                            if let screen = activeScreen, let id = screen.displayID.map(String.init),
+                               screens.count > 1 && (!activeHasNotch || activeDisplayHasSkinOverride) {
+                                NotchDisplaySkin.set(next, for: id)
+                                storedSkins = NotchDisplaySkin.stored()
+                            }
+                        }
+                    ),
+                    isEnabled: store.notchIslandEnabled
+                )
+                .help(Text("The shape preview is a demo: the silhouette only, never live activity."))
+            }
         }
-        .padding(.vertical, 4)
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
+            screens = NSScreen.screens
+        }
+
+        if activeDesign != .off {
+            NotchBehaviorCard()
+            if screens.count > 1 {
+                SettingsCard(Text("Displays")) {
+                    NotchDisplayRows()
+                }
+            }
+            NotchPagesCard(store: store)
+            DisclosureGroup {
+                VStack(spacing: 12) {
+                    advancedSettings
+                }
+                .padding(.top, 8)
+            } label: {
+                Text("Advanced")
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    @ViewBuilder
+    private var screenContextHeader: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if screens.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(screens, id: \.displayID) { screen in
+                            let id = screen.displayID ?? 0
+                            let isSelected = activeScreen?.displayID == screen.displayID
+                            let hasNotch = screen.safeAreaInsets.top > 0
+                            let isBuiltIn = CGDisplayIsBuiltin(id) != 0
+                            Button {
+                                selectedDisplayID = screen.displayID
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: isBuiltIn ? "laptopcomputer" : "display")
+                                        .font(.system(size: 11, weight: .semibold))
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(verbatim: screen.localizedName)
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .lineLimit(1)
+                                        Text(verbatim: hasNotch ? "Camera Cutout" : "External / No Cutout")
+                                            .font(.system(size: 9))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        .fill(isSelected ? Color.accentColor.opacity(0.16) : Color.primary.opacity(0.05))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        .strokeBorder(isSelected ? Color.accentColor : Color.primary.opacity(0.08), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+
+            if let screen = activeScreen, let id = screen.displayID.map(String.init) {
+                let uuid = DisplayIdentity.uuidString(for: screen)
+                HStack(spacing: 8) {
+                    Image(systemName: activeIsBuiltIn ? "laptopcomputer" : "display")
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            Text(verbatim: screen.localizedName)
+                                .font(.system(size: 12, weight: .semibold))
+                            Text(verbatim: activeHasNotch ? "Camera Cutout" : "No Cutout")
+                                .font(.system(size: 10, weight: .medium))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Capsule().fill(Color.primary.opacity(0.08)))
+                        }
+                        Text(verbatim: activeHasNotch
+                             ? "Built-in notch detected — Full (Boring Notch) is the default preset for this Mac."
+                             : "No camera cutout — defaults to Wide Bar at the top edge, or switch to a floating preset.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 4)
+                    Picker(selection: Binding(
+                        get: {
+                            selectionTag(id: id, uuid: uuid, hasHardwareNotch: activeHasNotch)
+                        },
+                        set: { tag in
+                            applySelection(tag, id: id, hasHardwareNotch: activeHasNotch)
+                        }
+                    )) {
+                        Text("Default").tag("default")
+                        Divider()
+                        Text("Full").tag("skin.boring")
+                        Text("Compact").tag("skin.classic")
+                        Text("Liquid").tag("skin.liquid")
+                        Text("Dynamic Island").tag("skin.dynamicIsland")
+                        Text(verbatim: "Super Glass").tag("skin.superGlass")
+                        Divider()
+                        Text(verbatim: "Wide bar").tag("design.wideBar")
+                        Text(verbatim: "Off").tag("design.off")
+                    } label: { EmptyView() }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .fixedSize()
+                }
+                .padding(.vertical, 2)
+            }
+        }
+    }
+
+    private func selectionTag(id: String, uuid: String?, hasHardwareNotch: Bool) -> String {
+        let design = NotchDesign.resolve(display: id, displayUUID: uuid, hasHardwareNotch: hasHardwareNotch, stored: storedDesigns)
+        if design == .wideBar { return "design.wideBar" }
+        if design == .off { return "design.off" }
+        if let uuid, !uuid.isEmpty, let skin = storedSkins[uuid] { return "skin.\(skin.rawValue)" }
+        if let skin = storedSkins[id] { return "skin.\(skin.rawValue)" }
+        return "default"
+    }
+
+    private func applySelection(_ tag: String, id: String, hasHardwareNotch: Bool) {
+        if tag == "design.wideBar" {
+            NotchDesign.set(.wideBar, for: id)
+            NotchDisplaySkin.set(nil, for: id)
+        } else if tag == "design.off" {
+            NotchDesign.set(.off, for: id)
+            NotchDisplaySkin.set(nil, for: id)
+        } else if tag.hasPrefix("skin."), let skin = LiveIslandSkin(rawValue: String(tag.dropFirst(5))) {
+            NotchDesign.set(.notch, for: id)
+            NotchDisplaySkin.set(skin, for: id)
+            if hasHardwareNotch { store.setNotchSkin(skin) }
+        } else {
+            NotchDesign.set(hasHardwareNotch ? .notch : .wideBar, for: id)
+            NotchDisplaySkin.set(nil, for: id)
+        }
+        storedDesigns = NotchDesign.stored()
+        storedSkins = NotchDisplaySkin.stored()
     }
 
     @ViewBuilder
     private var advancedSettings: some View {
-        IslandGlassAndMorphCard(store: store)
-        if store.notchSkin == .liquid {
+        if activeDesign == .wideBar {
+            SettingsCard(
+                Text(verbatim: "Wide Bar Mode"),
+                note: Text(verbatim: "This display shows a flush edge strip without a cutout. Switch mode above to a floating preset for pill settings.")
+            ) {
+                NotchControlsCardContentOnly()
+            }
+        } else if activeSkin == .liquid {
             SettingsCard(
                 Text("Liquid Notch"),
                 note: Text("Optional modules stay off until enabled for zero idle CPU.")
             ) {
                 LiquidExtrasSettingsRows()
             }
-        }
-        SettingsCard(Text("Dynamic Island")) {
-            SettingsRow(Text("Touch Optimization")) {
-                Picker(
-                    "Touch Optimization",
-                    selection: Binding(get: { store.islandTouchMode }, set: { store.setIslandTouchMode($0) })
-                ) {
-                    Text("Automatic").tag(IslandTouchModeSetting.automatic)
-                    Text("Always On").tag(IslandTouchModeSetting.alwaysOn)
-                    Text("Off").tag(IslandTouchModeSetting.off)
+            NotchControlsCard()
+        } else if activeSkin.usesIslandSurfaceEngine {
+            IslandGlassAndMorphCard(store: store, activeSkin: activeSkin)
+            SettingsCard(Text("Dynamic Island")) {
+                SettingsRow(Text("Touch Optimization")) {
+                    Picker(
+                        "Touch Optimization",
+                        selection: Binding(get: { store.islandTouchMode }, set: { store.setIslandTouchMode($0) })
+                    ) {
+                        Text("Automatic").tag(IslandTouchModeSetting.automatic)
+                        Text("Always On").tag(IslandTouchModeSetting.alwaysOn)
+                        Text("Off").tag(IslandTouchModeSetting.off)
+                    }
+                    .labelsHidden().pickerStyle(.menu).fixedSize()
                 }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            SettingsDivider()
-            SettingsRow(Text("Non-Notch Idle")) {
-                Picker(
-                    "Non-Notch Idle",
-                    selection: Binding(get: { store.islandNonNotchBehavior }, set: { store.setIslandNonNotchBehavior($0) })
-                ) {
-                    Text("Floating Pill").tag(IslandNonNotchIdleBehavior.compactPill)
-                    Text("Auto-Hide").tag(IslandNonNotchIdleBehavior.autoHideAtRest)
-                    Text("Wide Bar").tag(IslandNonNotchIdleBehavior.wideBarAtRest)
+                if !activeHasNotch || screens.count > 1 {
+                    SettingsDivider()
+                    SettingsRow(Text("Non-Notch Idle")) {
+                        Picker(
+                            "Non-Notch Idle",
+                            selection: Binding(get: { store.islandNonNotchBehavior }, set: { store.setIslandNonNotchBehavior($0) })
+                        ) {
+                            Text("Floating Pill").tag(IslandNonNotchIdleBehavior.compactPill)
+                            Text("Auto-Hide").tag(IslandNonNotchIdleBehavior.autoHideAtRest)
+                            Text("Wide Bar").tag(IslandNonNotchIdleBehavior.wideBarAtRest)
+                        }
+                        .labelsHidden().pickerStyle(.menu).fixedSize()
+                    }
                 }
-                .labelsHidden().pickerStyle(.menu).fixedSize()
-            }
-            SettingsDivider()
-            SettingsToggleRow(
-                Text("OLED Keyline"),
-                isOn: Binding(get: { store.islandKeylineEnabled }, set: { store.setIslandKeylineEnabled($0) })
-            )
-            SettingsDivider()
-            SettingsRow(Text("Island Playground")) {
-                Button(String(localized: "Open Playground")) {
-                    showPlayground = true
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("OLED Keyline"),
+                    isOn: Binding(get: { store.islandKeylineEnabled }, set: { store.setIslandKeylineEnabled($0) })
+                )
+                SettingsDivider()
+                SettingsRow(Text("Island Playground")) {
+                    Button(String(localized: "Open Playground")) {
+                        showPlayground = true
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
+                .sheet(isPresented: $showPlayground) {
+                    IslandPlaygroundSheet(store: store)
+                }
             }
-            .sheet(isPresented: $showPlayground) {
-                IslandPlaygroundSheet(store: store)
-            }
-        }
-        if store.notchSkin == .boring || store.notchSkin == .classic {
+            NotchControlsCard()
+        } else {
+            NotchActivityCard()
             NotchAppearanceCard()
             NotchLayoutCard()
-            NotchActivityCard()
             SettingsCard(Text("Appearance")) { NotchAnimationPicker() }
+            NotchControlsCard()
+            DroppyCustomizationCard()
         }
-        NotchControlsCard()
-        DroppyCustomizationCard()
+        if screens.count == 1 {
+            SettingsCard(Text("Displays")) {
+                NotchDisplayRows()
+            }
+        }
         SettingsCard(Text("Focus")) {
             SettingsToggleRow(Text("Focus"), isOn: $timeTravel.focusDeferralEnabled)
             SettingsRow(Text("Suggestions")) {
@@ -113,22 +357,35 @@ struct LiveIslandSettingsBlock: View {
 
 private struct IslandGlassAndMorphCard: View {
     @ObservedObject var store: AppSettingsStore
+    let activeSkin: LiveIslandSkin
     @AppStorage(IslandSurfaceGlassPolicy.liquidGlassEnabledKey) private var liquidGlassEnabled = true
     @AppStorage(IslandSurfaceGlassPolicy.metalMorphOptInKey) private var metalMorphOptIn = false
 
     var body: some View {
         SettingsCard(
             Text("Surface Material"),
-            note: Text("Built-in hardware notches stay pure OLED black when closed; Liquid Glass applies when expanded and on notchless displays.")
+            note: Text(verbatim: "Built-in camera cutouts stay pure OLED black when closed. Liquid Glass applies to the Super Glass preset when expanded and on notchless displays.")
         ) {
-            SettingsToggleRow(Text("Liquid Glass Surface"), isOn: $liquidGlassEnabled)
-            SettingsDivider()
+            if activeSkin.usesSuperGlassBackdrop {
+                SettingsToggleRow(Text("Liquid Glass Surface"), isOn: $liquidGlassEnabled)
+                SettingsDivider()
+            }
             SettingsToggleRow(
                 Text("Metal Liquid Morph (Opt-In)"),
                 isOn: $metalMorphOptIn
             )
             .help(Text("Enables GPU SDF liquid morphing across all notch presets (disabled in Low Power Mode and Reduce Motion)."))
         }
+    }
+}
+
+private struct NotchControlsCardContentOnly: View {
+    @AppStorage(NotchHUDPresentation.showWhenOpenKey) private var showOpenHUD = true
+    @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
+
+    var body: some View {
+        SettingsToggleRow(Text("Show HUD When Open"), isOn: $showOpenHUD)
+        SettingsToggleRow(Text("Show HUD Percentages"), isOn: $showHUDPercentage)
     }
 }
 
@@ -764,6 +1021,7 @@ private struct NotchDisplayRows: View {
                     Text("Full").tag("skin.boring")
                     Text("Compact").tag("skin.classic")
                     Text("Dynamic Island").tag("skin.dynamicIsland")
+                    Text(verbatim: "Super Glass").tag("skin.superGlass")
                     Divider()
                     Text(verbatim: "Wide bar").tag("design.wideBar")
                     Text(verbatim: "Off").tag("design.off")
@@ -1011,6 +1269,7 @@ private struct NotchStylePreviewGallery: View {
         case .boring: Text("Full")
         case .classic: Text("Compact")
         case .dynamicIsland: Text("Dynamic Island")
+        case .superGlass: Text(verbatim: "Super Glass")
         }
     }
 
@@ -1072,6 +1331,27 @@ private struct NotchStylePreviewGallery: View {
                     .padding(.horizontal, 6)
                 )
                 .frame(width: 58, height: 18)
+        case .superGlass:
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .fill(Color.black.opacity(0.72))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.55), .cyan.opacity(0.45), .white.opacity(0.18)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.2
+                        )
+                )
+                .overlay(
+                    HStack(spacing: 3) {
+                        RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.28)).frame(width: 14, height: 10)
+                        RoundedRectangle(cornerRadius: 2).fill(.cyan.opacity(0.35)).frame(width: 24, height: 10)
+                    }
+                )
+                .frame(width: 64, height: 24)
         }
     }
 }

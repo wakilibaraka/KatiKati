@@ -350,12 +350,12 @@ struct SettingsStage: View {
                             .frame(width: w, height: max(18, h * 0.75))
                     }
                 }
-            case .dynamicIsland:
+            case .dynamicIsland, .superGlass:
                 RoundedRectangle(cornerRadius: expandsNotch ? max(6, 16 * scale) : max(4, 10 * scale), style: .continuous)
                     .fill(Color.black)
                     .overlay(
                         RoundedRectangle(cornerRadius: expandsNotch ? max(6, 16 * scale) : max(4, 10 * scale), style: .continuous)
-                            .strokeBorder(.white.opacity(0.22), lineWidth: 1)
+                            .strokeBorder(.white.opacity(store.notchSkin == .superGlass ? 0.34 : 0.22), lineWidth: 1)
                     )
                     .frame(width: w, height: h)
             case .boring:

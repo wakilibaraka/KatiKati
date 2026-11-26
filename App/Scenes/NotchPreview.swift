@@ -19,6 +19,7 @@ struct NotchPreview: View {
         case .boring: return String(localized: "Full")
         case .classic: return String(localized: "Compact")
         case .dynamicIsland: return String(localized: "Dynamic Island")
+        case .superGlass: return String(localized: "Super Glass")
         }
     }
 
@@ -45,12 +46,12 @@ struct NotchPreview: View {
 
     private var silhouette: some View {
         ZStack {
-            if skin == .dynamicIsland || skin == .liquid {
+            if skin == .dynamicIsland || skin == .liquid || skin == .superGlass {
                 NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
                     .fill(Color.black)
                     .overlay(
                         NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
-                            .stroke(Color.white.opacity(0.16), lineWidth: 1.5)
+                            .stroke(Color.white.opacity(skin == .superGlass ? 0.28 : 0.16), lineWidth: 1.5)
                     )
             } else {
                 // The floating-island rendering, which is what the app draws on a display without a

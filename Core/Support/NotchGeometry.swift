@@ -41,7 +41,7 @@ enum NotchGeometry {
     static func openSize(for skin: LiveIslandSkin) -> CGSize {
         switch skin {
         case .liquid: return liquidOpenSize
-        case .boring: return openSize
+        case .boring, .superGlass: return openSize
         case .classic: return classicOpenSize
         case .dynamicIsland: return dynamicIslandOpenSize
         }
@@ -54,7 +54,7 @@ enum NotchGeometry {
         }
         switch skin {
         case .liquid: return liquidOpenSize
-        case .boring: return openSize
+        case .boring, .superGlass: return openSize
         case .classic: return classicOpenSize
         case .dynamicIsland: return dynamicIslandPreviewSize
         }
@@ -117,13 +117,15 @@ enum NotchGeometry {
             let width = isWide ? openSize.width : max(closedSize.width, 320)
             let height = min(60, max(44, metrics.closedSize.height + 14))
             return CGSize(width: width, height: height)
-        case .boring, .classic:
+        case .superGlass:
             if isExpanded {
                 return CGSize(width: max(560, openSize.width + 64), height: max(240, openSize.height + 50))
             }
             let width = isWide ? openSize.width : max(closedSize.width, 340)
             let height = min(60, max(44, metrics.closedSize.height + 16))
             return CGSize(width: width, height: height)
+        case .boring, .classic:
+            return isExpanded ? openSize : closedSize
         }
     }
 
@@ -150,7 +152,7 @@ enum NotchGeometry {
             hasCompactActivity: hasCompactActivity
         )
         var frame = panelFrame(size: size, in: screenBounds)
-        if !metrics.hasHardwareNotch, !isWide, menuBarHeight > 0 {
+        if skin.usesIslandSurfaceEngine, !metrics.hasHardwareNotch, !isWide, menuBarHeight > 0 {
             frame.origin.y -= menuBarHeight
         }
         return frame
