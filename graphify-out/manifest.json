@@ -9078,9 +9078,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MULTIDISPLAY_OPTIMIZATION_PLAN.md": {
-    "mtime": 1795716312.3013802,
-    "seen": 1795716344.0061498,
-    "ast_hash": "40c0466175f20437a88656580dc077ca",
+    "mtime": 1795725861.486663,
+    "seen": 1795726260.251392,
+    "ast_hash": "1e0c60a75607c981f79b51b5303a5ffe",
     "semantic_hash": ""
   },
   "Scripts/build_mediaremote_adapter.sh": {
@@ -9261,6 +9261,18 @@
     "mtime": 1795723896.4738154,
     "seen": 1795725246.600461,
     "ast_hash": "25f9e4b8600582c4b87f8e2cc92311a4",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-26-multidisplay-live/README.md": {
+    "mtime": 1795725755.465559,
+    "seen": 1795726260.251384,
+    "ast_hash": "872684d1e8bcff42925c78f04d950ffa",
+    "semantic_hash": ""
+  },
+  "Docs/Archive/Planning/evidence/2026-11-26-multidisplay-live/01-quick-settings-labelled-rows.png": {
+    "mtime": 1795725680.9318156,
+    "seen": 1795726260.251606,
+    "ast_hash": "f1f574625cc060bb94e71c7ffabed8d6",
     "semantic_hash": ""
   }
 }
