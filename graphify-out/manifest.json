@@ -24,9 +24,9 @@
     "semantic_hash": "d2c799238debcac3075efbf8a73e231c"
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795693162.07941,
-    "seen": 1795693506.791893,
-    "ast_hash": "c4d2b648bbe52823cbe3524291f8faa4",
+    "mtime": 1795717385.0054848,
+    "seen": 1795717400.077364,
+    "ast_hash": "5e441658052699eec7e13e7dddaa4179",
     "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795705657.0712552,
-    "seen": 1795706266.9940119,
-    "ast_hash": "b60168e3c111ef7cbdc10f9e2eea7d2b",
+    "mtime": 1795717385.0059083,
+    "seen": 1795717400.077466,
+    "ast_hash": "e77bc66c77ba9d07b601be507203a8f6",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795704279.973323,
-    "seen": 1795705475.334271,
-    "ast_hash": "b3fb3c7d153ec6a7b4e00f0fbca3dff8",
+    "mtime": 1795717385.0081794,
+    "seen": 1795717400.077479,
+    "ast_hash": "405b1fd94d8acd55d0f7b4702c3a6bf4",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -990,10 +990,10 @@
     "semantic_hash": "aa56d2d9595a072f205d02f7f71faff5"
   },
   "App/Scenes/Notch/NotchContinuousMaskShape.swift": {
-    "mtime": 1792012076.5578868,
-    "seen": 1795606909.6222038,
-    "ast_hash": "4a2a76b5f1e788a16b55c9a1c2aa7a39",
-    "semantic_hash": "4a2a76b5f1e788a16b55c9a1c2aa7a39"
+    "mtime": 1795717385.00674,
+    "seen": 1795717400.077589,
+    "ast_hash": "88c41181e86f6250b413d9dd29c54426",
+    "semantic_hash": ""
   },
   "App/Scenes/Notch/NotchHeaderView.swift": {
     "mtime": 1795443274.0199623,
@@ -1044,9 +1044,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/NotchIslandView.swift": {
-    "mtime": 1795692707.2065096,
-    "seen": 1795692922.2577238,
-    "ast_hash": "bdbd33a65e8e3cf23f2eba17dff87ec4",
+    "mtime": 1795717385.0073118,
+    "seen": 1795717400.077604,
+    "ast_hash": "f5ca705b3a5395b550c7e99383810543",
     "semantic_hash": ""
   },
   "App/Scenes/NotchPreview.swift": {
@@ -2076,9 +2076,9 @@
     "semantic_hash": ""
   },
   "Core/Support/NotchSectionPaging.swift": {
-    "mtime": 1795443274.031224,
-    "seen": 1795606909.622519,
-    "ast_hash": "2980c96e9508607664d580e1d25869b3",
+    "mtime": 1795717385.0050662,
+    "seen": 1795717400.0778298,
+    "ast_hash": "0b5282b33aef812459b82d21405ef15b",
     "semantic_hash": ""
   },
   "Core/Support/NoteCipher.swift": {
@@ -5448,9 +5448,9 @@
     "semantic_hash": ""
   },
   "Vendor/boring.notch/MANIFEST.txt": {
-    "mtime": 1795717357.5803697,
-    "seen": 1795717359.563796,
-    "ast_hash": "d8558266eddf6838a3bbe27fd099404b",
+    "mtime": 1795717384.9833844,
+    "seen": 1795717400.078453,
+    "ast_hash": "616e8ebe13dafc5b89dbead119e9b556",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-10-15-advanced-pairs/Advanced.png": {
