@@ -171,6 +171,9 @@ struct SettingsTilingPane: View {
                         action: { engine.setLayout(nil, for: primary) }
                     )
                 }
+                // AT-6: the multi-display layer has its own switch, separate from the Mac-wide one.
+                multiDisplayBlock
+
                 if engine.preset == .mainStack || engine.preset == .centeredMain {
                     SettingsDivider()
                     SettingsSliderRow(
@@ -270,6 +273,159 @@ struct SettingsTilingPane: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: - AT-6: multi-display settings
+
+    @ViewBuilder
+    private var multiDisplayBlock: some View {
+        SettingsDivider()
+        Text("Multi-Display Tiling")
+            .font(.subheadline)
+        SettingsToggleRow(
+            Text("Manage Displays Separately"),
+            isOn: Binding(
+                get: { engine.multiDisplayEnabled },
+                set: { engine.setMultiDisplayEnabled($0) }
+            ),
+            note: Text(verbatim: "Each display gets its own gaps, main-window size, window cap and overflow rule. Off keeps one setting for every screen.")
+        )
+        if engine.multiDisplayEnabled {
+            SettingsButtonRow(
+                Text("Apply Power-User Dual-Display Preset"),
+                note: Text(verbatim: "External 4K: Main + Stack 58/42, gaps 8/10, at most 4 windows. Built-in: 55/45, gaps 6/8, at most 2."),
+                action: { engine.applyPowerUserDualDisplayPreset() }
+            )
+            ForEach(NSScreen.screens, id: \.self) { screen in
+                displayProfileRow(screen)
+            }
+            Text("Workspace Names")
+                .font(.subheadline)
+            ForEach(NSScreen.screens, id: \.self) { screen in
+                workspaceNamesGroup(screen)
+            }
+        }
+    }
+
+    /// One display's profile: cap, overflow, gaps, ratio and the media island rule. The layout itself
+    /// stays in the preset picker above, so there is only one place to choose it.
+    @ViewBuilder
+    private func displayProfileRow(_ screen: NSScreen) -> some View {
+        let role = engine.displayRole(for: screen)
+        let profile = engine.profile(for: screen) ?? .powerUser(role: role)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text(verbatim: screen.localizedName)
+                    .font(.callout.weight(.semibold))
+                Text(verbatim: role == .builtin ? "Built-in" : "External")
+                    .font(.caption2)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1)
+                    .background(Capsule().fill(Color.secondary.opacity(0.15)))
+                Spacer()
+                Text(verbatim: "\(Int(screen.frame.width)) × \(Int(screen.frame.height))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            SettingsRow(Text("Limit Windows per Space")) {
+                Stepper(value: Binding(
+                    get: { profile.maxWindowsPerSpace ?? 0 },
+                    set: { value in
+                        var next = profile
+                        next.maxWindowsPerSpace = value == 0 ? nil : value
+                        engine.setProfile(next, for: screen)
+                    }
+                ), in: 0...DisplayTilingProfile.maxWindowRange.upperBound) {
+                    Text(verbatim: profile.maxWindowsPerSpace.map(String.init) ?? String(localized: "No Limit"))
+                }
+                .fixedSize()
+            }
+            SettingsPickerRow(Text("Overflow"), selection: Binding(
+                get: { profile.overflow },
+                set: { value in
+                    var next = profile
+                    next.overflow = value
+                    engine.setProfile(next, for: screen)
+                }
+            )) {
+                ForEach(DisplayOverflowPolicy.allCases, id: \.self) { policy in
+                    Text(policy.localizedTitleKey).tag(policy)
+                }
+            }
+            SettingsToggleRow(
+                Text("Hide Island for Fullscreen Video"),
+                isOn: Binding(
+                    get: { profile.hideIslandForMedia },
+                    set: { value in
+                        var next = profile
+                        next.hideIslandForMedia = value
+                        engine.setProfile(next, for: screen)
+                    }
+                )
+            )
+            SettingsRowPair {
+                SettingsSliderRow(
+                    Text("Inner Gap"),
+                    value: profile.gaps.inner,
+                    range: 0...32,
+                    step: 1,
+                    valueText: "\(Int(profile.gaps.inner)) pt",
+                    set: { value in
+                        var next = profile
+                        next.gaps = TilingGaps(inner: CGFloat(value), outer: profile.gaps.outer)
+                        engine.setProfile(next, for: screen)
+                    }
+                )
+            } right: {
+                SettingsSliderRow(
+                    Text("Outer Gap"),
+                    value: profile.gaps.outer,
+                    range: 0...32,
+                    step: 1,
+                    valueText: "\(Int(profile.gaps.outer)) pt",
+                    set: { value in
+                        var next = profile
+                        next.gaps = TilingGaps(inner: profile.gaps.inner, outer: CGFloat(value))
+                        engine.setProfile(next, for: screen)
+                    }
+                )
+            }
+            if engine.preset(for: screen) == .mainStack || engine.preset(for: screen) == .centeredMain {
+                SettingsSliderRow(
+                    Text("Main Window Size"),
+                    value: profile.mainRatio * 100,
+                    range: 30...70,
+                    step: 5,
+                    valueText: "\(Int(profile.mainRatio * 100))%",
+                    set: { value in
+                        var next = profile
+                        next.mainRatio = CGFloat(value) / 100
+                        engine.setProfile(next, for: screen)
+                    }
+                )
+            }
+        }
+        .padding(.vertical, 5)
+    }
+
+    /// Names for the ten workspaces of one display. A blank field falls back to the number.
+    private func workspaceNamesGroup(_ screen: NSScreen) -> some View {
+        let displayKey = engine.screenKey(for: screen)
+        return DisclosureGroup {
+            ForEach(WorkspaceID.allNumbered, id: \.self) { workspace in
+                SettingsRow(Text(verbatim: workspace.token)) {
+                    TextField("Name", text: Binding(
+                        get: { engine.workspaceNames.name(for: workspace, on: displayKey) ?? "" },
+                        set: { engine.setWorkspaceName($0, for: workspace, on: displayKey) }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 160)
+                }
+            }
+        } label: {
+            Text(verbatim: screen.localizedName)
+                .font(.callout)
         }
     }
 
