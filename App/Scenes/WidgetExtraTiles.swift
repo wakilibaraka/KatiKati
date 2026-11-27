@@ -259,6 +259,7 @@ struct CountdownTile: View {
     let width: CGFloat
     let height: CGFloat
     @State private var adding = false
+    @State private var showDateCalculator = false
     @State private var label = ""
     @State private var date = Date().addingTimeInterval(86_400 * 7)
 
@@ -269,8 +270,15 @@ struct CountdownTile: View {
     var body: some View {
         let rows = max(1, Int((height - 30 - 10) / 34))
         BandTile(env: env, kind: .countdown, width: width, height: height, header: {
-            HStack {
+            HStack(spacing: 8) {
                 Text("Countdown"); Spacer()
+                Button { showDateCalculator.toggle() } label: { Image(systemName: "calendar.badge.clock") }
+                    .buttonStyle(.plain)
+                    .help(Text("Date Calculator"))
+                    .accessibilityLabel(Text("Date Calculator"))
+                    .popover(isPresented: $showDateCalculator) {
+                        DateCalculatorView()
+                    }
                 Button { adding.toggle() } label: { Image(systemName: "plus") }.buttonStyle(.plain)
                     .popover(isPresented: $adding) {
                         VStack(spacing: 8) {

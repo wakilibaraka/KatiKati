@@ -39,6 +39,7 @@ struct CalendarPanelView: View {
 
     /// Measured content height: the panel reports `min(content, maxHeight)` and scrolls the rest.
     @State private var contentHeight: CGFloat = 0
+    @State private var showDateCalculator = false
 
     var body: some View {
         let env = TileEnv(palette: palette, isDark: colorScheme == .dark, glass: glassTiles)
@@ -52,6 +53,22 @@ struct CalendarPanelView: View {
                 case .mac: macTiles(env: env, inner: inner)
                 case .ipad: ipadTiles(env: env, inner: inner)
                 case .tall: tallTiles(env: env, inner: inner)
+                }
+                HStack {
+                    Spacer()
+                    Button { showDateCalculator.toggle() } label: {
+                        Label("Date Calculator", systemImage: "calendar.badge.clock")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(env.text)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.plain)
+                    .tileSurface(env)
+                    .popover(isPresented: $showDateCalculator) {
+                        DateCalculatorView()
+                    }
+                    Spacer()
                 }
             }
             .padding(gutter)

@@ -1497,13 +1497,77 @@ struct SideDeckWeatherView: View {
 struct SideDeckQuickAccessView: View {
     let onLauncher: () -> Void
     let onCommandBar: () -> Void
+    var onCloseDeck: () -> Void = {}
+
+    private enum Mode: String {
+        case commandBar
+        case launcher
+    }
+
+    @AppStorage("com.katikati.sideDeck.quickAccessMode") private var modeRaw: String = Mode.commandBar.rawValue
+
+    private var mode: Mode {
+        Mode(rawValue: modeRaw) ?? .commandBar
+    }
+
+    private var modeBinding: Binding<Mode> {
+        Binding(get: { mode }, set: { modeRaw = $0.rawValue })
+    }
 
     var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Picker("Mode", selection: modeBinding) {
+                    Text("Command Bar").tag(Mode.commandBar)
+                    Text("Launcher").tag(Mode.launcher)
+                }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+
+                Button {
+                    if mode == .commandBar { onCommandBar() } else { onLauncher() }
+                } label: {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 24, height: 24)
+                        .background(Circle().fill(Color.primary.opacity(0.08)))
+                }
+                .buttonStyle(.plain)
+                .help(mode == .commandBar ? Text("Open Command Bar") : Text("Open Launcher"))
+                .accessibilityLabel(mode == .commandBar ? Text("Open Command Bar") : Text("Open Launcher"))
+            }
+            .padding(.horizontal, 10)
+            .padding(.top, 8)
+
+            embeddedContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear { prepareCurrentMode() }
+        .onChange(of: modeRaw) { _, _ in prepareCurrentMode() }
+        .onDisappear { teardownAllEmbedded() }
+    }
+
+    @ViewBuilder
+    private var embeddedContent: some View {
+        if let app = AppDelegate.shared {
+            if mode == .commandBar {
+                app.commandBarPanel.makeEmbeddedView { onCloseDeck() }
+            } else {
+                app.launcherPanel.makeEmbeddedView { onCloseDeck() }
+            }
+        } else {
+            fallbackButtons
+        }
+    }
+
+    private var fallbackButtons: some View {
         VStack(spacing: 12) {
             Text("Quick Access").font(.system(size: 13, weight: .semibold))
             HStack(spacing: 12) {
-                quickButton(title: "Launcher", symbol: "square.grid.2x2", action: onLauncher)
-                quickButton(title: "Command Bar", symbol: "command", action: onCommandBar)
+                quickButton(title: String(localized: "Launcher"), symbol: "square.grid.2x2", action: onLauncher)
+                quickButton(title: String(localized: "Command Bar"), symbol: "command", action: onCommandBar)
             }
             .frame(maxHeight: .infinity)
         }
@@ -1511,11 +1575,27 @@ struct SideDeckQuickAccessView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private func prepareCurrentMode() {
+        guard let app = AppDelegate.shared else { return }
+        if mode == .commandBar {
+            app.launcherPanel.teardownEmbedded()
+            app.commandBarPanel.prepareEmbedded()
+        } else {
+            app.commandBarPanel.teardownEmbedded()
+            app.launcherPanel.prepareEmbedded()
+        }
+    }
+
+    private func teardownAllEmbedded() {
+        AppDelegate.shared?.commandBarPanel.teardownEmbedded()
+        AppDelegate.shared?.launcherPanel.teardownEmbedded()
+    }
+
     private func quickButton(title: String, symbol: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: symbol).font(.system(size: 22, weight: .medium))
-                Text(title).font(.system(size: 11, weight: .semibold))
+                Text(verbatim: title).font(.system(size: 11, weight: .semibold))
             }
             // SD-2: the Command Bar and Launcher entries fill the panel rather than sitting in two tiles.
             .frame(maxWidth: .infinity, maxHeight: .infinity)

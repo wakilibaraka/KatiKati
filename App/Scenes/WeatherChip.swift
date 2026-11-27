@@ -229,6 +229,9 @@ public struct WeatherChip: View {
         } else if chipPreset == .ipad {
             WeatherIPadChip(state: state, size: widgetSize)
                 .onTapGesture { WidgetPanelController.weather.toggle() }
+        } else if chipPreset == .samsung || chipPreset == .orion || chipPreset == .notBoring {
+            WeatherStyledSkinChip(state: state, size: widgetSize, preset: chipPreset)
+                .onTapGesture { WidgetPanelController.weather.toggle() }
         } else if chipPreset.isDetailed {
             DetailedWeatherPodView(state: state, widgetSize: widgetSize, sky: sky)
                 .onTapGesture { WidgetPanelController.weather.toggle() }
@@ -380,7 +383,7 @@ struct RailWeatherTile: View {
         // The iPad card's sky plate, with its dark-ink flip on bright skies; no forecast keeps the dock plate.
         let sky: LinearGradient? = chipPreset == .modern && state.hasData
             ? LinearGradient(colors: [Color(white: 0.085), Color(white: 0.085)], startPoint: .top, endPoint: .bottom)
-            : chipPreset == .ipad && state.hasData
+            : (chipPreset == .ipad || chipPreset == .samsung || chipPreset == .orion || chipPreset == .notBoring) && state.hasData
             ? LinearGradient(colors: [Color(red: tint.top.r, green: tint.top.g, blue: tint.top.b),
                                       Color(red: tint.bottom.r, green: tint.bottom.g, blue: tint.bottom.b)],
                              startPoint: .top, endPoint: .bottom)
@@ -691,5 +694,243 @@ private struct DetailedWeatherPodView: View {
 
     /// The feed's own days — a short or empty forecast shows fewer columns, never invented ones.
     private var forecastItems: [DailyForecast] { state.threeDayForecast }
+}
+
+// MARK: - Samsung Vibrant / Orion Aurora / Not Boring 3D Dock Skins
+
+private struct WeatherStyledSkinChip: View {
+    let state: WeatherState
+    let size: WidgetSize
+    let preset: WeatherChipPreset
+
+    @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
+    @AppStorage(WidgetMotionPreset.storageKey) private var motionPreset: WidgetMotionPreset = .default
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
+    @State private var naturalHeight: CGFloat = 0
+
+    private var reading: Int { Int(tempUnit.convert(state.temperatureCelsius).rounded()) }
+    private var highReading: Int { Int(tempUnit.convert(state.highCelsius).rounded()) }
+    private var lowReading: Int { Int(tempUnit.convert(state.lowCelsius).rounded()) }
+    private var skyTint: SkyTint { SkyTint.tint(condition: state.conditionFamily, isNight: state.isNight) }
+
+    private var plateGradient: LinearGradient {
+        switch preset {
+        case .samsung:
+            if state.isNight {
+                return LinearGradient(
+                    colors: [Color(red: 0.12, green: 0.15, blue: 0.42), Color(red: 0.28, green: 0.22, blue: 0.62)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+            return LinearGradient(
+                colors: [Color(red: 0.14, green: 0.56, blue: 0.98), Color(red: 0.36, green: 0.78, blue: 0.99)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .orion:
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.04, green: 0.11, blue: 0.18),
+                    Color(red: skyTint.top.r * 0.38 + 0.05, green: skyTint.top.g * 0.48 + 0.12, blue: skyTint.top.b * 0.55 + 0.16),
+                    Color(red: 0.09, green: 0.08, blue: 0.22),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .notBoring:
+            switch state.conditionFamily {
+            case .clear:
+                return LinearGradient(
+                    colors: state.isNight
+                        ? [Color(red: 0.18, green: 0.20, blue: 0.48), Color(red: 0.11, green: 0.12, blue: 0.32)]
+                        : [Color(red: 0.99, green: 0.52, blue: 0.16), Color(red: 0.94, green: 0.33, blue: 0.14)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            case .rain, .showers, .drizzle, .thunderstorm:
+                return LinearGradient(
+                    colors: [Color(red: 0.12, green: 0.45, blue: 0.92), Color(red: 0.07, green: 0.28, blue: 0.70)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            case .snow:
+                return LinearGradient(
+                    colors: [Color(red: 0.24, green: 0.65, blue: 0.88), Color(red: 0.16, green: 0.46, blue: 0.72)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            default:
+                return LinearGradient(
+                    colors: [Color(red: 0.26, green: 0.34, blue: 0.48), Color(red: 0.16, green: 0.22, blue: 0.33)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        default:
+            return WeatherArt.gradient(condition: state.conditionFamily, isNight: state.isNight)
+        }
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            skinContent
+                .frame(width: geo.size.width)
+                .background(ContentHeightReader())
+                .scaleEffect(SlotFitScale.scale(naturalHeight: naturalHeight, availableHeight: geo.size.height), anchor: .center)
+                .frame(width: geo.size.width, height: geo.size.height)
+                .onPreferenceChange(ContentHeightKey.self) { naturalHeight = $0 }
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .foregroundStyle(.white)
+        .dockTileChrome(isHovered: isHovered, fill: plateGradient)
+        .overlay(alignment: .bottom) {
+            if preset == .notBoring {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.28), lineWidth: 1.5)
+                    .allowsHitTesting(false)
+            } else if preset == .orion {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.cyan.opacity(0.32), lineWidth: 0.8)
+                    .allowsHitTesting(false)
+            }
+        }
+        .onHover { isHovered = $0 }
+        .contentShape(Rectangle())
+        .dockReadingMorph(motionPreset.effective(reduceMotion: reduceMotion), value: reading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: "\(state.cityName), \(reading)°, \(state.conditionText)"))
+        .accessibilityAddTraits(.isButton)
+    }
+
+    @ViewBuilder
+    private var skinContent: some View {
+        switch preset {
+        case .samsung: samsungBody
+        case .orion: orionBody
+        case .notBoring: notBoringBody
+        default: samsungBody
+        }
+    }
+
+    private var samsungBody: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(verbatim: "\(reading)°")
+                    .font(.system(size: size == .small ? 18 : 22, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                if size != .small {
+                    Text(verbatim: state.cityName)
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .opacity(0.92)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 2)
+            if size == .large {
+                let hours = WeatherHourSlot.slots(from: state, count: 3)
+                if !hours.isEmpty {
+                    HStack(spacing: 6) {
+                        ForEach(hours) { slot in
+                            VStack(spacing: 1) {
+                                Text(verbatim: slot.isNow ? String(localized: "Now") : slot.hour)
+                                    .font(.system(size: 8.5, weight: .semibold))
+                                    .opacity(0.8)
+                                Image(systemName: slot.symbolName)
+                                    .symbolRenderingMode(.multicolor)
+                                    .font(.system(size: 10))
+                                Text(verbatim: "\(Int(tempUnit.convert(slot.temperatureCelsius).rounded()))°")
+                                    .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                                    .monospacedDigit()
+                            }
+                        }
+                    }
+                }
+            }
+            VStack(alignment: .trailing, spacing: 1) {
+                WeatherIllustration(condition: state.conditionFamily, isNight: state.isNight, size: size == .small ? 20 : 24)
+                if size != .small {
+                    Text(verbatim: "\(highReading)°/\(lowReading)°")
+                        .font(.system(size: 8.5, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .opacity(0.85)
+                }
+            }
+        }
+    }
+
+    private var orionBody: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text(verbatim: state.cityName.uppercased())
+                        .font(.system(size: 8.5, weight: .bold))
+                        .tracking(0.6)
+                        .foregroundStyle(Color.cyan.opacity(0.9))
+                        .lineLimit(1)
+                    if size == .large {
+                        Text(verbatim: state.conditionText)
+                            .font(.system(size: 9, weight: .medium))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(Capsule().fill(Color.white.opacity(0.14)))
+                            .lineLimit(1)
+                    }
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(verbatim: "\(reading)°")
+                        .font(.system(size: 20, weight: .light, design: .rounded))
+                        .monospacedDigit()
+                    if size != .small, let feels = state.detail?.apparent {
+                        Text(verbatim: "Feels \(Int(tempUnit.convert(feels).rounded()))°")
+                            .font(.system(size: 9.5, weight: .regular))
+                            .opacity(0.75)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            Spacer(minLength: 2)
+            Image(systemName: state.glyphName)
+                .symbolRenderingMode(.multicolor)
+                .font(.system(size: size == .small ? 15 : 18, weight: .medium))
+        }
+    }
+
+    private var notBoringBody: some View {
+        HStack(spacing: 7) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.22))
+                    .frame(width: size == .small ? 24 : 28, height: size == .small ? 24 : 28)
+                    .shadow(color: .black.opacity(0.25), radius: 2, y: 2)
+                Image(systemName: state.glyphName)
+                    .symbolRenderingMode(.multicolor)
+                    .font(.system(size: size == .small ? 13 : 15, weight: .bold))
+            }
+            VStack(alignment: .leading, spacing: 0) {
+                Text(verbatim: "\(reading)°")
+                    .font(.system(size: size == .small ? 18 : 21, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .shadow(color: .black.opacity(0.28), radius: 1, y: 1.5)
+                if size != .small {
+                    Text(verbatim: state.conditionText)
+                        .font(.system(size: 9.5, weight: .bold, design: .rounded))
+                        .opacity(0.92)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+            if size == .large {
+                Text(verbatim: state.cityName)
+                    .font(.system(size: 10, weight: .heavy, design: .rounded))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(Color.black.opacity(0.22)))
+                    .lineLimit(1)
+            }
+        }
+    }
 }
 

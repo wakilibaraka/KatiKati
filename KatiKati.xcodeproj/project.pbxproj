@@ -1437,6 +1437,13 @@
 		A0000000000000000000F002 /* CommandBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F000 /* CommandBar.swift */; };
 		A0000000000000000000F011 /* CommandBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000F010 /* CommandBarTests.swift */; };
 		A0000000000000000000A101 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
+		D1C700000000000000000401 /* DateCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000400 /* DateCalculator.swift */; };
+		D1C700000000000000000402 /* DateCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000400 /* DateCalculator.swift */; };
+		D1C700000000000000000411 /* TerminalSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000410 /* TerminalSupport.swift */; };
+		D1C700000000000000000412 /* TerminalSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000410 /* TerminalSupport.swift */; };
+		D1C700000000000000000421 /* DateCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000420 /* DateCalculatorView.swift */; };
+		D1C700000000000000000432 /* DateCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000430 /* DateCalculatorTests.swift */; };
+		D1C700000000000000000442 /* TerminalSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000440 /* TerminalSupportTests.swift */; };
 		D1C700000000000000000111 /* TerminalTabs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000110 /* TerminalTabs.swift */; };
 		D1C700000000000000000101 /* DictionaryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C700000000000000000100 /* DictionaryEntry.swift */; };
 		A0000000000000000000A102 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000A100 /* Translate.swift */; };
@@ -2588,6 +2595,11 @@
 		D1C700000000000000000140 /* DictionaryTerminalSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryTerminalSettingsTests.swift; sourceTree = "<group>"; };
 		D1C700000000000000000130 /* TerminalTabsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalTabsTests.swift; sourceTree = "<group>"; };
 		D1C700000000000000000120 /* DictionaryEntryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEntryTests.swift; sourceTree = "<group>"; };
+		D1C700000000000000000400 /* DateCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateCalculator.swift; sourceTree = "<group>"; };
+		D1C700000000000000000410 /* TerminalSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSupport.swift; sourceTree = "<group>"; };
+		D1C700000000000000000420 /* DateCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateCalculatorView.swift; sourceTree = "<group>"; };
+		D1C700000000000000000430 /* DateCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateCalculatorTests.swift; sourceTree = "<group>"; };
+		D1C700000000000000000440 /* TerminalSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSupportTests.swift; sourceTree = "<group>"; };
 		D1C700000000000000000110 /* TerminalTabs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalTabs.swift; sourceTree = "<group>"; };
 		D1C700000000000000000100 /* DictionaryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEntry.swift; sourceTree = "<group>"; };
 		A0000000000000000000A110 /* TranslateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslateTests.swift; sourceTree = "<group>"; };
@@ -2966,6 +2978,7 @@
 				E10000000000000000000002 /* DockGlassRuntimeBridge.h */,
 				E10000000000000000000003 /* DockGlassRuntimeBridge.m */,
 				ED0000000000000000000901 /* MenuBarCreativeHubView.swift */,
+				D1C700000000000000000420 /* DateCalculatorView.swift */,
 			);
 			path = Scenes;
 			sourceTree = "<group>";
@@ -3212,6 +3225,8 @@
 				A0000000000000000000F010 /* CommandBarTests.swift */,
 				A0000000000000000000A110 /* TranslateTests.swift */,
 				D1C700000000000000000140 /* DictionaryTerminalSettingsTests.swift */,
+				D1C700000000000000000430 /* DateCalculatorTests.swift */,
+				D1C700000000000000000440 /* TerminalSupportTests.swift */,
 				D1C700000000000000000130 /* TerminalTabsTests.swift */,
 				D1C700000000000000000120 /* DictionaryEntryTests.swift */,
 				FB00000000000000000000C3 /* QuicklinkTemplateTests.swift */,
@@ -3343,6 +3358,8 @@
 				A0000000000000000000D040 /* LauncherAnswers.swift */,
 				A0000000000000000000F000 /* CommandBar.swift */,
 				A0000000000000000000A100 /* Translate.swift */,
+				D1C700000000000000000400 /* DateCalculator.swift */,
+				D1C700000000000000000410 /* TerminalSupport.swift */,
 				D1C700000000000000000110 /* TerminalTabs.swift */,
 				D1C700000000000000000100 /* DictionaryEntry.swift */,
 				A0000000000000000000A170 /* CustomCommands.swift */,
@@ -3961,6 +3978,9 @@
 				A0000000000000000000F101 /* CommandBarPanelController.swift in Sources */,
 				A0000000000000000000F111 /* CommandBarView.swift in Sources */,
 				A0000000000000000000A101 /* Translate.swift in Sources */,
+				D1C700000000000000000401 /* DateCalculator.swift in Sources */,
+				D1C700000000000000000411 /* TerminalSupport.swift in Sources */,
+				D1C700000000000000000421 /* DateCalculatorView.swift in Sources */,
 				D1C700000000000000000111 /* TerminalTabs.swift in Sources */,
 				D1C700000000000000000101 /* DictionaryEntry.swift in Sources */,
 				A0000000000000000000A171 /* CustomCommands.swift in Sources */,
@@ -4957,6 +4977,8 @@
 				A0000000000000000000D042 /* LauncherAnswers.swift in Sources */,
 				A0000000000000000000F002 /* CommandBar.swift in Sources */,
 				A0000000000000000000A102 /* Translate.swift in Sources */,
+				D1C700000000000000000402 /* DateCalculator.swift in Sources */,
+				D1C700000000000000000412 /* TerminalSupport.swift in Sources */,
 				D1C700000000000000000112 /* TerminalTabs.swift in Sources */,
 				D1C700000000000000000102 /* DictionaryEntry.swift in Sources */,
 				A0000000000000000000A172 /* CustomCommands.swift in Sources */,
@@ -5063,6 +5085,8 @@
 				A0000000000000000000F011 /* CommandBarTests.swift in Sources */,
 				A0000000000000000000A111 /* TranslateTests.swift in Sources */,
 				D1C700000000000000000142 /* DictionaryTerminalSettingsTests.swift in Sources */,
+				D1C700000000000000000432 /* DateCalculatorTests.swift in Sources */,
+				D1C700000000000000000442 /* TerminalSupportTests.swift in Sources */,
 				D1C700000000000000000132 /* TerminalTabsTests.swift in Sources */,
 				D1C700000000000000000122 /* DictionaryEntryTests.swift in Sources */,
 				FB00000000000000000000C4 /* QuicklinkTemplateTests.swift in Sources */,

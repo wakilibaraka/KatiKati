@@ -377,6 +377,9 @@ enum WidgetMenuBuilder {
         switch preset {
         case .modern: return String(localized: "Modern")
         case .ipad: return String(localized: "iPad Sky Card")
+        case .samsung: return String(localized: "Samsung Vibrant")
+        case .orion: return String(localized: "Orion Aurora")
+        case .notBoring: return String(localized: "Not Boring 3D")
         case .detailedForecast: return String(localized: "Detailed Forecast")
         case .classicPill: return String(localized: "Classic Pill")
         case .detailedGlass: return String(localized: "Glass Forecast")

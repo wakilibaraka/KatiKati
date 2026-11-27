@@ -59,6 +59,7 @@ struct LauncherView: View {
     @ObservedObject var indexer: LauncherIndexer
     @ObservedObject var model: LauncherModel
     let actions: LauncherActions
+    var isEmbedded: Bool = false
     @ObservedObject private var monitor = SystemMonitorController.shared
 
     private static let gap = 12.0
@@ -129,15 +130,20 @@ struct LauncherView: View {
 
     var body: some View {
         Group {
-            switch model.presentation {
-            case .windowsStart:
-                windowsStartBody
-            case .linuxMenu:
-                linuxMenuBody
-            case .drawer:
+            if isEmbedded {
                 drawerBody
-            default:
-                classicBody
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                switch model.presentation {
+                case .windowsStart:
+                    windowsStartBody
+                case .linuxMenu:
+                    linuxMenuBody
+                case .drawer:
+                    drawerBody
+                default:
+                    classicBody
+                }
             }
         }
         .background(pageShortcuts)
@@ -149,7 +155,7 @@ struct LauncherView: View {
             syncTelemetrySampling(false)
         }
         .background {
-            if followDockTheme, activeDockTheme.tintsPlate {
+            if !isEmbedded, followDockTheme, activeDockTheme.tintsPlate {
                 let tokens = DockThemeTokens.resolved(for: colorScheme, style: activeDockTheme)
                 tokens.styleTokens.baseTint.color.opacity(colorScheme == .dark ? 0.22 : 0.14)
                     .ignoresSafeArea()
@@ -1129,15 +1135,17 @@ private extension LauncherView {
             }
             .buttonStyle(.plain)
 
-            Button(action: actions.close) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .frame(width: 28, height: 28)
-                    .background(Circle().fill(Color.primary.opacity(0.10)))
+            if !isEmbedded {
+                Button(action: actions.close) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .frame(width: 28, height: 28)
+                        .background(Circle().fill(Color.primary.opacity(0.10)))
+                }
+                .buttonStyle(.plain)
+                .help(Text("Close"))
+                .accessibilityLabel(Text("Close"))
             }
-            .buttonStyle(.plain)
-            .help(Text("Close"))
-            .accessibilityLabel(Text("Close"))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)

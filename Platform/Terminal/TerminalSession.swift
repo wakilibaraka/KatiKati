@@ -11,14 +11,32 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
     var onDirectory: ((UUID, String) -> Void)?
     var onExit: ((UUID) -> Void)?
 
-    init(id: UUID, directory: String?) {
+    init(id: UUID, directory: String?, theme: TerminalThemePreset = .katikatiDark) {
         self.id = id
         view = LocalProcessTerminalView(frame: NSRect(x: 0, y: 0, width: 640, height: 380))
         super.init()
         view.processDelegate = self
+        applyTheme(theme)
         let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         view.startProcess(executable: shell, args: ["-l"], environment: nil, execName: nil,
                           currentDirectory: directory ?? NSHomeDirectory())
+    }
+
+    func sendText(_ text: String) {
+        guard !text.isEmpty else { return }
+        view.send(data: ArraySlice(text.utf8))
+    }
+
+    func applyTheme(_ theme: TerminalThemePreset) {
+        let bg = theme.backgroundRGB
+        let fg = theme.foregroundRGB
+        view.nativeBackgroundColor = NSColor(calibratedRed: bg.r, green: bg.g, blue: bg.b, alpha: 1)
+        view.nativeForegroundColor = NSColor(calibratedRed: fg.r, green: fg.g, blue: fg.b, alpha: 1)
+    }
+
+    func readBufferText() -> String {
+        let data = view.getTerminal().getBufferAsData(kind: .active, encoding: .utf8)
+        return String(data: data, encoding: .utf8) ?? ""
     }
 
     func terminate() { view.terminate() }

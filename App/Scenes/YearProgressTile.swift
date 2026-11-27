@@ -5,12 +5,27 @@ struct YearProgressTile: View {
     let env: TileEnv
     let width: CGFloat
     let height: CGFloat
+    @State private var showDateCalculator = false
 
     var body: some View {
         let p = YearProgress(date: Date())
         let daysLeft = String(format: String(localized: "%d days left"), p.daysLeft)
         VStack(alignment: .leading, spacing: 8) {
-            Text(verbatim: Date().formatted(.dateTime.year())).font(.system(size: 12, weight: .bold)).foregroundColor(env.secondary)
+            HStack {
+                Text(verbatim: Date().formatted(.dateTime.year())).font(.system(size: 12, weight: .bold)).foregroundColor(env.secondary)
+                Spacer()
+                Button { showDateCalculator.toggle() } label: {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(env.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(Text("Date Calculator"))
+                .accessibilityLabel(Text("Date Calculator"))
+                .popover(isPresented: $showDateCalculator) {
+                    DateCalculatorView()
+                }
+            }
             Text(verbatim: "\(p.percent)%").font(.system(size: 34, weight: .light)).monospacedDigit()
             ProgressView(value: p.fraction).tint(env.accent(.date))
             Text(daysLeft).font(.system(size: 12)).foregroundColor(env.secondary)

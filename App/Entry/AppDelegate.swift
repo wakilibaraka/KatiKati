@@ -240,7 +240,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if monitor.start() { pinchMonitor = monitor }
     }
 
-    private lazy var launcherPanel: LauncherPanelController = {
+    private(set) lazy var launcherPanel: LauncherPanelController = {
         let panel = LauncherPanelController()
         panel.onWillShow = { [weak self] in
             self?.controlCenterPanel.hide()

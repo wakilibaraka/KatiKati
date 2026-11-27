@@ -104,23 +104,27 @@ final class SystemGaugeTests: XCTestCase {
         XCTAssertEqual(SlotFitScale.scale(naturalHeight: 58, availableHeight: 0), 1)
     }
 
-    /// Phase 46: two layouts × two plates. The stored values the app already shipped (`classic`,
-    /// `detailed`) must keep meaning what they meant — the owner's own install pins `detailed`.
+    /// Phase 46 + Slice G: two base plates plus Samsung/Orion/NotBoring skins.
     func testWeatherChipPresetAxes() {
-        XCTAssertEqual(WeatherChipPreset.allCases.count, 6)
+        XCTAssertEqual(WeatherChipPreset.allCases.count, 9)
         XCTAssertEqual(WeatherChipPreset.allCases.map(\.rawValue).prefix(2), ["classic", "detailed"])
-        // Both layouts exist on both plates, and the sky stays the default look.
-        XCTAssertEqual(WeatherChipPreset.allCases.filter(\.usesSkyPlate).map(\.isDetailed), [false, true, true])
+        // Sky plate presets include classic/detailed/ipad plus the three colorful skins.
+        XCTAssertEqual(WeatherChipPreset.allCases.filter(\.usesSkyPlate).map(\.isDetailed), [false, true, true, true, true, true])
         XCTAssertEqual(WeatherChipPreset.allCases.filter { !$0.usesSkyPlate }.map(\.isDetailed), [false, true, true])
         XCTAssertTrue(WeatherChipPreset.detailedForecast.usesSkyPlate)
         XCTAssertTrue(WeatherChipPreset.classicPill.usesSkyPlate)
+        XCTAssertTrue(WeatherChipPreset.samsung.usesSkyPlate)
+        XCTAssertTrue(WeatherChipPreset.orion.usesSkyPlate)
+        XCTAssertTrue(WeatherChipPreset.notBoring.usesSkyPlate)
     }
 
-    /// Phase 56 W8: Modern and the iPad card are offered; a stored retired style stays listed and decodable.
+    /// Phase 56 W8 + Slice G: Modern, iPad, and the three colorful skins are offered; a stored retired style stays listed and decodable.
     func testWeatherPickerOffersModernAndIPadAndKeepsStoredRetired() {
-        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .modern), [.modern, .ipad])
-        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .ipad), [.modern, .ipad])
-        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .detailedGlass), [.modern, .ipad, .detailedGlass])
+        let base: [WeatherChipPreset] = [.modern, .ipad, .samsung, .orion, .notBoring]
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .modern), base)
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .ipad), base)
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .samsung), base)
+        XCTAssertEqual(WeatherChipPreset.pickerCases(current: .detailedGlass), base + [.detailedGlass])
     }
 
     /// Phase 56 W8: a stored style moves to Modern exactly once; a later pick sticks.

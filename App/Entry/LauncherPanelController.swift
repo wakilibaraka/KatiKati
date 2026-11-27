@@ -45,10 +45,60 @@ final class LauncherPanelController {
     private var scrollFired = false
     private var lastWheelTurn = Date.distantPast
     private var recentFilesGeneration = 0
+    private var embeddedDismiss: (() -> Void)?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
     func toggle() { isShown ? dismiss() : show() }
+
+    func prepareEmbedded() {
+        model.prefs = LauncherPrefs.load()
+        model.state = store.load()
+        model.presentation = .drawer
+        model.screenInsets = (top: 0, bottom: 0, leading: 0, trailing: 0)
+        model.query = ""
+        model.editing = false
+        model.focusedID = nil
+        model.openFolderID = nil
+        model.showingAllApps = false
+        model.selectedCategory = .favorites
+        model.keptIDs = keptApps()
+        model.stashedAppIDs = stashedApps()
+        model.runningIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+        recentFilesGeneration &+= 1
+        let recentGen = recentFilesGeneration
+        let usageSnapshot = model.state.usage
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let loaded = LauncherPanelController.loadRecentFiles(usage: usageSnapshot)
+            await MainActor.run { [weak self] in
+                guard let self, self.recentFilesGeneration == recentGen else { return }
+                self.model.recentFiles = loaded
+            }
+        }
+        if model.prefs.searchScope.recentFiles { FileIndexService.shared.prepare() }
+        indexer.start()
+        model.focusNonce += 1
+        model.pageIndex = 0
+    }
+
+    func teardownEmbedded() {
+        embeddedDismiss = nil
+        if !isShown {
+            persist()
+            indexer.stop()
+            model.query = ""
+        }
+    }
+
+    func makeEmbeddedView(onClose: @escaping () -> Void) -> LauncherView {
+        embeddedDismiss = onClose
+        return LauncherView(
+            indexer: indexer,
+            model: model,
+            actions: makeActions(onClose: onClose),
+            isEmbedded: true
+        )
+    }
 
     func show() {
         guard !isShown else { return }
@@ -164,11 +214,17 @@ final class LauncherPanelController {
     }
 
     func dismiss() {
-        if panel?.isVisible == true { persist() }
+        let wasShown = isShown
+        if wasShown { persist() }
         removeScrollMonitor()
         panel?.orderOut(nil)
         indexer.stop()
         model.query = ""
+        if !wasShown, let cb = embeddedDismiss {
+            embeddedDismiss = nil
+            persist()
+            cb()
+        }
     }
 
     func tearDown() {
@@ -309,25 +365,15 @@ final class LauncherPanelController {
         return items
     }
 
-    private func makePanel() -> NSPanel {
-        let panel = LauncherPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
-                                  backing: .buffered, defer: true)
-        panel.level = .popUpMenu
-        panel.isOpaque = false
-        panel.backgroundColor = .clear
-        panel.hasShadow = false
-        panel.isReleasedWhenClosed = false
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
-        let blur = LauncherBackdrop()
-        backdrop = blur
-        let host = NSHostingView(rootView: LauncherView(indexer: indexer, model: model, actions: LauncherActions(
+    private func makeActions(onClose: @escaping () -> Void) -> LauncherActions {
+        LauncherActions(
             launch: { [weak self] in self?.launch($0) },
             togglePin: { [weak self] in self?.togglePin($0) },
             toggleHidden: { [weak self] in self?.toggleHidden($0) },
             reveal: { [weak self] in self?.reveal($0) },
             copyPath: { [weak self] in self?.copyPath($0) },
             move: { [weak self] id, target in self?.move(id, before: target) },
-            close: { [weak self] in self?.dismiss() },
+            close: onClose,
             persist: { [weak self] in self?.persist() },
             quickAction: { [weak self] in self?.quickAction($0) },
             dropOnto: { [weak self] id, target in self?.dropOnto(id, target: target) },
@@ -343,9 +389,28 @@ final class LauncherPanelController {
             },
             openPlace: { [weak self] in self?.openPlace($0) },
             openSettings: { [weak self] in
-                self?.dismiss()
+                onClose()
                 self?.openSettings()
-            })))
+            }
+        )
+    }
+
+    private func makePanel() -> NSPanel {
+        let panel = LauncherPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
+                                  backing: .buffered, defer: true)
+        panel.level = .popUpMenu
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+        panel.isReleasedWhenClosed = false
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        let blur = LauncherBackdrop()
+        backdrop = blur
+        let host = NSHostingView(rootView: LauncherView(
+            indexer: indexer,
+            model: model,
+            actions: makeActions(onClose: { [weak self] in self?.dismiss() })
+        ))
         prefsObserver = model.$prefs.sink { [weak self] in self?.backdrop?.setBlurStrength($0.blur) }
         host.translatesAutoresizingMaskIntoConstraints = false
         blur.addSubview(host)

@@ -33,10 +33,87 @@ final class CommandBarPanelController {
     var barProfiles: BarProfileService?
     /// `define <word>`: opens the dictionary panel (wired by `AppDelegate`).
     var onDefine: ((String) -> Void)?
+    private var embeddedDismiss: (() -> Void)?
 
     var isShown: Bool { panel?.isVisible ?? false }
 
     func toggle() { isShown ? dismiss() : show() }
+
+    func moveEmbeddedSelection(_ delta: Int) {
+        model.move(delta)
+    }
+
+    func prepareEmbedded() {
+        ensureObservers()
+        prepareModel(prefill: "")
+        model.focusNonce += 1
+    }
+
+    func teardownEmbedded() {
+        embeddedDismiss = nil
+        if !isShown {
+            indexer.stop()
+            fileSearchTask?.cancel()
+            fileSearchTask = nil
+            menuLoadTask?.cancel()
+            menuLoadTask = nil
+            model.query = ""
+        }
+    }
+
+    func makeEmbeddedView(onDismiss: @escaping () -> Void) -> CommandBarView {
+        ensureObservers()
+        embeddedDismiss = onDismiss
+        return CommandBarView(
+            model: model,
+            onRun: { [weak self] in self?.run($0) },
+            onClose: { [weak self] in self?.dismiss() },
+            onRemove: { app, removal in
+                AppRemovalService.confirmAndPerform(bundleID: app.bundleID, name: app.name, appPath: app.path, removal: removal)
+            },
+            onAction: { [weak self] action in self?.performAction(action) },
+            isEmbedded: true
+        )
+    }
+
+    private func ensureObservers() {
+        if appsObserver == nil {
+            appsObserver = indexer.$apps.sink { [weak self] apps in
+                self?.model.apps = apps
+                self?.model.refresh()
+            }
+        }
+        if queryObserver == nil {
+            queryObserver = model.$query
+                .debounce(for: .milliseconds(150), scheduler: DispatchQueue.main)
+                .sink { [weak self] query in self?.handleQueryChange(query) }
+        }
+    }
+
+    private func prepareModel(prefill: String) {
+        model.query = ""
+        let front = NSWorkspace.shared.frontmostApplication
+        menuTarget = front?.processIdentifier == ProcessInfo.processInfo.processIdentifier ? nil : front
+        menuLoaded = false
+        model.menuItems = []
+        model.usage = store.load().usage
+        model.running = Self.runningApps()
+        indexer.start()
+        model.apps = indexer.apps
+        model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
+            + CustomCommand.parseSnippets(UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? "")
+        model.quicklinks = Quicklink.parse(UserDefaults.standard.string(forKey: Quicklink.key) ?? "")
+        model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
+        model.refresh(resetSelection: true)
+        FileIndexService.shared.prepare()
+        if model.processes.isEmpty {
+            loadProcessesAsync()
+        }
+        if model.bookmarks.isEmpty {
+            loadBookmarksAsync()
+        }
+        if !prefill.isEmpty { model.query = prefill }
+    }
 
     /// Copies the snippet and, once the bar has handed focus back, sends ⌘V (needs Accessibility; without it
     /// the text is simply on the clipboard).
@@ -62,27 +139,8 @@ final class CommandBarPanelController {
             return
         }
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }) ?? NSScreen.main else { return }
-        model.query = ""
-        let front = NSWorkspace.shared.frontmostApplication
-        menuTarget = front?.processIdentifier == ProcessInfo.processInfo.processIdentifier ? nil : front
-        menuLoaded = false
-        model.menuItems = []
-        model.usage = store.load().usage
-        model.running = Self.runningApps()
-        indexer.start()
-        model.apps = indexer.apps
-        model.custom = CustomCommand.parse(UserDefaults.standard.string(forKey: CustomCommand.key) ?? "")
-            + CustomCommand.parseSnippets(UserDefaults.standard.string(forKey: CustomCommand.snippetsKey) ?? "")
-        model.quicklinks = Quicklink.parse(UserDefaults.standard.string(forKey: Quicklink.key) ?? "")
-        model.clips = Array(ProductivityServices.shared.clipboard.history.displayOrder.prefix(50))
-        model.refresh(resetSelection: true)
-        FileIndexService.shared.prepare()
-        if model.processes.isEmpty {
-            loadProcessesAsync()
-        }
-        if model.bookmarks.isEmpty {
-            loadBookmarksAsync()
-        }
+        embeddedDismiss = nil
+        prepareModel(prefill: prefill)
         let panel = self.panel ?? makePanel()
         self.panel = panel
         let sizePreset = CommandBarSizePreset(rawValue: UserDefaults.standard.string(forKey: "com.katikati.commandbar.size") ?? "") ?? .standard
@@ -95,12 +153,12 @@ final class CommandBarPanelController {
         panel.setFrame(NSRect(x: f.midX - size.width / 2, y: y, width: size.width, height: size.height), display: true)
         panel.makeKeyAndOrderFront(nil)
         model.focusNonce += 1
-        if !prefill.isEmpty { model.query = prefill }
         installKeyMonitor()
         installOutsideMonitor()
     }
 
     func dismiss() {
+        let wasShown = isShown
         panel?.orderOut(nil)
         indexer.stop()
         fileSearchTask?.cancel()
@@ -109,6 +167,10 @@ final class CommandBarPanelController {
         menuLoadTask = nil
         model.query = ""
         removeMonitors()
+        if !wasShown, let cb = embeddedDismiss {
+            embeddedDismiss = nil
+            cb()
+        }
     }
 
     /// ↑/↓ move the selection, ⏎ runs it, Esc closes. A local monitor is the only way to steer the list
@@ -659,13 +721,7 @@ final class CommandBarPanelController {
                                                           },
                                                           onAction: { [weak self] action in self?.performAction(action) }))
         panel.contentView = host
-        appsObserver = indexer.$apps.sink { [weak self] apps in
-            self?.model.apps = apps
-            self?.model.refresh()
-        }
-        queryObserver = model.$query
-            .debounce(for: .milliseconds(150), scheduler: DispatchQueue.main)
-            .sink { [weak self] query in self?.handleQueryChange(query) }
+        ensureObservers()
         return panel
     }
 }

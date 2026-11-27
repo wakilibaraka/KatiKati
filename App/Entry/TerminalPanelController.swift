@@ -38,10 +38,16 @@ final class TerminalPanelController {
 
         let panel = self.panel ?? makePanel()
         self.panel = panel
+        applyLayout(on: screen, panel: panel)
+        panel.makeKeyAndOrderFront(nil)
+        installClickMonitorsIfNeeded()
+    }
+
+    private func applyLayout(on screen: NSScreen, panel: NSPanel) {
         let cfg = utilityConfigProvider()
         let placement = stripPlacementProvider()
         let layout = PanelGeometry.utilityPanelFrame(
-            plateSize: TerminalPanelView.plateSize,
+            plateSize: model.plateSize,
             anchorVisibleRect: self.anchorRect,
             placement: cfg.popoverPlacement,
             flyoutPreset: cfg.flyoutPreset,
@@ -52,8 +58,17 @@ final class TerminalPanelController {
         arrow.isHidden = !layout.showsArrow
         arrow.offsetFromCenter = layout.arrowOffsetFromCenter
         panel.setFrame(layout.frame, display: true)
-        panel.makeKeyAndOrderFront(nil)
-        installClickMonitorsIfNeeded()
+    }
+
+    private func resizePanel(to size: CGSize) {
+        model.plateSize = TerminalPanelSizeBounds.clamped(size)
+        guard let panel else { return }
+        let targetScreen = anchorRect.flatMap { rect in NSScreen.screens.first { $0.frame.intersects(rect) } }
+            ?? panel.screen
+            ?? NSScreen.main
+        if let screen = targetScreen {
+            applyLayout(on: screen, panel: panel)
+        }
     }
 
     func dismiss() {
@@ -107,6 +122,7 @@ final class TerminalPanelController {
             usesLiquidGlass: usesLiquidGlassProvider(),
             isPinned: Binding(get: { [weak self] in self?.isPinned ?? false },
                               set: { [weak self] in self?.isPinned = $0 }),
+            onResize: { [weak self] size in self?.resizePanel(to: size) },
             onClose: { [weak self] in self?.dismiss() }
         )
         panel.contentView = NSHostingView(rootView: view)

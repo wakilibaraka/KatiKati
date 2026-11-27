@@ -115,6 +115,7 @@ struct CommandBarView: View {
     let onClose: () -> Void
     let onRemove: (LauncherApp, AppRemoval) -> Void
     var onAction: ((CommandBarActionItem) -> Void)? = nil
+    var isEmbedded: Bool = false
     @FocusState private var focused: Bool
     @AppStorage("com.katikati.commandbar.hints") private var showHints = true
     @Environment(\.colorScheme) private var colorScheme
@@ -235,10 +236,7 @@ struct CommandBarView: View {
             Divider().opacity(0.22)
             footer
         }
-        .frame(width: panelSize.width, height: panelSize.height)
-        .background(DockPanelBackdrop(theme: theme, cornerRadius: 16, usesLiquidGlass: false))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .dockPanelRim(cornerRadius: 16, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth, usesLiquidGlass: false)
+        .modifier(CommandBarChromeModifier(isEmbedded: isEmbedded, panelSize: panelSize, theme: theme))
         .overlay(alignment: .bottomTrailing) {
             if model.isActionPanelPresented && !model.currentActions.isEmpty {
                 CommandBarActionPanelView(
@@ -627,6 +625,25 @@ struct CommandBarView: View {
             Image(systemName: "doc.text.magnifyingglass").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
         case .askAI:
             Image(systemName: "sparkles").font(.system(size: 15, weight: .semibold)).frame(width: 24, height: 24)
+        }
+    }
+}
+
+private struct CommandBarChromeModifier: ViewModifier {
+    let isEmbedded: Bool
+    let panelSize: CGSize
+    let theme: DockThemeTokens
+
+    func body(content: Content) -> some View {
+        if isEmbedded {
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            content
+                .frame(width: panelSize.width, height: panelSize.height)
+                .background(DockPanelBackdrop(theme: theme, cornerRadius: 16, usesLiquidGlass: false))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .dockPanelRim(cornerRadius: 16, style: theme.panelRimStyle, lineWidth: theme.panelRimLineWidth, usesLiquidGlass: false)
         }
     }
 }

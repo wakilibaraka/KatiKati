@@ -195,6 +195,12 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
+        case .quickAccess:
+            if UserDefaults.standard.string(forKey: "com.katikati.sideDeck.quickAccessMode") != "launcher" {
+                AppDelegate.shared?.commandBarPanel.moveEmbeddedSelection(delta)
+            } else {
+                genericSelection.move(by: delta, count: actionItemCount(for: tab))
+            }
         default: genericSelection.move(by: delta, count: actionItemCount(for: tab))
         }
     }
@@ -647,7 +653,11 @@ private struct WindowDrawerView: View {
         case .weather: SideDeckWeatherView()
         case .aiMissionControl: SideDeckAIMissionControlView()
         case .quickAccess:
-            SideDeckQuickAccessView(onLauncher: controller.runApps, onCommandBar: controller.runSearch)
+            SideDeckQuickAccessView(
+                onLauncher: controller.runApps,
+                onCommandBar: controller.runSearch,
+                onCloseDeck: { [weak controller] in controller?.close() }
+            )
         case .layouts:
             VStack(spacing: 8) {
                 WindowsFlyoutView()
