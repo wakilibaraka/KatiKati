@@ -1,5 +1,7 @@
 # KatiKati 13-Pillar Codebase Capability, Gap & Reuse Audit
 
+> **Snapshot note (2026-11-27):** Findings below are a point-in-time audit and several have since changed. For example, Notch Downloads and Storage pages are retired and their current pages live in Side Deck; older file/line anchors may no longer exist. Use [Hybrid Remediation and Wishlist Plan](HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md) for current verified status before acting on an audit row.
+
 **Branch:** `main`
 **Audit Scope:** Read-only code-grounded diff of `Core/`, `Platform/`, `App/Composition/`, `App/Entry/`, `UI/ReadModel/`, `Resources/`, and `Scripts/` against `App/Scenes/` and Settings across all 13 product pillars.
 **Governance & Frozen Boundaries Respected:** `CLAUDE.md`, `BASELINE_RULES.md`, `STANDING_RULES.md`, `.github/workflows/ci.yml`, `.github/workflows/bench.yml`.

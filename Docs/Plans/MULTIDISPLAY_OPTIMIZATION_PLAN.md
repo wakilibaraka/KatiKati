@@ -1,5 +1,6 @@
 # Multi-Display Optimization Plan — `MD-1` audit → `MD-2`…`MD-6`
 
+> **Status (2026-11-27):** `MD-2`–`MD-6` shipped on `main` (see [CHANGELOG.md](../../CHANGELOG.md)); Sections 1–2 below preserve the `MD-1` hardware baseline audit.
 > MD-1 was a **strictly read-only** audit: no Swift file, no `KatiKati.xcodeproj/project.pbxproj`
 > and none of the five behaviour-frozen files (`WindowLiftAvoidanceController`, `AppTracker`,
 > `DragController`, `AccessibilitySource`, `FullscreenIntentMonitor`) were touched. The only file

@@ -1,7 +1,7 @@
 # Music Wallpaper & Lock-Screen Plan (`ML-1` → `ML-6`)
 
-> **Status:** Audit complete, zero-`pbxproj` refinement applied; awaiting sign-off to begin `ML-1`.
-> **Branch:** `feat/music-lockscreen-wallpaper` (worktree at `../KatiKati-music-lockscreen`, branched from `origin/main`).
+> **Status correction (2026-11-27):** This is a historical design specification; its original `Awaiting sign-off` banner and `../KatiKati-music-lockscreen` worktree path are superseded. Current `main` already includes the wallpaper lease/engine, Lock Screen music/calendar cards, and Music Desktop Widget. Track remaining work in [Hybrid Remediation and Wishlist Plan](HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md).
+> **Historical Branch Ref:** `feat/music-lockscreen-wallpaper` (merged into `main`).
 > **Reference:** [`slopyydev/halo-music`](https://github.com/slopyydev/halo-music) (MIT) + Canapé interaction design.
 > **Target:** KatiKati (`KatiKati.xcodeproj`, macOS 15.0 deployment target, Swift 6).
 

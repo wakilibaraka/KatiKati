@@ -1,6 +1,6 @@
 # Icon Studio & Live Icons Plan (`IS-1` → `IS-6`)
 
-> **Status:** Read-only codebase audit complete on `feat/icon-studio` (`../KatiKati-icon-studio`); zero `.swift` or `project.pbxproj` edits made; awaiting approval before starting `IS-1`.  
+> **Status correction (2026-11-27):** This plan is historical (`IS-1` → `IS-6` are marked complete and Icon Studio is in the current source tree). Follow-ups such as Dock/Launcher `.active` trigger wiring are tracked in [Hybrid Remediation and Wishlist Plan](HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md).
 > **Reference Inspiration:** IconSwapper (`iconswapper.app` PDF reference) + KatiKati Dock / `⌘+Tab` / Metal / Live Data pipelines  
 > **Target:** KatiKati (`KatiKati.xcodeproj`, macOS 15+, Swift 5.0/6 compatible, `com.katikati.iconStudio.*` defaults, 12 locales)
 

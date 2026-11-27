@@ -7,6 +7,8 @@
 > Status: **shipped** 2026-11-25. Built on `feat/sidedeck-replatform` (worktree `../KatiKati-sidedeck`)
 > in parallel with Control Centre work on `main`, then merged into `main` at `94454ebc` and graphed at
 > `6259c01b`. §7.1 records every landed batch, §8.0 the merge-back checklist and its evidence.
+>
+> **Current-code note (2026-11-27):** §1 is the pre-replatform baseline, not present-day ground truth. In current `NotchPage`, Downloads and Storage are retired and their current surfaces are in Side Deck. Use the shipped status above and current source when evaluating follow-up work.
 
 ---
 

@@ -5,6 +5,8 @@
 **Entitlements / Signing Posture:** Non-sandboxed (`Resources/KatiKati.entitlements` holds only `com.apple.security.automation.apple-events = true`)  
 **Scope Rule:** Read-only audit of `Core/`, `Platform/`, `App/Composition/`, `App/Entry/`, `App/Scenes/`, `Resources/`, and `Tests/Unit/`. No `.swift` files or `KatiKati.xcodeproj/project.pbxproj` are modified by this plan.
 
+> **Snapshot note (2026-11-27):** This audit is anchored to `d76e0201`; its unchecked slices and code anchors are not a current completion report. Re-check each item against the current tree and use [Hybrid Remediation and Wishlist Plan](HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md) for the active, code-verified sequence.
+
 ---
 
 ## 0. Governance Contract & Architectural Constraints

@@ -1,6 +1,6 @@
 # Liquid Notch Porting Plan (`LQ-1` → `LQ-6`)
 
-> **Status:** Read-only architecture audit complete; awaiting approval to begin `LQ-1`.  
+> **Status (updated 2026-11-27):** Shipped (`LQ-1.1` → `LQ-6.3` completed on `main`). Original status line: *Read-only architecture audit complete; awaiting approval to begin `LQ-1`.*
 > **Reference Repo:** [`fellipegoncalvesleite/liquid-notch`](https://github.com/fellipegoncalvesleite/liquid-notch) (MIT License)  
 > **Target:** KatiKati (`KatiKati.xcodeproj`, macOS 15+, Swift 6)
 

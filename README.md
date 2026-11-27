@@ -35,8 +35,8 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
 - **One card per window.** Multi-window apps split into several cards; single-window apps stay compact. Click to switch, minimize or restore.
 - **Cards you can read at a glance.** A greyed title means the window is minimized or its app is hidden; windows on other Spaces stay listed and
   clicking one takes you there.
-- **Five layouts.** Full Width, Split 3, Split 4, Split 5 and Centered, with adjustable bar height, gaps, margins and widget widths
-  (Settings > Layout).
+- **Five layouts.** Windows, Split 3, Split 4, Split 5 and Centered, with adjustable bar height, gaps, margins and widget widths
+  (Settings > Dock Layout).
 - **Island widgets on the bar.** Weather, Now Playing and a clock; the clock opens a calendar panel and the weather chip opens a forecast panel.
   Weather asks for Location Services (or use a city you search for) and keeps the last forecast for each place for up to seven days, so it still
   shows when you are offline.
@@ -46,16 +46,18 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
   Magnetic Pull — and how they answer a click: Tactile Squish, Launch Bounce, Ripple or Flip 3D. The running marker can be the classic dot,
   a Windows 11 pill (wide for the frontmost app, with one pip per window up to three) or a KDE Latte brand-coloured line tinted to the app's
   own icon colour. Reduce Motion swaps every moving style for the colour tint. Settings > Dock Items.
-- **Edge decks.** Slim decks on the left and right screen edges hold Notes (encrypted at rest), Reminders, Alarms, Timer and Stopwatch, Tasks,
-  Clipboard history (opt-in), Capture (text and QR codes from a screen area), Windows (snap into zones), Screen Time, Weather, Now Playing,
-  Bluetooth and a system monitor.
+- **Side Deck.** A full-height panel on either screen edge brings together Windows, Notifications, Downloads, Dictionary (EasyDict), Storage,
+  Weather, Quick Access, AI Mission Control, Layouts, Emoji, Clipboard, Clothesline, Scratchpad, Markets and a combined Dashboard.
+- **Edge Bars.** Configurable edge strips hold smaller cards such as Notes, Reminders, Alarms, Timer and Stopwatch, Tasks, Clipboard history,
+  Capture, Screen Time, Weather, Now Playing, Bluetooth and system monitoring.
 - **Multi-display.** One bar that follows your pointer, or one bar per display, each listing only its own windows.
+- **Workspaces.** Switch among numbered and named workspaces, move windows between them, and apply tiling layouts from shortcuts and the workspace controls.
 - **Auto-hide.** Always visible by default; it can also hide and wake from the bottom edge. `⌥⇧⌘D` toggles it.
 - **Blink-free full screen.** The bar steps out of the way before a native full-screen transition (see [Privacy](#privacy)).
 
 ### Mission Control (experimental)
 
-- **Experimental, and honest about it.** Detection relies on undocumented WindowServer behaviour, has only been verified on one display without Stage Manager, and keyboard navigation, type-to-filter and the border overlay are off by default. [Why experimental](Docs/MissionControlResearch.md).
+- **Experimental, and honest about it.** Detection relies on undocumented WindowServer behaviour; multi-display overlays and Stage Manager filtering are supported (`0.18.0 beta 3`), and keyboard navigation, type-to-filter and the border overlay are off by default. [Why experimental](Docs/MissionControlResearch.md).
 - **Named, not guessed.** Turn on **Settings > Window & Workspace > Mission Control** and every thumbnail gets its real app icon, the app
   name in bold and the window title beneath it, with coloured action dots in the system's red/yellow/green. A Space pill and a live
   type-to-filter readout sit over the overview. Nothing is drawn while Mission Control is closed, and detection is event-driven — no timers.
@@ -84,9 +86,13 @@ The Maccy-derived behaviour is credited in [NOTICE](NOTICE).
 
 ### Notch
 
-On Macs with a camera housing, and as a floating island elsewhere, the notch grows into a page deck: Downloads, music and calendar, Storage
-(the largest folders and files, biggest first), productivity, camera mirror and notifications. Closed, it shows free storage on the left and the
-battery on the right; events appear as toast cards. Settings > Notch has the style, page order and **Sharp Notch Edges**.
+On Macs with a camera housing, and as a floating island elsewhere, the notch opens into Home (housing Music and Calendar), Shelf, AI Mission Control,
+Peripherals, Studio Hub and Keep Awake pages. Teleprompter and Camera Mirror are optional pages. Downloads and Storage live in the Side Deck.
+The notch also presents live activity and notification cards. Settings > Notch controls its style, page order and **Sharp Notch Edges**.
+
+### Menu Bar Hub
+
+The menu bar hub consolidates configurable system metrics, quick actions and switches, calendar access, and scheduled actions in one surface.
 
 ### Launcher
 
@@ -98,7 +104,7 @@ battery on the right; events appear as toast cards. Settings > Notch has the sty
   (Settings > Layout > Launcher).
 - **Make it yours.** Drag apps in All Apps to reorder them. Right-click an app to open it, show it in Finder, copy its path, pin it, move it to the
   start or hide it from the launcher (hidden apps are still found by search). Settings shows how many are hidden and can show them all again or reset the order.
-- **Open it your way.** The left button on the bar, `⌥Space`, or a four-finger pinch on the trackpad (off by default; see [Shortcuts](#shortcuts-and-gestures)).
+- **Open it your way.** The left button on the bar, `⌥⇧Space` (with `⌥Space` opening the Command Bar), or a four-finger pinch on the trackpad (off by default; see [Shortcuts](#shortcuts-and-gestures)).
 - **Themes.** System, Light, Dark, Glass or your desktop picture, with an optional colour tint and three icon styles.
 
 ### Control Center
@@ -108,7 +114,7 @@ It holds the Quick Settings switches, your widgets, and the connectivity control
 
 - **Widgets:** Calculator, Screen Time (opt-in), Network, Battery with
   health and cycles, Top Apps, Batteries (your Mac and connected Bluetooth devices). The same tiles also live in the widget pane.
-- **Quick Settings** has 18 switches: Dark Mode, Keep Awake, Hide Desktop, Hidden Files, Dock Auto-hide, Path Bar, Mute Mic, Empty Trash (asks first),
+- **Quick Settings** has 20 switches: Dark Mode, Keep Awake, Hide Desktop, Hidden Files, Dock Auto-hide, Path Bar, Mute Mic, Mute Output, Clean Keyboard, Empty Trash (asks first),
   Eject Disks, Wi-Fi, Bluetooth, Night Shift, True Tone, VPN, Screen Saver, Lock Screen (asks first), Relaunch Finder (asks first) and Screen Mirroring
   (opens Display Settings). Bluetooth, Night Shift and True Tone rely on system interfaces that macOS does not document, so they can stop
   working after a macOS update; they fail quietly. VPN covers Network-configured VPN services only.
@@ -118,11 +124,17 @@ It holds the Quick Settings switches, your widgets, and the connectivity control
 
 | Action | Default | Alternatives |
 |---|---|---|
-| Open the launcher | `⌥Space` | `⌃Space`, `⌥⇧Space`, `⌃⇧Space`, `⌃⌥Space`, or double-tap `⌘`, `⌃` or `⌥` |
+| Open Command Bar | `⌥Space` | `⌃Space`, `⌥⇧Space`, `⌃⇧Space`, `⌃⌥Space`, or double-tap `⌘`, `⌃` or `⌥` |
+| Open the launcher | `⌥⇧Space` | same list |
 | Open the Control Center | `⌃⌥Space` | same list |
-| Quick Settings only | off | same list |
+| Toggle Side Deck | `⌃⌥W` | configurable in Settings > Shortcuts |
+| Open Window Inspector (`winfo`) | `⌃⌥I` | configurable in Settings > Shortcuts |
+| Open Radial Dial | `⌃⌥R` | configurable in Settings > Shortcuts |
+| Maximize window / Window Switcher | `⌃⌥M` / `⌥Tab` | configurable in Settings > Shortcuts |
+| Switch workspaces (`1`–`0`) | `⌃⌥1`–`⌃⌥0` | configurable in Settings > Shortcuts |
+| Quick Settings only | off | same preset list as Launcher |
 | Keep Awake on/off | off | same list (shows a short toast) |
-| Show or hide the bar | `⌥⇧⌘D` | rebind in Settings > General |
+| Show or hide the bar | `⌥⇧⌘D` | rebind in Settings > Shortcuts |
 | Launcher by pinch | off | four or more fingers pinched together on the trackpad |
 
 Double-tap shortcuts need Accessibility. The pinch gesture reads raw trackpad touches through an undocumented macOS interface and needs no
@@ -176,16 +188,16 @@ The **status menu** (the capsule icon in the menu bar) holds what you change mid
 Taskbar Size, a Layout submenu, Show Shelf, Show Trash, Show app name on hover, Keep maximized windows above the taskbar, Dock Settings and Settings.
 With two or more displays it also offers single- and multi-display modes.
 
-The **Settings window** has a sidebar (search with `⌘F`, sections with `⌘1`...`⌘9`) and a live preview stage on most pages. Its original tabs are:
+The **Settings window** has a sidebar (search with `⌘F`, sections with `⌘1`...`⌘9`) and a live preview stage on most pages. Across 6 groups (**System & Bars**, **Surfaces & Shelves**, **Window & Workspace**, **Input & Shortcuts**, **Productivity & AI**, **Advanced**), its 34 sidebar pages cover:
 
 <img src="assets/screenshots/settings-layout.png" alt="Settings, Layout tab" width="420" />
 
-- **General:** language, appearance (System, Light, Dark), the show/hide shortcut, widget layout and colours, clock style, units, weather options,
-  Now Playing theme, drawer position, reverse mouse scroll direction, and the setup guide.
-- **Layout:** layout mode and sizes, bottom edge, **Widgets** (reorder, hide, Small/Medium/Large, presets, Smart Stack, schedule-based presets; right-click any widget on the bar for the same controls and *Edit Widgets*), edge decks, and the Launcher, Control Center and Shortcuts sections.
-- **Appearance:** the bar's theme (Auto, Translucent, Crystal Clear, Obsidian Dark, Aurora Glow, Deep Ocean and more), icon set, custom tint and opacity, and an optional **Dynamic Wallpaper** that follows the sun and the weather (it saves your wallpaper first and puts it back when you turn it off or quit).
-- **Advanced:** predicting full-screen transitions.
-- **About:** version, check for updates, and **Diagnostic Info** (copies app, system and display details to paste into a GitHub issue).
+- **System & Bars:** General, Menu Bar, Dock Layout, App Icons & Hover, Bar Widgets, Widget Wings, Appearance, Icons, Live Wallpaper.
+- **Surfaces & Shelves:** Notch, Control Center, Side Deck, Edge Bars, Shelf, Weather.
+- **Window & Workspace:** Windows & Tiling, Workspaces, Mission Control, Snap & Focus, Spaces & Displays, App Groups, Layouts, Profiles.
+- **Input & Shortcuts:** Launcher, Gestures, Shortcuts.
+- **Productivity & AI:** Command Bar, Clipboard, Notes, AI Mission Control, Workflows, Usage.
+- **Advanced:** Advanced (fullscreen prediction, diagnostics, backup/reset), About.
 
 ## Privacy
 
@@ -244,7 +256,7 @@ with the reason and the fix, and `--resign` puts the local identity back without
 Only one KatiKati may exist on the Mac. Both scripts delete every other `KatiKati.app` macOS knows about (old build folders, `/Applications`,
 Xcode DerivedData) and unregister copies in the Trash, because copies share the bundle id and fight over the Accessibility grant.
 
-**Tests** (about 1,900 XCTest cases; the same commands CI runs on every push):
+**Tests** (over 4,100 XCTest cases; the same commands CI runs on every push):
 
 ```bash
 xcodebuild test -project KatiKati.xcodeproj -scheme KatiKati \
@@ -253,7 +265,7 @@ python3 Scripts/check_localization.py     # every localized string has a value i
 python3 Scripts/check_debug_switches.py   # every DOCK_* environment switch is registered
 ```
 
-**How the code is laid out** (one Xcode target; four folders that only point downward):
+**How the code is laid out** (three Xcode targets: `KatiKati`, `KatiKatiTests`, `window-lab`; four folders that only point downward):
 
 | Folder | What lives there | Rule of thumb |
 |---|---|---|

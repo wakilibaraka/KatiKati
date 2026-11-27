@@ -22,7 +22,7 @@
 | Settings stage preview | `App/Scenes/Settings/SettingsStagePanels.swift` → `StageControlCenter` | Must learn tile spans, or the thumbnail lies about the layout. |
 | Tests | `Tests/Unit/ControlCenterScrollTests.swift` already hosts `ControlCenterGridTests` | Put CC model tests in this existing file: a new test file would need a `project.pbxproj` append. |
 
-### Verified defects on `main` today
+### Verified defects on `main` (2026-11-26 baseline — addressed in `CC-1`–`CC-6`)
 1. **No `bluetooth` SF Symbol exists.** Checked locally on macOS 27.2.1:
    `NSImage(systemSymbolName: "bluetooth")` → `nil`. `antenna.radiowaves.left.and.right`,
    `dot.radiowaves.left.and.right`, `wave.3.forward` all resolve. So the "proper Bluetooth icon" must be a
