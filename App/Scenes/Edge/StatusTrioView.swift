@@ -1906,6 +1906,10 @@ struct MenuBarCreativeHubView: View {
             VStack(spacing: 6) {
                 // Page one's own actions, not global chrome repeated above every tab.
                 actionBoxGrid
+                // SN-2: snApp lives in the Hub rather than on a second status item, so the menu bar
+                // keeps the one consolidated icon this app settled on.
+                snapPickerRow
+                displayModeRow
                 keepAwakeCard
                 pageSearchField
                 if let buds = btAudioDevices.first, let level = buds.lowestBattery {
@@ -1930,6 +1934,26 @@ struct MenuBarCreativeHubView: View {
                 }
             }
         }
+    }
+
+    /// Opens the layout grid next to the Hub's own caret, then gets out of its way.
+    private var snapPickerRow: some View {
+        Button {
+            onDismiss()
+            DispatchQueue.main.async { SnapPickerController.shared.present() }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "square.split.2x2").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(palette.primaryAccent).frame(width: 18)
+                Text("Window Layouts").font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(inkSoft)
+            }
+            .padding(.horizontal, 9).padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private static func isKeepAwake(_ item: HubSwitchID) -> Bool {

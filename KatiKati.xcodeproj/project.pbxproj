@@ -172,6 +172,8 @@
 		C0FFEE000000000000000108 /* WorkspaceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000107 /* WorkspaceModelTests.swift */; };
 		C0FFEE00000000000000010A /* WorkspaceRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000109 /* WorkspaceRulesTests.swift */; };
 		C0FFEE000000000000000205 /* WorkspaceHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000201 /* WorkspaceHUDController.swift */; };
+		C0FFEE000000000000000312 /* SnapPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000311 /* SnapPickerController.swift */; };
+		C0FFEE000000000000000313 /* SnapPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000311 /* SnapPickerController.swift */; };
 		C0FFEE000000000000000302 /* WorkspaceControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000301 /* WorkspaceControlServer.swift */; };
 		C0FFEE000000000000000303 /* WorkspaceControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000301 /* WorkspaceControlServer.swift */; };
 		C0FFEE000000000000000511 /* TilingEngine+Workspaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */; };
@@ -1785,6 +1787,7 @@
 		7B5000000000000000040711 /* ChipPanelModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelModel.swift; path = App/Scenes/ChipPanel/ChipPanelModel.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040611 /* ChipPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelController.swift; path = App/Entry/ChipPanelController.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000201 /* WorkspaceHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceHUDController.swift; path = App/Entry/WorkspaceHUDController.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000311 /* SnapPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SnapPickerController.swift; path = App/Entry/SnapPickerController.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000301 /* WorkspaceControlServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceControlServer.swift; path = App/Composition/WorkspaceControlServer.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+Workspaces.swift"; path = "App/Composition/TilingEngine+Workspaces.swift"; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000502 /* TilingEngine+WorkspaceTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+WorkspaceTransitions.swift"; path = "App/Composition/TilingEngine+WorkspaceTransitions.swift"; sourceTree = SOURCE_ROOT; };
@@ -4214,6 +4217,7 @@
 				7B5000000000000000040712 /* ChipPanelModel.swift in Sources */,
 				7B5000000000000000040612 /* ChipPanelController.swift in Sources */,
 				C0FFEE000000000000000202 /* WorkspaceHUDController.swift in Sources */,
+				C0FFEE000000000000000312 /* SnapPickerController.swift in Sources */,
 				C0FFEE000000000000000302 /* WorkspaceControlServer.swift in Sources */,
 				C0FFEE000000000000000511 /* TilingEngine+Workspaces.swift in Sources */,
 				C0FFEE000000000000000521 /* TilingEngine+WorkspaceTransitions.swift in Sources */,
@@ -4636,6 +4640,7 @@
 				C0FFEE000000000000000108 /* WorkspaceModelTests.swift in Sources */,
 				C0FFEE00000000000000010A /* WorkspaceRulesTests.swift in Sources */,
 				C0FFEE000000000000000205 /* WorkspaceHUDController.swift in Sources */,
+				C0FFEE000000000000000313 /* SnapPickerController.swift in Sources */,
 				C0FFEE000000000000000303 /* WorkspaceControlServer.swift in Sources */,
 				C0FFEE000000000000000512 /* TilingEngine+Workspaces.swift in Sources */,
 				C0FFEE000000000000000522 /* TilingEngine+WorkspaceTransitions.swift in Sources */,

@@ -1,6 +1,83 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Window Layouts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Window Layouts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "窗口布局"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "視窗版面"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウィンドウレイアウト"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fensterlayouts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dispositions de fenêtre"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diseños de ventana"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diseños de ventana"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Layouts de janela"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disposições de janela"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Layout finestra"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "윈도우 레이아웃"
+          }
+        }
+      }
+    },
     "Only the Active Workspace in the Bar" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -106703,78 +106780,78 @@
         }
       }
     },
-    "Option-click always keeps the native full-screen behaviour." : {
+    "Option-click uses the native macOS Zoom behaviour." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-Klick behält immer das native Vollbildverhalten."
+            "value" : "Option-Klick verwendet das native macOS-Zoomverhalten."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-click always keeps the native full-screen behaviour."
+            "value" : "Option-click uses the native macOS Zoom behaviour."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-clic siempre mantiene la pantalla completa nativa."
+            "value" : "Option-clic usa el comportamiento de zoom nativo de macOS."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-clic siempre mantiene la pantalla completa nativa."
+            "value" : "Option-clic usa el comportamiento de zoom nativo de macOS."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-clic conserve toujours le plein écran natif."
+            "value" : "Option-clic utilise le zoom natif de macOS."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-clic mantiene sempre lo schermo intero nativo."
+            "value" : "Option-clic usa il comportamento di zoom nativo di macOS."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option を押しながらのクリックは常にネイティブ全画面になります。"
+            "value" : "Option を押しながらクリックすると、macOS 標準のズーム動作になります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-클릭은 항상 기본 전체 화면 동작을 유지합니다."
+            "value" : "Option-클릭은 macOS 기본 확대 동작을 사용합니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-clique sempre mantém a tela cheia nativa."
+            "value" : "Option-clique usa o comportamento nativo de zoom do macOS."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Option-clique mantém sempre o ecrã inteiro nativo."
+            "value" : "Option-clique usa o comportamento de zoom nativo do macOS."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "按住 Option 点击始终保留原生全屏行为。"
+            "value" : "按住 Option 点击会使用 macOS 原生缩放行为。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "按住 Option 點擊一律保留原生全螢幕行為。"
+            "value" : "按住 Option 點擊會使用 macOS 原生縮放行為。"
           }
         }
       }
