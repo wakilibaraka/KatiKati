@@ -21,13 +21,61 @@ DEVELOPER_ID_APPLICATION="${DEVELOPER_ID_APPLICATION:-}"
 NOTARY_KEYCHAIN_PROFILE="${NOTARY_KEYCHAIN_PROFILE:-katikati-notary}"
 
 TEMP_ROOT=""
+DMG_ATTACHED_DEV=""
 
 cleanup() {
+  if [[ -n "$DMG_ATTACHED_DEV" ]]; then
+    hdiutil detach "$DMG_ATTACHED_DEV" -quiet 2>/dev/null || hdiutil detach "$DMG_ATTACHED_DEV" -force -quiet 2>/dev/null || true
+    DMG_ATTACHED_DEV=""
+  fi
   if [[ -n "$TEMP_ROOT" && -d "$TEMP_ROOT" ]]; then
     rm -rf "$TEMP_ROOT"
   fi
 }
 trap cleanup EXIT
+
+generate_dmg_background() {
+  local out_png="$1"
+  mkdir -p "$(dirname "$out_png")"
+  python3 - "$out_png" <<'PY'
+import struct, sys, zlib
+
+w, h = 660, 400
+out_path = sys.argv[1]
+
+def chunk(tag, data):
+    return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+
+rows = bytearray()
+for y in range(h):
+    rows.append(0)  # filter type None
+    ty = y / float(h - 1)
+    for x in range(w):
+        tx = x / float(w - 1)
+        # Soft dark slate vertical gradient with twin icon halo highlights.
+        base_r = 22.0 + (1.0 - ty) * 10.0 + tx * 4.0
+        base_g = 25.0 + (1.0 - ty) * 11.0 + tx * 6.0
+        base_b = 34.0 + (1.0 - ty) * 16.0 + tx * 10.0
+        d1 = ((x - 175) ** 2 + (y - 195) ** 2) ** 0.5
+        d2 = ((x - 485) ** 2 + (y - 195) ** 2) ** 0.5
+        glow = max(0.0, 1.0 - d1 / 120.0) * 16.0 + max(0.0, 1.0 - d2 / 120.0) * 14.0
+        # Subtle chevron arrow in center (x=312..348, y around 195).
+        ax, ay = x - 330, abs(y - 195)
+        is_arrow = (-12 <= ax <= 12) and (abs(ax + ay - 8) <= 2.2) and ay <= 14
+        r = min(255, int(base_r + glow + (80 if is_arrow else 0)))
+        g = min(255, int(base_g + glow * 1.15 + (95 if is_arrow else 0)))
+        b = min(255, int(base_b + glow * 1.45 + (120 if is_arrow else 0)))
+        rows.extend((r, g, b))
+
+ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
+idat = zlib.compress(bytes(rows), level=6)
+with open(out_path, "wb") as f:
+    f.write(b"\x89PNG\r\n\x1a\n")
+    f.write(chunk(b"IHDR", ihdr))
+    f.write(chunk(b"IDAT", idat))
+    f.write(chunk(b"IEND", b""))
+PY
+}
 
 die() {
   printf 'error: %s\n' "$*" >&2
@@ -406,8 +454,51 @@ cp "$LICENSE_FILE" "$DMG_STAGE/LICENSE"
 ln -s /Applications "$DMG_STAGE/Applications"
 cmp -s "$LICENSE_FILE" "$DMG_STAGE/LICENSE" || die "DMG stage is missing the exact GPL license text"
 DMG="$NEW_DIST/KatiKati-$VERSION.dmg"
-# ULMO (LZMA) opens on macOS 10.15+; the deployment target is 12. The ZIP stays as is.
-hdiutil create -volname "$VOL_NAME" -srcfolder "$DMG_STAGE" -ov -format ULMO "$DMG" >/dev/null
+RW_DMG="$TEMP_ROOT/$APP_NAME-$VERSION-rw.dmg"
+
+if generate_dmg_background "$DMG_STAGE/.background/background.png" && [[ "${KATIKATI_PLAIN_DMG:-0}" != "1" ]]; then
+  hdiutil create -volname "$VOL_NAME" -srcfolder "$DMG_STAGE" -ov -format UDRW -fs HFS+ "$RW_DMG" >/dev/null
+  ATTACH_OUT="$(hdiutil attach -readwrite -noverify -noautoopen "$RW_DMG")"
+  DMG_ATTACHED_DEV="$(awk '/^\/dev\// { print $1; exit }' <<<"$ATTACH_OUT")"
+  MOUNT_POINT="$(sed -n 's/.*\(\/Volumes\/.*\)$/\1/p' <<<"$ATTACH_OUT" | head -n 1)"
+  if [[ -n "$MOUNT_POINT" ]] && command -v osascript >/dev/null 2>&1; then
+    VOL_BASENAME="$(basename "$MOUNT_POINT")"
+    osascript >/dev/null 2>&1 <<OSA || echo "    warning: skipped Finder DMG layout (headless/unavailable)"
+tell application "Finder"
+  tell disk "$VOL_BASENAME"
+    open
+    set current view of container window to icon view
+    set toolbar visible of container window to false
+    set statusbar visible of container window to false
+    set the bounds of container window to {180, 140, 840, 540}
+    set viewOptions to the icon view options of container window
+    set arrangement of viewOptions to not arranged
+    set icon size of viewOptions to 112
+    try
+      set background picture of viewOptions to file ".background:background.png"
+    end try
+    set position of item "$APP_NAME.app" of container window to {175, 195}
+    set position of item "Applications" of container window to {485, 195}
+    set position of item "LICENSE" of container window to {330, 330}
+    close
+    open
+    update without registering applications
+    delay 1
+  end tell
+end tell
+OSA
+  fi
+  sync
+  if [[ -n "$DMG_ATTACHED_DEV" ]]; then
+    hdiutil detach "$DMG_ATTACHED_DEV" -quiet || hdiutil detach "$DMG_ATTACHED_DEV" -force -quiet
+    DMG_ATTACHED_DEV=""
+  fi
+  # ULMO (LZMA) opens on macOS 10.15+; the deployment target is 12. The ZIP stays as is.
+  hdiutil convert "$RW_DMG" -format ULMO -ov -o "$DMG" >/dev/null
+else
+  # Fallback / KATIKATI_PLAIN_DMG=1: ULMO directly from DMG_STAGE.
+  hdiutil create -volname "$VOL_NAME" -srcfolder "$DMG_STAGE" -ov -format ULMO "$DMG" >/dev/null
+fi
 codesign_with_timestamp --force --sign "$DEVELOPER_ID_APPLICATION" --timestamp "$DMG"
 codesign --verify --strict --verbose=2 "$DMG"
 

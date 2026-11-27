@@ -221,21 +221,52 @@ struct MenuBarCreativeHubView: View {
 
     private func boxTile(slot: HubActionSlotID, index: Int) -> some View {
         let on = boxState(slot)
+        let accent = boxAccent(slot)
         return Button { performBox(slot) } label: {
-            HStack(spacing: 8) {
-                Image(systemName: boxSymbol(slot)).font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(on ? Color.white : ink).frame(width: 28, height: 28)
-                    .background(Circle().fill(on ? AnyShapeStyle(palette.pillGradient) : AnyShapeStyle(cardFill)))
+            HStack(spacing: 9) {
+                ZStack(alignment: .topTrailing) {
+                    Circle()
+                        .fill(on
+                              ? AnyShapeStyle(LinearGradient(colors: [accent, accent.opacity(0.76)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                              : AnyShapeStyle(cardFill))
+                        .frame(width: 30, height: 30)
+                        .overlay {
+                            Circle()
+                                .strokeBorder(on ? Color.white.opacity(0.32) : accent.opacity(0.24), lineWidth: 0.75)
+                        }
+                        .shadow(color: on ? accent.opacity(0.35) : .clear, radius: 5, y: 2)
+                    Image(systemName: boxSymbol(slot))
+                        .font(.system(size: 13.5, weight: .semibold))
+                        .foregroundStyle(on ? Color.white : ink)
+                        .frame(width: 30, height: 30)
+                    if let mini = boxSecondarySymbol(slot) {
+                        Image(systemName: mini)
+                            .font(.system(size: 7.5, weight: .bold))
+                            .foregroundStyle(on ? Color.white : accent)
+                            .padding(2)
+                            .background(Circle().fill(on ? accent.opacity(0.95) : Color.primary.opacity(0.14)))
+                            .offset(x: 2, y: -2)
+                    }
+                }
                 VStack(alignment: .leading, spacing: 1) {
                     boxTitle(slot).font(.system(size: 12, weight: .semibold)).foregroundStyle(ink).lineLimit(1)
                     Text(on ? String(localized: "On") : String(localized: "Off")).font(.system(size: 10.5, weight: .medium))
-                        .foregroundStyle(on ? palette.primaryAccent : inkSoft)
+                        .foregroundStyle(on ? accent : inkSoft)
                 }
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 9).padding(.vertical, 7)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(on ? palette.primaryAccent.opacity(0.16) : cardFill))
-            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(on ? palette.primaryAccent.opacity(0.45) : cardStroke, lineWidth: 1))
+            .background(
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(on ? accent.opacity(0.16) : cardFill)
+                    if on {
+                        RadialGradient(colors: [accent.opacity(0.20), .clear], center: .leading, startRadius: 4, endRadius: 72)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                }
+            )
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(on ? accent.opacity(0.45) : cardStroke, lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -1074,6 +1105,31 @@ struct MenuBarCreativeHubView: View {
         if slot == .captureOCR { return Text("Capture Area") }
         if slot == .notchToggle { return Text("Notch") }
         return QuickToggleID(rawValue: slot.rawValue)?.title ?? Text(verbatim: slot.rawValue)
+    }
+
+    private func boxAccent(_ slot: HubActionSlotID) -> Color {
+        switch slot {
+        case .keepAwake: return .orange
+        case .darkMode: return .indigo
+        case .captureOCR: return .cyan
+        case .notchToggle: return palette.primaryAccent
+        case .muteOutput: return .pink
+        case .hideDesktopIcons: return .teal
+        case .emptyTrash: return .red
+        case .lockScreen: return .blue
+        case .nightShift: return Color(red: 0.98, green: 0.68, blue: 0.24)
+        case .dockAutoHide: return .purple
+        }
+    }
+
+    private func boxSecondarySymbol(_ slot: HubActionSlotID) -> String? {
+        switch slot {
+        case .keepAwake: return "cup.and.saucer.fill"
+        case .captureOCR: return "sparkles"
+        case .nightShift: return "moon.stars.fill"
+        case .notchToggle: return "macbook.gen2"
+        default: return nil
+        }
     }
 
     private func switchState(_ id: HubSwitchID) -> Bool {
