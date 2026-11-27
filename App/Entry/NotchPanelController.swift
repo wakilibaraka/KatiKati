@@ -802,46 +802,54 @@ final class NotchPanelController: LiveEventSink {
             return
         }
         let driver = islandBridge.driver
+        let mediaHidden = mediaWantsIslandHidden() && driver.scene.presentation == .idle
         let hidesAtRest = (driver.topology.hidesAtRest(
             activeCount: driver.snapshot.activities.count,
             nonNotchBehavior: driver.nonNotchIdleBehavior
-        ) || mediaWantsIslandHidden()) && driver.scene.presentation == .idle
+        ) || mediaHidden) && driver.scene.presentation == .idle
         if panel?.ignoresMouseEvents != hidesAtRest {
             panel?.ignoresMouseEvents = hidesAtRest
         }
+        // A media fullscreen on a notchless display actually takes the island away; the rest state
+        // only needs to stop taking clicks, but a video should not have a capsule in front of it.
+        let alpha: CGFloat = mediaHidden ? 0 : 1
+        if let panel, panel.alphaValue != alpha { panel.alphaValue = alpha }
     }
 
     /// AT-4: a playing video in a watching app, fullscreen, on a display without a notch. Reads the
     /// profile for this display, then one WindowServer list; nothing runs when the display has a
     /// hardware notch or the frontmost app is not media.
     private func mediaWantsIslandHidden() -> Bool {
-        guard let screen = targetScreen(), screen.safeAreaInsets.top == 0 else { return false }
         guard DisplayProfiles.isEnabled(),
               let app = NSWorkspace.shared.frontmostApplication,
               let bundle = app.bundleIdentifier,
               AppRuleCategory.media.matches(bundleID: bundle) else { return false }
 
-        let number = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
-        let role = DisplayRole.resolve(isBuiltin: CGDisplayIsBuiltin(CGDirectDisplayID(number)) != 0)
-        let profile = DisplayProfiles.resolve(
-            key: DisplayIdentity.uuidString(for: screen) ?? screen.localizedName,
-            name: screen.localizedName,
-            role: role,
-            profiles: DisplayProfiles.stored()
-        )
-        guard profile.hideIslandForMedia else { return false }
-
         let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
         guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return false }
-        for info in list {
-            guard (info[kCGWindowOwnerPID as String] as? pid_t) == app.processIdentifier,
-                  (info[kCGWindowLayer as String] as? Int) == 0,
-                  let dict = info[kCGWindowBounds as String] as? [String: Any],
-                  let bounds = CGRect(dictionaryRepresentation: dict as CFDictionary) else { continue }
-            // A native-fullscreen window is the one that covers the display exactly.
-            if abs(bounds.width - screen.frame.width) <= 2, abs(bounds.height - screen.frame.height) <= 2 {
-                return true
+
+        // The media window can be fullscreen on any display, not the one the island sits on: a
+        // video fullscreen on the 4K is exactly the case that should clear the built-in's island.
+        // Each notchless display with the media window covering it decides from its own profile.
+        for screen in NSScreen.screens where screen.safeAreaInsets.top == 0 {
+            let covers = list.contains { info in
+                guard (info[kCGWindowOwnerPID as String] as? pid_t) == app.processIdentifier,
+                      (info[kCGWindowLayer as String] as? Int) == 0,
+                      let dict = info[kCGWindowBounds as String] as? [String: Any],
+                      let bounds = CGRect(dictionaryRepresentation: dict as CFDictionary) else { return false }
+                // A native-fullscreen window is the one that covers the display exactly.
+                return abs(bounds.width - screen.frame.width) <= 2 && abs(bounds.height - screen.frame.height) <= 2
             }
+            guard covers else { continue }
+            let number = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+            let role = DisplayRole.resolve(isBuiltin: CGDisplayIsBuiltin(CGDirectDisplayID(number)) != 0)
+            let profile = DisplayProfiles.resolve(
+                key: DisplayIdentity.uuidString(for: screen) ?? screen.localizedName,
+                name: screen.localizedName,
+                role: role,
+                profiles: DisplayProfiles.stored()
+            )
+            if profile.hideIslandForMedia { return true }
         }
         return false
     }

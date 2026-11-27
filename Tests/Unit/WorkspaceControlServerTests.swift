@@ -22,6 +22,16 @@ final class WorkspaceControlServerTests: XCTestCase {
     }
 
     @MainActor
+    func testSnapOpensThePickerThroughTheSocket() async throws {
+        let harness = try ControlHarness()
+        defer { harness.stop() }
+
+        let reply = try await harness.send("snap")
+        XCTAssertEqual(reply, "ok snap")
+        XCTAssertEqual(harness.target.commands, [.showSnapPicker])
+    }
+
+    @MainActor
     func testUnknownVerbIsRejectedWithoutReachingTheTarget() async throws {
         let harness = try ControlHarness()
         defer { harness.stop() }
@@ -314,6 +324,7 @@ private final class SpyControlTarget: WorkspaceControlTarget {
         case .pause: return "ok paused"
         case .resume: return "ok resumed"
         case .retile: return "ok retiled"
+        case .showSnapPicker: return "ok snap"
         }
     }
 }

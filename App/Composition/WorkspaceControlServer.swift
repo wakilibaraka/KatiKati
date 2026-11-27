@@ -18,6 +18,8 @@ enum WorkspaceControlCommand: Equatable, Sendable {
     case pause
     case resume
     case retile
+    /// AT-7: opens snApp from a script, the same entry the menu-bar Hub row uses.
+    case showSnapPicker
 }
 
 /// What the socket talks to (W-10).
@@ -249,8 +251,11 @@ final class WorkspaceControlServer: @unchecked Sendable {
         case "retile":
             return .command(.retile)
 
+        case "snap":
+            return .command(.showSnapPicker)
+
         default:
-            return .error("error unknown command (status, switch, move, layout, pause, resume, retile)")
+            return .error("error unknown command (status, switch, move, layout, pause, resume, retile, snap)")
         }
     }
 }
@@ -305,6 +310,11 @@ extension TilingEngine: WorkspaceControlTarget {
         case .retile:
             retileAll()
             return "ok retiled"
+
+        case .showSnapPicker:
+            guard !SnapPickerController.shared.isVisible else { return "ok snap already open" }
+            SnapPickerController.shared.present()
+            return "ok snap"
         }
     }
 }
