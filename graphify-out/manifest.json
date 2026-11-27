@@ -24,10 +24,10 @@
     "semantic_hash": ""
   },
   "App/Composition/AppSettingsStore.swift": {
-    "mtime": 1795717924.6145375,
-    "seen": 1795752234.503965,
-    "ast_hash": "9e0408665556e0d7b73a9d6517ab8519",
-    "semantic_hash": "9e0408665556e0d7b73a9d6517ab8519"
+    "mtime": 1795781222.475685,
+    "seen": 1795782012.246498,
+    "ast_hash": "4d4963a5e6319568f25270a73360a463",
+    "semantic_hash": ""
   },
   "App/Composition/AutoHideToggleMenuModel.swift": {
     "mtime": 1791999130.800073,
@@ -486,10 +486,10 @@
     "semantic_hash": "006f3210e94895b15a8de8624a03a4cc"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795749737.0715623,
-    "seen": 1795752234.507288,
-    "ast_hash": "411489620048ecbaed5b5f135a5d0db4",
-    "semantic_hash": "411489620048ecbaed5b5f135a5d0db4"
+    "mtime": 1795781275.261056,
+    "seen": 1795782012.247092,
+    "ast_hash": "02ae13d038daa2666862701a9554cfe7",
+    "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
     "mtime": 1795098906.6910357,
@@ -552,10 +552,10 @@
     "semantic_hash": "1ebb07031ebbaaa4f49bc4d7ba0cdc08"
   },
   "App/Entry/PanelCoordinator+Drawer.swift": {
-    "mtime": 1795427216.154257,
-    "seen": 1795752234.50771,
-    "ast_hash": "e3e364ed094d9a73f1950bda42ab7c3b",
-    "semantic_hash": "e3e364ed094d9a73f1950bda42ab7c3b"
+    "mtime": 1795781276.155729,
+    "seen": 1795782012.247146,
+    "ast_hash": "253b0f8c0945054636cc83c5f830f43d",
+    "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Fullscreen.swift": {
     "mtime": 1794992187.694583,
@@ -570,16 +570,16 @@
     "semantic_hash": "796558b48271e85fac00e5cb75163ee4"
   },
   "App/Entry/PanelCoordinator+PanelSetup.swift": {
-    "mtime": 1795556375.038149,
-    "seen": 1795752234.507784,
-    "ast_hash": "ebf94c6fa8cf574725a7c0018aeab106",
-    "semantic_hash": "ebf94c6fa8cf574725a7c0018aeab106"
+    "mtime": 1795781278.267124,
+    "seen": 1795782012.2471511,
+    "ast_hash": "347aa12aca8dfc03a4eee632364162e7",
+    "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+Popups.swift": {
-    "mtime": 1795443274.0136037,
-    "seen": 1795752234.507807,
-    "ast_hash": "8e81f0e64026a3baded3aec33fe258e2",
-    "semantic_hash": "8e81f0e64026a3baded3aec33fe258e2"
+    "mtime": 1795781277.2361236,
+    "seen": 1795782012.247154,
+    "ast_hash": "996d7a3d577a58b5e756114ca26efd5a",
+    "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ResizeCursor.swift": {
     "mtime": 1791999130.7939427,
@@ -678,10 +678,10 @@
     "semantic_hash": "5db49e41eda109cc22592033736c7a7d"
   },
   "App/Scenes/BehaviourSettingsBlock.swift": {
-    "mtime": 1795750327.4266493,
-    "seen": 1795752234.508503,
-    "ast_hash": "8c0238b1f1c47fc4a6a0891975f2779d",
-    "semantic_hash": "8c0238b1f1c47fc4a6a0891975f2779d"
+    "mtime": 1795781273.3294423,
+    "seen": 1795782012.247211,
+    "ast_hash": "f4ce544b9464c24829e07b913f710d9c",
+    "semantic_hash": ""
   },
   "App/Scenes/CalendarPanelView.swift": {
     "mtime": 1793820287.607486,
@@ -1122,10 +1122,10 @@
     "semantic_hash": "336cbfa6769f9a32f2bea78a84b85725"
   },
   "App/Scenes/SettingsAppearancePane.swift": {
-    "mtime": 1795745619.8049214,
-    "seen": 1795752234.512288,
-    "ast_hash": "4cf76b7adf4aaf353f7648b0e1becd19",
-    "semantic_hash": "4cf76b7adf4aaf353f7648b0e1becd19"
+    "mtime": 1795781383.5780895,
+    "seen": 1795782012.2475631,
+    "ast_hash": "e9c225db82314d610008196dcf87d810",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsCard.swift": {
     "mtime": 1795602196.1601503,
@@ -1134,16 +1134,16 @@
     "semantic_hash": "b1bf8ea3de69e1922a8a7daf70b2862a"
   },
   "App/Scenes/SettingsLayoutPane.swift": {
-    "mtime": 1795749737.648196,
-    "seen": 1795752234.512477,
-    "ast_hash": "e2a1cee71beff89ccd810b02c3d47842",
-    "semantic_hash": "e2a1cee71beff89ccd810b02c3d47842"
+    "mtime": 1795781274.217272,
+    "seen": 1795782012.247572,
+    "ast_hash": "596a4b9242fada523bfb594cb9799f98",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsTab.swift": {
-    "mtime": 1795598775.9247897,
-    "seen": 1795752234.512615,
-    "ast_hash": "2006f0d8e3e65ef83790aaf6edda492f",
-    "semantic_hash": "2006f0d8e3e65ef83790aaf6edda492f"
+    "mtime": 1795781611.0630527,
+    "seen": 1795782012.2475781,
+    "ast_hash": "0b60be90bf7b1b1e09a1d8090e18f0a8",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsTilingPane.swift": {
     "mtime": 1795738506.9066095,
@@ -1152,10 +1152,10 @@
     "semantic_hash": "7dd376d9bcb314bae9c42a8a572abcc2"
   },
   "App/Scenes/SettingsWindowView.swift": {
-    "mtime": 1795599996.0654314,
-    "seen": 1795752234.5126662,
-    "ast_hash": "7ffaac3516055c2babb0e73c5d66f17d",
-    "semantic_hash": "7ffaac3516055c2babb0e73c5d66f17d"
+    "mtime": 1795781381.5294437,
+    "seen": 1795782012.2475798,
+    "ast_hash": "b92f9ca3edfccb0576bb0e49b329ea16",
+    "semantic_hash": ""
   },
   "App/Scenes/ShelfChip.swift": {
     "mtime": 1795596859.0090284,
@@ -4021,10 +4021,10 @@
     "semantic_hash": "65c95e1c602645852246f7c4a370dce6"
   },
   "Tests/Unit/SettingsTabTests.swift": {
-    "mtime": 1795598775.9466329,
-    "seen": 1795752234.530545,
-    "ast_hash": "8b3a6d9f662c01efd0ab8252044c9969",
-    "semantic_hash": "8b3a6d9f662c01efd0ab8252044c9969"
+    "mtime": 1795781384.5783203,
+    "seen": 1795782012.2485068,
+    "ast_hash": "39e9702f56e6be0f29ee944eb0defba3",
+    "semantic_hash": ""
   },
   "Tests/Unit/ShakeDetectorTests.swift": {
     "mtime": 1791999130.939564,
@@ -4595,16 +4595,16 @@
     "semantic_hash": "a9bdae99083da3fcc109a742e323f53f"
   },
   "App/Scenes/Settings/SettingsSidebar.swift": {
-    "mtime": 1795598775.9236183,
-    "seen": 1795752234.512214,
-    "ast_hash": "ed8c66424f2d1f6d68029509ec1d0f83",
-    "semantic_hash": "ed8c66424f2d1f6d68029509ec1d0f83"
+    "mtime": 1795781610.0109634,
+    "seen": 1795782012.2475588,
+    "ast_hash": "a6d7c372fe85c9ad7f5b740e51e121c2",
+    "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1795726656.4636078,
-    "seen": 1795752234.5122392,
-    "ast_hash": "1d972d4a176fdbc0cae96cdbd186dc84",
-    "semantic_hash": "1d972d4a176fdbc0cae96cdbd186dc84"
+    "mtime": 1795781380.6029053,
+    "seen": 1795782012.24756,
+    "ast_hash": "313ab8ab75e621eaf5f6f17337d8ba3f",
+    "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
     "mtime": 1795780231.1915045,
@@ -4625,10 +4625,10 @@
     "semantic_hash": "f6972a0eab9e88071a192ec6480408a9"
   },
   "App/Scenes/SettingsLayoutPane+EdgeBars.swift": {
-    "mtime": 1795745658.678913,
-    "seen": 1795752234.5123782,
-    "ast_hash": "421751ce55f61b60c630bbd86f2a75f4",
-    "semantic_hash": "421751ce55f61b60c630bbd86f2a75f4"
+    "mtime": 1795781272.2416422,
+    "seen": 1795782012.2475672,
+    "ast_hash": "fef540d298c9d9a6d408637bf407d2a0",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsLayoutPane+Launcher.swift": {
     "mtime": 1795481165.6717863,
@@ -7427,9 +7427,9 @@
     "semantic_hash": "264befe0c55697134596b4cd7977e6c7"
   },
   "App/Scenes/DockWidgets/DockII/DockControlCenterWidgetView.swift": {
-    "mtime": 1795779272.620127,
-    "seen": 1795780194.633195,
-    "ast_hash": "eb46e958ae8b525386db490b181c2db5",
+    "mtime": 1795781260.7531846,
+    "seen": 1795782012.247308,
+    "ast_hash": "3c36a8f07342ee03bb1de3ab302644e7",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockFriendsWidgetView.swift": {
@@ -7439,16 +7439,16 @@
     "semantic_hash": "7214afffe525db57bf8e0799ba8b1f53"
   },
   "App/Scenes/DockWidgets/DockII/DockSpotifyWidgetView.swift": {
-    "mtime": 1795745660.8582854,
-    "seen": 1795752234.50966,
-    "ast_hash": "c0c11a859b3797499091008dacee042f",
-    "semantic_hash": "c0c11a859b3797499091008dacee042f"
+    "mtime": 1795781504.0264618,
+    "seen": 1795782012.2473118,
+    "ast_hash": "c51442a041086727b9a8e8e4cf5fc593",
+    "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockTelemetryWidgetView.swift": {
-    "mtime": 1795444612.511846,
-    "seen": 1795752234.509686,
-    "ast_hash": "c3bf52b5cec71cc580a3e82c2e806282",
-    "semantic_hash": "c3bf52b5cec71cc580a3e82c2e806282"
+    "mtime": 1795781258.2753146,
+    "seen": 1795782012.247315,
+    "ast_hash": "fda5255f29c105ed74123a8d2fcb99a9",
+    "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockII/DockVpnWidgetView.swift": {
     "mtime": 1795018619.7829747,
@@ -7463,10 +7463,10 @@
     "semantic_hash": "86859c217837c4986472010b47511203"
   },
   "Core/Support/DockWingModels.swift": {
-    "mtime": 1795695824.12407,
-    "seen": 1795752234.516607,
-    "ast_hash": "1a8038817fd17e611408c660e32a024f",
-    "semantic_hash": "1a8038817fd17e611408c660e32a024f"
+    "mtime": 1795781221.452608,
+    "seen": 1795782012.247913,
+    "ast_hash": "40af4153872d51e342c90ccaa52ebd39",
+    "semantic_hash": ""
   },
   "Platform/Media/SpotifyAuthService.swift": {
     "mtime": 1795778473.0607746,
@@ -7487,10 +7487,10 @@
     "semantic_hash": "0656d92b47fc649167cf3b04daaafa95"
   },
   "Tests/Unit/DockWingModelsTests.swift": {
-    "mtime": 1795470679.2651505,
-    "seen": 1795752234.526776,
-    "ast_hash": "fde0e4d847c67b57f4a69463fffbc740",
-    "semantic_hash": "fde0e4d847c67b57f4a69463fffbc740"
+    "mtime": 1795781256.2618444,
+    "seen": 1795782012.2483609,
+    "ast_hash": "ef78357ae57802e827305caa82495d41",
+    "semantic_hash": ""
   },
   "Tests/Unit/DockWingServicesTests.swift": {
     "mtime": 1794929020.898048,
@@ -7841,10 +7841,10 @@
     "semantic_hash": "7d34279d5bca3745bb0341f5a3ee0027"
   },
   "App/Composition/DesktopSearchService.swift": {
-    "mtime": 1795087112.4238946,
-    "seen": 1795752234.504534,
-    "ast_hash": "580992528a813bbc0cc7386c057366ef",
-    "semantic_hash": "580992528a813bbc0cc7386c057366ef"
+    "mtime": 1795781378.6776984,
+    "seen": 1795782012.246552,
+    "ast_hash": "9e58be89d23061a5ae0257778df85929",
+    "semantic_hash": ""
   },
   "App/Entry/DesktopSearchPanelController.swift": {
     "mtime": 1795087164.730914,
@@ -9554,6 +9554,24 @@
     "mtime": 1795779293.8531704,
     "seen": 1795780194.633219,
     "ast_hash": "6a76184e96f62702d8181e0808aef83c",
+    "semantic_hash": ""
+  },
+  "App/Scenes/ExperimentalSettingsBlock.swift": {
+    "mtime": 1795781372.0741162,
+    "seen": 1795782012.2474072,
+    "ast_hash": "55972968f73c4c854056f93640658efa",
+    "semantic_hash": ""
+  },
+  "Core/Support/SettingsSearchIndex.swift": {
+    "mtime": 1795781932.773306,
+    "seen": 1795782012.2480562,
+    "ast_hash": "50bf742ec334e5194d9a3dfa41929621",
+    "semantic_hash": ""
+  },
+  "Tests/Unit/SettingsSearchIndexTests.swift": {
+    "mtime": 1795781373.0853784,
+    "seen": 1795782012.248505,
+    "ast_hash": "de972f6e2d818907d5aded102b82a906",
     "semantic_hash": ""
   }
 }
