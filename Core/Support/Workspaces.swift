@@ -173,6 +173,11 @@ struct WorkspaceLayout: Equatable, Sendable, Codable {
         windows.values.contains { $0.contains(id) }
     }
 
+    /// The display this layout holds `id` on, if it holds it at all.
+    func displayKey(of id: WindowID) -> String? {
+        windows.first { $0.value.contains(id) }?.key
+    }
+
     var allWindowIDs: [WindowID] { windows.keys.sorted().flatMap { windows[$0] ?? [] } }
 
     /// Adds a window once, keeping its existing position if it is already here.
@@ -227,6 +232,15 @@ struct WorkspaceStore: Equatable, Sendable, Codable {
     }
 
     func layout(_ workspace: WorkspaceID) -> WorkspaceLayout { layouts[workspace] ?? WorkspaceLayout() }
+
+    /// The display a window is owned on. Ownership is per display, so this is how the engine notices
+    /// a window that has moved to the other screen.
+    func displayKey(of id: WindowID) -> String? {
+        for workspace in layouts.keys.sorted() {
+            if let key = layouts[workspace]?.displayKey(of: id) { return key }
+        }
+        return nil
+    }
 
     mutating func assign(_ id: WindowID, to workspace: WorkspaceID, on displayKey: String) {
         remove(id)

@@ -143,6 +143,7 @@ enum CalendarDockActions {
 /// Hover preview: the next meetings, each with a Join button when it carries a Zoom / Meet / Teams link.
 struct CalendarPreviewCard: View {
     @ObservedObject private var feed = DockCalendarFeed.shared
+    @AppStorage(MeetingAutoJoinPolicy.enabledKey) private var autoJoin = false
 
     var body: some View {
         DockPreviewCard {
@@ -158,6 +159,13 @@ struct CalendarPreviewCard: View {
                             if event.id != events.last?.id { Divider().opacity(0.2) }
                         }
                     }
+                    Divider().opacity(0.2)
+                    Toggle(isOn: $autoJoin) {
+                        Text("Auto-join meetings")
+                            .font(.system(size: 11.5, weight: .medium))
+                    }
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
                 }
             }
         }
@@ -167,6 +175,7 @@ struct CalendarPreviewCard: View {
 
     private func row(_ event: DockEvent, now: Date) -> some View {
         let until = EventTimeUntil.resolve(start: event.start, end: event.end, now: now)
+        let urgency = CountdownUrgency.tier(secondsUntil: event.start.timeIntervalSince(now))
         let joinable = EventTimeUntil.isJoinable(start: event.start, end: event.end, now: now)
         return HStack(spacing: 10) {
             Capsule().fill(Color(.sRGB, red: event.colorRGB[safe: 0] ?? 0.4, green: event.colorRGB[safe: 1] ?? 0.6,
@@ -174,7 +183,14 @@ struct CalendarPreviewCard: View {
                 .frame(width: 3, height: 34)
             VStack(alignment: .leading, spacing: 1) {
                 Text(verbatim: event.title).font(.system(size: 13, weight: .medium)).lineLimit(1)
-                Text(verbatim: "\(event.start.formatted(date: .omitted, time: .shortened)) · \(until.label ?? "")").dockCaption()
+                HStack(spacing: 4) {
+                    Text(verbatim: event.start.formatted(date: .omitted, time: .shortened)).dockCaption()
+                    if let label = until.label {
+                        Text(verbatim: "· \(label)")
+                            .font(.system(size: 11, weight: urgency >= .amber ? .semibold : .regular))
+                            .foregroundStyle(urgencyTint(urgency))
+                    }
+                }
             }
             Spacer(minLength: 6)
             if let link = event.link {

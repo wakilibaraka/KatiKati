@@ -22,7 +22,7 @@ final class EdgeInsertIndexTests: XCTestCase {
         let moved = EdgeCustomOrder.inserting(.apps, at: 99, in: inserted)
         XCTAssertEqual(moved, [.habits, .focus, .clock, .apps, .settings])
 
-        XCTAssertEqual(EdgeCustomOrder.removing(.focus, in: moved), [.habits, .clock, .apps, .settings])
+        XCTAssertEqual(EdgeCustomOrder.removing(.focus, from: moved), [.habits, .clock, .apps, .settings])
         XCTAssertEqual(EdgeCustomOrder.removing(.settings, from: moved), moved)
     }
 

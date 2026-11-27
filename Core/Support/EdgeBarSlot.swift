@@ -168,6 +168,9 @@ enum EdgeItem: String, CaseIterable, Sendable {
         case .hydration: return .hydration
         case .food: return .food
         case .notesPreview: return .notesPreview
+        case .counter: return .counter
+        case .stickyNote: return .stickyNote
+        case .analogClock: return .analogClock
         case .notes: return .notes
         case .newNote: return .newNote
         case .settings: return .settings

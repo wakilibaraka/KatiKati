@@ -1714,6 +1714,19 @@
 		F41000000000000000000131 /* UsageThresholdPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageThresholdPolicyTests.swift; path = Tests/Unit/UsageThresholdPolicyTests.swift; sourceTree = SOURCE_ROOT; };
 		F41000000000000000000201 /* PeripheralWidgetLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeripheralWidgetLayout.swift; path = Core/Support/PeripheralWidgetLayout.swift; sourceTree = SOURCE_ROOT; };
 		F41000000000000000000211 /* PeripheralWidgetLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeripheralWidgetLayoutTests.swift; path = Tests/Unit/PeripheralWidgetLayoutTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000301 /* LockScreenSurfacePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LockScreenSurfacePolicy.swift; path = Core/Support/LockScreenSurfacePolicy.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000311 /* LockScreenSurfacePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LockScreenSurfacePolicyTests.swift; path = Tests/Unit/LockScreenSurfacePolicyTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000321 /* MusicQueueFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MusicQueueFetcher.swift; path = App/Composition/MusicQueueFetcher.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000331 /* LockScreenCalendarCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LockScreenCalendarCard.swift; path = App/Scenes/LockScreenCalendarCard.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000401 /* EdgeInsertIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeInsertIndex.swift; path = Core/Support/EdgeInsertIndex.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000411 /* EdgeInsertIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeInsertIndexTests.swift; path = Tests/Unit/EdgeInsertIndexTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000421 /* EdgeExtraCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeExtraCards.swift; path = App/Scenes/Edge/EdgeExtraCards.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000501 /* CountdownUrgency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CountdownUrgency.swift; path = Core/Support/CountdownUrgency.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000511 /* CountdownUrgencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CountdownUrgencyTests.swift; path = Tests/Unit/CountdownUrgencyTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000521 /* WidgetDensityPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetDensityPolicy.swift; path = Core/Support/WidgetDensityPolicy.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000531 /* WidgetDensityPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetDensityPolicyTests.swift; path = Tests/Unit/WidgetDensityPolicyTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000541 /* SystemPreviewTabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SystemPreviewTabsView.swift; path = App/Scenes/DockWidgets/SystemPreviewTabsView.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000551 /* MusicPreviewTabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MusicPreviewTabsView.swift; path = App/Scenes/DockWidgets/MusicPreviewTabsView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0B0 /* CommandTabTakeover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandTabTakeover.swift; path = App/Composition/CommandTabTakeover.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0C0 /* WindowDrawerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowDrawerController.swift; path = App/Composition/WindowDrawerController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0D0 /* WindowStripController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowStripController.swift; path = App/Composition/WindowStripController.swift; sourceTree = SOURCE_ROOT; };
@@ -3769,6 +3782,15 @@
 				F41000000000000000000112 /* NotchPeripheralConnectView.swift in Sources */,
 				F41000000000000000000122 /* HardwareHUDTakeoverService.swift in Sources */,
 				F41000000000000000000202 /* PeripheralWidgetLayout.swift in Sources */,
+				F41000000000000000000302 /* LockScreenSurfacePolicy.swift in Sources */,
+				F41000000000000000000322 /* MusicQueueFetcher.swift in Sources */,
+				F41000000000000000000332 /* LockScreenCalendarCard.swift in Sources */,
+				F41000000000000000000402 /* EdgeInsertIndex.swift in Sources */,
+				F41000000000000000000422 /* EdgeExtraCards.swift in Sources */,
+				F41000000000000000000502 /* CountdownUrgency.swift in Sources */,
+				F41000000000000000000522 /* WidgetDensityPolicy.swift in Sources */,
+				F41000000000000000000542 /* SystemPreviewTabsView.swift in Sources */,
+				F41000000000000000000552 /* MusicPreviewTabsView.swift in Sources */,
 				FA10A1000000000000000181 /* WindowSwitcherModel.swift in Sources */,
 				FA10A10000000000000000B5 /* ContextPresetRules.swift in Sources */,
 				FA10A10000000000000000B2 /* StackRelevance.swift in Sources */,
@@ -4648,6 +4670,10 @@
 				F41000000000000000000042 /* MediaKeyDecodeTests.swift in Sources */,
 				F41000000000000000000132 /* UsageThresholdPolicyTests.swift in Sources */,
 				F41000000000000000000212 /* PeripheralWidgetLayoutTests.swift in Sources */,
+				F41000000000000000000312 /* LockScreenSurfacePolicyTests.swift in Sources */,
+				F41000000000000000000412 /* EdgeInsertIndexTests.swift in Sources */,
+				F41000000000000000000512 /* CountdownUrgencyTests.swift in Sources */,
+				F41000000000000000000532 /* WidgetDensityPolicyTests.swift in Sources */,
 				ED0000000000000000000066 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000068 /* SyncPassSchedulerTests.swift in Sources */,
 				ED0000000000000000000052 /* NotesController.swift in Sources */,
@@ -4919,6 +4945,10 @@
 				F41000000000000000000013 /* MediaKeyDecode.swift in Sources */,
 				F41000000000000000000103 /* UsageThresholdPolicy.swift in Sources */,
 				F41000000000000000000203 /* PeripheralWidgetLayout.swift in Sources */,
+				F41000000000000000000303 /* LockScreenSurfacePolicy.swift in Sources */,
+				F41000000000000000000403 /* EdgeInsertIndex.swift in Sources */,
+				F41000000000000000000503 /* CountdownUrgency.swift in Sources */,
+				F41000000000000000000523 /* WidgetDensityPolicy.swift in Sources */,
 				FA10A1000000000000000182 /* WindowSwitcherModel.swift in Sources */,
 				FA10A10000000000000000B6 /* ContextPresetRules.swift in Sources */,
 				FA10A10000000000000000B3 /* StackRelevance.swift in Sources */,

@@ -34,7 +34,7 @@ struct MusicPreviewTabsView: View {
         let hasTrack = !(state.title?.isEmpty ?? true)
         DockPreviewCard {
             VStack(alignment: .leading, spacing: 12) {
-                Picker(selection: $pageRaw) {
+                Picker("Now Playing", selection: $pageRaw) {
                     Text("Now Playing").tag(MusicPreviewPage.nowPlaying.rawValue)
                     Text("Upcoming").tag(MusicPreviewPage.upNext.rawValue)
                     Text("Lyrics").tag(MusicPreviewPage.lyrics.rawValue)
@@ -204,7 +204,7 @@ struct MusicPreviewTabsView: View {
         let lines = hasTrack ? lyricsStore.lines(title: state.title, artist: state.artist) : []
         return Group {
             if lines.isEmpty {
-                Text("No synced lyrics for this track")
+                Text("No lyrics cached. Enable synced lyrics in Now Playing settings to fetch.")
                     .font(.system(size: 11.5))
                     .foregroundStyle(.secondary)
             } else {

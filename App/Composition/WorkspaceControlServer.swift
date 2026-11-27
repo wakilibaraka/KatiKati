@@ -219,7 +219,11 @@ extension TilingEngine: WorkspaceControlTarget {
     func perform(_ command: WorkspaceControlCommand) -> String {
         switch command {
         case .status:
-            let displayKey = NSScreen.screens.first.map { screenKey(for: $0) } ?? "main"
+            // Report the display the shortcuts act on, not the primary. With the focused window and the
+            // pointer on a second screen, `NSScreen.screens.first` named the wrong tree: `status` said
+            // `workspace=1 windows=0` while the 4K had just switched to 2, disagreeing with the very
+            // switch it was meant to describe (found live 2026-11-27).
+            let displayKey = (activeScreen() ?? NSScreen.screens.first).map { screenKey(for: $0) } ?? "main"
             let workspace = activeWorkspace(on: displayKey)
             let enabled = workspacesEnabled ? "on" : "off"
             let tiling = isEnabled ? "on" : "off"

@@ -79,6 +79,13 @@ final class EdgeBarPanelController {
             if dragging { self?.cancelHover() }
         }
         model.onContext = { [weak self] action, id in self?.contextAction(action, id: id) }
+        workspaceTokens.append(NotificationCenter.default.addObserver(
+            forName: Notification.Name("com.katikati.edge.orderDidChange"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.rebuildItems() }
+        })
     }
 
     /// Called with (side, ratio) when an ⌥-drag of the pill ends, to persist the new height.
@@ -224,6 +231,13 @@ final class EdgeBarPanelController {
                 }
             }
         }
+        let customOrder = EdgeCustomOrder.decode(UserDefaults.standard.string(forKey: EdgeCustomOrder.defaultsKey) ?? "[]")
+        buttons = EdgeCustomOrder.sort(
+            order: customOrder,
+            items: buttons,
+            id: { $0.edgeItem?.rawValue },
+            isPinnedLast: { $0 == .settings }
+        )
         model.buttons = buttons
         model.accentDashes = buttons.map { NotePalette.entry(at: $0.accent) }
 
@@ -688,6 +702,14 @@ final class EdgeBarPanelController {
                 apply(.tabClicked(firstID))
                 notesPopup.toggle(anchor: anchor, side: side, visibleFrame: visibleFrame, controller: notes, select: firstID, tabFont: settings.tabFont)
             }
+        case .counter:
+            EdgeCounterStore.shared.increment()
+        case .stickyNote:
+            break
+        case .analogClock:
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.analogClock", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: ClockFlyoutView.size, content: AnyView(ClockFlyoutView()))
         case .bluetoothWifi:
             notesPopup.dismiss(notify: false)
             popup.toggle(id: "merged.bluetoothWifi", anchor: anchor, side: side, visibleFrame: visibleFrame,

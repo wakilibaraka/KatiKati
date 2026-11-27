@@ -19,8 +19,10 @@ extension TilingEngine {
         let screens = NSScreen.screens
         let primaryMaxY = screens.first?.frame.maxY ?? 0
         // Only park a window that really is on this display; a window owned by another display's
-        // workspace is that display's to park.
-        guard resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY) === screen else { return }
+        // workspace is that display's to park. Compared by display key rather than object identity:
+        // two halves of the engine read `NSScreen.screens` separately, and nothing promises the same
+        // instance twice.
+        guard screenKey(for: resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY)) == screenKey(for: screen) else { return }
 
         let quartzRecovery = axElement(for: record.pid, cgWindowID: cg).flatMap(WindowSnapService.frame(of:))
             ?? record.bounds

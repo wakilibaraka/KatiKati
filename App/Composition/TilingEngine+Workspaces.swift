@@ -54,6 +54,22 @@ extension TilingEngine {
             let active = activeWorkspace(on: key)
             let disposition = workspaceRules.disposition(bundleID: record.bundleIdentifier, title: record.title)
             if disposition == .ignore { ignoredWorkspaceWindows.insert(id) }
+
+            // A window that moved displays belongs to the screen it is on now. Ownership is keyed by
+            // display, so a window adopted on the built-in stayed in that display's list after being
+            // dragged to the second screen: the second screen's switches then had nothing to park,
+            // while the first kept counting (and retiling) a window that was no longer there. It joins
+            // the entering display's active workspace rather than dragging a token onto a screen that
+            // is not showing it, so moving a window never hides it in a parked workspace (found live
+            // 2026-11-27 with four windows tiled on the 4K: ⌃⌥2 parked only the one window that had
+            // been adopted there).
+            if disposition != .ignore, let adoptedOn = workspaceStore.displayKey(of: id), adoptedOn != key {
+                detachWindow(id, fromDisplay: adoptedOn)
+                workspaceStore.assign(id, to: active, on: key)
+                changed = true
+                continue
+            }
+
             guard workspaceStore.workspace(of: id) == nil else { continue }
 
             switch disposition {
@@ -84,6 +100,21 @@ extension TilingEngine {
                 guard !isPinned(id), !ignoredWorkspaceWindows.contains(id) else { continue }
                 parkWorkspaceWindow(id, on: screen)
             }
+        }
+    }
+
+    /// Forgets a window on one display: the live tree and every saved workspace tree for that display.
+    /// The ownership record itself is the caller's to rewrite.
+    func detachWindow(_ id: WindowID, fromDisplay key: String) {
+        if var tree = trees[key] {
+            tree.remove(id)
+            trees[key] = tree
+        }
+        for workspace in Array(workspaceTrees.keys) {
+            guard var perDisplay = workspaceTrees[workspace], var tree = perDisplay[key] else { continue }
+            tree.remove(id)
+            perDisplay[key] = tree
+            workspaceTrees[workspace] = perDisplay
         }
     }
 

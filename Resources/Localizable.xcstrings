@@ -189618,23 +189618,6 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "表面材質" } }
       }
     },
-    "Built-in hardware notches stay pure OLED black when closed; Liquid Glass applies when expanded and on notchless displays." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Eingebaute Hardware-Notches bleiben geschlossen reines OLED-Schwarz; Flüssigglas gilt im ausgeklappten Zustand und auf Displays ohne Notch." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Built-in hardware notches stay pure OLED black when closed; Liquid Glass applies when expanded and on notchless displays." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Las muescas de hardware integradas siguen en negro OLED puro al cerrarse; el cristal líquido se aplica al expandirse y en pantallas sin muesca." } },
-        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Las muescas de hardware integradas siguen en negro OLED puro al cerrarse; el cristal líquido se aplica al expandirse y en pantallas sin muesca." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les encoches matérielles intégrées restent en noir OLED pur une fois fermées ; le verre liquide s'applique déployé et sur les écrans sans encoche." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "I notch hardware integrati restano nero OLED puro da chiusi; il vetro liquido si applica da espansi e sui display senza notch." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "内蔵ハードウェアノッチは閉じている間は純粋な OLED ブラックのままです。リキッドグラスは展開時とノッチのないディスプレイに適用されます。" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "내장 하드웨어 노치는 닫혀 있을 때 순수 OLED 블랙으로 유지됩니다. 리퀴드 글래스는 펼쳤을 때와 노치가 없는 디스플레이에 적용됩니다." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Os notches de hardware integrados permanecem em preto OLED puro quando fechados; o vidro líquido se aplica ao expandir e em telas sem notch." } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Os entalhes de hardware integrados mantêm-se em preto OLED puro quando fechados; o vidro líquido aplica-se ao expandir e em ecrãs sem entalhe." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "内置硬件刘海在收起时保持纯 OLED 黑色；液态玻璃在展开时以及无刘海显示器上生效。" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "內建硬體瀏海在收合時維持純 OLED 黑色；液態玻璃在展開時以及無瀏海顯示器上生效。" } }
-      }
-    },
     "Liquid Glass Surface" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -189854,6 +189837,193 @@
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar" } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自訂" } }
+      }
+    },
+    "Analog Clock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Analoguhr" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Analog Clock" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reloj analógico" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reloj analógico" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Horloge analogique" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Orologio analogico" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アナログ時計" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아날로그 시계" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Relógio analógico" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Relógio analógico" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "模拟时钟" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "類比時鐘" } }
+      }
+    },
+    "Auto-join meetings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Meetings automatisch beitreten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-join meetings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Unirse automáticamente a reuniones" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Unirse automáticamente a reuniones" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rejoindre automatiquement les réunions" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Partecipa automaticamente alle riunioni" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "会議に自動参加" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "회의 자동 참여" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar automaticamente nas reuniões" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aderir automaticamente às reuniões" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自动加入会议" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自動加入會議" } }
+      }
+    },
+    "Busy Only" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur „Belegt“" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Busy Only" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo Ocupado" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Solo Ocupado" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Occupé uniquement" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Solo Occupato" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "予定ありのみ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "바쁨만 표시" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apenas Ocupado" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apenas Ocupado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅显示忙碌" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "僅顯示忙碌" } }
+      }
+    },
+    "Calendar Privacy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kalender-Datenschutz" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Calendar Privacy" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Privacidad del calendario" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Privacidad del calendario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Confidentialité du calendrier" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Privacy calendario" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カレンダーのプライバシー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "캘린더 개인정보" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Privacidade do calendário" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Privacidade do calendário" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日历隐私" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "行事曆隱私" } }
+      }
+    },
+    "Counter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zähler" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Counter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contador" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Contador" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Compteur" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Contatore" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カウンター" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "카운터" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Contador" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Contador" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "计数器" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "計數器" } }
+      }
+    },
+    "Event Titles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ereignistitel" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Event Titles" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Títulos de eventos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Títulos de eventos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Titres des événements" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Titoli eventi" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "予定タイトル" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "일정 제목" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Títulos dos eventos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Títulos dos eventos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日程标题" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "行程標題" } }
+      }
+    },
+    "Full-Screen Blurred Artwork" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Vollbild-Cover mit Weichzeichner" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full-Screen Blurred Artwork" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Carátula difuminada a pantalla completa" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Carátula difuminada en pantalla completa" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pochette floutée plein écran" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Copertina sfocata a schermo intero" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フルスクリーンぼかしアートワーク" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "전체 화면 흐린 앨범 아트" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Arte desfocada em tela cheia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Capa desfocada em ecrã inteiro" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全屏模糊专辑封面" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "全螢幕模糊專輯封面" } }
+      }
+    },
+    "Lock Screen Calendar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sperrbildschirm-Kalender" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock Screen Calendar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Calendario en pantalla bloqueada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Calendario en pantalla bloqueada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Calendrier sur l'écran verrouillé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Calendario sulla schermata di blocco" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ロック画面カレンダー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠금 화면 캘린더" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Calendário na tela bloqueada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Calendário no ecrã bloqueado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "锁屏日历" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "鎖定畫面行事曆" } }
+      }
+    },
+    "Lock Screen Glance Bar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sperrbildschirm-Überblickleiste" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock Screen Glance Bar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Barra de resumen en pantalla bloqueada" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Barra de resumen en pantalla bloqueada" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Barre d'aperçu sur l'écran verrouillé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Barra rapida nella schermata di blocco" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ロック画面グランスバー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "잠금 화면 한눈에 보기 막대" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Barra de resumo na tela bloqueada" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Barra de resumo no ecrã bloqueado" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "锁屏速览栏" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "鎖定畫面速覽列" } }
+      }
+    },
+    "Sticky Note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Haftnotiz" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sticky Note" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nota adhesiva" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Nota adhesiva" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pense-bête" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nota adesiva" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "付箋メモ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "스티커 메모" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nota adesiva" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Nota adesiva" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "便利贴" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "便利貼" } }
+      }
+    },
+    "Super Glass" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Super-Glas" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Super Glass" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Supervidrio" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Supervidrio" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Super verre" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Super vetro" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スーパーグラス" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "슈퍼 글래스" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Supervidro" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Supervidro" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "超透玻璃" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "超透玻璃" } }
       }
     }
   },

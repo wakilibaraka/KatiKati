@@ -24,7 +24,7 @@ struct SystemPreviewTabsView: View {
     var body: some View {
         DockPreviewCard {
             VStack(alignment: .leading, spacing: 12) {
-                Picker(selection: $pageRaw) {
+                Picker("System", selection: $pageRaw) {
                     Text("Overview").tag(SystemPreviewPage.overview.rawValue)
                     Text("Memory").tag(SystemPreviewPage.processes.rawValue)
                     Text("Storage").tag(SystemPreviewPage.storage.rawValue)

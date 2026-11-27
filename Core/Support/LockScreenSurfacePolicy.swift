@@ -52,11 +52,14 @@ enum LockScreenSurfacePolicy {
 
         return selected.map { event in
             let status = EventTimeUntil.resolve(start: event.start, end: event.end, now: now)
-            let isOngoing: Bool
-            if case .inProgress = status {
-                isOngoing = true
-            } else {
-                isOngoing = false
+            let isOngoing = status == .now
+            let countdown: String?
+            switch status {
+            case .days(let d): countdown = "\(d)d"
+            case .hours(let h, let m): countdown = m == 0 ? "\(h)h" : "\(h)h \(m)m"
+            case .minutes(let m): countdown = "\(m)m"
+            case .now: countdown = "Now"
+            case .ended: countdown = nil
             }
             let title = detailMode == .busyOnly ? busyPlaceholder : event.title
             let timeLabel = event.isAllDay ? "" : formatter.string(from: event.start)
@@ -64,7 +67,7 @@ enum LockScreenSurfacePolicy {
                 id: event.id,
                 displayTitle: title,
                 timeLabel: timeLabel,
-                countdownLabel: status.label,
+                countdownLabel: countdown,
                 isOngoing: isOngoing,
                 colorRGB: event.colorRGB
             )

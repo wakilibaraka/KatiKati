@@ -31,17 +31,16 @@ enum EdgeCustomOrder {
         return text
     }
 
-    static func apply(order: [String], to items: [EdgeItem]) -> [EdgeItem] {
+    static func sort<T>(order: [String], items: [T], id: (T) -> String?, isPinnedLast: (T) -> Bool) -> [T] {
         guard !order.isEmpty else { return items }
         let indexByID = Dictionary(
             order.enumerated().map { ($0.element, $0.offset) },
             uniquingKeysWith: { first, _ in first }
         )
-        let hasSettings = items.contains(.settings)
-        let movable = items.filter { $0 != .settings }
-        let sorted = movable.enumerated().sorted { lhs, rhs in
-            let li = indexByID[lhs.element.rawValue]
-            let ri = indexByID[rhs.element.rawValue]
+        let pinned = items.filter(isPinnedLast)
+        let movable = items.filter { !isPinnedLast($0) }.enumerated().sorted { lhs, rhs in
+            let li = id(lhs.element).flatMap { indexByID[$0] }
+            let ri = id(rhs.element).flatMap { indexByID[$0] }
             switch (li, ri) {
             case let (a?, b?):
                 return a != b ? a < b : lhs.offset < rhs.offset
@@ -53,7 +52,11 @@ enum EdgeCustomOrder {
                 return lhs.offset < rhs.offset
             }
         }.map(\.element)
-        return hasSettings ? sorted + [.settings] : sorted
+        return movable + pinned
+    }
+
+    static func apply(order: [String], to items: [EdgeItem]) -> [EdgeItem] {
+        sort(order: order, items: items, id: { $0.rawValue }, isPinnedLast: { $0 == .settings })
     }
 
     static func inserting(_ item: EdgeItem, at index: Int, in current: [EdgeItem]) -> [EdgeItem] {

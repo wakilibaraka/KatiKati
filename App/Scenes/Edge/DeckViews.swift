@@ -173,6 +173,9 @@ enum DeckButton: Hashable {
         case .hydration: return "drop.fill"
         case .food: return "fork.knife"
         case .notesPreview: return "note.text"
+        case .counter: return "plusminus.circle.fill"
+        case .stickyNote: return "note.text"
+        case .analogClock: return "clock"
         case .bluetoothWifi: return "antenna.radiowaves.left.and.right"
         case .remindersAndTasks: return "checklist"
         case .systemAndBattery: return "cpu"
@@ -199,6 +202,49 @@ enum DeckButton: Hashable {
         }
     }
 
+    var edgeItem: EdgeItem? {
+        switch self {
+        case .app: return .apps
+        case .focus: return .focus
+        case .clock: return .clock
+        case .batteryWifi: return .batteryWifi
+        case .habits: return .habits
+        case .hydration: return .hydration
+        case .food: return .food
+        case .notesPreview: return .notesPreview
+        case .counter: return .counter
+        case .stickyNote: return .stickyNote
+        case .analogClock: return .analogClock
+        case .newNote: return .newNote
+        case .settings: return .settings
+        case .bluetoothWifi, .widget(.bluetooth): return .bluetooth
+        case .systemAndBattery, .widget(.systemMonitor): return .systemMonitor
+        case .remindersAndTasks: return .reminders
+        case .timeAndAlarms: return .time
+        case .captureAndScreenshot: return .capture
+        case .status: return .status
+        case let .widget(tile):
+            switch tile {
+            case .weather: return .weather
+            case .nowPlaying: return .nowPlaying
+            case .bluetooth: return .bluetooth
+            case .systemMonitor: return .systemMonitor
+            }
+        case let .productivity(item):
+            switch item {
+            case .reminders: return .reminders
+            case .alarms: return .alarms
+            case .time: return .time
+            case .tasks: return .tasks
+            case .clipboard: return .clipboard
+            case .capture: return .capture
+            case .screenshot: return .screenshot
+            case .windows: return .windows
+            case .screenTime: return .screenTime
+            }
+        }
+    }
+
     /// Palette index for the coloured style (stable per button).
     var accent: Int {
         switch self {
@@ -210,6 +256,9 @@ enum DeckButton: Hashable {
         case .hydration: return 1
         case .food: return 3
         case .notesPreview: return 0
+        case .counter: return 2
+        case .stickyNote: return 0
+        case .analogClock: return 5
         case .bluetoothWifi: return 4
         case .remindersAndTasks: return 3
         case .systemAndBattery: return 5
@@ -322,14 +371,20 @@ struct DeckPillView: View {
 
     var body: some View {
         let m = model.metrics
-        VStack(spacing: m.dashGap) {
-            ForEach(Array((dashes.isEmpty ? [Color.secondary.opacity(0.4)] : dashes).enumerated()), id: \.offset) { _, c in
-                RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(c).frame(width: m.dashWidth, height: m.dashHeight)
+        Group {
+            if dashes.isEmpty && model.barStyle == .bezelDock {
+                EdgeRevealLipView(side: model.onRight ? .right : .left, isHovered: false)
+            } else {
+                VStack(spacing: m.dashGap) {
+                    ForEach(Array((dashes.isEmpty ? [Color.secondary.opacity(0.4)] : dashes).enumerated()), id: \.offset) { _, c in
+                        RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(c).frame(width: m.dashWidth, height: m.dashHeight)
+                    }
+                }
+                .padding(.vertical, m.pillPad)
+                .frame(width: m.pillWidth)
+                .background(pillBackground)
             }
         }
-        .padding(.vertical, m.pillPad)
-        .frame(width: m.pillWidth)
-        .background(pillBackground)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: model.onRight ? .trailing : .leading)
         .padding(model.onRight ? .trailing : .leading, 1)
         .contentShape(Rectangle())
@@ -344,10 +399,20 @@ struct DeckPillView: View {
 
 // MARK: - Fan
 
+private struct LocalButtonMidYsKey: PreferenceKey {
+    static var defaultValue: [Int: CGFloat] = [:]
+    static func reduce(value: inout [Int: CGFloat], nextValue: () -> [Int: CGFloat]) {
+        value.merge(nextValue()) { $1 }
+    }
+}
+
 struct DeckFanView: View {
     @ObservedObject var model: DeckViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var dragID: String?
     @State private var dragTarget = 0
+    @State private var hoveredIndex: Int?
+    @State private var localButtonMidYs: [Int: CGFloat] = [:]
 
     private var visibleTabs: [Note] { model.visibleTabs }
     private var hiddenCount: Int { model.hiddenCount }
@@ -432,18 +497,45 @@ struct DeckFanView: View {
             }
             ForEach(Array(model.buttons.enumerated()), id: \.element) { i, button in
                 let isCard = button.isRichCard
-                DeckRoundButton(button: button, style: model.tileStyle, iconSet: model.iconSet, barStyle: model.barStyle, peak: model.magnifyPeak,
-                                size: m.buttonSize, onRight: model.onRight, showRunningDots: model.showRunningDots,
-                                pointerY: model.magnify ? model.pointerY : nil) { rect in model.onButton(button, rect) }
+                let hoveredKey = hoveredIndex.map(String.init)
+                let row = DeckRoundButton(
+                    button: button,
+                    style: model.tileStyle,
+                    iconSet: model.iconSet,
+                    barStyle: model.barStyle,
+                    peak: model.magnifyPeak,
+                    size: m.buttonSize,
+                    onRight: model.onRight,
+                    showRunningDots: model.showRunningDots,
+                    pointerY: model.magnify ? model.pointerY : nil
+                ) { rect in model.onButton(button, rect) }
                     .background(GeometryReader { proxy in
-                        Color.clear.preference(key: ButtonFramesKey.self, value: [i: proxy.frame(in: .global)])
+                        Color.clear
+                            .preference(key: ButtonFramesKey.self, value: [i: proxy.frame(in: .global)])
+                            .preference(key: LocalButtonMidYsKey.self, value: [i: proxy.frame(in: .named("edgeButtonStack")).midY])
                     })
+                    .scaleEffect(EdgeSpotlightPolicy.scale(hoveredID: hoveredKey, itemID: String(i), reduceMotion: reduceMotion))
+                    .opacity(EdgeSpotlightPolicy.opacity(hoveredID: hoveredKey, itemID: String(i)))
+                    .onHover { isOver in
+                        hoveredIndex = isOver ? i : (hoveredIndex == i ? nil : hoveredIndex)
+                    }
                     .padding(.top, (i == 0 && visibleTabs.isEmpty && hiddenCount == 0 ? 0 : (isCard ? 4 : m.buttonGap) - spacing))
                     .padding(model.onRight ? .trailing : .leading, isCard ? 0 : (m.tabWidth - m.buttonSize) / 2)
                     .staged(index: visibleTabs.count + (hiddenCount > 0 ? 1 : 0) + i, total: total, revealed: model.revealed,
                             onRight: model.onRight, travel: m.tabWidth + 24)
+
+                if button == .settings {
+                    row.dropDestination(for: String.self) { items, _ in
+                        handleRemoveDrop(items: items)
+                    }
+                } else if let raw = button.edgeItem?.rawValue {
+                    row.draggable(raw)
+                } else {
+                    row
+                }
             }
         }
+        .coordinateSpace(name: "edgeButtonStack")
         .frame(width: model.buttons.contains { $0.isRichCard } ? max(52, m.tabWidth * 1.75) : m.tabWidth)
         .animation(.easeInOut(duration: 0.18), value: visibleTabs.map(\.id))
         .onPreferenceChange(TabFramesKey.self) { frames in
@@ -452,6 +544,32 @@ struct DeckFanView: View {
         .onPreferenceChange(ButtonFramesKey.self) { frames in
             if model.buttonFrames != frames { model.buttonFrames = frames }
         }
+        .onPreferenceChange(LocalButtonMidYsKey.self) { mids in
+            if localButtonMidYs != mids { localButtonMidYs = mids }
+        }
+        .dropDestination(for: String.self) { items, location in
+            handleReorderDrop(items: items, pointerY: location.y)
+        }
+    }
+
+    private func handleReorderDrop(items: [String], pointerY: CGFloat) -> Bool {
+        guard let raw = items.first, let dropped = EdgeItem(rawValue: raw) else { return false }
+        let orderedMids = localButtonMidYs.sorted { $0.key < $1.key }.map(\.value)
+        let insertAt = EdgeInsertIndex.index(forY: pointerY, itemMidYs: orderedMids)
+        let currentItems = model.buttons.compactMap(\.edgeItem)
+        let nextOrder = EdgeCustomOrder.inserting(dropped, at: insertAt, in: currentItems)
+        UserDefaults.standard.set(EdgeCustomOrder.encode(nextOrder.map(\.rawValue)), forKey: EdgeCustomOrder.defaultsKey)
+        NotificationCenter.default.post(name: Notification.Name("com.katikati.edge.orderDidChange"), object: nil)
+        return true
+    }
+
+    private func handleRemoveDrop(items: [String]) -> Bool {
+        guard let raw = items.first, let dropped = EdgeItem(rawValue: raw), dropped != .settings else { return false }
+        let currentItems = model.buttons.compactMap(\.edgeItem)
+        let nextOrder = EdgeCustomOrder.removing(dropped, from: currentItems)
+        UserDefaults.standard.set(EdgeCustomOrder.encode(nextOrder.map(\.rawValue)), forKey: EdgeCustomOrder.defaultsKey)
+        NotificationCenter.default.post(name: Notification.Name("com.katikati.edge.orderDidChange"), object: nil)
+        return true
     }
 
     private func spine(_ layout: DeckLayout) -> some View {
@@ -823,6 +941,9 @@ extension DeckButton {
         case .hydration: return Text("Hydration")
         case .food: return Text("Nutrition")
         case .notesPreview: return Text("Notes")
+        case .counter: return Text("Counter")
+        case .stickyNote: return Text("Sticky Note")
+        case .analogClock: return Text("Analog Clock")
         case .bluetoothWifi: return Text(verbatim: "Bluetooth & Wi-Fi")
         case .remindersAndTasks: return Text(verbatim: "Reminders & Tasks")
         case .systemAndBattery: return Text(verbatim: "System & Battery")

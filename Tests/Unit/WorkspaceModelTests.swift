@@ -163,6 +163,21 @@ final class WorkspaceModelTests: XCTestCase {
         XCTAssertTrue(store.layouts[.numbered(4)] == nil)
     }
 
+    /// The engine notices a window that moved to the other display through this, and re-assigning is
+    /// how it migrates: the window must end up owned on the new display only.
+    func testDisplayKeyFollowsTheWindowItOwns() {
+        let a = WindowID(rawValue: "a")
+        var store = WorkspaceStore()
+        store.assign(a, to: .numbered(1), on: "builtin")
+        XCTAssertEqual(store.displayKey(of: a), "builtin")
+        XCTAssertNil(store.displayKey(of: WindowID(rawValue: "absent")))
+
+        store.assign(a, to: .numbered(1), on: "external")
+        XCTAssertEqual(store.displayKey(of: a), "external")
+        XCTAssertEqual(store.windows(in: .numbered(1), on: "builtin"), [])
+        XCTAssertEqual(store.windows(in: .numbered(1), on: "external"), [a])
+    }
+
     // MARK: - Transition plan
 
     func testTransitionParksTheOldSetAndRevealsTheNewOne() {

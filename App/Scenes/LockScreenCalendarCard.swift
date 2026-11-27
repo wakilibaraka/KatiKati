@@ -175,7 +175,7 @@ struct LockScreenFullArtBackdropView: View {
 struct LockScreenStackView: View {
     @ObservedObject var nowPlaying: NowPlayingService
     @ObservedObject private var queueFetcher = MusicQueueFetcher.shared
-    let selection: MusicSurfaceStyleSelection
+    let selection: MusicStyleSelection
     let showsCalendar: Bool
     let showsGlance: Bool
     let musicHeight: CGFloat
