@@ -5,10 +5,8 @@
   "20": "Debug Switches",
   "22": "Status Menu",
   "37": "App Tracker Batching",
-  "95": "ScanAdmissionDecisionTests",
   "114": "DragConversionPlanTests",
   "224": "StripResizeGrip",
   "257": "NotesSyncPlanTests",
-  "392": "BuildProvenanceTests",
   "488": "verify_release_hashes"
 }
