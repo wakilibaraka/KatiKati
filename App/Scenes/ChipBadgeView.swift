@@ -61,9 +61,10 @@ struct IconBadgeEffectView: View {
     let kind: IconBadgeEffectKind
     let scale: CGFloat
     let reduceMotion: Bool
+    @State private var lowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
 
     var body: some View {
-        let animates = !reduceMotion && kind != .none && kind != .waxSeal
+        let animates = !reduceMotion && !lowPowerMode && kind != .none && kind != .waxSeal
         TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: !animates)) { context in
             let t = animates ? context.date.timeIntervalSinceReferenceDate : 0
             switch kind {
@@ -102,6 +103,9 @@ struct IconBadgeEffectView: View {
             }
         }
         .allowsHitTesting(false)
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name.NSProcessInfoPowerStateDidChange)) { _ in
+            lowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
+        }
     }
 }
 

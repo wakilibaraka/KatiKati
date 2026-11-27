@@ -26,6 +26,10 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     private var sink: AnyCancellable?
     private var observer: NSObjectProtocol?
     private var lastValues = MenuBarStatValues()
+    private var sampledGPU: Double?
+    private var sampledBattery: MenuBarBattery?
+    private var isSamplingSlowMetrics = false
+    private let samplerQueue = DispatchQueue(label: "com.katikati.menubar.sampler", qos: .utility)
 
     func start() {
         observer = NotificationCenter.default.addObserver(
@@ -72,14 +76,34 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     }
 
     private func render(_ snapshot: SystemSnapshot) {
+        let needsGPU = items[.gpu] != nil
+        let needsBattery = items[.battery] != nil
+        if (needsGPU || needsBattery), !isSamplingSlowMetrics {
+            isSamplingSlowMetrics = true
+            samplerQueue.async { [weak self] in
+                let nextGPU = needsGPU ? SystemMonitorSampler.gpu() : nil
+                let nextBattery = needsBattery ? SystemMonitorSampler.battery() : nil
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.isSamplingSlowMetrics = false
+                    if needsGPU { self.sampledGPU = nextGPU }
+                    if needsBattery { self.sampledBattery = nextBattery }
+                    self.applySnapshotToItems(self.monitor.snapshot)
+                }
+            }
+        }
+        applySnapshotToItems(snapshot)
+    }
+
+    private func applySnapshotToItems(_ snapshot: SystemSnapshot) {
         let values = MenuBarStatValues(
             cpu: snapshot.cpu,
             memory: snapshot.memory.fraction,
-            gpu: SystemMonitorSampler.gpu(),
+            gpu: items[.gpu] != nil ? sampledGPU : nil,
             storageUsed: snapshot.disk.usedFraction,
             storageFreeBytes: Double(snapshot.disk.free),
             storageTotalBytes: Double(snapshot.disk.total),
-            battery: SystemMonitorSampler.battery(),
+            battery: items[.battery] != nil ? sampledBattery : nil,
             down: snapshot.down,
             up: snapshot.up)
         lastValues = values
@@ -133,10 +157,14 @@ final class MenuBarSystemItem: NSObject, NSMenuDelegate {
     // MARK: - Click menu (rebuilt on every open, so the readings are never stale)
 
     func menuNeedsUpdate(_ menu: NSMenu) {
+        var menuValues = lastValues
+        if items[.gpu] == nil { menuValues.gpu = SystemMonitorSampler.gpu() }
+        if items[.battery] == nil { menuValues.battery = SystemMonitorSampler.battery() }
+        lastValues = menuValues
         menu.removeAllItems()
         for metric in MenuBarMetric.allCases {
             let row = NSMenuItem(
-                title: "\(Self.name(metric))  \(MenuBarStatModel.menuRowText(metric: metric, values: lastValues))",
+                title: "\(Self.name(metric))  \(MenuBarStatModel.menuRowText(metric: metric, values: menuValues))",
                 action: nil, keyEquivalent: "")
             menu.addItem(row)
         }

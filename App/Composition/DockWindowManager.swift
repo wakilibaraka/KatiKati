@@ -154,7 +154,15 @@ public final class DockWindowManager: ObservableObject {
 
     // MARK: - Core Z-Order, Relative Ordering & Fallback Cascade
 
+    private struct WindowListBox: @unchecked Sendable {
+        let items: [[String: Any]]
+    }
+
     public func evaluateWindowLayering() {
+        evaluateWindowLayering(preloadedWindowList: nil)
+    }
+
+    private func evaluateWindowLayering(preloadedWindowList: [[String: Any]]?) {
         hasAccessibilityPermission = AXIsProcessTrusted()
 
         let dockPanels = managedPanelsProvider?() ?? []
@@ -167,8 +175,9 @@ public final class DockWindowManager: ObservableObject {
 
         // Modes that never read the overlap skip the window-list copy entirely.
         if layeringMode.watchesWindowOverlap {
+            let sharedWindowList = preloadedWindowList ?? Self.copyOnScreenWindowList()
             for (zone, screen) in dockRestingZones() {
-                let result = findOverlappingStandardWindow(dockFrame: zone, on: screen)
+                let result = findOverlappingStandardWindow(dockFrame: zone, on: screen, windowInfoList: sharedWindowList)
                 if result.isOverlapping {
                     isAnyOverlapping = true
                     if topOverlappingWID == nil {
@@ -392,11 +401,19 @@ public final class DockWindowManager: ObservableObject {
         public let topOverlappingWindowID: CGWindowID?
     }
 
+    nonisolated private static func copyOnScreenWindowList() -> [[String: Any]]? {
+        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+        return CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]]
+    }
+
     /// Inspects on-screen window bounds and layers using `CGWindowListCopyWindowInfo`.
     /// Reading `kCGWindowBounds`, `kCGWindowLayer`, and `kCGWindowNumber` requires ZERO TCC permissions!
-    public func findOverlappingStandardWindow(dockFrame: NSRect, on screen: NSScreen) -> OverlapCheckResult {
-        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
-        guard let windowInfoList = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
+    public func findOverlappingStandardWindow(
+        dockFrame: NSRect,
+        on screen: NSScreen,
+        windowInfoList preloaded: [[String: Any]]? = nil
+    ) -> OverlapCheckResult {
+        guard let windowInfoList = preloaded ?? Self.copyOnScreenWindowList() else {
             return OverlapCheckResult(isOverlapping: false, topOverlappingWindowID: nil)
         }
 
@@ -682,11 +699,16 @@ public final class DockWindowManager: ObservableObject {
     private func startOverlapWatch() {
         setupAccessibilityObserversForRunningApps()
         guard overlapPollTimer == nil else { return }
-        overlapPollTimer = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.evaluateWindowLayering()
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { [weak self] _ in
+            DispatchQueue.global(qos: .utility).async {
+                let box = Self.copyOnScreenWindowList().map(WindowListBox.init(items:))
+                Task { @MainActor [weak self] in
+                    self?.evaluateWindowLayering(preloadedWindowList: box?.items)
+                }
             }
         }
+        timer.tolerance = 0.09
+        overlapPollTimer = timer
     }
 
     private func stopOverlapWatch() {

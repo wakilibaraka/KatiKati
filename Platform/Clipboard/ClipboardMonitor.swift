@@ -33,6 +33,7 @@ final class ClipboardMonitor: ObservableObject {
     @Published private var skipNextCopy = false
     private var lastCopiedOriginBundleID: String?
     private var lastCopyWasBlocked = false
+    private var rawChangeObservers: [UUID: @MainActor () -> Void] = [:]
 
     init(defaults: UserDefaults = .standard, pasteboard: NSPasteboard = .general) {
         self.defaults = defaults
@@ -138,8 +139,25 @@ final class ClipboardMonitor: ObservableObject {
     /// MC-3: ⌥⌘⌫ keeps pins, ⇧⌥⌘⌫ drops everything.
     func clearAll(keepingPinned: Bool) { history.clear(keepingPinned: keepingPinned) }
 
+    /// Registers a listener fired whenever `pasteboard.changeCount` advances (before text/privacy filters),
+    /// keeping the shared pasteboard poll active without spawning a second timer.
+    @discardableResult
+    func addRawChangeObserver(_ handler: @escaping @MainActor () -> Void) -> UUID {
+        let id = UUID()
+        let wasIdle = rawChangeObservers.isEmpty && !isRecording && !linkCleanerEnabled
+        rawChangeObservers[id] = handler
+        if wasIdle { lastChange = pasteboard.changeCount }
+        syncTimer()
+        return id
+    }
+
+    func removeRawChangeObserver(_ id: UUID) {
+        guard rawChangeObservers.removeValue(forKey: id) != nil else { return }
+        syncTimer()
+    }
+
     private func syncTimer() {
-        if isRecording || linkCleanerEnabled {
+        if isRecording || linkCleanerEnabled || !rawChangeObservers.isEmpty {
             startTimer()
         } else {
             timer?.invalidate()
@@ -148,7 +166,7 @@ final class ClipboardMonitor: ObservableObject {
     }
 
     func refreshPollingInterval() {
-        if isRecording || linkCleanerEnabled {
+        if isRecording || linkCleanerEnabled || !rawChangeObservers.isEmpty {
             startTimer()
         }
     }
@@ -191,6 +209,10 @@ final class ClipboardMonitor: ObservableObject {
     private func poll() {
         guard pasteboard.changeCount != lastChange else { return }
         lastChange = pasteboard.changeCount
+        for observer in rawChangeObservers.values {
+            observer()
+        }
+        guard isRecording || linkCleanerEnabled else { return }
         let types = (pasteboard.types ?? []).map(\.rawValue)
         let originBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         lastCopiedOriginBundleID = originBundleID

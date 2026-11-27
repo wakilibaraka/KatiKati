@@ -71,11 +71,20 @@ final class SystemStatusService: ObservableObject {
             update { $0.battery = .noBattery }
             return
         }
-        var battery = list.lazy
-            .compactMap { IOPSGetPowerSourceDescription(info, $0)?.takeUnretainedValue() as? [String: Any] }
-            .compactMap { BatteryStatus(powerSource: $0) }
-            .first ?? .noBattery
-        if battery.hasBattery { battery.facts = PowerFactsReader.read(isCharging: battery.isCharging) }
+        let descriptions = list.compactMap {
+            IOPSGetPowerSourceDescription(info, $0)?.takeUnretainedValue() as? [String: Any]
+        }
+        var selected: (BatteryStatus, [String: Any])?
+        for desc in descriptions {
+            if let status = BatteryStatus(powerSource: desc) {
+                selected = (status, desc)
+                break
+            }
+        }
+        var battery = selected?.0 ?? .noBattery
+        if battery.hasBattery {
+            battery.facts = PowerFactsReader.read(isCharging: battery.isCharging, powerSource: selected?.1)
+        }
         update { $0.battery = battery }
     }
 

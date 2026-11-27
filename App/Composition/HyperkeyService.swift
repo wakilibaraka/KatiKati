@@ -64,15 +64,22 @@ final class HyperkeyService {
     /// `kill -9` skips `restoreRemap`, and `hidutil` keeps the `→ F18` entry until logout; with Hyperkey
     /// off nothing would handle F18, so the key would stay dead. Checked once per launch, only while off.
     private var checkedStaleRemap = false
+    private let hidutilQueue = DispatchQueue(label: "com.katikati.hyperkey.hidutil", qos: .userInitiated)
+
     private func clearStaleRemap() {
         checkedStaleRemap = true
-        let current = Self.currentMapping()
-        let cleaned = HyperkeyRemap.removing(from: current)
-        guard cleaned != current else { return }
-        _ = Self.setMapping(cleaned)
+        hidutilQueue.async {
+            let current = Self.currentMapping()
+            let cleaned = HyperkeyRemap.removing(from: current)
+            guard cleaned != current else { return }
+            _ = Self.setMapping(cleaned)
+        }
     }
 
-    func tearDown() { enabled = false; stop() }
+    func tearDown() {
+        enabled = false
+        stop(synchronousRemapRestore: true)
+    }
 
     // MARK: start / stop
 
@@ -113,7 +120,7 @@ final class HyperkeyService {
         thread.start()
     }
 
-    private func stop() {
+    private func stop(synchronousRemapRestore: Bool = false) {
         if let obs = frontmostObserver {
             NSWorkspace.shared.notificationCenter.removeObserver(obs)
             frontmostObserver = nil
@@ -124,7 +131,7 @@ final class HyperkeyService {
         shared.port = nil // a late tapDisabled callback must not revive a tap we stopped
         shared.tapRecovery.reset()
         shared.reset()
-        restoreRemap()
+        restoreRemap(synchronous: synchronousRemapRestore)
     }
 
     private func tapFailed() {
@@ -176,20 +183,45 @@ final class HyperkeyService {
 
     private func applyRemap() {
         guard !remapApplied else { return }
-        originalMapping = Self.currentMapping()
-        appliedSourceKey = sourceKey
-        remapApplied = Self.setMapping(HyperkeyRemap.adding(source: sourceKey.hidUsage, to: originalMapping))
+        remapApplied = true
+        let chosenKey = sourceKey
+        appliedSourceKey = chosenKey
+        hidutilQueue.async { [weak self] in
+            let current = Self.currentMapping()
+            let ok = Self.setMapping(HyperkeyRemap.adding(source: chosenKey.hidUsage, to: current))
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.originalMapping = current
+                if !ok {
+                    self.remapApplied = false
+                    self.appliedSourceKey = nil
+                }
+            }
+        }
     }
 
-    /// Puts back exactly what was there before (minus our entry). Safe to call repeatedly.
-    func restoreRemap() {
+    /// Puts back what was there before (minus our entry). Safe to call repeatedly; `synchronous`
+    /// flushes `hidutilQueue` on quit so Caps Lock is never left remapped.
+    func restoreRemap(synchronous: Bool = false) {
+        let work: @Sendable () -> Void = {
+            let current = Self.currentMapping()
+            let cleaned = HyperkeyRemap.removing(from: current)
+            guard cleaned != current else { return }
+            _ = Self.setMapping(cleaned)
+        }
+        if synchronous {
+            remapApplied = false
+            appliedSourceKey = nil
+            hidutilQueue.sync(execute: work)
+            return
+        }
         guard remapApplied else { return }
         remapApplied = false
         appliedSourceKey = nil
-        _ = Self.setMapping(HyperkeyRemap.removing(from: Self.currentMapping()))
+        hidutilQueue.async(execute: work)
     }
 
-    private static func run(_ args: [String]) -> String? {
+    nonisolated private static func run(_ args: [String]) -> String? {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/hidutil")
         p.arguments = args
@@ -202,11 +234,11 @@ final class HyperkeyService {
         return String(data: data, encoding: .utf8)
     }
 
-    private static func currentMapping() -> [HyperkeyRemap.Mapping] {
+    nonisolated private static func currentMapping() -> [HyperkeyRemap.Mapping] {
         run(["property", "--get", "UserKeyMapping"]).map(HyperkeyRemap.parse) ?? []
     }
 
-    private static func setMapping(_ mappings: [HyperkeyRemap.Mapping]) -> Bool {
+    nonisolated private static func setMapping(_ mappings: [HyperkeyRemap.Mapping]) -> Bool {
         run(["property", "--set", HyperkeyRemap.json(mappings)]) != nil
     }
 }

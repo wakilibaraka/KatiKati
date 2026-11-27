@@ -142,6 +142,11 @@ enum GammaDim {
 @MainActor
 final class DisplayBrightness {
     static let shared = DisplayBrightness()
+    static let didUpdateNotification = Notification.Name("com.katikati.displayBrightnessDidUpdate")
+
+    private struct ServiceBox: @unchecked Sendable {
+        let value: DDCTransport.Service
+    }
 
     private let queue = DispatchQueue(label: "com.katikati.display.ddc", qos: .userInitiated)
     private var coalescer = DDCWriteCoalescer()
@@ -156,10 +161,43 @@ final class DisplayBrightness {
     private var volumeProbed: Set<String> = []
     private var volumeProbeFailures: [String: Int] = [:]
     private var lastVolumeProbe: [String: Date] = [:]
+    private var probingVolumeUUIDs: Set<String> = []
     private var probed = false
+    private var isProbing = false
     private var lastProbeAttempt = Date.distantPast
+    nonisolated(unsafe) private var screenObserver: NSObjectProtocol?
 
-    private init() {}
+    private init() {
+        screenObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.invalidateDisplayCaches() }
+        }
+    }
+
+    deinit {
+        if let screenObserver {
+            NotificationCenter.default.removeObserver(screenObserver)
+        }
+    }
+
+    private func invalidateDisplayCaches() {
+        services.removeAll()
+        maximums.removeAll()
+        ddcLevels.removeAll()
+        volumeLevels.removeAll()
+        volumeMaximums.removeAll()
+        volumeProbed.removeAll()
+        volumeProbeFailures.removeAll()
+        lastVolumeProbe.removeAll()
+        probingVolumeUUIDs.removeAll()
+        probed = false
+        isProbing = false
+        lastProbeAttempt = .distantPast
+        NotificationCenter.default.post(name: Self.didUpdateNotification, object: nil)
+    }
 
     // MARK: Non-isolated bridges
 
@@ -244,22 +282,30 @@ final class DisplayBrightness {
               CGDisplayIsBuiltin(id) == 0,
               let uuid = DisplayIdentity.uuidString(for: screen) else { return nil }
         probeIfNeeded()
-        if !volumeProbed.contains(uuid) {
-            // This panel sometimes returns an empty reply; one miss is not proof it has no volume.
-            // Retry, but not on every view build, and give up after two misses so a panel that
-            // truly has no `0x62` does not cost a main-thread probe every few seconds.
-            if let last = lastVolumeProbe[uuid], Date().timeIntervalSince(last) < 3 { return volumeLevels[uuid] }
-            lastVolumeProbe[uuid] = Date()
-            guard let service = services[uuid],
-                  let reading = DDCTransport.read(service, vcp: DisplayVCP.volume) else {
-                let failures = (volumeProbeFailures[uuid] ?? 0) + 1
-                volumeProbeFailures[uuid] = failures
-                if failures >= 2 { volumeProbed.insert(uuid) }
+        if !volumeProbed.contains(uuid), !probingVolumeUUIDs.contains(uuid), let service = services[uuid] {
+            if let last = lastVolumeProbe[uuid], Date().timeIntervalSince(last) < 3 {
                 return volumeLevels[uuid]
             }
-            volumeMaximums[uuid] = reading.maximum
-            volumeLevels[uuid] = Double(reading.current) / Double(reading.maximum)
-            volumeProbed.insert(uuid)
+            lastVolumeProbe[uuid] = Date()
+            probingVolumeUUIDs.insert(uuid)
+            let box = ServiceBox(value: service)
+            queue.async { [weak self] in
+                let reading = DDCTransport.read(box.value, vcp: DisplayVCP.volume)
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.probingVolumeUUIDs.remove(uuid)
+                    guard let reading else {
+                        let failures = (self.volumeProbeFailures[uuid] ?? 0) + 1
+                        self.volumeProbeFailures[uuid] = failures
+                        if failures >= 2 { self.volumeProbed.insert(uuid) }
+                        return
+                    }
+                    self.volumeMaximums[uuid] = reading.maximum
+                    self.volumeLevels[uuid] = Double(reading.current) / Double(reading.maximum)
+                    self.volumeProbed.insert(uuid)
+                    NotificationCenter.default.post(name: Self.didUpdateNotification, object: nil)
+                }
+            }
         }
         return volumeLevels[uuid]
     }
@@ -274,11 +320,7 @@ final class DisplayBrightness {
               let uuid = DisplayIdentity.uuidString(for: screen) else { return }
         probeIfNeeded()
         if !volumeProbed.contains(uuid) {
-            if let service = services[uuid], let reading = DDCTransport.read(service, vcp: DisplayVCP.volume) {
-                volumeMaximums[uuid] = reading.maximum
-                volumeLevels[uuid] = Double(reading.current) / Double(reading.maximum)
-                volumeProbed.insert(uuid)
-            }
+            _ = volume(for: screen)
         }
         guard let service = services[uuid], let maximum = volumeMaximums[uuid] else { return }
         let clamped = min(max(level, 0), 1)
@@ -293,15 +335,7 @@ final class DisplayBrightness {
         coalescer.reset()
         for (id, _) in gammaLevels { GammaDim.restore(id) }
         gammaLevels.removeAll()
-        // Volume is hardware state on the panel: it persists and needs no restore. Only the caches
-        // are dropped, so a panel that comes back is read again instead of trusting a stale value.
-        volumeLevels.removeAll()
-        volumeMaximums.removeAll()
-        volumeProbed.removeAll()
-        volumeProbeFailures.removeAll()
-        lastVolumeProbe.removeAll()
-        probed = false
-        lastProbeAttempt = .distantPast
+        invalidateDisplayCaches()
     }
 
     // MARK: Cursor assist
@@ -324,34 +358,44 @@ final class DisplayBrightness {
 
     // MARK: DDC
 
-    /// Opens the services once, matches them to external displays, and records which answer VCP
-    /// `0x10`. A panel that does not answer keeps the gamma fallback.
+    /// Opens the services asynchronously on `queue`, matching them to external displays and
+    /// recording VCP `0x10` without blocking `@MainActor`.
     private func probeIfNeeded() {
-        guard !probed, DisplayBrightnessConfig.ddcEnabled() else { return }
-        // A flaky panel must not be written off after one empty reply, but a retry must not run on
-        // every slider tick either.
+        guard !probed, !isProbing, DisplayBrightnessConfig.ddcEnabled() else { return }
         guard Date().timeIntervalSince(lastProbeAttempt) > 3 else { return }
         lastProbeAttempt = Date()
-        let externals = NSScreen.screens.filter { screen in
-            guard let id = screen.displayID else { return false }
-            return CGDisplayIsBuiltin(id) == 0
+        let externalUUIDs = NSScreen.screens.compactMap { screen -> String? in
+            guard let id = screen.displayID, CGDisplayIsBuiltin(id) == 0 else { return nil }
+            return DisplayIdentity.uuidString(for: screen) ?? ""
         }
-        let found = DDCTransport.externalServices()
-        guard !found.isEmpty, !externals.isEmpty else { return }
-        let order = DDCServiceOrder.resolve(externals: externals.map { DisplayIdentity.uuidString(for: $0) ?? "" },
-                                            serviceCount: found.count,
-                                            overrides: DDCServiceOrder.storedOverrides())
-        var matched = 0
-        for (index, service) in found.enumerated() {
-            guard let uuid = order[index], !uuid.isEmpty else { continue }
-            guard let reading = DDCTransport.read(service, vcp: DisplayVCP.brightness) else { continue }
-            services[uuid] = service
-            maximums[uuid] = reading.maximum
-            ddcLevels[uuid] = Double(reading.current) / Double(reading.maximum)
-            matched += 1
+        guard !externalUUIDs.isEmpty else { return }
+        isProbing = true
+        let overrides = DDCServiceOrder.storedOverrides()
+        queue.async { [weak self] in
+            let found = DDCTransport.externalServices()
+            let order = DDCServiceOrder.resolve(externals: externalUUIDs,
+                                                serviceCount: found.count,
+                                                overrides: overrides)
+            var matched: [(uuid: String, service: ServiceBox, max: UInt16, level: Double)] = []
+            for (index, service) in found.enumerated() {
+                guard let uuid = order[index], !uuid.isEmpty else { continue }
+                guard let reading = DDCTransport.read(service, vcp: DisplayVCP.brightness) else { continue }
+                matched.append((uuid, ServiceBox(value: service), reading.maximum, Double(reading.current) / Double(reading.maximum)))
+            }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.isProbing = false
+                for item in matched {
+                    self.services[item.uuid] = item.service.value
+                    self.maximums[item.uuid] = item.max
+                    self.ddcLevels[item.uuid] = item.level
+                }
+                self.probed = !matched.isEmpty
+                if !matched.isEmpty {
+                    NotificationCenter.default.post(name: Self.didUpdateNotification, object: nil)
+                }
+            }
         }
-        // Only a display that answered is settled; the rest are retried later.
-        probed = matched > 0
     }
 
     private func offerDDC(uuid: String, vcp: UInt8, level: Double, maximum: UInt16, service: DDCTransport.Service) {

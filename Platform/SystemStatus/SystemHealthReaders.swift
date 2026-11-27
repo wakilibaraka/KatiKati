@@ -26,11 +26,11 @@ enum BatteryHealthReader {
 /// 59c — the live power numbers, read once per call: macOS's own time estimate, the registry's
 /// amperage × voltage, and the OS's thermal and low-power state. Nothing here shells out.
 enum PowerFactsReader {
-    static func read(isCharging: Bool) -> PowerFacts {
+    static func read(isCharging: Bool, powerSource: [String: Any]? = nil) -> PowerFacts {
         var facts = PowerFacts(thermal: PowerThermal(ProcessInfo.processInfo.thermalState),
                                isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled,
                                isCharging: isCharging)
-        facts.secondsRemaining = iopsBattery().flatMap {
+        facts.secondsRemaining = (powerSource ?? iopsBattery()).flatMap {
             PowerFacts.secondsRemaining(powerSource: $0, isCharging: isCharging)
         }
         if let props = BatteryHealthReader.smartBattery() {

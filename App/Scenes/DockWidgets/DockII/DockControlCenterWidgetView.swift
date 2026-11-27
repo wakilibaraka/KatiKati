@@ -57,6 +57,12 @@ struct DockControlCenterWidgetView: View {
         .onDisappear {
             systemStatus.release()
         }
+        .onReceive(NotificationCenter.default.publisher(for: DisplayBrightness.didUpdateNotification)) { _ in
+            if let current = DisplayBrightness.levelForCursorScreen() {
+                brightness = current
+            }
+            displayVolume = DisplayBrightness.volumeForCursorScreen()
+        }
     }
 
     private func verticalBody(wifiOn: Bool, btOn: Bool, vol: Double) -> some View {

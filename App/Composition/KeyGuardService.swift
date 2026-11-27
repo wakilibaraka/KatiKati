@@ -195,9 +195,11 @@ final class KeyGuardService: ObservableObject {
 
     private func startCleaningTimer() {
         cleaningTimer?.invalidate()
-        cleaningTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.cleaningTick() }
         }
+        timer.tolerance = 0.25
+        cleaningTimer = timer
     }
 
     /// Clears the countdown and its persisted deadline without touching the pause.
@@ -481,6 +483,9 @@ final class KeyGuardService: ObservableObject {
                 }
             }
         }
+        shared.onVisualizerActivity = { [weak self] in
+            DispatchQueue.main.async { MainActor.assumeIsolated { self?.startVisualizerTimerIfNeeded() } }
+        }
         shared.tapRecovery.reset()
         let thread = Thread { [shared, weak self] in
             let mask: CGEventMask = (1 << CGEventType.keyDown.rawValue) |
@@ -579,9 +584,11 @@ final class KeyGuardService: ObservableObject {
             self.overlay = overlay
             overlay.show(app: app, progress: 0, style: slowQuitOverlayStyle, mode: .hold)
         }
-        holdTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
         }
+        timer.tolerance = 0.015
+        holdTimer = timer
     }
 
     private func tick() {
@@ -668,24 +675,36 @@ final class KeyGuardService: ObservableObject {
 
     // MARK: - Key visualizer (24d)
 
-    /// The tap thread only appends to a bounded buffer; one 20 Hz main-actor read paints it, so typing
-    /// never hops threads per keystroke and the overlay can never grow unbounded.
+    /// The tap thread only appends to a bounded buffer; the 20 Hz main-actor timer runs only while
+    /// symbols are active (or previewing position), stopping cleanly once the buffer drains.
     private func updateVisualizerTimer() {
-        if isVisualizerEnabled, started, visualizerTimer == nil {
-            visualizerTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-                MainActor.assumeIsolated { self?.refreshKeycaps() }
+        if isVisualizerEnabled, started {
+            if !shared.keycaps().isEmpty || visualizerPositionUnlocked {
+                startVisualizerTimerIfNeeded()
             }
-        } else if (!isVisualizerEnabled || !started), let timer = visualizerTimer {
+        } else if let timer = visualizerTimer {
             timer.invalidate()
             visualizerTimer = nil
             keyOverlay?.hide()
         }
     }
 
+    private func startVisualizerTimerIfNeeded() {
+        guard isVisualizerEnabled, started, visualizerTimer == nil else { return }
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refreshKeycaps() }
+        }
+        timer.tolerance = 0.012
+        visualizerTimer = timer
+        refreshKeycaps()
+    }
+
     private func refreshKeycaps() {
         let symbols = shared.keycaps().map(\.symbol)
         if symbols.isEmpty && !visualizerPositionUnlocked {
             keyOverlay?.hide()
+            visualizerTimer?.invalidate()
+            visualizerTimer = nil
             return
         }
         let overlay = keyOverlay ?? KeyVisualizerController()
@@ -728,6 +747,7 @@ final class KeyGuardShared: @unchecked Sendable {
     var port: CFMachPort?
     var onAction: (KeyGuardAction) -> Void = { _ in }
     var onGlobalPaste: (() -> Void)?
+    var onVisualizerActivity: (() -> Void)?
 
     init(secureInput: @escaping () -> Bool = IsSecureEventInputEnabled) {
         secureInputProbe = secureInput
@@ -751,15 +771,19 @@ final class KeyGuardShared: @unchecked Sendable {
     /// Under secure input (a password field has focus) nothing is kept and the strip is cleared; the
     /// probe is an autoclosure so it is read only while the visualizer is on. macOS has no change notification.
     func record(symbol: String, secureInput: @autoclosure () -> Bool = IsSecureEventInputEnabled()) {
-        lock.lock(); defer { lock.unlock() }
-        guard visualizerOn else { return }
-        if secureInput() { caps.clear(); return }
+        lock.lock()
+        guard visualizerOn else { lock.unlock(); return }
+        if secureInput() { caps.clear(); lock.unlock(); return }
+        let wasEmpty = caps.items.isEmpty
         caps.push(symbol: symbol, at: Date())
         let now = Date()
         if now.timeIntervalSince(capsPrunedAt) > 0.25 {
             caps.prune(olderThan: visualizerLinger, now: now)
             capsPrunedAt = now
         }
+        let notify = wasEmpty ? onVisualizerActivity : nil
+        lock.unlock()
+        notify?()
     }
 
     func keycaps() -> [KeycapVisual] {

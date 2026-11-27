@@ -712,6 +712,8 @@
 		FB0000000000000000000116 /* SettingsBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0000000000000000000119 /* SettingsBackup.swift */; };
 		7B2000000000000000000002 /* ClockChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2000000000000000000001 /* ClockChip.swift */; };
 		ED0000000000000000000013 /* StatusTrioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000012 /* StatusTrioView.swift */; };
+		ED0000000000000000000902 /* MenuBarCreativeHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000901 /* MenuBarCreativeHubView.swift */; };
+		ED0000000000000000000904 /* TendederoClotheslineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000903 /* TendederoClotheslineController.swift */; };
 		ED0000000000000000000015 /* EdgeFlyoutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000014 /* EdgeFlyoutController.swift */; };
 		ED0000000000000000000021 /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* NotesModel.swift */; };
 		ED0000000000000000000022 /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* NotesModel.swift */; };
@@ -2085,6 +2087,8 @@
 		A0000000000000000000E207 /* TurntableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TurntableView.swift; path = App/Scenes/TurntableView.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000000E209 /* ExpandedMediaCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExpandedMediaCardView.swift; path = App/Scenes/ExpandedMediaCardView.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000012 /* StatusTrioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusTrioView.swift; path = App/Scenes/Edge/StatusTrioView.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000901 /* MenuBarCreativeHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarCreativeHubView.swift; path = App/Scenes/Edge/MenuBarCreativeHubView.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000903 /* TendederoClotheslineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TendederoClotheslineController.swift; path = App/Composition/TendederoClotheslineController.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000014 /* EdgeFlyoutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeFlyoutController.swift; path = App/Entry/EdgeFlyoutController.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000020 /* NotesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesModel.swift; path = Core/Support/NotesModel.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000023 /* NoteDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteDocument.swift; path = Core/Support/NoteDocument.swift; sourceTree = SOURCE_ROOT; };
@@ -2882,6 +2886,7 @@
 				A00000000000000000009500 /* KeptAppStore.swift */,
 				A00000000000000000009510 /* RunningApplicationStore.swift */,
 				A00000000000000000009520 /* AppMembershipController.swift */,
+				ED0000000000000000000903 /* TendederoClotheslineController.swift */,
 				A00000000000000000000028 /* IntentPipeline */,
 			);
 			path = Composition;
@@ -2958,6 +2963,7 @@
 				A0000000000000000000FE00 /* DockGlassBackdrop.swift */,
 				E10000000000000000000002 /* DockGlassRuntimeBridge.h */,
 				E10000000000000000000003 /* DockGlassRuntimeBridge.m */,
+				ED0000000000000000000901 /* MenuBarCreativeHubView.swift */,
 			);
 			path = Scenes;
 			sourceTree = "<group>";
@@ -4099,6 +4105,8 @@
 				ED0000000000000000000027 /* NotesSyncPlan.swift in Sources */,
 				ED0000000000000000000010 /* SystemStatusService.swift in Sources */,
 				ED0000000000000000000013 /* StatusTrioView.swift in Sources */,
+				ED0000000000000000000902 /* MenuBarCreativeHubView.swift in Sources */,
+				ED0000000000000000000904 /* TendederoClotheslineController.swift in Sources */,
 				ED0000000000000000000015 /* EdgeFlyoutController.swift in Sources */,
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
