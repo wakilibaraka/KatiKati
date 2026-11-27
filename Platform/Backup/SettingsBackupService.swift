@@ -172,7 +172,12 @@ struct SettingsBackupService {
     func writeSafetyBackup(categories: Set<BackupCategory>, notesPassword: String?) throws -> URL {
         try FileManager.default.createDirectory(at: backupsDirectory, withIntermediateDirectories: true)
         let stamp = Self.stampFormatter.string(from: now())
-        let url = backupsDirectory.appendingPathComponent("Before restore \(stamp).katikati")
+        var url = backupsDirectory.appendingPathComponent("Before restore \(stamp).katikati")
+        var suffix = 2
+        while FileManager.default.fileExists(atPath: url.path) {
+            url = backupsDirectory.appendingPathComponent("Before restore \(stamp) (\(suffix)).katikati")
+            suffix += 1
+        }
         try makeBackup(categories: categories, notesPassword: notesPassword).encoded().write(to: url, options: .atomic)
         return url
     }

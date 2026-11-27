@@ -28,6 +28,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     // Track active URLSession tasks
     private var activeTasks: [UUID: URLSessionDownloadTask] = [:]
     private var segmentTasks: [URLSessionDownloadTask: (id: UUID, index: Int)] = [:]
+    private let taskContexts = DownloadTaskContextStore()
     private var segmentPlans: [UUID: DownloadSegmentPlan] = [:]
     private var segmentFiles: [UUID: [Int: URL]] = [:]
     private var segmentResumeCompleted: [UUID: [Int: Int64]] = [:]
@@ -53,10 +54,12 @@ public final class DownloadManagerService: NSObject, ObservableObject {
     // Browser partial file sizes cache to track delta & speed
     private var knownPartialFiles: [String: (bytes: Int64, modified: Date, id: UUID)] = [:]
 
-    private var downloadsDirectory: URL {
+    private nonisolated static var defaultDownloadsDirectory: URL {
         FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Downloads")
     }
+
+    private var downloadsDirectory: URL { Self.defaultDownloadsDirectory }
 
     /// `torrent` is injectable so tests can drive the hub with a fake engine instead of spawning one.
     init(torrent: TorrentEngineClient? = nil, sessionDefaults: UserDefaults = .standard) {
@@ -349,7 +352,7 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     private func addDirectURL(_ url: URL) -> Bool {
         let id = UUID()
-        let name = url.lastPathComponent.isEmpty ? "file.download" : url.lastPathComponent
+        let name = DownloadTransferMath.sanitizedFilename(for: url)
         let dest = downloadsDirectory.appendingPathComponent(name)
         let item = DownloadItem(
             id: id,
@@ -403,7 +406,10 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     private func startSingleStream(id: UUID, url: URL) {
         let task = urlSession.downloadTask(with: url)
+        let destination = items.first(where: { $0.id == id })?.destinationURL
+            ?? downloadsDirectory.appendingPathComponent(DownloadTransferMath.sanitizedFilename(for: url))
         activeTasks[id] = task
+        taskContexts.setSingle(taskID: task.taskIdentifier, id: id, destination: destination)
         task.resume()
     }
 
@@ -478,12 +484,14 @@ public final class DownloadManagerService: NSObject, ObservableObject {
         request.timeoutInterval = 60
         let task = urlSession.downloadTask(with: request)
         segmentTasks[task] = (id: id, index: index)
+        taskContexts.setSegment(taskID: task.taskIdentifier, id: id, index: index)
         task.resume()
     }
 
     private func cancelSegment(id: UUID, index: Int) {
         for (task, owner) in segmentTasks where owner.id == id && owner.index == index {
             task.cancel()
+            taskContexts.removeSegment(taskID: task.taskIdentifier)
             segmentTasks.removeValue(forKey: task)
         }
     }
@@ -570,9 +578,11 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
         for (task, owner) in segmentTasks where owner.id == id {
             task.cancel()
+            taskContexts.removeSegment(taskID: task.taskIdentifier)
         }
         segmentTasks = segmentTasks.filter { $0.value.id != id }
         if let task = activeTasks[id] {
+            taskContexts.removeSingle(taskID: task.taskIdentifier)
             task.cancel(byProducingResumeData: { [weak self] data in
                 Task { @MainActor in
                     self?.resumeDataMap[id] = data
@@ -601,13 +611,14 @@ public final class DownloadManagerService: NSObject, ObservableObject {
                     ?? downloadsDirectory.appendingPathComponent(items[idx].name), plan: plan)
             } else if let resumeData = resumeDataMap[id] {
                 let task = urlSession.downloadTask(withResumeData: resumeData)
+                let destination = items[idx].destinationURL
+                    ?? downloadsDirectory.appendingPathComponent(items[idx].name)
                 activeTasks[id] = task
+                taskContexts.setSingle(taskID: task.taskIdentifier, id: id, destination: destination)
                 task.resume()
                 resumeDataMap.removeValue(forKey: id)
             } else if let src = items[idx].sourceURL, let url = URL(string: src) {
-                let task = urlSession.downloadTask(with: url)
-                activeTasks[id] = task
-                task.resume()
+                startSingleStream(id: id, url: url)
             }
         }
         if let gid = payloadGIDs[id] ?? torrentGIDs[id], items[idx].type == .torrent {
@@ -618,10 +629,14 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 
     public func cancel(id: UUID) {
         if let task = activeTasks[id] {
+            taskContexts.removeSingle(taskID: task.taskIdentifier)
             task.cancel()
             activeTasks.removeValue(forKey: id)
         }
-        for (task, owner) in segmentTasks where owner.id == id { task.cancel() }
+        for (task, owner) in segmentTasks where owner.id == id {
+            taskContexts.removeSegment(taskID: task.taskIdentifier)
+            task.cancel()
+        }
         segmentTasks = segmentTasks.filter { $0.value.id != id }
         segmentPlans.removeValue(forKey: id)
         if let files = segmentFiles.removeValue(forKey: id)?.values {
@@ -736,19 +751,34 @@ public final class DownloadManagerService: NSObject, ObservableObject {
 // MARK: - URLSessionDownloadDelegate
 
 extension DownloadManagerService: URLSessionDownloadDelegate {
-    public func urlSession(
+    public nonisolated func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        if let owner = segmentTasks[downloadTask] {
+        let taskID = downloadTask.taskIdentifier
+        if let owner = taskContexts.takeSegment(taskID: taskID) {
+            let dir = Self.defaultDownloadsDirectory
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            let staged = dir.appendingPathComponent(".katikati-segment-\(UUID().uuidString).pending")
+            let stagedSuccessfully = (try? FileManager.default.moveItem(at: location, to: staged)) != nil
             DispatchQueue.main.async { [weak self] in
+                var consumed = false
+                defer {
+                    if !consumed { try? FileManager.default.removeItem(at: staged) }
+                }
                 guard let self else { return }
+                self.segmentTasks.removeValue(forKey: downloadTask)
                 if let http = downloadTask.response as? HTTPURLResponse, http.statusCode != 206 {
-                    for (task, _) in self.segmentTasks { task.cancel() }
-                    self.segmentTasks.removeAll()
+                    for (task, taskOwner) in self.segmentTasks where taskOwner.id == owner.id {
+                        self.taskContexts.removeSegment(taskID: task.taskIdentifier)
+                        task.cancel()
+                    }
+                    self.segmentTasks = self.segmentTasks.filter { $0.value.id != owner.id }
                     self.segmentPlans.removeValue(forKey: owner.id)
                     self.segmentFiles.removeValue(forKey: owner.id)
+                    self.engineStates.removeValue(forKey: owner.id)
+                    self.partFiles.removeValue(forKey: owner.id)
                     self.segmentResumeCompleted.removeValue(forKey: owner.id)
                     if let item = self.items.first(where: { $0.id == owner.id }),
                        let src = item.sourceURL, let url = URL(string: src) {
@@ -758,23 +788,35 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                 }
                 guard let part = self.partFiles[owner.id],
                       let state = self.engineStates[owner.id],
-                      let segment = state.plan.segments.first(where: { $0.index == owner.index }) else { return }
+                      let segment = state.plan.segments.first(where: { $0.index == owner.index }) else {
+                    self.failSegmentedDownload(id: owner.id, message: "The segmented download state was lost.")
+                    return
+                }
                 // SD-4b: flat positioned write — this range's bytes go to its own offset in the one `.part`
                 // file, so a stolen, shortened or reconnected segment needs no reassembly pass.
-                if let data = try? Data(contentsOf: location) {
-                    try? DownloadFlatWriter.write(data, to: part, offset: state.writeOffset(for: owner.index))
-                    self.segmentResumeCompleted[owner.id, default: [:]][owner.index] = segment.start + Int64(data.count)
-                    if let item = self.items.first(where: { $0.id == owner.id }) {
-                        DownloadResumeRecord(source: item.sourceURL ?? "",
-                                             destination: item.destinationURL?.path ?? "",
-                                             totalBytes: state.plan.totalBytes,
-                                             isMultiSegment: state.plan.isMultiSegment,
-                                             completed: self.segmentResumeCompleted[owner.id] ?? [:])
-                            .write(id: owner.id)
-                    }
+                guard stagedSuccessfully, let data = try? Data(contentsOf: staged) else {
+                    self.failSegmentedDownload(id: owner.id, message: "Could not preserve a downloaded segment.")
+                    return
                 }
-                try? FileManager.default.removeItem(at: location)
-                self.segmentTasks.removeValue(forKey: downloadTask)
+                do {
+                    try DownloadFlatWriter.write(data, to: part, offset: state.writeOffset(for: owner.index))
+                } catch {
+                    self.failSegmentedDownload(id: owner.id, message: error.localizedDescription)
+                    return
+                }
+                let prev = self.segmentResumeCompleted[owner.id]?[owner.index] ?? 0
+                self.segmentResumeCompleted[owner.id, default: [:]][owner.index] =
+                    DownloadTransferMath.nextRelativeCompleted(previous: prev, writtenBytes: data.count, segmentLength: segment.length)
+                if let item = self.items.first(where: { $0.id == owner.id }) {
+                    DownloadResumeRecord(source: item.sourceURL ?? "",
+                                         destination: item.destinationURL?.path ?? "",
+                                         totalBytes: state.plan.totalBytes,
+                                         isMultiSegment: state.plan.isMultiSegment,
+                                         completed: self.segmentResumeCompleted[owner.id] ?? [:])
+                        .write(id: owner.id)
+                }
+                try? FileManager.default.removeItem(at: staged)
+                consumed = true
                 if var owning = self.engineStates[owner.id] {
                     owning.finish(index: owner.index)
                     self.engineStates[owner.id] = owning
@@ -783,31 +825,52 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
             }
             return
         }
-        let matchedId = activeTasks.first(where: { $0.value == downloadTask })?.key
+        guard let single = taskContexts.takeSingle(taskID: taskID) else { return }
+        // URLSession removes `location` as soon as this delegate callback returns. Move it into the
+        // destination volume before hopping to the main queue to update observable model state.
+        let directory = single.destination.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let staged = directory.appendingPathComponent(".katikati-\(UUID().uuidString).pending")
+        let stagedSuccessfully = (try? FileManager.default.moveItem(at: location, to: staged)) != nil
         DispatchQueue.main.async { [weak self] in
-            guard let self, let id = matchedId else { return }
+            var installed = false
+            defer {
+                if !installed { try? FileManager.default.removeItem(at: staged) }
+            }
+            guard let self else { return }
+            let id = single.id
             if let idx = self.items.firstIndex(where: { $0.id == id }) {
-                let dest = self.items[idx].destinationURL ?? self.downloadsDirectory.appendingPathComponent(self.items[idx].name)
-                try? FileManager.default.removeItem(at: dest)
-                try? FileManager.default.moveItem(at: location, to: dest)
-                self.items[idx].state = .completed
-                self.items[idx].bytesDownloaded = self.items[idx].totalBytes
-                self.items[idx].downloadSpeedBps = 0
-                self.items[idx].completedAt = Date()
+                let dest = self.items[idx].destinationURL ?? single.destination
+                do {
+                    guard stagedSuccessfully else { throw CocoaError(.fileNoSuchFile) }
+                    if FileManager.default.fileExists(atPath: dest.path) {
+                        _ = try FileManager.default.replaceItemAt(dest, withItemAt: staged)
+                    } else {
+                        try FileManager.default.moveItem(at: staged, to: dest)
+                    }
+                    installed = true
+                    self.items[idx].state = .completed
+                    self.items[idx].bytesDownloaded = self.items[idx].totalBytes
+                    self.items[idx].downloadSpeedBps = 0
+                    self.items[idx].completedAt = Date()
+                } catch {
+                    self.items[idx].state = .failed(error.localizedDescription)
+                }
             }
             self.activeTasks.removeValue(forKey: id)
             self.reconcileTicker()
         }
     }
 
-    public func urlSession(
+    public nonisolated func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) {
-        if let owner = segmentTasks[downloadTask] {
+        let taskID = downloadTask.taskIdentifier
+        if let owner = taskContexts.getSegment(taskID: taskID) {
             DispatchQueue.main.async { [weak self] in
                 guard let self, let plan = self.segmentPlans[owner.id],
                       let idx = self.items.firstIndex(where: { $0.id == owner.id }) else { return }
@@ -819,7 +882,8 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                 let previous = self.previousBytes[owner.id]
                 let now = Date()
                 if let previous, now.timeIntervalSince(previous.timestamp) >= 0.5 {
-                    let speed = max(0, (completed - previous.bytes) / Int64(max(0.5, now.timeIntervalSince(previous.timestamp))))
+                    let elapsed = now.timeIntervalSince(previous.timestamp)
+                    let speed = DownloadTransferMath.bytesPerSecond(bytesDelta: completed - previous.bytes, elapsed: elapsed)
                     self.items[idx].downloadSpeedBps = speed
                     let eta = plan.remainingBytes
                     self.items[idx].etaSeconds = speed > 0 ? Int(eta / speed) : nil
@@ -830,9 +894,10 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
             }
             return
         }
-        let matchedId = activeTasks.first(where: { $0.value == downloadTask })?.key
+        guard let single = taskContexts.getSingle(taskID: taskID) else { return }
         DispatchQueue.main.async { [weak self] in
-            guard let self, let id = matchedId else { return }
+            guard let self else { return }
+            let id = single.id
             if let idx = self.items.firstIndex(where: { $0.id == id }) {
                 self.items[idx].bytesDownloaded = totalBytesWritten
                 if totalBytesExpectedToWrite > 0 {
@@ -845,7 +910,7 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                     let deltaBytes = totalBytesWritten - prev.bytes
                     let deltaTime = now.timeIntervalSince(prev.timestamp)
                     if deltaTime >= 0.5 {
-                        let speed = Int64(Double(deltaBytes) / deltaTime)
+                        let speed = DownloadTransferMath.bytesPerSecond(bytesDelta: deltaBytes, elapsed: deltaTime)
                         self.items[idx].downloadSpeedBps = speed
                         if totalBytesExpectedToWrite > totalBytesWritten && speed > 0 {
                             self.items[idx].etaSeconds = Int((totalBytesExpectedToWrite - totalBytesWritten) / speed)
@@ -857,5 +922,91 @@ extension DownloadManagerService: URLSessionDownloadDelegate {
                 }
             }
         }
+    }
+
+    public nonisolated func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        guard let error else { return }
+        let taskID = task.taskIdentifier
+        let segmentOwner = taskContexts.takeSegment(taskID: taskID)
+        let singleOwner = segmentOwner == nil ? taskContexts.takeSingle(taskID: taskID) : nil
+        guard segmentOwner != nil || singleOwner != nil else { return }
+        let nsError = error as NSError
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if let owner = segmentOwner {
+                if let dlTask = task as? URLSessionDownloadTask {
+                    self.segmentTasks.removeValue(forKey: dlTask)
+                }
+                if nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled { return }
+                self.failSegmentedDownload(id: owner.id, message: error.localizedDescription)
+            } else if let single = singleOwner {
+                self.activeTasks.removeValue(forKey: single.id)
+                if nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled {
+                    self.reconcileTicker()
+                    return
+                }
+                if let idx = self.items.firstIndex(where: { $0.id == single.id }) {
+                    self.items[idx].state = .failed(error.localizedDescription)
+                    self.items[idx].downloadSpeedBps = 0
+                }
+                self.reconcileTicker()
+            }
+        }
+    }
+
+    private func failSegmentedDownload(id: UUID, message: String) {
+        for (other, owner) in segmentTasks where owner.id == id {
+            taskContexts.removeSegment(taskID: other.taskIdentifier)
+            other.cancel()
+        }
+        segmentTasks = segmentTasks.filter { $0.value.id != id }
+        segmentPlans.removeValue(forKey: id)
+        segmentFiles.removeValue(forKey: id)
+        engineStates.removeValue(forKey: id)
+        if let idx = items.firstIndex(where: { $0.id == id }) { items[idx].state = .failed(message) }
+        activeTasks.removeValue(forKey: id)
+        reconcileTicker()
+    }
+}
+
+private final class DownloadTaskContextStore: @unchecked Sendable {
+    private let lock = NSLock()
+    private var single: [Int: (id: UUID, destination: URL)] = [:]
+    private var segment: [Int: (id: UUID, index: Int)] = [:]
+
+    func setSingle(taskID: Int, id: UUID, destination: URL) {
+        lock.withLock { single[taskID] = (id, destination) }
+    }
+
+    func getSingle(taskID: Int) -> (id: UUID, destination: URL)? {
+        lock.withLock { single[taskID] }
+    }
+
+    func takeSingle(taskID: Int) -> (id: UUID, destination: URL)? {
+        lock.withLock { single.removeValue(forKey: taskID) }
+    }
+
+    func setSegment(taskID: Int, id: UUID, index: Int) {
+        lock.withLock { segment[taskID] = (id, index) }
+    }
+
+    func getSegment(taskID: Int) -> (id: UUID, index: Int)? {
+        lock.withLock { segment[taskID] }
+    }
+
+    func takeSegment(taskID: Int) -> (id: UUID, index: Int)? {
+        lock.withLock { segment.removeValue(forKey: taskID) }
+    }
+
+    func removeSegment(taskID: Int) {
+        lock.withLock { _ = segment.removeValue(forKey: taskID) }
+    }
+
+    func removeSingle(taskID: Int) {
+        lock.withLock { _ = single.removeValue(forKey: taskID) }
     }
 }

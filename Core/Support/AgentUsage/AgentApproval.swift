@@ -157,10 +157,26 @@ enum AgentPermissionPolicy {
     static func isReadOnlyTool(toolName: String, summary: String) -> Bool {
         if readOnlyTools.contains(toolName) { return true }
         guard toolName == "Bash" else { return false }
-        let cmd = summary.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let unsafeTokens = [";", "&&", "||", "|", ">", "<", "`", "$(", "rm ", "mv ", "cp ", "chmod ", "chown ", "git push", "git reset", "git checkout", "git commit", "git merge", "git rebase"]
-        guard !unsafeTokens.contains(where: { cmd.contains($0) }) else { return false }
-        return cmd.hasPrefix("git status") || cmd.hasPrefix("git diff") || cmd.hasPrefix("git log") || cmd == "pwd" || cmd.hasPrefix("ls")
+        let cmd = summary.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cmd.isEmpty, !cmd.contains(where: \.isNewline),
+              cmd.range(of: #"^[A-Za-z0-9_./ -]+$"#, options: .regularExpression) != nil else { return false }
+        let args = cmd.split(separator: " ").map(String.init)
+        guard let executable = args.first?.lowercased() else { return false }
+        switch executable {
+        case "pwd": return args.count == 1
+        case "ls": return args.dropFirst().allSatisfy { $0.range(of: #"^-?[A-Za-z0-9_./-]+$"#, options: .regularExpression) != nil }
+        case "git":
+            guard args.count >= 2 else { return false }
+            let subcommand = args[1].lowercased()
+            let rest = args.dropFirst(2)
+            switch subcommand {
+            case "status": return rest.allSatisfy { ["--short", "--branch", "--porcelain"].contains($0.lowercased()) }
+            case "diff": return rest.allSatisfy { ["--stat", "--name-only", "--name-status", "--check"].contains($0.lowercased()) || !$0.hasPrefix("-") }
+            case "log": return rest.allSatisfy { ["--oneline", "--decorate"].contains($0.lowercased()) || $0.range(of: #"^-n[0-9]+$"#, options: .regularExpression) != nil }
+            default: return false
+            }
+        default: return false
+        }
     }
 
     static func shouldAutoApprove(_ request: AgentApprovalRequest, enabled: Bool) -> Bool {

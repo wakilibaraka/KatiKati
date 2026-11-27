@@ -294,13 +294,14 @@ public final class HydrationController: ObservableObject {
     }
 
     private func startTimer() {
-        timer?.invalidate()
         guard timer == nil else { return }
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        let scheduled = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.tick()
             }
         }
+        scheduled.tolerance = 0.25
+        timer = scheduled
     }
 
     private func startProbe() {

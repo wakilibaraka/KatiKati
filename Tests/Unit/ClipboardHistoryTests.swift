@@ -93,3 +93,34 @@ final class ClipboardRetentionTests: XCTestCase {
         XCTAssertEqual(history.entries.map(\.text), ["new"])
     }
 }
+
+@MainActor
+final class ClipboardMonitorPrivacyTests: XCTestCase {
+    func testHandleExternalPasteSkipsConcealedAndIgnoredText() {
+        let suite = "com.katikati.test.clip.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set("secret-token", forKey: ClipboardMonitor.ignorePatternsKey)
+
+        let pasteboard = NSPasteboard(name: .init("com.katikati.test.pb.\(UUID().uuidString)"))
+        let monitor = ClipboardMonitor(defaults: defaults, pasteboard: pasteboard)
+        var pasted: [String] = []
+        monitor.onPasted = { pasted.append($0) }
+
+        pasteboard.clearContents()
+        pasteboard.setString("hunter2", forType: .string)
+        pasteboard.setData(Data(), forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"))
+        monitor.handleExternalPaste()
+        XCTAssertTrue(pasted.isEmpty, "concealed pasteboard entries must never trigger onPasted")
+
+        pasteboard.clearContents()
+        pasteboard.setString("my secret-token value", forType: .string)
+        monitor.handleExternalPaste()
+        XCTAssertTrue(pasted.isEmpty, "ignored pattern entries must never trigger onPasted")
+
+        pasteboard.clearContents()
+        pasteboard.setString("normal text", forType: .string)
+        monitor.handleExternalPaste()
+        XCTAssertEqual(pasted, ["normal text"])
+    }
+}

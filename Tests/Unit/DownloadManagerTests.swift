@@ -398,6 +398,19 @@ final class DownloadManagerTests: XCTestCase {
         XCTAssertNil(defaults.data(forKey: DownloadManagerService.torrentSessionKey))
     }
 
+    func testTransferMathSanitizesTraversalRelativeResumeAndSubSecondSpeed() {
+        XCTAssertEqual(DownloadTransferMath.sanitizedFilename(for: URL(string: "https://example.com/")!), "file.download")
+        XCTAssertEqual(DownloadTransferMath.sanitizedFilename(for: URL(string: "https://example.com/a/..")!), "file.download")
+        XCTAssertEqual(DownloadTransferMath.sanitizedFilename(for: URL(string: "https://example.com/%2e%2e")!), "file.download")
+        XCTAssertEqual(DownloadTransferMath.sanitizedFilename(for: URL(string: "https://example.com/archive.zip")!), "archive.zip")
+
+        let segLen: Int64 = 10_000
+        XCTAssertEqual(DownloadTransferMath.nextRelativeCompleted(previous: 0, writtenBytes: 4_000, segmentLength: segLen), 4_000)
+        XCTAssertEqual(DownloadTransferMath.nextRelativeCompleted(previous: 7_500, writtenBytes: 4_000, segmentLength: segLen), 10_000)
+        XCTAssertEqual(DownloadTransferMath.bytesPerSecond(bytesDelta: 500_000, elapsed: 0.5), 1_000_000)
+        XCTAssertEqual(DownloadTransferMath.bytesPerSecond(bytesDelta: 500_000, elapsed: 0), 0)
+    }
+
     /// How many `aria2c` children this process still has — the orphan check.
     private static func engineChildCount() -> Int {
         let process = Process()

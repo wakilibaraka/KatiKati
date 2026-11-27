@@ -26,6 +26,13 @@ final class AppRemovalPlannerTests: XCTestCase {
                                           removal: .deleteData, exists: { _ in false })
         XCTAssertTrue(plan.paths.isEmpty)
     }
+
+    func testDeleteDataRejectsEmptyAndTraversalTargets() {
+        for (bundleID, name) in [("", "App"), ("..", "App"), ("com.x/../../", "App"), ("com.x.App", "../") ] {
+            XCTAssertTrue(AppRemovalPlanner.dataPaths(bundleID: bundleID, name: name, home: "/Users/me").isEmpty,
+                          "unsafe identity must never produce Trash candidates: \(bundleID), \(name)")
+        }
+    }
 }
 
 /// MB-11: the opt-in Uninstaller's catalogue.

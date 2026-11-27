@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 
 /// Records text copies into `ClipboardHistory` while the user has switched recording on (opt-in, default off —
 /// the clipboard routinely holds secrets). One 0.7 s `changeCount` poll, running only while recording; nothing
@@ -30,6 +31,8 @@ final class ClipboardMonitor: ObservableObject {
     private var timer: Timer?
     /// MC-1/MC-3: one-shot "ignore the next copy" latch, set from the Clipboard page.
     @Published private var skipNextCopy = false
+    private var lastCopiedOriginBundleID: String?
+    private var lastCopyWasBlocked = false
 
     init(defaults: UserDefaults = .standard, pasteboard: NSPasteboard = .general) {
         self.defaults = defaults
@@ -89,7 +92,15 @@ final class ClipboardMonitor: ObservableObject {
 
     /// Invoked on global ⌘V detection (Input Monitoring): plays subtle paste sound & notifies toast if enabled.
     func handleExternalPaste() {
-        let raw = pasteboard.string(forType: .string) ?? history.entries.first?.text ?? ""
+        guard !IsSecureEventInputEnabled() else { return }
+        let changeCount = pasteboard.changeCount
+        if changeCount == lastChange, lastCopyWasBlocked { return }
+        let types = (pasteboard.types ?? []).map(\.rawValue)
+        let sourceBundleID = changeCount == lastChange ? lastCopiedOriginBundleID : nil
+        let ignoreRules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
+        guard let raw = pasteboard.string(forType: .string),
+              MaccyPasteboardFilter.shouldRecord(types: types, sourceBundleID: sourceBundleID, text: raw, rules: filterRules),
+              !ClipboardIgnoreRules.matches(raw, rules: ignoreRules) else { return }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         playCue(.paste)
@@ -181,8 +192,35 @@ final class ClipboardMonitor: ObservableObject {
         guard pasteboard.changeCount != lastChange else { return }
         lastChange = pasteboard.changeCount
         let types = (pasteboard.types ?? []).map(\.rawValue)
+        let originBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        lastCopiedOriginBundleID = originBundleID
+        lastCopyWasBlocked = false
+
         guard ClipboardHistory.shouldRecord(types: types),
-              let rawText = pasteboard.string(forType: .string) else { return }
+              let rawText = pasteboard.string(forType: .string) else {
+            lastCopyWasBlocked = true
+            return
+        }
+        let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
+        guard MaccyPasteboardFilter.shouldRecord(
+            types: types, sourceBundleID: originBundleID, text: rawText, rules: filterRules
+        ), !ClipboardIgnoreRules.matches(rawText, rules: rules) else {
+            lastCopyWasBlocked = true
+            return
+        }
+
+        let outcome = captureMode.shouldRecordCopy()
+        if isRecording {
+            skipNextCopy = outcome.nextMode.isSkippingNextCopy
+            guard outcome.record else {
+                lastCopyWasBlocked = true
+                return
+            }
+        } else if skipNextCopy {
+            skipNextCopy = false
+            lastCopyWasBlocked = true
+            return
+        }
 
         let resolution = ClipboardPasteboardProcessor.process(
             text: rawText,
@@ -197,24 +235,11 @@ final class ClipboardMonitor: ObservableObject {
 
         var recorded = false
         if resolution.shouldRecordHistory {
-            let outcome = captureMode.shouldRecordCopy()
-            skipNextCopy = outcome.nextMode.isSkippingNextCopy
-            if outcome.record {
-                let originBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-                let rules = ClipboardIgnoreRules.parseLines(defaults.string(forKey: Self.ignorePatternsKey) ?? "")
-                if MaccyPasteboardFilter.shouldRecord(
-                    types: types,
-                    sourceBundleID: originBundleID,
-                    text: resolution.finalText,
-                    rules: filterRules
-                ), !ClipboardIgnoreRules.matches(resolution.finalText, rules: rules) {
-                    let limit = defaults.integer(forKey: ClipboardSettingsKeys.historyLimit)
-                    history.limit = limit > 0 ? limit : ClipboardHistory.maxUnpinned
-                    history.remember(resolution.finalText, originBundleID: originBundleID)
-                    history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
-                    recorded = true
-                }
-            }
+            let limit = defaults.integer(forKey: ClipboardSettingsKeys.historyLimit)
+            history.limit = limit > 0 ? limit : ClipboardHistory.maxUnpinned
+            history.remember(resolution.finalText, originBundleID: originBundleID)
+            history.prune(olderThanDays: defaults.integer(forKey: Self.keepDaysKey))
+            recorded = true
         }
 
         guard recorded || resolution.didCleanLink else { return }

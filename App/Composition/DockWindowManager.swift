@@ -530,7 +530,6 @@ public final class DockWindowManager: ObservableObject {
         }
 
         let pid = frontApp.processIdentifier
-        let appName = frontApp.localizedName ?? ""
         let primaryScreenHeight = NSScreen.screens.first?.frame.height ?? screen.frame.height
         let maxAllowedBottomCGY = primaryScreenHeight - (dockFrame.origin.y + dockFrame.height)
         let allowAppleScriptFallback = self.useAppleScriptResizeFallback
@@ -563,9 +562,9 @@ public final class DockWindowManager: ObservableObject {
                 var newSize = CGSize(width: size.width, height: newHeight)
                 if let newSizeAX = AXValueCreate(.cgSize, &newSize) {
                     let setErr = AXUIElementSetAttributeValue(windowElement, kAXSizeAttribute as CFString, newSizeAX)
-                    if setErr != .success, allowAppleScriptFallback, !appName.isEmpty {
+                    if setErr != .success, allowAppleScriptFallback {
                         self?.executeAppleScriptSizeFallback(
-                            appName: appName,
+                            processID: pid,
                             width: Int(size.width),
                             height: Int(newHeight)
                         )
@@ -577,8 +576,8 @@ public final class DockWindowManager: ObservableObject {
 
     private func clampFrontmostWindowViaAppleScriptFallback(dockFrame: NSRect, on screen: NSScreen) {
         guard let frontApp = NSWorkspace.shared.frontmostApplication,
-              let appName = frontApp.localizedName,
               frontApp.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return }
+        let processID = frontApp.processIdentifier
 
         let primaryScreenHeight = Int(NSScreen.screens.first?.frame.height ?? screen.frame.height)
         let maxAllowedBottomY = primaryScreenHeight - Int(dockFrame.origin.y + dockFrame.height)
@@ -586,7 +585,7 @@ public final class DockWindowManager: ObservableObject {
         axQueue.async {
             let scriptSource = """
             tell application "System Events"
-                tell process "\(appName)"
+                tell (first process whose unix id is \(processID))
                     if (count of windows) > 0 then
                         set winPos to position of front window
                         set winSize to size of front window
@@ -610,10 +609,10 @@ public final class DockWindowManager: ObservableObject {
         }
     }
 
-    private nonisolated func executeAppleScriptSizeFallback(appName: String, width: Int, height: Int) {
+    private nonisolated func executeAppleScriptSizeFallback(processID: pid_t, width: Int, height: Int) {
         let scriptSource = """
         tell application "System Events"
-            tell process "\(appName)"
+            tell (first process whose unix id is \(processID))
                 if (count of windows) > 0 then
                     set size of front window to {\(width), \(height)}
                 end if

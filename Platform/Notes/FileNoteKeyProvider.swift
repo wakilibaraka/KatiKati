@@ -1,4 +1,5 @@
 import CryptoKit
+import Darwin
 import Foundation
 
 /// The notes AES key as a 0600 file next to the notes, so opening Notes never shows a Keychain prompt
@@ -24,10 +25,7 @@ struct FileNoteKeyProvider: NoteKeyProviding {
 
     func loadOrCreateKey() throws -> SymmetricKey {
         let fm = FileManager.default
-        if let data = try? Data(contentsOf: keyFile) {
-            guard data.count == 32 else { throw KeyFileError.malformed }
-            return SymmetricKey(data: data)
-        }
+        if fm.fileExists(atPath: keyFile.path) { return try readExistingKey() }
         let key: SymmetricKey
         if hasExistingNotes(), let legacy {
             key = try legacy.loadOrCreateKey()
@@ -36,10 +34,44 @@ struct FileNoteKeyProvider: NoteKeyProviding {
         }
         try fm.createDirectory(at: keyFile.deletingLastPathComponent(), withIntermediateDirectories: true)
         let bytes = key.withUnsafeBytes { Data($0) }
-        guard fm.createFile(atPath: keyFile.path, contents: bytes, attributes: [.posixPermissions: 0o600]) else {
-            throw KeyFileError.malformed
+        let tempURL = keyFile.deletingLastPathComponent()
+            .appendingPathComponent(".note.key.\(UUID().uuidString).tmp")
+        let fd = Darwin.open(tempURL.path, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)
+        guard fd >= 0 else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        defer {
+            _ = Darwin.unlink(tempURL.path)
+        }
+        do {
+            try bytes.withUnsafeBytes { raw in
+                guard let base = raw.baseAddress else { throw KeyFileError.malformed }
+                var offset = 0
+                while offset < raw.count {
+                    let written = Darwin.write(fd, base.advanced(by: offset), raw.count - offset)
+                    guard written > 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+                    offset += written
+                }
+            }
+            guard Darwin.fchmod(fd, mode_t(S_IRUSR | S_IWUSR)) == 0, Darwin.fsync(fd) == 0 else {
+                throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+            }
+            Darwin.close(fd)
+        } catch {
+            Darwin.close(fd)
+            throw error
+        }
+        if Darwin.link(tempURL.path, keyFile.path) != 0 {
+            if errno == EEXIST { return try readExistingKey() }
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
         }
         return key
+    }
+
+    private func readExistingKey() throws -> SymmetricKey {
+        let data = try Data(contentsOf: keyFile)
+        guard data.count == 32 else { throw KeyFileError.malformed }
+        return SymmetricKey(data: data)
     }
 
     /// True when `directory` already holds at least one note file.

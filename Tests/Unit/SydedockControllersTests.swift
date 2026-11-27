@@ -98,6 +98,10 @@ final class SydedockControllersTests: XCTestCase {
 
         hydro.retain()
         XCTAssertEqual(hydro.activeHolders, 2)
+        XCTAssertTrue(hydro.isTimerRunning)
+        let secondsBefore = hydro.secondsRemaining
+        hydro.tick()
+        XCTAssertEqual(hydro.secondsRemaining, secondsBefore - 1)
         hydro.release()
         XCTAssertEqual(hydro.activeHolders, 1)
         XCTAssertTrue(hydro.isTimerRunning)

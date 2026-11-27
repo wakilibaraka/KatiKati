@@ -36,6 +36,7 @@ enum AppRemovalPlanner {
 
     /// Standard support-file locations for a bundle id / display name, augmented with AppLeftoverScanPlan.
     static func dataPaths(bundleID: String, name: String, home: String = NSHomeDirectory()) -> [String] {
+        guard AppLeftoverScanPlan.isSafeTarget(bundleID: bundleID, appName: name) else { return [] }
         let leftovers = AppLeftoverScanPlan.expectedCandidatePaths(home: home, bundleID: bundleID, appName: name)
         let standard = [
             "\(home)/Library/Application Support/\(name)",
@@ -48,7 +49,10 @@ enum AppRemovalPlanner {
         ]
         var combined: [String] = []
         var seen = Set<String>()
+        let root = URL(fileURLWithPath: home).standardizedFileURL
+            .appendingPathComponent("Library", isDirectory: true).standardizedFileURL.path + "/"
         for p in standard + leftovers {
+            guard URL(fileURLWithPath: p).standardizedFileURL.path.hasPrefix(root) else { continue }
             if seen.insert(p).inserted { combined.append(p) }
         }
         return combined

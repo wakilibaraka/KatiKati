@@ -46,6 +46,11 @@ enum SettingsBackupKeys {
     static let excludedPrefixes: [String] = [
         "com.katikati.migration.", "com.katikati.hasSeenWelcome", "com.katikati.startup.",
         "com.katikati.launchAtLogin", "com.katikati.screentime.", "com.katikati.weather.cache",
+        // These values contain executable user scripts and scheduled triggers; importing them could
+        // run code automatically on a different Mac after restore.
+        "com.katikati.menuBarHub.evolutions", "com.katikati.menuBarHub.schedules",
+        "com.katikati.mediaResolver.tool", "com.katikati.torrent.enginePath",
+        "com.katikati.commandbar.custom", "com.katikati.launcher.scripts.enabled",
     ]
 
     /// A key whose name says it holds a credential is never exported, whatever family it is in.

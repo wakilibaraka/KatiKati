@@ -159,3 +159,33 @@ enum DownloadDestinationPolicy {
         return nil
     }
 }
+
+/// Pure filename sanitization and transfer-math helpers shared by `DownloadManagerService` and unit tests.
+enum DownloadTransferMath {
+    static func sanitizedFilename(for url: URL) -> String {
+        let raw = url.lastPathComponent.trimmingCharacters(in: .whitespacesAndNewlines)
+        let candidate = (raw.removingPercentEncoding ?? raw).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !candidate.isEmpty,
+              candidate != "/",
+              candidate != ".",
+              candidate != ".." else {
+            return "file.download"
+        }
+        let sanitized = candidate
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "\\", with: "_")
+        guard !sanitized.isEmpty, sanitized != ".", sanitized != ".." else {
+            return "file.download"
+        }
+        return sanitized
+    }
+
+    static func nextRelativeCompleted(previous: Int64, writtenBytes: Int, segmentLength: Int64) -> Int64 {
+        min(segmentLength, max(0, previous) + Int64(max(0, writtenBytes)))
+    }
+
+    static func bytesPerSecond(bytesDelta: Int64, elapsed: TimeInterval) -> Int64 {
+        guard elapsed > 0 else { return 0 }
+        return Int64(Double(max(0, bytesDelta)) / elapsed)
+    }
+}

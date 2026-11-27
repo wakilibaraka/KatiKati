@@ -22,6 +22,12 @@ final class SettingsBackupTests: XCTestCase {
         XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.hasSeenWelcome"))
         XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.notch.intro.stamp"))
         XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.weather.cache"))
+        XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.menuBarHub.evolutions"))
+        XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.menuBarHub.schedules"))
+        XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.mediaResolver.tool"))
+        XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.torrent.enginePath"))
+        XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.commandbar.custom"))
+        XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.launcher.scripts.enabled"))
         XCTAssertNil(SettingsBackupKeys.category(of: "com.katikati.launchAtLogin"))
     }
 
@@ -148,5 +154,27 @@ final class SettingsBackupTests: XCTestCase {
         XCTAssertEqual(SettingsBackupFile.category(ofFile: "profiles.json"), .barAndLauncher)
         XCTAssertEqual(WindowLayoutMemory.fileName, "window-layouts.json")
         XCTAssertEqual(SettingsBackupFile.category(ofFile: WindowLayoutMemory.fileName), .settingsAndShortcuts)
+    }
+
+    func testWriteSafetyBackupCreatesDistinctFilesWithinSameSecond() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("sb-test-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let fixedNow = Date(timeIntervalSince1970: 1_700_000_000)
+        let suite = "com.katikati.test.sb.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let service = SettingsBackupService(
+            defaults: defaults,
+            domainName: suite,
+            supportDirectory: dir.appendingPathComponent("support", isDirectory: true),
+            appVersion: "1.0",
+            now: { fixedNow }
+        )
+        let first = try service.writeSafetyBackup(categories: [.settingsAndShortcuts], notesPassword: nil)
+        let second = try service.writeSafetyBackup(categories: [.settingsAndShortcuts], notesPassword: nil)
+        XCTAssertNotEqual(first.path, second.path)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: first.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: second.path))
     }
 }

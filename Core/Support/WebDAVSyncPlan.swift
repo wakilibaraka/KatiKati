@@ -278,7 +278,8 @@ enum WebDAVSyncPlanner {
         }
     }
 
-    /// Snapshot-faithful restore replaces the file; merge combines arrays by id and keeps unknown local data.
+    /// Snapshot-faithful restore replaces the file; merge combines identified `items`/`entries` arrays
+    /// inside the app's object-shaped task and capture files as well as legacy top-level arrays.
     static func mergedFileData(
         local: Data?,
         remote: Data,
@@ -288,10 +289,37 @@ enum WebDAVSyncPlanner {
         case .snapshotFaithful:
             return remote
         case .merge:
-            if let local, (try? JSONSerialization.jsonObject(with: local)) is [Any] {
+            if let local,
+               let localObject = try? JSONSerialization.jsonObject(with: local),
+               let remoteObject = try? JSONSerialization.jsonObject(with: remote) {
+                if localObject is [Any] {
                 return mergeIdentifiedJSON(local: local, remote: remote)
+                }
+                if let localDictionary = localObject as? [String: Any],
+                   let remoteDictionary = remoteObject as? [String: Any] {
+                    return try? JSONSerialization.data(withJSONObject: mergeObjects(localDictionary, remoteDictionary), options: [.sortedKeys, .withoutEscapingSlashes])
+                }
             }
             return remote
         }
+    }
+
+    private static func mergeObjects(_ local: [String: Any], _ remote: [String: Any]) -> [String: Any] {
+        var merged = local
+        for (key, incoming) in remote {
+            guard let existing = merged[key] else { merged[key] = incoming; continue }
+            if ["items", "entries"].contains(key), existing is [Any], incoming is [Any],
+               let localData = try? JSONSerialization.data(withJSONObject: existing),
+               let remoteData = try? JSONSerialization.data(withJSONObject: incoming),
+               let rows = mergeIdentifiedJSON(local: localData, remote: remoteData),
+               let decoded = try? JSONSerialization.jsonObject(with: rows) {
+                merged[key] = decoded
+            } else if let localChild = existing as? [String: Any], let remoteChild = incoming as? [String: Any] {
+                merged[key] = mergeObjects(localChild, remoteChild)
+            } else {
+                merged[key] = incoming
+            }
+        }
+        return merged
     }
 }

@@ -71,6 +71,26 @@ final class WebDAVPerformanceTests: XCTestCase {
         XCTAssertEqual(merged, remote)
     }
 
+    func testMergeCombinesTaskAndCaptureRowsInsideObjects() throws {
+        let local = Data(#"{"items":[{"id":"a","text":"local"}],"localOnly":true}"#.utf8)
+        let remote = Data(#"{"items":[{"id":"a","text":"remote"},{"id":"b","text":"new"}],"remoteOnly":2}"#.utf8)
+        let data = try XCTUnwrap(WebDAVSyncPlanner.mergedFileData(local: local, remote: remote, mode: .merge))
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let items = try XCTUnwrap(object["items"] as? [[String: Any]])
+        XCTAssertEqual(items.count, 2)
+        XCTAssertEqual(items.first?["text"] as? String, "local")
+        XCTAssertEqual(items.last?["id"] as? String, "b")
+        XCTAssertEqual(object["localOnly"] as? Bool, true)
+        XCTAssertEqual(object["remoteOnly"] as? Int, 2)
+
+        let localCapture = Data(#"{"entries":[{"id":"x","text":"kept"}]}"#.utf8)
+        let remoteCapture = Data(#"{"entries":[{"id":"y","text":"added"}]}"#.utf8)
+        let capture = try XCTUnwrap(WebDAVSyncPlanner.mergedFileData(local: localCapture, remote: remoteCapture, mode: .merge))
+        let captureObject = try XCTUnwrap(JSONSerialization.jsonObject(with: capture) as? [String: Any])
+        let entries = try XCTUnwrap(captureObject["entries"] as? [[String: Any]])
+        XCTAssertEqual(entries.compactMap { $0["id"] as? String }, ["x", "y"])
+    }
+
     func testMergeDefaultsIncomingWinsLocalOnlySurvives() {
         let merged = WebDAVSyncPlanner.mergeDefaults(
             local: ["a": .integer(1), "b": .integer(2)],

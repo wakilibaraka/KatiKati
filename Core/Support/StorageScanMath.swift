@@ -139,6 +139,17 @@ extension StorageScanMath {
 /// Given an .app bundle identifier and name, computes and filters candidate leftover paths
 /// across ~/Library roots, strictly excluding Apple system and KatiKati self paths.
 enum AppLeftoverScanPlan {
+    static func isSafeTarget(bundleID: String, appName: String) -> Bool {
+        let id = bundleID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let segments = id.split(separator: ".", omittingEmptySubsequences: false)
+        let cleanName = appName.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: ".app", with: "", options: [.caseInsensitive])
+        return !isProtected(bundleID: id)
+            && segments.count >= 2
+            && segments.allSatisfy { !$0.isEmpty && $0.allSatisfy { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" } }
+            && !cleanName.isEmpty && cleanName != "." && cleanName != ".."
+            && !cleanName.contains("/") && !cleanName.contains("\\")
+    }
     static func targetDirectories(home: String) -> [String] {
         [
             home + "/Library/Application Support",
@@ -187,7 +198,7 @@ enum AppLeftoverScanPlan {
 
     /// Returns standard expected candidate paths where an application might leave files.
     static func expectedCandidatePaths(home: String, bundleID: String, appName: String) -> [String] {
-        guard !isProtected(bundleID: bundleID) else { return [] }
+        guard isSafeTarget(bundleID: bundleID, appName: appName) else { return [] }
         let cleanName = appName.trimmingCharacters(in: .whitespaces)
             .replacingOccurrences(of: ".app", with: "", options: [.caseInsensitive])
         let candidates = [

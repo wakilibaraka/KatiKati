@@ -1357,6 +1357,7 @@
 		ED00000000000000000000CB /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
 		ED00000000000000000000CC /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
 		ED00000000000000000000CE /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CD /* ClipboardMonitor.swift */; };
+		C0FFEE000000000000000901 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CD /* ClipboardMonitor.swift */; };
 		ED00000000000000000000D0 /* ClipboardFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CF /* ClipboardFlyoutView.swift */; };
 		ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D1 /* ClipboardHistoryTests.swift */; };
 		ED00000000000000000000D4 /* CaptureRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000D3 /* CaptureRules.swift */; };
@@ -4645,6 +4646,7 @@
 				ED00000000000000000000D5 /* CaptureRules.swift in Sources */,
 				ED00000000000000000000DB /* CaptureRulesTests.swift in Sources */,
 				ED00000000000000000000CC /* ClipboardHistory.swift in Sources */,
+				C0FFEE000000000000000901 /* ClipboardMonitor.swift in Sources */,
 				ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */,
 				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,
 				ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */,

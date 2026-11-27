@@ -156,6 +156,15 @@ final class FinderKeyMapTests: XCTestCase {
         XCTAssertEqual(map.handle(.keyUp(keyCode: FinderKeyMap.cutKey, modifiers: [])), .passThrough)
         XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command])), .passThrough)
     }
+
+    func testCopyCancelsCutAndModifiedPastePassesThrough() {
+        _ = map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [.command]))
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.copyKey, modifiers: [.command])), .passThrough)
+        XCTAssertFalse(map.cutPending)
+        _ = map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [.command]))
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command, .shift])), .passThrough)
+        XCTAssertTrue(map.cutPending)
+    }
 }
 
 /// 53a: a quick tap does nothing; a hold toggles once, and only while the key is down.

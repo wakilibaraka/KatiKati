@@ -81,7 +81,8 @@ final class WorkspaceControlServer: @unchecked Sendable {
         // the same process is rejected too — which is exactly what the end-to-end test asserts.
         let lockPath = directory.appendingPathComponent("control.lock").path
         lockFD = open(lockPath, O_CREAT | O_RDWR, 0o600)
-        if lockFD >= 0, flock(lockFD, LOCK_EX | LOCK_NB) != 0 {
+        guard lockFD >= 0 else { return }
+        if flock(lockFD, LOCK_EX | LOCK_NB) != 0 {
             // Another agent owns the socket; stay out of its way rather than unlinking its path.
             close(lockFD)
             lockFD = -1
@@ -90,13 +91,19 @@ final class WorkspaceControlServer: @unchecked Sendable {
 
         unlink(url.path)
         let fd = socket(AF_UNIX, SOCK_STREAM, 0)
-        guard fd >= 0 else { return }
+        guard fd >= 0 else {
+            releaseLock()
+            return
+        }
+        var listenNoSignal: Int32 = 1
+        _ = setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &listenNoSignal, socklen_t(MemoryLayout<Int32>.size))
 
         var address = sockaddr_un()
         address.sun_family = sa_family_t(AF_UNIX)
         let pathBytes = Array(url.path.utf8)
         guard pathBytes.count < MemoryLayout.size(ofValue: address.sun_path) else {
             close(fd)
+            releaseLock()
             return
         }
         withUnsafeMutableBytes(of: &address.sun_path) { raw in
@@ -113,6 +120,7 @@ final class WorkspaceControlServer: @unchecked Sendable {
             // leaving the CLI with no socket is worse than a log line.
             log.error("control socket bind failed for \(url.path, privacy: .public)")
             close(fd)
+            releaseLock()
             return
         }
         chmod(url.path, 0o600)
@@ -127,36 +135,56 @@ final class WorkspaceControlServer: @unchecked Sendable {
     }
 
     func stop() {
-        acceptSource?.cancel()
-        acceptSource = nil
-        if listenFD >= 0 {
-            close(listenFD)
-            listenFD = -1
+        queue.sync {
+            acceptSource?.cancel()
+            acceptSource = nil
+            if listenFD >= 0 {
+                close(listenFD)
+                listenFD = -1
+            }
+            if let url = socketURL { unlink(url.path) }
+            releaseLock()
         }
-        if let url = socketURL { unlink(url.path) }
-        if lockFD >= 0 {
-            flock(lockFD, LOCK_UN)
-            close(lockFD)
-            lockFD = -1
-        }
+    }
+
+    private func releaseLock() {
+        guard lockFD >= 0 else { return }
+        flock(lockFD, LOCK_UN)
+        close(lockFD)
+        lockFD = -1
     }
 
     private func acceptPending(on fd: Int32) {
         let client = accept(fd, nil, nil)
         guard client >= 0 else { return }
 
-        var buffer = [UInt8](repeating: 0, count: Self.maxRequestBytes)
-        let count = read(client, &buffer, buffer.count)
-        guard count > 0 else {
+        var timeout = timeval(tv_sec: 2, tv_usec: 0)
+        _ = setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+        _ = setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+        var noSignal: Int32 = 1
+        if setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &noSignal, socklen_t(MemoryLayout<Int32>.size)) != 0 {
+            close(client)
+            return
+        }
+
+        var buffer: [UInt8] = []
+        var chunk = [UInt8](repeating: 0, count: Self.maxRequestBytes)
+        while buffer.count < Self.maxRequestBytes {
+            let count = recv(client, &chunk, min(chunk.count, Self.maxRequestBytes - buffer.count), 0)
+            guard count > 0 else { break }
+            buffer.append(contentsOf: chunk.prefix(count))
+            if buffer.contains(UInt8(ascii: "\n")) { break }
+        }
+        guard !buffer.isEmpty else {
             close(client)
             return
         }
 
         // A full buffer with no newline means the request ran past the cap. Reject it whole rather
         // than acting on a truncated command.
-        let hasTerminator = buffer[0..<count].contains(UInt8(ascii: "\n"))
-        let tooLarge = count >= Self.maxRequestBytes && !hasTerminator
-        let request = String(decoding: buffer[0..<count], as: UTF8.self)
+        let hasTerminator = buffer.contains(UInt8(ascii: "\n"))
+        let tooLarge = buffer.count >= Self.maxRequestBytes && !hasTerminator
+        let request = String(decoding: buffer, as: UTF8.self)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         Task { @MainActor in
@@ -171,10 +199,18 @@ final class WorkspaceControlServer: @unchecked Sendable {
                 }
             }
             let bytes = Array((reply + "\n").utf8)
-            _ = bytes.withUnsafeBufferPointer { pointer in
-                write(client, pointer.baseAddress, pointer.count)
+            DispatchQueue.global(qos: .utility).async {
+                bytes.withUnsafeBufferPointer { pointer in
+                    guard let base = pointer.baseAddress else { return }
+                    var offset = 0
+                    while offset < pointer.count {
+                        let written = send(client, base.advanced(by: offset), pointer.count - offset, 0)
+                        guard written > 0 else { break }
+                        offset += written
+                    }
+                }
+                close(client)
             }
-            close(client)
         }
     }
 

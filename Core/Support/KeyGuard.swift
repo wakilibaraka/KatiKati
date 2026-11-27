@@ -145,7 +145,7 @@ struct FinderKeyMap: Equatable, Sendable {
 
     mutating func handle(_ event: KeyGuardEvent) -> KeyGuardDecision {
         switch event {
-        case let .keyDown(code, mods) where mods.contains(.command):
+        case let .keyDown(code, mods) where mods == .command:
             switch code {
             case Self.cutKey:
                 cutPending = true
@@ -155,6 +155,9 @@ struct FinderKeyMap: Equatable, Sendable {
                 cutPending = false
                 rewrotePasteUp = true
                 return .rewrite(keyCode: Self.pasteKey, addingModifiers: .option)
+            case Self.copyKey:
+                cutPending = false
+                return .passThrough
             default:
                 return .passThrough
             }

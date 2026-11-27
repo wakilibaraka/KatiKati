@@ -163,6 +163,10 @@ final class AgentApprovalTests: XCTestCase {
         XCTAssertTrue(AgentPermissionPolicy.shouldAutoApprove(diffReq, enabled: true))
         XCTAssertFalse(AgentPermissionPolicy.shouldAutoApprove(writeReq, enabled: true))
         XCTAssertFalse(AgentPermissionPolicy.shouldAutoApprove(chainReq, enabled: true))
+        for bypass in ["ls; rm -rf /", "ls\nrm -rf /", "ls & open .", "ls\t; open .", "lsanything"] {
+            XCTAssertFalse(AgentPermissionPolicy.isReadOnlyTool(toolName: "Bash", summary: bypass), bypass)
+        }
+        XCTAssertTrue(AgentPermissionPolicy.isReadOnlyTool(toolName: "Bash", summary: "git status --short"))
     }
 
     func testWatchdogMarksStuckSession() {

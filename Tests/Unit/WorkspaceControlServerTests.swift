@@ -121,6 +121,72 @@ final class WorkspaceControlServerTests: XCTestCase {
         XCTAssertTrue(bad.hasPrefix("error expected a preset"), bad)
         XCTAssertEqual(harness.target.commands, [.layout(.ribbon)])
     }
+
+    @MainActor
+    func testEarlyDisconnectDoesNotCrashAndSplitWriteSucceeds() async throws {
+        let harness = try ControlHarness()
+        defer { harness.stop() }
+
+        let path = harness.socketURL.path
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+            DispatchQueue.global().async {
+                let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+                guard fd >= 0 else {
+                    cont.resume(throwing: NSError(domain: "test", code: 1))
+                    return
+                }
+                var address = sockaddr_un()
+                address.sun_family = sa_family_t(AF_UNIX)
+                let pathBytes = Array(path.utf8)
+                withUnsafeMutableBytes(of: &address.sun_path) { $0.copyBytes(from: pathBytes) }
+                let rc = withUnsafePointer(to: &address) { ptr in
+                    ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                        connect(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
+                    }
+                }
+                if rc == 0 {
+                    let msg = Array("status\n".utf8)
+                    _ = msg.withUnsafeBufferPointer { write(fd, $0.baseAddress, $0.count) }
+                }
+                close(fd)
+                cont.resume()
+            }
+        }
+
+        let splitReply = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<String, Error>) in
+            DispatchQueue.global().async {
+                let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+                guard fd >= 0 else {
+                    cont.resume(throwing: NSError(domain: "test", code: 2))
+                    return
+                }
+                defer { close(fd) }
+                var address = sockaddr_un()
+                address.sun_family = sa_family_t(AF_UNIX)
+                let pathBytes = Array(path.utf8)
+                withUnsafeMutableBytes(of: &address.sun_path) { $0.copyBytes(from: pathBytes) }
+                let rc = withUnsafePointer(to: &address) { ptr in
+                    ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                        connect(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
+                    }
+                }
+                guard rc == 0 else {
+                    cont.resume(throwing: NSError(domain: "test", code: 3))
+                    return
+                }
+                let part1 = Array("switch ".utf8)
+                _ = part1.withUnsafeBufferPointer { write(fd, $0.baseAddress, $0.count) }
+                usleep(20_000)
+                let part2 = Array("2\n".utf8)
+                _ = part2.withUnsafeBufferPointer { write(fd, $0.baseAddress, $0.count) }
+                var buf = [UInt8](repeating: 0, count: 1024)
+                let n = Darwin.read(fd, &buf, buf.count)
+                let reply = n > 0 ? String(decoding: buf[0..<n], as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines) : ""
+                cont.resume(returning: reply)
+            }
+        }
+        XCTAssertEqual(splitReply, "ok switch 2")
+    }
 }
 
 /// One server on a temp socket plus the spy it talks to.
