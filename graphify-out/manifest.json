@@ -540,9 +540,9 @@
     "semantic_hash": "2df84f954829fa620b6c623e814b102a"
   },
   "App/Entry/NotchPanelController.swift": {
-    "mtime": 1795814179.699088,
-    "seen": 1795817562.0018911,
-    "ast_hash": "71a1d40d0b3156f8e55223b4eb6026bc",
+    "mtime": 1795819970.9358628,
+    "seen": 1795820345.231075,
+    "ast_hash": "c4c50e30a7daa5182fc4efced8cbfedc",
     "semantic_hash": ""
   },
   "App/Entry/PanelCoordinator+ChipPanel.swift": {
@@ -9293,9 +9293,9 @@
     "semantic_hash": "857119ee451803c01e2dbfcecda049b6"
   },
   "App/Composition/WorkspaceControlServer.swift": {
-    "mtime": 1795814265.1997254,
-    "seen": 1795817562.001861,
-    "ast_hash": "c56f81771740520da1ff3ff27df4a775",
+    "mtime": 1795819305.3462627,
+    "seen": 1795820345.231055,
+    "ast_hash": "49740c8eb538fb3ea1d67594adc73f0c",
     "semantic_hash": ""
   },
   "App/Entry/WorkspaceHUDController.swift": {
@@ -9419,9 +9419,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WorkspaceControlServerTests.swift": {
-    "mtime": 1795778520.428809,
-    "seen": 1795779139.068788,
-    "ast_hash": "83a62f0d439d57435cf86a73c1b40adf",
+    "mtime": 1795819318.8830132,
+    "seen": 1795820345.232244,
+    "ast_hash": "9f1022c37b41cd42acacbcda8666dcde",
     "semantic_hash": ""
   },
   "App/Composition/MusicQueueFetcher.swift": {
