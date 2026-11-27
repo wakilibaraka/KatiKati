@@ -51,8 +51,12 @@ extension TilingEngine {
     }
 
     /// Sends the focused window to another workspace without following it (⌃⌥⇧1–0).
+    ///
+    /// The window's own display decides here, not the pointer: a move parks the window on the screen it
+    /// is on, and parking on any other screen is refused by `parkWorkspaceWindow`'s display guard.
     func moveFocusedToWorkspace(_ target: WorkspaceID) {
-        guard workspacesEnabled, isEnabled, let screen = activeScreen() ?? NSScreen.screens.first else { return }
+        guard workspacesEnabled, isEnabled,
+              let screen = focusedWindowScreen() ?? activeScreen() ?? NSScreen.screens.first else { return }
         let key = screenKey(for: screen)
         guard let id = trees[key]?.focusedID
             ?? lastSnapshot?.windows.values.first(where: { $0.status == .active })?.id else { return }
@@ -60,7 +64,8 @@ extension TilingEngine {
     }
 
     func moveFocusedWorkspace(_ offset: Int) {
-        guard workspacesEnabled, let screen = activeScreen() ?? NSScreen.screens.first else { return }
+        guard workspacesEnabled,
+              let screen = focusedWindowScreen() ?? activeScreen() ?? NSScreen.screens.first else { return }
         let key = screenKey(for: screen)
         guard let next = workspaceRegistry.step(from: activeWorkspace(on: key), by: offset, on: key) else { return }
         moveFocusedToWorkspace(next)

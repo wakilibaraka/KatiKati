@@ -970,15 +970,32 @@ final class TilingEngine: ObservableObject {
         return screens[0]
     }
 
+    /// The display a workspace *switch* applies to: the one under the pointer.
+    ///
+    /// Workspaces are per display, and the cursor is the display the user is working on. Letting the
+    /// focused window decide instead stole switches from a second screen whenever the frontmost app
+    /// lived on the other one — and after parking on that screen the frontmost app was often the window
+    /// that had just left, so `status` and the next chord fell back to the built-in (found live
+    /// 2026-11-27 while exercising workspaces on the 4K).
     func activeScreen() -> NSScreen? {
         let screens = NSScreen.screens
         guard !screens.isEmpty else { return nil }
-        let primaryMaxY = screens.first?.frame.maxY ?? 0
-        if let activeRecord = lastSnapshot?.windows.values.first(where: { $0.status == .active }) {
-            return resolveScreen(for: activeRecord, screens: screens, primaryMaxY: primaryMaxY)
-        }
         let mouse = NSEvent.mouseLocation
-        return screens.first { $0.frame.contains(mouse) } ?? NSScreen.main ?? screens.first
+        if let underPointer = screens.first(where: { $0.frame.contains(mouse) }) { return underPointer }
+        return focusedWindowScreen(screens: screens) ?? NSScreen.main ?? screens.first
+    }
+
+    /// The display holding the focused window, when that window is actually visible on one. Moves use
+    /// this rather than the pointer: the window has to be parked on the display it is on.
+    func focusedWindowScreen(screens: [NSScreen]? = nil) -> NSScreen? {
+        let screens = screens ?? NSScreen.screens
+        guard !screens.isEmpty else { return nil }
+        let primaryMaxY = screens.first?.frame.maxY ?? 0
+        guard let activeRecord = lastSnapshot?.windows.values.first(where: { $0.status == .active }),
+              let bounds = activeRecord.bounds,
+              !(activeRecord.cgWindowID.map { parkedWorkspaceWindows[$0] != nil } ?? false) else { return nil }
+        let center = WindowFit.cocoaCenter(ofQuartzFrame: bounds, primaryMaxY: primaryMaxY)
+        return screens.first { $0.frame.contains(center) }
     }
 
     private func activeScreenKey() -> String? {
