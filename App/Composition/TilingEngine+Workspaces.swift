@@ -20,6 +20,9 @@ extension TilingEngine {
         }
         // Pinned windows are on every workspace by definition.
         for id in snapshot.windows.keys where isPinned(id) { visible.insert(id) }
+        // Ignored windows are never owned, so the ownership filter above would drop their cards and
+        // an app the user told KatiKati to leave alone would vanish from the bar.
+        visible.formUnion(ignoredWorkspaceWindows)
 
         let windows = snapshot.windows.filter { visible.contains($0.key) }
         return DockSnapshot(
@@ -40,21 +43,34 @@ extension TilingEngine {
     func tree(for workspace: WorkspaceID, on displayKey: String) -> TilingTree {
         if let saved = workspaceTrees[workspace]?[displayKey] { return saved }
         var tree = TilingTree()
-        for id in workspaceStore.windows(in: workspace, on: displayKey) { tree.insert(id) }
+        // Only windows this session still has a live record for. The store is durable, so a closed
+        // window's id survives in it; a tree built from those ids tiled the live windows into the
+        // gaps the dead ones left until the next snapshot pruned them.
+        for id in workspaceStore.windows(in: workspace, on: displayKey)
+        where lastWindows[id]?.cgWindowID != nil {
+            tree.insert(id)
+        }
         return tree
     }
 
     /// Gives every new window an owner, then parks everything that is not on its display's active
     /// workspace. Runs before the tiling pass so the pass only ever sees one workspace's windows.
     func reconcileWorkspaceOwnership(with snapshot: DockSnapshot, screens: [NSScreen], primaryMaxY: CGFloat) {
+        // Rebuild the ignore set from this snapshot rather than only adding to it: a rule changed
+        // from `ignore` to `tile` has to take effect on the next pass, and a closed window must not
+        // keep its entry for the rest of the session.
+        ignoredWorkspaceWindows.removeAll()
+        for record in snapshot.windows.values where
+            workspaceRules.disposition(bundleID: record.bundleIdentifier, title: record.title) == .ignore {
+            ignoredWorkspaceWindows.insert(record.id)
+        }
+
         var changed = false
         for id in snapshot.orderedWindowIDs {
             guard let record = snapshot.windows[id] else { continue }
             let key = screenKey(for: resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY))
             let active = activeWorkspace(on: key)
             let disposition = workspaceRules.disposition(bundleID: record.bundleIdentifier, title: record.title)
-            if disposition == .ignore { ignoredWorkspaceWindows.insert(id) }
-
             // A window that moved displays belongs to the screen it is on now. Ownership is keyed by
             // display, so a window adopted on the built-in stayed in that display's list after being
             // dragged to the second screen: the second screen's switches then had nothing to park,

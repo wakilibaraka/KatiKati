@@ -121,6 +121,13 @@ final class WorkspaceRulesTests: XCTestCase {
         XCTAssertFalse(first.routesAllWindows(bundleID: slack, title: nil))
     }
 
+    func testChangingARuleTakesEffectOnTheNextQuery() {
+        // The engine caches the ignore set, so this only pins the rules half: a `tile` rule answers
+        // `.manage` and an `ignore` rule answers `.ignore`, with nothing sticky in between.
+        XCTAssertEqual(WorkspaceRules.parse("\(slack)=ignore").disposition(bundleID: slack, title: nil), .ignore)
+        XCTAssertEqual(WorkspaceRules.parse("\(slack)=tile").disposition(bundleID: slack, title: nil), .manage)
+    }
+
     // MARK: - Migration
 
     func testMigrationPreservesTheOldFloatAndTileLists() {
