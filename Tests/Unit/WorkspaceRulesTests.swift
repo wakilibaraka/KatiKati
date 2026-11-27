@@ -163,6 +163,86 @@ final class WorkspaceRulesTests: XCTestCase {
                        "the first match wins, so the later tile rule cannot lift the float")
     }
 
+    // MARK: - AT-4: categories, display targets and the island rule
+
+    func testMediaCategoryMatchesItsBundleList() {
+        XCTAssertTrue(AppRuleCategory.media.matches(bundleID: "org.videolan.vlc"))
+        XCTAssertTrue(AppRuleCategory.media.matches(bundleID: "com.colliderli.iina"))
+        XCTAssertTrue(AppRuleCategory.media.matches(bundleID: "com.apple.QuickTimePlayerX"))
+        XCTAssertFalse(AppRuleCategory.media.matches(bundleID: safari))
+        XCTAssertFalse(AppRuleCategory.media.matches(bundleID: nil))
+    }
+
+    func testCategoryRuleParsesAndRoundTrips() {
+        let rule = WorkspaceRule.parse(line: "@media=hideIsland")
+        XCTAssertEqual(rule?.category, .media)
+        XCTAssertNil(rule?.bundleID)
+        XCTAssertEqual(rule?.action, .hideIsland)
+        XCTAssertEqual(rule?.isValid, true)
+        XCTAssertEqual(rule?.serialized, "@media=hideIsland")
+    }
+
+    func testWatchingIsAnAliasOfMedia() {
+        XCTAssertEqual(WorkspaceRule.parse(line: "@watching=float")?.category, .media)
+    }
+
+    func testDisplayRuleParsesAndRoundTrips() {
+        let rule = WorkspaceRule.parse(line: "com.apple.Safari=display:external")
+        XCTAssertEqual(rule?.display, "external")
+        XCTAssertEqual(rule?.action, .tile)
+        XCTAssertEqual(rule?.serialized, "com.apple.Safari=display:external")
+
+        let byUUID = WorkspaceRule.parse(line: "com.apple.Safari=display:6A565C28-B527-4316-9C88-E604AB4BAF23")
+        XCTAssertEqual(byUUID?.display, "6A565C28-B527-4316-9C88-E604AB4BAF23")
+    }
+
+    func testDisplayTargetFollowsTheFirstMatchingRule() {
+        let rules = WorkspaceRules.parse("@media=display:external\ncom.apple.TV=display:builtin")
+        XCTAssertEqual(rules.displayTarget(bundleID: "com.apple.TV", title: nil), "external")
+        XCTAssertEqual(rules.displayTarget(bundleID: safari, title: nil), nil)
+    }
+
+    func testHideIslandFollowsTheFirstMatchingRule() {
+        let rules = WorkspaceRules.parse("@media=hideIsland")
+        XCTAssertTrue(rules.hidesIsland(bundleID: "com.colliderli.iina", title: nil))
+        XCTAssertFalse(rules.hidesIsland(bundleID: safari, title: nil))
+        XCTAssertEqual(rules.disposition(bundleID: "com.colliderli.iina", title: nil), .manage)
+    }
+
+    func testIslandMediaPolicyOnlyHidesOnNotchlessDisplays() {
+        XCTAssertTrue(IslandMediaVisibility.hidesAtRest(hasNotch: false, profileAllows: true, mediaFullscreen: true))
+        XCTAssertFalse(IslandMediaVisibility.hidesAtRest(hasNotch: true, profileAllows: true, mediaFullscreen: true))
+        XCTAssertFalse(IslandMediaVisibility.hidesAtRest(hasNotch: false, profileAllows: false, mediaFullscreen: true))
+        XCTAssertFalse(IslandMediaVisibility.hidesAtRest(hasNotch: false, profileAllows: true, mediaFullscreen: false))
+    }
+
+    // MARK: - AT-5: workspace names
+
+    func testNamesAreScopedPerDisplay() {
+        var names = WorkspaceNames()
+        names.setName("Code", for: .numbered(2), on: "builtin-uuid")
+        XCTAssertEqual(names.name(for: .numbered(2), on: "builtin-uuid"), "Code")
+        XCTAssertNil(names.name(for: .numbered(2), on: "lg-uuid"))
+        XCTAssertEqual(names.label(for: .numbered(2), on: "lg-uuid"), "2")
+    }
+
+    func testBlankNameFallsBackToTheToken() {
+        var names = WorkspaceNames()
+        names.setName("  Media  ", for: .numbered(3), on: "lg-uuid")
+        XCTAssertEqual(names.name(for: .numbered(3), on: "lg-uuid"), "Media")
+        names.setName("   ", for: .numbered(3), on: "lg-uuid")
+        XCTAssertNil(names.name(for: .numbered(3), on: "lg-uuid"))
+        XCTAssertEqual(names.label(for: .numbered(3), on: "lg-uuid"), "3")
+    }
+
+    func testNamesRoundTripThroughJSON() throws {
+        var names = WorkspaceNames()
+        names.setName("Comms", for: .numbered(1), on: "uuid")
+        let data = try JSONEncoder().encode(names)
+        let decoded = try JSONDecoder().decode(WorkspaceNames.self, from: data)
+        XCTAssertEqual(decoded, names)
+    }
+
     func testMigratedRulesSurviveTheTextRoundTrip() {
         let policy = TilingPolicy(floatingBundleIDs: [slack], alwaysTileBundleIDs: [])
         let migrated = WorkspaceRules.migrated(from: policy)

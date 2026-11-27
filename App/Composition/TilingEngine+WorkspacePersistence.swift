@@ -244,4 +244,8 @@ extension TilingEngine {
     static func storedWorkspaceStore() -> WorkspaceStore {
         load(WorkspaceStore.self, forKey: workspaceStoreKey) ?? WorkspaceStore()
     }
+
+    static func storedWorkspaceNames() -> WorkspaceNames {
+        load(WorkspaceNames.self, forKey: workspaceNamesKey) ?? .default
+    }
 }

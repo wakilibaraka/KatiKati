@@ -274,6 +274,16 @@ enum NotchSizePreset: String, CaseIterable {
     }
 }
 
+// MARK: - AT-4: media island visibility
+
+/// The island steps aside for a fullscreen video, but only where it is a floating overlay rather
+/// than the hardware notch: hiding inside the notch would leave a hole in the screen.
+enum IslandMediaVisibility {
+    static func hidesAtRest(hasNotch: Bool, profileAllows: Bool, mediaFullscreen: Bool) -> Bool {
+        profileAllows && !hasNotch && mediaFullscreen
+    }
+}
+
 // MARK: - Time Travel, Focus Deferral & Sixth-Sense Backoff
 
 struct NotchTimeTravelEntry: Equatable, Sendable, Identifiable {

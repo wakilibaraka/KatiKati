@@ -573,7 +573,11 @@ final class MissionControlSession {
               let index = layout.orderedSpaceIDs.firstIndex(of: layout.currentSpaceID) else {
             return configuration.naming.spaceTitle(forSpaceID: "", index: 1)
         }
-        return configuration.naming.spaceTitle(forSpaceID: String(layout.currentSpaceID), index: index + 1)
+        let base = configuration.naming.spaceTitle(forSpaceID: String(layout.currentSpaceID), index: index + 1)
+        guard let base else { return nil }
+        // AT-5: KatiKati's own name, window count and layout badge, beside the native title.
+        guard let badge = TilingEngine.shared.missionControlBadge(displayKey: uuid, index: index + 1) else { return base }
+        return "\(base) · \(badge)"
     }
 
     private func spaceAccent(on screen: NSScreen) -> MissionControlColor? {

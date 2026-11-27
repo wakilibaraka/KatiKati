@@ -1,5 +1,40 @@
 import Foundation
 
+/// AT-4: app categories a rule can match without listing every bundle id. `watching` is accepted as
+/// an alias of `media` in the rules text, because that is how the display setting is described.
+enum AppRuleCategory: String, Codable, Equatable, Sendable, CaseIterable {
+    case media
+
+    /// Video players and TV surfaces whose windows are worth keeping whole and whose fullscreen
+    /// presentation is a signal the island should get out of the way on a notchless display.
+    static let mediaBundleIDs: Set<String> = [
+        "org.videolan.vlc",
+        "com.colliderli.iina",
+        "com.apple.QuickTimePlayerX",
+        "com.apple.TV",
+        "com.firecore.infuse",
+        "tv.plex.plexmediaplayer",
+        "tv.plex.desktop",
+        "com.plexapp.plex",
+        "com.apple.Music",
+        "com.spotify.client"
+    ]
+
+    func matches(bundleID candidate: String?) -> Bool {
+        guard let candidate, !candidate.isEmpty else { return false }
+        switch self {
+        case .media: return Self.mediaBundleIDs.contains(candidate)
+        }
+    }
+
+    static func parse(_ token: String) -> AppRuleCategory? {
+        switch token.lowercased() {
+        case "media", "watching", "video", "audio": return .media
+        default: return nil
+        }
+    }
+}
+
 /// What a matching rule does with a window (W-2).
 enum WorkspaceRuleAction: String, Codable, Equatable, Sendable, CaseIterable {
     /// Keep the window tiled even when the built-in float defaults or a window trait would float it.
@@ -12,6 +47,9 @@ enum WorkspaceRuleAction: String, Codable, Equatable, Sendable, CaseIterable {
     case route
     /// Never tile it, never own it, never move it.
     case ignore
+    /// Tile normally, but hide the floating island while this window is fullscreen on a display
+    /// without a notch (AT-4). Not a workspace disposition: the window is still managed.
+    case hideIsland
 }
 
 /// How many windows of the matched application a `route` rule claims (W-2).
@@ -27,40 +65,53 @@ struct WorkspaceRule: Codable, Equatable, Sendable {
     var bundleID: String?
     var title: String?
     var titleContains: String?
+    /// Matches a group of apps, e.g. `@media` in the rules text (AT-4).
+    var category: AppRuleCategory?
     var action: WorkspaceRuleAction
     /// Required for `route`, forbidden otherwise (same contract as spaceman's config).
     var workspace: WorkspaceID?
+    /// Tile this app on a display: `builtin`, `external`, a display name or its UUID (AT-4).
+    var display: String?
     var windows: WorkspaceRuleScope
 
     init(
         bundleID: String? = nil,
         title: String? = nil,
         titleContains: String? = nil,
+        category: AppRuleCategory? = nil,
         action: WorkspaceRuleAction,
         workspace: WorkspaceID? = nil,
+        display: String? = nil,
         windows: WorkspaceRuleScope = .first
     ) {
         self.bundleID = bundleID
         self.title = title
         self.titleContains = titleContains
+        self.category = category
         self.action = action
         self.workspace = workspace
+        self.display = display
         self.windows = windows
     }
 
     /// A rule needs at least one matcher, a workspace if and only if it routes, and no scope key
     /// anywhere else. An invalid rule is reported by the settings editor instead of being guessed at.
     var isValid: Bool {
-        let hasMatcher = !(bundleID ?? "").isEmpty || !(title ?? "").isEmpty || !(titleContains ?? "").isEmpty
+        let hasMatcher = !(bundleID ?? "").isEmpty || !(title ?? "").isEmpty
+            || !(titleContains ?? "").isEmpty || category != nil
         guard hasMatcher else { return false }
+        if let display, display.trimmingCharacters(in: .whitespaces).isEmpty { return false }
         switch action {
-        case .route: return workspace != nil
-        case .float, .tile, .pin, .ignore: return workspace == nil
+        case .route: return workspace != nil && display == nil
+        case .float, .tile, .pin, .ignore, .hideIsland: return workspace == nil
         }
     }
 
     func matches(bundleID candidateBundleID: String?, title candidateTitle: String?) -> Bool {
         guard isValid else { return false }
+        if let category {
+            guard category.matches(bundleID: candidateBundleID) else { return false }
+        }
         if let bundleID, !bundleID.isEmpty {
             guard candidateBundleID == bundleID else { return false }
         }
@@ -97,10 +148,13 @@ struct WorkspaceRule: Codable, Equatable, Sendable {
         var bundleID: String?
         var title: String?
         var titleContains: String?
+        var category: AppRuleCategory?
         for (index, part) in matcher.split(separator: "|", omittingEmptySubsequences: false).enumerated() {
             let value = part.trimmingCharacters(in: .whitespaces)
             guard !value.isEmpty else { continue }
-            if index == 0 {
+            if index == 0, value.hasPrefix("@") {
+                category = AppRuleCategory.parse(String(value.dropFirst()))
+            } else if index == 0 {
                 bundleID = value
             } else if value.hasPrefix("~") {
                 titleContains = String(value.dropFirst())
@@ -114,6 +168,7 @@ struct WorkspaceRule: Codable, Equatable, Sendable {
                 bundleID: bundleID,
                 title: title,
                 titleContains: titleContains,
+                category: category,
                 action: action,
                 workspace: workspace,
                 windows: scope
@@ -125,19 +180,29 @@ struct WorkspaceRule: Codable, Equatable, Sendable {
         case "tile": return makeRule(.tile)
         case "pin": return makeRule(.pin)
         case "ignore": return makeRule(.ignore)
+        case "hideIsland", "hide-island": return makeRule(.hideIsland)
         case "route", "": return nil
         default:
-            guard rule.hasPrefix("route:") else { return nil }
-            guard let workspace = WorkspaceID(token: String(rule.dropFirst("route:".count))) else { return nil }
-            return makeRule(.route, workspace: workspace)
+            if rule.hasPrefix("route:") {
+                guard let workspace = WorkspaceID(token: String(rule.dropFirst("route:".count))) else { return nil }
+                return makeRule(.route, workspace: workspace)
+            }
+            if rule.hasPrefix("display:") {
+                let target = String(rule.dropFirst("display:".count)).trimmingCharacters(in: .whitespaces)
+                guard !target.isEmpty else { return nil }
+                return WorkspaceRule(bundleID: bundleID, title: title, titleContains: titleContains,
+                                     category: category, action: .tile, display: target)
+            }
+            return nil
         }
     }
 
     /// The inverse of `parse`, in the same order the fields are read.
     var serialized: String {
-        var matcher = bundleID ?? ""
+        var matcher = category.map { "@\($0.rawValue)" } ?? (bundleID ?? "")
         if let title { matcher += "|\(title)" }
         if let titleContains { matcher += "|~\(titleContains)" }
+        if let display, action != .route { return "\(matcher)=display:\(display)" }
         switch action {
         case .route: return "\(matcher)=route:\(workspace?.token ?? "")"
         default: return "\(matcher)=\(action.rawValue)"
@@ -176,7 +241,7 @@ struct WorkspaceRules: Equatable, Sendable, Codable {
     func disposition(bundleID: String?, title: String?) -> WorkspaceDisposition {
         for rule in rules where rule.matches(bundleID: bundleID, title: title) {
             switch rule.action {
-            case .tile: return .manage
+            case .tile, .hideIsland: return .manage
             case .float: return .float
             case .pin: return .pin
             case .ignore: return .ignore
@@ -203,6 +268,23 @@ struct WorkspaceRules: Equatable, Sendable, Codable {
         for rule in rules where rule.matches(bundleID: bundleID, title: title) {
             guard rule.action == .route else { return false }
             return rule.windows == .all
+        }
+        return false
+    }
+
+    /// AT-4: the display a matching rule tiles the app on, if any. First match wins, like the rest
+    /// of the rule list.
+    func displayTarget(bundleID: String?, title: String?) -> String? {
+        for rule in rules where rule.matches(bundleID: bundleID, title: title) {
+            return rule.display
+        }
+        return nil
+    }
+
+    /// AT-4: whether a matching rule asks the island to step aside for a fullscreen media window.
+    func hidesIsland(bundleID: String?, title: String?) -> Bool {
+        for rule in rules where rule.matches(bundleID: bundleID, title: title) {
+            return rule.action == .hideIsland
         }
         return false
     }

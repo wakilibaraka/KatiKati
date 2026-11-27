@@ -82,6 +82,44 @@ extension WorkspaceID: Codable {
     }
 }
 
+/// AT-5: user names for one display's workspaces. Names are per display because workspace 3 on the
+/// built-in and workspace 3 on the LG are different places.
+struct WorkspaceNames: Codable, Equatable, Sendable {
+    /// `"displayKey|token" → name`. Display UUIDs never contain `|`, so the key is unambiguous.
+    var names: [String: String]
+
+    static let `default` = WorkspaceNames(names: [:])
+
+    init(names: [String: String] = [:]) {
+        self.names = names
+    }
+
+    static func key(_ workspace: WorkspaceID, on displayKey: String) -> String {
+        "\(displayKey)|\(workspace.token)"
+    }
+
+    /// Trimmed, or nil when the field is empty — a blank name must fall back to the token.
+    func name(for workspace: WorkspaceID, on displayKey: String) -> String? {
+        guard let raw = names[Self.key(workspace, on: displayKey)] else { return nil }
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    /// What the HUD and badges print: the name when there is one, the token otherwise.
+    func label(for workspace: WorkspaceID, on displayKey: String) -> String {
+        name(for: workspace, on: displayKey) ?? workspace.token
+    }
+
+    mutating func setName(_ name: String?, for workspace: WorkspaceID, on displayKey: String) {
+        let trimmed = name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if trimmed.isEmpty {
+            names.removeValue(forKey: Self.key(workspace, on: displayKey))
+        } else {
+            names[Self.key(workspace, on: displayKey)] = trimmed
+        }
+    }
+}
+
 /// Which workspaces exist and which display each one belongs to (W-1).
 ///
 /// Numbered workspaces always exist. Named workspaces are opt-in: a letter counts as enabled once

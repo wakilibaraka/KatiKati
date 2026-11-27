@@ -43,6 +43,18 @@ enum DockReserve {
 
 /// Keeps a placed window inside the work area. Works in any space where the area and frame agree.
 enum WindowFit {
+    /// AT-3: the frame an over-cap window floats at — centred in the work area, large enough to read
+    /// and deliberately not full width, so it reads as "parked beside the layout", not tiled.
+    static func centered(in area: CGRect, widthFraction: CGFloat = 0.72, heightFraction: CGFloat = 0.82) -> CGRect {
+        let w = min(max(widthFraction, 0.2), 1)
+        let h = min(max(heightFraction, 0.2), 1)
+        let width = (area.width * w).rounded()
+        let height = (area.height * h).rounded()
+        return CGRect(x: (area.midX - width / 2).rounded(),
+                      y: (area.midY - height / 2).rounded(),
+                      width: width, height: height)
+    }
+
     /// Shifts (never resizes) a frame fully inside the area; a frame wider/taller than the area is pinned to its leading edge.
     static func shifted(_ frame: CGRect, into area: CGRect) -> CGRect {
         var f = frame

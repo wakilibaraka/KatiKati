@@ -478,4 +478,118 @@ final class TilingLayoutTests: XCTestCase {
         XCTAssertNil(TilingLayoutPreset.ribbon.standardNames, "the strip has no equivalent to name")
         XCTAssertNil(TilingLayoutPreset.spiral.standardNames)
     }
+
+    // MARK: - AT-2: per-display profiles
+
+    func testPowerUserPresetMatchesTheApprovedDualDisplayBundle() {
+        let external = DisplayTilingProfile.powerUser(role: .external)
+        XCTAssertEqual(external.mainRatio, 0.58, accuracy: 0.0001)
+        XCTAssertEqual(external.maxWindowsPerSpace, 4)
+        XCTAssertEqual(external.gaps, TilingGaps(inner: 8, outer: 10))
+        XCTAssertEqual(external.overflow, .floatCentered)
+        XCTAssertTrue(external.hideIslandForMedia)
+
+        let builtin = DisplayTilingProfile.powerUser(role: .builtin)
+        XCTAssertEqual(builtin.mainRatio, 0.55, accuracy: 0.0001)
+        XCTAssertEqual(builtin.maxWindowsPerSpace, 2)
+        XCTAssertEqual(builtin.gaps, TilingGaps(inner: 6, outer: 8))
+        XCTAssertFalse(builtin.hideIslandForMedia, "the notched display keeps its island")
+    }
+
+    /// The LG has reported two EDID UUIDs on this machine: a stored profile has to survive the change.
+    func testProfileResolutionFallsBackFromUUIDToNameToRole() {
+        let tuned = DisplayTilingProfile(role: .external, gaps: TilingGaps(inner: 4, outer: 4),
+                                         mainRatio: 0.6, maxWindowsPerSpace: 3)
+        let byUUID = DisplayProfiles.resolve(key: "new-uuid", name: "LG HDR 4K", role: .external,
+                                             profiles: ["new-uuid": tuned])
+        XCTAssertEqual(byUUID.maxWindowsPerSpace, 3)
+
+        let byName = DisplayProfiles.resolve(key: "churned-uuid", name: "LG HDR 4K", role: .external,
+                                             profiles: ["LG HDR 4K": tuned])
+        XCTAssertEqual(byName.gaps, TilingGaps(inner: 4, outer: 4))
+
+        let byRole = DisplayProfiles.resolve(key: "unknown", name: "Unknown", role: .external, profiles: [:])
+        XCTAssertEqual(byRole, DisplayTilingProfile.powerUser(role: .external))
+    }
+
+    func testProfileClampsHandEditedValues() {
+        let wild = DisplayTilingProfile(role: .external, gaps: TilingGaps(inner: 80, outer: 99),
+                                        mainRatio: 0.99, maxWindowsPerSpace: 99,
+                                        overflow: .nextWorkspace, hideIslandForMedia: true).clamped()
+        XCTAssertEqual(wild.mainRatio, TilingLayoutOptions.ratioRange.upperBound)
+        XCTAssertEqual(wild.gaps, TilingGaps(inner: 32, outer: 32))
+        XCTAssertEqual(wild.maxWindowsPerSpace, DisplayTilingProfile.maxWindowRange.upperBound)
+    }
+
+    /// Turning the switch on seeds missing displays without overwriting a tuned profile.
+    func testSeedingKeepsTunedProfilesAndAddsMissingDisplays() {
+        let tuned = DisplayTilingProfile.powerUser(role: .builtin)
+        let seeded = DisplayProfiles.seeded(
+            displays: [("builtin-uuid", "Built-in Retina Display", .builtin),
+                       ("lg-uuid", "LG HDR 4K", .external)],
+            profiles: ["builtin-uuid": tuned]
+        )
+        XCTAssertEqual(seeded["builtin-uuid"], tuned)
+        XCTAssertEqual(seeded["lg-uuid"]?.maxWindowsPerSpace, 4)
+        XCTAssertEqual(seeded.count, 2)
+    }
+
+    // MARK: - AT-3: per-Space cap and overflow geometry
+
+    private func windows(_ count: Int) -> [WindowID] {
+        (1...count).map { WindowID(rawValue: "w\($0)") }
+    }
+
+    func testCapBelowTheWindowCountKeepsEverythingTiled() {
+        let ids = windows(3)
+        for cap in [nil, 0, 3, 4] as [Int?] {
+            let plan = SpaceWindowCap.plan(ids: ids, cap: cap, focused: nil)
+            XCTAssertEqual(plan.tiled, ids, "cap \(String(describing: cap)) must not spill")
+            XCTAssertTrue(plan.spilled.isEmpty)
+        }
+    }
+
+    func testCapSpillsTheNewestWindowsBeyondIt() {
+        let ids = windows(6)
+        let plan = SpaceWindowCap.plan(ids: ids, cap: 4, focused: ids[0])
+        XCTAssertEqual(plan.tiled, Array(ids.prefix(4)))
+        XCTAssertEqual(plan.spilled, Array(ids.suffix(2)))
+    }
+
+    /// The window the user is using is never the one thrown out: it swaps with the newest kept slot.
+    func testFocusedWindowIsNeverSpilled() {
+        let ids = windows(5)
+        let focused = ids[4]
+        let plan = SpaceWindowCap.plan(ids: ids, cap: 2, focused: focused)
+        XCTAssertEqual(plan.tiled, [ids[0], focused])
+        XCTAssertEqual(plan.spilled, [ids[1], ids[2], ids[3]])
+    }
+
+    func testCapOfOneKeepsOnlyTheFocusedWindow() {
+        let ids = windows(3)
+        let plan = SpaceWindowCap.plan(ids: ids, cap: 1, focused: ids[2])
+        XCTAssertEqual(plan.tiled, [ids[2]])
+        XCTAssertEqual(plan.spilled, [ids[0], ids[1]])
+    }
+
+    func testCenteredSpillFrameSitsInsideTheWorkArea() {
+        let area = CGRect(x: -164, y: 1112, width: 1920, height: 1080)
+        let frame = WindowFit.centered(in: area)
+        XCTAssertTrue(area.contains(frame))
+        XCTAssertEqual(frame.midX, area.midX, accuracy: 1)
+        XCTAssertEqual(frame.midY, area.midY, accuracy: 1)
+        XCTAssertLessThan(frame.width, area.width)
+        XCTAssertLessThan(frame.height, area.height)
+    }
+
+    /// A name-keyed profile migrates onto the display's current UUID when the display is seeded.
+    func testSeedingReusesANameKeyedProfileForANewUUID() {
+        let tuned = DisplayTilingProfile(role: .external, gaps: TilingGaps(inner: 2, outer: 2),
+                                         mainRatio: 0.5, maxWindowsPerSpace: 5)
+        let seeded = DisplayProfiles.seeded(
+            displays: [("fresh-uuid", "LG HDR 4K", .external)],
+            profiles: ["LG HDR 4K": tuned]
+        )
+        XCTAssertEqual(seeded["fresh-uuid"], tuned)
+    }
 }

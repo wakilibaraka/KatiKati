@@ -348,6 +348,31 @@ enum TilingOverflow {
     }
 }
 
+// MARK: - AT-3: explicit per-Space window cap
+
+/// The hard cap a display profile can put on a Space. Unlike `TilingOverflow`, which reacts to tiles
+/// becoming unusably small, this is the user's own "at most N windows here" rule.
+enum SpaceWindowCap {
+    struct Plan: Equatable, Sendable {
+        var tiled: [WindowID]
+        var spilled: [WindowID]
+    }
+
+    /// Keeps the oldest `cap` windows and spills the newest, except that the focused window is never
+    /// spilled: it swaps with the newest kept window, so the layout still holds what the user is using.
+    static func plan(ids: [WindowID], cap: Int?, focused: WindowID?) -> Plan {
+        guard let cap, cap > 0, ids.count > cap else { return Plan(tiled: ids, spilled: []) }
+        var tiled = Array(ids.prefix(cap))
+        if let focused, ids.contains(focused), !tiled.contains(focused), let last = tiled.indices.last {
+            tiled[last] = focused
+        }
+        // Spilled windows keep their original order: re-admission must be predictable when a
+        // window closes, and a focus swap must not move an older window to the back of the queue.
+        let spilled = ids.filter { !tiled.contains($0) }
+        return Plan(tiled: tiled, spilled: spilled)
+    }
+}
+
 // MARK: - Ribbon (RT-1)
 
 /// Width of one ribbon column, as a share of the display's work area. Cycling walks the cases in

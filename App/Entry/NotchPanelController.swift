@@ -152,6 +152,14 @@ final class NotchPanelController: LiveEventSink {
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
             .sink { [weak self] _ in self?.screensChanged() }.store(in: &cancellables)
+        // AT-4: entering native fullscreen creates a Space, and switching apps can reveal a
+        // fullscreen video. Both are events the island already knows how to answer; no polling.
+        NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.syncDynamicIslandPanelInteraction() }.store(in: &cancellables)
+        NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didActivateApplicationNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.syncDynamicIslandPanelInteraction() }.store(in: &cancellables)
         // The display choice applies live; re-fit only when it actually points at another screen.
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
             .sink { [weak self] _ in
@@ -794,13 +802,48 @@ final class NotchPanelController: LiveEventSink {
             return
         }
         let driver = islandBridge.driver
-        let hidesAtRest = driver.topology.hidesAtRest(
+        let hidesAtRest = (driver.topology.hidesAtRest(
             activeCount: driver.snapshot.activities.count,
             nonNotchBehavior: driver.nonNotchIdleBehavior
-        ) && driver.scene.presentation == .idle
+        ) || mediaWantsIslandHidden()) && driver.scene.presentation == .idle
         if panel?.ignoresMouseEvents != hidesAtRest {
             panel?.ignoresMouseEvents = hidesAtRest
         }
+    }
+
+    /// AT-4: a playing video in a watching app, fullscreen, on a display without a notch. Reads the
+    /// profile for this display, then one WindowServer list; nothing runs when the display has a
+    /// hardware notch or the frontmost app is not media.
+    private func mediaWantsIslandHidden() -> Bool {
+        guard let screen = targetScreen(), screen.safeAreaInsets.top == 0 else { return false }
+        guard DisplayProfiles.isEnabled(),
+              let app = NSWorkspace.shared.frontmostApplication,
+              let bundle = app.bundleIdentifier,
+              AppRuleCategory.media.matches(bundleID: bundle) else { return false }
+
+        let number = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+        let role = DisplayRole.resolve(isBuiltin: CGDisplayIsBuiltin(CGDirectDisplayID(number)) != 0)
+        let profile = DisplayProfiles.resolve(
+            key: DisplayIdentity.uuidString(for: screen) ?? screen.localizedName,
+            name: screen.localizedName,
+            role: role,
+            profiles: DisplayProfiles.stored()
+        )
+        guard profile.hideIslandForMedia else { return false }
+
+        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+        guard let list = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else { return false }
+        for info in list {
+            guard (info[kCGWindowOwnerPID as String] as? pid_t) == app.processIdentifier,
+                  (info[kCGWindowLayer as String] as? Int) == 0,
+                  let dict = info[kCGWindowBounds as String] as? [String: Any],
+                  let bounds = CGRect(dictionaryRepresentation: dict as CFDictionary) else { continue }
+            // A native-fullscreen window is the one that covers the display exactly.
+            if abs(bounds.width - screen.frame.width) <= 2, abs(bounds.height - screen.frame.height) <= 2 {
+                return true
+            }
+        }
+        return false
     }
 
     private func installIslandOutsideClickMonitor() {

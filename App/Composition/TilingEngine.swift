@@ -113,6 +113,14 @@ final class TilingEngine: ObservableObject {
         return TilingPolicy()
     }()
 
+    // MARK: - Per-display profiles (AT-2)
+
+    /// The separate multi-display switch. Off by default: with it off the engine reads the single
+    /// global gaps/ratio it always did, so an existing install behaves exactly as before.
+    @Published private(set) var multiDisplayEnabled: Bool = DisplayProfiles.isEnabled()
+    /// Per-display profiles, keyed by display UUID (with the display name as a legacy fallback).
+    @Published private(set) var displayProfiles: [String: DisplayTilingProfile] = DisplayProfiles.stored()
+
     // MARK: - Internal State
     /// In-memory pre-tiling frame snapshot: restored instantly when tiling is disabled.
     /// Internal so the workspace parking path can seed it from a recovery frame: a window that was
@@ -132,6 +140,9 @@ final class TilingEngine: ObservableObject {
     @Published private(set) var releasedCount = 0
     /// Windows left floating because tiling them would make every tile too small.
     @Published private(set) var overflowCount = 0
+    /// AT-3: windows a display's per-Space cap parked out of the layout, newest last, per display.
+    /// Keeping the order is what makes re-admission deterministic when a window closes.
+    var spilledWindows: [String: [CGWindowID]] = [:]
     /// Latest window records, so a preset/gap/swap change can write real frames without waiting for the next snapshot.
     var lastWindows: [WindowID: WindowRecord] = [:]
     var lastSnapshot: DockSnapshot?
@@ -146,6 +157,10 @@ final class TilingEngine: ObservableObject {
     /// Re-entrancy guard during AX writes.
     private var isApplyingLayout = false
     private var snapshotSink: AnyCancellable?
+    /// AT-2: switching the native Space changes which windows are on screen; one coalesced retile
+    /// after the animation keeps the layout honest without a timer.
+    private var spaceChangeObserver: NSObjectProtocol?
+    private var spaceChangeWork: DispatchWorkItem?
     let log = Logger(subsystem: "com.katikati.app", category: "tiling")
 
     private init() {}
@@ -160,6 +175,13 @@ final class TilingEngine: ObservableObject {
             }
         // W-10: the control socket exists only while the app runs with workspaces switched on.
         if workspacesEnabled { WorkspaceControlServer.shared.start() }
+        if spaceChangeObserver == nil {
+            spaceChangeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.scheduleSpaceChangeRetile() }
+            }
+        }
         if isEnabled {
             startFocusObservation()
             reapplyLayout()
@@ -172,6 +194,24 @@ final class TilingEngine: ObservableObject {
         focusTimer?.cancel()
         focusTimer = nil
         lastFocusedCG = nil
+        if let spaceChangeObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(spaceChangeObserver)
+            self.spaceChangeObserver = nil
+        }
+        spaceChangeWork?.cancel()
+        spaceChangeWork = nil
+    }
+
+    /// AT-2: one retile after a native Space switch settles, so a window that came back from a
+    /// fullscreen Space or another desktop lands in its tile. Coalesced: rapid swipes do one pass.
+    private func scheduleSpaceChangeRetile() {
+        spaceChangeWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            guard let self, self.isEnabled else { return }
+            self.reapplyLayout()
+        }
+        spaceChangeWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: work)
     }
 
     private func startFocusObservation() {
@@ -264,6 +304,7 @@ final class TilingEngine: ObservableObject {
             stripOffsets.removeAll()
             releasedWindowIDs.removeAll()
             overflowedCGIDs.removeAll()
+            spilledWindows.removeAll()
             overflowCount = 0
             lastAppliedFrames.removeAll()
             lastRequestedFrames.removeAll()
@@ -478,9 +519,10 @@ final class TilingEngine: ObservableObject {
     /// Frames for one display's tree: a catalog layout caps the slots, otherwise the preset tiles everything.
     private func resolveFrames(_ tree: TilingTree, on screen: NSScreen, workArea: CGRect) -> [WindowID: CGRect] {
         if let layout = layout(for: screen) {
-            return layout.frames(for: tree.allWindowIDs, workArea: workArea, gaps: gaps)
+            return layout.frames(for: tree.allWindowIDs, workArea: workArea, gaps: gaps(for: screen))
         }
-        return TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
+        return TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea,
+                                    gaps: gaps(for: screen), options: options(for: screen))
     }
 
     /// Frames for a display with a catalog layout: its slots in focus-first order, everything past
@@ -495,7 +537,7 @@ final class TilingEngine: ObservableObject {
         primaryMaxY: CGFloat
     ) -> (frames: [WindowID: CGRect], parked: [WindowID: StripParking.Side]) {
         let ordered = LayoutCatalogSlots.ordered(tree.allWindowIDs, focused: activeID ?? tree.focusedID)
-        var frames = layout.frames(for: ordered, workArea: workArea, gaps: gaps)
+        var frames = layout.frames(for: ordered, workArea: workArea, gaps: gaps(for: screen))
         let extras = ordered.dropFirst(layout.slots)
         guard !extras.isEmpty else { return (frames, [:]) }
 
@@ -522,6 +564,71 @@ final class TilingEngine: ObservableObject {
         if isEnabled { reapplyLayout() }
     }
 
+    // MARK: - Per-display resolution (AT-2)
+
+    /// Built-in vs external, from the display itself rather than its name.
+    func displayRole(for screen: NSScreen) -> DisplayRole {
+        let number = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+        return DisplayRole.resolve(isBuiltin: CGDisplayIsBuiltin(CGDirectDisplayID(number)) != 0)
+    }
+
+    /// The profile that applies to `screen`, or nil while multi-display management is off.
+    func profile(for screen: NSScreen) -> DisplayTilingProfile? {
+        guard multiDisplayEnabled else { return nil }
+        return DisplayProfiles.resolve(key: screenKey(for: screen), name: screen.localizedName,
+                                       role: displayRole(for: screen), profiles: displayProfiles)
+    }
+
+    func gaps(for screen: NSScreen) -> TilingGaps { profile(for: screen)?.gaps ?? gaps }
+
+    func options(for screen: NSScreen) -> TilingLayoutOptions {
+        TilingLayoutOptions(mainRatio: profile(for: screen)?.mainRatio ?? options.mainRatio,
+                            mirrored: options.mirrored)
+    }
+
+    /// The per-Space window cap for a display, if one is configured.
+    func maxWindowsPerSpace(on screen: NSScreen) -> Int? { profile(for: screen)?.maxWindowsPerSpace }
+
+    func setMultiDisplayEnabled(_ on: Bool) {
+        guard on != multiDisplayEnabled else { return }
+        multiDisplayEnabled = on
+        UserDefaults.standard.set(on, forKey: DisplayProfiles.enabledKey)
+        if on {
+            displayProfiles = DisplayProfiles.seeded(
+                displays: NSScreen.screens.map { (screenKey(for: $0), $0.localizedName, displayRole(for: $0)) },
+                profiles: displayProfiles
+            )
+            DisplayProfiles.save(displayProfiles)
+            // Seed the layout too, but only where the display has no explicit choice yet, so a
+            // display the user already tuned is never overwritten.
+            for screen in NSScreen.screens where displayPresets[screenKey(for: screen)] == nil {
+                displayPresets[screenKey(for: screen)] = .mainStack
+            }
+            UserDefaults.standard.set(displayPresets.mapValues(\.rawValue), forKey: Self.displayPresetsKey)
+        }
+        if isEnabled { reapplyLayout() }
+    }
+
+    func setProfile(_ profile: DisplayTilingProfile, for screen: NSScreen) {
+        displayProfiles[screenKey(for: screen)] = profile.clamped()
+        displayProfiles.removeValue(forKey: screen.localizedName)
+        DisplayProfiles.save(displayProfiles)
+        if isEnabled { reapplyLayout() }
+    }
+
+    /// One-click Power-User Dual-Display preset for every connected display.
+    func applyPowerUserDualDisplayPreset() {
+        for screen in NSScreen.screens {
+            let key = screenKey(for: screen)
+            displayProfiles[key] = .powerUser(role: displayRole(for: screen))
+            displayProfiles.removeValue(forKey: screen.localizedName)
+            displayPresets[key] = .mainStack
+        }
+        DisplayProfiles.save(displayProfiles)
+        UserDefaults.standard.set(displayPresets.mapValues(\.rawValue), forKey: Self.displayPresetsKey)
+        if !multiDisplayEnabled { setMultiDisplayEnabled(true) } else if isEnabled { reapplyLayout() }
+    }
+
     func setOptions(_ new: TilingLayoutOptions) {
         guard new != options else { return }
         options = new
@@ -540,6 +647,12 @@ final class TilingEngine: ObservableObject {
                 trees[key] = tree
                 reapplyLayout()
             }
+            return
+        }
+        if let screen = activeScreen(), var profile = profile(for: screen) {
+            profile.mainRatio = min(max(profile.mainRatio + delta, TilingLayoutOptions.ratioRange.lowerBound),
+                                    TilingLayoutOptions.ratioRange.upperBound)
+            setProfile(profile, for: screen)
             return
         }
         var new = options
@@ -650,6 +763,12 @@ final class TilingEngine: ObservableObject {
         if prunedReleased != releasedWindowIDs {
             releasedWindowIDs = prunedReleased
         }
+        if !spilledWindows.isEmpty {
+            spilledWindows = spilledWindows.compactMapValues { ids in
+                let live = ids.filter(liveCGIDs.contains)
+                return live.isEmpty ? nil : live
+            }
+        }
 
         // Defer hand-move detection while a mouse button is held down so siblings don't jump mid-drag.
         if NSEvent.pressedMouseButtons == 0 {
@@ -721,6 +840,7 @@ final class TilingEngine: ObservableObject {
                   cg != 0,
                   !releasedWindowIDs.contains(cg),
                   !overflowedCGIDs.contains(cg),
+                  !(spilledWindows[screenKey(for: resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY))]?.contains(cg) ?? false),
                   workspaceRulesForceTile(record) || !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
                   isTileable(record, cg)
             else { continue }
@@ -789,6 +909,33 @@ final class TilingEngine: ObservableObject {
                 }
             }
 
+            // AT-3: a display's explicit cap. Spilled windows come back in order as soon as the
+            // Space has room again; the cap never applies to a catalog (it has its own slots) or the
+            // strip (it scrolls instead of shrinking).
+            if let cap = maxWindowsPerSpace(on: screen), catalogLayout == nil, !isStrip {
+                var spilled = spilledWindows[key] ?? []
+                spilled.removeAll { cg in
+                    guard let record = recordsByCG[cg] else { return true }
+                    let target = resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY)
+                    return screenKey(for: target) != key
+                }
+                while tree.count < cap, !spilled.isEmpty {
+                    let cg = spilled.removeFirst()
+                    guard let record = recordsByCG[cg], isTileable(record, cg) else { continue }
+                    if !tree.contains(record.id) { tree.insert(record.id) }
+                }
+                if tree.count > cap {
+                    let plan = SpaceWindowCap.plan(ids: tree.allWindowIDs, cap: cap,
+                                                   focused: activeIDByScreen[key] ?? tree.focusedID)
+                    for id in plan.spilled {
+                        guard let record = snapshot.windows[id], let cg = record.cgWindowID else { continue }
+                        tree.remove(id)
+                        spillWindow(record, cg: cg, on: screen, workArea: workArea, displayKey: key)
+                    }
+                }
+                spilledWindows[key] = spilled.isEmpty ? nil : spilled
+            }
+
             // Re-admission: a window that left the layout because its tile was too small comes back
             // as soon as the geometry can hold it again — a neighbour closed, the display grew, the
             // gaps shrank. Probing keeps this from flapping: the geometry that evicted it fails here
@@ -836,8 +983,8 @@ final class TilingEngine: ObservableObject {
                     ids: tree.allWindowIDs,
                     preset: preset(for: screen),
                     workArea: workArea,
-                    gaps: gaps,
-                    options: options
+                    gaps: gaps(for: screen),
+                    options: options(for: screen)
                 )
                 for id in evicted {
                     tree.remove(id)
@@ -915,14 +1062,15 @@ final class TilingEngine: ObservableObject {
         if let focused = activeID ?? tree.focusedID { state.focus(focused) }
         strips[key] = state
 
+        let screenGaps = gaps(for: screen)
         let content = CGRect(
-            x: workArea.minX + gaps.outer,
-            y: workArea.minY + gaps.outer,
-            width: max(0, workArea.width - 2 * gaps.outer),
-            height: max(0, workArea.height - 2 * gaps.outer)
+            x: workArea.minX + screenGaps.outer,
+            y: workArea.minY + screenGaps.outer,
+            width: max(0, workArea.width - 2 * screenGaps.outer),
+            height: max(0, workArea.height - 2 * screenGaps.outer)
         )
         let laid = TilingLayout.resolveRibbon(
-            state: state, in: content, gap: gaps.inner, camera: stripOffsets[key] ?? 0
+            state: state, in: content, gap: screenGaps.inner, camera: stripOffsets[key] ?? 0
         )
         stripOffsets[key] = laid.camera
         #if DEBUG
@@ -1055,7 +1203,71 @@ final class TilingEngine: ObservableObject {
         DisplayIdentity.uuidString(for: screen) ?? screen.localizedName
     }
 
+    /// AT-4: resolves `=display:` targets. `builtin`/`external` are role names so a rule survives the
+    /// LG's UUID churn; anything else matches the display's name or its current UUID.
+    func displayMatches(_ target: String, _ screen: NSScreen) -> Bool {
+        switch target.lowercased() {
+        case "builtin", "internal", "macbook": return displayRole(for: screen) == .builtin
+        case "external", "lg", "monitor": return displayRole(for: screen) == .external
+        default: return screen.localizedName == target || screenKey(for: screen) == target
+        }
+    }
+
+    /// AT-3: applies a display's overflow policy to one window that did not fit its Space.
+    private func spillWindow(_ record: WindowRecord, cg: CGWindowID, on screen: NSScreen,
+                             workArea: CGRect, displayKey: String) {
+        var policy = profile(for: screen)?.overflow ?? .floatCentered
+        // "Next Space" is a workspace operation; without workspaces it would silently do nothing.
+        if policy == .nextWorkspace, !workspacesEnabled { policy = .floatCentered }
+        let screens = NSScreen.screens
+        let primaryMaxY = screens.first?.frame.maxY ?? 0
+
+        switch policy {
+        case .floatCentered:
+            spilledWindows[displayKey, default: []].append(cg)
+            let frame = WindowFit.centered(in: workArea)
+            let quartz = quartzFrame(frame, primaryMaxY: primaryMaxY)
+            writeFrame(quartz, pid: record.pid, cgWindowID: cg)
+            lastAppliedFrames[cg] = quartz
+            lastAppliedAt[cg] = ProcessInfo.processInfo.systemUptime
+
+        case .otherDisplay:
+            guard let other = screens.first(where: { $0 !== screen }),
+                  let current = axElement(for: record.pid, cgWindowID: cg).flatMap(WindowSnapService.frame(of:))
+                    ?? record.bounds else {
+                spilledWindows[displayKey, default: []].append(cg)
+                return
+            }
+            let otherArea = self.workArea(of: other)
+            let sourceQuartz = quartzFrame(workArea, primaryMaxY: primaryMaxY)
+            let target = WindowThrow.relativeFrame(from: current, source: sourceQuartz,
+                                                  destination: quartzFrame(otherArea, primaryMaxY: primaryMaxY))
+            writeFrame(target, pid: record.pid, cgWindowID: cg)
+            lastAppliedFrames[cg] = target
+            lastAppliedAt[cg] = ProcessInfo.processInfo.systemUptime
+
+        case .nextWorkspace:
+            let active = activeWorkspace(on: displayKey)
+            let spaces = workspaceRegistry.workspaces(on: displayKey)
+            let next: WorkspaceID
+            if let index = spaces.firstIndex(of: active), !spaces.isEmpty {
+                next = spaces[(index + 1) % spaces.count]
+            } else {
+                next = active
+            }
+            enableWorkspace(next)
+            workspaceStore.assign(record.id, to: next, on: displayKey)
+            persistWorkspaceStore()
+        }
+    }
+
     func resolveScreen(for record: WindowRecord, screens: [NSScreen], primaryMaxY: CGFloat) -> NSScreen {
+        // AT-4: a workspace rule naming a display outranks the older TilingPolicy pin list.
+        if workspacesEnabled,
+           let target = workspaceRules.displayTarget(bundleID: record.bundleIdentifier, title: record.title),
+           let match = screens.first(where: { displayMatches(target, $0) }) {
+            return match
+        }
         if let pinned = policy.pinnedDisplay(bundleIdentifier: record.bundleIdentifier),
            let match = screens.first(where: { $0.localizedName == pinned || screenKey(for: $0) == pinned }) {
             return match
@@ -1158,6 +1370,7 @@ final class TilingEngine: ObservableObject {
     /// G-W2: the bar lists only the active workspace's cards. On by default; the alternative (every
     /// card, with a badge) is what turning this off gives you.
     static let workspaceBarFilterKey = "com.katikati.workspace.barFilter"
+    static let workspaceNamesKey = "com.katikati.workspace.names"
 
     /// Workspaces are off until the user turns them on, so an existing install behaves exactly as
     /// it did before this layer existed (G-W3).
@@ -1166,6 +1379,8 @@ final class TilingEngine: ObservableObject {
     @Published private(set) var workspaceRules: WorkspaceRules = TilingEngine.storedWorkspaceRules()
     /// Which workspace each display is showing.
     @Published private(set) var activeWorkspaces: [String: WorkspaceID] = TilingEngine.storedActiveWorkspaces()
+    /// AT-5: user names for each display's workspaces.
+    @Published private(set) var workspaceNames: WorkspaceNames = TilingEngine.storedWorkspaceNames()
 
     /// Which workspace each window belongs to, per display (W-1).
     var workspaceStore = TilingEngine.storedWorkspaceStore()
@@ -1219,6 +1434,44 @@ final class TilingEngine: ObservableObject {
             ignoredWorkspaceWindows.removeAll()
             routedBundleIDs.removeAll()
         }
+    }
+
+    // MARK: - Workspace names (AT-5)
+
+    func workspaceLabels(on displayKey: String) -> [WorkspaceID: String] {
+        var labels: [WorkspaceID: String] = [:]
+        for workspace in workspaceRegistry.workspaces(on: displayKey) {
+            labels[workspace] = workspaceNames.label(for: workspace, on: displayKey)
+        }
+        return labels
+    }
+
+    func setWorkspaceName(_ name: String?, for workspace: WorkspaceID, on displayKey: String) {
+        var next = workspaceNames
+        next.setName(name, for: workspace, on: displayKey)
+        guard next != workspaceNames else { return }
+        workspaceNames = next
+        Self.persist(next, forKey: Self.workspaceNamesKey)
+    }
+
+    /// AT-5: what the Mission Control pill adds beside the native Space title: KatiKati's name for
+    /// the workspace at that index, the `count/cap` readout and the layout badge. Nil when neither
+    /// workspaces nor multi-display management is on, so the pill stays untouched for everyone else.
+    func missionControlBadge(displayKey: String, index: Int) -> String? {
+        guard multiDisplayEnabled || workspacesEnabled else { return nil }
+        guard WorkspaceID.numberedRange.contains(index) else { return nil }
+        let workspace = WorkspaceID.numbered(index)
+        let screen = NSScreen.screens.first { screenKey(for: $0) == displayKey }
+        let count = workspaceTree(for: workspace, on: displayKey).count
+        var parts: [String] = []
+        if let name = workspaceNames.name(for: workspace, on: displayKey) { parts.append(name) }
+        if let cap = screen.flatMap({ maxWindowsPerSpace(on: $0) }) {
+            parts.append("\(min(count, cap))/\(cap)")
+        } else if count > 0 {
+            parts.append("\(count)")
+        }
+        if let screen { parts.append(preset(for: screen).alias.abbreviation) }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     func setWorkspaceRules(_ rules: WorkspaceRules) {

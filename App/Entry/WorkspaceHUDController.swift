@@ -31,7 +31,9 @@ final class WorkspaceHUDController {
         guard let panel = ensurePanel() else { return }
 
         guard let hosting else { return }
-        hosting.rootView = WorkspaceHUDView(workspaces: workspaces, active: active)
+        let displayKey = DisplayIdentity.uuidString(for: screen) ?? screen.localizedName
+        hosting.rootView = WorkspaceHUDView(workspaces: workspaces, active: active,
+                                           labels: TilingEngine.shared.workspaceLabels(on: displayKey))
         panel.setContentSize(hosting.fittingSize)
 
         let size = panel.frame.size

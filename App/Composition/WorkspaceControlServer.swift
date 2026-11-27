@@ -269,7 +269,16 @@ extension TilingEngine: WorkspaceControlTarget {
             let enabled = workspacesEnabled ? "on" : "off"
             let tiling = isEnabled ? "on" : "off"
             let count = workspaceTree(for: workspace, on: displayKey).count
-            return "ok workspaces=\(enabled) tiling=\(tiling) display=\(displayKey) workspace=\(workspace.token) windows=\(count)"
+            var reply = "ok workspaces=\(enabled) tiling=\(tiling) display=\(displayKey) workspace=\(workspace.token) windows=\(count)"
+            // AT-5: names and caps are part of the state a script needs, not only a UI readout.
+            let label = workspaceLabels(on: displayKey)[workspace] ?? workspace.token
+            reply += " name=\(label.replacingOccurrences(of: " ", with: "_"))"
+            if let screen = NSScreen.screens.first(where: { screenKey(for: $0) == displayKey }),
+               let cap = maxWindowsPerSpace(on: screen) {
+                reply += " cap=\(cap)"
+            }
+            if multiDisplayEnabled { reply += " profile=on" }
+            return reply
 
         case .switchTo(let workspace):
             guard workspacesEnabled else { return "error workspaces are off" }

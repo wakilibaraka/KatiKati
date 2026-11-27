@@ -9,15 +9,18 @@ import SwiftUI
 struct WorkspaceHUDView: View {
     let workspaces: [WorkspaceID]
     let active: WorkspaceID
+    /// AT-5: user names per workspace; a workspace without one still prints its token.
+    var labels: [WorkspaceID: String] = [:]
     /// Reduce Motion keeps the marker still: it is drawn where it belongs instead of travelling.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 5) {
             ForEach(workspaces, id: \.self) { workspace in
-                Text(verbatim: workspace.token)
+                Text(verbatim: labels[workspace] ?? workspace.token)
                     .font(.system(size: 11, weight: workspace == active ? .semibold : .regular, design: .rounded))
                     .foregroundStyle(workspace == active ? Color(nsColor: .windowBackgroundColor) : Color.primary.opacity(0.75))
+                    .lineLimit(1)
                     .frame(minWidth: 18, minHeight: 17)
                     .padding(.horizontal, 3)
                     .background {
