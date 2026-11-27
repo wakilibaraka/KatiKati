@@ -114,9 +114,11 @@ final class TilingEngine: ObservableObject {
 
     // MARK: - Internal State
     /// In-memory pre-tiling frame snapshot: restored instantly when tiling is disabled.
-    private var preTilingFrames: [CGWindowID: CGRect] = [:]
+    /// Internal so the workspace parking path can seed it from a recovery frame: a window that was
+    /// already parked when tiling first saw it must not remember the park position as its own.
+    var preTilingFrames: [CGWindowID: CGRect] = [:]
     /// Per-display tiling trees, keyed by display screen identifier.
-    private var trees: [String: TilingTree] = [:]
+    var trees: [String: TilingTree] = [:]
     /// Windows manually moved/dragged by the user: released from tiling for the session.
     private var releasedWindowIDs: Set<CGWindowID> = [] {
         didSet { releasedCount = releasedWindowIDs.count }
@@ -126,14 +128,20 @@ final class TilingEngine: ObservableObject {
     /// Windows left floating because tiling them would make every tile too small.
     @Published private(set) var overflowCount = 0
     /// Latest window records, so a preset/gap/swap change can write real frames without waiting for the next snapshot.
-    private var lastWindows: [WindowID: WindowRecord] = [:]
-    private var lastSnapshot: DockSnapshot?
+    var lastWindows: [WindowID: WindowRecord] = [:]
+    var lastSnapshot: DockSnapshot?
     /// Last frames set by this engine: used to distinguish engine writes from user drags.
-    private var lastAppliedFrames: [CGWindowID: CGRect] = [:]
+    var lastAppliedFrames: [CGWindowID: CGRect] = [:]
+    /// When each window was last moved by this engine. A snapshot that lands while a window is still
+    /// travelling to the frame we wrote reads as a hand-move and releases it from tiling, which is how a
+    /// workspace switch used to drop a window out of the layout (found live 2026-11-27). The hand-move
+    /// detector ignores our own writes for `handMoveSettle` seconds.
+    var lastAppliedAt: [CGWindowID: TimeInterval] = [:]
+    private static let handMoveSettle: TimeInterval = 0.6
     /// Re-entrancy guard during AX writes.
     private var isApplyingLayout = false
     private var snapshotSink: AnyCancellable?
-    private let log = Logger(subsystem: "com.katikati.app", category: "tiling")
+    let log = Logger(subsystem: "com.katikati.app", category: "tiling")
 
     private init() {}
 
@@ -145,6 +153,8 @@ final class TilingEngine: ObservableObject {
             .sink { [weak self] snapshot in
                 self?.handleSnapshot(snapshot)
             }
+        // W-10: the control socket exists only while the app runs with workspaces switched on.
+        if workspacesEnabled { WorkspaceControlServer.shared.start() }
         if isEnabled {
             startFocusObservation()
             reapplyLayout()
@@ -239,7 +249,11 @@ final class TilingEngine: ObservableObject {
             startFocusObservation()
             if let snap = lastSnapshot { reconcile(with: snap) } else { reapplyLayout() }
         } else {
+            // Parked workspace windows have to come back before the tiling frames are restored, or
+            // they stay off screen with nothing left to reveal them.
+            revealAllParkedWorkspaces()
             restorePreTilingFrames()
+            workspaceTrees.removeAll()
             trees.removeAll()
             strips.removeAll()
             stripOffsets.removeAll()
@@ -252,6 +266,9 @@ final class TilingEngine: ObservableObject {
     /// Ribbon-only: put windows back where the strip found them when the app quits. Every other
     /// preset keeps the existing behaviour (restore only when tiling is switched off).
     func restoreOnQuitIfNeeded() {
+        // Workspaces own their own restoration order: every parked window first, then (for the
+        // ribbon) the strip's pre-tiling frames.
+        if workspacesEnabled { revealAllParkedWorkspaces() }
         guard isEnabled, preset == .ribbon || displayPresets.values.contains(.ribbon) else { return }
         restorePreTilingFrames()
     }
@@ -575,6 +592,7 @@ final class TilingEngine: ObservableObject {
         let liveCGIDs = Set(snapshot.windows.values.compactMap(\.cgWindowID))
         preTilingFrames = preTilingFrames.filter { liveCGIDs.contains($0.key) }
         lastAppliedFrames = lastAppliedFrames.filter { liveCGIDs.contains($0.key) }
+        lastAppliedAt = lastAppliedAt.filter { liveCGIDs.contains($0.key) }
         lastRequestedFrames = lastRequestedFrames.filter { liveCGIDs.contains($0.key) }
         let prunedReleased = releasedWindowIDs.intersection(liveCGIDs)
         if prunedReleased != releasedWindowIDs {
@@ -589,6 +607,11 @@ final class TilingEngine: ObservableObject {
                 if let lastApplied = lastAppliedFrames[cg] {
                     // A window that went native-fullscreen (or minimized) changed frame on its own; that is not a hand move.
                     guard isTileable(record, cg) else { lastAppliedFrames[cg] = nil; continue }
+                    // Still travelling to a frame we just asked for: not the user's hand.
+                    if let appliedAt = lastAppliedAt[cg],
+                       ProcessInfo.processInfo.systemUptime - appliedAt < Self.handMoveSettle {
+                        continue
+                    }
                     let moved = abs(currentBounds.minX - lastApplied.minX) > 10 ||
                                 abs(currentBounds.minY - lastApplied.minY) > 10 ||
                                 abs(currentBounds.width - lastApplied.width) > 10 ||
@@ -625,6 +648,16 @@ final class TilingEngine: ObservableObject {
         guard !screens.isEmpty else { return }
         let primaryMaxY = screens.first?.frame.maxY ?? 0
 
+        // Workspaces assign and park first, so the tiling pass below only ever sees one workspace's
+        // windows per display (W-4a).
+        if workspacesEnabled {
+            reconcileWorkspaceOwnership(with: snapshot, screens: screens, primaryMaxY: primaryMaxY)
+        }
+        if !didRecoverParkedWorkspaces {
+            didRecoverParkedWorkspaces = true
+            recoverParkedWorkspacesOnStart()
+        }
+
         // Group eligible windows by screen
         var eligibleByScreen: [String: [(WindowRecord, CGWindowID)]] = [:]
         var activeIDByScreen: [String: WindowID] = [:]
@@ -641,6 +674,9 @@ final class TilingEngine: ObservableObject {
 
             let targetScreen = resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY)
             let key = screenKey(for: targetScreen)
+            // Workspaces narrow this pass to the active workspace's windows; everything else is
+            // parked by `reconcileWorkspaceOwnership` before the pass runs.
+            guard workspaceAllowsTiling(record, on: key) else { continue }
             eligibleByScreen[key, default: []].append((record, cg))
             if record.status == .active {
                 activeIDByScreen[key] = record.id
@@ -651,7 +687,11 @@ final class TilingEngine: ObservableObject {
             // user (or a restore) moved it, and capturing that leaves the restore with nothing to
             // put back, so the window stays in its column when tiling is switched off or the app
             // quits. A record the tracker has not sampled at all also lands here.
-            if preTilingFrames[cg] == nil {
+            // Never sample a parked window here: its live frame is the park position, and remembering
+            // that as "where tiling found it" made switching tiling off write every window back off
+            // screen with nothing left to bring it in (found live 2026-11-27). `parkWorkspaceWindow`
+            // seeds the recovery frame instead.
+            if preTilingFrames[cg] == nil, parkedWorkspaceWindows[cg] == nil {
                 let frame = axElement(for: record.pid, cgWindowID: cg).flatMap(WindowSnapService.frame(of:))
                     ?? record.bounds
                 if let frame { preTilingFrames[cg] = frame }
@@ -729,7 +769,7 @@ final class TilingEngine: ObservableObject {
         }
     }
 
-    private func reapplyLayout() {
+    func reapplyLayout() {
         guard isEnabled else { return }
         let screens = NSScreen.screens
         guard !screens.isEmpty else { return }
@@ -862,6 +902,7 @@ final class TilingEngine: ObservableObject {
             lastAppliedFrames[cg] = WindowSnapService.place(
                 element, quartzFrame: quartz, within: within
             ) ?? quartz
+            lastAppliedAt[cg] = ProcessInfo.processInfo.systemUptime
         }
     }
 
@@ -894,7 +935,7 @@ final class TilingEngine: ObservableObject {
 
     // MARK: - Helpers
 
-    private func isTileable(_ record: WindowRecord, _ cg: CGWindowID) -> Bool {
+    func isTileable(_ record: WindowRecord, _ cg: CGWindowID) -> Bool {
         guard let element = AXElementCache.shared.element(pid: record.pid, cgWindowID: cg) ?? axElement(for: record.pid, cgWindowID: cg) else { return true }
         guard WindowSnapService.isTileable(element) else { return false }
         // A window the user tiled with macOS's own tiling (flush half/quarter we did not place) is left alone.
@@ -911,7 +952,7 @@ final class TilingEngine: ObservableObject {
         DisplayIdentity.uuidString(for: screen) ?? screen.localizedName
     }
 
-    private func resolveScreen(for record: WindowRecord, screens: [NSScreen], primaryMaxY: CGFloat) -> NSScreen {
+    func resolveScreen(for record: WindowRecord, screens: [NSScreen], primaryMaxY: CGFloat) -> NSScreen {
         if let pinned = policy.pinnedDisplay(bundleIdentifier: record.bundleIdentifier),
            let match = screens.first(where: { $0.localizedName == pinned || screenKey(for: $0) == pinned }) {
             return match
@@ -929,7 +970,7 @@ final class TilingEngine: ObservableObject {
         return screens[0]
     }
 
-    private func activeScreen() -> NSScreen? {
+    func activeScreen() -> NSScreen? {
         let screens = NSScreen.screens
         guard !screens.isEmpty else { return nil }
         let primaryMaxY = screens.first?.frame.maxY ?? 0
@@ -946,7 +987,7 @@ final class TilingEngine: ObservableObject {
 
     /// Writes one Quartz frame to one window. Used when a window leaves the tiling set and has to go
     /// back to the frame tiling found it in.
-    private func writeFrame(_ quartz: CGRect, pid: pid_t, cgWindowID: CGWindowID) {
+    func writeFrame(_ quartz: CGRect, pid: pid_t, cgWindowID: CGWindowID) {
         guard let element = AXElementCache.shared.element(pid: pid, cgWindowID: cgWindowID)
                 ?? axElement(for: pid, cgWindowID: cgWindowID) else { return }
         AXMessagingPolicy.applyTimeout(element)
@@ -960,7 +1001,7 @@ final class TilingEngine: ObservableObject {
         AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeValue)
     }
 
-    private func axElement(for pid: pid_t, cgWindowID: CGWindowID) -> AXUIElement? {
+    func axElement(for pid: pid_t, cgWindowID: CGWindowID) -> AXUIElement? {
         guard pid > 0 else { return nil }
         let app = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
         var windowsRef: CFTypeRef?
@@ -979,5 +1020,100 @@ final class TilingEngine: ObservableObject {
                 break
             }
         }
+    }
+
+    // MARK: - Workspaces (W-4a, W-4b, W-5)
+
+    static let workspacesEnabledKey = "com.katikati.workspace.enabled"
+    static let workspaceActiveKey = "com.katikati.workspace.active"
+    static let workspaceRegistryKey = "com.katikati.workspace.registry"
+    static let workspaceRulesKey = "com.katikati.workspace.rules"
+    static let workspaceStoreKey = "com.katikati.workspace.store"
+    /// G-W2: the bar lists only the active workspace's cards. On by default; the alternative (every
+    /// card, with a badge) is what turning this off gives you.
+    static let workspaceBarFilterKey = "com.katikati.workspace.barFilter"
+
+    /// Workspaces are off until the user turns them on, so an existing install behaves exactly as
+    /// it did before this layer existed (G-W3).
+    @Published private(set) var workspacesEnabled: Bool = UserDefaults.standard.bool(forKey: TilingEngine.workspacesEnabledKey)
+    @Published private(set) var workspaceRegistry: WorkspaceRegistry = TilingEngine.storedWorkspaceRegistry()
+    @Published private(set) var workspaceRules: WorkspaceRules = TilingEngine.storedWorkspaceRules()
+    /// Which workspace each display is showing.
+    @Published private(set) var activeWorkspaces: [String: WorkspaceID] = TilingEngine.storedActiveWorkspaces()
+
+    /// Which workspace each window belongs to, per display (W-1).
+    var workspaceStore = TilingEngine.storedWorkspaceStore()
+    /// Trees of the workspaces that are not showing. `trees` keeps holding the active one, so every
+    /// existing call site reads the active workspace without knowing workspaces exist (W-4a).
+    var workspaceTrees: [WorkspaceID: [String: TilingTree]] = [:]
+    /// Parked windows and the frame each one must return to (W-5).
+    var parkedWorkspaceWindows: [CGWindowID: WorkspaceParking.Record] = [:]
+    /// Rules that said `ignore`: never tiled, never owned, never moved.
+    var ignoredWorkspaceWindows: Set<WindowID> = []
+    /// Bundles whose first window has already been routed, so a `route … first` rule claims one window.
+    var routedBundleIDs: Set<String> = []
+    var didRecoverParkedWorkspaces = false
+
+    func isPinned(_ id: WindowID) -> Bool {
+        guard workspacesEnabled else { return false }
+        return workspaceRules.disposition(bundleID: lastWindows[id]?.bundleIdentifier, title: lastWindows[id]?.title) == .pin
+    }
+
+    var showsOnlyActiveWorkspace: Bool {
+        (UserDefaults.standard.object(forKey: Self.workspaceBarFilterKey) as? Bool) ?? true
+    }
+
+    func activeWorkspace(on displayKey: String) -> WorkspaceID {
+        activeWorkspaces[displayKey]
+            ?? workspaceRegistry.workspaces(on: displayKey).first
+            ?? .numbered(1)
+    }
+
+    func setActiveWorkspace(_ workspace: WorkspaceID, on displayKey: String) {
+        activeWorkspaces[displayKey] = workspace
+        UserDefaults.standard.set(activeWorkspaces.mapValues(\.token), forKey: Self.workspaceActiveKey)
+    }
+
+    func setWorkspacesEnabled(_ on: Bool) {
+        guard on != workspacesEnabled else { return }
+        workspacesEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.workspacesEnabledKey)
+        if on {
+            // First enable migrates the existing float/tile lists, so a configured install sees the
+            // same behaviour it had before workspaces existed (W-2).
+            if UserDefaults.standard.object(forKey: Self.workspaceRulesKey) == nil {
+                setWorkspaceRules(WorkspaceRules.migrated(from: policy))
+            }
+            WorkspaceControlServer.shared.start()
+            if isEnabled { reconcile(with: lastSnapshot ?? .empty) }
+        } else {
+            revealAllParkedWorkspaces()
+            WorkspaceControlServer.shared.stop()
+            workspaceTrees.removeAll()
+            ignoredWorkspaceWindows.removeAll()
+            routedBundleIDs.removeAll()
+        }
+    }
+
+    func setWorkspaceRules(_ rules: WorkspaceRules) {
+        guard rules != workspaceRules else { return }
+        workspaceRules = rules
+        UserDefaults.standard.set(rules.serialized, forKey: Self.workspaceRulesKey)
+        if workspacesEnabled, isEnabled, let snapshot = lastSnapshot { reconcile(with: snapshot) }
+    }
+
+    /// Registry mutation for the workspace extensions. Deliberately *not* `setWorkspaceRegistry`:
+    /// a switch or a route is mid-flight and parks its own windows, so it must not trigger the
+    /// settle-side reconcile that the settings path does.
+    func enableWorkspace(_ workspace: WorkspaceID) {
+        var registry = workspaceRegistry
+        registry.enable(workspace)
+        workspaceRegistry = registry
+    }
+
+    func setWorkspaceRegistry(_ registry: WorkspaceRegistry) {
+        guard registry != workspaceRegistry else { return }
+        workspaceRegistry = registry
+        Self.persist(registry, forKey: Self.workspaceRegistryKey)
     }
 }

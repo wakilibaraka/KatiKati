@@ -738,6 +738,7 @@ final class LockScreenMusicCardController {
     static let shared = LockScreenMusicCardController()
 
     private var panel: NSPanel?
+    private var backdropPanel: NSPanel?
     private var spaceHost: OverlaySpaceHost?
     private var observers: [NSObjectProtocol] = []
     private var isRunning = false
@@ -776,45 +777,67 @@ final class LockScreenMusicCardController {
 
     private func show() {
         guard isRunning, let screen = NSScreen.main ?? NSScreen.screens.first else { return }
+        let defaults = UserDefaults.standard
+        let showsCalendar = defaults.bool(forKey: LockScreenPrefs.calendarEnabledKey)
+        let showsGlance = defaults.object(forKey: LockScreenPrefs.glanceEnabledKey) as? Bool ?? true
+        let showsBackdrop = defaults.bool(forKey: LockScreenPrefs.fullArtBackdropKey)
+
         let selection = MusicSurfaceConfig.styleSelection()
         let cardLayout = selection.layout(for: .lockScreen) == .slim ? .full : selection.layout(for: .lockScreen)
-        let card = MusicGlassCardView(
-            service: DesktopWidgetServices.nowPlaying,
-            theme: selection.theme(for: .lockScreen),
-            layout: cardLayout,
-            scrubber: selection.scrubber(for: .lockScreen),
-            palette: MusicArtworkPaletteCache.shared.palette(for: DesktopWidgetServices.nowPlaying.state.artworkData),
-            assignment: MusicSurfaceConfig.assignment(),
-            showsChrome: false,
-            showsVolumeRow: MusicSurfaceConfig.isLockVolumeEnabled
+        let musicHeight = cardLayout.lockHeight(showsVolumeRow: MusicSurfaceConfig.isLockVolumeEnabled)
+        let totalHeight = LockScreenSurfacePolicy.stackHeight(
+            musicHeight: musicHeight,
+            showsCalendar: showsCalendar,
+            calendarRowCount: 3,
+            showsGlance: showsGlance
         )
-        let size = CGSize(
-            width: MusicCardLayout.lockWidth,
-            height: cardLayout.lockHeight(showsVolumeRow: MusicSurfaceConfig.isLockVolumeEnabled)
-        )
-        print("[lock-card] size=\(Int(size.width))x\(Int(size.height)) volume=\(MusicSurfaceConfig.isLockVolumeEnabled) layout=\(cardLayout.rawValue)")
+        let size = CGSize(width: MusicCardLayout.lockWidth, height: totalHeight)
         let frame = CGRect(
             x: screen.frame.midX - size.width / 2,
-            y: screen.frame.minY + max(140, screen.frame.height * 0.16),
+            y: screen.frame.minY + max(120, screen.frame.height * 0.14),
             width: size.width,
             height: size.height
         )
-        let window = panel ?? makePanel()
-        window.contentView = NSHostingView(rootView: card)
+
+        var pinNumbers: [Int] = []
+        if showsBackdrop {
+            let bg = backdropPanel ?? makePanel(assignToMain: false)
+            backdropPanel = bg
+            bg.contentView = NSHostingView(rootView: LockScreenFullArtBackdropView(service: DesktopWidgetServices.nowPlaying))
+            bg.setFrame(screen.frame, display: true)
+            bg.orderFrontRegardless()
+            if bg.windowNumber > 0 { pinNumbers.append(bg.windowNumber) }
+        } else {
+            backdropPanel?.orderOut(nil)
+            backdropPanel?.contentView = nil
+        }
+
+        let window = panel ?? makePanel(assignToMain: true)
+        let stack = LockScreenStackView(
+            nowPlaying: DesktopWidgetServices.nowPlaying,
+            selection: selection,
+            showsCalendar: showsCalendar,
+            showsGlance: showsGlance,
+            musicHeight: musicHeight
+        )
+        window.contentView = NSHostingView(rootView: stack)
         window.setFrame(frame, display: true)
         window.orderFrontRegardless()
+        if window.windowNumber > 0 { pinNumbers.append(window.windowNumber) }
         // Best effort: the private space is what puts it over the lock UI. Read-back is the only proof.
-        if let spaceHost, window.windowNumber > 0 {
-            _ = spaceHost.pin(windowNumbers: [window.windowNumber])
+        if let spaceHost, !pinNumbers.isEmpty {
+            _ = spaceHost.pin(windowNumbers: pinNumbers)
         }
     }
 
     private func hide() {
         panel?.orderOut(nil)
         panel?.contentView = nil
+        backdropPanel?.orderOut(nil)
+        backdropPanel?.contentView = nil
     }
 
-    private func makePanel() -> NSPanel {
+    private func makePanel(assignToMain: Bool) -> NSPanel {
         let window = LockScreenMusicCardPanel(
             contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel],
@@ -828,7 +851,7 @@ final class LockScreenMusicCardController {
         window.ignoresMouseEvents = true
         window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.screenSaverWindow)))
         window.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle, .fullScreenAuxiliary]
-        panel = window
+        if assignToMain { panel = window }
         return window
     }
 }

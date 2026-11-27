@@ -244,6 +244,8 @@ enum DebugSwitch: String, CaseIterable, Sendable {
     case touchIsland = "DOCK_TOUCH_ISLAND"
     /// Phase 60: force the desktop-layer widget canvas enabled (=1) regardless of defaults; default off.
     case desktopCanvas = "DOCK_DESKTOP_CANVAS"
+    /// Phase F2/N3: intercept media keys for in-notch HUD takeover (=0 disables interception, restoring native OSD).
+    case hudTakeover = "DOCK_HUD_TAKEOVER"
 
     var kind: Kind {
         switch self {
@@ -255,7 +257,7 @@ enum DebugSwitch: String, CaseIterable, Sendable {
              .spaceIntent, .fullscreenIntent, .fullscreenSlsVerdict, .spaceMembershipRepair,
              .overlaySpace, .scrollReverser, .windowLift, .windowLiftAnim, .windowLiftTiles,
              .menuHoverSuspend, .hoverMonitorLean, .stripHoverPoll, .resizeCursor, .chipPressDown, .titleSettle,
-             .finderReopenEvent, .liveEvents:
+             .finderReopenEvent, .liveEvents, .hudTakeover:
             return .killSwitch
         case .displayTrace, .launchTrace, .chipProbe, .clickTrace, .touchIsland, .desktopCanvas,
              .hoverTrace, .edgehoverTrace, .stripWheelTrace, .chipAnimTrace, .labelProbe,

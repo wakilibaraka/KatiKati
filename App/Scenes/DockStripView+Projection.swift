@@ -57,11 +57,15 @@ extension DockStripView {
         // This is the only snapshot-to-strip conversion in one body evaluation. Everything below,
         // including drag callbacks captured by that body, consumes the same immutable projection.
         // The Trash chip stands in for Finder's Trash window, so that window gets no card of its own.
+        // G-W2: when workspaces are on, the bar lists the active workspace and nothing else. The
+        // filter is applied once, before every other projection rule, so grouping, ordering,
+        // badges and drag land on the same set of cards.
+        let workspaceSnapshot = TilingEngine.shared.barSnapshot(from: runtime.snapshot)
         let stripSnapshot = settingsStore.showsTrashSlot
             ? TrashWindowAbsorption.removing(
-                TrashWindowAbsorption.absorbedWindowIDs(in: runtime.snapshot, trashTitles: TrashWindowLookup.liveTitles),
-                from: runtime.snapshot)
-            : runtime.snapshot
+                TrashWindowAbsorption.absorbedWindowIDs(in: workspaceSnapshot, trashTitles: TrashWindowLookup.liveTitles),
+                from: workspaceSnapshot)
+            : workspaceSnapshot
         let activePreset = settingsStore.effectiveAppIconPreset(isVertical: isRail)
         let effectiveGrouping = WindowChipGroupingPlan(
             defaultPolicy: activePreset.groupingPolicy,

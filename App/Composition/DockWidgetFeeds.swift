@@ -1,4 +1,5 @@
 import Combine
+import CoreAudio
 import Foundation
 
 // Shared, ref-counted data behind the dock's Calendar / System / Devices widgets. Each feed runs its timer only
@@ -70,20 +71,32 @@ final class DockSystemFeed: ObservableObject {
     func release() { monitor.release() }
 }
 
-/// Connected Bluetooth peripherals with their battery levels (polled; `system_profiler` is not free).
+/// Shared connected Bluetooth peripheral feed (polled every 60 s + CoreAudio device-list listener
+/// while retained, so AirPods/audio accessories notify near-instantly with zero extra processes).
 @MainActor
 final class DockDevicesFeed: ObservableObject {
     static let shared = DockDevicesFeed()
 
     @Published private(set) var devices: [BluetoothDevice] = []
+    @Published private(set) var allDevices: [BluetoothDevice] = []
     @Published private(set) var isRefreshing = false
+    let events = PassthroughSubject<PeripheralEvent, Never>()
+
     private var timer: Timer?
     private var holders = 0
     private var refreshTask: Task<Void, Never>?
+    private var debounceWork: DispatchWorkItem?
+    private var followUpWork: DispatchWorkItem?
+    private var audioListenerBlock: AudioObjectPropertyListenerBlock?
+    private var hasSeeded = false
+    private var previousConnected: [BluetoothDevice] = []
+    private var lowDeviceIDs: Set<String> = []
+    private var lastReadAt: Date = .distantPast
 
     func retain() {
         holders += 1
         guard timer == nil else { return }
+        installAudioListener()
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
@@ -95,26 +108,117 @@ final class DockDevicesFeed: ObservableObject {
         guard holders == 0 else { return }
         timer?.invalidate()
         timer = nil
+        debounceWork?.cancel()
+        debounceWork = nil
+        followUpWork?.cancel()
+        followUpWork = nil
+        removeAudioListener()
         refreshTask?.cancel()
         refreshTask = nil
     }
 
+    /// Reads immediately unless a shared read completed within `maxAge` seconds.
+    func refreshIfStale(maxAge: TimeInterval = 5) async {
+        if hasSeeded && Date().timeIntervalSince(lastReadAt) <= maxAge {
+            return
+        }
+        await performRead()
+    }
+
     func refreshNow() {
         guard !isRefreshing else { return }
-        isRefreshing = true
         refreshTask = Task { [weak self] in
-            defer {
-                self?.isRefreshing = false
-                self?.refreshTask = nil
-            }
-            let all = await BluetoothDeviceReader.read()
-            guard !Task.isCancelled else { return }
-            self?.devices = all.filter(\.isConnected)
+            await self?.performRead()
+        }
+    }
+
+    private func performRead() async {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        defer {
+            isRefreshing = false
+            refreshTask = nil
+        }
+        let all = await BluetoothDeviceReader.read()
+        guard !Task.isCancelled else { return }
+        lastReadAt = Date()
+        allDevices = all
+        let connected = all.filter(\.isConnected)
+        devices = connected
+
+        if !hasSeeded {
+            hasSeeded = true
+            previousConnected = connected
+            lowDeviceIDs = Set(PowerNotificationPolicy.lowDevices(connected).map { PeripheralDiff.canonicalID(of: $0) })
+            return
+        }
+
+        let diffResult = PeripheralDiff.diff(old: previousConnected, new: connected, alreadyLow: lowDeviceIDs)
+        previousConnected = connected
+        lowDeviceIDs = diffResult.low
+        for event in diffResult.events {
+            events.send(event)
+        }
+        if PeripheralDiff.needsBatteryFollowUp(in: diffResult.events) {
+            scheduleBatteryFollowUp()
         }
     }
 
     private func refresh() {
         refreshNow()
+    }
+
+    private func scheduleDebouncedAudioRefresh() {
+        debounceWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                self?.debounceWork = nil
+                self?.refreshNow()
+            }
+        }
+        debounceWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: work)
+    }
+
+    private func scheduleBatteryFollowUp() {
+        followUpWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                self?.followUpWork = nil
+                self?.refreshNow()
+            }
+        }
+        followUpWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0, execute: work)
+    }
+
+    private func installAudioListener() {
+        guard audioListenerBlock == nil else { return }
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated { self?.scheduleDebouncedAudioRefresh() }
+            }
+        }
+        let status = AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &address, DispatchQueue.main, block)
+        if status == noErr {
+            audioListenerBlock = block
+        }
+    }
+
+    private func removeAudioListener() {
+        guard let block = audioListenerBlock else { return }
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDevices,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        AudioObjectRemovePropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &address, DispatchQueue.main, block)
+        audioListenerBlock = nil
     }
 }
 

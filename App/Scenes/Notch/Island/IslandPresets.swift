@@ -776,6 +776,138 @@ enum IslandPresets {
         )
     }
 
+    // MARK: 9e. Peripheral Connect / Disconnect & AI Quota Alert (N1, N2, N6)
+
+    static func peripheralConnect(event: PeripheralEvent) -> IslandActivityViews {
+        let device: BluetoothDevice
+        let title: String
+        let subtitle: String
+        switch event {
+        case .connected(let d):
+            device = d
+            title = d.name
+            subtitle = d.batteryBreakdown ?? d.lowestBattery.map { "\($0)%" } ?? String(localized: "Connected")
+        case .disconnected(let d):
+            device = d
+            title = d.name
+            subtitle = String(localized: "Disconnected")
+        case .low(let d):
+            device = d
+            title = d.name
+            subtitle = String(localized: "Low Battery")
+        }
+        let state = PeripheralBadgeState(event: event)
+        let ringPct = device.lowestBattery.map { "\($0)%" } ?? (state == .connected ? String(localized: "On") : String(localized: "Off"))
+
+        return IslandActivityViews(
+            measure: IslandContentMeasure(
+                leading: 34,
+                trailing: 60,
+                attached: 24,
+                detached: 24,
+                split: IslandSplitMeasure(
+                    attached: IslandSlotPair(leading: 26, trailing: 34),
+                    detached: IslandSlotPair(leading: 26, trailing: 14)
+                ),
+                expandedHeight: 84
+            ),
+            compactLeading: AnyView(NotchPeripheralConnectBadge(device: device, state: state, size: 22)),
+            compactTrailing: AnyView(
+                IslandNumberText(
+                    value: ringPct,
+                    fontSize: 12,
+                    weight: .semibold,
+                    color: state.accent,
+                    monospaced: true
+                )
+            ),
+            minimal: AnyView(
+                Image(systemName: device.richSymbolName)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(state.accent)
+            ),
+            expandedLeading: AnyView(NotchPeripheralConnectBadge(device: device, state: state, size: 46)),
+            expandedCenter: AnyView(
+                IslandTitleStack(title: title, subtitle: subtitle, subtitleColor: state == .low ? state.accent : IslandTheme.Ink.secondary)
+            ),
+            expandedTrailing: AnyView(
+                Image(systemName: state == .connected ? "wave.3.right.circle.fill" : "bolt.horizontal.circle")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(state.accent.opacity(0.85))
+            ),
+            expandedBottom: nil
+        )
+    }
+
+    static func aiUsageAlert(alert: AIUsageAlert, onOpenAI: (() -> Void)? = nil) -> IslandActivityViews {
+        let isCritical = alert.severity == .critical
+        let accent: Color = isCritical ? IslandTheme.Accent.red : IslandTheme.Accent.orange
+        let pct = Double(alert.usedPercent) / 100.0
+        let title = "\(alert.provider.displayName) \(alert.usedPercent)%"
+        let subtitle: String
+        if let resetsAt = alert.resetsAt {
+            let mins = max(1, Int(resetsAt.timeIntervalSinceNow / 60))
+            subtitle = mins >= 60
+                ? String(format: String(localized: "Resets in %dh %dm"), mins / 60, mins % 60)
+                : String(format: String(localized: "Resets in %dm"), mins)
+        } else {
+            subtitle = isCritical ? String(localized: "Quota Critical") : String(localized: "Quota Warning")
+        }
+
+        let compactRing = IslandProgressRing(
+            value: pct,
+            color: accent,
+            track: accent.opacity(0.22),
+            size: 22,
+            thickness: 2.5
+        ) {
+            Image(systemName: alert.provider.symbol)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(accent)
+        }
+
+        return IslandActivityViews(
+            measure: IslandContentMeasure(
+                leading: 26,
+                trailing: 54,
+                attached: 22,
+                detached: 22,
+                split: IslandSplitMeasure(
+                    attached: IslandSlotPair(leading: 22, trailing: 42),
+                    detached: IslandSlotPair(leading: 22, trailing: 14)
+                ),
+                expandedHeight: 82
+            ),
+            compactLeading: AnyView(compactRing),
+            compactTrailing: AnyView(
+                IslandNumberText(value: "\(alert.usedPercent)%", fontSize: 12, weight: .semibold, color: accent, monospaced: true)
+            ),
+            minimal: AnyView(compactRing),
+            expandedLeading: AnyView(
+                IslandProgressRing(value: pct, color: accent, track: accent.opacity(0.22), size: 46, thickness: 4) {
+                    Image(systemName: alert.provider.symbol)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(accent)
+                }
+            ),
+            expandedCenter: AnyView(
+                IslandTitleStack(title: title, subtitle: subtitle, subtitleColor: accent)
+            ),
+            expandedTrailing: AnyView(
+                Group {
+                    if let onOpenAI {
+                        IslandRoundButton(size: 32, accessibilityLabel: "AI Usage", action: onOpenAI) {
+                            Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                        }
+                    } else {
+                        IslandNumberText(value: "\(alert.usedPercent)%", fontSize: 16, weight: .bold, color: accent, monospaced: true)
+                    }
+                }
+            ),
+            expandedBottom: nil
+        )
+    }
+
     // MARK: 10. Reusable ETA Activity Template (Playground / Future Extensions)
 
     static func etaTemplate(

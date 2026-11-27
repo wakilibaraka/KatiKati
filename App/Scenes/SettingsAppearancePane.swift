@@ -914,6 +914,10 @@ struct WallpaperStageView: View {
 struct SettingsLockScreenMusicCard: View {
     @AppStorage(MusicSurfaceConfig.lockScreenCardKey) private var lockScreenCard = false
     @AppStorage(MusicSurfaceConfig.lockVolumeKey) private var lockVolume = true
+    @AppStorage(LockScreenPrefs.calendarEnabledKey) private var lockCalendar = false
+    @AppStorage(LockScreenPrefs.calendarDetailKey) private var lockCalendarDetail = LockScreenDetailMode.busyOnly.rawValue
+    @AppStorage(LockScreenPrefs.glanceEnabledKey) private var lockGlance = true
+    @AppStorage(LockScreenPrefs.fullArtBackdropKey) private var lockFullArtBackdrop = false
     @State private var selection = MusicSurfaceConfig.styleSelection()
 
     private var layout: MusicCardLayout {
@@ -937,6 +941,23 @@ struct SettingsLockScreenMusicCard: View {
             SettingsDivider()
             SettingsToggleRow(Text("Show the volume slider"), isOn: $lockVolume,
                               note: Text("Puts the full-width volume row under the transport, like the lock widget in the sample."))
+            SettingsDivider()
+            SettingsToggleRow(Text("Lock Screen Calendar"), isOn: $lockCalendar)
+            if lockCalendar {
+                SettingsRow(Text("Calendar Privacy")) {
+                    Picker(selection: $lockCalendarDetail) {
+                        Text("Busy Only").tag(LockScreenDetailMode.busyOnly.rawValue)
+                        Text("Event Titles").tag(LockScreenDetailMode.titles.rawValue)
+                    } label: { Text("Calendar Privacy") }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(width: 170)
+                }
+            }
+            SettingsDivider()
+            SettingsToggleRow(Text("Lock Screen Glance Bar"), isOn: $lockGlance)
+            SettingsDivider()
+            SettingsToggleRow(Text("Full-Screen Blurred Artwork"), isOn: $lockFullArtBackdrop)
             SettingsDivider()
             SettingsRow(Text("Lock Screen Layout")) {
                 Picker("Lock Screen Layout", selection: Binding(

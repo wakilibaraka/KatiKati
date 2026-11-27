@@ -236,6 +236,23 @@ final class SystemStatusService: ObservableObject {
         return wrote
     }
 
+    nonisolated static func canControlDefaultOutputVolume() -> Bool {
+        let device = defaultOutputDeviceID()
+        guard device != AudioObjectID(kAudioObjectUnknown) else { return false }
+        for selector in [kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyMute] {
+            for element in [kAudioObjectPropertyElementMain, 1, 2] {
+                var property = address(selector, scope: kAudioDevicePropertyScopeOutput, element: element)
+                var settable: DarwinBoolean = false
+                if AudioObjectHasProperty(device, &property),
+                   AudioObjectIsPropertySettable(device, &property, &settable) == noErr,
+                   settable.boolValue {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     nonisolated private static func defaultOutputDeviceID() -> AudioObjectID {
         var device = AudioObjectID(kAudioObjectUnknown)
         var size = UInt32(MemoryLayout<AudioObjectID>.size)

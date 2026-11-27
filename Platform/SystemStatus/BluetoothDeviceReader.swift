@@ -58,13 +58,16 @@ enum BluetoothDeviceReader {
                 .takeRetainedValue() as? String
             let level = IORegistryEntryCreateCFProperty(service, "BatteryPercent" as CFString, kCFAllocatorDefault, 0)?
                 .takeRetainedValue() as? NSNumber
+            let charging = IORegistryEntryCreateCFProperty(service, "BatteryCharging" as CFString, kCFAllocatorDefault, 0)?
+                .takeRetainedValue() as? NSNumber
             if let address, let product, let level, !product.localizedCaseInsensitiveContains("internal") {
                 devices.append(BluetoothDevice(
                     name: product,
                     address: address,
                     isConnected: true,
                     kind: BluetoothDeviceRegistry.kind(of: product),
-                    batteryMain: min(100, max(0, level.intValue))))
+                    batteryMain: min(100, max(0, level.intValue)),
+                    isCharging: charging?.boolValue == true))
             }
             IOObjectRelease(service)
             service = IOIteratorNext(iterator)

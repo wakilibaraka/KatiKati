@@ -583,6 +583,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     TilingEngine.shared.releaseFocusedWindow()
                 case .tilingRetileAll:
                     TilingEngine.shared.retileAll()
+                case .workspace1, .workspace2, .workspace3, .workspace4, .workspace5,
+                     .workspace6, .workspace7, .workspace8, .workspace9, .workspace10:
+                    if let target = action.workspaceSwitchTarget {
+                        TilingEngine.shared.switchWorkspace(target)
+                    }
+                case .workspaceMove1, .workspaceMove2, .workspaceMove3, .workspaceMove4, .workspaceMove5,
+                     .workspaceMove6, .workspaceMove7, .workspaceMove8, .workspaceMove9, .workspaceMove10:
+                    if let target = action.workspaceMoveTarget {
+                        TilingEngine.shared.moveFocusedToWorkspace(target)
+                    }
+                case .workspaceNext, .workspacePrevious:
+                    TilingEngine.shared.stepWorkspace(action.workspaceStepOffset ?? 0)
+                case .workspaceMoveNext, .workspaceMovePrevious:
+                    TilingEngine.shared.moveFocusedWorkspace(action.workspaceStepOffset ?? 0)
                 case .stripFocusNext:
                     TilingEngine.shared.focusStripColumn(1)
                 case .stripFocusPrevious:
@@ -706,7 +720,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FocusFollowService.shared.startIfEnabled()
             StripScrollService.shared.startIfEnabled()
             NotificationMoveService.shared.refresh()
+            PowerNotificationCenter.shared.suppressesToast = { [weak self] kind in
+                switch kind {
+                case .peripheralConnected, .peripheralDisconnected:
+                    guard UserDefaults.standard.object(forKey: "com.katikati.notch.peripheralConnect") as? Bool ?? true else {
+                        return false
+                    }
+                    return self?.settingsStore.notchIslandEnabled == true
+                default:
+                    return false
+                }
+            }
             PowerNotificationCenter.shared.start()
+            HardwareHUDTakeoverService.shared.startObserving()
             DailyHelpersService.shared.deliver = { [weak self] in self?.liveEventCenter.deliver($0, now: Date()) }
             // PHN-2: Smart Pause reads the focus timer here, where the Edge layer is in scope.
             DailyHelpersService.shared.focusActiveProvider = { ProductivityServices.shared.focus.model.isRunning }
@@ -1981,6 +2007,7 @@ extension AppDelegate: PermissionEffectHandler {
         shortcutSubscription = nil
         shortcutService.tearDown()
         hyperkeyService.tearDown()
+        HardwareHUDTakeoverService.shared.tearDown()
         KeyGuardService.shared.tearDown()
         NotificationMoveService.shared.tearDown()
         PowerNotificationCenter.shared.stop()

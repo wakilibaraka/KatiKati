@@ -119,8 +119,17 @@ final class NotchPanelController: LiveEventSink {
         LiquidAgentHub.shared.$sessions.map(\.isEmpty).removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         statusService.$status.map(\.volume).removeDuplicates().dropFirst()
             .sink { [weak self] volume in
+                guard let self, Date().timeIntervalSince(self.lastTapVolumeAt) > 0.25 else { return }
                 let icon = volume.isMuted ? "speaker.slash.fill" : (volume.level > 0.66 ? "speaker.wave.3.fill" : (volume.level > 0.33 ? "speaker.wave.2.fill" : "speaker.wave.1.fill"))
-                self?.showHardwareHUD(id: "hud.volume", icon: icon, title: volume.isMuted ? "Muted" : "Volume", level: volume.isMuted ? 0 : Double(volume.level))
+                self.showHardwareHUD(id: "hud.volume", icon: icon, title: volume.isMuted ? "Muted" : "Volume", level: volume.isMuted ? 0 : Double(volume.level))
+            }.store(in: &cancellables)
+        NotificationCenter.default.publisher(for: HardwareHUDTakeoverService.volumeKeyHUDNotification)
+            .sink { [weak self] note in
+                guard let self, let level = note.userInfo?["level"] as? Double else { return }
+                let muted = note.userInfo?["muted"] as? Bool ?? false
+                self.lastTapVolumeAt = Date()
+                let icon = muted ? "speaker.slash.fill" : (level > 0.66 ? "speaker.wave.3.fill" : (level > 0.33 ? "speaker.wave.2.fill" : "speaker.wave.1.fill"))
+                self.showHardwareHUD(id: "hud.volume", icon: icon, title: muted ? "Muted" : "Volume", level: muted ? 0 : level)
             }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: Notification.Name("com.katikati.displayBrightnessChanged"))
             .sink { [weak self] note in
@@ -132,6 +141,13 @@ final class NotchPanelController: LiveEventSink {
             .compactMap { $0.object as? Double }
             .sink { [weak self] level in
                 self?.showHardwareHUD(id: "hud.keyboard", icon: "light.max", title: "Keyboard", level: level)
+            }.store(in: &cancellables)
+        AgentUsageService.shared.$snapshot
+            .map(\.limits)
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] limits in
+                self?.handleAIUsageLimits(limits)
             }.store(in: &cancellables)
         model.$event.map { $0 != nil }.removeDuplicates().sink { [weak self] _ in self?.syncWindow() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
@@ -176,33 +192,73 @@ final class NotchPanelController: LiveEventSink {
 
     private let trackPill = NotchTrackPillController()
     private let batteryPill = NotchTrackPillController()
-    private var batteryTimer: Timer?
-    private var batteryLow = Set<String>()
+    private var holdsDevicesFeed = false
+    private var lastTapVolumeAt: Date = .distantPast
+    private var usageThresholdPolicy = UsageThresholdPolicy()
 
-    /// 51d: every five minutes, pill any connected Bluetooth device that has just gone low.
+    /// 51d + F1: subscribe to the shared peripheral feed instead of spawning a second 300 s poll.
     private func startBatteryBuddy() {
-        guard batteryTimer == nil else { return }
-        let timer = Timer(timeInterval: 300, repeats: true) { [weak self] _ in self?.checkBatteries() }
-        RunLoop.main.add(timer, forMode: .common)
-        batteryTimer = timer
-        checkBatteries()
+        guard !holdsDevicesFeed else { return }
+        DockDevicesFeed.shared.retain()
+        holdsDevicesFeed = true
+        DockDevicesFeed.shared.events
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] event in
+                self?.handlePeripheralEvent(event)
+            }
+            .store(in: &cancellables)
     }
 
-    private func checkBatteries() {
-        guard UserDefaults.standard.object(forKey: "com.katikati.notch.batteryBuddy") as? Bool ?? true else { return }
-        Task { @MainActor [weak self] in
-            let devices = await BluetoothDeviceReader.read()
-            guard let self, self.panel != nil else { return }
-            let result = BatteryBuddyPolicy.update(alreadyLow: self.batteryLow, devices: devices)
-            self.batteryLow = result.low
-            guard let device = result.alerts.first else { return }
-            if self.skin.usesIslandSurfaceEngine {
-                if self.islandBridge.driver.scene.presentation != .expanded {
-                    self.islandBridge.showBluetoothAccessoryHUD(device: device, isLowBattery: true)
+    private func handlePeripheralEvent(_ event: PeripheralEvent) {
+        guard panel != nil else { return }
+        switch event {
+        case let .low(device):
+            guard UserDefaults.standard.object(forKey: "com.katikati.notch.batteryBuddy") as? Bool ?? true else { return }
+            if skin.usesIslandSurfaceEngine {
+                if islandBridge.driver.scene.presentation != .expanded {
+                    islandBridge.showBluetoothAccessoryHUD(device: device, isLowBattery: true)
                 }
-            } else if !self.model.isExpanded, let frame = self.panel?.frame {
-                self.batteryPill.show(below: frame) { AnyView(NotchBatteryPillView(model: $0, device: device)) }
+            } else if !model.isExpanded, let frame = panel?.frame {
+                batteryPill.show(below: frame) { AnyView(NotchBatteryPillView(model: $0, device: device)) }
             }
+        case .connected, .disconnected:
+            guard UserDefaults.standard.object(forKey: "com.katikati.notch.peripheralConnect") as? Bool ?? true else { return }
+            if skin.usesIslandSurfaceEngine {
+                if islandBridge.driver.scene.presentation != .expanded {
+                    islandBridge.showPeripheralEvent(event)
+                }
+            } else if !model.isExpanded, let frame = panel?.frame {
+                batteryPill.show(below: frame) { AnyView(NotchPeripheralPillView(model: $0, event: event)) }
+            }
+        }
+    }
+
+    private func handleAIUsageLimits(_ limits: [AgentProvider: AgentLimits]) {
+        guard panel != nil,
+              UserDefaults.standard.object(forKey: "com.katikati.notch.aiUsageAlerts") as? Bool ?? true else {
+            return
+        }
+        let alerts = usageThresholdPolicy.evaluate(limits: limits)
+        guard let top = alerts.max(by: { $0.usedPercent < $1.usedPercent }) else { return }
+        if skin.usesIslandSurfaceEngine {
+            if islandBridge.driver.scene.presentation != .expanded {
+                islandBridge.showAIUsageAlert(top) { [weak self] in
+                    self?.openPage(.aiTracker)
+                }
+            }
+        } else {
+            let now = Date()
+            let item = NotchActivityItem(
+                id: "ai.usage.\(top.provider.rawValue)",
+                priority: top.severity == .critical ? .critical : .notification,
+                title: "\(top.provider.displayName) \(top.usedPercent)%",
+                subtitle: top.severity == .critical ? String(localized: "Quota Critical") : String(localized: "Session Quota"),
+                icon: top.provider.symbol,
+                timeout: 4.5,
+                level: Double(top.usedPercent) / 100.0,
+                createdAt: now
+            )
+            model.activityQueue.enqueue(item, now: now)
         }
     }
 
@@ -213,7 +269,10 @@ final class NotchPanelController: LiveEventSink {
         islandBridge.stop()
         trackPill.hide(animated: false)
         batteryPill.hide(animated: false)
-        batteryTimer?.invalidate(); batteryTimer = nil
+        if holdsDevicesFeed {
+            DockDevicesFeed.shared.release()
+            holdsDevicesFeed = false
+        }
         cancellables.removeAll()
         stopHoverPolling()
         tickWork?.cancel(); tickWork = nil; scheduledTickDeadline = nil

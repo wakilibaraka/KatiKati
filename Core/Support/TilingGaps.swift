@@ -145,3 +145,95 @@ enum StripParking {
         }
     }
 }
+
+/// Where a workspace keeps the windows that are not in the active workspace (W-3).
+///
+/// Same mechanism the ribbon already uses — macOS keeps a sliver of any window it is asked to move
+/// past an edge, and pulls back an ask that goes further — but a workspace parks a whole set at once
+/// and remembers the frame each window had so a switch (or a quit) can put it back. Cocoa
+/// coordinates (bottom-left origin), like the rest of this file.
+///
+/// The recovery frame is the load-bearing part: it is written *before* a window is parked and only
+/// discarded once the window has been restored and that removal has been persisted. A crash between
+/// the two leaves a window parked with a frame to return to, which is recoverable; the reverse order
+/// would leave it off screen with nothing recorded (spaceman's parking invariant).
+enum WorkspaceParking {
+    /// One parked window's recovery record, as persisted.
+    struct Record: Codable, Equatable, Sendable {
+        /// `WindowID.rawValue`.
+        var windowID: String
+        /// The display the window belongs to (`TilingEngine.screenKey(for:)`).
+        var displayKey: String
+        /// `WorkspaceID.token` the window belongs to.
+        var workspace: String
+        /// The Cocoa frame the window had before it was parked.
+        var recoveryFrame: CGRect
+        /// `"left"`, `"right"` or `"bottom"`.
+        var side: String
+        /// The owning process and window id, so a crash-recovery pass can write the frame back
+        /// without a live snapshot. Optional: an older record may not carry them.
+        var pid: Int32?
+        var cgWindowID: UInt32?
+
+        init(
+            windowID: String,
+            displayKey: String,
+            workspace: String,
+            recoveryFrame: CGRect,
+            side: StripParking.Side,
+            pid: Int32? = nil,
+            cgWindowID: UInt32? = nil
+        ) {
+            self.windowID = windowID
+            self.displayKey = displayKey
+            self.workspace = workspace
+            self.recoveryFrame = recoveryFrame
+            self.side = Self.token(for: side)
+            self.pid = pid
+            self.cgWindowID = cgWindowID
+        }
+
+        var parkingSide: StripParking.Side {
+            switch side {
+            case "left": return .left
+            case "bottom": return .bottom
+            default: return .right
+            }
+        }
+
+        static func token(for side: StripParking.Side) -> String {
+            switch side {
+            case .left: return "left"
+            case .right: return "right"
+            case .bottom: return "bottom"
+            }
+        }
+    }
+
+    /// The edge to park on. The right edge by default: the bottom edge is where the system Dock
+    /// usually is, and where the ribbon already parks when a display sits beside this one. A display
+    /// with another display to its right parks at the bottom for the same reason the ribbon does —
+    /// a window hanging past the right edge would show up on the neighbour.
+    static func side(neighbourOnRight: Bool) -> StripParking.Side {
+        neighbourOnRight ? .bottom : .right
+    }
+
+    /// The frame that puts `frame` just past `side` of `area`, keeping its size. macOS grants only a
+    /// sliver of an off-screen ask, so callers must read back what the window actually took.
+    static func parked(_ frame: CGRect, in area: CGRect, side: StripParking.Side) -> CGRect {
+        StripParking.parked(frame, in: area, side: side)
+    }
+
+    /// Where a parked window goes when it is revealed: its recovery frame, shrunk and shifted into
+    /// the current work area if the display has changed since it was parked (the same rule
+    /// `WindowLayoutRestoreController.fitToWorkArea` applies to a remembered layout).
+    static func revealFrame(_ recovery: CGRect, in area: CGRect) -> CGRect {
+        WindowFit.fitted(recovery, into: area)
+    }
+
+    /// The workspace a transition plan says to park, without duplicates.
+    static func parkingSet(_ plan: WorkspaceTransitionPlan) -> [WindowID] {
+        var seen = Set<WindowID>()
+        return plan.park.filter { seen.insert($0).inserted }
+    }
+}

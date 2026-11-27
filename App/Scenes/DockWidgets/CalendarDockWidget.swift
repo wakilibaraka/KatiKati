@@ -1,4 +1,14 @@
+import CoreGraphics
 import SwiftUI
+
+private func urgencyTint(_ urgency: CountdownUrgency) -> Color {
+    switch urgency {
+    case .red: return DockWidgetStyle.bad
+    case .amber: return DockWidgetStyle.warn
+    case .accent: return Color.accentColor
+    case .neutral: return DockWidgetStyle.ink.opacity(DockWidgetStyle.secondaryOpacity)
+    }
+}
 
 extension EventTimeUntil {
     /// "in 3m", "in 1h 5m", "in 2d", "Now"; nil once the event is over.
@@ -38,19 +48,24 @@ private struct DateBadge: View {
 struct CalendarDockChip: View {
     @Environment(\.widgetSize) private var size
     @ObservedObject private var feed = DockCalendarFeed.shared
+    @AppStorage(MeetingAutoJoinPolicy.enabledKey) private var autoJoin = false
+    @State private var autoJoinedIDs: Set<String> = []
 
     var body: some View {
+        let density = WidgetDensityPolicy.resolve(dockHeight: 54, widgetSize: size)
         TimelineView(.periodic(from: .now, by: 30)) { context in
             let events = UpcomingEvents.select(feed.upcoming, now: context.date, limit: 2)
             HStack(spacing: 8) {
                 DateBadge(date: context.date)
-                if size != .small {
+                if density.showsSecondaryCaption {
                     VStack(alignment: .leading, spacing: 1) {
                         if let next = events.first {
+                            let urgency = CountdownUrgency.tier(secondsUntil: next.start.timeIntervalSince(context.date))
                             Text(verbatim: next.title).font(.system(size: 13, weight: .medium)).lineLimit(1)
                             Text(verbatim: EventTimeUntil.resolve(start: next.start, end: next.end, now: context.date).label ?? "")
-                                .dockCaption()
-                            if size == .large, events.count > 1 {
+                                .font(.system(size: 11, weight: urgency >= .amber ? .semibold : .regular))
+                                .foregroundStyle(urgencyTint(urgency))
+                            if density.showsDeviceName, events.count > 1 {
                                 Text(verbatim: "\(events[1].start.formatted(date: .omitted, time: .shortened)) · \(events[1].title)")
                                     .dockCaption()
                             }
@@ -63,6 +78,9 @@ struct CalendarDockChip: View {
                 }
             }
             .frame(maxHeight: .infinity)
+            .onChange(of: context.date) { _, now in
+                evaluateAutoJoin(events: events, now: now)
+            }
         }
         .dockWidgetChip()
         .dockHoverPreview { CalendarPreviewCard() }
@@ -71,6 +89,25 @@ struct CalendarDockChip: View {
         .onDisappear { feed.release() }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+    }
+
+    private func evaluateAutoJoin(events: [DockEvent], now: Date) {
+        guard autoJoin, let next = events.first, let link = next.link else { return }
+        let locked = (CGSessionCopyCurrentDictionary() as? [String: Any])?["CGSSessionScreenIsLocked"] as? Bool ?? false
+        let idle = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: .null)
+        let seconds = next.start.timeIntervalSince(now)
+        if MeetingAutoJoinPolicy.shouldAutoJoin(
+            eventID: next.id,
+            hasMeetingURL: true,
+            secondsUntil: seconds,
+            isScreenLocked: locked,
+            idleSeconds: idle,
+            alreadyFired: autoJoinedIDs,
+            enabled: autoJoin
+        ) {
+            autoJoinedIDs.insert(next.id)
+            NSWorkspace.shared.open(link.url)
+        }
     }
 }
 

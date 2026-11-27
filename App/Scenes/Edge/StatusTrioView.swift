@@ -116,10 +116,24 @@ struct NowPlayingFlyoutView: View {
 struct BluetoothFlyoutView: View {
     @State private var devices: [BluetoothDevice] = []
     @State private var loading = true
+    @AppStorage(PeripheralWidgetPrefs.orderKey) private var orderRaw = "[]"
+    @AppStorage(PeripheralWidgetPrefs.hiddenKey) private var hiddenRaw = "[]"
+    @AppStorage(PeripheralWidgetPrefs.pinnedKey) private var pinnedID = ""
 
     static let size = CGSize(width: 300, height: 260)
 
+    private var orderedDevices: [BluetoothDevice] {
+        PeripheralWidgetPrefs.arranged(
+            devices: devices,
+            order: PeripheralWidgetPrefs.decodeIDs(orderRaw),
+            hiddenIDs: Set(PeripheralWidgetPrefs.decodeIDs(hiddenRaw)),
+            pinnedID: pinnedID,
+            includeHidden: true
+        )
+    }
+
     var body: some View {
+        let hiddenSet = Set(PeripheralWidgetPrefs.decodeIDs(hiddenRaw).map { $0.lowercased() })
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Bluetooth").font(.headline)
@@ -129,13 +143,15 @@ struct BluetoothFlyoutView: View {
                     .buttonStyle(.borderless)
                     .help(Text("Refresh"))
             }
-            if devices.isEmpty && !loading {
+            if orderedDevices.isEmpty && !loading {
                 Text("No Bluetooth Devices").foregroundStyle(.secondary).font(.callout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    VStack(spacing: 4) {
-                        ForEach(devices) { row($0) }
+                    VStack(spacing: 6) {
+                        ForEach(orderedDevices) { device in
+                            row(device, hidden: hiddenSet.contains(device.id.lowercased()))
+                        }
                     }
                 }
             }
@@ -150,22 +166,42 @@ struct BluetoothFlyoutView: View {
         .task { await load() }
     }
 
-    private func row(_ d: BluetoothDevice) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: d.symbolName).frame(width: 22)
-            Text(verbatim: d.name).lineLimit(1)
-            Spacer(minLength: 4)
-            if let level = d.lowestBattery {
-                Text(verbatim: "\(level)%").monospacedDigit().foregroundStyle(level <= 20 ? Color.red : Color.secondary)
+    private func row(_ d: BluetoothDevice, hidden: Bool) -> some View {
+        let isPinned = !pinnedID.isEmpty && pinnedID.caseInsensitiveCompare(d.id) == .orderedSame
+        return HStack(spacing: 8) {
+            Image(systemName: d.richSymbolName).frame(width: 22)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: d.name).lineLimit(1)
+                if let breakdown = d.batteryBreakdown {
+                    Text(verbatim: breakdown).font(.caption2).foregroundStyle(.secondary).monospacedDigit()
+                }
             }
+            Spacer(minLength: 4)
+            if d.isCharging {
+                Image(systemName: "bolt.fill")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.green)
+            }
+            if let level = d.lowestBattery {
+                Text(verbatim: "\(level)%").monospacedDigit().foregroundStyle(d.isCharging ? Color.green : (level <= 20 ? Color.red : Color.secondary))
+            }
+            Button {
+                pinnedID = isPinned ? "" : d.id
+            } label: {
+                Image(systemName: isPinned ? "star.fill" : "star")
+                    .font(.caption)
+                    .foregroundStyle(isPinned ? Color.yellow : Color.secondary.opacity(0.6))
+            }
+            .buttonStyle(.borderless)
             Circle().fill(d.isConnected ? Color.green : Color.secondary.opacity(0.3)).frame(width: 7, height: 7)
         }
-        .opacity(d.isConnected ? 1 : 0.55)
+        .opacity((d.isConnected && !hidden) ? 1 : 0.5)
     }
 
     @MainActor private func load() async {
         loading = true
-        devices = await BluetoothDeviceReader.read()
+        await DockDevicesFeed.shared.refreshIfStale(maxAge: 2)
+        devices = DockDevicesFeed.shared.allDevices
         loading = false
     }
 }
@@ -1344,8 +1380,8 @@ struct ControlCenterView: View {
     /// Connected peripherals with a battery reading, at most four (the card is a list, not a scroll view).
     @MainActor private func refreshPeripherals() async {
         peripheralsLoading = true
-        let all = await BluetoothDeviceReader.read()
-        peripherals = Array(all.filter { $0.isConnected && $0.lowestBattery != nil }.prefix(4))
+        await DockDevicesFeed.shared.refreshIfStale(maxAge: 5)
+        peripherals = Array(DockDevicesFeed.shared.devices.filter { $0.lowestBattery != nil }.prefix(4))
         peripheralsLoading = false
     }
 }
@@ -1716,8 +1752,8 @@ struct MenuBarCreativeHubView: View {
         .onDisappear { status.release() }
         .onChange(of: selectedTab) { _, _ in query = "" }
         .task {
-            let all = await BluetoothDeviceReader.read()
-            btAudioDevices = all.filter { $0.isConnected && $0.lowestBattery != nil }
+            await DockDevicesFeed.shared.refreshIfStale(maxAge: 5)
+            btAudioDevices = DockDevicesFeed.shared.devices.filter { $0.lowestBattery != nil }
             disk = SystemMonitorSampler.disk()
         }
     }

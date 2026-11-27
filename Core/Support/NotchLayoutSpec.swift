@@ -67,6 +67,19 @@ struct IslandHUDRouteSpec: Equatable, Sendable {
         IslandHUDRouteSpec(activityID: "katikati.bluetooth", priority: 8, alert: isLowBattery, lifetime: 4.0)
     }
 
+    static func peripheral(_ event: PeripheralEvent) -> IslandHUDRouteSpec {
+        switch event {
+        case .connected, .disconnected:
+            return IslandHUDRouteSpec(activityID: "katikati.bluetooth", priority: 8, alert: false, lifetime: 3.4)
+        case .low:
+            return bluetoothAccessory(isLowBattery: true)
+        }
+    }
+
+    static func aiUsageAlert() -> IslandHUDRouteSpec {
+        IslandHUDRouteSpec(activityID: "katikati.aiUsageAlert", priority: 8, alert: true, lifetime: 4.5)
+    }
+
     static func event(_ event: LiveEvent) -> IslandHUDRouteSpec? {
         switch event {
         case .trackChanged:

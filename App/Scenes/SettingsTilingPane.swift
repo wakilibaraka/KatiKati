@@ -10,6 +10,7 @@ struct SettingsTilingPane: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var engine = TilingEngine.shared
     @State private var floatingAppsDraft: String = ""
+    @State private var workspaceRulesDraft: String = ""
     @AppStorage(FocusFollowService.enabledKey) private var focusFollow = false
     @AppStorage(StripScrollService.enabledKey) private var stripScroll = false
 
@@ -39,6 +40,50 @@ struct SettingsTilingPane: View {
                     Text("Allow Accessibility"),
                     note: Text("macOS needs this before KatiKati can move other apps' windows."),
                     action: { AccessibilitySettingsLink.url.map { NSWorkspace.shared.open($0) } }
+                )
+            }
+
+            // W-9: workspaces live on the Tiling page as their own section. Off by default, so the
+            // page reads exactly as it did before unless someone turns them on.
+            SettingsDivider()
+            SettingsToggleRow(
+                Text("Enable Workspaces"),
+                isOn: Binding(
+                    get: { engine.workspacesEnabled },
+                    set: { engine.setWorkspacesEnabled($0) }
+                ),
+                note: Text("Ten workspaces per display. Switching parks the windows you leave and brings back the ones you enter.")
+            )
+            if engine.workspacesEnabled {
+                SettingsDivider()
+                Text("Workspace Rules")
+                    .font(.subheadline)
+                TextEditor(text: Binding(
+                    get: { workspaceRulesDraft.isEmpty ? engine.workspaceRules.serialized : workspaceRulesDraft },
+                    set: {
+                        workspaceRulesDraft = $0
+                        engine.setWorkspaceRules(WorkspaceRules.parse($0))
+                    }
+                ))
+                .font(.system(.body, design: .monospaced))
+                .frame(height: 80)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
+                SettingsNote(Text("One rule per line: a bundle id, then =float, =tile, =pin, =ignore or =route:2. Use |Title for an exact title and |~text for part of one."))
+                SettingsToggleRow(
+                    Text("Only the Active Workspace in the Bar"),
+                    isOn: Binding(
+                        get: { engine.showsOnlyActiveWorkspace },
+                        set: { UserDefaults.standard.set($0, forKey: TilingEngine.workspaceBarFilterKey) }
+                    ),
+                    note: Text("The bar lists the workspace you are on. Turn this off to keep every window on the bar.")
+                )
+                SettingsToggleRow(
+                    Text("Workspace HUD"),
+                    isOn: Binding(
+                        get: { UserDefaults.standard.object(forKey: WorkspaceHUDController.enabledKey) as? Bool ?? true },
+                        set: { UserDefaults.standard.set($0, forKey: WorkspaceHUDController.enabledKey) }
+                    ),
+                    note: Text("Shows the workspace strip for a moment after a switch.")
                 )
             }
 

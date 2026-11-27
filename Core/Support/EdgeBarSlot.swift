@@ -119,6 +119,9 @@ enum EdgeBarContent: Equatable, Sendable {
     case hydration
     case food
     case notesPreview
+    case counter
+    case stickyNote
+    case analogClock
     /// The note tabs.
     case notes
     case newNote
@@ -148,6 +151,7 @@ enum EdgePlacement: String, CaseIterable, Sendable {
 enum EdgeItem: String, CaseIterable, Sendable {
     case apps
     case focus, clock, batteryWifi, habits, hydration, food, notesPreview
+    case counter, stickyNote, analogClock
     case notes, newNote
     case reminders, alarms, time, tasks, clipboard, capture, screenshot, windows, screenTime
     case weather, nowPlaying, bluetooth, systemMonitor

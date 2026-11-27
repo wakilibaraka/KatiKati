@@ -1093,13 +1093,19 @@ struct WelcomeGuideView: View {
             }
             await pause(600_000_000)
         }
-        let settings = await UNUserNotificationCenter.current().notificationSettings()
-        if settings.authorizationStatus == .notDetermined {
-            PermissionBootstrap.trace("notifications: request")
-            _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
-            await pause(600_000_000)
-        } else {
-            PermissionBootstrap.trace("notifications: already decided")
+        // Same hazard the `notificationsAuthorized` seam documents: `UNUserNotificationCenter.current()`
+        // raises an uncaught "bundleProxyForCurrentProcess is nil" in a process without a bundle proxy,
+        // and that aborts the whole unit-test run when something hosts this act. A process that is not an
+        // app bundle has no notifications to ask for, so the step is skipped there.
+        if Bundle.main.bundleURL.pathExtension == "app" {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            if settings.authorizationStatus == .notDetermined {
+                PermissionBootstrap.trace("notifications: request")
+                _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+                await pause(600_000_000)
+            } else {
+                PermissionBootstrap.trace("notifications: already decided")
+            }
         }
         if locationManager.authorizationStatus == .notDetermined {
             locationManager.requestAlwaysAuthorization()

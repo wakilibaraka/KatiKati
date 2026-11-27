@@ -468,6 +468,8 @@ struct MusicGlassCardView: View {
     var showsChrome: Bool = true
     /// The lock-screen card can drop the volume row; the desktop widget always keeps it.
     var showsVolumeRow: Bool = true
+    var isLockScreen: Bool = false
+    var externalUpcoming: [MusicQueueEntry] = []
     var onToggleMode: (() -> Void)?
     var onStash: (() -> Void)?
     var onPlayLocalFile: (() -> Void)?
@@ -864,7 +866,7 @@ struct MusicGlassCardView: View {
             miniHeader
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 10) {
-                    let sections = queue.sections(favorites: favorites.entries)
+                    let sections = queue.sections(upcoming: externalUpcoming, favorites: favorites.entries)
                     if sections.isEmpty {
                         Text("Nothing played yet")
                             .font(.system(size: 11, weight: .medium))
@@ -1091,22 +1093,22 @@ struct MusicGlassCardView: View {
         HStack(spacing: 0) {
             MusicSlotView(slot: resolved.left, isActive: isFavoriteSlot(resolved.left), textColor: textColor, action: perform)
             Spacer(minLength: 0)
-            Button { service.previousTrack() } label: { transportGlyph("backward.fill", size: 14) }
+            Button { service.previousTrack() } label: { transportGlyph("backward.fill", size: isLockScreen ? 16 : 14) }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Previous"))
             Spacer(minLength: 12)
             Button { playPause() } label: {
                 Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: isLockScreen ? 19 : 17, weight: .semibold))
                     .foregroundStyle(textColor)
-                    .frame(width: 38, height: 30)
+                    .frame(width: isLockScreen ? 44 : 38, height: isLockScreen ? 40 : 30)
                     .background(Circle().fill(textColor.opacity(0.14)))
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(state.isPlaying ? Text("Pause") : Text("Play"))
             Spacer(minLength: 12)
-            Button { service.nextTrack() } label: { transportGlyph("forward.fill", size: 14) }
+            Button { service.nextTrack() } label: { transportGlyph("forward.fill", size: isLockScreen ? 16 : 14) }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Next"))
             Spacer(minLength: 0)
@@ -1118,7 +1120,7 @@ struct MusicGlassCardView: View {
         Image(systemName: name)
             .font(.system(size: size, weight: .semibold))
             .foregroundStyle(textColor.opacity(0.8))
-            .frame(width: 28, height: 26)
+            .frame(width: isLockScreen ? 44 : 28, height: isLockScreen ? 40 : 26)
             .contentShape(Rectangle())
     }
 

@@ -302,6 +302,24 @@ final class IslandEngineTests: XCTestCase {
         store.start(IslandActivitySpec(id: bt.activityID, label: "AirPods Pro", priority: bt.priority, alert: bt.alert))
         XCTAssertTrue(store.snapshot.activities.contains(where: { $0.id == "katikati.bluetooth" }))
 
+        let connDevice = BluetoothDevice(
+            name: "AirPods Pro",
+            address: "AA-BB-CC-DD-EE-01",
+            isConnected: true,
+            kind: "Headphones",
+            batteryMain: 90,
+            batteryLeft: 90,
+            batteryRight: 90,
+            batteryCase: 70
+        )
+        let connSpec = IslandHUDRouteSpec.peripheral(.connected(connDevice))
+        XCTAssertFalse(connSpec.alert)
+        XCTAssertEqual(connSpec.activityID, "katikati.bluetooth")
+
+        let aiSpec = IslandHUDRouteSpec.aiUsageAlert()
+        XCTAssertTrue(aiSpec.alert)
+        XCTAssertEqual(aiSpec.activityID, "katikati.aiUsageAlert")
+
         XCTAssertNil(IslandHUDRouteSpec.event(.trackChanged(title: "A", artist: "B")))
     }
 }

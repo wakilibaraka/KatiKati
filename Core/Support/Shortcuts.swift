@@ -68,6 +68,14 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case showCheatSheet
     /// Cursor-anchored clipboard history menu. Hyper+V by default; Option+Shift+V fallback.
     case clipboardMenu
+    /// Workspaces (W-6): switch a display to workspace 1…10, or send the focused window there.
+    case workspace1, workspace2, workspace3, workspace4, workspace5
+    case workspace6, workspace7, workspace8, workspace9, workspace10
+    case workspaceMove1, workspaceMove2, workspaceMove3, workspaceMove4, workspaceMove5
+    case workspaceMove6, workspaceMove7, workspaceMove8, workspaceMove9, workspaceMove10
+    /// Step to the next/previous workspace of the focused display. No default chord.
+    case workspaceNext, workspacePrevious
+    case workspaceMoveNext, workspaceMovePrevious
 
     /// The ribbon's eight pictures, ⌘⌃1–8 in visual order (1 = Chain).
     case ribbonChain, ribbonHalves, ribbonTwoPlusOne, ribbonOnePlusTwo
@@ -155,6 +163,31 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .ribbonQuarters: return 70
         case .ribbonFive: return 71
         case .ribbonSix: return 72
+        // Workspaces: ids 78–101 (77 is `.cursorNextDisplay`).
+        case .workspace1: return 78
+        case .workspace2: return 79
+        case .workspace3: return 80
+        case .workspace4: return 81
+        case .workspace5: return 82
+        case .workspace6: return 83
+        case .workspace7: return 84
+        case .workspace8: return 85
+        case .workspace9: return 86
+        case .workspace10: return 87
+        case .workspaceMove1: return 88
+        case .workspaceMove2: return 89
+        case .workspaceMove3: return 90
+        case .workspaceMove4: return 91
+        case .workspaceMove5: return 92
+        case .workspaceMove6: return 93
+        case .workspaceMove7: return 94
+        case .workspaceMove8: return 95
+        case .workspaceMove9: return 96
+        case .workspaceMove10: return 97
+        case .workspaceNext: return 98
+        case .workspacePrevious: return 99
+        case .workspaceMoveNext: return 100
+        case .workspaceMovePrevious: return 101
         }
     }
 
@@ -200,6 +233,29 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .ribbonSix: return .key(ShortcutKey(keyCode: 28, modifiers: ShortcutKey.command | ShortcutKey.control))
         case .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
              .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious: return .off
+        // Workspaces: ⌃⌥1–0 switches, ⌃⌥⇧1–0 moves the focused window there (G-W3). Never ⌃1–0 —
+        // that is macOS's own Spaces shortcut, which the system consumes first.
+        case .workspace1: return .key(ShortcutKey(keyCode: 18, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace2: return .key(ShortcutKey(keyCode: 19, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace3: return .key(ShortcutKey(keyCode: 20, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace4: return .key(ShortcutKey(keyCode: 21, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace5: return .key(ShortcutKey(keyCode: 23, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace6: return .key(ShortcutKey(keyCode: 22, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace7: return .key(ShortcutKey(keyCode: 26, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace8: return .key(ShortcutKey(keyCode: 28, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace9: return .key(ShortcutKey(keyCode: 25, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspace10: return .key(ShortcutKey(keyCode: 29, modifiers: ShortcutKey.control | ShortcutKey.option))
+        case .workspaceMove1: return .key(ShortcutKey(keyCode: 18, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove2: return .key(ShortcutKey(keyCode: 19, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove3: return .key(ShortcutKey(keyCode: 20, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove4: return .key(ShortcutKey(keyCode: 21, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove5: return .key(ShortcutKey(keyCode: 23, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove6: return .key(ShortcutKey(keyCode: 22, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove7: return .key(ShortcutKey(keyCode: 26, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove8: return .key(ShortcutKey(keyCode: 28, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove9: return .key(ShortcutKey(keyCode: 25, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceMove10: return .key(ShortcutKey(keyCode: 29, modifiers: ShortcutKey.control | ShortcutKey.option | ShortcutKey.shift))
+        case .workspaceNext, .workspacePrevious, .workspaceMoveNext, .workspaceMovePrevious: return .off
         }
     }
 
@@ -214,7 +270,12 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .stripFocusNext, .stripFocusPrevious, .stripMoveNext, .stripMovePrevious,
              .stripCycleWidth, .stripStackLeft, .stripToggleTabs, .stripTabNext, .stripTabPrevious,
              .ribbonChain, .ribbonHalves, .ribbonTwoPlusOne, .ribbonOnePlusTwo,
-             .ribbonThirds, .ribbonQuarters, .ribbonFive, .ribbonSix: return true
+             .ribbonThirds, .ribbonQuarters, .ribbonFive, .ribbonSix,
+             .workspace1, .workspace2, .workspace3, .workspace4, .workspace5,
+             .workspace6, .workspace7, .workspace8, .workspace9, .workspace10,
+             .workspaceMove1, .workspaceMove2, .workspaceMove3, .workspaceMove4, .workspaceMove5,
+             .workspaceMove6, .workspaceMove7, .workspaceMove8, .workspaceMove9, .workspaceMove10,
+             .workspaceNext, .workspacePrevious, .workspaceMoveNext, .workspaceMovePrevious: return true
         default: return false
         }
     }
@@ -237,6 +298,49 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .snapRightTwoThirds: return .rightTwoThirds
         case .snapCenter: return .center
         case .snapMaximize: return .maximize
+        default: return nil
+        }
+    }
+
+    /// The numbered workspace a switch action selects (W-6).
+    var workspaceSwitchTarget: WorkspaceID? {
+        switch self {
+        case .workspace1: return .numbered(1)
+        case .workspace2: return .numbered(2)
+        case .workspace3: return .numbered(3)
+        case .workspace4: return .numbered(4)
+        case .workspace5: return .numbered(5)
+        case .workspace6: return .numbered(6)
+        case .workspace7: return .numbered(7)
+        case .workspace8: return .numbered(8)
+        case .workspace9: return .numbered(9)
+        case .workspace10: return .numbered(10)
+        default: return nil
+        }
+    }
+
+    /// The numbered workspace a move action sends the focused window to (W-6).
+    var workspaceMoveTarget: WorkspaceID? {
+        switch self {
+        case .workspaceMove1: return .numbered(1)
+        case .workspaceMove2: return .numbered(2)
+        case .workspaceMove3: return .numbered(3)
+        case .workspaceMove4: return .numbered(4)
+        case .workspaceMove5: return .numbered(5)
+        case .workspaceMove6: return .numbered(6)
+        case .workspaceMove7: return .numbered(7)
+        case .workspaceMove8: return .numbered(8)
+        case .workspaceMove9: return .numbered(9)
+        case .workspaceMove10: return .numbered(10)
+        default: return nil
+        }
+    }
+
+    /// +1 for the next workspace, -1 for the previous one, nil for everything else.
+    var workspaceStepOffset: Int? {
+        switch self {
+        case .workspaceNext, .workspaceMoveNext: return 1
+        case .workspacePrevious, .workspaceMovePrevious: return -1
         default: return nil
         }
     }

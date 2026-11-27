@@ -344,6 +344,45 @@ final class IslandLiveBridge: ObservableObject, LiveEventSink {
         scheduleEnd(id: spec.activityID, afterSeconds: spec.lifetime)
     }
 
+    func showPeripheralEvent(_ event: PeripheralEvent) {
+        if case let .low(device) = event {
+            showBluetoothAccessoryHUD(device: device, isLowBattery: true)
+            return
+        }
+        let spec = IslandHUDRouteSpec.peripheral(event)
+        let label: String
+        switch event {
+        case let .connected(d), let .disconnected(d), let .low(d):
+            label = d.name
+        }
+        let views = IslandPresets.peripheralConnect(event: event)
+        registry.register(id: spec.activityID, views: views)
+        driver.store.start(
+            IslandActivitySpec(
+                id: spec.activityID,
+                label: label,
+                priority: spec.priority,
+                alert: spec.alert
+            )
+        )
+        scheduleEnd(id: spec.activityID, afterSeconds: spec.lifetime)
+    }
+
+    func showAIUsageAlert(_ alert: AIUsageAlert, onOpenAI: (() -> Void)? = nil) {
+        let spec = IslandHUDRouteSpec.aiUsageAlert()
+        let views = IslandPresets.aiUsageAlert(alert: alert, onOpenAI: onOpenAI)
+        registry.register(id: spec.activityID, views: views)
+        driver.store.start(
+            IslandActivitySpec(
+                id: spec.activityID,
+                label: "\(alert.provider.displayName) \(alert.usedPercent)%",
+                priority: spec.priority,
+                alert: spec.alert
+            )
+        )
+        scheduleEnd(id: spec.activityID, afterSeconds: spec.lifetime)
+    }
+
     private static let pagesPlaceholderID = "katikati.pages"
 
     func openPages() {

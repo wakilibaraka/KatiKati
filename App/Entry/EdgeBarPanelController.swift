@@ -192,6 +192,9 @@ final class EdgeBarPanelController {
             case .hydration: buttons.append(.hydration)
             case .food: buttons.append(.food)
             case .notesPreview: buttons.append(.notesPreview)
+            case .counter: buttons.append(.counter)
+            case .stickyNote: buttons.append(.stickyNote)
+            case .analogClock: buttons.append(.analogClock)
             case .notes: hasNotes = true
             case .newNote: buttons.append(.newNote)
             case .settings: buttons.append(.settings)

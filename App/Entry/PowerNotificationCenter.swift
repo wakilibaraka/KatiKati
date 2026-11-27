@@ -27,8 +27,10 @@ final class PowerNotificationCenter: ObservableObject {
     private var seededStatus = false
     private var seededDevices = false
     private var fired = PowerNotificationPolicy.Fired()
-    private var deviceTimer: Timer?
+    private var holdsDevicesFeed = false
     private var started = false
+    /// N1 hook: suppress duplicate peripheral toast pills when the Notch presents them directly.
+    var suppressesToast: (PowerNotificationKind) -> Bool = { _ in false }
 
     init(defaults: UserDefaults = .standard) {
         let loaded = PowerNotificationRules.load(defaults)
@@ -45,12 +47,16 @@ final class PowerNotificationCenter: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.evaluate() }
             .store(in: &cancellables)
-        refreshDevices()
-        // One `system_profiler` a minute: a charge level does not move faster, and the read costs about
-        // a second of a background core.
-        deviceTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.refreshDevices() }
-        }
+        DockDevicesFeed.shared.retain()
+        holdsDevicesFeed = true
+        DockDevicesFeed.shared.$devices
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] next in
+                guard let self else { return }
+                self.devices = next
+                self.evaluate()
+            }
+            .store(in: &cancellables)
         // 59a live-check aid: `DOCK_NOTIFY_DEMO=<kind>` or `charged:<percent>` shows one pill at launch
         // (never written to the history); the percent picks a charge milestone's wording.
         if let raw = DebugSwitch.powerNotificationDemo.value() {
@@ -79,8 +85,10 @@ final class PowerNotificationCenter: ObservableObject {
     func stop() {
         guard started else { return }
         started = false
-        deviceTimer?.invalidate()
-        deviceTimer = nil
+        if holdsDevicesFeed {
+            DockDevicesFeed.shared.release()
+            holdsDevicesFeed = false
+        }
         cancellables.removeAll()
         status.release()
     }
@@ -102,15 +110,6 @@ final class PowerNotificationCenter: ObservableObject {
     }
 
     // MARK: - Evaluation
-
-    private func refreshDevices() {
-        Task { [weak self] in
-            let read = await BluetoothDeviceReader.read()
-            guard let self else { return }
-            self.devices = read.filter { $0.isConnected }
-            self.evaluate()
-        }
-    }
 
     private func evaluate() {
         let battery = status.status.battery
@@ -145,8 +144,10 @@ final class PowerNotificationCenter: ObservableObject {
         }
         PowerNotificationHistory.save(history)
         // 59f: one system sound for every alert (`shortcut:` per-alert sounds if anyone asks).
-        if rules.soundEnabled { NSSound(named: "Glass")?.play() }
-        presenter.show(events.first, style: rules.style)
+        if let firstToast = events.first(where: { !suppressesToast($0.kind) }) {
+            if rules.soundEnabled { NSSound(named: "Glass")?.play() }
+            presenter.show(firstToast, style: rules.style)
+        }
     }
 }
 

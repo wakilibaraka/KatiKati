@@ -113,7 +113,7 @@ final class EdgeBarSlotTests: XCTestCase {
         XCTAssertEqual(EdgeBarPreset.allCases.map(\.rawValue),
                        ["off", "sydedock", "extraDock", "notes", "notesAndStatus", "status", "productivityAndRest", "custom"])
         XCTAssertEqual(EdgeBarPreset.default, .productivityAndRest)
-        XCTAssertEqual(EdgeItem.allCases.count, 25)
+        XCTAssertEqual(EdgeItem.allCases.count, 28)
     }
 
     func testSydedockPresetResolvesGlanceableCards() {

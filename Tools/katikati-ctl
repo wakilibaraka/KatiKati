@@ -1,0 +1,27 @@
+#!/bin/sh
+# KatiKati control CLI (W-10).
+#
+# Talks to the running app's user-only socket. Every command is one line and the reply is one line,
+# so `katikati-ctl status` is safe to call from a script. The socket only exists while KatiKati runs
+# with Workspaces switched on.
+#
+#   katikati-ctl status
+#   katikati-ctl switch 2
+#   katikati-ctl move 3
+#   katikati-ctl layout ribbon
+#   katikati-ctl pause | resume | retile
+set -eu
+
+socket="$HOME/Library/Application Support/KatiKati/control.sock"
+
+if [ "$#" -eq 0 ]; then
+    echo "usage: katikati-ctl status|switch WS|move WS|layout PRESET|pause|resume|retile" >&2
+    exit 2
+fi
+
+if [ ! -S "$socket" ]; then
+    echo "KatiKati is not running, or Workspaces are off (no socket at $socket)." >&2
+    exit 1
+fi
+
+printf '%s\n' "$*" | nc -U "$socket"

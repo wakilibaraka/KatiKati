@@ -279,16 +279,33 @@ struct HabitsFlyoutView: View {
                     .foregroundColor(.orange)
             }
 
-            // 6-week matrix
+            // 6-week matrix (7 columns × 6 weeks)
             let matrix = store.matrix42Days()
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 14)
-            LazyVGrid(columns: columns, spacing: 4) {
+            let columns = Array(repeating: GridItem(.flexible(), spacing: 5), count: 7)
+            LazyVGrid(columns: columns, spacing: 5) {
                 ForEach(0..<min(42, matrix.count), id: \.self) { idx in
                     let dot = matrix[idx]
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .fill(dot.level == 0 ? Color.primary.opacity(0.1) : Color.blue.opacity(0.3 + Double(dot.level) * 0.23))
-                        .frame(height: 14)
-                        .overlay(dot.isToday ? RoundedRectangle(cornerRadius: 3).stroke(Color.primary, lineWidth: 1) : nil)
+                    let fillColor = dot.level == 0 ? Color.primary.opacity(0.1) : Color.blue.opacity(0.3 + Double(dot.level) * 0.23)
+                    if dot.isToday {
+                        Button {
+                            if let nextUndone = store.habits.first(where: { !$0.isDoneToday }) {
+                                store.toggleHabit(id: nextUndone.id)
+                            } else if let first = store.habits.first {
+                                store.toggleHabit(id: first.id)
+                            }
+                        } label: {
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .fill(fillColor)
+                                .frame(height: 16)
+                                .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).stroke(Color.primary, lineWidth: 1.5))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Text("Habits"))
+                    } else {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(fillColor)
+                            .frame(height: 16)
+                    }
                 }
             }
             .padding(10)

@@ -6,7 +6,7 @@ import AppKit
 extension DeckButton {
     var isRichCard: Bool {
         switch self {
-        case .focus, .clock, .batteryWifi, .habits, .hydration, .food, .notesPreview:
+        case .focus, .clock, .batteryWifi, .habits, .hydration, .food, .notesPreview, .counter, .stickyNote, .analogClock:
             return true
         default:
             return false
@@ -22,6 +22,9 @@ extension DeckButton {
         case .hydration: return max(48, unit * 1.85)
         case .food: return max(46, unit * 1.8)
         case .notesPreview: return max(54, unit * 2.2)
+        case .counter: return max(42, unit * 1.6)
+        case .stickyNote: return max(64, unit * 2.5)
+        case .analogClock: return max(44, unit * 1.7)
         default: return unit
         }
     }
@@ -52,6 +55,12 @@ struct DeckRichCardView: View {
                 DeckFoodCardView(width: width, onRight: onRight)
             case .notesPreview:
                 DeckNotesPreviewCardView(width: width, onRight: onRight)
+            case .counter:
+                DeckCounterCardView()
+            case .stickyNote:
+                DeckStickyNoteCardView()
+            case .analogClock:
+                DeckAnalogClockCardView()
             default:
                 EmptyView()
             }

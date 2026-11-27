@@ -184,6 +184,38 @@ final class SpotifyAuthService: NSObject, ObservableObject {
         return true
     }
 
+    /// Reads the signed-in user's Up Next queue via Spotify Web API (`/v1/me/player/queue`) for L2 / D4.
+    func fetchQueue() async -> [MusicQueueEntry] {
+        guard let token = await validAccessToken(),
+              let url = URL(string: "https://api.spotify.com/v1/me/player/queue") else {
+            return []
+        }
+        var req = URLRequest(url: url)
+        req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let queue = json["queue"] as? [[String: Any]]
+        else {
+            return []
+        }
+
+        var entries: [MusicQueueEntry] = []
+        var seen = Set<String>()
+        for item in queue {
+            guard let title = (item["name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !title.isEmpty else { continue }
+            let artists = (item["artists"] as? [[String: Any]] ?? [])
+                .compactMap { $0["name"] as? String }
+                .joined(separator: ", ")
+            let entry = MusicQueueEntry(title: title, artist: artists.isEmpty ? nil : artists)
+            guard seen.insert(entry.key).inserted else { continue }
+            entries.append(entry)
+            if entries.count >= 12 { break }
+        }
+        return entries
+    }
+
     // MARK: Token exchange & Keychain
 
     private func exchangeCode(_ code: String, verifier: String, clientID: String) async {

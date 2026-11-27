@@ -165,6 +165,23 @@
 		A0000000000000000001F022 /* TilingGaps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F020 /* TilingGaps.swift */; };
 		A0000000000000000001F031 /* TilingTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F030 /* TilingTree.swift */; };
 		A0000000000000000001F032 /* TilingTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F030 /* TilingTree.swift */; };
+		C0FFEE000000000000000102 /* Workspaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000101 /* Workspaces.swift */; };
+		C0FFEE000000000000000103 /* Workspaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000101 /* Workspaces.swift */; };
+		C0FFEE000000000000000105 /* WorkspaceRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000104 /* WorkspaceRules.swift */; };
+		C0FFEE000000000000000106 /* WorkspaceRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000104 /* WorkspaceRules.swift */; };
+		C0FFEE000000000000000108 /* WorkspaceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000107 /* WorkspaceModelTests.swift */; };
+		C0FFEE00000000000000010A /* WorkspaceRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000109 /* WorkspaceRulesTests.swift */; };
+		C0FFEE000000000000000205 /* WorkspaceHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000201 /* WorkspaceHUDController.swift */; };
+		C0FFEE000000000000000302 /* WorkspaceControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000301 /* WorkspaceControlServer.swift */; };
+		C0FFEE000000000000000303 /* WorkspaceControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000301 /* WorkspaceControlServer.swift */; };
+		C0FFEE000000000000000511 /* TilingEngine+Workspaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */; };
+		C0FFEE000000000000000512 /* TilingEngine+Workspaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */; };
+		C0FFEE000000000000000521 /* TilingEngine+WorkspaceTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000502 /* TilingEngine+WorkspaceTransitions.swift */; };
+		C0FFEE000000000000000522 /* TilingEngine+WorkspaceTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000502 /* TilingEngine+WorkspaceTransitions.swift */; };
+		C0FFEE000000000000000531 /* TilingEngine+WorkspacePersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000503 /* TilingEngine+WorkspacePersistence.swift */; };
+		C0FFEE000000000000000532 /* TilingEngine+WorkspacePersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000503 /* TilingEngine+WorkspacePersistence.swift */; };
+		C0FFEE000000000000000206 /* WorkspaceHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000203 /* WorkspaceHUDView.swift */; };
+		C0FFEE000000000000000402 /* WorkspaceControlServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000401 /* WorkspaceControlServerTests.swift */; };
 		A0000000000000000001F041 /* TilingTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F040 /* TilingTreeTests.swift */; };
 		A0000000000000000001F001 /* SnapRects.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F000 /* SnapRects.swift */; };
 		A0000000000000000001F002 /* SnapRects.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F000 /* SnapRects.swift */; };
@@ -196,6 +213,38 @@
 		FA10A1000000000000000201 /* WindowLayoutMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA10A1000000000000000200 /* WindowLayoutMemory.swift */; };
 		C0DE30000000000000000002 /* DisplayControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE30000000000000000001 /* DisplayControl.swift */; };
 		C0DE30000000000000000003 /* DisplayControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE30000000000000000001 /* DisplayControl.swift */; };
+		F41000000000000000000002 /* PeripheralDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000001 /* PeripheralDiff.swift */; };
+		F41000000000000000000003 /* PeripheralDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000001 /* PeripheralDiff.swift */; };
+		F41000000000000000000012 /* MediaKeyDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000011 /* MediaKeyDecode.swift */; };
+		F41000000000000000000013 /* MediaKeyDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000011 /* MediaKeyDecode.swift */; };
+		F41000000000000000000022 /* MediaKeyTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000021 /* MediaKeyTap.swift */; };
+		F41000000000000000000032 /* PeripheralDiffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000031 /* PeripheralDiffTests.swift */; };
+		F41000000000000000000042 /* MediaKeyDecodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000041 /* MediaKeyDecodeTests.swift */; };
+		F41000000000000000000102 /* UsageThresholdPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000101 /* UsageThresholdPolicy.swift */; };
+		F41000000000000000000103 /* UsageThresholdPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000101 /* UsageThresholdPolicy.swift */; };
+		F41000000000000000000112 /* NotchPeripheralConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000111 /* NotchPeripheralConnectView.swift */; };
+		F41000000000000000000122 /* HardwareHUDTakeoverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000121 /* HardwareHUDTakeoverService.swift */; };
+		F41000000000000000000132 /* UsageThresholdPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000131 /* UsageThresholdPolicyTests.swift */; };
+		F41000000000000000000202 /* PeripheralWidgetLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000201 /* PeripheralWidgetLayout.swift */; };
+		F41000000000000000000203 /* PeripheralWidgetLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000201 /* PeripheralWidgetLayout.swift */; };
+		F41000000000000000000212 /* PeripheralWidgetLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000211 /* PeripheralWidgetLayoutTests.swift */; };
+		F41000000000000000000302 /* LockScreenSurfacePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000301 /* LockScreenSurfacePolicy.swift */; };
+		F41000000000000000000303 /* LockScreenSurfacePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000301 /* LockScreenSurfacePolicy.swift */; };
+		F41000000000000000000312 /* LockScreenSurfacePolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000311 /* LockScreenSurfacePolicyTests.swift */; };
+		F41000000000000000000322 /* MusicQueueFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000321 /* MusicQueueFetcher.swift */; };
+		F41000000000000000000332 /* LockScreenCalendarCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000331 /* LockScreenCalendarCard.swift */; };
+		F41000000000000000000402 /* EdgeInsertIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000401 /* EdgeInsertIndex.swift */; };
+		F41000000000000000000403 /* EdgeInsertIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000401 /* EdgeInsertIndex.swift */; };
+		F41000000000000000000412 /* EdgeInsertIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000411 /* EdgeInsertIndexTests.swift */; };
+		F41000000000000000000422 /* EdgeExtraCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000421 /* EdgeExtraCards.swift */; };
+		F41000000000000000000502 /* CountdownUrgency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000501 /* CountdownUrgency.swift */; };
+		F41000000000000000000503 /* CountdownUrgency.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000501 /* CountdownUrgency.swift */; };
+		F41000000000000000000512 /* CountdownUrgencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000511 /* CountdownUrgencyTests.swift */; };
+		F41000000000000000000522 /* WidgetDensityPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000521 /* WidgetDensityPolicy.swift */; };
+		F41000000000000000000523 /* WidgetDensityPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000521 /* WidgetDensityPolicy.swift */; };
+		F41000000000000000000532 /* WidgetDensityPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000531 /* WidgetDensityPolicyTests.swift */; };
+		F41000000000000000000542 /* SystemPreviewTabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000541 /* SystemPreviewTabsView.swift */; };
+		F41000000000000000000552 /* MusicPreviewTabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41000000000000000000551 /* MusicPreviewTabsView.swift */; };
 		A0000000000000000001F0B1 /* CommandTabTakeover.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0B0 /* CommandTabTakeover.swift */; };
 		A0000000000000000001F0C1 /* WindowDrawerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0C0 /* WindowDrawerController.swift */; };
 		A0000000000000000001F0D1 /* WindowStripController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000001F0D0 /* WindowStripController.swift */; };
@@ -269,6 +318,8 @@
 		7B5000000000000000040812 /* ChipPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040811 /* ChipPanelView.swift */; };
 		7B5000000000000000040712 /* ChipPanelModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040711 /* ChipPanelModel.swift */; };
 		7B5000000000000000040612 /* ChipPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040611 /* ChipPanelController.swift */; };
+		C0FFEE000000000000000202 /* WorkspaceHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000201 /* WorkspaceHUDController.swift */; };
+		C0FFEE000000000000000204 /* WorkspaceHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000203 /* WorkspaceHUDView.swift */; };
 		7B5000000000000000040513 /* WindowThumbnailCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040511 /* WindowThumbnailCapture.swift */; };
 		7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040511 /* WindowThumbnailCapture.swift */; };
 		7B5000000000000000040412 /* ChipPanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5000000000000000040411 /* ChipPanelTests.swift */; };
@@ -1625,6 +1676,11 @@
 		A0000000000000000001F020 /* TilingGaps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingGaps.swift; path = Core/Support/TilingGaps.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F030 /* TilingTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TilingTree.swift; path = Core/Support/TilingTree.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F040 /* TilingTreeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilingTreeTests.swift; sourceTree = "<group>"; };
+		C0FFEE000000000000000101 /* Workspaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Workspaces.swift; path = Core/Support/Workspaces.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000104 /* WorkspaceRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceRules.swift; path = Core/Support/WorkspaceRules.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000107 /* WorkspaceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceModelTests.swift; sourceTree = "<group>"; };
+		C0FFEE000000000000000109 /* WorkspaceRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceRulesTests.swift; sourceTree = "<group>"; };
+		C0FFEE000000000000000401 /* WorkspaceControlServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceControlServerTests.swift; sourceTree = "<group>"; };
 		A0000000000000000001F000 /* SnapRects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SnapRects.swift; path = Core/Support/SnapRects.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F010 /* SnapRectsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapRectsTests.swift; sourceTree = "<group>"; };
 		FA10A1000000000000000235 /* LauncherFoldersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LauncherFoldersTests.swift; path = Tests/Unit/LauncherFoldersTests.swift; sourceTree = SOURCE_ROOT; };
@@ -1647,6 +1703,17 @@
 		FA10A1000000000000000203 /* WindowLayoutMemoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutMemoryTests.swift; path = Tests/Unit/WindowLayoutMemoryTests.swift; sourceTree = SOURCE_ROOT; };
 		FA10A1000000000000000200 /* WindowLayoutMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowLayoutMemory.swift; path = Core/Support/WindowLayoutMemory.swift; sourceTree = SOURCE_ROOT; };
 		C0DE30000000000000000001 /* DisplayControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisplayControl.swift; path = Core/Support/DisplayControl.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000001 /* PeripheralDiff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeripheralDiff.swift; path = Core/Support/PeripheralDiff.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000011 /* MediaKeyDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaKeyDecode.swift; path = Core/Support/MediaKeyDecode.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000021 /* MediaKeyTap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaKeyTap.swift; path = Platform/Accessibility/MediaKeyTap.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000031 /* PeripheralDiffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeripheralDiffTests.swift; path = Tests/Unit/PeripheralDiffTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000041 /* MediaKeyDecodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MediaKeyDecodeTests.swift; path = Tests/Unit/MediaKeyDecodeTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000101 /* UsageThresholdPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageThresholdPolicy.swift; path = Core/Support/UsageThresholdPolicy.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000111 /* NotchPeripheralConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotchPeripheralConnectView.swift; path = App/Scenes/Notch/NotchPeripheralConnectView.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000121 /* HardwareHUDTakeoverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HardwareHUDTakeoverService.swift; path = App/Composition/HardwareHUDTakeoverService.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000131 /* UsageThresholdPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UsageThresholdPolicyTests.swift; path = Tests/Unit/UsageThresholdPolicyTests.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000201 /* PeripheralWidgetLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeripheralWidgetLayout.swift; path = Core/Support/PeripheralWidgetLayout.swift; sourceTree = SOURCE_ROOT; };
+		F41000000000000000000211 /* PeripheralWidgetLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PeripheralWidgetLayoutTests.swift; path = Tests/Unit/PeripheralWidgetLayoutTests.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0B0 /* CommandTabTakeover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CommandTabTakeover.swift; path = App/Composition/CommandTabTakeover.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0C0 /* WindowDrawerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowDrawerController.swift; path = App/Composition/WindowDrawerController.swift; sourceTree = SOURCE_ROOT; };
 		A0000000000000000001F0D0 /* WindowStripController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowStripController.swift; path = App/Composition/WindowStripController.swift; sourceTree = SOURCE_ROOT; };
@@ -1704,6 +1771,12 @@
 		7B5000000000000000040811 /* ChipPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelView.swift; path = App/Scenes/ChipPanel/ChipPanelView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040711 /* ChipPanelModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelModel.swift; path = App/Scenes/ChipPanel/ChipPanelModel.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040611 /* ChipPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelController.swift; path = App/Entry/ChipPanelController.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000201 /* WorkspaceHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceHUDController.swift; path = App/Entry/WorkspaceHUDController.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000301 /* WorkspaceControlServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceControlServer.swift; path = App/Composition/WorkspaceControlServer.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+Workspaces.swift"; path = "App/Composition/TilingEngine+Workspaces.swift"; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000502 /* TilingEngine+WorkspaceTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+WorkspaceTransitions.swift"; path = "App/Composition/TilingEngine+WorkspaceTransitions.swift"; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000503 /* TilingEngine+WorkspacePersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+WorkspacePersistence.swift"; path = "App/Composition/TilingEngine+WorkspacePersistence.swift"; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000203 /* WorkspaceHUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceHUDView.swift; path = App/Scenes/WorkspaceHUDView.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040511 /* WindowThumbnailCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowThumbnailCapture.swift; path = App/Composition/WindowThumbnailCapture.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040411 /* ChipPanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelTests.swift; path = Tests/Unit/ChipPanelTests.swift; sourceTree = SOURCE_ROOT; };
 		7B5000000000000000040311 /* ChipPanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChipPanelLayout.swift; path = Core/Support/ChipPanelLayout.swift; sourceTree = SOURCE_ROOT; };
@@ -2778,6 +2851,7 @@
 				E90000000000000000000032 /* DockStripView+Hover.swift */,
 				E90000000000000000000033 /* DockStripView+Actions.swift */,
 				E90000000000000000000010 /* StripProjection.swift */,
+				C0FFEE000000000000000203 /* WorkspaceHUDView.swift */,
 				E90000000000000000000011 /* ChipView.swift */,
 				E90000000000000000000012 /* DrawerCapsuleButton.swift */,
 				E90000000000000000000013 /* ChipBadgeView.swift */,
@@ -3070,6 +3144,9 @@
 				A0000000000000000000D010 /* ClipboardPlusTests.swift */,
 				A0000000000000000001F010 /* SnapRectsTests.swift */,
 				A0000000000000000001F040 /* TilingTreeTests.swift */,
+				C0FFEE000000000000000107 /* WorkspaceModelTests.swift */,
+				C0FFEE000000000000000109 /* WorkspaceRulesTests.swift */,
+				C0FFEE000000000000000401 /* WorkspaceControlServerTests.swift */,
 				A0000000000000000001F070 /* TilingLayoutTests.swift */,
 				A0000000000000000002B120 /* StripScrollGestureTests.swift */,
 				A0000000000000000001F0B0 /* LayoutCatalogTests.swift */,
@@ -3225,6 +3302,8 @@
 				A0000000000000000001F000 /* SnapRects.swift */,
 				A0000000000000000001F020 /* TilingGaps.swift */,
 				A0000000000000000001F030 /* TilingTree.swift */,
+				C0FFEE000000000000000101 /* Workspaces.swift */,
+				C0FFEE000000000000000104 /* WorkspaceRules.swift */,
 				A0000000000000000001F050 /* TilingPolicy.swift */,
 				A0000000000000000001F060 /* TilingLayout.swift */,
 				A0000000000000000002B100 /* StripScrollGesture.swift */,
@@ -3683,6 +3762,13 @@
 				FA10A1000000000000000221 /* LauncherPlus.swift in Sources */,
 				FA10A1000000000000000201 /* WindowLayoutMemory.swift in Sources */,
 				C0DE30000000000000000002 /* DisplayControl.swift in Sources */,
+				F41000000000000000000002 /* PeripheralDiff.swift in Sources */,
+				F41000000000000000000012 /* MediaKeyDecode.swift in Sources */,
+				F41000000000000000000022 /* MediaKeyTap.swift in Sources */,
+				F41000000000000000000102 /* UsageThresholdPolicy.swift in Sources */,
+				F41000000000000000000112 /* NotchPeripheralConnectView.swift in Sources */,
+				F41000000000000000000122 /* HardwareHUDTakeoverService.swift in Sources */,
+				F41000000000000000000202 /* PeripheralWidgetLayout.swift in Sources */,
 				FA10A1000000000000000181 /* WindowSwitcherModel.swift in Sources */,
 				FA10A10000000000000000B5 /* ContextPresetRules.swift in Sources */,
 				FA10A10000000000000000B2 /* StackRelevance.swift in Sources */,
@@ -3917,6 +4003,8 @@
 				A0000000000000000001F001 /* SnapRects.swift in Sources */,
 				A0000000000000000001F021 /* TilingGaps.swift in Sources */,
 				A0000000000000000001F031 /* TilingTree.swift in Sources */,
+				C0FFEE000000000000000102 /* Workspaces.swift in Sources */,
+				C0FFEE000000000000000105 /* WorkspaceRules.swift in Sources */,
 				A0000000000000000001F051 /* TilingPolicy.swift in Sources */,
 				A0000000000000000001F061 /* TilingLayout.swift in Sources */,
 				A0000000000000000002B101 /* StripScrollGesture.swift in Sources */,
@@ -4103,6 +4191,12 @@
 				7B5000000000000000040812 /* ChipPanelView.swift in Sources */,
 				7B5000000000000000040712 /* ChipPanelModel.swift in Sources */,
 				7B5000000000000000040612 /* ChipPanelController.swift in Sources */,
+				C0FFEE000000000000000202 /* WorkspaceHUDController.swift in Sources */,
+				C0FFEE000000000000000302 /* WorkspaceControlServer.swift in Sources */,
+				C0FFEE000000000000000511 /* TilingEngine+Workspaces.swift in Sources */,
+				C0FFEE000000000000000521 /* TilingEngine+WorkspaceTransitions.swift in Sources */,
+				C0FFEE000000000000000531 /* TilingEngine+WorkspacePersistence.swift in Sources */,
+				C0FFEE000000000000000204 /* WorkspaceHUDView.swift in Sources */,
 				7B5000000000000000040512 /* WindowThumbnailCapture.swift in Sources */,
 				7B5000000000000000040312 /* ChipPanelLayout.swift in Sources */,
 				7B5000000000000000040212 /* ChipPanelHoverMachine.swift in Sources */,
@@ -4515,6 +4609,17 @@
 				A0000000000000000001F011 /* SnapRectsTests.swift in Sources */,
 				A0000000000000000001F022 /* TilingGaps.swift in Sources */,
 				A0000000000000000001F032 /* TilingTree.swift in Sources */,
+				C0FFEE000000000000000103 /* Workspaces.swift in Sources */,
+				C0FFEE000000000000000106 /* WorkspaceRules.swift in Sources */,
+				C0FFEE000000000000000108 /* WorkspaceModelTests.swift in Sources */,
+				C0FFEE00000000000000010A /* WorkspaceRulesTests.swift in Sources */,
+				C0FFEE000000000000000205 /* WorkspaceHUDController.swift in Sources */,
+				C0FFEE000000000000000303 /* WorkspaceControlServer.swift in Sources */,
+				C0FFEE000000000000000512 /* TilingEngine+Workspaces.swift in Sources */,
+				C0FFEE000000000000000522 /* TilingEngine+WorkspaceTransitions.swift in Sources */,
+				C0FFEE000000000000000532 /* TilingEngine+WorkspacePersistence.swift in Sources */,
+				C0FFEE000000000000000206 /* WorkspaceHUDView.swift in Sources */,
+				C0FFEE000000000000000402 /* WorkspaceControlServerTests.swift in Sources */,
 				A0000000000000000001F041 /* TilingTreeTests.swift in Sources */,
 				A0000000000000000001F052 /* TilingPolicy.swift in Sources */,
 				A0000000000000000001F062 /* TilingLayout.swift in Sources */,
@@ -4539,6 +4644,10 @@
 				FB000000000000000000001D /* SettingsBackupServiceTests.swift in Sources */,
 				ED0000000000000000000072 /* BluetoothDevices.swift in Sources */,
 				ED0000000000000000000076 /* BluetoothDevicesTests.swift in Sources */,
+				F41000000000000000000032 /* PeripheralDiffTests.swift in Sources */,
+				F41000000000000000000042 /* MediaKeyDecodeTests.swift in Sources */,
+				F41000000000000000000132 /* UsageThresholdPolicyTests.swift in Sources */,
+				F41000000000000000000212 /* PeripheralWidgetLayoutTests.swift in Sources */,
 				ED0000000000000000000066 /* NotesSyncService.swift in Sources */,
 				ED0000000000000000000068 /* SyncPassSchedulerTests.swift in Sources */,
 				ED0000000000000000000052 /* NotesController.swift in Sources */,
@@ -4806,6 +4915,10 @@
 				FA10A1000000000000000222 /* LauncherPlus.swift in Sources */,
 				FA10A1000000000000000202 /* WindowLayoutMemory.swift in Sources */,
 				C0DE30000000000000000003 /* DisplayControl.swift in Sources */,
+				F41000000000000000000003 /* PeripheralDiff.swift in Sources */,
+				F41000000000000000000013 /* MediaKeyDecode.swift in Sources */,
+				F41000000000000000000103 /* UsageThresholdPolicy.swift in Sources */,
+				F41000000000000000000203 /* PeripheralWidgetLayout.swift in Sources */,
 				FA10A1000000000000000182 /* WindowSwitcherModel.swift in Sources */,
 				FA10A10000000000000000B6 /* ContextPresetRules.swift in Sources */,
 				FA10A10000000000000000B3 /* StackRelevance.swift in Sources */,

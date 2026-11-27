@@ -183,6 +183,7 @@ extension SettingsLayoutPane {
                             .pickerStyle(.segmented)
                             .fixedSize()
                         }
+                        .draggable(item.rawValue)
                     }
                 } label: {
                     Text("Widgets").font(.headline)

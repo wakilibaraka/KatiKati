@@ -149,6 +149,9 @@ enum DeckButton: Hashable {
     case hydration
     case food
     case notesPreview
+    case counter
+    case stickyNote
+    case analogClock
     case bluetoothWifi
     case remindersAndTasks
     case systemAndBattery

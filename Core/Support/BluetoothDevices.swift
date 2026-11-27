@@ -15,6 +15,7 @@ struct BluetoothDevice: Equatable, Identifiable, Sendable {
     var batteryLeft: Int?
     var batteryRight: Int?
     var batteryCase: Int?
+    var isCharging: Bool = false
 
     var id: String { address.isEmpty ? name : address }
 
@@ -76,6 +77,7 @@ enum BluetoothDeviceRegistry {
             }
             if let index = sameAddress {
                 if merged[index].batteryMain == nil { merged[index].batteryMain = candidate.batteryMain }
+                merged[index].isCharging = merged[index].isCharging || candidate.isCharging
             } else if !merged.contains(where: { $0.name.caseInsensitiveCompare(candidate.name) == .orderedSame }) {
                 merged.append(candidate)
             }
@@ -118,7 +120,8 @@ enum BluetoothDeviceParser {
                             batteryMain: percent(info["device_batteryLevelMain"]),
                             batteryLeft: percent(info["device_batteryLevelLeft"]),
                             batteryRight: percent(info["device_batteryLevelRight"]),
-                            batteryCase: percent(info["device_batteryLevelCase"])
+                            batteryCase: percent(info["device_batteryLevelCase"]),
+                            isCharging: boolFlag(info["device_charging"])
                         ))
                     }
                 }
@@ -128,6 +131,16 @@ enum BluetoothDeviceParser {
             if $0.isConnected != $1.isConnected { return $0.isConnected }
             return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
         }
+    }
+
+    static func boolFlag(_ value: Any?) -> Bool {
+        if let b = value as? Bool { return b }
+        if let n = value as? NSNumber { return n.boolValue }
+        if let s = value as? String {
+            let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            return trimmed == "attrib_yes" || trimmed == "yes" || trimmed == "true" || trimmed == "1"
+        }
+        return false
     }
 
     /// "85%" / "85" / 85 → 85, clamped to 0...100; anything else → nil.

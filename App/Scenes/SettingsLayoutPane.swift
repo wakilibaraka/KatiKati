@@ -197,6 +197,32 @@ struct SettingsLayoutPane: View {
         case .tilingFlipMain: return String(localized: "Flip Main Tile Side")
         case .tilingFloatFocused: return String(localized: "Float Focused Window")
         case .tilingRetileAll: return String(localized: "Retile All Windows")
+        // Workspaces (W-6). Digits and arrows read the same in every language, so these rows need
+        // no new localization entries and the 15-locale gate stays green.
+        case .workspace1: return "1"
+        case .workspace2: return "2"
+        case .workspace3: return "3"
+        case .workspace4: return "4"
+        case .workspace5: return "5"
+        case .workspace6: return "6"
+        case .workspace7: return "7"
+        case .workspace8: return "8"
+        case .workspace9: return "9"
+        case .workspace10: return "10"
+        case .workspaceMove1: return "⇧1"
+        case .workspaceMove2: return "⇧2"
+        case .workspaceMove3: return "⇧3"
+        case .workspaceMove4: return "⇧4"
+        case .workspaceMove5: return "⇧5"
+        case .workspaceMove6: return "⇧6"
+        case .workspaceMove7: return "⇧7"
+        case .workspaceMove8: return "⇧8"
+        case .workspaceMove9: return "⇧9"
+        case .workspaceMove10: return "⇧10"
+        case .workspaceNext: return "→"
+        case .workspacePrevious: return "←"
+        case .workspaceMoveNext: return "⇧→"
+        case .workspaceMovePrevious: return "⇧←"
         // Ribbon (scrolling strip)
         case .stripFocusNext: return String(localized: "Focus Next Column")
         case .stripFocusPrevious: return String(localized: "Focus Previous Column")
@@ -263,6 +289,9 @@ struct SettingsLayoutPane: View {
         case .hydration: return Text("Hydration")
         case .food: return Text("Food & Fasting")
         case .notesPreview: return Text("Quick Notes")
+        case .counter: return Text("Counter")
+        case .stickyNote: return Text("Sticky Note")
+        case .analogClock: return Text("Analog Clock")
         case .notes: return Text("Notes")
         case .newNote: return Text("New Note")
         case .settings: return Text("KatiKati Settings")

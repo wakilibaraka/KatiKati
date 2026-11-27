@@ -165,4 +165,36 @@ final class BluetoothDevicesTests: XCTestCase {
         )
         XCTAssertFalse(macChargingLow.hasAnyLowDevice)
     }
+
+    func testParsesChargingFlagAndPropagatesOnMerge() {
+        let json = """
+        {
+          "SPBluetoothDataType": [{
+            "device_connected": [{
+              "Magic Mouse": {
+                "device_address": "AA-11",
+                "device_minorType": "Mouse",
+                "device_batteryLevelMain": "72%",
+                "device_charging": "attrib_Yes"
+              }
+            }, {
+              "AirPods Pro": {
+                "device_address": "BB-22",
+                "device_minorType": "Headphones"
+              }
+            }]
+          }]
+        }
+        """.data(using: .utf8)!
+        let parsed = BluetoothDeviceParser.parse(json)
+        XCTAssertEqual(parsed.first(where: { $0.name == "Magic Mouse" })?.isCharging, true)
+        XCTAssertEqual(parsed.first(where: { $0.name == "AirPods Pro" })?.isCharging, false)
+
+        let merged = BluetoothDeviceRegistry.merge(parsed, [
+            BluetoothDevice(name: "AirPods Pro", address: "BB-22", isConnected: true, kind: "Headphones", batteryMain: 88, isCharging: true)
+        ])
+        let pods = merged.first(where: { $0.name == "AirPods Pro" })
+        XCTAssertEqual(pods?.batteryMain, 88)
+        XCTAssertEqual(pods?.isCharging, true)
+    }
 }

@@ -501,7 +501,7 @@ struct StageEdgeBars: View {
             }
             .frame(width: unit * 0.95, height: unit * 1.1)
             .background(RoundedRectangle(cornerRadius: 3, style: .continuous).fill(Color.black.opacity(0.8)))
-        case .newNote, .settings, .widget, .productivity:
+        case .counter, .stickyNote, .analogClock, .newNote, .settings, .widget, .productivity:
             let tint = buttonTint(content)
             Circle()
                 .fill(style == .bezelDock || style == .fluid ? Color.white.opacity(0.18) : (store.edgeTileStyle == .coloured ? tint : Color.white.opacity(0.45)))
@@ -519,6 +519,9 @@ struct StageEdgeBars: View {
         case .hydration: return .cyan
         case .food: return .orange
         case .notesPreview: return .yellow
+        case .counter: return .indigo
+        case .stickyNote: return .yellow
+        case .analogClock: return .teal
         case .newNote: return NotePalette.entry(at: 0).dashColor
         case .settings: return NotePalette.entry(at: 7).dashColor
         case let .widget(tile):

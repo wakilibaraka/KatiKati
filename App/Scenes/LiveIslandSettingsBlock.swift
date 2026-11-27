@@ -379,20 +379,34 @@ private struct IslandGlassAndMorphCard: View {
     }
 }
 
-private struct NotchControlsCardContentOnly: View {
+private struct NotchHUDControlToggles: View {
     @AppStorage(NotchHUDPresentation.showWhenOpenKey) private var showOpenHUD = true
     @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
+    @AppStorage("com.katikati.notch.peripheralConnect") private var peripheralConnect = true
+    @AppStorage(HardwareHUDTakeoverService.enabledKey) private var hudTakeover = false
+    @AppStorage("com.katikati.notch.aiUsageAlerts") private var aiUsageAlerts = true
 
     var body: some View {
         SettingsToggleRow(Text("Show HUD When Open"), isOn: $showOpenHUD)
         SettingsToggleRow(Text("Show HUD Percentages"), isOn: $showHUDPercentage)
+        SettingsToggleRow(Text("AirPods & Peripheral Connect Card"), isOn: $peripheralConnect)
+        SettingsToggleRow(
+            Text("Replace System Volume & Brightness HUD"),
+            isOn: $hudTakeover,
+            note: Text("Replaces macOS volume, brightness, and keyboard backlight OSD when the notch or island is active. Needs Accessibility access; unsupported keys pass through.")
+        )
+        SettingsToggleRow(Text("AI Quota Alerts"), isOn: $aiUsageAlerts)
+    }
+}
+
+private struct NotchControlsCardContentOnly: View {
+    var body: some View {
+        NotchHUDControlToggles()
     }
 }
 
 private struct NotchControlsCard: View {
     @AppStorage(NotchTransportControl.defaultsKey) private var transportRaw = NotchTransportControl.initialRaw
-    @AppStorage(NotchHUDPresentation.showWhenOpenKey) private var showOpenHUD = true
-    @AppStorage(NotchHUDPresentation.showPercentageKey) private var showHUDPercentage = true
 
     var body: some View {
         let controls = NotchTransportControl.decode(transportRaw)
@@ -432,8 +446,7 @@ private struct NotchControlsCard: View {
             }
             .disabled(controls.count == NotchTransportControl.allCases.count)
             SettingsDivider()
-            SettingsToggleRow(Text("Show HUD When Open"), isOn: $showOpenHUD)
-            SettingsToggleRow(Text("Show HUD Percentages"), isOn: $showHUDPercentage)
+            NotchHUDControlToggles()
         }
     }
 }

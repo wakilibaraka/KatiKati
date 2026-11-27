@@ -1,6 +1,166 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Only the Active Workspace in the Bar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "المساحة النشطة فقط في الشريط" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur der aktive Arbeitsbereich in der Leiste" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Only the Active Workspace in the Bar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo el espacio de trabajo activo en la barra" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Solo el espacio de trabajo activo en la barra" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Uniquement l’espace de travail actif dans la barre" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Solo lo spazio di lavoro attivo nella barra" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バーにはアクティブなワークスペースのみ表示" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "막대에는 활성 작업 공간만 표시" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Alleen de actieve werkruimte in de balk" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apenas a área de trabalho ativa na barra" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apenas a área de trabalho ativa na barra" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "В панели только активное рабочее пространство" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "栗中仅显示当前工作区" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列中僅顯示目前工作區" } }
+      }
+    },
+    "The bar lists the workspace you are on. Turn this off to keep every window on the bar." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "يعرض الشريط المساحة التي أنت فيها. أوقف هذا لإبقاء كل النوافذ في الشريط." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Die Leiste zeigt den Arbeitsbereich, in dem du bist. Ausschalten, um alle Fenster in der Leiste zu behalten." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The bar lists the workspace you are on. Turn this off to keep every window on the bar." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La barra muestra el espacio de trabajo en el que estás. Desactívalo para mantener todas las ventanas en la barra." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "La barra muestra el espacio de trabajo en el que estás. Desactívalo para mantener todas las ventanas en la barra." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La barre affiche l’espace de travail où vous êtes. Désactivez pour garder toutes les fenêtres dans la barre." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "La barra mostra lo spazio di lavoro in cui sei. Disattiva per tenere tutte le finestre nella barra." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バーには今いるワークスペースを表示します。オフにするとすべてのウインドウをバーに残します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "막대에는 현재 작업 공간을 표시합니다. 끄면 모든 윈도우를 막대에 유지합니다." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "De balk toont de werkruimte waar je bent. Zet dit uit om alle vensters in de balk te houden." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "A barra mostra a área de trabalho em que você está. Desative para manter todas as janelas na barra." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "A barra mostra a área de trabalho em que está. Desative para manter todas as janelas na barra." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "В панели показывается текущее рабочее пространство. Отключите, чтобы оставить все окна в панели." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "栗中显示你当前所在的工作区。关闭后所有窗口都保留在栗中。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "列中顯示你目前所在的工作區。關閉後所有視窗都保留在列中。" } }
+      }
+    },
+    "Enable Workspaces" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "تفعيل مساحات العمل" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Arbeitsbereiche aktivieren" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Workspaces" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar espacios de trabajo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Activar espacios de trabajo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer les espaces de travail" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva spazi di lavoro" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ワークスペースを有効にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작업 공간 사용" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Werkruimtes inschakelen" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ativar áreas de trabalho" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativar áreas de trabalho" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включить рабочие пространства" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用工作区" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用工作區" } }
+      }
+    },
+    "Ten workspaces per display. Switching parks the windows you leave and brings back the ones you enter." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "عشرة مساحات عمل لكل شاشة. عند التبديل تُخفى نوافذ المساحة التي تغادرها وتعود نوافذ التي تدخلها." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zehn Arbeitsbereiche pro Bildschirm. Beim Wechsel werden die Fenster des verlassenen Bereichs geparkt und die des neuen zurückgeholt." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ten workspaces per display. Switching parks the windows you leave and brings back the ones you enter." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Diez espacios de trabajo por pantalla. Al cambiar, las ventanas que dejas se aparcan y vuelven las del espacio al que entras." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Diez espacios de trabajo por pantalla. Al cambiar, las ventanas que dejas se aparcan y vuelven las del espacio al que entras." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dix espaces de travail par écran. Au changement, les fenêtres que vous quittez sont garées et celles de l’espace ouvert reviennent." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dieci spazi di lavoro per schermo. Al cambio, le finestre che lasci vengono parcheggiate e tornano quelle dello spazio in cui entri." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "画面ごとに10個のワークスペース。切り替えると、離れるワークスペースのウインドウを退避し、入るワークスペースのウインドウを戻します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "화면마다 작업 공간 10개. 전환하면 떠나는 작업 공간의 윈도우는 보관되고 들어가는 작업 공간의 윈도우가 돌아옵니다." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Tien werkruimtes per scherm. Bij wisselen worden de vensters van de ruimte die je verlaat geparkeerd en die van de nieuwe ruimte teruggehaald." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dez áreas de trabalho por tela. Ao trocar, as janelas que você deixa são estacionadas e as da área em que você entra voltam." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Dez áreas de trabalho por ecrã. Ao mudar, as janelas que deixa são estacionadas e as da área em que entra voltam." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Десять рабочих пространств на экран. При переключении окна покидаемого пространства убираются, а окна нового возвращаются." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每台显示器十个工作区。切换时会收起你离开的工作区的窗口，并恢复你进入的工作区的窗口。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "每台顯示器十個工作區。切換時會收起你離開的工作區的視窗，並還原你進入的工作區的視窗。" } }
+      }
+    },
+    "Workspace Rules" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "قواعد مساحات العمل" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Regeln für Arbeitsbereiche" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Workspace Rules" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reglas de espacios de trabajo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reglas de espacios de trabajo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Règles des espaces de travail" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Regole degli spazi di lavoro" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ワークスペースのルール" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작업 공간 규칙" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Werkruimteregels" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Regras das áreas de trabalho" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Regras das áreas de trabalho" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Правила рабочих пространств" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作区规则" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "工作區規則" } }
+      }
+    },
+    "One rule per line: a bundle id, then =float, =tile, =pin, =ignore or =route:2. Use |Title for an exact title and |~text for part of one." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "قاعدة في كل سطر: معرّف الحزمة ثم =float أو =tile أو =pin أو =ignore أو =route:2. استخدم |العنوان لعنوان مطابق و|~نص لجزء منه." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Eine Regel pro Zeile: eine Bundle-ID, dann =float, =tile, =pin, =ignore oder =route:2. |Titel für einen exakten Titel, |~Text für einen Teil davon." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "One rule per line: a bundle id, then =float, =tile, =pin, =ignore or =route:2. Use |Title for an exact title and |~text for part of one." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Una regla por línea: un identificador de paquete y luego =float, =tile, =pin, =ignore o =route:2. Usa |Título para un título exacto y |~texto para parte de uno." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Una regla por línea: un identificador de paquete y luego =float, =tile, =pin, =ignore o =route:2. Usa |Título para un título exacto y |~texto para parte de uno." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Une règle par ligne : un identifiant de bundle, puis =float, =tile, =pin, =ignore ou =route:2. Utilisez |Titre pour un titre exact et |~texte pour une partie." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Una regola per riga: un bundle id, poi =float, =tile, =pin, =ignore o =route:2. Usa |Titolo per un titolo esatto e |~testo per una parte." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "1行に1ルール：バンドルIDの後に =float、=tile、=pin、=ignore、=route:2 のいずれか。|タイトル で完全一致、|~文字列 で部分一致。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "한 줄에 규칙 하나: 번들 ID 뒤에 =float, =tile, =pin, =ignore 또는 =route:2. |제목 은 정확히 일치, |~텍스트 는 일부 일치." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Eén regel per regel: een bundle-id, dan =float, =tile, =pin, =ignore of =route:2. Gebruik |Titel voor een exacte titel en |~tekst voor een deel ervan." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Uma regra por linha: um bundle id e então =float, =tile, =pin, =ignore ou =route:2. Use |Título para um título exato e |~texto para parte dele." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Uma regra por linha: um bundle id e depois =float, =tile, =pin, =ignore ou =route:2. Use |Título para um título exato e |~texto para parte dele." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Одно правило в строке: идентификатор пакета, затем =float, =tile, =pin, =ignore или =route:2. |Заголовок — точное совпадение, |~текст — часть." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每行一条规则：先是 bundle id，然后 =float、=tile、=pin、=ignore 或 =route:2。用 |标题 精确匹配标题，用 |~文本 匹配其中的一部分。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "每行一條規則：先是 bundle id，然後 =float、=tile、=pin、=ignore 或 =route:2。用 |標題 精確比對標題，用 |~文字 比對其中一部分。" } }
+      }
+    },
+    "Workspace HUD" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "شريط مساحات العمل" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Arbeitsbereichs-HUD" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Workspace HUD" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "HUD de espacios de trabajo" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "HUD de espacios de trabajo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "HUD des espaces de travail" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "HUD degli spazi di lavoro" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ワークスペースHUD" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "작업 공간 HUD" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Werkruimte-HUD" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "HUD das áreas de trabalho" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "HUD das áreas de trabalho" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Индикатор рабочих пространств" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作区浮层" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "工作區浮層" } }
+      }
+    },
+    "Shows the workspace strip for a moment after a switch." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "يعرض شريط مساحات العمل لحظة بعد التبديل." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zeigt nach einem Wechsel kurz die Arbeitsbereichsleiste." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shows the workspace strip for a moment after a switch." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Muestra la tira de espacios de trabajo un momento después de cambiar." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Muestra la tira de espacios de trabajo un momento después de cambiar." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Affiche brièvement la bande des espaces de travail après un changement." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra brevemente la barra degli spazi di lavoro dopo un cambio." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "切り替え後にワークスペースの帯を少しの間表示します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "전환 후 잠시 작업 공간 띠를 표시합니다." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Toont kort de werkruimtebalk na een wissel." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostra a faixa das áreas de trabalho por um momento após a troca." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostra a faixa das áreas de trabalho por um momento após a mudança." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Ненадолго показывает полосу рабочих пространств после переключения." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "切换后短暂显示工作区条。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "切換後短暫顯示工作區列。" } }
+      }
+    },
     "About device battery levels" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -189524,6 +189684,176 @@
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ativa o morph líquido SDF por GPU em todas as predefinições de entalhe (desativado no Modo de Poupança de Energia e em Reduzir Movimento)." } },
         "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在所有刘海预设上启用 GPU SDF 液态变形（低电量模式和减弱动态效果下禁用）。" } },
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在所有瀏海預設上啟用 GPU SDF 液態變形（低電量模式與減少動態效果下停用）。" } }
+      }
+    },
+    "Quota Warning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kontingentwarnung" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quota Warning" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de cuota" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de cuota" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Avertissement de quota" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Avviso quota" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クォータ警告" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "할당량 경고" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de cota" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de quota" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "额度预警" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "額度預警" } }
+      }
+    },
+    "Quota Critical" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kontingent kritisch" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quota Critical" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuota crítica" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuota crítica" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quota critique" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Quota critica" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クォータ残少" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "할당량 임박" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cota crítica" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Quota crítica" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "额度告急" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "額度告急" } }
+      }
+    },
+    "Session Quota" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sitzungskontingent" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Session Quota" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuota de sesión" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Cuota de sesión" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quota de session" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Quota sessione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "セッション枠" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "세션 할당량" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cota da sessão" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Quota da sessão" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "会话额度" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "工作階段額度" } }
+      }
+    },
+    "Resets in %dh %dm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zurücksetzung in %dh %dm" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resets in %dh %dm" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se restablece en %dh %dm" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Se restablece en %dh %dm" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réinitialisation dans %dh %dm" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ripristino tra %dh %dm" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%d時間%d分後にリセット" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%d시간 %d분 후 초기화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reinicia em %dh %dm" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Repõe em %dh %dm" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d小时%d分钟后重置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "%d小時%d分鐘後重設" } }
+      }
+    },
+    "Resets in %dm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zurücksetzung in %dm" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resets in %dm" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se restablece en %dm" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Se restablece en %dm" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réinitialisation dans %dm" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ripristino tra %dm" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%d分後にリセット" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "%d분 후 초기화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reinicia em %dm" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Repõe em %dm" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%d分钟后重置" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "%d分鐘後重設" } }
+      }
+    },
+    "AirPods & Peripheral Connect Card" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "AirPods- & Gerätekarte beim Verbinden" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "AirPods & Peripheral Connect Card" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tarjeta de conexión de AirPods y periféricos" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Tarjeta de conexión de AirPods y periféricos" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Carte de connexion AirPods et périphériques" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scheda connessione AirPods e periferiche" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "AirPods・周辺機器の接続カード" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "AirPods 및 주변기기 연결 카드" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cartão de conexão de AirPods e periféricos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cartão de ligação de AirPods e periféricos" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AirPods 与外设连接卡片" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "AirPods 與周邊裝置連線卡片" } }
+      }
+    },
+    "Replace System Volume & Brightness HUD" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "System-Lautstärke- & Helligkeits-HUD ersetzen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Replace System Volume & Brightness HUD" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reemplazar HUD de volumen y brillo del sistema" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Reemplazar HUD de volumen y brillo del sistema" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Remplacer le HUD volume et luminosité du système" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sostituisci HUD di volume e luminosità di sistema" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システムの音量・輝度 HUD を置き換える" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "시스템 음량 및 밝기 HUD 대체" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Substituir HUD de volume e brilho do sistema" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Substituir HUD de volume e brilho do sistema" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "接管系统音量与亮度 HUD" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "接管系統音量與亮度 HUD" } }
+      }
+    },
+    "Replaces macOS volume, brightness, and keyboard backlight OSD when the notch or island is active. Needs Accessibility access; unsupported keys pass through." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ersetzt die macOS-Anzeigen für Lautstärke, Helligkeit und Tastaturbeleuchtung, wenn Notch oder Island aktiv ist. Erfordert Bedienungshilfen; nicht unterstützte Tasten werden durchgereicht." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Replaces macOS volume, brightness, and keyboard backlight OSD when the notch or island is active. Needs Accessibility access; unsupported keys pass through." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sustituye los indicadores de volumen, brillo e iluminación del teclado de macOS cuando la muesca o la isla están activas. Requiere Accesibilidad; las teclas no compatibles pasan sin cambios." } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Sustituye los indicadores de volumen, brillo e iluminación del teclado de macOS cuando la muesca o la isla están activas. Requiere Accesibilidad; las teclas no compatibles pasan sin cambios." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Remplace les indicateurs macOS de volume, luminosité et rétroéclairage du clavier lorsque l'encoche ou l'îlot est actif. Nécessite Accessibilité ; les touches non prises en charge restent natives." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sostituisce gli indicatori macOS di volume, luminosità e retroilluminazione tastiera quando notch o island è attivo. Richiede Accessibilità; i tasti non supportati passano oltre." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ノッチまたはアイランドが有効なとき、macOS の音量・輝度・キーボードバックライト表示を置き換えます。アクセシビリティ権限が必要で、非対応キーはそのまま通過します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "노치 또는 아일랜드가 활성화되면 macOS 음량, 밝기, 키보드 백라이트 OSD를 대체합니다. 손쉬운 사용 권한이 필요하며 지원되지 않는 키는 그대로 전달됩니다." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Substitui os indicadores do macOS de volume, brilho e luz do teclado quando o notch ou island está ativo. Requer Acessibilidade; teclas sem suporte passam normalmente." } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Substitui os indicadores do macOS de volume, brilho e retroiluminação do teclado quando o entalhe ou island está ativo. Requer Acessibilidade; teclas não suportadas passam normalmente." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刘海或灵动岛启用时接管 macOS 音量、亮度与键盘背光 HUD。需要辅助功能权限；不支持的按键自动透传给系统。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "瀏海或動態島啟用時接管 macOS 音量、亮度與鍵盤背光 HUD。需要輔助使用權限；不支援的按鍵會直接透傳給系統。" } }
+      }
+    },
+    "AI Quota Alerts" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "KI-Kontingentwarnungen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "AI Quota Alerts" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alertas de cuota IA" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Alertas de cuota de IA" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alertes de quota IA" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Avvisi quota IA" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "AI クォータ警告" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "AI 할당량 알림" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Alertas de cota de IA" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Alertas de quota de IA" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "AI 额度预警" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "AI 額度預警" } }
+      }
+    },
+    "Customize" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Anpassen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Customize" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Personnaliser" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Personalizza" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カスタマイズ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "사용자화" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "自訂" } }
       }
     }
   },

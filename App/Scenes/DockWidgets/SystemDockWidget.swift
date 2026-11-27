@@ -11,12 +11,13 @@ struct SystemDockChip: View {
 
     var body: some View {
         let snap = feed.snapshot
+        let density = WidgetDensityPolicy.resolve(dockHeight: 52, widgetSize: size)
         HStack(spacing: 8) {
             DockRing(fraction: snap.cpu, tint: loadTint(for: snap.cpu)) {
                 Text(verbatim: "\(Int((snap.cpu * 100).rounded()))").font(.system(size: 11, weight: .semibold)).monospacedDigit()
             }
             .frame(width: 32, height: 32)
-            if size != .small {
+            if density.showsSecondaryCaption {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("CPU").font(.system(size: 13, weight: .medium))
                     Text(verbatim: "RAM \(SystemMonitorFormat.percent(snap.memory.fraction))").dockCaption()
@@ -24,7 +25,7 @@ struct SystemDockChip: View {
                 }
                 .fixedSize(horizontal: true, vertical: false)
             }
-            if size == .large {
+            if density.showsSparkline {
                 DockSparkline(values: feed.cpu.normalized(ceiling: 1)).frame(maxWidth: .infinity, maxHeight: 28)
             }
         }
@@ -68,31 +69,7 @@ enum SystemDockActions {
 
 /// Hover preview: CPU, RAM, SSD read and SSD write as 2 × 2 sparklines over the last 30 seconds.
 struct SystemPreviewCard: View {
-    @ObservedObject private var feed = DockSystemFeed.shared
-
     var body: some View {
-        let snap = feed.snapshot
-        DockPreviewCard {
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())], alignment: .leading, spacing: 14) {
-                cell(Text("CPU"), value: SystemMonitorFormat.percent(snap.cpu),
-                     history: feed.cpu.normalized(ceiling: 1), tint: loadTint(for: snap.cpu))
-                cell(Text("RAM"), value: SystemMonitorFormat.percent(snap.memory.fraction),
-                     history: feed.memory.normalized(ceiling: 1), tint: loadTint(for: snap.memory.fraction))
-                cell(Text("SSD Read"), value: "\(SystemMonitorFormat.bytes(snap.diskRead))/s",
-                     history: feed.diskRead.normalized(ceiling: feed.diskRead.values.max() ?? 1), tint: .cyan)
-                cell(Text("SSD Write"), value: "\(SystemMonitorFormat.bytes(snap.diskWrite))/s",
-                     history: feed.diskWrite.normalized(ceiling: feed.diskWrite.values.max() ?? 1), tint: .orange)
-            }
-        }
-        .onAppear { feed.retain() }
-        .onDisappear { feed.release() }
-    }
-
-    private func cell(_ title: Text, value: String, history: [Double], tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            title.dockCaption()
-            Text(verbatim: value).font(.system(size: 17, weight: .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
-            DockSparkline(values: history, tint: tint).frame(height: 34)
-        }
+        SystemPreviewTabsView()
     }
 }

@@ -208,6 +208,10 @@ final class DisplayBrightness {
         return gammaLevels[id] ?? 1
     }
 
+    func canControlCursorScreen() -> Bool {
+        level(for: Self.targetScreen()) != nil
+    }
+
     func set(_ level: Double, for screen: NSScreen? = nil) {
         guard let screen = screen ?? Self.targetScreen(), let id = screen.displayID else { return }
         let clamped = min(max(level, 0), 1)
@@ -220,6 +224,8 @@ final class DisplayBrightness {
         if let service = services[uuid], let maximum = maximums[uuid], DisplayBrightnessConfig.ddcEnabled() {
             ddcLevels[uuid] = clamped
             offerDDC(uuid: uuid, vcp: DisplayVCP.brightness, level: clamped, maximum: maximum, service: service)
+            // Post immediately so the Notch HUD tracks key presses without waiting for the 50 ms DDC coalesce.
+            DisplayServicesBrightness.postChange(clamped, for: id)
         } else if GammaDim.apply(clamped, to: id) {
             let applied = GammaDim.clamp(clamped)
             gammaLevels[id] = applied
