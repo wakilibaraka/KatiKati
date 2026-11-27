@@ -40,4 +40,63 @@ final class NowPlayingServiceTests: XCTestCase {
         let second = AudioOutputSwitcher.devices(input: false)
         XCTAssertEqual(first, second)
     }
+
+    func testPerAppAudioEngineTeardownRollbackAndPIDReplacement() {
+        final class FakeSession: PerAppAudioSession {
+            let key: String
+            var gains: [Float] = []
+            var teardownCount = 0
+            init(key: String, initialGain: Float) {
+                self.key = key
+                self.gains.append(initialGain)
+            }
+            func setGain(_ value: Float) { gains.append(value) }
+            func teardown() { teardownCount += 1 }
+        }
+
+        var created: [FakeSession] = []
+        var shouldFail = false
+        let engine = PerAppAudioEngine { process, gain in
+            if shouldFail { throw PerAppAudioFailure.tap }
+            let session = FakeSession(key: process.storageKey, initialGain: gain)
+            created.append(session)
+            return session
+        }
+
+        let appA = AppAudioProcess(id: 10, pid: 100, bundleID: "com.test.a", name: "AppA", isRunningOutput: true)
+        let appB = AppAudioProcess(id: 11, pid: 100, bundleID: "com.test.b", name: "AppB", isRunningOutput: true)
+
+        engine.setGain(0.5, for: appA)
+        XCTAssertTrue(engine.isRouted(appA))
+        XCTAssertEqual(created.count, 1)
+
+        // Adjusting same process updates gain in place.
+        engine.setGain(0.25, for: appA)
+        XCTAssertEqual(created.count, 1)
+        XCTAssertEqual(created[0].gains.last, 0.25)
+
+        // Setting unity (1.0) tears down session.
+        engine.setGain(1.0, for: appA)
+        XCTAssertFalse(engine.isRouted(appA))
+        XCTAssertEqual(created[0].teardownCount, 1)
+
+        // Replacing same PID with different bundle key tears down previous session.
+        engine.setGain(0.5, for: appA)
+        engine.setGain(0.4, for: appB)
+        XCTAssertEqual(created[1].teardownCount, 1)
+        XCTAssertTrue(engine.isRouted(appB))
+
+        // Failure rolls back mix state cleanly.
+        shouldFail = true
+        let appC = AppAudioProcess(id: 12, pid: 200, bundleID: "com.test.c", name: "AppC", isRunningOutput: true)
+        engine.setGain(0.5, for: appC)
+        XCTAssertEqual(engine.failure(for: appC), .tap)
+        XCTAssertEqual(engine.gain(for: appC), 1.0)
+        XCTAssertFalse(engine.isRouted(appC))
+
+        // Stop tears down all active sessions.
+        engine.stop()
+        XCTAssertTrue(engine.routing.isEmpty)
+        XCTAssertEqual(created[2].teardownCount, 1)
+    }
 }

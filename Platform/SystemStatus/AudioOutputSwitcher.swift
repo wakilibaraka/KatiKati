@@ -242,6 +242,12 @@ struct AppAudioProcess: Identifiable, Equatable {
 /// is switched on, so an off module owns no CoreAudio objects and prompts for nothing.
 ///
 /// Routing model: a private tap of exactly one process, muted at the source, rendered back to the
+protocol PerAppAudioSession: AnyObject {
+    var key: String { get }
+    func setGain(_ value: Float)
+    func teardown()
+}
+
 /// current default output through a private aggregate device. Gain 100 % (and no mute) tears the
 /// route down instead of passing audio through untouched — a 1:1 tap only adds latency. Any failure
 /// destroys the whole session, which restores the app's normal output path.
@@ -262,7 +268,12 @@ final class PerAppAudioEngine: ObservableObject {
     /// app to unity, so a remembered level that is not being enforced would be a lie — nothing is
     /// written to disk, and reopening starts from an honest 100 %.
     private var mixes: [String: PerAppAudioMix] = [:]
-    private var sessions: [Int32: MixSession] = [:]
+    private var sessions: [Int32: any PerAppAudioSession] = [:]
+    private let sessionFactory: (AppAudioProcess, Float) throws -> any PerAppAudioSession
+
+    init(sessionFactory: ((AppAudioProcess, Float) throws -> any PerAppAudioSession)? = nil) {
+        self.sessionFactory = sessionFactory ?? { try MixSession(process: $0, gain: $1) }
+    }
 
     func start() { refresh() }
 
@@ -326,7 +337,7 @@ final class PerAppAudioEngine: ObservableObject {
         }
         teardown(pid: process.pid)
         do {
-            sessions[process.pid] = try MixSession(process: process, gain: PerAppAudioRules.effectiveGain(mix))
+            sessions[process.pid] = try sessionFactory(process, PerAppAudioRules.effectiveGain(mix))
             routing.insert(process.pid)
         } catch let reason as PerAppAudioFailure {
             // Nothing is routed, so the row must not keep showing a level that is not running.
@@ -402,7 +413,7 @@ final class PerAppAudioEngine: ObservableObject {
 
 /// One process's live route. Deliberately small and fail-safe: if any CoreAudio call fails the whole
 /// session is destroyed in `init`, and destroying the tap un-mutes the app.
-private final class MixSession {
+private final class MixSession: PerAppAudioSession {
     let pid: Int32
     let key: String
     private(set) var tap: AudioObjectID = kAudioObjectUnknown

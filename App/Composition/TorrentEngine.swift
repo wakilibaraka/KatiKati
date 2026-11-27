@@ -24,6 +24,8 @@ final class TorrentEngine: TorrentEngineClient {
     private var process: Process?
     private var port: Int?
     private var secret: String?
+    private var confFileURL: URL?
+    private var startupTask: Task<Void, Error>?
     private var nextRequestID = 1
 
     private var binary: URL? {
@@ -85,7 +87,18 @@ final class TorrentEngine: TorrentEngineClient {
     }
 
     private func startIfNeeded() async throws {
+        if let startupTask {
+            try await startupTask.value
+            return
+        }
         if process?.isRunning == true, port != nil { return }
+        let task = Task { try await launchAndAwaitReady() }
+        startupTask = task
+        defer { startupTask = nil }
+        try await task.value
+    }
+
+    private func launchAndAwaitReady() async throws {
         guard let binary else { throw TorrentEngineError.notInstalled }
         guard let port = Self.freeLoopbackPort() else { throw TorrentEngineError.unreachable("no free loopback port") }
 
@@ -94,11 +107,15 @@ final class TorrentEngine: TorrentEngineClient {
         let limit = TorrentSettings.effectiveUploadLimit(maxKBps: policy.maxUploadKBps, quietStart: policy.quietStartHour, quietEnd: policy.quietEndHour, quietKBps: policy.quietUploadKBps, hour: hour)
         let options = TorrentSettings.globalOptions(seedRatio: policy.seedRatio, seedMinutes: policy.seedTimeMinutes, uploadKBps: limit)
         let secret = UUID().uuidString
+        let confURL = try Self.writeSecretConfigFile(secret: secret)
+
         let process = Process()
         process.executableURL = binary
-        process.arguments = ["--no-conf", "--quiet", "--console-log-level=warn",
+        // Pass `rpc-secret` via a 0600 conf file so it never appears in `ps` argv, and omit `--no-conf`
+        // because aria2 ignores `--conf-path` when `--no-conf` is set.
+        process.arguments = ["--conf-path=\(confURL.path)", "--quiet", "--console-log-level=warn",
                             "--enable-rpc=true", "--rpc-listen-all=false",
-                            "--rpc-listen-port=\(port)", "--rpc-secret=\(secret)",
+                            "--rpc-listen-port=\(port)",
                             "--dir=\(downloadsDirectory.path)",
                             "--seed-ratio=\(options["seed-ratio"] ?? "0")",
                             "--seed-time=\(options["seed-time"] ?? "0")",
@@ -112,29 +129,59 @@ final class TorrentEngine: TorrentEngineClient {
         do {
             try process.run()
         } catch {
+            try? FileManager.default.removeItem(at: confURL)
             throw TorrentEngineError.unreachable(error.localizedDescription)
         }
         self.process = process
-        self.port = port
-        self.secret = secret
+        self.confFileURL = confURL
 
-        // The port is not answering the instant the process starts; poll `getVersion` with a bounded wait.
+        // The port is not answering the instant the process starts; poll `getVersion` before publishing
+        // `self.port` so concurrent `add()` callers wait on `startupTask` instead of racing.
         for _ in 0..<40 {
-            if (try? await call("aria2.getVersion", ["token:" + secret])) != nil {
+            try Task.checkCancellation()
+            if (try? await call("aria2.getVersion", ["token:" + secret], portOverride: port)) != nil {
+                self.port = port
+                self.secret = secret
                 await applyPolicy()
                 return
             }
-            try? await Task.sleep(nanoseconds: 150_000_000)
+            try await Task.sleep(nanoseconds: 150_000_000)
         }
         shutdown()
         throw TorrentEngineError.unreachable("aria2 did not answer on 127.0.0.1:\(port)")
     }
 
     func shutdown() {
+        startupTask?.cancel()
+        startupTask = nil
         process?.terminate()
         process = nil
         port = nil
         secret = nil
+        if let confFileURL {
+            try? FileManager.default.removeItem(at: confFileURL)
+            self.confFileURL = nil
+        }
+    }
+
+    private static func writeSecretConfigFile(secret: String) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("katikati-aria2-\(UUID().uuidString).conf")
+        let fd = open(url.path, O_WRONLY | O_CREAT | O_EXCL, 0o600)
+        guard fd >= 0 else {
+            throw TorrentEngineError.unreachable("unable to create rpc config file")
+        }
+        defer { close(fd) }
+        let payload = Array("rpc-secret=\(secret)\n".utf8)
+        let written = payload.withUnsafeBytes { raw -> Int in
+            guard let base = raw.baseAddress else { return 0 }
+            return write(fd, base, payload.count)
+        }
+        guard written == payload.count else {
+            try? FileManager.default.removeItem(at: url)
+            throw TorrentEngineError.unreachable("unable to write rpc config file")
+        }
+        return url
     }
 
     private var downloadsDirectory: URL {
@@ -144,8 +191,8 @@ final class TorrentEngine: TorrentEngineClient {
 
     // MARK: - RPC
 
-    private func call(_ method: String, _ params: [Any]) async throws -> Any {
-        guard let port else { throw TorrentEngineError.unreachable("the engine is not running") }
+    private func call(_ method: String, _ params: [Any], portOverride: Int? = nil) async throws -> Any {
+        guard let port = portOverride ?? self.port else { throw TorrentEngineError.unreachable("the engine is not running") }
         var request = URLRequest(url: URL(string: "http://127.0.0.1:\(port)/jsonrpc")!)
         request.httpMethod = "POST"
         request.timeoutInterval = 10

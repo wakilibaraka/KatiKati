@@ -187,6 +187,36 @@ final class WorkspaceControlServerTests: XCTestCase {
         }
         XCTAssertEqual(splitReply, "ok switch 2")
     }
+
+    @MainActor
+    func testStalledClientTimesOutAndSubsequentClientSucceeds() async throws {
+        let harness = try ControlHarness(clientReadTimeout: 0.2)
+        defer { harness.stop() }
+
+        let path = harness.socketURL.path
+        await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+            DispatchQueue.global().async {
+                let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+                guard fd >= 0 else { cont.resume(); return }
+                var addr = sockaddr_un()
+                addr.sun_family = sa_family_t(AF_UNIX)
+                let pathBytes = Array(path.utf8)
+                withUnsafeMutableBytes(of: &addr.sun_path) { raw in raw.copyBytes(from: pathBytes) }
+                _ = withUnsafePointer(to: &addr) {
+                    $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                        connect(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
+                    }
+                }
+                // Hold connection open without sending any bytes past timeout
+                usleep(350_000)
+                close(fd)
+                cont.resume()
+            }
+        }
+
+        let reply = try await harness.send("status")
+        XCTAssertEqual(reply, "ok status=stubbed")
+    }
 }
 
 /// One server on a temp socket plus the spy it talks to.
@@ -197,7 +227,7 @@ private final class ControlHarness {
     let server: WorkspaceControlServer
     let target: SpyControlTarget
 
-    init() throws {
+    init(clientReadTimeout: TimeInterval = 2) throws {
         // Short on purpose: `sun_path` is 104 bytes on macOS, and the per-user temp directory plus a
         // full UUID overflows it. The socket must live somewhere short to be bindable at all.
         directory = URL(fileURLWithPath: "/tmp", isDirectory: true)
@@ -205,7 +235,7 @@ private final class ControlHarness {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         socketURL = directory.appendingPathComponent("control.sock")
         target = SpyControlTarget()
-        server = WorkspaceControlServer(socketURL: socketURL, target: target)
+        server = WorkspaceControlServer(socketURL: socketURL, target: target, clientReadTimeout: clientReadTimeout)
         server.start()
         XCTAssertTrue(server.isListening, "server should own the socket after start()")
     }

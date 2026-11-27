@@ -197,20 +197,25 @@ enum WebDAVSyncPlanner {
     }
 
     static func normalizedRoot(_ raw: String) -> String {
-        var root = raw.trimmingCharacters(in: .whitespaces)
-        if !root.hasPrefix("/") { root = "/" + root }
-        while root.count > 1, root.hasSuffix("/") { root.removeLast() }
-        return root
+        let trimmed = raw.trimmingCharacters(in: .whitespaces)
+        let parts = trimmed.split(separator: "/", omittingEmptySubsequences: true).compactMap { segment -> String? in
+            let s = String(segment)
+            guard !s.isEmpty, s != ".", s != ".." else { return nil }
+            return s
+        }
+        return parts.isEmpty ? "/" : "/" + parts.joined(separator: "/")
     }
 
     static func join(_ components: String...) -> String {
-        var path = ""
+        var parts: [String] = []
         for component in components {
-            let trimmed = component.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            guard !trimmed.isEmpty else { continue }
-            path += "/" + trimmed
+            for segment in component.split(separator: "/", omittingEmptySubsequences: true) {
+                let s = String(segment)
+                guard !s.isEmpty, s != ".", s != ".." else { continue }
+                parts.append(s)
+            }
         }
-        return path.isEmpty ? "/" : path
+        return parts.isEmpty ? "/" : "/" + parts.joined(separator: "/")
     }
 
     /// Merge an array of identified objects (`id` key): local rows win, remote-only rows are appended.

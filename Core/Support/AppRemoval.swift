@@ -57,6 +57,27 @@ enum AppRemovalPlanner {
         }
         return combined
     }
+
+    /// Resolves symlinks and checks that both lexical and resolved paths sit strictly inside one of `allowedRoots`.
+    static func isWithinAllowedBoundary(_ url: URL, allowedRoots: [URL], strictChild: Bool = true) -> Bool {
+        let lexical = url.standardizedFileURL.path
+        let resolved = url.resolvingSymlinksInPath().path
+        for root in allowedRoots {
+            let rootLexical = root.standardizedFileURL.path
+            let rootResolved = root.resolvingSymlinksInPath().path
+            if isPath(lexical, inside: rootLexical, strictChild: strictChild)
+                && isPath(resolved, inside: rootResolved, strictChild: strictChild) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static func isPath(_ path: String, inside root: String, strictChild: Bool) -> Bool {
+        if !strictChild && path == root { return true }
+        let prefix = root.hasSuffix("/") ? root : root + "/"
+        return path.hasPrefix(prefix)
+    }
 }
 
 // MARK: - MB-11: Uninstaller catalogue

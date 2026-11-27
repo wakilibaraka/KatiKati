@@ -83,4 +83,12 @@ final class MediaResolverTests: XCTestCase {
         XCTAssertEqual(MediaResolverFailure.endpointFailed(503).message, "The resolver endpoint answered 503.")
         XCTAssertFalse(MediaResolverFailure.binaryFailed("").message.isEmpty)
     }
+
+    func testBinaryOutcomeFailsWhenExitCodeIsNonZeroEvenIfDestinationPrinted() {
+        let output = "[download] Destination: /tmp/partial.mp4\nERROR: postprocessing failed\n"
+        XCTAssertEqual(
+            MediaResolveState.binaryOutcome(terminationStatus: 1, output: output),
+            .failure(.binaryFailed("ERROR: postprocessing failed"))
+        )
+    }
 }

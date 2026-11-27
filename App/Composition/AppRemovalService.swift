@@ -16,10 +16,25 @@ enum AppRemovalService {
                 app.terminate()
             }
         }
+        let homeURL = URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
+        let libraryRoot = homeURL.appendingPathComponent("Library", isDirectory: true)
         var moved = 0
         for path in plan.paths {
+            let url = URL(fileURLWithPath: path)
+            if plan.removal == .deleteData {
+                guard AppRemovalPlanner.isWithinAllowedBoundary(url, allowedRoots: [libraryRoot]) else {
+                    NSSound.beep()
+                    continue
+                }
+            } else {
+                let resolved = url.resolvingSymlinksInPath().path
+                guard !UninstallerCatalog.isSystemPath(path), !UninstallerCatalog.isSystemPath(resolved) else {
+                    NSSound.beep()
+                    continue
+                }
+            }
             do {
-                try FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
                 moved += 1
             } catch {
                 NSSound.beep()   // permission / read-only volume: silently refuse, like Finder

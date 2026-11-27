@@ -89,9 +89,18 @@ final class CleanerService: ObservableObject {
     func clean(_ selected: [CleanupCandidate]) -> Outcome {
         var outcome = Outcome(moved: 0, failed: 0, bytes: 0)
         var failedPaths = Set<String>()
+        let home = NSHomeDirectory()
+        let allowedRoots = CleanupPlan.roots(home: home).map { URL(fileURLWithPath: $0, isDirectory: true) }
+            + [URL(fileURLWithPath: home, isDirectory: true).appendingPathComponent("Library", isDirectory: true)]
         for candidate in selected {
+            let url = URL(fileURLWithPath: candidate.path)
+            guard AppRemovalPlanner.isWithinAllowedBoundary(url, allowedRoots: allowedRoots) else {
+                outcome.failed += 1
+                failedPaths.insert(candidate.path)
+                continue
+            }
             do {
-                try FileManager.default.trashItem(at: URL(fileURLWithPath: candidate.path), resultingItemURL: nil)
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
                 outcome.moved += 1
                 outcome.bytes += candidate.bytes
             } catch {

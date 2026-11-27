@@ -667,13 +667,28 @@ public final class NowPlayingService: ObservableObject {
         }
     }
 
-    /// Synchronous script run, on the calling (background) queue. Empty string on any failure.
-    private static func runAppleScript(_ source: String) -> String {
-        guard let script = NSAppleScript(source: source) else { return "" }
-        var error: NSDictionary?
-        let result = script.executeAndReturnError(&error)
-        guard error == nil else { return "" }
-        return result.stringValue ?? ""
+    /// Synchronous script run on a background queue via `osascript` so AppleEvents never invoke
+    /// non-thread-safe `NSAppleScript` off the main thread. Empty string on any failure.
+    nonisolated private static func runAppleScript(_ source: String) -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-"]
+        let input = Pipe()
+        let output = Pipe()
+        process.standardInput = input
+        process.standardOutput = output
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            return ""
+        }
+        input.fileHandleForWriting.write(Data(source.utf8))
+        try? input.fileHandleForWriting.close()
+        let data = output.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return "" }
+        return String(decoding: data, as: UTF8.self).trimmingCharacters(in: .newlines)
     }
 
     /// One route per press: the helper when it is the live source, the in-process framework otherwise.
@@ -722,10 +737,7 @@ public final class NowPlayingService: ObservableObject {
 
     private func executeAppleScript(_ source: String) {
         DispatchQueue.global(qos: .userInitiated).async {
-            var error: NSDictionary?
-            if let script = NSAppleScript(source: source) {
-                script.executeAndReturnError(&error)
-            }
+            _ = Self.runAppleScript(source)
         }
     }
 }

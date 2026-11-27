@@ -67,4 +67,23 @@ final class UninstallerCatalogTests: XCTestCase {
         XCTAssertEqual(UninstallerCatalog.filter(entries, query: "com.x.Z").map(\.name), ["Zeta"])
         XCTAssertEqual(UninstallerCatalog.filter(entries, query: "  ").count, 2)
     }
+
+    func testBoundaryCheckRejectsSymlinkEscapingAllowedRoot() throws {
+        let fm = FileManager.default
+        let base = fm.temporaryDirectory.appendingPathComponent("katikati-boundary-\(UUID().uuidString)", isDirectory: true)
+        let allowed = base.appendingPathComponent("Library", isDirectory: true)
+        let outside = base.appendingPathComponent("Documents", isDirectory: true)
+        try fm.createDirectory(at: allowed, withIntermediateDirectories: true)
+        try fm.createDirectory(at: outside, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: base) }
+
+        let safeChild = allowed.appendingPathComponent("Caches/app", isDirectory: true)
+        try fm.createDirectory(at: safeChild, withIntermediateDirectories: true)
+        XCTAssertTrue(AppRemovalPlanner.isWithinAllowedBoundary(safeChild, allowedRoots: [allowed]))
+        XCTAssertFalse(AppRemovalPlanner.isWithinAllowedBoundary(allowed, allowedRoots: [allowed]), "must not trash root itself")
+
+        let escapingSymlink = allowed.appendingPathComponent("EscapingCache")
+        try fm.createSymbolicLink(at: escapingSymlink, withDestinationURL: outside)
+        XCTAssertFalse(AppRemovalPlanner.isWithinAllowedBoundary(escapingSymlink, allowedRoots: [allowed]))
+    }
 }

@@ -446,15 +446,24 @@ final class WallpaperEngine: ObservableObject {
     private func restoreOriginal() {
         guard let data = defaults.data(forKey: Self.savedKey),
               let saved = try? JSONDecoder().decode([Saved].self, from: data) else { return }
+        var restoredKeys = Set<String>()
         for screen in NSScreen.screens {
-            guard let item = saved.first(where: { $0.screenKey == Self.screenKey(screen) }),
+            let key = Self.screenKey(screen)
+            guard let item = saved.first(where: { $0.screenKey == key }),
                   let url = URL(string: item.url) else { continue }
             var options: [NSWorkspace.DesktopImageOptionKey: Any] = [:]
             if let s = item.scaling, let scaling = NSImageScaling(rawValue: UInt(s)) { options[.imageScaling] = scaling.rawValue }
             if let c = item.allowClipping { options[.allowClipping] = c }
-            try? NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: options)
+            if (try? NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: options)) != nil {
+                restoredKeys.insert(key)
+            }
         }
-        defaults.removeObject(forKey: Self.savedKey)
+        let remaining = saved.filter { !restoredKeys.contains($0.screenKey) }
+        if remaining.isEmpty {
+            defaults.removeObject(forKey: Self.savedKey)
+        } else if let encoded = try? JSONEncoder().encode(remaining) {
+            defaults.set(encoded, forKey: Self.savedKey)
+        }
     }
 
     /// DW-10: one guard decision per event, never per frame. Inactive hides the window *and* removes its animations.

@@ -46,16 +46,20 @@ struct WebDAVClient: Sendable {
     init?(serverURL: String, credentials: WebDAVCredentials, session: URLSession = .shared) {
         guard let url = URL(string: serverURL.trimmingCharacters(in: .whitespaces)),
               let scheme = url.scheme?.lowercased(),
-              scheme == "https" || scheme == "http",
-              url.host?.isEmpty == false
+              let host = url.host?.lowercased(),
+              !host.isEmpty
         else { return nil }
+        let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1"
+        guard scheme == "https" || (scheme == "http" && isLoopback) else { return nil }
         self.init(baseURL: url, credentials: credentials, session: session)
     }
 
     func url(for path: String) -> URL {
         var url = baseURL
         for component in path.split(separator: "/", omittingEmptySubsequences: true) {
-            url.appendPathComponent(String(component), isDirectory: false)
+            let segment = String(component)
+            guard segment != "." && segment != ".." else { continue }
+            url.appendPathComponent(segment, isDirectory: false)
         }
         return url
     }

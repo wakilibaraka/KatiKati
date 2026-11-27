@@ -163,14 +163,14 @@ struct MediaResolveState: Equatable, Sendable {
         return expanded.isEmpty ? .notConfigured : .binary(expanded)
     }
 
-    /// A finished local run: the named file wins. Otherwise a non-zero exit is a failure carrying the tool's
-    /// last line, and a clean exit that named nothing is still a failure — silence must not read as success.
+    /// A finished local run: a non-zero exit always fails first (carrying the tool's last line) so a
+    /// partial download that printed a Destination line is never misreported as success.
     static func binaryOutcome(terminationStatus: Int32, output: String) -> Result<URL, MediaResolverFailure> {
-        if let named = MediaResolver.parseDestination(output) {
-            return .success(URL(fileURLWithPath: named))
-        }
         if terminationStatus != 0 {
             return .failure(.binaryFailed(output.split(separator: "\n").last.map(String.init) ?? ""))
+        }
+        if let named = MediaResolver.parseDestination(output) {
+            return .success(URL(fileURLWithPath: named))
         }
         return .failure(.noFileProduced)
     }
@@ -186,6 +186,12 @@ struct MediaResolveState: Equatable, Sendable {
     /// The one funnel: whatever happened, the pane ends up showing either a file or a sentence.
     mutating func begin() {
         isResolving = true
+        lastFile = nil
+        lastFailure = nil
+    }
+
+    mutating func cancel() {
+        isResolving = false
         lastFile = nil
         lastFailure = nil
     }

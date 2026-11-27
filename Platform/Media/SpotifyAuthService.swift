@@ -98,7 +98,11 @@ final class SpotifyAuthService: NSObject, ObservableObject {
         session.start()
     }
 
+    private var refreshTask: Task<String?, Never>?
+
     func signOut() {
+        refreshTask?.cancel()
+        refreshTask = nil
         tokens = nil
         isSignedIn = false
         lastError = nil
@@ -106,20 +110,32 @@ final class SpotifyAuthService: NSObject, ObservableObject {
     }
 
     func validAccessToken() async -> String? {
-        guard var current = tokens else { return nil }
+        guard let current = tokens else { return nil }
         if current.expiresAt.timeIntervalSinceNow > 60 {
             return current.accessToken
         }
-        guard let refresh = current.refreshToken,
-              !clientID.isEmpty,
-              let refreshed = await Self.refreshTokens(refreshToken: refresh, clientID: clientID)
-        else {
+        if let refreshTask {
+            return await refreshTask.value
+        }
+        guard let refresh = current.refreshToken, !clientID.isEmpty else {
             return nil
         }
-        current = refreshed
-        tokens = current
-        Self.saveTokens(current)
-        return current.accessToken
+        let cid = clientID
+        let task = Task { @MainActor [weak self] () -> String? in
+            guard let self else { return nil }
+            defer { self.refreshTask = nil }
+            guard let refreshed = await Self.refreshTokens(refreshToken: refresh, clientID: cid),
+                  !Task.isCancelled,
+                  self.tokens != nil
+            else {
+                return nil
+            }
+            self.tokens = refreshed
+            Self.saveTokens(refreshed)
+            return refreshed.accessToken
+        }
+        refreshTask = task
+        return await task.value
     }
 
     func searchTrackID(title: String, artist: String?) async -> (id: String, webURL: URL?)? {

@@ -1150,7 +1150,12 @@ struct SideDeckStorageView: View {
                         NSWorkspace.shared.activateFileViewerSelecting(reading.paths.map { URL(fileURLWithPath: $0) })
                     }
                     Button(String(localized: "Move to Trash"), role: .destructive) {
-                        reading.paths.forEach { try? FileManager.default.trashItem(at: URL(fileURLWithPath: $0), resultingItemURL: nil) }
+                        let homeRoot = [URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)]
+                        for path in reading.paths {
+                            let url = URL(fileURLWithPath: path)
+                            guard AppRemovalPlanner.isWithinAllowedBoundary(url, allowedRoots: homeRoot) else { continue }
+                            try? FileManager.default.trashItem(at: url, resultingItemURL: nil)
+                        }
                         measureDevCaches()
                     }
                 }
@@ -1207,8 +1212,11 @@ struct SideDeckStorageView: View {
         alert.addButton(withTitle: String(localized: "Cancel"))
         NSApp.activate(ignoringOtherApps: true)
         guard alert.runModal() == .alertFirstButtonReturn else { return }
+        let homeRoot = [URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)]
         for path in sweep.flatMap(\.paths) {
-            try? FileManager.default.trashItem(at: URL(fileURLWithPath: path), resultingItemURL: nil)
+            let url = URL(fileURLWithPath: path)
+            guard AppRemovalPlanner.isWithinAllowedBoundary(url, allowedRoots: homeRoot) else { continue }
+            try? FileManager.default.trashItem(at: url, resultingItemURL: nil)
         }
         measureDevCaches()
     }
@@ -1278,8 +1286,11 @@ struct SideDeckStorageView: View {
             NSPasteboard.general.setString(item.path, forType: .string)
         }
         Button(String(localized: "Move to Trash"), role: .destructive) {
+            let allowed = [URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)]
+            let url = URL(fileURLWithPath: item.path)
+            guard AppRemovalPlanner.isWithinAllowedBoundary(url, allowedRoots: allowed) else { return }
             do {
-                try FileManager.default.trashItem(at: URL(fileURLWithPath: item.path), resultingItemURL: nil)
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
             } catch {
                 let alert = NSAlert()
                 alert.messageText = String(localized: "Move to Trash is unavailable on this volume.")

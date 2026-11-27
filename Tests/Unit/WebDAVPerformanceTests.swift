@@ -175,4 +175,27 @@ final class WebDAVPerformanceTests: XCTestCase {
         XCTAssertEqual(loaded.thumbnailCacheMegabytes, 96)
         XCTAssertEqual(DesktopPerformanceConfig.modeKey, "com.katikati.desktop.performance.mode")
     }
+
+    func testNestedObjectMergeAndSecurityBoundaries() throws {
+        let local = Data(#"{"log":{"entries":[{"id":"1","text":"local"}],"localFlag":true}}"#.utf8)
+        let remote = Data(#"{"log":{"entries":[{"id":"1","text":"remote"},{"id":"2","text":"new"}],"remoteFlag":9}}"#.utf8)
+        let merged = try XCTUnwrap(WebDAVSyncPlanner.mergedFileData(local: local, remote: remote, mode: .merge))
+        let root = try XCTUnwrap(JSONSerialization.jsonObject(with: merged) as? [String: Any])
+        let log = try XCTUnwrap(root["log"] as? [String: Any])
+        let entries = try XCTUnwrap(log["entries"] as? [[String: Any]])
+        XCTAssertEqual(entries.compactMap { $0["id"] as? String }, ["1", "2"])
+        XCTAssertEqual(entries.first?["text"] as? String, "local")
+        XCTAssertEqual(log["localFlag"] as? Bool, true)
+        XCTAssertEqual(log["remoteFlag"] as? Int, 9)
+
+        XCTAssertEqual(WebDAVSyncPlanner.normalizedRoot("/dav/../secret/./KatiKatiSync"), "/dav/secret/KatiKatiSync")
+        XCTAssertEqual(WebDAVSyncPlanner.join("/dav", "..", "todos.json"), "/dav/todos.json")
+
+        let creds = WebDAVCredentials(username: "u", password: "p")
+        XCTAssertNil(WebDAVClient(serverURL: "http://example.com/dav", credentials: creds))
+        XCTAssertNotNil(WebDAVClient(serverURL: "https://example.com/dav", credentials: creds))
+        let loopback = WebDAVClient(serverURL: "http://127.0.0.1:8080/dav", credentials: creds)
+        XCTAssertNotNil(loopback)
+        XCTAssertEqual(loopback?.url(for: "../etc/passwd").path, "/dav/etc/passwd")
+    }
 }

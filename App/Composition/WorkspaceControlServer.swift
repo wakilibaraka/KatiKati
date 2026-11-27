@@ -48,6 +48,7 @@ final class WorkspaceControlServer: @unchecked Sendable {
     private let log = Logger(subsystem: "com.katikati.app", category: "workspace-control")
     private let explicitSocketURL: URL?
     private let explicitTarget: WorkspaceControlTarget?
+    private let clientReadTimeout: TimeInterval
 
     private var listenFD: Int32 = -1
     private var acceptSource: DispatchSourceRead?
@@ -56,9 +57,11 @@ final class WorkspaceControlServer: @unchecked Sendable {
     /// - Parameters:
     ///   - socketURL: overrides the Application Support path (tests use a temp directory).
     ///   - target: overrides `TilingEngine.shared` (tests use a spy).
-    init(socketURL: URL? = nil, target: WorkspaceControlTarget? = nil) {
+    ///   - clientReadTimeout: seconds before an idle client socket read/write times out.
+    init(socketURL: URL? = nil, target: WorkspaceControlTarget? = nil, clientReadTimeout: TimeInterval = 2) {
         self.explicitSocketURL = socketURL
         self.explicitTarget = target
+        self.clientReadTimeout = max(0.05, clientReadTimeout)
     }
 
     /// True while this instance owns a listening socket.
@@ -158,7 +161,9 @@ final class WorkspaceControlServer: @unchecked Sendable {
         let client = accept(fd, nil, nil)
         guard client >= 0 else { return }
 
-        var timeout = timeval(tv_sec: 2, tv_usec: 0)
+        let wholeSeconds = Int(clientReadTimeout)
+        let micros = Int32(((clientReadTimeout - Double(wholeSeconds)) * 1_000_000).rounded())
+        var timeout = timeval(tv_sec: wholeSeconds, tv_usec: micros)
         _ = setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
         _ = setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
         var noSignal: Int32 = 1
