@@ -639,6 +639,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self.radialDialPanel.toggle(page: .tools)
                 case .snapNextDisplay:
                     WindowSnapService.moveToNextDisplay()
+                case .windowInspector:
+                    WindowInspectorController.shared.toggle()
                 case .cursorNextDisplay:
                     DisplayBrightness.shared.jumpCursor()
                 case .spaceNext:

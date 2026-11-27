@@ -19,6 +19,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     case snapCenter, snapMaximize
     /// Sends the focused window to the next display, keeping its relative place. Default `.off`.
     case snapNextDisplay
+    /// SN-4: a read-only card about the focused window (frame, display, memory, CPU). Default ⌃⌥I.
+    case windowInspector
     /// MD-5 cursor assist: moves the pointer to the next display at the same fraction of its edge,
     /// so the pointer lands where the user was looking instead of at a corner. Default `.off`.
     case cursorNextDisplay
@@ -127,6 +129,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .notchPagePrevious: return 35
         case .snapNextDisplay: return 36
         case .cursorNextDisplay: return 77
+        case .windowInspector: return 78
         case .tilingGrowMain: return 37
         case .tilingShrinkMain: return 38
         case .tilingFlipMain: return 39
@@ -204,6 +207,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
              .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
              .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
              .snapCenter, .snapNextDisplay, .cursorNextDisplay: return .off
+        // SN-4: the inspector is a lens worth one chord; it reads, it never writes.
+        case .windowInspector: return .key(ShortcutKey(keyCode: 34, modifiers: ShortcutKey.control | ShortcutKey.option))
         // Maximize in place (no new Space) is the one zone worth a default: ⌃⌥M.
         case .snapMaximize: return .key(ShortcutKey(keyCode: 46, modifiers: ShortcutKey.control | ShortcutKey.option))
         // All tiling actions default to off — user assigns.
@@ -827,7 +832,7 @@ extension ShortcutAction {
         case .snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf,
              .snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight,
              .snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds,
-             .snapCenter, .snapMaximize, .snapNextDisplay, .cursorNextDisplay,
+             .snapCenter, .snapMaximize, .snapNextDisplay, .cursorNextDisplay, .windowInspector,
              .windowSwitcher, .windowDrawer, .spaceNext, .spacePrevious, .dockFocus:
             return .windowAndSnap
         case .toggleTiling, .cycleTilingLayout, .tilingFocusNext, .tilingFocusPrevious,

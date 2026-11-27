@@ -176,10 +176,6 @@
 		C0FFEE000000000000000313 /* SnapPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000311 /* SnapPickerController.swift */; };
 		C0FFEE000000000000000322 /* WindowInspectorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000321 /* WindowInspectorController.swift */; };
 		C0FFEE000000000000000323 /* WindowInspectorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000321 /* WindowInspectorController.swift */; };
-		C0FFEE000000000000000342 /* DisplayModeCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000341 /* DisplayModeCatalog.swift */; };
-		C0FFEE000000000000000343 /* DisplayModeCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000341 /* DisplayModeCatalog.swift */; };
-		C0FFEE000000000000000352 /* DisplayModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000351 /* DisplayModeService.swift */; };
-		C0FFEE000000000000000353 /* DisplayModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000351 /* DisplayModeService.swift */; };
 		C0FFEE000000000000000302 /* WorkspaceControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000301 /* WorkspaceControlServer.swift */; };
 		C0FFEE000000000000000303 /* WorkspaceControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000301 /* WorkspaceControlServer.swift */; };
 		C0FFEE000000000000000511 /* TilingEngine+Workspaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */; };
@@ -1350,7 +1346,6 @@
 		ED00000000000000000000C5 /* WindowSnapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C4 /* WindowSnapService.swift */; };
 		ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C6 /* WindowsFlyoutView.swift */; };
 		ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C8 /* WindowSnapTests.swift */; };
-		F1C0DE00000000000000BB02 /* DisplayModeCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0DE00000000000000BB01 /* DisplayModeCatalogTests.swift */; };
 		ED0000000000000000000D9 /* MultiDisplayOptimizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000D8 /* MultiDisplayOptimizationTests.swift */; };
 		ED00000000000000000000CB /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
 		ED00000000000000000000CC /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
@@ -1796,8 +1791,6 @@
 		C0FFEE000000000000000201 /* WorkspaceHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceHUDController.swift; path = App/Entry/WorkspaceHUDController.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000311 /* SnapPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SnapPickerController.swift; path = App/Entry/SnapPickerController.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000321 /* WindowInspectorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowInspectorController.swift; path = App/Entry/WindowInspectorController.swift; sourceTree = SOURCE_ROOT; };
-		C0FFEE000000000000000341 /* DisplayModeCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisplayModeCatalog.swift; path = Core/Support/DisplayModeCatalog.swift; sourceTree = SOURCE_ROOT; };
-		C0FFEE000000000000000351 /* DisplayModeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisplayModeService.swift; path = Platform/Display/DisplayModeService.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000301 /* WorkspaceControlServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WorkspaceControlServer.swift; path = App/Composition/WorkspaceControlServer.swift; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000501 /* TilingEngine+Workspaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+Workspaces.swift"; path = "App/Composition/TilingEngine+Workspaces.swift"; sourceTree = SOURCE_ROOT; };
 		C0FFEE000000000000000502 /* TilingEngine+WorkspaceTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TilingEngine+WorkspaceTransitions.swift"; path = "App/Composition/TilingEngine+WorkspaceTransitions.swift"; sourceTree = SOURCE_ROOT; };
@@ -2515,7 +2508,6 @@
 		ED00000000000000000000C4 /* WindowSnapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapService.swift; path = Platform/Windows/WindowSnapService.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C6 /* WindowsFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowsFlyoutView.swift; path = App/Scenes/Edge/WindowsFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C8 /* WindowSnapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapTests.swift; path = Tests/Unit/WindowSnapTests.swift; sourceTree = SOURCE_ROOT; };
-		F1C0DE00000000000000BB01 /* DisplayModeCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisplayModeCatalogTests.swift; path = Tests/Unit/DisplayModeCatalogTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000D8 /* MultiDisplayOptimizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MultiDisplayOptimizationTests.swift; path = Tests/Unit/MultiDisplayOptimizationTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000CA /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardHistory.swift; path = Core/Support/ClipboardHistory.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000CD /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardMonitor.swift; path = Platform/Clipboard/ClipboardMonitor.swift; sourceTree = SOURCE_ROOT; };
@@ -4230,8 +4222,6 @@
 				C0FFEE000000000000000202 /* WorkspaceHUDController.swift in Sources */,
 				C0FFEE000000000000000312 /* SnapPickerController.swift in Sources */,
 				C0FFEE000000000000000322 /* WindowInspectorController.swift in Sources */,
-				C0FFEE000000000000000342 /* DisplayModeCatalog.swift in Sources */,
-				C0FFEE000000000000000352 /* DisplayModeService.swift in Sources */,
 				C0FFEE000000000000000302 /* WorkspaceControlServer.swift in Sources */,
 				C0FFEE000000000000000511 /* TilingEngine+Workspaces.swift in Sources */,
 				C0FFEE000000000000000521 /* TilingEngine+WorkspaceTransitions.swift in Sources */,
@@ -4644,7 +4634,6 @@
 				ED00000000000000000000D2 /* ClipboardHistoryTests.swift in Sources */,
 				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,
 				ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */,
-				F1C0DE00000000000000BB02 /* DisplayModeCatalogTests.swift in Sources */,
 				ED0000000000000000000D9 /* MultiDisplayOptimizationTests.swift in Sources */,
 				A0000000000000000001F002 /* SnapRects.swift in Sources */,
 				A0000000000000000001F011 /* SnapRectsTests.swift in Sources */,
@@ -4657,8 +4646,6 @@
 				C0FFEE000000000000000205 /* WorkspaceHUDController.swift in Sources */,
 				C0FFEE000000000000000313 /* SnapPickerController.swift in Sources */,
 				C0FFEE000000000000000323 /* WindowInspectorController.swift in Sources */,
-				C0FFEE000000000000000343 /* DisplayModeCatalog.swift in Sources */,
-				C0FFEE000000000000000353 /* DisplayModeService.swift in Sources */,
 				C0FFEE000000000000000303 /* WorkspaceControlServer.swift in Sources */,
 				C0FFEE000000000000000512 /* TilingEngine+Workspaces.swift in Sources */,
 				C0FFEE000000000000000522 /* TilingEngine+WorkspaceTransitions.swift in Sources */,
