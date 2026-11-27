@@ -3067,10 +3067,10 @@
     "semantic_hash": "5b726aab5fa8b1d2bf79d4d767c2a502"
   },
   "Scripts/package_release.sh": {
-    "mtime": 1794839918.341234,
-    "seen": 1795752234.5247328,
-    "ast_hash": "018c1a02cc4deade4176ae6c9042b87f",
-    "semantic_hash": "018c1a02cc4deade4176ae6c9042b87f"
+    "mtime": 1795804371.5684829,
+    "seen": 1795804457.6527958,
+    "ast_hash": "3f3498b373948626e358c0c412d821b8",
+    "semantic_hash": ""
   },
   "Scripts/sync_boring_notch.sh": {
     "mtime": 1791999137.4485593,
@@ -9551,9 +9551,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/MenuBarCreativeHubView.swift": {
-    "mtime": 1795779293.8531704,
-    "seen": 1795780194.633219,
-    "ast_hash": "6a76184e96f62702d8181e0808aef83c",
+    "mtime": 1795804376.4903395,
+    "seen": 1795804457.652311,
+    "ast_hash": "6b8f94ff7dab937f7e35ee9279166109",
     "semantic_hash": ""
   },
   "App/Scenes/ExperimentalSettingsBlock.swift": {
