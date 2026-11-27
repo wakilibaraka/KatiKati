@@ -426,9 +426,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795807576.7175417,
-    "seen": 1795808588.988022,
-    "ast_hash": "c914dc0328c17226c48a34c0e9c07897",
+    "mtime": 1795811555.791169,
+    "seen": 1795812016.995589,
+    "ast_hash": "fad80e140622a080a376c297fbceb639",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -9341,10 +9341,10 @@
     "semantic_hash": "776cd5243e3b453a774568910cc7ad1a"
   },
   "Core/Support/WorkspaceRules.swift": {
-    "mtime": 1795736986.2008765,
-    "seen": 1795752234.521687,
-    "ast_hash": "875e32b340ddd48eb215e4620ef16de0",
-    "semantic_hash": "875e32b340ddd48eb215e4620ef16de0"
+    "mtime": 1795811063.2025793,
+    "seen": 1795812016.9965,
+    "ast_hash": "3b7cc6f49c60b04d85a38de08001f77e",
+    "semantic_hash": ""
   },
   "Core/Support/Workspaces.swift": {
     "mtime": 1795746611.5113034,
@@ -9389,9 +9389,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WorkspaceRulesTests.swift": {
-    "mtime": 1795807431.5434318,
-    "seen": 1795808588.991232,
-    "ast_hash": "f4e215d6c75f371b8b93abf80991ec55",
+    "mtime": 1795811073.4827392,
+    "seen": 1795812016.997117,
+    "ast_hash": "7b01018c3896fe238f212020dbfd1a8e",
     "semantic_hash": ""
   },
   "Tools/katikati-ctl": {
@@ -9413,9 +9413,9 @@
     "semantic_hash": ""
   },
   "App/Composition/TilingEngine+Workspaces.swift": {
-    "mtime": 1795807519.32616,
-    "seen": 1795808588.98802,
-    "ast_hash": "60069de9bb037f2a0d104d7a8eb8c3c5",
+    "mtime": 1795811066.0766962,
+    "seen": 1795812016.9955862,
+    "ast_hash": "739eaf21757cb1c7ed338a7adc93fa7b",
     "semantic_hash": ""
   },
   "Tests/Unit/WorkspaceControlServerTests.swift": {
