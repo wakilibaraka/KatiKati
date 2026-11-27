@@ -287,6 +287,7 @@ final class SnapDragMonitor {
     /// which is gated on `session.isTracking`, so text selection and scrollbar drags never reach it.
     private var shakeGate = SnapShakeGate()
     private var shakeOpened = false
+    private var dragPasteboardChangeCountAtPress = 0
 
     func setEnabled(_ enabled: Bool, style: SnapPreviewStyle, edgeMargin: CGFloat = 12) {
         self.style = style
@@ -302,6 +303,12 @@ final class SnapDragMonitor {
         monitors.append(NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] _ in
             MainActor.assumeIsolated { self?.released() }
         })
+        if let localUp = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] event in
+            MainActor.assumeIsolated { self?.released() }
+            return event
+        } {
+            monitors.append(localUp)
+        }
     }
 
     private func stop() {
@@ -333,6 +340,7 @@ final class SnapDragMonitor {
             }
             shakeGate.beginPress(pressID)
             shakeOpened = false
+            dragPasteboardChangeCountAtPress = NSPasteboard(name: .drag).changeCount
             return
         }
         if let pressID = session.seededPressID {
@@ -351,7 +359,9 @@ final class SnapDragMonitor {
     /// outright — the two watchers then can never both fire for one gesture.
     private func feedShake(_ mouse: CGPoint) -> Bool {
         if shakeOpened { return true }
-        guard NSPasteboard(name: .drag).availableType(from: [.fileURL]) == nil else { return false }
+        let dragBoard = NSPasteboard(name: .drag)
+        if dragBoard.changeCount != dragPasteboardChangeCountAtPress,
+           dragBoard.availableType(from: [.fileURL]) != nil { return false }
         guard shakeGate.add(x: Double(mouse.x), at: ProcessInfo.processInfo.systemUptime) else { return false }
         shakeOpened = true
         activeZone = nil

@@ -190933,6 +190933,40 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "便利貼" } }
       }
     },
+    "Decrease" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verringern" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Decrease" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Disminuir" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Disminuir" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Diminuer" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Diminuisci" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "減らす" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "감소" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Diminuir" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Diminuir" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "减少" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "減少" } }
+      }
+    },
+    "Increase" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erhöhen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Increase" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aumentar" } },
+        "es-419" : { "stringUnit" : { "state" : "translated", "value" : "Aumentar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Augmenter" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aumenta" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "増やす" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "증가" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aumentar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aumentar" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "增加" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "增加" } }
+      }
+    },
     "Super Glass" : {
       "extractionState" : "manual",
       "localizations" : {

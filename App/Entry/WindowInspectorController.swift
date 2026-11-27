@@ -9,11 +9,25 @@ import SwiftUI
 final class WindowInspectorController {
     static let shared = WindowInspectorController()
 
+    fileprivate struct ScreenInfo: Sendable {
+        let frame: CGRect
+        let name: String
+        let scale: CGFloat
+    }
+
+    fileprivate struct ScreenGeometrySnapshot: Sendable {
+        let primaryMaxY: CGFloat
+        let screens: [ScreenInfo]
+    }
+
     private var panel: NSPanel?
     private var hosting: NSHostingView<WindowInspectorView>?
     private var timer: Timer?
-    private var keyMonitor: Any?
-    private var lastCPU: (wall: TimeInterval, ticks: UInt64)?
+    private var screenObserver: NSObjectProtocol?
+    private var cachedScreens: ScreenGeometrySnapshot?
+    private let readQueue = DispatchQueue(label: "com.katikati.windowInspector", qos: .utility)
+    private var readToken: UInt64 = 0
+    private var lastCPU: (pid: Int32, wall: TimeInterval, ticks: UInt64)?
 
     private init() {}
 
@@ -25,35 +39,84 @@ final class WindowInspectorController {
 
     func show() {
         let panel = ensurePanel()
+        refreshScreenCache()
+        if screenObserver == nil {
+            screenObserver = NotificationCenter.default.addObserver(
+                forName: NSApplication.didChangeScreenParametersNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.refreshScreenCache() }
+            }
+        }
         refresh()
         position(panel)
         panel.orderFrontRegardless()
-        if keyMonitor == nil {
-            keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-                guard event.keyCode == 53 else { return event }   // esc
-                self?.hide()
-                return nil
-            }
-        }
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
         }
+        timer?.tolerance = 0.1
     }
 
     func hide() {
         timer?.invalidate()
         timer = nil
-        if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
-        keyMonitor = nil
+        if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) }
+        screenObserver = nil
+        cachedScreens = nil
+        readToken &+= 1
         lastCPU = nil
         panel?.orderOut(nil)
     }
 
+    private func refreshScreenCache() {
+        let screens = NSScreen.screens
+        let primaryMaxY = screens.first?.frame.maxY ?? 0
+        cachedScreens = ScreenGeometrySnapshot(
+            primaryMaxY: primaryMaxY,
+            screens: screens.map { ScreenInfo(frame: $0.frame, name: $0.localizedName, scale: $0.backingScaleFactor) }
+        )
+    }
+
     private func refresh() {
-        guard let hosting else { return }
-        hosting.rootView = WindowInspectorView(snapshot: InspectorSnapshot.read(cpuSample: &lastCPU))
-        panel?.setContentSize(hosting.fittingSize)
+        guard hosting != nil else { return }
+        guard AXIsProcessTrusted() else {
+            hosting?.rootView = WindowInspectorView(snapshot: nil, needsAccessibility: true)
+            if let hosting { panel?.setContentSize(hosting.fittingSize) }
+            return
+        }
+        guard let app = NSWorkspace.shared.frontmostApplication,
+              app.processIdentifier != ProcessInfo.processInfo.processIdentifier else {
+            lastCPU = nil
+            hosting?.rootView = WindowInspectorView(snapshot: nil, needsAccessibility: false)
+            if let hosting { panel?.setContentSize(hosting.fittingSize) }
+            return
+        }
+        if cachedScreens == nil { refreshScreenCache() }
+        let screens = cachedScreens ?? ScreenGeometrySnapshot(primaryMaxY: 0, screens: [])
+        let pid = app.processIdentifier
+        let appName = app.localizedName ?? "—"
+        let bundleID = app.bundleIdentifier ?? "—"
+        let previousCPU = lastCPU
+        readToken &+= 1
+        let token = readToken
+
+        readQueue.async { [weak self] in
+            let result = InspectorSnapshot.readOffMain(
+                pid: pid,
+                appName: appName,
+                bundleID: bundleID,
+                screens: screens,
+                previousCPU: previousCPU
+            )
+            DispatchQueue.main.async {
+                guard let self, self.readToken == token, self.isVisible, let hosting = self.hosting else { return }
+                self.lastCPU = result.cpuSample
+                hosting.rootView = WindowInspectorView(snapshot: result.snapshot, needsAccessibility: false)
+                self.panel?.setContentSize(hosting.fittingSize)
+            }
+        }
     }
 
     private func position(_ panel: NSPanel) {
@@ -71,7 +134,7 @@ final class WindowInspectorController {
 
     private func ensurePanel() -> NSPanel {
         if let panel { return panel }
-        let hosting = NSHostingView(rootView: WindowInspectorView(snapshot: nil))
+        let hosting = NSHostingView(rootView: WindowInspectorView(snapshot: nil, needsAccessibility: false))
         hosting.setFrameSize(hosting.fittingSize)
         let panel = NSPanel(
             contentRect: NSRect(origin: .zero, size: hosting.fittingSize),
@@ -93,88 +156,92 @@ final class WindowInspectorController {
         self.hosting = hosting
         return panel
     }
-}
 
-struct InspectorSnapshot: Equatable {
-    var title = "—"
-    var app = "—"
-    var bundle = "—"
-    var pid: Int32 = 0
-    var frame: CGRect = .zero
-    var display = "—"
-    var scale: CGFloat = 1
-    var memory: UInt64 = 0
-    var cpu: Double = 0
+    struct InspectorSnapshot: Equatable, Sendable {
+        var title = "—"
+        var app = "—"
+        var bundle = "—"
+        var pid: Int32 = 0
+        var frame: CGRect = .zero
+        var display = "—"
+        var scale: CGFloat = 1
+        var memory: UInt64 = 0
+        var cpu: Double = 0
 
-    /// `cpuSample` carries the previous `ri_user_time + ri_system_time` reading so the card can show a
-    /// percentage instead of a total. Same-user processes only, like the RAM tab.
-    static func read(cpuSample: inout (wall: TimeInterval, ticks: UInt64)?) -> InspectorSnapshot? {
-        guard AXIsProcessTrusted(),
-              let app = NSWorkspace.shared.frontmostApplication,
-              app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { return nil }
-        let pid = app.processIdentifier
-        let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
-        var ref: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute as CFString, &ref) == .success,
-              let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else { return nil }
-        let window = AXMessagingPolicy.applyTimeout(ref as! AXUIElement)
+        fileprivate nonisolated static func readOffMain(
+            pid: Int32,
+            appName: String,
+            bundleID: String,
+            screens: ScreenGeometrySnapshot,
+            previousCPU: (pid: Int32, wall: TimeInterval, ticks: UInt64)?
+        ) -> (snapshot: InspectorSnapshot?, cpuSample: (pid: Int32, wall: TimeInterval, ticks: UInt64)?) {
+            let appElement = AXMessagingPolicy.applyTimeout(AXUIElementCreateApplication(pid))
+            var ref: CFTypeRef?
+            guard AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute as CFString, &ref) == .success,
+                  let ref, CFGetTypeID(ref) == AXUIElementGetTypeID() else { return (nil, nil) }
+            let window = AXMessagingPolicy.applyTimeout(ref as! AXUIElement)
 
-        var snapshot = InspectorSnapshot()
-        snapshot.app = app.localizedName ?? "—"
-        snapshot.bundle = app.bundleIdentifier ?? "—"
-        snapshot.pid = pid
-        snapshot.title = string(window, kAXTitleAttribute) ?? "—"
-        snapshot.frame = frame(of: window) ?? .zero
-        if let screen = NSScreen.screens.first(where: { $0.frame.contains(CGPoint(x: snapshot.frame.midX, y: snapshot.frame.midY)) }),
-           let primary = NSScreen.screens.first {
-            snapshot.display = screen.localizedName
-            snapshot.scale = screen.backingScaleFactor
-            snapshot.frame = CGRect(x: snapshot.frame.minX,
-                                    y: primary.frame.maxY - snapshot.frame.maxY,
-                                    width: snapshot.frame.width,
-                                    height: snapshot.frame.height)
-        }
-        snapshot.memory = AppMemorySampler.physicalFootprintBytes(for: pid)
-
-        var usage = rusage_info_v4()
-        let status = withUnsafeMutablePointer(to: &usage) {
-            $0.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { proc_pid_rusage(pid, RUSAGE_INFO_V4, $0) }
-        }
-        if status == 0 {
-            let wall = ProcessInfo.processInfo.systemUptime
-            let ticks = usage.ri_user_time + usage.ri_system_time
-            if let last = cpuSample, wall > last.wall, ticks >= last.ticks {
-                // rusage times are nanoseconds on macOS, so ticks over nanoseconds of wall is the share.
-                snapshot.cpu = min(100, Double(ticks - last.ticks) / ((wall - last.wall) * 1_000_000_000) * 100)
+            var snapshot = InspectorSnapshot()
+            snapshot.app = appName
+            snapshot.bundle = bundleID
+            snapshot.pid = pid
+            snapshot.title = string(window, kAXTitleAttribute) ?? "—"
+            let quartzFrame = frame(of: window) ?? .zero
+            let cocoaFrame = WindowInspectorMath.cocoaFrame(fromQuartz: quartzFrame, primaryMaxY: screens.primaryMaxY)
+            snapshot.frame = cocoaFrame
+            if let screen = screens.screens.first(where: { $0.frame.contains(CGPoint(x: cocoaFrame.midX, y: cocoaFrame.midY)) }) {
+                snapshot.display = screen.name
+                snapshot.scale = screen.scale
             }
-            cpuSample = (wall, ticks)
+
+            var usage = rusage_info_v4()
+            let status = withUnsafeMutablePointer(to: &usage) {
+                $0.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { proc_pid_rusage(pid, RUSAGE_INFO_V4, $0) }
+            }
+            var nextSample: (pid: Int32, wall: TimeInterval, ticks: UInt64)?
+            if status == 0 {
+                snapshot.memory = usage.ri_phys_footprint
+                let wall = ProcessInfo.processInfo.systemUptime
+                let ticks = usage.ri_user_time + usage.ri_system_time
+                var timebase = mach_timebase_info_data_t()
+                mach_timebase_info(&timebase)
+                let current = (pid: pid, wall: wall, ticks: ticks)
+                snapshot.cpu = WindowInspectorMath.cpuPercent(
+                    previous: previousCPU,
+                    current: current,
+                    timebaseNumer: timebase.numer,
+                    timebaseDenom: timebase.denom
+                )
+                nextSample = current
+            }
+            return (snapshot, nextSample)
         }
-        return snapshot
-    }
 
-    private static func string(_ element: AXUIElement, _ attribute: String) -> String? {
-        var ref: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(element, attribute as CFString, &ref) == .success else { return nil }
-        return (ref as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
+        private nonisolated static func string(_ element: AXUIElement, _ attribute: String) -> String? {
+            var ref: CFTypeRef?
+            guard AXUIElementCopyAttributeValue(element, attribute as CFString, &ref) == .success else { return nil }
+            return (ref as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
 
-    private static func frame(of window: AXUIElement) -> CGRect? {
-        var positionRef: CFTypeRef?
-        var sizeRef: CFTypeRef?
-        var point = CGPoint.zero
-        var size = CGSize.zero
-        guard AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &positionRef) == .success,
-              let positionRef, CFGetTypeID(positionRef) == AXValueGetTypeID(),
-              AXValueGetValue(positionRef as! AXValue, .cgPoint, &point),
-              AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef) == .success,
-              let sizeRef, CFGetTypeID(sizeRef) == AXValueGetTypeID(),
-              AXValueGetValue(sizeRef as! AXValue, .cgSize, &size) else { return nil }
-        return CGRect(origin: point, size: size)
+        private nonisolated static func frame(of window: AXUIElement) -> CGRect? {
+            var positionRef: CFTypeRef?
+            var sizeRef: CFTypeRef?
+            var point = CGPoint.zero
+            var size = CGSize.zero
+            guard AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &positionRef) == .success,
+                  let positionRef, CFGetTypeID(positionRef) == AXValueGetTypeID(),
+                  AXValueGetValue(positionRef as! AXValue, .cgPoint, &point),
+                  AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &sizeRef) == .success,
+                  let sizeRef, CFGetTypeID(sizeRef) == AXValueGetTypeID(),
+                  AXValueGetValue(sizeRef as! AXValue, .cgSize, &size) else { return nil }
+            return CGRect(origin: point, size: size)
+        }
     }
 }
 
 struct WindowInspectorView: View {
-    var snapshot: InspectorSnapshot?
+    var snapshot: WindowInspectorController.InspectorSnapshot?
+    var needsAccessibility: Bool = false
     @Environment(\.colorScheme) private var scheme
 
     private var ink: Color { scheme == .dark ? .white : .black }
@@ -198,7 +265,11 @@ struct WindowInspectorView: View {
                 row(Text("CPU"), String(format: "%.0f%%", s.cpu))
             } else {
                 Text("Window Inspector").font(.system(size: 12, weight: .semibold)).foregroundStyle(ink)
-                Text(verbatim: "—").font(.system(size: 11)).foregroundStyle(ink.opacity(0.55))
+                if needsAccessibility {
+                    Text("Accessibility").font(.system(size: 11)).foregroundStyle(ink.opacity(0.65))
+                } else {
+                    Text(verbatim: "—").font(.system(size: 11)).foregroundStyle(ink.opacity(0.55))
+                }
             }
         }
         .padding(12)

@@ -439,3 +439,29 @@ struct SnapShakeGate {
         firedForPress = false
     }
 }
+
+/// SN-4: pure coordinate and Mach-timebase math for `WindowInspectorController`.
+enum WindowInspectorMath {
+    static func cocoaFrame(fromQuartz quartz: CGRect, primaryMaxY: CGFloat) -> CGRect {
+        CGRect(x: quartz.minX,
+               y: primaryMaxY - quartz.maxY,
+               width: quartz.width,
+               height: quartz.height)
+    }
+
+    static func cpuPercent(
+        previous: (pid: Int32, wall: TimeInterval, ticks: UInt64)?,
+        current: (pid: Int32, wall: TimeInterval, ticks: UInt64),
+        timebaseNumer: UInt32,
+        timebaseDenom: UInt32
+    ) -> Double {
+        guard let previous,
+              previous.pid == current.pid,
+              current.wall > previous.wall,
+              current.ticks >= previous.ticks,
+              timebaseDenom > 0 else { return 0 }
+        let deltaNanoseconds = Double(current.ticks - previous.ticks) * Double(timebaseNumer) / Double(timebaseDenom)
+        let wallNanoseconds = (current.wall - previous.wall) * 1_000_000_000
+        return max(0, (deltaNanoseconds / wallNanoseconds) * 100)
+    }
+}

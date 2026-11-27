@@ -67,7 +67,7 @@ struct DeckCounterCardView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("Counter"))
+                .accessibilityLabel(Text("Decrease"))
 
                 Button { store.increment() } label: {
                     Image(systemName: "plus.circle.fill")
@@ -77,7 +77,7 @@ struct DeckCounterCardView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("Counter"))
+                .accessibilityLabel(Text("Increase"))
             }
         }
         .padding(.vertical, 6)

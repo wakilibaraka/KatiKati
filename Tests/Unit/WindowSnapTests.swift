@@ -2,6 +2,68 @@ import Foundation
 import XCTest
 @testable import KatiKati
 
+@MainActor
+final class SnapPickerModelTests: XCTestCase {
+    func testSelectionStartsEmptyAndArrowNavigationClampsToAvailableZones() {
+        let model = SnapPickerModel()
+        XCTAssertNil(model.selected)
+        XCTAssertNil(model.selectedZone)
+        model.move(by: 1)
+        XCTAssertEqual(model.selected, 0)
+        XCTAssertEqual(model.selectedZone, .leftHalf)
+        model.move(by: 1)
+        XCTAssertEqual(model.selected, 0)
+        XCTAssertEqual(model.selectedZone, .rightHalf)
+        model.move(by: 100)
+        XCTAssertEqual(model.selected, SnapLayoutCatalog.presets.count - 1)
+        XCTAssertEqual(model.selectedZone, .maximize)
+        model.move(by: -100)
+        XCTAssertEqual(model.selected, 0)
+        XCTAssertEqual(model.selectedZone, .leftHalf)
+    }
+
+    func testPickDismissesBeforeApplyingAnyChosenZone() {
+        let model = SnapPickerModel()
+        var order: [String] = []
+        var picked: [SnapPosition] = []
+        model.onDismiss = { order.append("dismiss") }
+        model.onPick = { zone in order.append("apply"); picked.append(zone) }
+        model.pick(2)
+        model.pick(zone: .rightHalf)
+        model.pick(zone: .bottomRight)
+        model.pick(zone: .centerThird)
+        XCTAssertEqual(order, ["dismiss", "apply", "dismiss", "apply", "dismiss", "apply", "dismiss", "apply"])
+        XCTAssertEqual(picked, [.leftThird, .rightHalf, .bottomRight, .centerThird])
+    }
+}
+
+final class WindowInspectorMathTests: XCTestCase {
+    func testCocoaFrameHandlesStackedExternalDisplaysWithNegativeQuartzY() {
+        let quartz = CGRect(x: -164, y: -900, width: 1200, height: 800)
+        let cocoa = WindowInspectorMath.cocoaFrame(fromQuartz: quartz, primaryMaxY: 1112)
+        XCTAssertEqual(cocoa, CGRect(x: -164, y: 1212, width: 1200, height: 800))
+    }
+
+    func testCpuPercentScalesMachTimebaseAndResetsAcrossPidChange() {
+        // Apple Silicon timebase: 125 / 3 ns per tick. 24_000_000 ticks = 1_000_000_000 ns (100% of 1s).
+        let pct = WindowInspectorMath.cpuPercent(
+            previous: (pid: 100, wall: 10.0, ticks: 1_000_000),
+            current: (pid: 100, wall: 11.0, ticks: 25_000_000),
+            timebaseNumer: 125,
+            timebaseDenom: 3
+        )
+        XCTAssertEqual(pct, 100.0, accuracy: 0.001)
+
+        let pidChanged = WindowInspectorMath.cpuPercent(
+            previous: (pid: 100, wall: 10.0, ticks: 1_000_000),
+            current: (pid: 200, wall: 11.0, ticks: 99_000_000),
+            timebaseNumer: 125,
+            timebaseDenom: 3
+        )
+        XCTAssertEqual(pidChanged, 0)
+    }
+}
+
 final class WindowSnapTests: XCTestCase {
     private let visible = CGRect(x: 0, y: 40, width: 1440, height: 800)
 

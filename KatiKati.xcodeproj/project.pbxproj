@@ -772,6 +772,7 @@
 		ED000000000000000000000B /* SystemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000009 /* SystemStatus.swift */; };
 		ED000000000000000000000D /* SystemStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED000000000000000000000C /* SystemStatusTests.swift */; };
 		7D1000000000000000000002 /* NowPlayingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1000000000000000000001 /* NowPlayingService.swift */; };
+		C0FFEE000000000000000904 /* NowPlayingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1000000000000000000001 /* NowPlayingService.swift */; };
 		7D2000000000000000000002 /* NowPlayingChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2000000000000000000001 /* NowPlayingChip.swift */; };
 		A0000000000000000000E202 /* CalculatorTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E201 /* CalculatorTile.swift */; };
 		A0000000000000000000E204 /* AudioRecorderTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000E203 /* AudioRecorderTile.swift */; };
@@ -1353,6 +1354,7 @@
 		ED00000000000000000000C7 /* WindowsFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C6 /* WindowsFlyoutView.swift */; };
 		ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C8 /* WindowSnapTests.swift */; };
 		F1C0DE00000000000000BB02 /* DisplayModeCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0DE00000000000000BB01 /* DisplayModeCatalogTests.swift */; };
+		C0FFEE000000000000000903 /* NowPlayingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE000000000000000902 /* NowPlayingServiceTests.swift */; };
 		ED0000000000000000000D9 /* MultiDisplayOptimizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000D8 /* MultiDisplayOptimizationTests.swift */; };
 		ED00000000000000000000CB /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
 		ED00000000000000000000CC /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000CA /* ClipboardHistory.swift */; };
@@ -2520,6 +2522,7 @@
 		ED00000000000000000000C6 /* WindowsFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowsFlyoutView.swift; path = App/Scenes/Edge/WindowsFlyoutView.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000C8 /* WindowSnapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WindowSnapTests.swift; path = Tests/Unit/WindowSnapTests.swift; sourceTree = SOURCE_ROOT; };
 		F1C0DE00000000000000BB01 /* DisplayModeCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DisplayModeCatalogTests.swift; path = Tests/Unit/DisplayModeCatalogTests.swift; sourceTree = SOURCE_ROOT; };
+		C0FFEE000000000000000902 /* NowPlayingServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NowPlayingServiceTests.swift; path = Tests/Unit/NowPlayingServiceTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000D8 /* MultiDisplayOptimizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MultiDisplayOptimizationTests.swift; path = Tests/Unit/MultiDisplayOptimizationTests.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000CA /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardHistory.swift; path = Core/Support/ClipboardHistory.swift; sourceTree = SOURCE_ROOT; };
 		ED00000000000000000000CD /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClipboardMonitor.swift; path = Platform/Clipboard/ClipboardMonitor.swift; sourceTree = SOURCE_ROOT; };
@@ -2752,8 +2755,18 @@
 				A00000000000000000000033 /* Finder */,
 				A00000000000000000000034 /* Permissions */,
 				A00000000000000000000070 /* AppTracking */,
+				C0FFEE000000000000000350 /* Display */,
 			);
 			path = Platform;
+			sourceTree = "<group>";
+		};
+		C0FFEE000000000000000350 /* Display */ = {
+			isa = PBXGroup;
+			children = (
+				C0DE20000000000000000001 /* DisplayBrightness.swift */,
+				C0FFEE000000000000000351 /* DisplayModeService.swift */,
+			);
+			path = Display;
 			sourceTree = "<group>";
 		};
 		A00000000000000000000020 /* UI */ = {
@@ -2818,6 +2831,8 @@
 				B10000000000000000000121 /* TaskbarScreenOrchestrator.swift */,
 				A00000000000000000009750 /* NonConstrainingPanel.swift */,
 				ED0000000000000000000006 /* EdgeBarPanelController.swift */,
+				C0FFEE000000000000000311 /* SnapPickerController.swift */,
+				C0FFEE000000000000000321 /* WindowInspectorController.swift */,
 			);
 			path = Entry;
 			sourceTree = "<group>";
@@ -3265,6 +3280,8 @@
 				A00000000000000000009730 /* DragControllerConversionTests.swift */,
 				A00000000000000000000C00 /* ManualPanelHostTests.swift */,
 				A0000000000000000000ACC0 /* NonConstrainingPanelTests.swift */,
+				F1C0DE00000000000000BB01 /* DisplayModeCatalogTests.swift */,
+				C0FFEE000000000000000902 /* NowPlayingServiceTests.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -3414,6 +3431,8 @@
 				D10000000000000000000000 /* CarrierSnapshot.swift */,
 				D10000000000000000000005 /* DragCarrierGeometry.swift */,
 				D10000000000000000000065 /* StripBlockLanding.swift */,
+				C0FFEE000000000000000341 /* DisplayModeCatalog.swift */,
+				C0FFEE000000000000000361 /* DisplayArrangement.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -4557,6 +4576,7 @@
 				7C5000000000000000A013 /* NowPlayingTapPolicy.swift in Sources */,
 				7C5000000000000000A023 /* NotchMusicGlow.swift in Sources */,
 				7B50000000000000000001F4 /* AppleScriptNowPlaying.swift in Sources */,
+				C0FFEE000000000000000904 /* NowPlayingService.swift in Sources */,
 				7B50000000000000000000B5 /* LiveEventPresentation.swift in Sources */,
 				7B5000000000000000000043 /* WeatherEffects.swift in Sources */,
 				7B50000000000000009A1002 /* WeatherLayoutSpec.swift in Sources */,
@@ -4651,6 +4671,7 @@
 				ED00000000000000000000C3 /* WindowSnap.swift in Sources */,
 				ED00000000000000000000C9 /* WindowSnapTests.swift in Sources */,
 				F1C0DE00000000000000BB02 /* DisplayModeCatalogTests.swift in Sources */,
+				C0FFEE000000000000000903 /* NowPlayingServiceTests.swift in Sources */,
 				ED0000000000000000000D9 /* MultiDisplayOptimizationTests.swift in Sources */,
 				A0000000000000000001F002 /* SnapRects.swift in Sources */,
 				A0000000000000000001F011 /* SnapRectsTests.swift in Sources */,

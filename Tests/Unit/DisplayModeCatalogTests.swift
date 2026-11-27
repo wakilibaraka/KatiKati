@@ -50,8 +50,9 @@ final class DisplayModeCatalogTests: XCTestCase {
         XCTAssertEqual(mode(1920, 1920, refresh: 0).label, "1920 × 1080")
     }
 
-    func testSamePictureIgnoresRefresh() {
+    func testSamePictureIgnoresRefreshButOptionIDDistinguishesRefreshRate() {
         XCTAssertTrue(DisplayModeCatalog.isSamePicture(mode(1920, 1920, refresh: 60), mode(1920, 1920, refresh: 120)))
+        XCTAssertNotEqual(mode(1920, 1920, refresh: 60).id, mode(1920, 1920, refresh: 120).id)
         XCTAssertFalse(DisplayModeCatalog.isSamePicture(mode(1920, 1920), mode(960, 1920)))
     }
 

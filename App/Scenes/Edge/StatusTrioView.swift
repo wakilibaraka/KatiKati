@@ -1702,8 +1702,10 @@ struct MenuBarCreativeHubView: View {
     /// Tier B: empty (the default) keeps every opt-in module out of the tree entirely.
     @AppStorage(HubModule.storageKey) private var modulesRaw = ""
     @State private var showUninstaller = false
-    /// SN-6: saved display arrangements, loaded once per open.
+    /// SN-6: saved display arrangements and cached display modes, loaded on open / screen change.
     @State private var arrangements: [DisplayArrangement] = []
+    @State private var displayModeTargets: [(id: CGDirectDisplayID, name: String, screen: NSScreen, options: [DisplayModeOption])] = []
+    @State private var liveDisplayKeys: Set<String> = []
     /// The two menu rows are `Menu`s, and a borderless `Menu` shrinks to its label's ideal width, which
     /// left "Display Mode" and "Arrangements" floating as small controls instead of rows. The plain
     /// "Window Layouts" button above them fills the column, so its measured width is the width every
@@ -1760,9 +1762,13 @@ struct MenuBarCreativeHubView: View {
         .onAppear {
             engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
             arrangements = DisplayArrangementStore.load()
+            reloadDisplayCache()
             if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
             // MD-5: the external panel's own volume, read once per open (nil hides the slider).
             displayVolume = DisplayBrightness.volumeForCursorScreen()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
+            reloadDisplayCache()
         }
         .onDisappear { status.release() }
         .onChange(of: selectedTab) { _, _ in query = "" }
@@ -1957,15 +1963,23 @@ struct MenuBarCreativeHubView: View {
     /// fifteen seconds, so a mode the screen cannot show reverts on its own.
     private var displayModeRow: some View {
         Menu {
-            let screen = NSScreen.main
-            let displayID = screen.flatMap { DisplayModeService.displayID(for: $0) }
-            let options = displayID.map { id in
-                DisplayModeService.modes(for: id).map { DisplayModeService.option(for: $0) }
-            } ?? []
-            ForEach(DisplayModeCatalog.sorted(options)) { option in
-                Button(option.label) {
-                    guard let screen else { return }
-                    DisplayModeSwitcher.shared.apply(option, on: screen)
+            if displayModeTargets.count <= 1, let only = displayModeTargets.first {
+                ForEach(only.options) { option in
+                    Button(option.label) {
+                        DisplayModeSwitcher.shared.apply(option, on: only.screen)
+                    }
+                }
+            } else {
+                ForEach(displayModeTargets, id: \.id) { target in
+                    Menu {
+                        ForEach(target.options) { option in
+                            Button(option.label) {
+                                DisplayModeSwitcher.shared.apply(option, on: target.screen)
+                            }
+                        }
+                    } label: {
+                        Text(verbatim: target.name)
+                    }
                 }
             }
         } label: {
@@ -1992,7 +2006,16 @@ struct MenuBarCreativeHubView: View {
             if !arrangements.isEmpty {
                 Divider()
                 ForEach(arrangements) { preset in
+                    let complete = DisplayArrangementGeometry.isComplete(preset, liveKeys: liveDisplayKeys)
                     Button(preset.name) { DisplayModeService.applyArrangement(preset) }
+                        .disabled(!complete)
+                }
+                Menu {
+                    ForEach(arrangements) { preset in
+                        Button(preset.name, role: .destructive) { removeArrangement(preset.id) }
+                    }
+                } label: {
+                    Text("Remove")
                 }
             }
         } label: {
@@ -2012,9 +2035,24 @@ struct MenuBarCreativeHubView: View {
         .menuIndicator(.hidden)
     }
 
+    private func reloadDisplayCache() {
+        let screens = NSScreen.screens
+        liveDisplayKeys = Set(screens.compactMap { DisplayIdentity.uuidString(for: $0) })
+        displayModeTargets = screens.compactMap { screen in
+            guard let id = DisplayModeService.displayID(for: screen) else { return nil }
+            let options = DisplayModeCatalog.sorted(DisplayModeService.modes(for: id).map { DisplayModeService.option(for: $0) })
+            return (id: id, name: screen.localizedName, screen: screen, options: options)
+        }
+    }
+
     private func saveArrangement() {
         guard let preset = DisplayModeService.captureArrangement(named: "Arrangement \(arrangements.count + 1)") else { return }
         arrangements.append(preset)
+        DisplayArrangementStore.save(arrangements)
+    }
+
+    private func removeArrangement(_ id: UUID) {
+        arrangements.removeAll { $0.id == id }
         DisplayArrangementStore.save(arrangements)
     }
 

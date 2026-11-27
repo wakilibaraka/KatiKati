@@ -48,19 +48,26 @@ enum DisplayModeService {
 
     /// Applies `mode`. Returns the mode that was in effect, which is what a revert needs.
     @discardableResult
-    static func apply(_ mode: CGDisplayMode, to displayID: CGDirectDisplayID) -> CGDisplayMode? {
+    static func apply(_ mode: CGDisplayMode, to displayID: CGDirectDisplayID,
+                      option: CGConfigureOption = .forSession) -> CGDisplayMode? {
         let previous = currentMode(for: displayID)
         var config: CGDisplayConfigRef?
         guard CGBeginDisplayConfiguration(&config) == .success, let config else { return nil }
-        CGConfigureDisplayWithDisplayMode(config, displayID, mode, nil)
-        guard CGCompleteDisplayConfiguration(config, .permanently) == .success else { return nil }
+        guard CGConfigureDisplayWithDisplayMode(config, displayID, mode, nil) == .success else {
+            CGCancelDisplayConfiguration(config)
+            return nil
+        }
+        guard CGCompleteDisplayConfiguration(config, option) == .success else {
+            return nil
+        }
         return previous
     }
 
     /// Puts a display back the way it was; used by the timer and by the alert's Revert button.
     @discardableResult
-    static func restore(_ mode: CGDisplayMode, to displayID: CGDirectDisplayID) -> Bool {
-        apply(mode, to: displayID) != nil
+    static func restore(_ mode: CGDisplayMode, to displayID: CGDirectDisplayID,
+                        option: CGConfigureOption = .permanently) -> Bool {
+        apply(mode, to: displayID, option: option) != nil
     }
 }
 
@@ -86,16 +93,19 @@ extension DisplayModeService {
     @discardableResult
     static func applyArrangement(_ arrangement: DisplayArrangement) -> Bool {
         let screens = NSScreen.screens
-        let keyed = Dictionary(uniqueKeysWithValues: screens.compactMap { screen in
+        let keyed = Dictionary(screens.compactMap { screen in
             DisplayIdentity.uuidString(for: screen).map { ($0, screen) }
-        })
+        }, uniquingKeysWith: { first, _ in first })
         guard DisplayArrangementGeometry.isComplete(arrangement, liveKeys: Set(keyed.keys)) else { return false }
         var config: CGDisplayConfigRef?
         guard CGBeginDisplayConfiguration(&config) == .success, let config else { return false }
         for entry in arrangement.entries {
             guard let screen = keyed[entry.displayKey], let displayID = displayID(for: screen) else { continue }
-            CGConfigureDisplayOrigin(config, displayID,
-                                     Int32(entry.originX.rounded()), Int32(entry.originY.rounded()))
+            guard CGConfigureDisplayOrigin(config, displayID,
+                                           Int32(entry.originX.rounded()), Int32(entry.originY.rounded())) == .success else {
+                CGCancelDisplayConfiguration(config)
+                return false
+            }
         }
         return CGCompleteDisplayConfiguration(config, .permanently) == .success
     }
@@ -117,29 +127,33 @@ final class DisplayModeSwitcher {
     func apply(_ option: DisplayModeOption, on screen: NSScreen, seconds: TimeInterval = 15) -> Bool {
         guard let displayID = DisplayModeService.displayID(for: screen),
               let target = DisplayModeService.mode(matching: option, for: displayID) else { return false }
-        // Applying the mode that is already on would still re-run the configuration cycle; skip it.
+        // Skip only when the exact mode (resolution, density, AND refresh rate) is already active.
         if let current = DisplayModeService.currentMode(for: displayID),
-           DisplayModeCatalog.isSamePicture(DisplayModeService.option(for: current), option) {
+           DisplayModeService.option(for: current).id == option.id {
             return true
         }
-        guard let previous = DisplayModeService.apply(target, to: displayID) else { return false }
-        prompt(previous: previous, displayID: displayID, seconds: seconds)
+        guard let previous = DisplayModeService.apply(target, to: displayID, option: .forSession) else { return false }
+        prompt(target: target, previous: previous, displayID: displayID, seconds: seconds)
         return true
     }
 
-    private func prompt(previous: CGDisplayMode, displayID: CGDirectDisplayID, seconds: TimeInterval) {
+    private func prompt(target: CGDisplayMode, previous: CGDisplayMode, displayID: CGDirectDisplayID, seconds: TimeInterval) {
         pendingRevert?.invalidate()
 
+        NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = String(localized: "Keep this display mode?")
         alert.informativeText = String(localized: "The previous mode comes back automatically if you do not answer.")
-        alert.addButton(withTitle: String(localized: "Keep"))
-        alert.addButton(withTitle: String(localized: "Revert"))
+        // Make Revert the default (Return) and Escape-bound button so a blind keystroke never keeps a broken mode.
+        let revertButton = alert.addButton(withTitle: String(localized: "Revert"))
+        revertButton.keyEquivalent = "\u{1b}"
+        let keepButton = alert.addButton(withTitle: String(localized: "Keep"))
+        keepButton.keyEquivalent = ""
         alert.alertStyle = .warning
 
         let timer = Timer(timeInterval: seconds, repeats: false) { _ in
             MainActor.assumeIsolated {
-                DisplayModeService.restore(previous, to: displayID)
+                DisplayModeService.restore(previous, to: displayID, option: .forSession)
                 NSApp.abortModal()
             }
         }
@@ -150,7 +164,9 @@ final class DisplayModeSwitcher {
         timer.invalidate()
         pendingRevert = nil
         if response == .alertSecondButtonReturn {
-            DisplayModeService.restore(previous, to: displayID)
+            DisplayModeService.apply(target, to: displayID, option: .permanently)
+        } else {
+            DisplayModeService.restore(previous, to: displayID, option: .forSession)
         }
     }
 }
