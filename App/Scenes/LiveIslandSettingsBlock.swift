@@ -9,7 +9,7 @@ struct LiveIslandSettingsBlock: View {
     @ObservedObject private var timeTravel = SurfaceTimeTravelCoordinator.shared
     @State private var showPlayground = false
     @State private var screens = NSScreen.screens
-    @State private var selectedDisplayID: CGDirectDisplayID? = nil
+    @Binding var selectedDisplayID: CGDirectDisplayID?
     @State private var storedDesigns = NotchDesign.stored()
     @State private var storedSkins = NotchDisplaySkin.stored()
     @State private var placementMode = IslandPlacementMode.current().rawValue
@@ -229,7 +229,6 @@ struct LiveIslandSettingsBlock: View {
                         Text("Compact").tag("skin.classic")
                         Text("Liquid").tag("skin.liquid")
                         Text("Dynamic Island").tag("skin.dynamicIsland")
-                        Text(verbatim: "Super Glass").tag("skin.superGlass")
                         Divider()
                         Text(verbatim: "Wide bar").tag("design.wideBar")
                         Text(verbatim: "Off").tag("design.off")
@@ -290,11 +289,9 @@ struct LiveIslandSettingsBlock: View {
             }
             NotchControlsCard()
         } else if activeSkin.usesIslandSurfaceEngine {
-            IslandGlassAndMorphCard(store: store, activeSkin: activeSkin)
-            if activeSkin == .superGlass {
-                NotchActivityCard()
-                NotchLayoutCard()
-            }
+            IslandGlassAndMorphCard()
+            NotchActivityCard()
+            NotchLayoutCard()
             SettingsCard(Text("Dynamic Island"), appearance: .quiet) {
                 SettingsRow(Text("Touch Optimization")) {
                     Picker(
@@ -357,21 +354,17 @@ struct LiveIslandSettingsBlock: View {
 }
 
 private struct IslandGlassAndMorphCard: View {
-    @ObservedObject var store: AppSettingsStore
-    let activeSkin: LiveIslandSkin
     @AppStorage(IslandSurfaceGlassPolicy.liquidGlassEnabledKey) private var liquidGlassEnabled = true
     @AppStorage(IslandSurfaceGlassPolicy.metalMorphOptInKey) private var metalMorphOptIn = false
 
     var body: some View {
         SettingsCard(
             Text("Surface Material"),
-            note: Text(verbatim: "Built-in camera cutouts stay pure OLED black when closed. Liquid Glass applies to the Super Glass preset when expanded and on notchless displays."),
+            note: Text(verbatim: "Built-in camera cutouts stay pure black while collapsed. Liquid Glass appears while expanded and on notchless displays; Low Power Mode keeps the surface solid."),
             appearance: .quiet
         ) {
-            if activeSkin.usesSuperGlassBackdrop {
-                SettingsToggleRow(Text("Liquid Glass Surface"), isOn: $liquidGlassEnabled)
-                SettingsDivider()
-            }
+            SettingsToggleRow(Text("Liquid Glass Surface"), isOn: $liquidGlassEnabled)
+            SettingsDivider()
             SettingsToggleRow(
                 Text("Metal Liquid Morph (Opt-In)"),
                 isOn: $metalMorphOptIn
@@ -1208,7 +1201,6 @@ private struct NotchStylePreviewGallery: View {
         case .boring: Text("Full")
         case .classic: Text("Compact")
         case .dynamicIsland: Text("Dynamic Island")
-        case .superGlass: Text(verbatim: "Super Glass")
         }
     }
 
@@ -1259,22 +1251,10 @@ private struct NotchStylePreviewGallery: View {
                 )
                 .frame(width: 60, height: 22)
         case .dynamicIsland:
-            Capsule().fill(Color.black)
-                .overlay(Capsule().strokeBorder(.white.opacity(0.32), lineWidth: 1))
-                .overlay(
-                    HStack {
-                        Circle().fill(Color.accentColor.opacity(0.85)).frame(width: 7, height: 7)
-                        Spacer()
-                        Circle().fill(Color.white.opacity(0.62)).frame(width: 5, height: 5)
-                    }
-                    .padding(.horizontal, 6)
-                )
-                .frame(width: 58, height: 18)
-        case .superGlass:
             RoundedRectangle(cornerRadius: 7, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.black.opacity(0.34)))
-                .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(.white.opacity(0.18), lineWidth: 1))
                 .overlay(
                     HStack(spacing: 3) {
                         RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.20))

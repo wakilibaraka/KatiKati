@@ -230,15 +230,14 @@ final class IslandEngineTests: XCTestCase {
         XCTAssertFalse(LiveIslandSkin.classic.usesIslandSurfaceEngine)
         XCTAssertFalse(LiveIslandSkin.liquid.usesIslandSurfaceEngine)
         XCTAssertTrue(LiveIslandSkin.dynamicIsland.usesIslandSurfaceEngine)
-        XCTAssertTrue(LiveIslandSkin.superGlass.usesIslandSurfaceEngine)
 
         XCTAssertTrue(LiveIslandSkin.boring.opensDirectlyToBentoSuite)
         XCTAssertTrue(LiveIslandSkin.classic.opensDirectlyToBentoSuite)
-        XCTAssertFalse(LiveIslandSkin.dynamicIsland.opensDirectlyToBentoSuite)
-        XCTAssertTrue(LiveIslandSkin.superGlass.opensDirectlyToBentoSuite)
+        XCTAssertTrue(LiveIslandSkin.dynamicIsland.opensDirectlyToBentoSuite)
         XCTAssertTrue(LiveIslandSkin.liquid.usesMetalLiquidMorph)
-        XCTAssertTrue(LiveIslandSkin.superGlass.usesSuperGlassBackdrop)
-        XCTAssertFalse(LiveIslandSkin.dynamicIsland.usesSuperGlassBackdrop)
+        XCTAssertTrue(LiveIslandSkin.dynamicIsland.usesLiquidGlassBackdrop)
+        XCTAssertEqual(LiveIslandSkin(rawValue: "superGlass"), .dynamicIsland)
+        XCTAssertEqual(LiveIslandSkin.allCases, [.boring, .classic, .liquid, .dynamicIsland])
 
         let notchedTopo = IslandDisplayTopology.resolve(
             screenWidth: 1728, screenHeight: 1117, safeAreaTop: 38,

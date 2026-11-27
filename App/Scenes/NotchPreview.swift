@@ -17,7 +17,7 @@ struct NotchPreview: View {
     private var size: CGSize { NotchGeometry.previewSize(for: skin, expanded: isExpanded) }
     private var hasPhysicalCutout: Bool { (NSScreen.main?.safeAreaInsets.top ?? 0) > 0 }
     private var usesLiquidGlass: Bool {
-        skin.usesSuperGlassBackdrop && IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+        skin.usesLiquidGlassBackdrop && IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
             hasPhysicalCutout: hasPhysicalCutout,
             isOLED: false,
             presentation: isExpanded ? .expanded : .idle,
@@ -25,7 +25,7 @@ struct NotchPreview: View {
             isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
         )
     }
-    private var superGlassShape: AnyShape {
+    private var dynamicIslandShape: AnyShape {
         let radii = isExpanded ? NotchDesignSpec.openCornerRadii : NotchDesignSpec.closedCornerRadii
         if hasPhysicalCutout {
             return AnyShape(NotchContinuousMaskShape(
@@ -43,7 +43,6 @@ struct NotchPreview: View {
         case .boring: return String(localized: "Full")
         case .classic: return String(localized: "Compact")
         case .dynamicIsland: return String(localized: "Dynamic Island")
-        case .superGlass: return String(localized: "Super Glass")
         }
     }
 
@@ -71,8 +70,8 @@ struct NotchPreview: View {
 
     private var silhouette: some View {
         ZStack {
-            if skin == .superGlass {
-                let shape = superGlassShape
+            if skin.usesLiquidGlassBackdrop {
+                let shape = dynamicIslandShape
                 if usesLiquidGlass {
                     shape.fill(.ultraThinMaterial)
                         .overlay(shape.fill(Color.black.opacity(0.34)))
@@ -85,7 +84,7 @@ struct NotchPreview: View {
                     .fill(Color.black)
                     .overlay(
                         NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
-                            .stroke(Color.white.opacity(skin == .superGlass ? 0.28 : 0.16), lineWidth: 1.5)
+                            .stroke(Color.white.opacity(0.28), lineWidth: 1.5)
                     )
             } else {
                 // The floating-island rendering, which is what the app draws on a display without a
@@ -108,7 +107,7 @@ struct NotchPreview: View {
     private var placeholderPlates: some View {
         Group {
             switch skin {
-            case .boring, .superGlass:
+            case .boring, .dynamicIsland:
                 VStack(spacing: 8) {
                     HStack {
                         previewLine(width: 56, opacity: 0.24)

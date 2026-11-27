@@ -77,6 +77,7 @@ struct SettingsPageColumn: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject var coordinator: SettingsCoordinator
     @ObservedObject var tabState: SettingsTabState
+    @Binding var notchPreviewDisplayID: CGDirectDisplayID?
     let onShowWelcomeGuide: () -> Void
 
     var body: some View {
@@ -84,6 +85,7 @@ struct SettingsPageColumn: View {
             store: store,
             coordinator: coordinator,
             tabState: tabState,
+            notchPreviewDisplayID: $notchPreviewDisplayID,
             onShowWelcomeGuide: onShowWelcomeGuide
         )
         .padding(.top, 8)
@@ -95,6 +97,7 @@ struct SettingsWindowContent: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject var coordinator: SettingsCoordinator
     @ObservedObject var tabState: SettingsTabState
+    @Binding var notchPreviewDisplayID: CGDirectDisplayID?
     let onShowWelcomeGuide: () -> Void
 
     @State private var presentedAlert: SettingsAlert?
@@ -354,7 +357,7 @@ struct SettingsWindowContent: View {
     /// 「刘海」页: the Live Island block plus the helpers that surface in the notch.
     @ViewBuilder
     private var notchPane: some View {
-        LiveIslandSettingsBlock(store: store)
+        LiveIslandSettingsBlock(store: store, selectedDisplayID: $notchPreviewDisplayID)
         NotchHelpersSettingsBlock()
     }
 

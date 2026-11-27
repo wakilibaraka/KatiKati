@@ -111,13 +111,33 @@ struct SettingsStage: View {
     /// The Notch page shows the skin's open panel, so its style picker has something to change.
     var expandsNotch = false
     var tab: SettingsTab = .appearance
+    var notchPreviewDisplayID: CGDirectDisplayID? = nil
     var onSelectQuery: ((String) -> Void)? = nil
     @State private var wallpaper: NSImage?
     @State private var isLoadingWallpaper = false
+    @State private var storedDisplaySkins: [String: LiveIslandSkin] = NotchDisplaySkin.stored()
 
     private static let screenAspect = LayoutThumbnailModel.referenceScreen.width / LayoutThumbnailModel.referenceScreen.height
 
-    private var hasPhysicalCutout: Bool { (NSScreen.main?.safeAreaInsets.top ?? 0) > 0 }
+    private var previewScreen: NSScreen? {
+        if let notchPreviewDisplayID,
+           let screen = NSScreen.screens.first(where: { $0.displayID == notchPreviewDisplayID }) {
+            return screen
+        }
+        return NSScreen.main
+    }
+
+    private var hasPhysicalCutout: Bool { (previewScreen?.safeAreaInsets.top ?? 0) > 0 }
+
+    private var previewSkin: LiveIslandSkin {
+        guard let screen = previewScreen, let id = screen.displayID.map(String.init) else { return store.notchSkin }
+        return NotchDisplaySkin.resolve(
+            display: id,
+            displayUUID: DisplayIdentity.uuidString(for: screen),
+            fallback: store.notchSkin,
+            stored: storedDisplaySkins
+        )
+    }
 
     private var usesPreviewGlass: Bool {
         IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
@@ -139,6 +159,12 @@ struct SettingsStage: View {
         }
         .clipped()
         .onAppear(perform: loadWallpaper)
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            let fresh = NotchDisplaySkin.stored()
+            if fresh != storedDisplaySkins {
+                storedDisplaySkins = fresh
+            }
+        }
         .accessibilityElement(children: tab == .dockItems ? .contain : .ignore)
         .accessibilityLabel(Text("Live preview"))
     }
@@ -316,11 +342,12 @@ struct SettingsStage: View {
     }
 
     private func notch(scale: CGFloat) -> some View {
-        let size = NotchGeometry.previewSize(for: store.notchSkin, expanded: expandsNotch)
+        let skin = previewSkin
+        let size = NotchGeometry.previewSize(for: skin, expanded: expandsNotch)
         let w = size.width * scale
         let h = size.height * scale
         return Group {
-            switch store.notchSkin {
+            switch skin {
             case .liquid:
                 VStack(spacing: max(2, 4 * scale)) {
                     HStack(spacing: max(3, 5 * scale)) {
@@ -363,14 +390,6 @@ struct SettingsStage: View {
                     }
                 }
             case .dynamicIsland:
-                RoundedRectangle(cornerRadius: expandsNotch ? max(6, 16 * scale) : max(4, 10 * scale), style: .continuous)
-                    .fill(Color.black)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: expandsNotch ? max(6, 16 * scale) : max(4, 10 * scale), style: .continuous)
-                            .strokeBorder(.white.opacity(store.notchSkin == .superGlass ? 0.34 : 0.22), lineWidth: 1)
-                    )
-                    .frame(width: w, height: h)
-            case .superGlass:
                 let radii = expandsNotch ? NotchDesignSpec.openCornerRadii : NotchDesignSpec.closedCornerRadii
                 let shape: AnyShape = hasPhysicalCutout
                     ? AnyShape(NotchContinuousMaskShape(
@@ -434,7 +453,7 @@ struct SettingsStage: View {
         }
         .opacity(store.notchIslandEnabled ? 1 : 0.3)
         .allowsHitTesting(false)
-        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: store.notchSkin)
+        .animation(.spring(response: 0.34, dampingFraction: 0.86), value: previewSkin)
     }
 
     private func loadWallpaper() {

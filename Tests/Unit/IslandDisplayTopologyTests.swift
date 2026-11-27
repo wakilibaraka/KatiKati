@@ -117,9 +117,9 @@ final class IslandDisplayTopologyTests: XCTestCase {
         let open = NotchGeometry.openSize(for: .dynamicIsland)
         let previewOpen = NotchGeometry.previewSize(for: .dynamicIsland, expanded: true)
         let previewClosed = NotchGeometry.previewSize(for: .dynamicIsland, expanded: false)
-        XCTAssertEqual(open.width, 480)
-        XCTAssertEqual(previewOpen.width, 480)
-        XCTAssertEqual(previewOpen.height, 180)
+        XCTAssertEqual(open.width, NotchGeometry.openSize.width)
+        XCTAssertEqual(previewOpen.width, NotchGeometry.openSize.width)
+        XCTAssertEqual(previewOpen.height, NotchGeometry.openSize.height)
         XCTAssertEqual(previewClosed, CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight))
     }
 }

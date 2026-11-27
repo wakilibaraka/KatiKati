@@ -14,6 +14,7 @@ struct SettingsShell: View {
     @State private var confirmRevert = false
     @State private var rowTitles: [String] = []
     @State private var pulseRow: String?
+    @State private var notchPreviewDisplayID: CGDirectDisplayID?
     @AppStorage("com.katikati.settings.sidebarCompact") private var forcedCompact = false
     @AppStorage("com.katikati.settings.stage") private var stageRaw = SettingsStagePreference.top.rawValue
     @AppStorage("com.katikati.settings.stageFraction") private var stageFraction = Double(SettingsStageSize.defaultFraction)
@@ -72,6 +73,7 @@ struct SettingsShell: View {
                         store: store,
                         coordinator: coordinator,
                         tabState: tabState,
+                        notchPreviewDisplayID: $notchPreviewDisplayID,
                         onShowWelcomeGuide: onShowWelcomeGuide
                     )
                 }
@@ -93,7 +95,7 @@ struct SettingsShell: View {
         case .top:
             let length = SettingsStageSize.length(fraction: stageFraction, available: size.height)
             VStack(spacing: 0) {
-                SettingsStage(store: store, expandsNotch: tabState.selected == .notch, tab: tabState.selected) {
+                SettingsStage(store: store, expandsNotch: tabState.selected == .notch, tab: tabState.selected, notchPreviewDisplayID: notchPreviewDisplayID) {
                     tabState.findQuery = $0
                 }.frame(height: length)
                 SettingsStageHandle(axis: .horizontal, fraction: $stageFraction, available: size.height, length: length)
@@ -104,7 +106,7 @@ struct SettingsShell: View {
             HStack(spacing: 0) {
                 page.environment(\.settingsLiveWindowWidth, pageWidth - stageWidth).environment(\.settingsStageVisible, true)
                 SettingsStageHandle(axis: .vertical, fraction: $stageFraction, available: size.width, length: stageWidth)
-                SettingsStage(store: store, expandsNotch: tabState.selected == .notch, tab: tabState.selected) {
+                SettingsStage(store: store, expandsNotch: tabState.selected == .notch, tab: tabState.selected, notchPreviewDisplayID: notchPreviewDisplayID) {
                     tabState.findQuery = $0
                 }.frame(width: stageWidth)
             }

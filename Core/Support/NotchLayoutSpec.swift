@@ -8,22 +8,29 @@ import simd
 // header row, a music half and a calendar half). Keeping them here, away from SwiftUI, lets the sizes,
 // the corner radii, the week strip and "which panels show" be unit-tested. Dual-compiled.
 
-/// Which look the notch uses. All four original presets (`boring` Full, `classic` Compact,
-/// `liquid` Liquid, `dynamicIsland` Dynamic Island) are preserved alongside `superGlass` (the
-/// macOS 26 Liquid Glass / IslandSurfaceView layout) on a single shared backend.
+/// Super Glass was folded into Dynamic Island; its stored value remains readable for migration.
 enum LiveIslandSkin: String, CaseIterable, Sendable {
     case boring
     case classic
     case liquid
     case dynamicIsland
-    case superGlass
 
-    /// `true` when rendered by `IslandSurfaceView` (`.dynamicIsland` and `.superGlass`).
+    init?(rawValue: String) {
+        switch rawValue {
+        case "boring": self = .boring
+        case "classic": self = .classic
+        case "liquid": self = .liquid
+        case "dynamicIsland", "superGlass": self = .dynamicIsland
+        default: return nil
+        }
+    }
+
+    /// `true` when rendered by `IslandSurfaceView`.
     /// `.boring` ("Full") and `.classic` ("Compact") render with `NotchContinuousMaskShape`,
     /// and `.liquid` renders with `LiquidNotchShellView`.
     var usesIslandSurfaceEngine: Bool {
         switch self {
-        case .dynamicIsland, .superGlass: return true
+        case .dynamicIsland: return true
         case .boring, .classic, .liquid: return false
         }
     }
@@ -31,8 +38,8 @@ enum LiveIslandSkin: String, CaseIterable, Sendable {
     /// `true` when expanding from rest opens directly to the Bento suite (`NotchHomeView`).
     var opensDirectlyToBentoSuite: Bool {
         switch self {
-        case .boring, .classic, .superGlass: return true
-        case .liquid, .dynamicIsland: return false
+        case .boring, .classic, .dynamicIsland: return true
+        case .liquid: return false
         }
     }
 
@@ -42,8 +49,8 @@ enum LiveIslandSkin: String, CaseIterable, Sendable {
     }
 
     /// `true` when this skin uses the Liquid Glass + full-bleed Bento layout inside `IslandSurfaceView`.
-    var usesSuperGlassBackdrop: Bool {
-        self == .superGlass
+    var usesLiquidGlassBackdrop: Bool {
+        self == .dynamicIsland
     }
 
     var preferredExpandedSize: CGSize {

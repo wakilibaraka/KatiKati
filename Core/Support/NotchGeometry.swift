@@ -34,14 +34,14 @@ enum NotchGeometry {
     /// The original single-row panel's open size (the `classic` skin).
     static let classicOpenSize = CGSize(width: 480, height: 142.5)
 
-    static let dynamicIslandOpenSize = CGSize(width: 480, height: 180)
-    static let dynamicIslandPreviewSize = CGSize(width: 480, height: 180)
+    static let dynamicIslandOpenSize = openSize
+    static let dynamicIslandPreviewSize = openSize
     static let liquidOpenSize = CGSize(width: 440, height: 152)
 
     static func openSize(for skin: LiveIslandSkin) -> CGSize {
         switch skin {
         case .liquid: return liquidOpenSize
-        case .boring, .superGlass: return openSize
+        case .boring: return openSize
         case .classic: return classicOpenSize
         case .dynamicIsland: return dynamicIslandOpenSize
         }
@@ -54,7 +54,7 @@ enum NotchGeometry {
         }
         switch skin {
         case .liquid: return liquidOpenSize
-        case .boring, .superGlass: return openSize
+        case .boring: return openSize
         case .classic: return classicOpenSize
         case .dynamicIsland: return dynamicIslandPreviewSize
         }
@@ -112,13 +112,6 @@ enum NotchGeometry {
             return CGSize(width: width, height: height)
         case .dynamicIsland:
             if isExpanded {
-                return CGSize(width: max(560, openSize.width + 64), height: 240)
-            }
-            let width = isWide ? openSize.width : max(closedSize.width, 320)
-            let height = min(60, max(44, metrics.closedSize.height + 14))
-            return CGSize(width: width, height: height)
-        case .superGlass:
-            if isExpanded {
                 return CGSize(width: max(560, openSize.width + 64), height: max(240, openSize.height + 50))
             }
             let width = isWide ? openSize.width : max(closedSize.width, 340)
@@ -142,7 +135,7 @@ enum NotchGeometry {
         menuBarHeight: CGFloat,
         hasCompactActivity: Bool = true
     ) -> CGRect {
-        let size = stageSize(
+        let size = NotchLayoutSpec.fit(stageSize(
             for: skin,
             isExpanded: isExpanded,
             isWide: isWide,
@@ -150,7 +143,7 @@ enum NotchGeometry {
             closedSize: closedSize,
             openSize: openSize,
             hasCompactActivity: hasCompactActivity
-        )
+        ), screenWidth: screenBounds.width, closedWidth: closedSize.width)
         var frame = panelFrame(size: size, in: screenBounds)
         if skin.usesIslandSurfaceEngine, !metrics.hasHardwareNotch, !isWide, menuBarHeight > 0 {
             frame.origin.y -= menuBarHeight

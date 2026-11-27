@@ -84,7 +84,7 @@ struct IslandSurfaceView<SuiteContent: View>: View {
     }
 
     private var usesLiquidGlass: Bool {
-        guard driver.skin.usesSuperGlassBackdrop else { return false }
+        guard driver.skin.usesLiquidGlassBackdrop else { return false }
         return IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
             hasPhysicalCutout: driver.topology.cutout.isPhysicalCutout,
             isOLED: driver.topology.isOLED,
@@ -340,7 +340,7 @@ struct IslandSurfaceView<SuiteContent: View>: View {
     @ViewBuilder
     private func expandedContentLayer(views: IslandActivityViews, frame: IslandFrameGeometry) -> some View {
         let isAlert = driver.snapshot.expanded?.reason == .alert
-        if driver.skin.usesSuperGlassBackdrop && driver.isShowingBentoSuite && !isAlert {
+        if driver.skin.usesLiquidGlassBackdrop && driver.isShowingBentoSuite && !isAlert {
             suiteContent()
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .gesture(expandedPullUpGesture)

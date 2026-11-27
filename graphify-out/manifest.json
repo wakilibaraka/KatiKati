@@ -4601,9 +4601,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStage.swift": {
-    "mtime": 1795794379.73071,
-    "seen": 1795804367.8909729,
-    "ast_hash": "2aeb4062a15d8f3ed40371a59bfb0537",
+    "mtime": 1795805953.4902673,
+    "seen": 1795806050.131636,
+    "ast_hash": "36cafbefda10d3eada4f9a2cd566dea2",
     "semantic_hash": ""
   },
   "App/Scenes/Settings/SettingsStagePanels.swift": {
@@ -7391,9 +7391,9 @@
     "semantic_hash": "374ad639b9393f8275397ff150c5c97b"
   },
   "Tests/Unit/IslandDisplayTopologyTests.swift": {
-    "mtime": 1795791166.9584825,
-    "seen": 1795791761.5661519,
-    "ast_hash": "2beb9e5d840ffc43b73d5e19a2f2cbda",
+    "mtime": 1795805950.669329,
+    "seen": 1795806050.132403,
+    "ast_hash": "384dcd2913fdd0617f31eead34594a0c",
     "semantic_hash": ""
   },
   "Tests/Unit/IslandEngineTests.swift": {
@@ -9578,24 +9578,6 @@
     "mtime": 1795782255.7932236,
     "seen": 1795786510.3031838,
     "ast_hash": "100d2c7cc4211753e32e21b4ef9ac496",
-    "semantic_hash": ""
-  },
-  ".gemini/settings.json": {
-    "mtime": 1795793841.3099124,
-    "seen": 1795804367.890661,
-    "ast_hash": "8e1130c1342d6393fbddc134e0534336",
-    "semantic_hash": ""
-  },
-  ".github/hooks/impeccable.json": {
-    "mtime": 1795793841.3126307,
-    "seen": 1795804367.8906791,
-    "ast_hash": "63b6cdd205dc8dfa10b4d5bce683a29f",
-    "semantic_hash": ""
-  },
-  ".impeccable/config.json": {
-    "mtime": 1795793632.4186752,
-    "seen": 1795804367.8906891,
-    "ast_hash": "5738d54a5499ba09bac343dbcf6d5dc0",
     "semantic_hash": ""
   },
   "App/Scenes/DateCalculatorView.swift": {

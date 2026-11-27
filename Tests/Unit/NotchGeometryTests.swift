@@ -37,11 +37,23 @@ final class NotchGeometryTests: XCTestCase {
         XCTAssertEqual(f.maxY, screen.maxY, "flush with the top edge")
     }
 
+    func testExpandedIslandFitsNarrowExternalDisplay() {
+        let screen = CGRect(x: 0, y: 0, width: 600, height: 900)
+        let metrics = NotchMetrics(closedSize: CGSize(width: 185, height: 24), hasHardwareNotch: false)
+        let frame = NotchGeometry.stageFrame(
+            for: .dynamicIsland, isExpanded: true, isWide: false, metrics: metrics,
+            closedSize: metrics.closedSize, openSize: NotchGeometry.dynamicIslandOpenSize,
+            screenBounds: screen, topInset: 0, menuBarHeight: 24
+        )
+        XCTAssertEqual(frame.width, 576)
+        XCTAssertEqual(frame.minX, 12)
+    }
+
     /// The Settings/guide demo draws the real silhouette: the skin's open panel, or the closed capsule.
     func testPreviewSizeFollowsTheSkinAndTheExpandedState() {
-        XCTAssertEqual(NotchGeometry.openSize(for: .superGlass), NotchGeometry.openSize)
+        XCTAssertEqual(NotchGeometry.openSize(for: .dynamicIsland), NotchGeometry.openSize)
         XCTAssertEqual(NotchGeometry.previewSize(for: .boring, expanded: true), NotchGeometry.openSize)
-        XCTAssertEqual(NotchGeometry.previewSize(for: .superGlass, expanded: true), NotchGeometry.openSize)
+        XCTAssertEqual(NotchGeometry.previewSize(for: .dynamicIsland, expanded: true), NotchGeometry.openSize)
         XCTAssertEqual(NotchGeometry.previewSize(for: .classic, expanded: true), NotchGeometry.classicOpenSize)
         let closed = NotchGeometry.previewSize(for: .boring, expanded: false)
         XCTAssertEqual(closed, CGSize(width: NotchDesignSpec.fallbackClosedWidth, height: NotchDesignSpec.fallbackClosedHeight))
@@ -86,6 +98,7 @@ final class NotchGeometryTests: XCTestCase {
             closedSize: flat.closedSize, openSize: NotchGeometry.dynamicIslandOpenSize
         )
         XCTAssertLessThanOrEqual(islandClosed.height, 60)
+        XCTAssertEqual(islandExpanded.width, 704)
         XCTAssertEqual(islandExpanded.height, 240)
     }
 }
