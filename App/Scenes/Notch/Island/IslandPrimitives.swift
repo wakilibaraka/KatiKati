@@ -245,49 +245,6 @@ struct IslandInteractiveLevelBar: View {
     }
 }
 
-/// Self-updating countdown ring aligned on whole-second ticks (`Pause` free when static).
-struct IslandCountdownRing<Content: View>: View {
-    let start: Date
-    let end: Date
-    var color: Color = IslandTheme.Accent.orange
-    var size: CGFloat = 20
-    var drains: Bool = true
-    @ViewBuilder var content: () -> Content
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    init(
-        start: Date,
-        end: Date,
-        color: Color = IslandTheme.Accent.orange,
-        size: CGFloat = 20,
-        drains: Bool = true,
-        @ViewBuilder content: @escaping () -> Content = { EmptyView() }
-    ) {
-        self.start = start
-        self.end = end
-        self.color = color
-        self.size = size
-        self.drains = drains
-        self.content = content
-    }
-
-    var body: some View {
-        TimelineView(.periodic(from: start, by: reduceMotion ? 1.0 : 0.25)) { context in
-            let total = max(1.0, end.timeIntervalSince(start))
-            let gone = min(1.0, max(0.0, context.date.timeIntervalSince(start) / total))
-            IslandProgressRing(
-                value: drains ? (1.0 - gone) : gone,
-                color: color,
-                track: color.opacity(0.25),
-                size: size,
-                thickness: size > 24 ? 3 : 2.5,
-                content: content
-            )
-        }
-    }
-}
-
 enum IslandStepState: Equatable, Sendable {
     case done
     case active

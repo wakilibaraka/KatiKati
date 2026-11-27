@@ -425,35 +425,6 @@ struct MusicOutputPopover: View {
     }
 }
 
-// MARK: - Lyrics
-
-struct MusicLyricsDrawer: View {
-    let lines: [LyricsLine]
-    let elapsed: TimeInterval
-    var tint: Color
-
-    var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
-                        let active = LyricTimelineMatcher.activeIndex(in: lines, at: elapsed) == index
-                        Text(verbatim: line.text)
-                            .font(.system(size: active ? 12 : 11, weight: active ? .semibold : .regular))
-                            .foregroundStyle(active ? Color.white : Color.white.opacity(0.42))
-                            .id(index)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .onChange(of: LyricTimelineMatcher.activeIndex(in: lines, at: elapsed)) { _, index in
-                guard let index else { return }
-                withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(index, anchor: .center) }
-            }
-        }
-    }
-}
-
 // MARK: - Glass card (shared by the lock screen and the desktop)
 
 struct MusicGlassCardView: View {

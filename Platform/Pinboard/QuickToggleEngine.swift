@@ -428,20 +428,6 @@ enum EvolutionRunner {
             }
         }
     }
-
-    static func probeStatus(_ item: EvolutionItem) async -> Bool? {
-        guard item.kind == .toggle, let script = item.statusScript, !script.isEmpty else { return nil }
-        return await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                let ok: Bool
-                switch item.shell {
-                case .sh: ok = ShortcutsCatalogRunner.runStatus("/bin/sh", ["-c", script])
-                case .appleScript: ok = ShortcutsCatalogRunner.runStatus("/usr/bin/osascript", ["-e", script])
-                }
-                continuation.resume(returning: ok)
-            }
-        }
-    }
 }
 
 @MainActor

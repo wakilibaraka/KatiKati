@@ -564,47 +564,6 @@ struct StageEdgeBars: View {
     }
 }
 
-/// Live preview for Drawer: shows the circular Background Apps Drawer capsule on the left or right flank of the Dock bar.
-struct StageDrawer: View {
-    @ObservedObject var store: AppSettingsStore
-
-    var body: some View {
-        GeometryReader { proxy in
-            let w = proxy.size.width, h = proxy.size.height
-            let scale = w / LayoutThumbnailModel.referenceScreen.width
-            let dockY = h - max(22, 26 * scale + 10)
-            let flankX = store.drawerPlacement == .left ? max(28, w * 0.19) : min(w - 28, w * 0.81)
-
-            ZStack {
-                if store.showsDrawerSlot {
-                    VStack(spacing: 4) {
-                        RoundedRectangle(cornerRadius: 7, style: .continuous)
-                            .fill(.ultraThinMaterial)
-                            .frame(width: min(76, w * 0.22), height: 42)
-                            .overlay(
-                                LazyVGrid(columns: Array(repeating: GridItem(.fixed(12), spacing: 4), count: 3), spacing: 4) {
-                                    ForEach(0..<6, id: \.self) { _ in
-                                        RoundedRectangle(cornerRadius: 2.5).fill(.white.opacity(0.6)).frame(width: 12, height: 12)
-                                    }
-                                }
-                            )
-                            .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(.white.opacity(0.32), lineWidth: 0.75))
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                            .frame(width: 16, height: 16)
-                            .overlay(Image(systemName: "chevron.up").font(.system(size: 7, weight: .bold)).foregroundStyle(.white))
-                            .overlay(Circle().strokeBorder(Color.accentColor, lineWidth: 1.5))
-                    }
-                    .position(x: flankX, y: dockY - 34)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.showsDrawerSlot)
-        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: store.drawerPlacement)
-    }
-}
-
 /// Live preview for Shelf: shows the Notch File Tray auto-open pill and the Floating Card Stack / Compact Grid above the Dock.
 struct StageShelf: View {
     @ObservedObject var store: AppSettingsStore

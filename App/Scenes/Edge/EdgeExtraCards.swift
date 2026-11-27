@@ -6,20 +6,14 @@ final class EdgeCounterStore: ObservableObject {
     static let shared = EdgeCounterStore()
 
     private static let countKey = "com.katikati.edge.counter.count"
-    private static let labelKey = "com.katikati.edge.counter.label"
 
     @Published var count: Int {
         didSet { UserDefaults.standard.set(count, forKey: Self.countKey) }
     }
 
-    @Published var label: String {
-        didSet { UserDefaults.standard.set(label, forKey: Self.labelKey) }
-    }
-
     private init() {
         let d = UserDefaults.standard
         count = d.integer(forKey: Self.countKey)
-        label = d.string(forKey: Self.labelKey) ?? "#"
     }
 
     func increment() { count += 1 }
