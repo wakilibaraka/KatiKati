@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "App/Entry/EdgeBarPanelController.swift": {
-    "mtime": 1795745662.081164,
-    "seen": 1795745681.986179,
-    "ast_hash": "c17a6c9e0a9ec5ccab0657ac661ab426",
+    "mtime": 1795745690.1737857,
+    "seen": 1795745711.3382049,
+    "ast_hash": "51f8608515e0700c86fec01f1d075efd",
     "semantic_hash": ""
   },
   "App/Entry/EdgeFlyoutController.swift": {
@@ -864,9 +864,9 @@
     "semantic_hash": "7c68b62cf2125911e696a333173f8a74"
   },
   "App/Scenes/Edge/DeckViews.swift": {
-    "mtime": 1795745662.864264,
-    "seen": 1795745681.9862652,
-    "ast_hash": "41a560294fb4bc2cf35c339ef30e8fe5",
+    "mtime": 1795745691.2473974,
+    "seen": 1795745711.338306,
+    "ast_hash": "bb6ed2447455bd2240538f11acd808e8",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/NoteSheetView.swift": {
@@ -1782,9 +1782,9 @@
     "semantic_hash": ""
   },
   "Core/Support/EdgeBarSlot.swift": {
-    "mtime": 1795745657.7146587,
-    "seen": 1795745681.986466,
-    "ast_hash": "c284160bfafa9b1dbdddf9533e899c8c",
+    "mtime": 1795745688.7581701,
+    "seen": 1795745711.338558,
+    "ast_hash": "45a4e756cfd36a9a8b0b207d2145cbd2",
     "semantic_hash": ""
   },
   "Core/Support/EmojiCatalog.swift": {
@@ -6702,9 +6702,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/CalendarDockWidget.swift": {
-    "mtime": 1795745659.507537,
-    "seen": 1795745681.9862442,
-    "ast_hash": "3cf9da89e9aa07e481edad50dfa754a3",
+    "mtime": 1795745689.419397,
+    "seen": 1795745711.3382819,
+    "ast_hash": "3f3aef72f045cffb9384735881c4aa2b",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DevicesDockWidget.swift": {
