@@ -283,6 +283,10 @@ final class SnapDragMonitor {
     /// MD-2: when the pointer first touched each seam edge group. Its own edge resolves a snap only
     /// once the pointer has rested there for `SnapGaps.seamDwell`; a crossing never does.
     private var seamHold: (key: String, since: Date)?
+    /// SN-3: a shake during a *window* drag opens the picker; samples are fed only from `dragged()`,
+    /// which is gated on `session.isTracking`, so text selection and scrollbar drags never reach it.
+    private var shakeGate = SnapShakeGate()
+    private var shakeOpened = false
 
     func setEnabled(_ enabled: Bool, style: SnapPreviewStyle, edgeMargin: CGFloat = 12) {
         self.style = style
@@ -303,6 +307,8 @@ final class SnapDragMonitor {
     private func stop() {
         for monitor in monitors { NSEvent.removeMonitor(monitor) }
         monitors.removeAll()
+        shakeGate.endPress()
+        shakeOpened = false
         session.reset()
         axProbe.clear()
         seamHold = nil
@@ -325,6 +331,8 @@ final class SnapDragMonitor {
             axProbe.seed(pressID: pressID, pid: app.processIdentifier, primaryMaxY: primaryMaxY) { [weak self] id, cocoa, origin in
                 self?.session.applySeed(pressID: id, windowFrameCocoa: cocoa, windowOriginQuartz: origin)
             }
+            shakeGate.beginPress(pressID)
+            shakeOpened = false
             return
         }
         if let pressID = session.seededPressID {
@@ -335,7 +343,21 @@ final class SnapDragMonitor {
             return
         }
         guard session.isTracking else { return }
+        if feedShake(mouse) { return }
         evaluateZone(at: mouse)
+    }
+
+    /// SN-3: one picker per drag. A file drag is Shake to shelf's gesture, not ours, so it is skipped
+    /// outright — the two watchers then can never both fire for one gesture.
+    private func feedShake(_ mouse: CGPoint) -> Bool {
+        if shakeOpened { return true }
+        guard NSPasteboard(name: .drag).availableType(from: [.fileURL]) == nil else { return false }
+        guard shakeGate.add(x: Double(mouse.x), at: ProcessInfo.processInfo.systemUptime) else { return false }
+        shakeOpened = true
+        activeZone = nil
+        preview?.orderOut(nil)
+        SnapPickerController.shared.present()
+        return true
     }
 
     private func evaluateZone(at mouse: CGPoint) {
@@ -396,9 +418,15 @@ final class SnapDragMonitor {
 
     private func released() {
         let zone = session.finishPress(activeZone: activeZone)
+        shakeGate.endPress()
         axProbe.clear()
         activeZone = nil
         preview?.orderOut(nil)
+        // The shake already answered this drag; a release must not also snap it to an edge.
+        if shakeOpened {
+            shakeOpened = false
+            return
+        }
         guard let zone else { return }
         WindowSnapService.apply(zone.position)
     }
