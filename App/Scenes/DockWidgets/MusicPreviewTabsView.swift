@@ -51,7 +51,7 @@ struct MusicPreviewTabsView: View {
                     lyricsTab(hasTrack: hasTrack)
                 }
             }
-            .frame(minWidth: 270)
+            .frame(width: 280, alignment: .leading)
         }
         .onReceive(timer) { now = $0 }
         .onAppear {

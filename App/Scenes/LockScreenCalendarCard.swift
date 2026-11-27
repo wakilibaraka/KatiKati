@@ -150,22 +150,26 @@ struct LockScreenFullArtBackdropView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.52)
-            if let data = service.state.artworkData, let img = NSImage(data: data) {
-                Image(nsImage: img)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .blur(radius: 56)
-                    .saturation(1.25)
-                    .opacity(0.75)
-                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.45), value: data)
+        GeometryReader { geo in
+            ZStack {
+                Color.black.opacity(0.52)
+                if let data = service.state.artworkData, let img = NSImage(data: data) {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                        .blur(radius: 56)
+                        .saturation(1.25)
+                        .opacity(0.75)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.45), value: data)
+                }
+                LinearGradient(
+                    colors: [Color.black.opacity(0.38), Color.black.opacity(0.18), Color.black.opacity(0.55)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
             }
-            LinearGradient(
-                colors: [Color.black.opacity(0.38), Color.black.opacity(0.18), Color.black.opacity(0.55)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
         }
         .ignoresSafeArea()
     }

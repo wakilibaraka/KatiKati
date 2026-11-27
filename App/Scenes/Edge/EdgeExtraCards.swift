@@ -27,103 +27,154 @@ final class EdgeCounterStore: ObservableObject {
     func reset() { count = 0 }
 }
 
-/// E3: Sydedock-style inline counter card (`-` / count / `+`) with context-menu reset.
-struct DeckCounterCardView: View {
-    @ObservedObject private var store = EdgeCounterStore.shared
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.dockThemeStyle) private var dockThemeStyle
+private struct EdgeBezelCardChrome: ViewModifier {
+    let width: CGFloat
 
-    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    func body(content: Content) -> some View {
+        content
+            .frame(width: width)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color(red: 0.08, green: 0.08, blue: 0.10).opacity(0.92))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.5)
+                    )
+            )
+    }
+}
+
+/// E3: Compact vertical bezel counter card (`count` + `-`/`+` controls), sized to fit the narrow Edge Bar column.
+struct DeckCounterCardView: View {
+    let width: CGFloat
+    @ObservedObject private var store = EdgeCounterStore.shared
 
     var body: some View {
-        HStack(spacing: 8) {
-            Button { store.decrement() } label: {
-                Image(systemName: "minus.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(theme.labelSubtitle.color)
+        VStack(spacing: 4) {
+            Text(verbatim: "\(store.count)")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
+            HStack(spacing: 8) {
+                Button { store.decrement() } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.68))
+                        .frame(width: 20, height: 20)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Counter"))
+
+                Button { store.increment() } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .frame(width: 20, height: 20)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Counter"))
             }
-            .buttonStyle(.plain)
-
-            Spacer(minLength: 4)
-
-            VStack(spacing: 1) {
-                Text(verbatim: "\(store.count)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(theme.labelActive.color)
-                Text(verbatim: store.label)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(theme.labelSubtitle.color)
-                    .lineLimit(1)
-            }
-
-            Spacer(minLength: 4)
-
-            Button { store.increment() } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-            }
-            .buttonStyle(.plain)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 6)
+        .modifier(EdgeBezelCardChrome(width: width))
         .contextMenu {
             Button("Reset") { store.reset() }
         }
     }
 }
 
-/// E4: Warm yellow Sydedock sticky-note card stored under `com.katikati.edge.stickyNoteText`.
+/// E4: Compact yellow Sydedock sticky-note preview tile stored under `com.katikati.edge.stickyNoteText`.
+/// Tapping opens `StickyNoteFlyoutView` (`takesKey: true`) so typing works reliably outside the non-activating rail.
 struct DeckStickyNoteCardView: View {
+    let width: CGFloat
     @AppStorage("com.katikati.edge.stickyNoteText") private var noteText = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 5) {
-                Image(systemName: "note.text")
-                    .font(.system(size: 10, weight: .bold))
-                Text("Quick Notes")
-                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
-                Spacer(minLength: 0)
-            }
-            .foregroundStyle(Color.black.opacity(0.62))
+        VStack(alignment: .leading, spacing: 3) {
+            Image(systemName: "note.text")
+                .font(.system(size: 9.5, weight: .bold))
+                .foregroundStyle(Color.black.opacity(0.58))
 
-            TextEditor(text: $noteText)
-                .scrollContentBackground(.hidden)
-                .font(.system(size: 11.5, weight: .medium))
-                .foregroundStyle(Color.black.opacity(0.86))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Text(verbatim: noteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "…" : noteText)
+                .font(.system(size: 9.5, weight: .medium))
+                .foregroundStyle(Color.black.opacity(0.84))
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(9)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 6)
+        .frame(width: width, height: max(54, width * 0.96), alignment: .topLeading)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color(red: 1.0, green: 0.93, blue: 0.56))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(Color.black.opacity(0.10), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(Color.black.opacity(0.14), lineWidth: 0.5)
         )
     }
 }
 
-/// E4: Canvas analog clock updated once per minute (zero idle CPU).
-struct DeckAnalogClockCardView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.dockThemeStyle) private var dockThemeStyle
+/// E4: Key-capable editor flyout opened when tapping `DeckStickyNoteCardView`.
+struct StickyNoteFlyoutView: View {
+    @AppStorage("com.katikati.edge.stickyNoteText") private var noteText = ""
 
-    private var theme: DockThemeTokens { .resolved(for: colorScheme, style: dockThemeStyle) }
+    static let size = CGSize(width: 240, height: 200)
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "note.text")
+                    .font(.system(size: 12, weight: .bold))
+                Text("Sticky Note")
+                    .font(.headline)
+                Spacer()
+                if !noteText.isEmpty {
+                    Button {
+                        noteText = ""
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.borderless)
+                    .help(Text("Reset"))
+                }
+            }
+            .foregroundStyle(Color.black.opacity(0.72))
+
+            TextEditor(text: $noteText)
+                .scrollContentBackground(.hidden)
+                .font(.system(size: 12.5))
+                .foregroundStyle(Color.black.opacity(0.88))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .padding(12)
+        .frame(width: Self.size.width, height: Self.size.height)
+        .background(Color(red: 1.0, green: 0.94, blue: 0.62))
+    }
+}
+
+/// E4: Bezel-sized analog clock updated once per minute (zero idle CPU).
+struct DeckAnalogClockCardView: View {
+    let width: CGFloat
+
+    var body: some View {
+        let dialSize = max(26, min(36, width - 14))
         TimelineView(.periodic(from: .now, by: 60)) { context in
-            HStack(spacing: 8) {
+            VStack(spacing: 3) {
                 Canvas { graphics, size in
                     let side = min(size.width, size.height)
                     let center = CGPoint(x: size.width / 2, y: size.height / 2)
-                    let radius = max(8, side / 2 - 2)
+                    let radius = max(8, side / 2 - 1.5)
                     let ringRect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
-                    graphics.stroke(Path(ellipseIn: ringRect), with: .color(theme.labelSubtitle.color.opacity(0.35)), lineWidth: 1.2)
+                    graphics.stroke(Path(ellipseIn: ringRect), with: .color(.white.opacity(0.28)), lineWidth: 1.1)
 
                     let cal = Calendar.current
                     let hour = cal.component(.hour, from: context.date) % 12
@@ -131,37 +182,32 @@ struct DeckAnalogClockCardView: View {
                     let hourAngle = Angle.degrees((Double(hour) + Double(minute) / 60.0) * 30.0 - 90.0)
                     let minuteAngle = Angle.degrees(Double(minute) * 6.0 - 90.0)
 
-                    func hand(_ angle: Angle, length: CGFloat, width: CGFloat, color: Color) {
+                    func hand(_ angle: Angle, length: CGFloat, lineWidth: CGFloat, color: Color) {
                         let rad = CGFloat(angle.radians)
                         let end = CGPoint(x: center.x + cos(rad) * radius * length, y: center.y + sin(rad) * radius * length)
                         var path = Path()
                         path.move(to: center)
                         path.addLine(to: end)
-                        graphics.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round))
+                        graphics.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     }
 
-                    hand(hourAngle, length: 0.52, width: 2.0, color: theme.labelActive.color)
-                    hand(minuteAngle, length: 0.78, width: 1.4, color: theme.labelActive.color.opacity(0.85))
+                    hand(hourAngle, length: 0.52, lineWidth: 1.8, color: .white)
+                    hand(minuteAngle, length: 0.78, lineWidth: 1.3, color: .white.opacity(0.85))
                     graphics.fill(
-                        Path(ellipseIn: CGRect(x: center.x - 1.8, y: center.y - 1.8, width: 3.6, height: 3.6)),
-                        with: .color(Color.accentColor)
+                        Path(ellipseIn: CGRect(x: center.x - 1.6, y: center.y - 1.6, width: 3.2, height: 3.2)),
+                        with: .color(.accentColor)
                     )
                 }
-                .frame(width: 34, height: 34)
+                .frame(width: dialSize, height: dialSize)
 
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(verbatim: context.date.formatted(date: .omitted, time: .shortened))
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(theme.labelActive.color)
-                    Text("Clock")
-                        .font(.system(size: 10))
-                        .foregroundStyle(theme.labelSubtitle.color)
-                }
-                Spacer(minLength: 0)
+                Text(verbatim: context.date.formatted(date: .omitted, time: .shortened))
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.72))
+                    .lineLimit(1)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.vertical, 5)
+            .modifier(EdgeBezelCardChrome(width: width))
         }
     }
 }

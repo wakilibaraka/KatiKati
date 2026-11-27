@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795744662.6415818,
-    "seen": 1795744843.5518389,
-    "ast_hash": "5f06a019e976d53435478a2b1515286e",
+    "mtime": 1795747861.66592,
+    "seen": 1795748030.137839,
+    "ast_hash": "518313e63cc241bb2c1a8adeab17d67b",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "App/Entry/EdgeBarPanelController.swift": {
-    "mtime": 1795745727.6231315,
-    "seen": 1795746770.899764,
-    "ast_hash": "9c9c64f95d6f5d1afc593eb7ba030b3b",
+    "mtime": 1795747583.4590895,
+    "seen": 1795748030.137861,
+    "ast_hash": "ace29919f41d94d59a67dbb02da731bf",
     "semantic_hash": ""
   },
   "App/Entry/EdgeFlyoutController.swift": {
@@ -6708,9 +6708,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DevicesDockWidget.swift": {
-    "mtime": 1795745597.8819668,
-    "seen": 1795745681.9862452,
-    "ast_hash": "e0111eb5e8479931a830f5ef7e367277",
+    "mtime": 1795747630.7796412,
+    "seen": 1795748030.1379359,
+    "ast_hash": "acd0fb24f4bfb36ac566c4e018916334",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockWidgetKit.swift": {
@@ -7212,9 +7212,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/DeckRichCards.swift": {
-    "mtime": 1795745625.121952,
-    "seen": 1795745681.986264,
-    "ast_hash": "be0ecd89e5d4da5e424bf724464b7965",
+    "mtime": 1795747582.3580813,
+    "seen": 1795748030.137959,
+    "ast_hash": "6ecfbafe5a96f20306c063d698ac02cb",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/MergedFlyouts.swift": {
@@ -9420,27 +9420,27 @@
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/MusicPreviewTabsView.swift": {
-    "mtime": 1795746098.4715478,
-    "seen": 1795746770.8999949,
-    "ast_hash": "2717667384323924da1cbb44fd7b51d0",
+    "mtime": 1795747588.425475,
+    "seen": 1795748030.1379461,
+    "ast_hash": "8db5b602fda2f07062ead561cff8a230",
     "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/SystemPreviewTabsView.swift": {
-    "mtime": 1795746097.422227,
-    "seen": 1795746770.900001,
-    "ast_hash": "15d4e7e31d72cf9a64f03efe13070bce",
+    "mtime": 1795747587.2729075,
+    "seen": 1795748030.137949,
+    "ast_hash": "f2007b98b509e981aaf0bf32772d56ab",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/EdgeExtraCards.swift": {
-    "mtime": 1795744900.4627702,
-    "seen": 1795745681.9862661,
-    "ast_hash": "cb95295368a7e713432ab6883a03a4b4",
+    "mtime": 1795747581.416064,
+    "seen": 1795748030.137962,
+    "ast_hash": "bb92f4923b0a4853ecff967ddb2eafb9",
     "semantic_hash": ""
   },
   "App/Scenes/LockScreenCalendarCard.swift": {
-    "mtime": 1795745856.2780175,
-    "seen": 1795746770.900109,
-    "ast_hash": "9bf145bdfd810f55f804853c9c5ef297",
+    "mtime": 1795747589.5694191,
+    "seen": 1795748030.13799,
+    "ast_hash": "77ead0ff88e0fb9fefa0a5e2681c260d",
     "semantic_hash": ""
   },
   "Core/Support/CountdownUrgency.swift": {

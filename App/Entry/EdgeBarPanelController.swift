@@ -705,7 +705,9 @@ final class EdgeBarPanelController {
         case .counter:
             EdgeCounterStore.shared.increment()
         case .stickyNote:
-            break
+            notesPopup.dismiss(notify: false)
+            popup.toggle(id: "sydedock.stickyNote", anchor: anchor, side: side, visibleFrame: visibleFrame,
+                         size: StickyNoteFlyoutView.size, content: AnyView(StickyNoteFlyoutView()), takesKey: true)
         case .analogClock:
             notesPopup.dismiss(notify: false)
             popup.toggle(id: "sydedock.analogClock", anchor: anchor, side: side, visibleFrame: visibleFrame,

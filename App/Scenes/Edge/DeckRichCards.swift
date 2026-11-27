@@ -56,11 +56,11 @@ struct DeckRichCardView: View {
             case .notesPreview:
                 DeckNotesPreviewCardView(width: width, onRight: onRight)
             case .counter:
-                DeckCounterCardView()
+                DeckCounterCardView(width: width)
             case .stickyNote:
-                DeckStickyNoteCardView()
+                DeckStickyNoteCardView(width: width)
             case .analogClock:
-                DeckAnalogClockCardView()
+                DeckAnalogClockCardView(width: width)
             default:
                 EmptyView()
             }

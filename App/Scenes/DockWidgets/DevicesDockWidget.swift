@@ -78,7 +78,12 @@ struct DevicesDockChip: View {
             HStack(spacing: 5) {
                 deviceGlyph(device, size: 15)
                 VStack(alignment: .leading, spacing: 0) {
-                    if density.showsDeviceName { Text(verbatim: device.name).dockCaption().lineLimit(1) }
+                    if density.showsDeviceName {
+                        Text(verbatim: device.name)
+                            .dockCaption()
+                            .lineLimit(1)
+                            .frame(maxWidth: 72, alignment: .leading)
+                    }
                     HStack(spacing: 2) {
                         if device.isCharging {
                             Image(systemName: "bolt.fill")
@@ -270,6 +275,7 @@ struct DevicesPreviewCard: View {
                     }
                 }
             }
+            .frame(minWidth: customizing ? 280 : 220, alignment: .leading)
         }
         .onAppear { feed.retain() }
         .onDisappear { feed.release() }

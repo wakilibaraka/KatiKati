@@ -41,7 +41,7 @@ struct SystemPreviewTabsView: View {
                     storageSection
                 }
             }
-            .frame(minWidth: 270)
+            .frame(width: 280, alignment: .leading)
         }
         .onAppear {
             feed.retain()
