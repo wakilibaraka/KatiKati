@@ -58,8 +58,13 @@ final class IslandDisplayTopologyTests: XCTestCase {
 
         let metrics = topology.islandMetrics(nonNotchBehavior: .compactPill, touchEnabled: true)
         XCTAssertGreaterThanOrEqual(metrics.compact.height, 40.0)
-        XCTAssertEqual(metrics.keyline.alpha, 0.16, accuracy: 1e-6)
-        XCTAssertNotNil(topology.cameraKeepoutRect(stageWidth: 500, metrics: metrics))
+        XCTAssertEqual(metrics.expanded.radius, 34.0)
+        XCTAssertEqual(metrics.contentClip.radius, 26.0)
+        XCTAssertEqual(metrics.keyline.alpha, 0.14, accuracy: 1e-6)
+        XCTAssertEqual(
+            topology.cameraKeepoutRect(stageWidth: 500, metrics: metrics),
+            CGRect(x: 182, y: metrics.top, width: 136, height: metrics.idle.height)
+        )
     }
 
     func testNonNotchExternalDisplayIdleBehaviors() {

@@ -184,7 +184,9 @@ public struct IslandDisplayTopology: Equatable, Sendable {
                 expandedMinHeight: 104.0 + touchLift * 2.0,
                 expandedMaxHeight: 188.0
             )
-            metrics.keyline.alpha = 0.16
+            metrics.expanded.radius = 34.0
+            metrics.contentClip.radius = 26.0
+            metrics.keyline.alpha = 0.14
             return metrics
 
         case .none:

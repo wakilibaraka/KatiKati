@@ -1,3 +1,4 @@
+import AppKit
 import ImageIO
 import SwiftUI
 
@@ -106,6 +107,7 @@ struct SettingsTimeGlow: View {
 /// prompt; it only redraws when a setting changes.
 struct SettingsStage: View {
     @ObservedObject var store: AppSettingsStore
+    @AppStorage(IslandSurfaceGlassPolicy.liquidGlassEnabledKey) private var glassEnabled = true
     /// The Notch page shows the skin's open panel, so its style picker has something to change.
     var expandsNotch = false
     var tab: SettingsTab = .appearance
@@ -114,6 +116,18 @@ struct SettingsStage: View {
     @State private var isLoadingWallpaper = false
 
     private static let screenAspect = LayoutThumbnailModel.referenceScreen.width / LayoutThumbnailModel.referenceScreen.height
+
+    private var hasPhysicalCutout: Bool { (NSScreen.main?.safeAreaInsets.top ?? 0) > 0 }
+
+    private var usesPreviewGlass: Bool {
+        IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+            hasPhysicalCutout: hasPhysicalCutout,
+            isOLED: false,
+            presentation: expandsNotch ? .expanded : .idle,
+            glassEnabled: glassEnabled,
+            isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -317,15 +331,14 @@ struct SettingsStage: View {
                                 flaringTopEars: false
                             )
                             .fill(Color.black)
-                            .shadow(color: Color(red: 0.56, green: 0.42, blue: 0.96).opacity(0.65), radius: max(3, 6 * scale))
                             HStack {
                                 RoundedRectangle(cornerRadius: max(1.5, 3 * scale))
-                                    .fill(Color.pink.opacity(0.85))
+                                    .fill(Color.accentColor.opacity(0.82))
                                     .frame(width: max(5, 11 * scale), height: max(5, 11 * scale))
                                 Spacer()
                                 HStack(spacing: 1) {
                                     ForEach([0.45, 0.9, 0.6], id: \.self) { frac in
-                                        Capsule().fill(Color.pink.opacity(0.9))
+                                        Capsule().fill(Color.accentColor.opacity(0.9))
                                             .frame(width: max(1, 2 * scale), height: max(3, 10 * scale * frac))
                                     }
                                 }
@@ -336,7 +349,7 @@ struct SettingsStage: View {
                         Circle()
                             .fill(Color.black)
                             .overlay(Circle().strokeBorder(.white.opacity(0.18), lineWidth: 0.75))
-                            .overlay(Circle().fill(Color.orange).frame(width: max(3, 7 * scale), height: max(3, 7 * scale)))
+                            .overlay(Circle().fill(Color.accentColor).frame(width: max(3, 7 * scale), height: max(3, 7 * scale)))
                             .frame(width: max(8, 24 * scale), height: max(8, 24 * scale))
                     }
                     if expandsNotch {
@@ -346,11 +359,10 @@ struct SettingsStage: View {
                                 RoundedRectangle(cornerRadius: max(5, 14 * scale), style: .continuous)
                                     .strokeBorder(.white.opacity(0.14), lineWidth: 0.75)
                             )
-                            .shadow(color: Color(red: 0.56, green: 0.42, blue: 0.96).opacity(0.45), radius: max(4, 8 * scale))
                             .frame(width: w, height: max(18, h * 0.75))
                     }
                 }
-            case .dynamicIsland, .superGlass:
+            case .dynamicIsland:
                 RoundedRectangle(cornerRadius: expandsNotch ? max(6, 16 * scale) : max(4, 10 * scale), style: .continuous)
                     .fill(Color.black)
                     .overlay(
@@ -358,11 +370,40 @@ struct SettingsStage: View {
                             .strokeBorder(.white.opacity(store.notchSkin == .superGlass ? 0.34 : 0.22), lineWidth: 1)
                     )
                     .frame(width: w, height: h)
+            case .superGlass:
+                let radii = expandsNotch ? NotchDesignSpec.openCornerRadii : NotchDesignSpec.closedCornerRadii
+                let shape: AnyShape = hasPhysicalCutout
+                    ? AnyShape(NotchContinuousMaskShape(
+                        topCornerRadius: radii.topFlaring,
+                        bottomCornerRadius: radii.bottomSquircle,
+                        flaringTopEars: false
+                    ))
+                    : AnyShape(RoundedRectangle(
+                        cornerRadius: expandsNotch ? max(16, 26 * scale) : max(8, 14 * scale),
+                        style: .continuous
+                    ))
+                ZStack {
+                    if usesPreviewGlass {
+                        shape.fill(.ultraThinMaterial)
+                            .overlay(shape.fill(Color.black.opacity(0.34)))
+                    } else {
+                        shape.fill(Color.black)
+                    }
+                    shape.stroke(Color.white.opacity(usesPreviewGlass ? 0.18 : 0.08), lineWidth: 1)
+                    if expandsNotch {
+                        HStack(spacing: max(3, 6 * scale)) {
+                            RoundedRectangle(cornerRadius: 4).fill(.white.opacity(0.16))
+                            RoundedRectangle(cornerRadius: 4).fill(.white.opacity(0.10))
+                        }
+                        .padding(max(3, 6 * scale))
+                    }
+                }
+                .frame(width: w, height: h)
             case .boring:
                 ZStack {
                     NotchContinuousMaskShape(
-                        topCornerRadius: NotchDesignSpec.closedCornerRadii.topFlaring,
-                        bottomCornerRadius: NotchDesignSpec.closedCornerRadii.bottomSquircle,
+                        topCornerRadius: expandsNotch ? NotchDesignSpec.openCornerRadii.topFlaring : NotchDesignSpec.closedCornerRadii.topFlaring,
+                        bottomCornerRadius: expandsNotch ? NotchDesignSpec.openCornerRadii.bottomSquircle : NotchDesignSpec.closedCornerRadii.bottomSquircle,
                         flaringTopEars: false
                     )
                     .fill(Color.black)
@@ -378,8 +419,8 @@ struct SettingsStage: View {
             case .classic:
                 ZStack {
                     NotchContinuousMaskShape(
-                        topCornerRadius: NotchDesignSpec.closedCornerRadii.topFlaring,
-                        bottomCornerRadius: NotchDesignSpec.closedCornerRadii.bottomSquircle,
+                        topCornerRadius: expandsNotch ? NotchDesignSpec.openCornerRadii.topFlaring : NotchDesignSpec.closedCornerRadii.topFlaring,
+                        bottomCornerRadius: expandsNotch ? NotchDesignSpec.openCornerRadii.bottomSquircle : NotchDesignSpec.closedCornerRadii.bottomSquircle,
                         flaringTopEars: false
                     )
                     .fill(Color.black)
@@ -392,6 +433,7 @@ struct SettingsStage: View {
             }
         }
         .opacity(store.notchIslandEnabled ? 1 : 0.3)
+        .allowsHitTesting(false)
         .animation(.spring(response: 0.34, dampingFraction: 0.86), value: store.notchSkin)
     }
 

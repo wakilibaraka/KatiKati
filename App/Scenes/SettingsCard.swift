@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 // Phase 12 (2026-10-15) — the Settings window's one card and one row type (`Docs/SETTINGS.md`,
@@ -343,8 +344,12 @@ struct SettingsPane<Content: View>: View {
 
 /// One section: optional header, its rows, an optional one-line note (rule 4 — anything longer
 /// belongs behind an info button on the row it explains).
-/// Styled with Neo-Glassmorphism: translucent material, dynamic Dock-theme iridescence, soft
-/// inner specular highlight, gradient border rim, and subtle hover elevation.
+/// `quiet` keeps focused settings pages readable beside the larger live preview.
+enum SettingsCardAppearance: Equatable {
+    case themed
+    case quiet
+}
+
 struct SettingsCard<Content: View>: View {
     @Environment(\.dockThemeStyle) private var themeStyle
     @Environment(\.colorScheme) private var colorScheme
@@ -352,11 +357,18 @@ struct SettingsCard<Content: View>: View {
 
     private let header: Text?
     private let note: Text?
+    private let appearance: SettingsCardAppearance
     private let content: Content
 
-    init(_ header: Text? = nil, note: Text? = nil, @ViewBuilder content: () -> Content) {
+    init(
+        _ header: Text? = nil,
+        note: Text? = nil,
+        appearance: SettingsCardAppearance = .themed,
+        @ViewBuilder content: () -> Content
+    ) {
         self.header = header
         self.note = note
+        self.appearance = appearance
         self.content = content()
     }
 
@@ -364,14 +376,14 @@ struct SettingsCard<Content: View>: View {
         let palette = SettingsIridescentPalette.resolve(style: themeStyle, colorScheme: colorScheme)
         let isDark = colorScheme == .dark
         let shape = RoundedRectangle(cornerRadius: SettingsMetrics.cardCornerRadius + 4, style: .continuous)
+        let quiet = appearance == .quiet
 
         VStack(alignment: .leading, spacing: SettingsMetrics.cardHeaderSpacing) {
             if let header {
                 HStack(spacing: 8) {
                     Capsule(style: .continuous)
-                        .fill(palette.pillGradient)
+                        .fill(quiet ? Color.accentColor : palette.primaryAccent)
                         .frame(width: 4, height: 15)
-                        .shadow(color: palette.glowColor, radius: 3, x: 0, y: 0)
                         .accessibilityHidden(true)
                     header
                         .font(.system(size: 13.5, weight: .semibold))
@@ -389,43 +401,46 @@ struct SettingsCard<Content: View>: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             ZStack {
-                shape.fill(.ultraThinMaterial)
-                shape.fill(Color.primary.opacity(SettingsMetrics.cardFillOpacity))
-                shape.fill(palette.subtleSurfaceGradient)
-                // Top specular gel reflection
-                shape.fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(isDark ? (isHovered ? 0.10 : 0.06) : (isHovered ? 0.42 : 0.28)),
-                            Color.clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .center
+                if quiet {
+                    shape.fill(Color(nsColor: .controlBackgroundColor))
+                } else {
+                    shape.fill(.ultraThinMaterial)
+                    shape.fill(Color.primary.opacity(SettingsMetrics.cardFillOpacity))
+                    shape.fill(palette.subtleSurfaceGradient)
+                    shape.fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(isDark ? (isHovered ? 0.10 : 0.06) : (isHovered ? 0.42 : 0.28)),
+                                Color.clear
+                            ],
+                            startPoint: .top,
+                            endPoint: .center
+                        )
                     )
-                )
+                }
             }
         )
         .overlay(
             shape.strokeBorder(
-                LinearGradient(
+                quiet ? AnyShapeStyle(Color.primary.opacity(isDark ? 0.16 : 0.10)) : AnyShapeStyle(LinearGradient(
                     colors: [
                         isHovered ? palette.rimTopColor : palette.rimTopColor.opacity(0.68),
                         isHovered ? palette.rimBottomColor : Color.primary.opacity(isDark ? 0.12 : 0.08)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
-                ),
-                lineWidth: isHovered ? 1.25 : 1.0
+                )),
+                lineWidth: quiet ? 1 : (isHovered ? 1.25 : 1.0)
             )
         )
         .shadow(
-            color: isHovered ? palette.glowColor.opacity(0.45) : Color.black.opacity(isDark ? 0.24 : 0.07),
-            radius: isHovered ? 12 : 7,
+            color: quiet ? .clear : (isHovered ? palette.glowColor.opacity(0.45) : Color.black.opacity(isDark ? 0.24 : 0.07)),
+            radius: quiet ? 0 : (isHovered ? 12 : 7),
             x: 0,
-            y: isHovered ? 4 : 2
+            y: quiet ? 0 : (isHovered ? 4 : 2)
         )
-        .animation(.spring(response: 0.28, dampingFraction: 0.78), value: isHovered)
-        .onHover { isHovered = $0 }
+        .animation(quiet ? nil : .spring(response: 0.28, dampingFraction: 0.78), value: isHovered)
+        .onHover { isHovered = quiet ? false : $0 }
     }
 }
 

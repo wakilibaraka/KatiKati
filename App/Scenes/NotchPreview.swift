@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Demo of the notch island for Settings and the setup guide: the real closed and open silhouettes at
@@ -10,8 +11,31 @@ struct NotchPreview: View {
     let skin: LiveIslandSkin
     let isEnabled: Bool
     @State private var isExpanded = true
+    @AppStorage(IslandSurfaceGlassPolicy.liquidGlassEnabledKey) private var glassEnabled = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var size: CGSize { NotchGeometry.previewSize(for: skin, expanded: isExpanded) }
+    private var hasPhysicalCutout: Bool { (NSScreen.main?.safeAreaInsets.top ?? 0) > 0 }
+    private var usesLiquidGlass: Bool {
+        skin.usesSuperGlassBackdrop && IslandSurfaceGlassPolicy.shouldUseLiquidGlass(
+            hasPhysicalCutout: hasPhysicalCutout,
+            isOLED: false,
+            presentation: isExpanded ? .expanded : .idle,
+            glassEnabled: glassEnabled,
+            isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled
+        )
+    }
+    private var superGlassShape: AnyShape {
+        let radii = isExpanded ? NotchDesignSpec.openCornerRadii : NotchDesignSpec.closedCornerRadii
+        if hasPhysicalCutout {
+            return AnyShape(NotchContinuousMaskShape(
+                topCornerRadius: radii.topFlaring,
+                bottomCornerRadius: radii.bottomSquircle,
+                flaringTopEars: false
+            ))
+        }
+        return AnyShape(NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16))
+    }
 
     private var skinTitle: String {
         switch skin {
@@ -36,17 +60,27 @@ struct NotchPreview: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text(verbatim: skinTitle))
+            .accessibilityValue(Text(isExpanded ? "Expanded" : "Collapsed"))
             .accessibilityHint(Text("Click to expand or collapse the demo preview."))
             .help(Text("Click to expand or collapse the demo preview."))
             caption
         }
         .frame(maxWidth: .infinity)
-        .animation(.spring(response: 0.36, dampingFraction: 0.84), value: isExpanded)
+        .animation(reduceMotion ? nil : .spring(response: 0.36, dampingFraction: 0.84), value: isExpanded)
     }
 
     private var silhouette: some View {
         ZStack {
-            if skin == .dynamicIsland || skin == .liquid || skin == .superGlass {
+            if skin == .superGlass {
+                let shape = superGlassShape
+                if usesLiquidGlass {
+                    shape.fill(.ultraThinMaterial)
+                        .overlay(shape.fill(Color.black.opacity(0.34)))
+                } else {
+                    shape.fill(Color.black)
+                }
+                shape.stroke(Color.white.opacity(usesLiquidGlass ? 0.18 : 0.08), lineWidth: 1)
+            } else if skin == .dynamicIsland || skin == .liquid {
                 NotchPreviewContinuousShape(radius: isExpanded ? 32 : 16)
                     .fill(Color.black)
                     .overlay(
@@ -72,21 +106,80 @@ struct NotchPreview: View {
 
     /// Neutral plates where content would be: the demo shows the silhouette, never invented data.
     private var placeholderPlates: some View {
-        HStack(spacing: NotchLayoutSpec.cardPadding) {
-            plate
-            VStack(spacing: NotchLayoutSpec.cardPadding) {
-                plate
-                plate
+        Group {
+            switch skin {
+            case .boring, .superGlass:
+                VStack(spacing: 8) {
+                    HStack {
+                        previewLine(width: 56, opacity: 0.24)
+                        Spacer()
+                        previewLine(width: 28, opacity: 0.14)
+                    }
+                    HStack(spacing: 8) {
+                        plate
+                        plate
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 14)
+            case .classic:
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.accentColor.opacity(0.18))
+                        .frame(width: 28, height: 28)
+                    VStack(alignment: .leading, spacing: 6) {
+                        previewLine(width: 90, opacity: 0.24)
+                        previewLine(width: 58, opacity: 0.13)
+                    }
+                    Spacer(minLength: 8)
+                    previewLine(width: 24, opacity: 0.22)
+                }
+                .padding(.horizontal, 22)
+            case .liquid:
+                HStack(spacing: 10) {
+                    plate
+                    plate
+                    Circle()
+                        .fill(Color.accentColor.opacity(0.24))
+                        .frame(width: 18, height: 18)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            case .dynamicIsland:
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Color.accentColor.opacity(0.18))
+                        .frame(width: 32, height: 32)
+                    VStack(alignment: .leading, spacing: 6) {
+                        previewLine(width: 92, opacity: 0.24)
+                        previewLine(width: 64, opacity: 0.13)
+                    }
+                    Spacer(minLength: 8)
+                    Circle()
+                        .strokeBorder(Color.accentColor.opacity(0.55), lineWidth: 2)
+                        .frame(width: 18, height: 18)
+                }
+                .padding(.horizontal, 20)
             }
         }
-        .padding(.horizontal, NotchDesignSpec.gridPadding.leading)
-        .padding(.vertical, NotchDesignSpec.gridPadding.top + 6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var plate: some View {
         RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
-            .fill(Color.white.opacity(NotchLayoutSpec.cardFillOpacity))
+            .fill(Color.white.opacity(0.08))
+            .overlay {
+                RoundedRectangle(cornerRadius: NotchLayoutSpec.cardRadius, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func previewLine(width: CGFloat, opacity: Double) -> some View {
+        Capsule()
+            .fill(Color.white.opacity(opacity))
+            .frame(width: width, height: 5)
     }
 
     private var caption: some View {

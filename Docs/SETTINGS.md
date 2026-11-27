@@ -127,7 +127,7 @@ the tools used mid-session are not behind it, and Control Center is its own dedi
 | **Appearance** | Landed (2026-10-15, 12f with it): the theme grid carries a one-line caption saying the swatches are previews, and the card gained the two plate sliders — **Vibrancy** (0.1–1.0, 55 % = the pre-slider look) and **Contrast** (0.5–2.0×) — shown only for a pinned theme, because Auto and System tint nothing. Landed 2026-10-26: a third plate slider, **Translucency** (20–100 %, 100 % = the pre-slider plate), which lays the same tint down thicker toward 20 % until the plate reads solid over whatever the backdrop is; it is drawn over the backdrop, so it reaches the native macOS 26 glass too, which takes no tint of its own. Landed 2026-10-26: a **Space Switching** card below the wallpaper card (**Effect**: Instant / Fade, **Duration** 0.10–0.60 s) — the transition ported from Spacewalk, driven by the **Next Space** / **Previous Space** shortcuts, which default to off so the system's own ⌃← / ⌃→ keep working. It needs macOS 26+, Screen Recording and Accessibility; anywhere else the switch is posted without the overlay. The two cards under the icon-set picker are previews, not a second control. Landed 2026-10-16: **Dock App Icon Shape is gone** — Phase 32d packed it, so the dock icons' frame is fixed at launch by the `DOCK_ICON_FRAME` switch (unset = today's squircle) and there is nothing left to draw. Landed 2026-10-16 (Phase 32b): **Right FAB Style** moved here from the Widgets page — the dock's right button is a look, like the icon set beside it — into the row 32d freed, so the page is back to the height it had before 32d. | — |
 | **Dock Items** | Landed 2026-10-26 (Dockey-shaped): a leading **Dock** card gathers the dock's four headline choices on the shared row system — **Position** (Bottom / Left / Right), **Hide Dock** (Hide / Show), **Animation Delay** (None / Little / Default / A lot, disabled while the dock never hides) and **Animation Speed** (Instant / Snappy / Fluid / Slow — the preset now really times every tile's hover in `DockTileChrome`), plus **Restore** → **Reset** (bottom, always visible, Fluid). No new engine: each row writes a setter the panel already relayouts on, so the dock on screen is the preview. The old **Dock Motion** row became *Animation Speed* (same stored key). | — |
 | **Widgets** | Landed (2026-10-15): the weather rows are on the shared row system inside their own *Weather* card, the appearance rows and the style presets share one card, and the page is **three** sections. The clock tile's row is renamed **Clock Tile Style** so it stops duplicating the dock clock's *Clock Style* (both keys unchanged). Landed 2026-10-16 (Phase 32b): the row pair's right half is now **Dock Motion** (Fluid / Snappy / Instant — how the widgets' readings move when they change), and **Right FAB Style** left for Appearance. A swap on an existing pair, never a new row: the page is still 952 pt of the 986 pt cap. | — |
-| **Notch** | Landed (2026-10-15): the shape preview carries its demo caption. Still owes, jointly with the tracker's **Compact-notch** item (§4), the skin decision before this page is signed off. | §4 |
+| **Notch** | Updated (2026-11-27): five presets share a restrained black-and-rim family while keeping distinct silhouettes and placeholder layouts. The preview reports expanded/collapsed state to VoiceOver and never reads live activity data; Super Glass follows the live surface's glass eligibility and opaque closed-notch behavior. The five-button gallery and per-display menu remain available together. | — |
 | **Notifications** | Landed (2026-10-22, owner: "notification as its own page in settings"): battery low / charge milestone / plug-change rules, peripheral alerts, the 24-hour-or-7-day history with its Clear button, and the banner-placement rows that used to sit at the end of Advanced — four cards plus that section, every row on the shared system. | — |
 | **Edge Bars** | Landed (2026-10-15): three sections — **Edge Bars** (preset, dock-side policy, main side, keep open), **Widgets** (the tile checklist as a grid, or the custom item list on rows) and **Size & Behaviour** — every control on the row system, and the page's paragraph a card note. Nothing owed. | — |
 | **Window Management** | Landed (2026-10-15): the card's four paragraphs are their rows' notes/ⓘ and its three hand-rolled `Toggle`s are `SettingsToggleRow`s (rules 3 and 4), the preview and switch rows pair, the two window behaviours are one line, and the app-override list is on `SettingsRow`. Landed (2026-10-15): **three** sections — one **Tiling** card (Enable, Preset, the two gaps, Floating Applications and Tiling Shortcuts, the last two keeping their own labels inside the card), **Window Chips** and **Window Behaviour**. That was a regroup, not a row change: no row, key or value moved. Landed (2026-10-26): a **Dock Layering** section (`DockLayeringSettingsBlock`) offering 8 hybrid layering modes (Always on Top, Dynamic Smart Z-Order, Same-Level Relative Order, Always Below Windows with Edge Peek, Native Auto-Hide Dodge, Click-Through Ghost Mode, Native Dock visibleFrame Piggyback, Working-Area Strut Clamping), private SkyLight fast-path switch, AppleScript resize fallback switch, KeepAlive LaunchAgent installation, and native dock suppression. The tiling assignments stay one per line: a name, a menu and a Record button do not fit half a card (measured). | — |
@@ -160,22 +160,18 @@ Rule 5 is applied page by page, which is the point: the old Shortcuts page held 
 every keyboard behaviour, and only fit the window with two disclosure groups closed. Each new page
 is one to three cards, and the sidebar's **Input & Shortcuts** group gathers all seven.
 
-## 4. Where the Compact-notch decision attaches
+## 4. Compact-notch design decision
 
-The tracker carries an owner note (2026-10-15, HYBRID_PLAN, "Owner note — the Compact notch needs
-plan work"): **Compact** is the `classic` `LiveIslandSkin`, drawn from `NotchLayoutSpec`, and its
-silhouette, sizing and content were never designed against the reference layout the `boring` skin
-follows.
+**Decision — 2026-11-27:** Compact remains the `classic` `LiveIslandSkin`: a smaller, quieter
+presentation of the same notch activity and page behavior, not a separate feature set. Full keeps
+its broader multi-panel layout, Liquid its connected pill and bubble, Dynamic Island its centered
+activity layout, and Super Glass the Full layout with a translucent expanded material. Every preview
+uses abstract plates only; the closed physical notch stays opaque black, and Low Power Mode disables
+the glass effect.
 
-It attaches **here**: the **Notch page** owns it (§3), because that page carries the skin row and
-the skin's demo preview (`LiveIslandSettingsBlock` → `NotchPreview`, `NotchGeometry.previewSize`).
-Until the decision is recorded in the tracker:
-
-- the Notch page is **not signed off**, and its demo preview stays labelled as a demo (rule 8);
-- the Notch page's card list is **frozen** — no compaction slice may move rows off or onto it,
-  because the decision will state what the Compact skin shows, and that is this page's content;
-- the compaction work (rule 5's splits) may proceed on Edge Bars, Widgets, Shortcuts and Tools —
-  those pages do not touch `NotchLayoutSpec`.
+The Notch page owns the decision and keeps both skin selectors available: the five-button gallery
+for quick selection and the per-display menu for display-specific overrides. The gallery artwork is
+decorative inside its buttons, and the adjacent desktop stage is a non-interactive preview.
 
 ## 5. Verifying a change to a page
 
