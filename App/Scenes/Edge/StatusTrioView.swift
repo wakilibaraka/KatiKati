@@ -1657,6 +1657,13 @@ struct InlineQuickTogglePill: View {
 
 // MARK: - MB-6: Menu Bar Creative Hub (Hop 2x2 Box Grid + OnlySwitch Tabs)
 
+/// Width of the Hub's stacked rows, measured from the plain "Window Layouts" button; the borderless
+/// `Menu` rows below it need a definite width or they shrink to their own labels.
+private struct HubMenuRowWidth: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
 struct MenuBarCreativeHubView: View {
     var onDismiss: () -> Void = {}
     var onOpenSettings: () -> Void = {}
@@ -1697,6 +1704,11 @@ struct MenuBarCreativeHubView: View {
     @State private var showUninstaller = false
     /// SN-6: saved display arrangements, loaded once per open.
     @State private var arrangements: [DisplayArrangement] = []
+    /// The two menu rows are `Menu`s, and a borderless `Menu` shrinks to its label's ideal width, which
+    /// left "Display Mode" and "Arrangements" floating as small controls instead of rows. The plain
+    /// "Window Layouts" button above them fills the column, so its measured width is the width every
+    /// row in this list uses.
+    @State private var menuRowWidth: CGFloat = 0
     @State private var calendarMonth = Date()
     @AppStorage(HubActionLayout.widthsKey) private var boxWidthsRaw = "half,half,half,half"
     @ObservedObject private var keepAwake = KeepAwakeService.shared
@@ -1937,6 +1949,7 @@ struct MenuBarCreativeHubView: View {
                     .buttonStyle(.plain)
                 }
             }
+            .onPreferenceChange(HubMenuRowWidth.self) { menuRowWidth = $0 }
         }
     }
 
@@ -1964,6 +1977,7 @@ struct MenuBarCreativeHubView: View {
                 Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(inkSoft)
             }
             .padding(.horizontal, 9).padding(.vertical, 7)
+            .frame(width: menuRowWidth > 0 ? menuRowWidth : nil, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
             .contentShape(Rectangle())
         }
@@ -1990,6 +2004,7 @@ struct MenuBarCreativeHubView: View {
                 Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(inkSoft)
             }
             .padding(.horizontal, 9).padding(.vertical, 7)
+            .frame(width: menuRowWidth > 0 ? menuRowWidth : nil, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
             .contentShape(Rectangle())
         }
@@ -2021,6 +2036,9 @@ struct MenuBarCreativeHubView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .background(GeometryReader { proxy in
+            Color.clear.preference(key: HubMenuRowWidth.self, value: proxy.size.width)
+        })
     }
 
     private static func isKeepAwake(_ item: HubSwitchID) -> Bool {

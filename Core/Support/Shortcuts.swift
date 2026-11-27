@@ -129,7 +129,9 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .notchPagePrevious: return 35
         case .snapNextDisplay: return 36
         case .cursorNextDisplay: return 77
-        case .windowInspector: return 78
+        // 102, not 78: Carbon matches a hot key by (signature, id), so a shared id makes one action
+        // swallow the other's chord. 78 is `.workspace1`'s (⌃⌥1) and ⌃⌥I never reached the inspector.
+        case .windowInspector: return 102
         case .tilingGrowMain: return 37
         case .tilingShrinkMain: return 38
         case .tilingFlipMain: return 39
