@@ -426,9 +426,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795811555.791169,
-    "seen": 1795812016.995589,
-    "ast_hash": "fad80e140622a080a376c297fbceb639",
+    "mtime": 1795814028.3197544,
+    "seen": 1795814052.986551,
+    "ast_hash": "d542e620be77b91a6896eb033e9aaee2",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -2406,10 +2406,10 @@
     "semantic_hash": ""
   },
   "Core/Support/TilingPolicy.swift": {
-    "mtime": 1792414648.5672326,
-    "seen": 1795752234.520766,
-    "ast_hash": "84dd777791ce9185476323d11cc0a56c",
-    "semantic_hash": "84dd777791ce9185476323d11cc0a56c"
+    "mtime": 1795814017.1689796,
+    "seen": 1795814052.9882061,
+    "ast_hash": "60f2eee292a874fe793f859c03e86666",
+    "semantic_hash": ""
   },
   "Core/Support/TilingTree.swift": {
     "mtime": 1795217484.9771702,
@@ -4225,9 +4225,9 @@
     "semantic_hash": "afffa1afc3e79b6011f58862e979ac29"
   },
   "Tests/Unit/TilingLayoutTests.swift": {
-    "mtime": 1795807068.2045205,
-    "seen": 1795808588.990765,
-    "ast_hash": "3eea7f86d31c16e43eb2fdcf0a66ebe1",
+    "mtime": 1795814040.0668795,
+    "seen": 1795814053.001394,
+    "ast_hash": "8f0c6eef46cd22394a8e6db8067ae9e7",
     "semantic_hash": ""
   },
   "Tests/Unit/TilingTreeTests.swift": {
@@ -9608,6 +9608,12 @@
     "mtime": 1795803818.2382736,
     "seen": 1795804367.891605,
     "ast_hash": "c0f12136cc2fc03ffadd07f7ea2485a2",
+    "semantic_hash": ""
+  },
+  "Docs/Plans/DUAL_DISPLAY_AUTOTILING.md": {
+    "mtime": 1795813976.1604753,
+    "seen": 1795814053.002023,
+    "ast_hash": "f12ab5ce077be54ccfeab8580fa3e504",
     "semantic_hash": ""
   }
 }
