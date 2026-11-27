@@ -37,7 +37,7 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
   clicking one takes you there.
 - **Five layouts.** Windows, Split 3, Split 4, Split 5 and Centered, with adjustable bar height, gaps, margins and widget widths
   (Settings > Dock Layout).
-- **Island widgets on the bar.** Weather, Now Playing and a clock; the clock opens a calendar panel and the weather chip opens a forecast panel.
+- **Island widgets on the bar.** Weather (with Modern, iPad Sky Card, Samsung Vibrant, Orion Aurora, and Not Boring 3D styles), Now Playing and a clock; the clock opens a calendar panel with year progress, countdowns and a Date Calculator, and the weather chip opens a forecast panel.
   Weather asks for Location Services (or use a city you search for) and keeps the last forecast for each place for up to seven days, so it still
   shows when you are offline.
 - **Starter apps.** A fresh install keeps Finder, Safari, System Settings and Messages on the bar so it is never empty.
@@ -47,7 +47,7 @@ KatiKati is a fork of [Tungsten Edge](https://github.com/moonbai-studio/tungsten
   a Windows 11 pill (wide for the frontmost app, with one pip per window up to three) or a KDE Latte brand-coloured line tinted to the app's
   own icon colour. Reduce Motion swaps every moving style for the colour tint. Settings > Dock Items.
 - **Side Deck.** A full-height panel on either screen edge brings together Windows, Notifications, Downloads, Dictionary (EasyDict), Storage,
-  Weather, Quick Access, AI Mission Control, Layouts, Emoji, Clipboard, Clothesline, Scratchpad, Markets and a combined Dashboard.
+  Weather, embedded Quick Access (Command Bar & Launcher), AI Mission Control, Layouts, Emoji, Clipboard, Clothesline, Scratchpad, Markets and a combined Dashboard.
 - **Edge Bars.** Configurable edge strips hold smaller cards such as Notes, Reminders, Alarms, Timer and Stopwatch, Tasks, Clipboard history,
   Capture, Screen Time, Weather, Now Playing, Bluetooth and system monitoring.
 - **Multi-display.** One bar that follows your pointer, or one bar per display, each listing only its own windows.

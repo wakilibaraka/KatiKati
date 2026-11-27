@@ -2,7 +2,7 @@
 
 **Purpose:** A code-verified implementation plan that joins the product wishlist with the repository quality audit. Existing shipped work stays the foundation; verified data-loss, execution, and reliability defects take precedence over additional surface area.
 
-**Status:** Active; Phases 0–2 remediation slices and `SN-1`–`SN-6` fixes are landed and tested on `main`, and documentation/README reconciliation is complete. Phase 3 UI/visual items, Phase 4 wishlist gaps, and remaining Phase 5 items stay explicitly open below. Preserve dated release notes and historical plan snapshots; update only current status claims when source code proves them stale.
+**Status:** Active; Phases 0–4 remediation and consolidated wishlist slices (Slices A–H: `bdc67c76`–`14509653`) are landed and tested on `main`, and documentation/README reconciliation is current. Remaining Phase 5 release/UI items (live URLSession delegate test harness, signed-build README screenshots, and external Google Home/Cast protocol discovery) stay explicitly tracked below. Preserve dated release notes and historical plan snapshots; update only current status claims when source code proves them stale.
 
 ## Operating rules
 
@@ -77,34 +77,34 @@
 
 ## Phase 3 — Complete and polish shipped features
 
-- [ ] Wire the Side Deck weather-handle preference into the rendered handle, or remove/migrate the preference if a weather-aware visual is no longer a product decision.
-- [ ] Wire live Dock density into widgets that currently use hardcoded heights; confirm `.active` Icon Studio trigger reaches Dock/Launcher render paths.
+- [x] Wire the Side Deck weather-handle preference into the rendered handle, or remove/migrate the preference if a weather-aware visual is no longer a product decision (`f86277b7`).
+- [x] Wire live Dock density into widgets that currently use hardcoded heights; confirm `.active` Icon Studio trigger reaches Dock/Launcher render paths (`f86277b7`).
 - [x] Make the README match current shipped Side Deck/EasyDict/Workspaces/Menu Bar surfaces and remove the retired Notch Downloads/Storage pages from its description.
 - [ ] Refresh README screenshots after a current signed app build can be captured and reviewed.
-- [ ] Consolidate experimental/private API settings and terminology after checking the current Settings IA; retain the native Option-click behavior above.
-- [ ] Add the missing keyboard/accessibility states on shipped Side Deck pages; ensure labels describe the action (including “Open Side Deck”).
-- [ ] Verify groups and profile controls in current UI before adding editors or onboarding defaults.
+- [x] Consolidate experimental/private API settings and terminology after checking the current Settings IA; retain the native Option-click behavior above (`9c7949fc`).
+- [x] Add the missing keyboard/accessibility states on shipped Side Deck pages; ensure labels describe the action (including “Open Side Deck”) (`558c352f`, `9c7949fc`).
+- [x] Verify groups and profile controls in current UI before adding editors or onboarding defaults (`558c352f`).
 
 ## Phase 4 — Genuine wishlist gaps
 
 Deliver independently, with existing APIs and narrow acceptance criteria:
 
 1. **Window management:** compact snap-zone picker (`SnapPickerController`, 12 zones with distinct accessible buttons), left/right tiling priority, shake-to-open picker guarded against file-drag pasteboard changes (`WindowSnapService`), per-display mode revert confirmation (`.forSession` provisional apply -> Keep to `.permanently`), and Menu Bar Hub display/arrangement submenus (`SN-1`–`SN-6`) are shipped and tested on `main` (`SnapPickerModelTests`, `WindowSnapTests`, `DisplayModeCatalogTests`).
-2. **Side Deck:** inline full-height Command Bar/Launcher only if the current tab architecture can host them without a second command implementation.
+2. **Side Deck:** inline full-height Command Bar & Launcher embedded cleanly inside `SideDeckQuickAccessView` using shared `CommandBarPanelController`/`LauncherPanelController` engines (`341cf7ef`).
 3. **Window inspector (`winfo`):** shipped with off-main-thread AX + single `proc_pid_rusage` sampling (`WindowInspectorMath.cpuPercent` with `mach_timebase_info` + PID tracking), `NSScreen` Y-flip matching, cached screen metadata, Accessibility disclosure (`needsAccessibility`), and tests in `WindowInspectorMathTests`.
-4. **Weather/date tools:** define the date calculator contract first; use existing weather card sizes and shared forecasts rather than parallel fetchers.
-5. **Terminal:** resize and Finder working-directory sync before splits/themes/search; preserve SwiftTerm session behavior and bounded process lifetime.
-6. **DMG installer artwork:** add only after release packaging is stable; artwork/layout must remain optional and CI-verifiable.
-7. **Google Home/Cast/Android:** separate discovery/permission/design investigation before implementation because the platform and device protocol surface is broad.
-8. **Menu Bar illustration work:** defer custom artwork until interaction, contrast, and localization are settled.
+4. **Weather/date tools:** pure `DateCalculator` + `DateCalculatorView` wired into Calendar tiles/popovers (`DateCalculatorTests`) plus `.samsung`, `.orion`, and `.notBoring` weather skins in `WeatherChipPreset` / `WeatherChip` (`341cf7ef`).
+5. **Terminal:** persistent drag-resize (`TerminalPanelSizeBounds`), Finder CWD sync, snippets menu, `TerminalThemePreset` palettes, and `TerminalBufferSearch` find bar shipped with `TerminalSupportTests` (`341cf7ef`).
+6. **DMG installer artwork:** Finder-styled DMG layout with generated dark slate backdrop, CI/headless fallback (`KATIKATI_PLAIN_DMG=1`), and detach cleanup added to `Scripts/package_release.sh` (`14509653`).
+7. **Google Home/Cast/Android:** separate discovery/permission/design investigation deferred before implementation because the platform and device protocol surface is broad.
+8. **Menu Bar illustration work:** multi-layer SF-Symbol badge illustrations and per-slot accents added to `MenuBarCreativeHubView` 2×2 action tiles while keeping dynamic text contrast and localization intact (`14509653`).
 
 ## Phase 5 — Cleanup and release readiness
 
-- [ ] Prove every claimed dead symbol has zero production and test references; move or remove code in small slices.
+- [x] Prove every claimed dead symbol has zero production and test references; move or remove code in small slices (`28f8cc35`).
 - [ ] Do not delete tracked archive evidence or change history without an explicit retention decision; document storage impact separately.
-- [ ] Deduplicate battery, clipboard, and process readers only after confirming ownership and poll lifetimes.
-- [ ] Audit main-thread DDC/HID/process calls with call-site/isolation evidence; move blocking work off the UI actor without changing hardware calibration.
-- [ ] Check translation key parity for any changed UI copy and register all added tests/sources in the manually maintained Xcode project.
+- [x] Deduplicate battery, clipboard, and process readers only after confirming ownership and poll lifetimes (`e79697f9`).
+- [x] Audit main-thread DDC/HID/process calls with call-site/isolation evidence; move blocking work off the UI actor without changing hardware calibration (`e79697f9`).
+- [x] Check translation key parity for any changed UI copy and register all added tests/sources in the manually maintained Xcode project.
 - [x] Run focused regression suites for the completed slices and the repository's localization/debug-switch/input-hygiene gates.
 - [x] Run `graphify update .` after source changes and reconcile generated graph status without discarding pre-existing worktree changes.
 
@@ -124,3 +124,6 @@ Deliver independently, with existing APIs and narrow acceptance criteria:
 - 2026-11-27 (Slice 1, `b2d5ae29`): Landed P0/P1 reliability & security hardening across `DownloadManagerService`/`DownloadEnginePolicy` (temp staging, `.pending` `defer` cleanup, filename sanitization, relative resume offsets, non-206 cancellation, `didCompleteWithError`), `SettingsBackup`/`SettingsBackupService` (6 excluded keys + `(n)` backup suffixes), `HydrationController` timer guard, `WorkspaceControlServer` off-`@MainActor` writes and early `SO_NOSIGPIPE`, `ClipboardMonitor` secure-input/privacy gating, and `FileNoteKeyProvider` exclusive file creation via `Darwin.link`. Verified 124 executed / 2 skipped (pre-existing) / 0 failures across 12 suites + all localization/debug/hygiene gates.
 - 2026-11-27 (Slice 2): Fixed `SN-1`–`SN-6` across `SnapPickerController` (12 zones, individual accessible buttons, vertical anchor fix), `WindowSnapService` (file-drag guard), `WindowInspectorController` / `WindowInspectorMath` (off-main-thread AX + single `proc_pid_rusage` CPU math, Cocoa Y-flip, cached screens, `needsAccessibility`), `DisplayModeService` (`.forSession` + Revert confirmation, `option.id` refresh check, `CGCancelDisplayConfiguration`), `StatusTrioView` (per-display submenus, disabled incomplete arrangements), `EdgeExtraCards`/`Localizable.xcstrings` (`Decrease`/`Increase` labels), and Xcode `PBXGroup` + `NowPlayingService` registration in `KatiKatiTests`.
 - 2026-11-27 (Slice 3): Reconciled stale claims across `HYBRID_PLAN.md`, `Docs/Plans/*`, `LANES.md`, `CHANGELOG.md`, `README.md`, and `README.zh-CN.md`.
+- 2026-11-27 (Slices A–C, `bdc67c76` / `e79697f9` / `28f8cc35`): Hardened torrent/media/WebDAV/Spotify/symlink execution boundaries, eliminated main-thread DDC/HID/process stalls and duplicate pollers/idle timers, extracted Hub & Tendedero views, and pruned verified dead Swift symbols and unused target links.
+- 2026-11-27 (Slices D–F, `f86277b7` / `9c7949fc` / `558c352f`): Wired SideDeck Weather Handle, `.active` Icon Studio badges, live `WidgetDensityPolicy`, and Finder F2 text-field focus guard; reorganized Settings (Widget Wings moved to Dock Layout, Experimental tab, unified Side Deck naming, fuzzy `SettingsSearchIndex`); added universal `followDockTheme`, SideDeck/EdgeBar keyboard navigation, App Groups onboarding & Settings editor, `captureWindow` shortcut, RAM squircle ring, and removed Pick Color.
+- 2026-11-27 (Slices G–H, `341cf7ef` / `14509653`): Embedded `CommandBarView` & `LauncherView` in `SideDeckQuickAccessView`, added `.samsung`/`.orion`/`.notBoring` weather skins, pure `DateCalculator` & Calendar `DateCalculatorView`, resizable/themed/searchable Terminal with snippets & Finder CWD sync, illustrated Menu Bar Hub action tiles, and Finder-styled DMG installer packaging.

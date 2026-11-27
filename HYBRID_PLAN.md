@@ -2,7 +2,7 @@
 
 > **Current execution status:** See [Hybrid Remediation and Wishlist Plan](Docs/Plans/HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md) for code-verified present-state corrections and active remediation. The dated snapshot and release history below are retained as historical context.
 
-- 2026-11-27: Remediation/wishlist tracker updated; Slice 1 (`b2d5ae29`, P0/P1 safety & reliability fixes), Slice 2 (`SN-1`–`SN-6` snap/inspector/display fixes), and Slice 3 (plan, README, `LANES.md`, and `CHANGELOG.md` reconciliation) landed on `main` (see [HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md](Docs/Plans/HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md) for verified status and remaining work).
+- 2026-11-27: Remediation/wishlist tracker updated; Slices 1–3 and consolidated Slices A–H (`bdc67c76`–`14509653`: P0/P1 safety, runtime/timer optimization, dead code pruning, widget wiring, Settings IA & fuzzy search, `followDockTheme` & keyboard nav, App Groups editor, embedded CommandBar/Launcher, Samsung/Orion/NotBoring weather skins, DateCalculator, Terminal upgrades, Hub card illustrations, and styled DMG packaging) landed on `main` (see [HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md](Docs/Plans/HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md)).
 
 **Tungsten Edge core × SplitBar-old 4 modes × DockBar widgets**
 

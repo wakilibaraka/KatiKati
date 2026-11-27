@@ -5435,15 +5435,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1795774889.1166463,
-    "seen": 1795775062.543395,
-    "ast_hash": "3c6dc6c65ad477eab9e9d2d714b26d3f",
+    "mtime": 1795804768.147139,
+    "seen": 1795805509.9057238,
+    "ast_hash": "9f53b6c0b5a396d4f61b517af83d60c2",
     "semantic_hash": ""
   },
   "README.zh-CN.md": {
-    "mtime": 1795774900.5828924,
-    "seen": 1795775062.543396,
-    "ast_hash": "5ac8364efedb6e5b6bf0a7d4f6d71ab2",
+    "mtime": 1795804770.9005802,
+    "seen": 1795805509.905726,
+    "ast_hash": "d139242ab9f56fd31d74a746792f2d49",
     "semantic_hash": ""
   },
   "STANDING_RULES.md": {
@@ -9533,9 +9533,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md": {
-    "mtime": 1795774752.7990606,
-    "seen": 1795775062.54338,
-    "ast_hash": "f741aec1d9be5b325e271489e6360645",
+    "mtime": 1795804762.2388732,
+    "seen": 1795805509.9057002,
+    "ast_hash": "454d535bb94b8f31b852624dc61a5f8b",
     "semantic_hash": ""
   },
   "Core/Support/DisplayArrangement.swift": {
