@@ -327,3 +327,115 @@ enum DisplayMove {
         return ((index + step) % count + count) % count
     }
 }
+
+// MARK: - SN-1: snApp layout catalog
+
+/// One card in the snApp picker: the shapes it draws inside a unit square, and the zone each shape
+/// snaps to. A card is a *drawing* first: the ⅔ pair is drawn as two halves so the eye reads the split,
+/// while each half applies the wider real frame its zone names.
+struct SnapLayoutPreset: Identifiable, Equatable, Sendable {
+    struct Area: Equatable, Sendable {
+        /// What the shape snaps the window to when clicked.
+        let zone: SnapPosition
+        /// Where the shape is drawn, in the card's unit square (bottom-left origin).
+        let unit: CGRect
+        /// Optional label drawn inside the shape, e.g. "⅔".
+        let label: String?
+
+        init(zone: SnapPosition, unit: CGRect? = nil, label: String? = nil) {
+            self.zone = zone
+            self.unit = unit ?? zone.unit
+            self.label = label
+        }
+    }
+
+    /// Stable id, so the picker can remember the last-used card and tests can name one.
+    let id: String
+    let areas: [Area]
+
+    var zones: [SnapPosition] { areas.map(\.zone) }
+}
+
+/// The pure half of snApp: which cards exist, what they draw, and what a click inside one means. Nothing
+/// here touches a window, a screen or the pointer, so the picker's geometry is testable and the panel
+/// only has to draw `areas` and hand back `zone`.
+enum SnapLayoutCatalog {
+    /// Vertical splits first (the pointer arrives from any edge), then quarters, thirds, ⅔ and maximize.
+    /// Top/bottom halves stay reachable through the edge shortcuts and `SnapZonePlanner` but are not
+    /// cards: five cards keep the picker at two rows.
+    static let presets: [SnapLayoutPreset] = [
+        SnapLayoutPreset(id: "halves", areas: [
+            SnapLayoutPreset.Area(zone: .leftHalf),
+            SnapLayoutPreset.Area(zone: .rightHalf),
+        ]),
+        SnapLayoutPreset(id: "quarters", areas: [
+            SnapLayoutPreset.Area(zone: .topLeft),
+            SnapLayoutPreset.Area(zone: .topRight),
+            SnapLayoutPreset.Area(zone: .bottomLeft),
+            SnapLayoutPreset.Area(zone: .bottomRight),
+        ]),
+        SnapLayoutPreset(id: "thirds", areas: [
+            SnapLayoutPreset.Area(zone: .leftThird),
+            SnapLayoutPreset.Area(zone: .centerThird),
+            SnapLayoutPreset.Area(zone: .rightThird),
+        ]),
+        SnapLayoutPreset(id: "twoThirds", areas: [
+            SnapLayoutPreset.Area(zone: .leftTwoThirds,
+                                  unit: CGRect(x: 0, y: 0, width: 0.5, height: 1), label: "⅔"),
+            SnapLayoutPreset.Area(zone: .rightTwoThirds,
+                                  unit: CGRect(x: 0.5, y: 0, width: 0.5, height: 1), label: "⅔"),
+        ]),
+        SnapLayoutPreset(id: "maximize", areas: [
+            SnapLayoutPreset.Area(zone: .maximize),
+        ]),
+    ]
+
+    static func preset(id: String) -> SnapLayoutPreset? {
+        presets.first { $0.id == id }
+    }
+
+    /// The shape under a unit-square point. A point in a gap belongs to no shape, so the panel can treat
+    /// a click there as "dismiss" instead of guessing.
+    static func area(at point: CGPoint, in preset: SnapLayoutPreset) -> SnapLayoutPreset.Area? {
+        preset.areas.first { $0.unit.contains(point) }
+    }
+}
+
+// MARK: - SN-3: shake gate
+
+/// The gate in front of the shake recognition. The app layer feeds samples only while `SnapDragMonitor`
+/// reports a tracking *window* drag, which is what keeps text selection, scrollbar drags and file drags
+/// (Shake to shelf) away from it entirely. This type adds the two rules a bare `ShakeDetector` cannot
+/// know: a press must be open, and one press opens the picker at most once. The detector keeps its own
+/// 1.5 s cooldown across presses, so two quick drags cannot double-open either.
+struct SnapShakeGate {
+    private var detector: ShakeDetector
+    private var openPress: UInt64?
+    private var firedForPress = false
+
+    init(detector: ShakeDetector = ShakeDetector()) {
+        self.detector = detector
+    }
+
+    /// A dragging press started. Strokes are not cleared: the detector's window ages them out, and its
+    /// cooldown must survive the press boundary, so two back-to-back shakes still coalesce into one.
+    mutating func beginPress(_ id: UInt64) {
+        openPress = id
+        firedForPress = false
+    }
+
+    /// Feed one pointer x while the drag is tracking. Returns `true` on the sample that should open the
+    /// picker; every later sample of the same press returns `false`.
+    mutating func add(x: Double, at t: TimeInterval) -> Bool {
+        guard openPress != nil, !firedForPress else { return false }
+        guard detector.add(x: x, at: t) else { return false }
+        firedForPress = true
+        return true
+    }
+
+    /// The drag ended, whether or not it opened the picker.
+    mutating func endPress() {
+        openPress = nil
+        firedForPress = false
+    }
+}

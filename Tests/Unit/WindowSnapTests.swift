@@ -408,3 +408,102 @@ final class QuitAppRulesTests: XCTestCase {
         XCTAssertTrue(AXMessagingPolicy.applyTimeout(app) === app)
     }
 }
+
+// MARK: - SN-1: snApp catalog and shake gate
+
+extension WindowSnapTests {
+    func testSnapCatalogLeadsWithVerticalHalves() {
+        let first = SnapLayoutCatalog.presets.first
+        XCTAssertEqual(first?.id, "halves")
+        XCTAssertEqual(first?.zones, [.leftHalf, .rightHalf], "the pointer arrives from an edge")
+        let everyZone = SnapLayoutCatalog.presets.flatMap(\.zones)
+        XCTAssertFalse(everyZone.contains(.topHalf), "top/bottom halves stay off the cards")
+        XCTAssertFalse(everyZone.contains(.bottomHalf))
+        XCTAssertEqual(SnapLayoutCatalog.presets.count, 5)
+    }
+
+    func testSnapCatalogCoversPickerZonesWithoutRepeatingOne() {
+        let everyZone = SnapLayoutCatalog.presets.flatMap(\.zones)
+        XCTAssertEqual(Set(everyZone).count, everyZone.count, "a zone on two cards is a mis-click waiting")
+        XCTAssertEqual(Set(everyZone), [.leftHalf, .rightHalf, .topLeft, .topRight, .bottomLeft, .bottomRight,
+                                        .leftThird, .centerThird, .rightThird,
+                                        .leftTwoThirds, .rightTwoThirds, .maximize])
+        XCTAssertEqual(everyZone.count, 12)
+    }
+
+    func testSnapCatalogSchematicStaysInsideTheCard() {
+        for preset in SnapLayoutCatalog.presets {
+            XCTAssertFalse(preset.areas.isEmpty, preset.id)
+            for area in preset.areas {
+                XCTAssertGreaterThan(area.unit.width, 0, preset.id)
+                XCTAssertGreaterThan(area.unit.height, 0, preset.id)
+                XCTAssertGreaterThanOrEqual(area.unit.minX, 0, preset.id)
+                XCTAssertGreaterThanOrEqual(area.unit.minY, 0, preset.id)
+                XCTAssertLessThanOrEqual(area.unit.maxX, 1.000001, preset.id)
+                XCTAssertLessThanOrEqual(area.unit.maxY, 1.000001, preset.id)
+            }
+        }
+    }
+
+    func testSnapCatalogHitTestsTheShapeUnderThePointer() {
+        for preset in SnapLayoutCatalog.presets {
+            for area in preset.areas {
+                let center = CGPoint(x: area.unit.midX, y: area.unit.midY)
+                XCTAssertEqual(SnapLayoutCatalog.area(at: center, in: preset)?.zone, area.zone, preset.id)
+            }
+            XCTAssertNil(SnapLayoutCatalog.area(at: CGPoint(x: -0.1, y: 0.5), in: preset), preset.id)
+            XCTAssertNil(SnapLayoutCatalog.area(at: CGPoint(x: 0.5, y: 1.1), in: preset), preset.id)
+        }
+    }
+
+    func testSnapCatalogTwoThirdsCardIsDrawnAsTwoLabelledHalves() throws {
+        let card = try XCTUnwrap(SnapLayoutCatalog.preset(id: "twoThirds"))
+        XCTAssertEqual(card.zones, [.leftTwoThirds, .rightTwoThirds])
+        XCTAssertEqual(card.areas.map(\.label), ["⅔", "⅔"])
+        XCTAssertEqual(card.areas.map(\.unit), [CGRect(x: 0, y: 0, width: 0.5, height: 1),
+                                               CGRect(x: 0.5, y: 0, width: 0.5, height: 1)],
+                       "the drawing splits, the frame does not")
+        XCTAssertNil(SnapLayoutCatalog.preset(id: "no-such-card"))
+    }
+
+    private func feedGate(_ gate: inout SnapShakeGate, _ xs: [Double],
+                          start: TimeInterval = 0, step: TimeInterval = 0.05) -> Int {
+        var opens = 0
+        for (i, x) in xs.enumerated() where gate.add(x: x, at: start + Double(i) * step) { opens += 1 }
+        return opens
+    }
+
+    func testSnapShakeGateFiresOncePerPress() {
+        var gate = SnapShakeGate()
+        gate.beginPress(1)
+        XCTAssertEqual(feedGate(&gate, [0, 50, 0, 50, 0, 50, 0]), 1)
+        XCTAssertEqual(feedGate(&gate, [100, 50, 100, 50, 100, 50, 100], start: 0.4), 0,
+                       "one picker per press, however long the drag lasts")
+        gate.endPress()
+    }
+
+    func testSnapShakeGateIgnoresSamplesOutsideAPress() {
+        var gate = SnapShakeGate()
+        XCTAssertEqual(feedGate(&gate, [0, 50, 0, 50, 0, 50, 0]), 0, "a hover is not a drag")
+    }
+
+    func testSnapShakeGateIgnoresAStraightDrag() {
+        var gate = SnapShakeGate()
+        gate.beginPress(7)
+        XCTAssertEqual(feedGate(&gate, Array(stride(from: 0.0, to: 600, by: 20))), 0)
+        gate.endPress()
+    }
+
+    func testSnapShakeGateKeepsTheDetectorCooldownAcrossPresses() {
+        var gate = SnapShakeGate()
+        gate.beginPress(1)
+        XCTAssertEqual(feedGate(&gate, [0, 50, 0, 50, 0, 50, 0]), 1)
+        gate.endPress()
+        gate.beginPress(2)
+        XCTAssertEqual(feedGate(&gate, [0, 50, 0, 50, 0, 50, 0], start: 0.4), 0, "inside the cooldown")
+        gate.endPress()
+        gate.beginPress(3)
+        XCTAssertEqual(feedGate(&gate, [0, 50, 0, 50, 0, 50, 0], start: 3), 1, "after the cooldown")
+        gate.endPress()
+    }
+}
