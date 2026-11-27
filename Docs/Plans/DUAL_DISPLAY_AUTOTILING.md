@@ -92,3 +92,22 @@ The three TextEdit frames are the previous session's two-half layout plus the pa
 - Live checks use `--resign` and the control socket; no display-mode or arrangement changes.
 - Gates: `check_input_hygiene.py`, `live_check_input_hygiene.py`, `check_localization.py`,
   `check_debug_switches.py`, `check_availability_warnings.py <build log>`, then `graphify update .`.
+
+## 6. AT-9 live check (2026-11-27, LG + built-in)
+
+Seeded the power-user profile with `build/live-check/apply-dual-display.sh`, then `--resign`.
+No display mode or arrangement was changed.
+
+- Control `status` on the built-in: `workspace=1 windows=0 cap=2 profile=on`; on the LG:
+  `workspace=10 cap=4 profile=on` — the profile resolves for both displays and survives the LG's
+  UUID churn through the role fallback.
+- Five windows on the LG produced **four tiled + one centred**: main 1097×982, three stack panes
+  795 wide, spilled window 1382×822 centred (`WindowFit.centered`). Gaps 8/10 confirm the LG
+  profile rather than the global defaults.
+- A three-window run resolved to main 1097×982 plus two 795×487 stack panes, i.e. the same 58/42
+  bundle at a smaller count.
+- Observation: after a cold launch the existing window set did not retile until the next window
+  event reached the snapshot stream. The layout was correct once that event arrived; this is the
+  one behaviour not explained by the profile layer.
+- Not exercised live: snApp's placement/ghost UI and the media-island rule (pure tests only);
+  `live_check_input_hygiene.py` could not run because PyObjC Quartz is not installed here.
