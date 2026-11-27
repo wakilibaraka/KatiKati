@@ -432,9 +432,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795747861.66592,
-    "seen": 1795748030.137839,
-    "ast_hash": "518313e63cc241bb2c1a8adeab17d67b",
+    "mtime": 1795748147.9944756,
+    "seen": 1795748490.626436,
+    "ast_hash": "61d7e5099f61ce7f93f546ad60228015",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795729675.5082703,
-    "seen": 1795738888.81196,
-    "ast_hash": "3c0208af3b6a701ca7cf0726e60f8dbf",
+    "mtime": 1795749524.0945947,
+    "seen": 1795749580.170835,
+    "ast_hash": "1778f1146a78d90d77f08d9af245b2f2",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -2568,9 +2568,9 @@
     "semantic_hash": "d3d06fcee7f66f95d1a7efd64c4820e9"
   },
   "Core/Support/WindowSnap.swift": {
-    "mtime": 1795704080.0436842,
-    "seen": 1795705475.334711,
-    "ast_hash": "61e6b83e1443d2224e1dc6caaa887256",
+    "mtime": 1795748792.7660728,
+    "seen": 1795749580.171218,
+    "ast_hash": "9e24fc1364d1f968900028a0eba29f95",
     "semantic_hash": ""
   },
   "Core/Support/WindowSwitcherModel.swift": {
@@ -4374,9 +4374,9 @@
     "semantic_hash": "c761a1854048312afb1b02410e3a9c6e"
   },
   "Tests/Unit/WindowSnapTests.swift": {
-    "mtime": 1795556687.8033006,
-    "seen": 1795606909.6230972,
-    "ast_hash": "640853a94cc5b469019393faaafc8da7",
+    "mtime": 1795748793.737973,
+    "seen": 1795749580.171596,
+    "ast_hash": "43571198cf7ab7e39edf2aac10343153",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowSubscriptionLedgerTests.swift": {
@@ -9396,9 +9396,9 @@
     "semantic_hash": ""
   },
   "App/Composition/TilingEngine+WorkspaceTransitions.swift": {
-    "mtime": 1795744345.5255842,
-    "seen": 1795744843.551836,
-    "ast_hash": "e795196fd6bfd7f854948823f67c036f",
+    "mtime": 1795748148.9184208,
+    "seen": 1795748490.6264331,
+    "ast_hash": "bcbd56892275777855be7fd674c28dff",
     "semantic_hash": ""
   },
   "App/Composition/TilingEngine+Workspaces.swift": {
@@ -9489,6 +9489,12 @@
     "mtime": 1795744931.135574,
     "seen": 1795745681.9869509,
     "ast_hash": "eac7c21fcd4044eea21ab24300bbd2fb",
+    "semantic_hash": ""
+  },
+  "App/Entry/SnapPickerController.swift": {
+    "mtime": 1795749522.6606467,
+    "seen": 1795749580.1707551,
+    "ast_hash": "94df029ef160965f786c6725e9ff5098",
     "semantic_hash": ""
   }
 }
