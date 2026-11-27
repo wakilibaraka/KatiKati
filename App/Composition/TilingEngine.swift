@@ -118,6 +118,10 @@ final class TilingEngine: ObservableObject {
     /// Internal so the workspace parking path can seed it from a recovery frame: a window that was
     /// already parked when tiling first saw it must not remember the park position as its own.
     var preTilingFrames: [CGWindowID: CGRect] = [:]
+    /// Windows kept out of the layout because tiling them would make every tile too small. Kept
+    /// across passes so the eviction happens once: the frame written at that moment belongs to the
+    /// window until the geometry can hold it again, and the window stays draggable meanwhile.
+    var overflowedCGIDs: Set<CGWindowID> = []
     /// Per-display tiling trees, keyed by display screen identifier.
     var trees: [String: TilingTree] = [:]
     /// Windows manually moved/dragged by the user: released from tiling for the session.
@@ -259,6 +263,8 @@ final class TilingEngine: ObservableObject {
             strips.removeAll()
             stripOffsets.removeAll()
             releasedWindowIDs.removeAll()
+            overflowedCGIDs.removeAll()
+            overflowCount = 0
             lastAppliedFrames.removeAll()
             lastRequestedFrames.removeAll()
         }
@@ -477,6 +483,37 @@ final class TilingEngine: ObservableObject {
         return TilingLayout.resolve(tree: tree, preset: preset(for: screen), workArea: workArea, gaps: gaps, options: options)
     }
 
+    /// Frames for a display with a catalog layout: its slots in focus-first order, everything past
+    /// them parked just past the edge instead of left sitting on top of the grid.
+    private func catalogFrames(
+        _ tree: TilingTree,
+        layout: LayoutCatalog,
+        on screen: NSScreen,
+        workArea: CGRect,
+        activeID: WindowID?,
+        records: [WindowID: WindowRecord],
+        primaryMaxY: CGFloat
+    ) -> (frames: [WindowID: CGRect], parked: [WindowID: StripParking.Side]) {
+        let ordered = LayoutCatalogSlots.ordered(tree.allWindowIDs, focused: activeID ?? tree.focusedID)
+        var frames = layout.frames(for: ordered, workArea: workArea, gaps: gaps)
+        let extras = ordered.dropFirst(layout.slots)
+        guard !extras.isEmpty else { return (frames, [:]) }
+
+        let neighbourRight = NSScreen.screens.contains { other in
+            other !== screen && abs(other.frame.minX - screen.frame.maxX) < 1
+        }
+        let side = WorkspaceParking.side(neighbourOnRight: neighbourRight)
+        var parked: [WindowID: StripParking.Side] = [:]
+        for id in extras {
+            // Keep the window's size and move it just past the edge, the way a parked workspace
+            // window goes: macOS grants a sliver, and `applyFrames` writes a parked window unclamped.
+            let cocoa = records[id]?.bounds.map { cocoaFrame($0, primaryMaxY: primaryMaxY) } ?? workArea
+            parked[id] = side
+            frames[id] = StripParking.parked(cocoa, in: workArea, side: side)
+        }
+        return (frames, parked)
+    }
+
     func setGaps(_ newGaps: TilingGaps) {
         guard newGaps != gaps else { return }
         gaps = newGaps
@@ -603,6 +640,12 @@ final class TilingEngine: ObservableObject {
         lastAppliedFrames = lastAppliedFrames.filter { liveCGIDs.contains($0.key) }
         lastAppliedAt = lastAppliedAt.filter { liveCGIDs.contains($0.key) }
         lastRequestedFrames = lastRequestedFrames.filter { liveCGIDs.contains($0.key) }
+        if !overflowedCGIDs.isSubset(of: liveCGIDs) {
+            overflowedCGIDs.formIntersection(liveCGIDs)
+        }
+        if !parkedWorkspaceWindows.isEmpty {
+            pruneParkedWorkspaceWindows(liveCGIDs: liveCGIDs)
+        }
         let prunedReleased = releasedWindowIDs.intersection(liveCGIDs)
         if prunedReleased != releasedWindowIDs {
             releasedWindowIDs = prunedReleased
@@ -677,6 +720,7 @@ final class TilingEngine: ObservableObject {
                   let cg = record.cgWindowID,
                   cg != 0,
                   !releasedWindowIDs.contains(cg),
+                  !overflowedCGIDs.contains(cg),
                   !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
                   isTileable(record, cg)
             else { continue }
@@ -707,14 +751,27 @@ final class TilingEngine: ObservableObject {
             }
         }
 
-        var overflow = 0
-        defer { if overflowCount != overflow { overflowCount = overflow } }
+        var catalogOverflow = 0
+        defer {
+            let total = overflowedCGIDs.count + catalogOverflow
+            if overflowCount != total { overflowCount = total }
+        }
+
+        // Records by WindowServer id, so a window kept out of this pass (an overflow window) can be
+        // re-probed without scanning the snapshot once per screen.
+        var recordsByCG: [CGWindowID: WindowRecord] = [:]
+        for record in snapshot.windows.values {
+            if let cg = record.cgWindowID { recordsByCG[cg] = record }
+        }
 
         // Reconcile tree for each screen
         for screen in screens {
             let key = screenKey(for: screen)
             let eligible = eligibleByScreen[key] ?? []
             var tree = trees[key] ?? TilingTree()
+            let workArea = workArea(of: screen)
+            let catalogLayout = layout(for: screen)
+            let isStrip = drawsStrip(on: screen)
 
             let eligibleIDs = Set(eligible.map { $0.0.id })
 
@@ -732,20 +789,42 @@ final class TilingEngine: ObservableObject {
                 }
             }
 
+            // Re-admission: a window that left the layout because its tile was too small comes back
+            // as soon as the geometry can hold it again — a neighbour closed, the display grew, the
+            // gaps shrank. Probing keeps this from flapping: the geometry that evicted it fails here
+            // too, so it stays out until something really changed.
+            if catalogLayout == nil, !overflowedCGIDs.isEmpty {
+                for cg in Array(overflowedCGIDs) {
+                    guard let record = recordsByCG[cg],
+                          screenKey(for: resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY)) == key,
+                          !releasedWindowIDs.contains(cg),
+                          !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
+                          workspaceAllowsTiling(record, on: key),
+                          isTileable(record, cg) else { continue }
+                    var probe = tree
+                    probe.insert(record.id)
+                    let frames = resolveFrames(probe, on: screen, workArea: workArea)
+                    guard WindowFit.allUsable(Array(frames.values)) else { continue }
+                    tree = probe
+                    overflowedCGIDs.remove(cg)
+                }
+            }
+
             // Keep tree focus synced with the active window on this screen
             if let activeID = activeIDByScreen[key], tree.contains(activeID) {
                 tree.focus(activeID)
             }
 
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
-            let workArea = workArea(of: screen)
-            let catalogLayout = layout(for: screen)
-            let isStrip = drawsStrip(on: screen)
             var targetFrames: [WindowID: CGRect]
             var parked: [WindowID: StripParking.Side] = [:]
             if let catalogLayout {
-                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
-                overflow += max(0, eligible.count - catalogLayout.slots)
+                let catalog = catalogFrames(tree, layout: catalogLayout, on: screen, workArea: workArea,
+                                            activeID: activeIDByScreen[key], records: snapshot.windows,
+                                            primaryMaxY: primaryMaxY)
+                targetFrames = catalog.frames
+                parked = catalog.parked
+                catalogOverflow += max(0, tree.count - catalogLayout.slots)
             } else if isStrip {
                 // A strip never shrinks a column to fit — it scrolls — so the usable-size guard is
                 // deliberately skipped here, otherwise a ¼ column would evict its own windows.
@@ -753,21 +832,30 @@ final class TilingEngine: ObservableObject {
                 targetFrames = ribbon.frames
                 parked = ribbon.parked
             } else {
-                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
-                let newcomers = eligible.map { $0.0.id }.filter { tree.contains($0) }.reversed()
-                for id in newcomers where !WindowFit.allUsable(Array(targetFrames.values)) && tree.count > 1 {
+                let evicted = TilingOverflow.evictions(
+                    ids: tree.allWindowIDs,
+                    preset: preset(for: screen),
+                    workArea: workArea,
+                    gaps: gaps,
+                    options: options
+                )
+                for id in evicted {
                     tree.remove(id)
-                    overflow += 1
+                    guard let record = snapshot.windows[id], let cg = record.cgWindowID else { continue }
+                    // Remember the eviction. Without it the next snapshot re-inserted the window,
+                    // found the same unusable tile and wrote this recovery frame again — which pinned
+                    // the window in place and cleared the hand-move record that would have released
+                    // it, every pass, for as long as the layout stayed too small.
+                    overflowedCGIDs.insert(cg)
                     // The window is leaving the tiling set, so park nothing: put it back where tiling
                     // found it. Leaving it at the edge a scrolling strip parked it against means an
                     // off-screen window that no preset can reach again.
-                    if let record = snapshot.windows[id], let cg = record.cgWindowID,
-                       let original = preTilingFrames[cg] {
+                    if let original = preTilingFrames[cg] {
                         writeFrame(original, pid: record.pid, cgWindowID: cg)
                         lastAppliedFrames.removeValue(forKey: cg)
                     }
-                    targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
                 }
+                targetFrames = resolveFrames(tree, on: screen, workArea: workArea)
             }
             trees[key] = tree
 
@@ -788,6 +876,13 @@ final class TilingEngine: ObservableObject {
             let key = screenKey(for: screen)
             guard let tree = trees[key], !tree.isEmpty else { continue }
             let workArea = workArea(of: screen)
+            if let catalogLayout = layout(for: screen) {
+                let catalog = catalogFrames(tree, layout: catalogLayout, on: screen, workArea: workArea,
+                                            activeID: nil, records: lastWindows, primaryMaxY: primaryMaxY)
+                applyFrames(catalog.frames, records: lastWindows, primaryMaxY: primaryMaxY,
+                            clampArea: workArea, parked: catalog.parked)
+                continue
+            }
             // A focus grant must lay out the strip, not the catalogue: resolving the plain tree here
             // would write column frames the strip never asked for and leave the revealed window off
             // screen while the camera had already scrolled to its column.

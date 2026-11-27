@@ -5,6 +5,29 @@ final class TilingLayoutTests: XCTestCase {
     private let screen = CGRect(x: 0, y: 40, width: 1440, height: 860)
     private let defaultGaps = TilingGaps(inner: 8, outer: 8)
 
+    // MARK: - Overflow (too many windows for the space)
+
+    /// Three equal columns in 1000 pt are ~323 pt wide, under `WindowFit.usableTile`; two are ~488.
+    private var narrowArea: CGRect { CGRect(x: 0, y: 0, width: 1000, height: 400) }
+
+    func testOverflowEvictsOnlyTheNewestWindowThatDoesNotFit() {
+        let ids = (1...3).map { WindowID(rawValue: "of\($0)") }
+        let evicted = TilingOverflow.evictions(
+            ids: ids, preset: .columns, workArea: narrowArea, gaps: defaultGaps
+        )
+        XCTAssertEqual(evicted, [ids[2]])
+        XCTAssertEqual(ids.count - evicted.count, 2)
+    }
+
+    func testOverflowReadmitsAWindowOnceOneLeaves() {
+        let ids = (1...3).map { WindowID(rawValue: "of\($0)") }
+        let two = Array(ids.prefix(2))
+        XCTAssertEqual(
+            TilingOverflow.evictions(ids: two, preset: .columns, workArea: narrowArea, gaps: defaultGaps),
+            []
+        )
+    }
+
     // MARK: - TilingPolicy Tests
 
     func testTilingPolicyDefaultFloatingApps() {

@@ -6,6 +6,20 @@ final class LayoutCatalogTests: XCTestCase {
     private let gaps = TilingGaps(inner: 8, outer: 8)
     private let ids = (1...6).map { WindowID(rawValue: "w\($0)") }
 
+    func testSlotsPutTheFocusedWindowFirst() {
+        let focused = ids[3]
+        let ordered = LayoutCatalogSlots.ordered(ids, focused: focused)
+        XCTAssertEqual(ordered.first, focused)
+        XCTAssertEqual(ordered.count, ids.count)
+        // Everything else keeps the order the windows joined in.
+        XCTAssertEqual(Array(ordered.dropFirst()), ids.filter { $0 != focused })
+    }
+
+    func testSlotsWithoutAFocusedWindowKeepJoinOrder() {
+        XCTAssertEqual(LayoutCatalogSlots.ordered(ids, focused: nil), ids)
+        XCTAssertEqual(LayoutCatalogSlots.ordered(ids, focused: WindowID(rawValue: "absent")), ids)
+    }
+
     func testExtraWindowsAreParkedNotTiled() {
         for layout in LayoutCatalog.allCases {
             let frames = layout.frames(for: ids, workArea: area, gaps: gaps)

@@ -322,6 +322,32 @@ enum TilingLayout {
     }
 }
 
+/// Which windows have to stay floating so every tile remains usable (Phase 26b overflow rule).
+enum TilingOverflow {
+    /// The newest windows that must leave `ids` for the rest to fit, newest first. Never empties the
+    /// set: one window alone keeps its frame whatever the area.
+    static func evictions(
+        ids: [WindowID],
+        preset: TilingLayoutPreset,
+        workArea: CGRect,
+        gaps: TilingGaps,
+        options: TilingLayoutOptions = TilingLayoutOptions()
+    ) -> [WindowID] {
+        guard ids.count > 1 else { return [] }
+        var tree = TilingTree()
+        for id in ids { tree.insert(id) }
+        var evicted: [WindowID] = []
+        while tree.count > 1 {
+            let frames = TilingLayout.resolve(tree: tree, preset: preset, workArea: workArea, gaps: gaps, options: options)
+            guard !WindowFit.allUsable(Array(frames.values)) else { break }
+            guard let newest = tree.allWindowIDs.last else { break }
+            tree.remove(newest)
+            evicted.append(newest)
+        }
+        return evicted
+    }
+}
+
 // MARK: - Ribbon (RT-1)
 
 /// Width of one ribbon column, as a share of the display's work area. Cycling walks the cases in

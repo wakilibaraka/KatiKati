@@ -86,6 +86,19 @@ enum LayoutCatalog: String, CaseIterable, Sendable {
     }
 }
 
+/// Which windows hold a catalog layout's slots, and in what order (the rest wait out of the way).
+enum LayoutCatalogSlots {
+    /// Slot order: the focused window first, then everything else in join order. A catalog layout
+    /// draws `prefix(slots)`, so putting the focused window at the front is what keeps the window the
+    /// user is actually using out of the extras — join order alone could put it there.
+    static func ordered(_ ids: [WindowID], focused: WindowID?) -> [WindowID] {
+        guard let focused, let index = ids.firstIndex(of: focused) else { return ids }
+        var rest = ids
+        rest.remove(at: index)
+        return [focused] + rest
+    }
+}
+
 /// The ribbon picker's eight pictures, in visual order (RT-3). A quick layout is a table over the
 /// existing presets, not new geometry: Chain is the strip itself, and each of the other seven is a
 /// catalog picture with a slot cap, so the picture and the strip agree on how many windows show.
