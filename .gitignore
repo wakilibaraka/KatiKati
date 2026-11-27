@@ -24,6 +24,9 @@ tmp/
 .claude/
 .workbuddy/
 .agents/
+.gemini/
+.impeccable/
+.github/hooks/
 
 # Internal engineering docs. They stay in the working tree at the same paths;
 # they are simply not published. The repo publishes what GPL-3.0 asks for:
