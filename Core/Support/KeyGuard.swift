@@ -130,22 +130,36 @@ enum KeyGuardPipeline {
 }
 
 /// 53b: Finder has no ⌘X. Rewrite ⌘X to ⌘C (the selection is copied and marked) and ⌘V to ⌘⌥V
-/// ("move item here") while a cut is pending, so the Windows habit works without synthesizing keys.
-/// Return already renames in Finder, so it is left alone.
-/// `shortcut: rewrites inside a Finder text field too (rename / search), upgrade to a focused-element
-/// check if that ever bites.`
+/// ("move item here") while a cut is pending, and map unmodified F2 to Return for file rename,
+/// bypassing all rewrites when a text field/editor is focused.
 struct FinderKeyMap: Equatable, Sendable {
     static let cutKey: UInt16 = 7
     static let copyKey: UInt16 = 8
     static let pasteKey: UInt16 = 9
+    static let renameKey: UInt16 = 120   // F2
+    static let returnKey: UInt16 = 36
 
     private(set) var cutPending = false
     private var rewroteCutUp = false
     private var rewrotePasteUp = false
+    private var rewroteRenameUp = false
 
-    mutating func handle(_ event: KeyGuardEvent) -> KeyGuardDecision {
+    static func isTargetEvent(_ event: KeyGuardEvent) -> Bool {
+        switch event {
+        case let .keyDown(code, mods):
+            return (mods == .command && (code == Self.cutKey || code == Self.copyKey || code == Self.pasteKey))
+                || (mods == [] && code == Self.renameKey)
+        case let .keyUp(code, _):
+            return code == Self.cutKey || code == Self.pasteKey || code == Self.renameKey
+        case .flagsChanged:
+            return false
+        }
+    }
+
+    mutating func handle(_ event: KeyGuardEvent, isTextFieldFocused: Bool = false) -> KeyGuardDecision {
         switch event {
         case let .keyDown(code, mods) where mods == .command:
+            guard !isTextFieldFocused else { return .passThrough }
             switch code {
             case Self.cutKey:
                 cutPending = true
@@ -161,8 +175,12 @@ struct FinderKeyMap: Equatable, Sendable {
             default:
                 return .passThrough
             }
+        case let .keyDown(code, mods) where mods == [] && code == Self.renameKey:
+            guard !isTextFieldFocused else { return .passThrough }
+            rewroteRenameUp = true
+            return .rewrite(keyCode: Self.returnKey, addingModifiers: [])
         case let .keyUp(code, _):
-            // The key-up must follow the rewritten key-down even if ⌘ was released first.
+            // The key-up must follow the rewritten key-down even if ⌘ or focus changed mid-press.
             if code == Self.cutKey, rewroteCutUp {
                 rewroteCutUp = false
                 return .rewrite(keyCode: Self.copyKey, addingModifiers: [])
@@ -170,6 +188,10 @@ struct FinderKeyMap: Equatable, Sendable {
             if code == Self.pasteKey, rewrotePasteUp {
                 rewrotePasteUp = false
                 return .rewrite(keyCode: Self.pasteKey, addingModifiers: .option)
+            }
+            if code == Self.renameKey, rewroteRenameUp {
+                rewroteRenameUp = false
+                return .rewrite(keyCode: Self.returnKey, addingModifiers: [])
             }
             return .passThrough
         default:
@@ -181,6 +203,7 @@ struct FinderKeyMap: Equatable, Sendable {
         cutPending = false
         rewroteCutUp = false
         rewrotePasteUp = false
+        rewroteRenameUp = false
     }
 }
 

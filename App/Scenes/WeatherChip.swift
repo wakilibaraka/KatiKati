@@ -463,11 +463,21 @@ private struct WidgetSizeKey: EnvironmentKey {
     static let defaultValue: WidgetSize = .medium
 }
 
+private struct DockHeightKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 54
+}
+
 extension EnvironmentValues {
     /// The S/M/L preset the strip resolved for the chip being drawn.
     var widgetSize: WidgetSize {
         get { self[WidgetSizeKey.self] }
         set { self[WidgetSizeKey.self] = newValue }
+    }
+
+    /// The live dock panel height so widget density thresholds adapt to actual dock size.
+    var dockHeight: CGFloat {
+        get { self[DockHeightKey.self] }
+        set { self[DockHeightKey.self] = newValue }
     }
 }
 

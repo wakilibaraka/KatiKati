@@ -22,6 +22,7 @@ private extension PeripheralWidgetLayoutStyle {
 /// green charging bolt badge, and `+N` overflow chip.
 struct DevicesDockChip: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockHeight) private var dockHeight
     @ObservedObject private var feed = DockDevicesFeed.shared
     @AppStorage(PeripheralWidgetPrefs.layoutKey) private var layoutRaw = PeripheralWidgetLayoutStyle.status.rawValue
     @AppStorage(PeripheralWidgetPrefs.orderKey) private var orderRaw = "[]"
@@ -74,7 +75,7 @@ struct DevicesDockChip: View {
         let tint = batteryTint(device.lowestBattery, charging: device.isCharging)
         switch style {
         case .status:
-            let density = WidgetDensityPolicy.resolve(dockHeight: 58, widgetSize: size)
+            let density = WidgetDensityPolicy.resolve(dockHeight: dockHeight, widgetSize: size)
             HStack(spacing: 5) {
                 deviceGlyph(device, size: 15)
                 VStack(alignment: .leading, spacing: 0) {

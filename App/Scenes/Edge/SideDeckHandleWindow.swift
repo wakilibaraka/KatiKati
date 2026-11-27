@@ -1,8 +1,9 @@
 import AppKit
+import Combine
 import SwiftUI
 
 /// SD-1 (render 1): the resting handle — a 4 × 44 pt capsule on the active edge, below the menu bar and above
-/// the Dock, that opens the deck on hover.
+/// the Dock, that opens the deck on hover (or a compact weather pill when `mergedWeatherHandle` is on).
 ///
 /// A hidden floating panel receives no mouse events, and the plan forbids a global pointer monitor while
 /// retiring the old 7 Hz `NSEvent.mouseLocation` poll. So the handle is its own always-present borderless
@@ -13,10 +14,16 @@ final class SideDeckHandleWindow {
     private var panel: NSPanel?
     private var host: NSView?
     private var dwellWork: DispatchWorkItem?
+    private var weatherSink: AnyCancellable?
+    private var currentScreen: NSScreen?
+    private var currentSide: SideDeckConfig.Side = .left
+    private var currentMergedWeatherHandle = false
     private let onOpen: () -> Void
 
     static let inkWidth: CGFloat = 4
     static let inkHeight: CGFloat = 44
+    static let weatherWidth: CGFloat = 28
+    static let weatherHeight: CGFloat = 64
     static let hitPadding: CGFloat = 5
 
     init(onOpen: @escaping () -> Void) {
@@ -24,10 +31,17 @@ final class SideDeckHandleWindow {
     }
 
     /// Places the handle on `screen`'s active edge, vertically centred between the menu bar and the Dock.
-    func show(on screen: NSScreen, side: SideDeckConfig.Side) {
+    func show(on screen: NSScreen, side: SideDeckConfig.Side, mergedWeatherHandle: Bool = false) {
+        currentScreen = screen
+        currentSide = side
+        currentMergedWeatherHandle = mergedWeatherHandle
+
+        let showsWeather = mergedWeatherHandle && WeatherService.shared.currentState.hasData
+        let inkW = showsWeather ? Self.weatherWidth : Self.inkWidth
+        let inkH = showsWeather ? Self.weatherHeight : Self.inkHeight
         let visible = screen.visibleFrame
-        let width = Self.inkWidth + 2 * Self.hitPadding
-        let height = Self.inkHeight + 2 * Self.hitPadding
+        let width = inkW + 2 * Self.hitPadding
+        let height = inkH + 2 * Self.hitPadding
         let x = side == .left ? visible.minX : visible.maxX - width
         let frame = NSRect(x: x, y: visible.midY - height / 2, width: width, height: height)
 
@@ -38,17 +52,34 @@ final class SideDeckHandleWindow {
         let content = HandleTrackingView(frame: NSRect(origin: .zero, size: frame.size))
         content.onEnter = { [weak self] in self?.scheduleOpen() }
         content.onExit = { [weak self] in self?.cancelOpen() }
-        let hosting = NSHostingView(rootView: SideDeckHandleCapsule())
+        let hosting = NSHostingView(rootView: SideDeckHandleCapsule(mergedWeatherHandle: mergedWeatherHandle))
         hosting.frame = content.bounds
         hosting.autoresizingMask = [.width, .height]
         content.addSubview(hosting)
         panel.contentView = content
         host = content
         panel.orderFrontRegardless()
+
+        if mergedWeatherHandle && weatherSink == nil {
+            weatherSink = WeatherService.shared.$currentState
+                .map(\.hasData)
+                .removeDuplicates()
+                .sink { [weak self] _ in
+                    Task { @MainActor [weak self] in
+                        guard let self, self.panel != nil, self.currentMergedWeatherHandle,
+                              let s = self.currentScreen else { return }
+                        self.show(on: s, side: self.currentSide, mergedWeatherHandle: true)
+                    }
+                }
+        } else if !mergedWeatherHandle {
+            weatherSink = nil
+        }
     }
 
     func hide() {
         cancelOpen()
+        weatherSink = nil
+        currentScreen = nil
         panel?.orderOut(nil)
         panel = nil
         host = nil
@@ -92,12 +123,37 @@ final class SideDeckHandleWindow {
 }
 
 private struct SideDeckHandleCapsule: View {
+    let mergedWeatherHandle: Bool
+    @ObservedObject private var weather = WeatherService.shared
+    @AppStorage(WeatherUnits.temperatureKey) private var tempUnit: TemperatureUnit = .celsius
+
     var body: some View {
-        Capsule(style: .continuous)
-            .fill(Color.accentColor.opacity(0.25))
-            .frame(width: SideDeckHandleWindow.inkWidth, height: SideDeckHandleWindow.inkHeight)
+        let state = weather.currentState
+        if mergedWeatherHandle, state.hasData {
+            VStack(spacing: 3) {
+                Image(systemName: state.glyphName)
+                    .font(.system(size: 11, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                Text(verbatim: WeatherUnits.degrees(state.temperatureCelsius, tempUnit))
+                    .font(.system(size: 9.5, weight: .semibold))
+                    .monospacedDigit()
+            }
+            .foregroundStyle(.primary)
+            .frame(width: SideDeckHandleWindow.weatherWidth, height: SideDeckHandleWindow.weatherHeight)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(Capsule(style: .continuous).strokeBorder(Color.white.opacity(0.22), lineWidth: 0.75))
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .accessibilityLabel(Text("Open"))
+            .accessibilityLabel(Text("Open Side Deck"))
+        } else {
+            Capsule(style: .continuous)
+                .fill(Color.accentColor.opacity(0.25))
+                .frame(width: SideDeckHandleWindow.inkWidth, height: SideDeckHandleWindow.inkHeight)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel(Text("Open Side Deck"))
+        }
     }
 }
 

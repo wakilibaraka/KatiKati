@@ -518,7 +518,8 @@ struct ChipView: View {
             bundleID: item.bundleIdentifier ?? item.appID,
             size: size,
             isHovered: isHovered && !isDragCarrierSnapshot,
-            badgeText: badgeText
+            badgeText: badgeText,
+            isLiveActiveOverride: effectiveStatus == "active"
         )
             // 我们**不额外加**外投影（owner 2026-08-19）：加过的那层是净多出来的，
             // 条上量到图标正下方比两侧空隙暗 18–24。中转格方块、文件夹封面同此。

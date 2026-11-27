@@ -7,11 +7,12 @@ private func loadTint(for fraction: Double) -> Color {
 /// Bar widget: CPU ring and RAM / SSD readouts. S = CPU ring, M = + RAM and SSD, L = + the 30 s CPU line.
 struct SystemDockChip: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockHeight) private var dockHeight
     @ObservedObject private var feed = DockSystemFeed.shared
 
     var body: some View {
         let snap = feed.snapshot
-        let density = WidgetDensityPolicy.resolve(dockHeight: 52, widgetSize: size)
+        let density = WidgetDensityPolicy.resolve(dockHeight: dockHeight, widgetSize: size)
         HStack(spacing: 8) {
             DockRing(fraction: snap.cpu, tint: loadTint(for: snap.cpu)) {
                 Text(verbatim: "\(Int((snap.cpu * 100).rounded()))").font(.system(size: 11, weight: .semibold)).monospacedDigit()

@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import AudioToolbox
 import Carbon.HIToolbox
 import CoreGraphics
@@ -721,6 +722,7 @@ final class KeyGuardShared: @unchecked Sendable {
     /// Injected so the shared-path tests do not depend on whatever holds Secure Input on the
     /// machine running them; production keeps the live probe.
     private let secureInputProbe: () -> Bool
+    private let focusedTextInputProbe: () -> Bool
     private let lock = NSLock()
     private var state = KeyGuardState(unlockKey: keyGuardUnlock)
     private var caps = KeyVisualizerBuffer()
@@ -749,8 +751,26 @@ final class KeyGuardShared: @unchecked Sendable {
     var onGlobalPaste: (() -> Void)?
     var onVisualizerActivity: (() -> Void)?
 
-    init(secureInput: @escaping () -> Bool = IsSecureEventInputEnabled) {
+    init(
+        secureInput: @escaping () -> Bool = IsSecureEventInputEnabled,
+        focusedTextInput: @escaping () -> Bool = KeyGuardShared.probeFocusedTextInput
+    ) {
         secureInputProbe = secureInput
+        focusedTextInputProbe = focusedTextInput
+    }
+
+    nonisolated static func probeFocusedTextInput() -> Bool {
+        guard AXIsProcessTrusted() else { return false }
+        let systemWide = AXUIElementCreateSystemWide()
+        AXUIElementSetMessagingTimeout(systemWide, 0.05)
+        var focusedRef: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &focusedRef) == .success,
+              let focused = focusedRef else { return false }
+        let element = focused as! AXUIElement
+        var roleRef: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, kAXRoleAttribute as CFString, &roleRef) == .success,
+              let role = roleRef as? String else { return false }
+        return ["AXTextField", "AXTextArea", "AXSearchField", "AXComboBox"].contains(role)
     }
 
     func setVisualizer(enabled: Bool, filter: KeyVisualizerFilter = .allKeys, linger: TimeInterval = 1.5) {
@@ -900,19 +920,39 @@ final class KeyGuardShared: @unchecked Sendable {
         lock.unlock()
     }
 
-    func decide(_ event: KeyGuardEvent, isRepeat: Bool = false) -> (decision: KeyGuardDecision, state: KeyGuardState) {
-        lock.lock(); defer { lock.unlock() }
+    func decide(
+        _ event: KeyGuardEvent,
+        isRepeat: Bool = false,
+        isTextFieldFocused: Bool? = nil
+    ) -> (decision: KeyGuardDecision, state: KeyGuardState) {
+        lock.lock()
         var effectiveState = state
         if effectiveState.needsSecureInputCheck { effectiveState.secureInputActive = secureInputProbe() }
         let outcome = KeyGuardPipeline.reduce(event, state: effectiveState, isRepeat: isRepeat)
         state = outcome.state
         guard state.finderKeysActive else {
             finderMap.reset()
+            lock.unlock()
             return outcome
         }
         // Pause and SlowQuit win; the Finder map only sees what the pipeline lets through.
-        guard case .passThrough = outcome.decision else { return outcome }
-        return (finderMap.handle(event), state)
+        guard case .passThrough = outcome.decision else {
+            lock.unlock()
+            return outcome
+        }
+        let shouldProbe = FinderKeyMap.isTargetEvent(event)
+        lock.unlock()
+
+        // Query AX outside `lock` so IPC can never contend with the tap thread lock.
+        let textFocused = isTextFieldFocused ?? (shouldProbe ? focusedTextInputProbe() : false)
+
+        lock.lock()
+        defer { lock.unlock() }
+        guard state.finderKeysActive else {
+            finderMap.reset()
+            return (outcome.decision, state)
+        }
+        return (finderMap.handle(event, isTextFieldFocused: textFocused), state)
     }
 
     func handleFlagsChanged(flags: CGEventFlags, at date: Date = Date()) {

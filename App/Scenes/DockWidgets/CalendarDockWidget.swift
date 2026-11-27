@@ -47,12 +47,13 @@ private struct DateBadge: View {
 /// L = + the meeting after it.
 struct CalendarDockChip: View {
     @Environment(\.widgetSize) private var size
+    @Environment(\.dockHeight) private var dockHeight
     @ObservedObject private var feed = DockCalendarFeed.shared
     @AppStorage(MeetingAutoJoinPolicy.enabledKey) private var autoJoin = false
     @State private var autoJoinedIDs: Set<String> = []
 
     var body: some View {
-        let density = WidgetDensityPolicy.resolve(dockHeight: 54, widgetSize: size)
+        let density = WidgetDensityPolicy.resolve(dockHeight: dockHeight, widgetSize: size)
         TimelineView(.periodic(from: .now, by: 30)) { context in
             let events = UpcomingEvents.select(feed.upcoming, now: context.date, limit: 2)
             HStack(spacing: 8) {

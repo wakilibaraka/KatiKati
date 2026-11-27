@@ -103,7 +103,9 @@ final class WindowDrawerController: ObservableObject {
             })
         }
         let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
-        if let screen { handle?.show(on: screen, side: config.side) }
+        if let screen {
+            handle?.show(on: screen, side: config.side, mergedWeatherHandle: config.mergedWeatherHandle)
+        }
     }
 
     func toggle() { panel == nil ? open() : close() }

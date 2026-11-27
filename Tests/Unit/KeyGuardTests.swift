@@ -165,6 +165,21 @@ final class FinderKeyMapTests: XCTestCase {
         XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.pasteKey, modifiers: [.command, .shift])), .passThrough)
         XCTAssertTrue(map.cutPending)
     }
+
+    func testF2RenamesAndTextFieldFocusBypassesRewrites() {
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.renameKey, modifiers: []), isTextFieldFocused: false),
+                       .rewrite(keyCode: FinderKeyMap.returnKey, addingModifiers: []))
+        XCTAssertEqual(map.handle(.keyUp(keyCode: FinderKeyMap.renameKey, modifiers: []), isTextFieldFocused: false),
+                       .rewrite(keyCode: FinderKeyMap.returnKey, addingModifiers: []))
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.renameKey, modifiers: [.command]), isTextFieldFocused: false),
+                       .passThrough)
+
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.renameKey, modifiers: []), isTextFieldFocused: true),
+                       .passThrough)
+        XCTAssertEqual(map.handle(.keyDown(keyCode: FinderKeyMap.cutKey, modifiers: [.command]), isTextFieldFocused: true),
+                       .passThrough)
+        XCTAssertFalse(map.cutPending)
+    }
 }
 
 /// 53a: a quick tap does nothing; a hold toggles once, and only while the key is down.

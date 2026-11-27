@@ -226,7 +226,8 @@ struct LauncherChip: View {
             bundleID: bundleID,
             size: size,
             isHovered: isHovering && !isDragCarrierSnapshot,
-            badgeText: badgeText
+            badgeText: badgeText,
+            isLiveActiveOverride: isFrontmost
         )
 
         shaped

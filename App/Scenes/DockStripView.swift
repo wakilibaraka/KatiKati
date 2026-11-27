@@ -2025,6 +2025,7 @@ extension DockStripView {
                     iconSpacing: CGFloat = DockSpacingConfig.default.iconSpacing) -> some View {
         widgetChipContent(section, size: widgetSize, iconSpacing: iconSpacing)
             .environment(\.dockPopoverEdge, stripPlacement.previewEdge)
+            .environment(\.dockHeight, settingsStore.dockPanelHeight.points)
     }
 
     @ViewBuilder
