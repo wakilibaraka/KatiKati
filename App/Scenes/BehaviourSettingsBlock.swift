@@ -256,6 +256,8 @@ struct WindowManagementSettingsPane: View {
     @AppStorage("com.katikati.windowManagement.section") private var sectionRaw = WindowManagementSection.style.rawValue
     @AppStorage(SnapGaps.outerKey) private var snapOuterGap = 0.0
     @AppStorage(SnapGaps.innerKey) private var snapInnerGap = 0.0
+    @AppStorage(SnapPanelPlacement.defaultsKey) private var snapPlacement = SnapPanelPlacement.followPointer.rawValue
+    @AppStorage(SnapGridDensity.defaultsKey) private var snapDensity = SnapGridDensity.regular.rawValue
     @State private var showsStyleSettings = false
     @State private var showsDockLayering = false
 
@@ -536,6 +538,19 @@ struct WindowManagementSettingsPane: View {
                                   range: 4...40, step: 1,
                                   valueText: "\(Int(store.snapEdgeMargin)) pt") { value in
                     store.setSnapEdgeMargin(value)
+                }
+                // AT-8: where snApp opens and how large its cards are.
+                SettingsDivider()
+                SettingsPickerRow(Text("Picker Placement"), selection: $snapPlacement) {
+                    ForEach(SnapPanelPlacement.allCases) { placement in
+                        Text(placement.localizedTitleKey).tag(placement.rawValue)
+                    }
+                }
+                SettingsDivider()
+                SettingsPickerRow(Text("Grid Size"), selection: $snapDensity) {
+                    ForEach(SnapGridDensity.allCases) { density in
+                        Text(density.localizedTitleKey).tag(density.rawValue)
+                    }
                 }
                 SettingsDivider()
                 SettingsSliderRow(Text("Outer Gap"), value: snapOuterGap,

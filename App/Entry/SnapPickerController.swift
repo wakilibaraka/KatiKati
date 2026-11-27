@@ -9,6 +9,8 @@ final class SnapPickerModel: ObservableObject {
     let presets = SnapLayoutCatalog.presets
     @Published private(set) var selected: Int?
     @Published private(set) var selectedZone: SnapPosition?
+    /// AT-7: the zone under the pointer, so the picker can show where the window will land.
+    @Published private(set) var hoveredZone: SnapPosition?
     private var selectedAreaIndex: Int?
 
     /// Flattened list of every individual shape across all five cards so keyboard arrows reach all 12 zones.
@@ -20,15 +22,23 @@ final class SnapPickerModel: ObservableObject {
 
     var onPick: ((SnapPosition) -> Void)?
     var onDismiss: (() -> Void)?
+    var onHover: ((SnapPosition?) -> Void)?
 
-    /// Digit key codes, 1…5, in order.
-    private static let digitCodes: [UInt16] = [18, 19, 20, 21, 23]
+    func hover(_ zone: SnapPosition?) {
+        guard zone != hoveredZone else { return }
+        hoveredZone = zone
+        onHover?(zone)
+    }
+
+    /// Digit key codes, 1…8, in order (AT-7 added the vertical pair and the named sizes).
+    private static let digitCodes: [UInt16] = [18, 19, 20, 21, 23, 22, 26, 28]
 
     /// A fresh open starts with nothing picked, so Return cannot fire a stale card.
     func reset() {
         selected = nil
         selectedZone = nil
         selectedAreaIndex = nil
+        hover(nil)
     }
 
     func move(by step: Int) {
@@ -109,6 +119,9 @@ final class SnapPickerController: NSObject, NSWindowDelegate {
     private let model = SnapPickerModel()
     private var panel: SnapPickerPanel?
     private var hosting: NSHostingView<SnapPickerView>?
+    /// AT-7: a click-through ghost of the target frame, so a card is a picture of the result rather
+    /// than a guess. Removed whenever the picker closes.
+    private var ghostPanel: NSPanel?
 
     private override init() {
         super.init()
@@ -116,43 +129,89 @@ final class SnapPickerController: NSObject, NSWindowDelegate {
         // The picker applies through the same service the dock and the hot keys use, so a zone means the
         // same frame however it was chosen.
         model.onPick = { zone in WindowSnapService.apply(zone) }
+        model.onHover = { [weak self] zone in self?.showGhost(zone) }
     }
 
     var isVisible: Bool { panel?.isVisible ?? false }
 
-    /// Shows the grid under `anchor` (screen coordinates) or at the pointer, clamped to the screen.
+    /// Shows the grid at the configured placement (AT-7), clamped to the screen under the pointer or
+    /// the anchor. Density and placement are read on every open, so a Settings change applies live.
     func present(anchor: CGRect? = nil) {
         let panel = ensurePanel()
         model.reset()
 
-        let size = panel.frame.size
         let pointer = NSEvent.mouseLocation
-        let screen = NSScreen.screens.first { $0.frame.contains(anchor?.origin ?? pointer) } ?? NSScreen.main
-        let visible = screen?.visibleFrame ?? .zero
-
-        var origin: CGPoint
-        if let anchor, !anchor.isEmpty {
-            origin = CGPoint(x: anchor.midX - size.width / 2, y: anchor.minY - size.height - 10)
-            if origin.y < visible.minY + 8 { origin.y = anchor.maxY + 10 }
-        } else {
-            origin = CGPoint(x: pointer.x - size.width / 2, y: pointer.y - size.height - 14)
-            if origin.y < visible.minY + 8 { origin.y = pointer.y + 14 }
+        guard let screen = NSScreen.screens.first(where: { $0.frame.contains(anchor?.origin ?? pointer) })
+                ?? NSScreen.main else { return }
+        let placement = SnapPanelPlacement.current()
+        let density = SnapGridDensity.current()
+        hosting?.rootView = SnapPickerView(model: model, density: density,
+                                           isFullScreen: placement == .fullScreen)
+        var size = hosting?.fittingSize ?? panel.frame.size
+        if placement == .fullScreen {
+            let visible = screen.visibleFrame
+            size = CGSize(width: max(size.width, visible.width - 48),
+                          height: max(size.height, visible.height - 48))
         }
-        origin.x = min(max(origin.x, visible.minX + 8), max(visible.minX + 8, visible.maxX - size.width - 8))
-        origin.y = min(max(origin.y, visible.minY + 8), max(visible.minY + 8, visible.maxY - size.height - 8))
-
-        panel.setFrameOrigin(origin)
+        let frame = SnapPanelGeometry.frame(
+            placement: placement,
+            panelSize: size,
+            pointer: pointer,
+            screenFrame: screen.frame,
+            visibleFrame: screen.visibleFrame,
+            anchor: anchor,
+            notchInset: screen.safeAreaInsets.top,
+            menuBarHeight: screen.frame.maxY - screen.visibleFrame.maxY
+        )
+        panel.setFrame(frame, display: true)
         panel.makeKeyAndOrderFront(nil)
     }
 
     func dismiss() {
         panel?.orderOut(nil)
+        ghostPanel?.orderOut(nil)
+    }
+
+    /// AT-7: draws the target zone on the display under the pointer while a card is hovered.
+    private func showGhost(_ zone: SnapPosition?) {
+        guard let zone, isVisible,
+              let screen = NSScreen.screens.first(where: { $0.frame.contains(NSEvent.mouseLocation) }) ?? NSScreen.main else {
+            ghostPanel?.orderOut(nil)
+            return
+        }
+        let panel = ensureGhostPanel()
+        let frame = zone.frame(in: WindowSnapService.workArea(of: screen), gaps: SnapGaps.current())
+        panel.setFrame(frame, display: true)
+        panel.orderFrontRegardless()
+    }
+
+    private func ensureGhostPanel() -> NSPanel {
+        if let ghostPanel { return ghostPanel }
+        let panel = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
+                            backing: .buffered, defer: true)
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+        panel.ignoresMouseEvents = true
+        panel.isFloatingPanel = true
+        panel.level = .statusBar
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient, .ignoresCycle]
+        panel.isReleasedWhenClosed = false
+        let view = NSView()
+        view.wantsLayer = true
+        view.layer?.borderColor = NSColor.controlAccentColor.cgColor
+        view.layer?.borderWidth = 2
+        view.layer?.cornerRadius = 8
+        view.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.10).cgColor
+        panel.contentView = view
+        ghostPanel = panel
+        return panel
     }
 
     private func ensurePanel() -> SnapPickerPanel {
         if let panel { return panel }
 
-        let hosting = NSHostingView(rootView: SnapPickerView(model: model))
+        let hosting = NSHostingView(rootView: SnapPickerView(model: model, density: SnapGridDensity.current()))
         hosting.setFrameSize(hosting.fittingSize)
         let panel = SnapPickerPanel(
             contentRect: NSRect(origin: .zero, size: hosting.fittingSize),
@@ -186,8 +245,10 @@ final class SnapPickerController: NSObject, NSWindowDelegate {
 
 struct SnapPickerView: View {
     @ObservedObject var model: SnapPickerModel
+    /// AT-7: cards resize with the density setting; the keyboard model does not change.
+    var density: SnapGridDensity = .regular
+    var isFullScreen = false
     @Environment(\.colorScheme) private var scheme
-    @State private var hoveredZone: SnapPosition?
 
     private var ink: Color { scheme == .dark ? .white : .black }
     private var fill: Color { ink.opacity(scheme == .dark ? 0.10 : 0.06) }
@@ -195,13 +256,30 @@ struct SnapPickerView: View {
     private var accent: Color { .accentColor }
 
     var body: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) { ForEach(0..<min(3, model.presets.count), id: \.self) { card($0) } }
-            if model.presets.count > 3 {
-                HStack(spacing: 10) { ForEach(3..<model.presets.count, id: \.self) { card($0) } }
+        VStack(spacing: density.spacing) {
+            HStack(spacing: 8) {
+                Text(verbatim: "snApp")
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                    .foregroundStyle(ink.opacity(0.7))
+                Spacer(minLength: 12)
+                Text(verbatim: "1–8")
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .foregroundStyle(ink.opacity(0.45))
             }
+            .padding(.horizontal, 2)
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: density.spacing), count: density.columns),
+                spacing: density.spacing
+            ) {
+                ForEach(Array(model.presets.enumerated()), id: \.offset) { index, preset in
+                    card(index, preset)
+                }
+            }
+            .frame(maxWidth: density.cardSize.width * CGFloat(density.columns)
+                + density.spacing * CGFloat(density.columns - 1))
         }
-        .padding(12)
+        .padding(density.padding)
+        .frame(maxWidth: isFullScreen ? .infinity : nil, maxHeight: isFullScreen ? .infinity : nil)
         .background {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(.ultraThinMaterial)
@@ -211,16 +289,27 @@ struct SnapPickerView: View {
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(stroke, lineWidth: 1))
     }
 
-    private func card(_ index: Int) -> some View {
-        let preset = model.presets[index]
-        let cardHighlighted = model.selected == index || preset.zones.contains(where: { $0 == hoveredZone })
-        return GeometryReader { geo in shapes(of: preset, in: geo.size) }
-            .frame(width: 92, height: 62)
-            .padding(7)
-            .background(RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .fill(cardHighlighted ? accent.opacity(0.14) : fill))
-            .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .strokeBorder(cardHighlighted ? accent.opacity(0.75) : stroke, lineWidth: cardHighlighted ? 1.5 : 1))
+    private func card(_ index: Int, _ preset: SnapLayoutPreset) -> some View {
+        let cardHighlighted = model.selected == index || preset.zones.contains(where: { $0 == model.hoveredZone })
+        return VStack(spacing: 3) {
+            GeometryReader { geo in shapes(of: preset, in: geo.size) }
+                .frame(height: density.cardSize.height - 15)
+            HStack(spacing: 3) {
+                Text(SnapLayoutCatalog.titleKey(for: preset))
+                    .font(.system(size: 9, weight: .medium))
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                Text(verbatim: "\(index + 1)")
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .foregroundStyle(ink.opacity(0.45))
+            }
+        }
+        .padding(6)
+        .frame(width: density.cardSize.width, height: density.cardSize.height)
+        .background(RoundedRectangle(cornerRadius: 11, style: .continuous)
+            .fill(cardHighlighted ? accent.opacity(0.14) : fill))
+        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous)
+            .strokeBorder(cardHighlighted ? accent.opacity(0.75) : stroke, lineWidth: cardHighlighted ? 1.5 : 1))
     }
 
     /// Draws each selectable area inside the card as its own button so every half, quarter, third,
@@ -232,7 +321,7 @@ struct SnapPickerView: View {
                 let h = area.unit.height * size.height
                 let x = area.unit.minX * size.width
                 let y = (1 - area.unit.maxY) * size.height
-                let active = model.selectedZone == area.zone || hoveredZone == area.zone
+                let active = model.selectedZone == area.zone || model.hoveredZone == area.zone
                 Button { model.pick(zone: area.zone) } label: {
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(active ? accent.opacity(0.55) : ink.opacity(0.24))
@@ -250,7 +339,8 @@ struct SnapPickerView: View {
                 }
                 .buttonStyle(.plain)
                 .onHover { inside in
-                    if inside { hoveredZone = area.zone } else if hoveredZone == area.zone { hoveredZone = nil }
+                    if inside { model.hover(area.zone) }
+                    else if model.hoveredZone == area.zone { model.hover(nil) }
                 }
                 .accessibilityLabel(Self.accessibilityTitle(for: area.zone))
                 .offset(x: x + 1.5, y: y + 1.5)
@@ -275,6 +365,7 @@ struct SnapPickerView: View {
         case .leftTwoThirds: return Text("Left Two Thirds")
         case .rightTwoThirds: return Text("Right Two Thirds")
         case .center: return Text("Center")
+        case .focus: return Text("Focus")
         case .maximize: return Text("Maximize")
         }
     }

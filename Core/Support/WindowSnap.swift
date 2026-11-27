@@ -8,6 +8,9 @@ enum SnapPosition: String, CaseIterable, Codable, Sendable {
     case topLeft, topRight, bottomLeft, bottomRight
     case leftThird, centerThird, rightThird, leftTwoThirds, rightTwoThirds
     case center, maximize
+    /// AT-7: a readable focus window — half the width, 70% of the height, centred. `center` is the
+    /// wider "comfortable" size; this is the one for writing beside a reference.
+    case focus
 
     var unit: CGRect {
         let t = 1.0 / 3
@@ -26,6 +29,7 @@ enum SnapPosition: String, CaseIterable, Codable, Sendable {
         case .leftTwoThirds: return CGRect(x: 0, y: 0, width: 2 * t, height: 1)
         case .rightTwoThirds: return CGRect(x: t, y: 0, width: 2 * t, height: 1)
         case .center: return CGRect(x: 0.125, y: 0.1, width: 0.75, height: 0.8)
+        case .focus: return CGRect(x: 0.25, y: 0.15, width: 0.5, height: 0.7)
         case .maximize: return CGRect(x: 0, y: 0, width: 1, height: 1)
         }
     }
@@ -356,13 +360,160 @@ struct SnapLayoutPreset: Identifiable, Equatable, Sendable {
     var zones: [SnapPosition] { areas.map(\.zone) }
 }
 
+/// AT-7: where the picker appears. The panel used to always hang off the pointer, which is wrong on a
+/// 4K display where the pointer is often at an edge and the grid lands off screen.
+enum SnapPanelPlacement: String, CaseIterable, Codable, Sendable, Identifiable {
+    case followPointer, screenCentre, belowNotch, belowMenuBar, fullScreen
+
+    static let defaultsKey = "com.katikati.snapPicker.placement"
+
+    var id: String { rawValue }
+
+    /// `String(localized:)` rather than a bare key: the call sites draw these through
+    /// `Text(verbatim:)`, so localizing here also keeps the key visible to the localization scan.
+    var localizedTitleKey: String {
+        switch self {
+        case .followPointer: return String(localized: "Follow Pointer")
+        case .screenCentre: return String(localized: "Screen Centre")
+        case .belowNotch: return String(localized: "Below Notch")
+        case .belowMenuBar: return String(localized: "Below Menu Bar")
+        case .fullScreen: return String(localized: "Full-Screen Overlay")
+        }
+    }
+
+    static func current(_ defaults: UserDefaults = .standard) -> SnapPanelPlacement {
+        defaults.string(forKey: defaultsKey).flatMap(SnapPanelPlacement.init(rawValue:)) ?? .followPointer
+    }
+}
+
+/// How large the picker's cards are. Density changes the card and padding, never the keyboard model.
+enum SnapGridDensity: String, CaseIterable, Codable, Sendable, Identifiable {
+    case compact, regular, large
+
+    static let defaultsKey = "com.katikati.snapPicker.density"
+
+    var id: String { rawValue }
+
+    var cardSize: CGSize {
+        switch self {
+        case .compact: return CGSize(width: 78, height: 56)
+        case .regular: return CGSize(width: 94, height: 66)
+        case .large: return CGSize(width: 118, height: 82)
+        }
+    }
+
+    var spacing: CGFloat {
+        switch self {
+        case .compact: return 8
+        case .regular: return 10
+        case .large: return 14
+        }
+    }
+
+    var padding: CGFloat {
+        switch self {
+        case .compact: return 10
+        case .regular: return 12
+        case .large: return 16
+        }
+    }
+
+    /// Eight cards, two rows: four columns at every density.
+    var columns: Int { 4 }
+
+    var localizedTitleKey: String {
+        switch self {
+        case .compact: return String(localized: "Compact")
+        case .regular: return String(localized: "Regular")
+        case .large: return String(localized: "Large")
+        }
+    }
+
+    static func current(_ defaults: UserDefaults = .standard) -> SnapGridDensity {
+        defaults.string(forKey: defaultsKey).flatMap(SnapGridDensity.init(rawValue:)) ?? .regular
+    }
+}
+
+/// Pure anchor math for the picker panel. `screenFrame` is Cocoa (bottom-left origin), `visibleFrame`
+/// already excludes the Dock and menu bar. `notchInset` is `safeAreaInsets.top` (0 on a notchless
+/// display) and `menuBarHeight` is the difference between the screen and its visible frame.
+enum SnapPanelGeometry {
+    static func frame(
+        placement: SnapPanelPlacement,
+        panelSize: CGSize,
+        pointer: CGPoint,
+        screenFrame: CGRect,
+        visibleFrame: CGRect,
+        anchor: CGRect?,
+        notchInset: CGFloat,
+        menuBarHeight: CGFloat
+    ) -> CGRect {
+        let visible = visibleFrame.isEmpty ? screenFrame : visibleFrame
+        if placement == .fullScreen {
+            return visible.insetBy(dx: 24, dy: 24)
+        }
+
+        let origin: CGPoint
+        switch placement {
+        case .fullScreen:
+            origin = CGPoint(x: visible.minX + 24, y: visible.minY + 24)
+        case .screenCentre:
+            origin = CGPoint(x: visible.midX - panelSize.width / 2,
+                             y: visible.midY - panelSize.height / 2)
+        case .belowNotch, .belowMenuBar:
+            let topInset = placement == .belowNotch ? max(notchInset, menuBarHeight) : menuBarHeight
+            let top = screenFrame.maxY - max(0, topInset) - 8
+            origin = CGPoint(x: screenFrame.midX - panelSize.width / 2,
+                             y: top - panelSize.height)
+        case .followPointer:
+            var point: CGPoint
+            if let anchor, !anchor.isEmpty {
+                point = CGPoint(x: anchor.midX - panelSize.width / 2, y: anchor.minY - panelSize.height - 10)
+                if point.y < visible.minY + 8 { point.y = anchor.maxY + 10 }
+            } else {
+                point = CGPoint(x: pointer.x - panelSize.width / 2, y: pointer.y - panelSize.height - 14)
+                if point.y < visible.minY + 8 { point.y = pointer.y + 14 }
+            }
+            origin = point
+        }
+        return clamped(CGRect(origin: origin, size: panelSize), in: visible)
+    }
+
+    static func clamped(_ frame: CGRect, in visible: CGRect) -> CGRect {
+        var f = frame
+        f.origin.x = min(max(f.minX, visible.minX + 8), max(visible.minX + 8, visible.maxX - f.width - 8))
+        f.origin.y = min(max(f.minY, visible.minY + 8), max(visible.minY + 8, visible.maxY - f.height - 8))
+        return f
+    }
+}
+
+/// AT-7: the three named target sizes a card can offer. `center` is the comfortable 75% window and
+/// `focus` the narrower 50% one; `full` is the work-area fill.
+enum SnapSizePreset: String, CaseIterable, Codable, Sendable {
+    case full, comfortable, focus
+
+    var position: SnapPosition {
+        switch self {
+        case .full: return .maximize
+        case .comfortable: return .center
+        case .focus: return .focus
+        }
+    }
+
+    var localizedTitleKey: String {
+        switch self {
+        case .full: return String(localized: "Full Screen")
+        case .comfortable: return String(localized: "Comfortable")
+        case .focus: return String(localized: "Focus")
+        }
+    }
+}
+
 /// The pure half of snApp: which cards exist, what they draw, and what a click inside one means. Nothing
 /// here touches a window, a screen or the pointer, so the picker's geometry is testable and the panel
 /// only has to draw `areas` and hand back `zone`.
 enum SnapLayoutCatalog {
-    /// Vertical splits first (the pointer arrives from any edge), then quarters, thirds, ⅔ and maximize.
-    /// Top/bottom halves stay reachable through the edge shortcuts and `SnapZonePlanner` but are not
-    /// cards: five cards keep the picker at two rows.
+    /// Two rows of four: splits first, then the three named sizes and a vertical pair.
     static let presets: [SnapLayoutPreset] = [
         SnapLayoutPreset(id: "halves", areas: [
             SnapLayoutPreset.Area(zone: .leftHalf),
@@ -385,10 +536,36 @@ enum SnapLayoutCatalog {
             SnapLayoutPreset.Area(zone: .rightTwoThirds,
                                   unit: CGRect(x: 0.5, y: 0, width: 0.5, height: 1), label: "⅔"),
         ]),
+        SnapLayoutPreset(id: "vertical", areas: [
+            SnapLayoutPreset.Area(zone: .topHalf),
+            SnapLayoutPreset.Area(zone: .bottomHalf),
+        ]),
+        SnapLayoutPreset(id: "comfortable", areas: [
+            SnapLayoutPreset.Area(zone: .center),
+        ]),
+        SnapLayoutPreset(id: "focus", areas: [
+            SnapLayoutPreset.Area(zone: .focus),
+        ]),
         SnapLayoutPreset(id: "maximize", areas: [
             SnapLayoutPreset.Area(zone: .maximize),
         ]),
     ]
+
+    /// The caption under a card. Drawn from the first shape's zone, except the shaped cards where
+    /// the pair is the point.
+    static func titleKey(for preset: SnapLayoutPreset) -> String {
+        switch preset.id {
+        case "halves": return String(localized: "Halves")
+        case "quarters": return String(localized: "Quarters")
+        case "thirds": return String(localized: "Thirds")
+        case "twoThirds": return String(localized: "Two Thirds")
+        case "vertical": return String(localized: "Top Half")
+        case "comfortable": return String(localized: "Comfortable")
+        case "focus": return String(localized: "Focus")
+        case "maximize": return String(localized: "Full Screen")
+        default: return String(localized: "Halves")
+        }
+    }
 
     static func preset(id: String) -> SnapLayoutPreset? {
         presets.first { $0.id == id }

@@ -97,7 +97,7 @@ final class WindowSnapTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(u.minX, 0); XCTAssertGreaterThanOrEqual(u.minY, 0)
             XCTAssertLessThanOrEqual(u.maxX, 1.000001); XCTAssertLessThanOrEqual(u.maxY, 1.000001)
         }
-        XCTAssertEqual(SnapPosition.allCases.count, 15)
+        XCTAssertEqual(SnapPosition.allCases.count, 16, "AT-7 added the focus size")
     }
 
     func testSnapZonePlannerResolvesEdgesAndCornersOnly() {
@@ -479,9 +479,9 @@ extension WindowSnapTests {
         XCTAssertEqual(first?.id, "halves")
         XCTAssertEqual(first?.zones, [.leftHalf, .rightHalf], "the pointer arrives from an edge")
         let everyZone = SnapLayoutCatalog.presets.flatMap(\.zones)
-        XCTAssertFalse(everyZone.contains(.topHalf), "top/bottom halves stay off the cards")
-        XCTAssertFalse(everyZone.contains(.bottomHalf))
-        XCTAssertEqual(SnapLayoutCatalog.presets.count, 5)
+        XCTAssertTrue(everyZone.contains(.topHalf), "AT-7 added the vertical pair")
+        XCTAssertTrue(everyZone.contains(.bottomHalf))
+        XCTAssertEqual(SnapLayoutCatalog.presets.count, 8, "two rows of four")
     }
 
     func testSnapCatalogCoversPickerZonesWithoutRepeatingOne() {
@@ -489,8 +489,9 @@ extension WindowSnapTests {
         XCTAssertEqual(Set(everyZone).count, everyZone.count, "a zone on two cards is a mis-click waiting")
         XCTAssertEqual(Set(everyZone), [.leftHalf, .rightHalf, .topLeft, .topRight, .bottomLeft, .bottomRight,
                                         .leftThird, .centerThird, .rightThird,
-                                        .leftTwoThirds, .rightTwoThirds, .maximize])
-        XCTAssertEqual(everyZone.count, 12)
+                                        .leftTwoThirds, .rightTwoThirds, .maximize,
+                                        .topHalf, .bottomHalf, .center, .focus])
+        XCTAssertEqual(everyZone.count, 16)
     }
 
     func testSnapCatalogSchematicStaysInsideTheCard() {
@@ -567,5 +568,78 @@ extension WindowSnapTests {
         gate.beginPress(3)
         XCTAssertEqual(feedGate(&gate, [0, 50, 0, 50, 0, 50, 0], start: 3), 1, "after the cooldown")
         gate.endPress()
+    }
+
+}
+
+// MARK: - AT-7: picker placement, density and the expanded catalog
+
+final class SnapPickerGeometryTests: XCTestCase {
+    private let screenFrame = CGRect(x: 0, y: 0, width: 1920, height: 1080)
+    private let visibleFrame = CGRect(x: 0, y: 0, width: 1920, height: 1050)
+    private let panelSize = CGSize(width: 420, height: 190)
+
+    private func frame(_ placement: SnapPanelPlacement, pointer: CGPoint = CGPoint(x: 1700, y: 80),
+                       notch: CGFloat = 0, menu: CGFloat = 30, anchor: CGRect? = nil) -> CGRect {
+        SnapPanelGeometry.frame(placement: placement, panelSize: panelSize, pointer: pointer,
+                                screenFrame: screenFrame, visibleFrame: visibleFrame, anchor: anchor,
+                                notchInset: notch, menuBarHeight: menu)
+    }
+
+    func testScreenCentreIsCentredOnTheVisibleFrame() {
+        let f = frame(.screenCentre)
+        XCTAssertEqual(f.midX, visibleFrame.midX, accuracy: 1)
+        XCTAssertEqual(f.midY, visibleFrame.midY, accuracy: 1)
+        XCTAssertEqual(f.size, panelSize)
+    }
+
+    func testBelowNotchAndBelowMenuBarHangFromTheTopEdge() {
+        let notch = frame(.belowNotch, notch: 37.5, menu: 38)
+        XCTAssertEqual(notch.maxY, screenFrame.maxY - 37.5 - 8, accuracy: 1)
+        XCTAssertEqual(notch.midX, screenFrame.midX, accuracy: 1)
+
+        let menu = frame(.belowMenuBar, notch: 37.5, menu: 38)
+        XCTAssertEqual(menu.maxY, screenFrame.maxY - 38 - 8, accuracy: 1)
+        XCTAssertLessThan(menu.maxY, notch.maxY)
+    }
+
+    func testFullScreenOverlayFillsTheVisibleFrameWithAComfortableInset() {
+        let f = frame(.fullScreen)
+        XCTAssertEqual(f, visibleFrame.insetBy(dx: 24, dy: 24))
+    }
+
+    func testFollowPointerNeverLeavesTheVisibleFrame() {
+        for pointer in [CGPoint(x: 0, y: 0), CGPoint(x: 1920, y: 1080), CGPoint(x: 960, y: 540)] {
+            let f = frame(.followPointer, pointer: pointer)
+            XCTAssertTrue(visibleFrame.insetBy(dx: 8, dy: 8).contains(f), "\(pointer) put the panel at \(f)")
+        }
+    }
+
+    func testDensityChangesCardSizeButNotTheColumnCount() {
+        XCTAssertEqual(SnapGridDensity.compact.cardSize, CGSize(width: 78, height: 56))
+        XCTAssertEqual(SnapGridDensity.regular.cardSize, CGSize(width: 94, height: 66))
+        XCTAssertEqual(SnapGridDensity.large.cardSize, CGSize(width: 118, height: 82))
+        XCTAssertEqual(Set(SnapGridDensity.allCases.map(\.columns)), [4])
+        XCTAssertLessThan(SnapGridDensity.compact.spacing, SnapGridDensity.large.spacing)
+    }
+
+    func testCatalogHasTwoRowsOfFourLabelledCards() {
+        XCTAssertEqual(SnapLayoutCatalog.presets.count, 8)
+        XCTAssertEqual(Set(SnapLayoutCatalog.presets.map(\.id)).count, 8)
+        XCTAssertEqual(SnapLayoutCatalog.presets.first?.id, "halves")
+        XCTAssertEqual(SnapLayoutCatalog.presets.last?.id, "maximize")
+        for preset in SnapLayoutCatalog.presets {
+            XCTAssertFalse(SnapLayoutCatalog.titleKey(for: preset).isEmpty)
+        }
+    }
+
+    func testFocusIsNarrowerThanComfortableAndCentred() {
+        let focus = SnapPosition.focus.unit
+        let comfortable = SnapPosition.center.unit
+        XCTAssertLessThan(focus.width, comfortable.width)
+        XCTAssertEqual(focus.midX, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(focus.midY, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(SnapSizePreset.focus.position, .focus)
+        XCTAssertEqual(SnapSizePreset.full.position, .maximize)
     }
 }

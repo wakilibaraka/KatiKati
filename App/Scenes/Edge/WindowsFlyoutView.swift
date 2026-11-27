@@ -174,6 +174,7 @@ struct WindowsFlyoutView: View {
         case .leftTwoThirds: return Text("Left Two Thirds")
         case .rightTwoThirds: return Text("Right Two Thirds")
         case .center: return Text("Center")
+        case .focus: return Text("Focus")
         case .maximize: return Text("Maximize")
         }
     }
