@@ -44,10 +44,11 @@ final class TilingEngine: ObservableObject {
     private var focusTimer: DispatchSourceTimer?
     private var lastFocusedCG: CGWindowID?
 
-    /// True when the active display list is the strip; used where a preset-dependent rule applies
-    /// to the whole engine (hand-move adoption, restore on quit).
+    /// True when any display draws the strip; used where a preset-dependent rule applies to the
+    /// whole engine (hand-move adoption, restore on quit). Reads `drawsStrip`, not the preset alone,
+    /// so a display holding a catalog layout on top of `.ribbon` is not treated as the strip.
     private var isRibbonActive: Bool {
-        preset == .ribbon || displayPresets.values.contains(.ribbon)
+        NSScreen.screens.contains { drawsStrip(on: $0) }
     }
 
     #if DEBUG
@@ -269,7 +270,7 @@ final class TilingEngine: ObservableObject {
         // Workspaces own their own restoration order: every parked window first, then (for the
         // ribbon) the strip's pre-tiling frames.
         if workspacesEnabled { revealAllParkedWorkspaces() }
-        guard isEnabled, preset == .ribbon || displayPresets.values.contains(.ribbon) else { return }
+        guard isEnabled, isRibbonActive else { return }
         restorePreTilingFrames()
     }
 
@@ -322,7 +323,7 @@ final class TilingEngine: ObservableObject {
     func ribbonCoversPointer(at point: NSPoint) -> Bool {
         guard isEnabled else { return false }
         guard let screen = NSScreen.screens.first(where: { $0.frame.contains(point) }) else { return false }
-        guard preset(for: screen) == .ribbon else { return false }
+        guard drawsStrip(on: screen) else { return false }
         guard let cgID = Self.frontmostWindowID(at: point) else { return false }
         let key = screenKey(for: screen)
         return trees[key]?.allWindowIDs.contains(WindowID(rawValue: "cgw-\(cgID)")) ?? false
@@ -434,6 +435,14 @@ final class TilingEngine: ObservableObject {
 
     func layout(for screen: NSScreen) -> LayoutCatalog? {
         displayLayouts[screenKey(for: screen)] ?? displayLayouts[screen.localizedName]
+    }
+
+    /// True when this display is drawn as the scrolling strip. A catalog layout wins over the
+    /// preset, so a display can hold both (⌘⌃1 Chain, then ⌘⌃2 Halves) and must not take the strip
+    /// branch then. `reconcile` already reads it this way; every other caller has to agree, or one
+    /// display alternates between column frames and catalog frames on alternate passes.
+    func drawsStrip(on screen: NSScreen) -> Bool {
+        layout(for: screen) == nil && preset(for: screen) == .ribbon
     }
 
     func setLayout(_ layout: LayoutCatalog?, for screen: NSScreen) {
@@ -731,7 +740,7 @@ final class TilingEngine: ObservableObject {
             // Resolve layout geometry; if any tile would be unusably small, the newest windows stay floating.
             let workArea = workArea(of: screen)
             let catalogLayout = layout(for: screen)
-            let isStrip = catalogLayout == nil && preset(for: screen) == .ribbon
+            let isStrip = drawsStrip(on: screen)
             var targetFrames: [WindowID: CGRect]
             var parked: [WindowID: StripParking.Side] = [:]
             if let catalogLayout {
@@ -782,7 +791,7 @@ final class TilingEngine: ObservableObject {
             // A focus grant must lay out the strip, not the catalogue: resolving the plain tree here
             // would write column frames the strip never asked for and leave the revealed window off
             // screen while the camera had already scrolled to its column.
-            if preset(for: screen) == .ribbon {
+            if drawsStrip(on: screen) {
                 let ribbon = ribbonFrames(tree, on: screen, workArea: workArea, activeID: nil)
                 applyFrames(ribbon.frames, records: lastWindows, primaryMaxY: primaryMaxY,
                             clampArea: nil, parked: ribbon.parked)
