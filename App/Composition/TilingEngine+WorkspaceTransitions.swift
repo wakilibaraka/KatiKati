@@ -21,13 +21,22 @@ extension TilingEngine {
         }
         workspaceTrees[current, default: [:]][key] = trees[key] ?? tree(for: current, on: key)
 
-        parkWorkspaceWindows(workspaceStore.windows(in: current, on: key), on: screen)
+        // Pinned windows are on every workspace by definition, so they are never part of the park
+        // set: parking them hid a pinned window until its own workspace came back.
+        parkWorkspaceWindows(
+            WorkspaceParking.parkable(workspaceStore.windows(in: current, on: key), isPinned: isPinned),
+            on: screen
+        )
         // Put the entering workspace back on screen before anything forgets where it was. It has to come
         // before the retile: a parked window's snapshot record can still hold the frame it had before it
         // was parked, so the retile believes that window is already in place and skips the write. Doing
         // this after the retile left four parked windows off screen with no record left to restore them,
         // and not doing it at all stranded 13 floated windows the same way (found live 2026-11-27).
         revealParkedWorkspaceWindows(in: target, on: key, screen: screen)
+        // A pinned window can still carry a park record from an older build (one that parked the
+        // whole leaving set). Pinned means "show it on every workspace", so any switch reveals it,
+        // not only the switch that enters the workspace its record names.
+        revealPinnedWorkspaceWindows(on: key, screen: screen)
 
         trees[key] = tree(for: target, on: key)
         setActiveWorkspace(target, on: key)

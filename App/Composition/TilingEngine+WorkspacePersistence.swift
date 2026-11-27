@@ -91,6 +91,58 @@ extension TilingEngine {
         persistParkedWorkspaceWindows()
     }
 
+    /// Brings back every parked window on this display that is pinned.
+    ///
+    /// A `.pin` rule promises the window is shown on every workspace, which a park record contradicts:
+    /// while the record exists the window is off screen. The record names the workspace it was parked
+    /// from, so `revealParkedWorkspaceWindows` (scoped to the entering workspace) would only free it
+    /// on the way back. Revealing it on every switch makes the rule true again, including for records
+    /// written before the switch learned to skip pinned windows.
+    func revealPinnedWorkspaceWindows(on displayKey: String, screen: NSScreen) {
+        let revealing = parkedWorkspaceWindows.filter {
+            $0.value.displayKey == displayKey && isPinned(WindowID(rawValue: $0.value.windowID))
+        }
+        guard !revealing.isEmpty else { return }
+
+        let primaryMaxY = NSScreen.screens.first?.frame.maxY ?? 0
+        let area = workArea(of: screen)
+        for (cg, record) in revealing {
+            guard let pid = record.pid, pid > 0 else { continue }
+            let quartz = quartzFrame(WorkspaceParking.revealFrame(record.recoveryFrame, in: area),
+                                     primaryMaxY: primaryMaxY)
+            writeFrame(quartz, pid: pid, cgWindowID: cg)
+            lastAppliedFrames[cg] = quartz
+            lastAppliedAt[cg] = ProcessInfo.processInfo.systemUptime
+            parkedWorkspaceWindows.removeValue(forKey: cg)
+        }
+        persistParkedWorkspaceWindows()
+    }
+
+    /// Drops park records whose windows are gone.
+    ///
+    /// A parked window is still a real window at the edge, so the `.optionAll` list keeps it and a
+    /// minimized window stays tracked. One that is absent from both that list and this pass is closed,
+    /// and its record has to go: `CGWindowID` is reused, so a leftover record makes
+    /// `parkWorkspaceWindow` refuse the new window that inherited the id, and
+    /// `revealAllParkedWorkspaces` would move that new window to the dead window's frame.
+    func pruneParkedWorkspaceWindows(liveCGIDs: Set<CGWindowID>) {
+        let missing = parkedWorkspaceWindows.keys.filter { !liveCGIDs.contains($0) }
+        guard !missing.isEmpty else { return }
+
+        guard let list = CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]] else { return }
+        var existing = Set<CGWindowID>()
+        for info in list {
+            if let number = info[kCGWindowNumber as String] as? Int { existing.insert(CGWindowID(number)) }
+        }
+        // A refused or empty read must not strand every parked window.
+        guard !existing.isEmpty else { return }
+
+        let gone = missing.filter { !existing.contains($0) }
+        guard !gone.isEmpty else { return }
+        for cg in gone { parkedWorkspaceWindows.removeValue(forKey: cg) }
+        persistParkedWorkspaceWindows()
+    }
+
     /// Puts every parked window back where it was. Runs on quit, when workspaces are switched off,
     /// and at startup after a crash that left the parked file behind.
     func revealAllParkedWorkspaces() {

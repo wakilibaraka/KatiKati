@@ -229,6 +229,19 @@ final class WorkspaceParkingTests: XCTestCase {
         XCTAssertEqual(WorkspaceParking.side(neighbourOnRight: true), .bottom)
     }
 
+    func testParkableDropsPinnedWindowsAndKeepsTheRest() {
+        let a = WindowID(rawValue: "a"), b = WindowID(rawValue: "b"), c = WindowID(rawValue: "c")
+        let pinned: Set<WindowID> = [b]
+        XCTAssertEqual(WorkspaceParking.parkable([a, b, c], isPinned: { pinned.contains($0) }), [a, c])
+        // A workspace holding only pinned windows parks nothing at all.
+        XCTAssertEqual(WorkspaceParking.parkable([b], isPinned: { pinned.contains($0) }), [])
+    }
+
+    func testParkableKeepsEachWindowOnce() {
+        let a = WindowID(rawValue: "a")
+        XCTAssertEqual(WorkspaceParking.parkable([a, a], isPinned: { _ in false }), [a])
+    }
+
     func testParkedFrameHangsPastTheRightEdgeByTheGrantedSliver() {
         let frame = CGRect(x: 100, y: 100, width: 600, height: 400)
         let parked = WorkspaceParking.parked(frame, in: area, side: .right)

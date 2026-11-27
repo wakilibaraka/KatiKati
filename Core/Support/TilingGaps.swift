@@ -236,4 +236,16 @@ enum WorkspaceParking {
         var seen = Set<WindowID>()
         return plan.park.filter { seen.insert($0).inserted }
     }
+
+    /// What a switch may actually park: everything the leaving workspace holds *except* the pinned
+    /// windows, and without duplicates.
+    ///
+    /// A `.pin` rule means "show it on every workspace", so parking it on the way out hid it until
+    /// its own workspace came back — the opposite of what the rule promises. Ownership still names
+    /// one workspace (a window is assigned where it was pinned), which is why the switch, not the
+    /// ownership loop, has to filter.
+    static func parkable(_ ids: [WindowID], isPinned: (WindowID) -> Bool) -> [WindowID] {
+        var seen = Set<WindowID>()
+        return ids.filter { !isPinned($0) && seen.insert($0).inserted }
+    }
 }
