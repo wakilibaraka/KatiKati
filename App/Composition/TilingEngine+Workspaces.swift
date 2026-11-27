@@ -136,6 +136,13 @@ extension TilingEngine {
 
     /// The tiling pass asks this before admitting a window: ignored and untiled windows are never
     /// tiled, and a window owned by another workspace is never tiled on this one.
+    /// A `=tile` rule outranks the built-in float list: the rule promises the window is kept tiled
+    /// even where the floating defaults would leave it alone.
+    func workspaceRulesForceTile(_ record: WindowRecord) -> Bool {
+        guard workspacesEnabled else { return false }
+        return workspaceRules.tileOverride(bundleID: record.bundleIdentifier, title: record.title)
+    }
+
     func workspaceAllowsTiling(_ record: WindowRecord, on displayKey: String) -> Bool {
         guard workspacesEnabled else { return true }
         if ignoredWorkspaceWindows.contains(record.id) { return false }

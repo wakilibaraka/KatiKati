@@ -146,6 +146,23 @@ final class WorkspaceRulesTests: XCTestCase {
         XCTAssertTrue(migrated.rules.allSatisfy { $0.action == .float || $0.action == .tile })
     }
 
+    // A `=tile` rule has to be distinguishable from "no rule matched": both are `.manage`, but only
+    // the first outranks the built-in float list (Calculator et al.) and admits the window.
+    func testTileOverrideIsTrueOnlyForAnExplicitTileRule() {
+        let rules = WorkspaceRules.parse("com.apple.calculator=tile\n" + slack + "=float\n" + safari + "|~Inbox=tile")
+
+        XCTAssertTrue(rules.tileOverride(bundleID: "com.apple.calculator", title: nil))
+        XCTAssertFalse(rules.tileOverride(bundleID: slack, title: nil))
+        XCTAssertFalse(rules.tileOverride(bundleID: "com.example.other", title: nil))
+        XCTAssertTrue(rules.tileOverride(bundleID: safari, title: "Inbox (3)"))
+    }
+
+    func testTileOverrideFollowsTheFirstMatchingRule() {
+        let rules = WorkspaceRules.parse("com.apple.calculator=float\ncom.apple.calculator=tile")
+        XCTAssertFalse(rules.tileOverride(bundleID: "com.apple.calculator", title: nil),
+                       "the first match wins, so the later tile rule cannot lift the float")
+    }
+
     func testMigratedRulesSurviveTheTextRoundTrip() {
         let policy = TilingPolicy(floatingBundleIDs: [slack], alwaysTileBundleIDs: [])
         let migrated = WorkspaceRules.migrated(from: policy)

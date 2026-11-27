@@ -721,7 +721,7 @@ final class TilingEngine: ObservableObject {
                   cg != 0,
                   !releasedWindowIDs.contains(cg),
                   !overflowedCGIDs.contains(cg),
-                  !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
+                  workspaceRulesForceTile(record) || !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
                   isTileable(record, cg)
             else { continue }
 
@@ -798,7 +798,7 @@ final class TilingEngine: ObservableObject {
                     guard let record = recordsByCG[cg],
                           screenKey(for: resolveScreen(for: record, screens: screens, primaryMaxY: primaryMaxY)) == key,
                           !releasedWindowIDs.contains(cg),
-                          !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
+                          workspaceRulesForceTile(record) || !policy.shouldFloat(bundleIdentifier: record.bundleIdentifier),
                           workspaceAllowsTiling(record, on: key),
                           isTileable(record, cg) else { continue }
                     var probe = tree
@@ -972,21 +972,20 @@ final class TilingEngine: ObservableObject {
 
             let quartz = CGRect(origin: SnapPosition.accessibilityOrigin(of: cocoaFrame, primaryMaxY: primaryMaxY), size: cocoaFrame.size)
 
-            // Skip AX IPC when the window is already where we asked (a parked window is granted
-            // less than it asked for, so the granted frame alone would never match). The repeat
-            // check has to compare this request with the last one, not with where the window sits:
-            // a revealed column asks for a new frame while the window is still in its park band.
-            if let currentBounds = record.bounds {
-                if WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2) {
-                    lastAppliedFrames[cg] = currentBounds
+            // Skip AX IPC when the window is already where we asked. What proves that depends on the
+            // target: an on-screen tile can be read back from the snapshot, but the snapshot lags a
+            // switch, so a parked window's record can still say "already parked" after a reveal has
+            // put it back on the grid. Only our own last write proves a park frame is in place —
+            // trusting the snapshot there left a catalogue extra sitting on top of the tiles for
+            // every pass after a workspace round trip (found live 2026-11-27).
+            if parked[winID] != nil {
+                if let applied = lastAppliedFrames[cg],
+                   WindowFit.isNearlyEqual(applied, quartz, tolerance: 2) {
                     continue
                 }
-                // A parked column is granted less than it asked for (the OS clamps it into the edge),
-                // so an identical repeat request can be trusted. An on-screen column has to actually
-                // be there before the write is skipped — otherwise a reveal that was parked earlier
-                // is never re-asked and the window stays off screen.
-                if parked[winID] != nil,
-                   lastRequestedFrames[cg].map({ WindowFit.isNearlyEqual($0, quartz, tolerance: 2) }) == true {
+            } else if let currentBounds = record.bounds {
+                if WindowFit.isNearlyEqual(currentBounds, quartz, tolerance: 2) {
+                    lastAppliedFrames[cg] = currentBounds
                     continue
                 }
             }
@@ -1120,6 +1119,12 @@ final class TilingEngine: ObservableObject {
         AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeValue)
         AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, point)
         AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, sizeValue)
+        // This write did not come from `applyFrames`, so its last request no longer describes where
+        // the window is. Leaving it made a revealed catalogue extra un-parkable: the switch moved it
+        // on screen, the layout asked for the same park frame it had asked for before the switch,
+        // and the parked-repeat shortcut skipped the write — the extra sat on top of the grid for
+        // every later pass (found live 2026-11-27).
+        lastRequestedFrames.removeValue(forKey: cgWindowID)
     }
 
     func axElement(for pid: pid_t, cgWindowID: CGWindowID) -> AXUIElement? {

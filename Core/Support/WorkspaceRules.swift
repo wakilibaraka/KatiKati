@@ -188,6 +188,16 @@ struct WorkspaceRules: Equatable, Sendable, Codable {
         return .manage
     }
 
+    /// Whether the first matching rule is an explicit `=tile`, which outranks the built-in float
+    /// list (`WorkspaceRuleAction.tile` promises exactly that). `disposition` cannot answer it: an
+    /// unmatched window and a `=tile` window both come back `.manage`.
+    func tileOverride(bundleID: String?, title: String?) -> Bool {
+        for rule in rules where rule.matches(bundleID: bundleID, title: title) {
+            return rule.action == .tile
+        }
+        return false
+    }
+
     /// Whether the matched rule claims *every* new window of the application, not only its first.
     func routesAllWindows(bundleID: String?, title: String?) -> Bool {
         for rule in rules where rule.matches(bundleID: bundleID, title: title) {
