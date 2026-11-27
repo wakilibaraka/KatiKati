@@ -98,10 +98,16 @@ struct NotchIslandView: View {
     @AppStorage(NotchSurfaceAppearance.StorageKey.preset) private var surfacePresetRaw = NotchColorPreset.oledBlack.rawValue
     @AppStorage(NotchSurfaceAppearance.StorageKey.customHex) private var surfaceCustomHex = NotchSurfaceAppearance.defaultCustomHex
     @AppStorage(NotchSurfaceAppearance.StorageKey.transparency) private var surfaceTransparency = NotchSurfaceAppearance.defaultTransparency
+    @AppStorage("com.katikati.theme.followDockTheme") private var followDockTheme = true
+    @AppStorage("com.katikati.theme.material") private var dockThemeToken = DockThemeStyle.auto.token
     let metrics: NotchMetrics
     let theme: NowPlayingTheme
     /// 51h: external-display wide bar — the closed state shows `NotchWideBarView` instead of the ear chips.
     var wideBar = false
+
+    private var activeDockThemeStyle: DockThemeStyle {
+        followDockTheme ? (DockThemeStyle(token: dockThemeToken) ?? .obsidianDark) : .obsidianDark
+    }
 
     /// NS-1/NS-2: the plate actually drawn this frame. Low Power Mode and the clamp live in the pure
     /// model; this view only reads the three stored values.
@@ -152,10 +158,11 @@ struct NotchIslandView: View {
         if model.skin == .liquid {
             LiquidNotchShellView(model: model, feed: feed, metrics: metrics)
         } else if model.skin.usesIslandSurfaceEngine, let bridge = model.islandBridge {
+            let dockStyle = activeDockThemeStyle.tintsPlate ? activeDockThemeStyle : .obsidianDark
             let resolution = NotchTheme.resolve(
                 hasHardwareNotch: metrics.hasHardwareNotch,
-                tintsPlate: !metrics.hasHardwareNotch,
-                tokens: DockThemeStyleTokens.resolve(style: .obsidianDark, appearance: .dark)
+                tintsPlate: !metrics.hasHardwareNotch || (followDockTheme && activeDockThemeStyle.tintsPlate),
+                tokens: DockThemeStyleTokens.resolve(style: dockStyle, appearance: .dark)
             )
             Color.clear.overlay(alignment: .top) {
                 IslandSurfaceView(driver: bridge.driver, registry: bridge.registry, themeResolution: resolution) {

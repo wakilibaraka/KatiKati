@@ -2442,4 +2442,19 @@ final class WallpaperAnimationSettingTests: XCTestCase {
         store.setWallpaperAnimate(false)
         XCTAssertFalse(AppSettingsStore(defaults: defaults).wallpaperAnimate)
     }
+
+    func testFollowDockThemeDefaultsToTrueAndPersists() {
+        let suite = "katikati.theme.followDock.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let store = AppSettingsStore(defaults: defaults)
+        XCTAssertTrue(store.followDockTheme)
+
+        store.setFollowDockTheme(false)
+        XCTAssertFalse(AppSettingsStore(defaults: defaults).followDockTheme)
+
+        store.setFollowDockTheme(true)
+        XCTAssertTrue(AppSettingsStore(defaults: defaults).followDockTheme)
+    }
 }

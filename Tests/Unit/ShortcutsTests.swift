@@ -379,6 +379,9 @@ final class ShortcutRedesignCoreTests: XCTestCase {
         XCTAssertEqual(ShortcutAction.tilingRetileAll.hotKeyID, 76)
         XCTAssertEqual(ShortcutAction.radialDial.category, .desktopAndNotch)
         XCTAssertEqual(ShortcutAction.captureArea.category, .tools)
+        XCTAssertEqual(ShortcutAction.captureWindow.category, .tools)
+        XCTAssertEqual(ShortcutAction.captureWindow.hotKeyID, 103)
+        XCTAssertEqual(ShortcutAction.captureWindow.defaultTrigger, .off)
         // Every action lands in exactly one band — the chips must never lose a row.
         for action in ShortcutAction.allCases { _ = action.category }
     }

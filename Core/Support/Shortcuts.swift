@@ -39,8 +39,8 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     /// Notch bento pages, step by step (live-check follow-up: dots are mouse-only otherwise).
     /// Both default `.off` — user assigns.
     case notchPageNext, notchPagePrevious
-    /// 55b: the dial's area capture, now also a shortcut. Default `.off` — user assigns.
-    case captureArea
+    /// 55b: the dial's area and window capture actions, also available as shortcuts. Both default `.off` — user assigns.
+    case captureArea, captureWindow
     /// 53g: save the clipboard image into the front Finder window as a `.png`. Default `.off` — user assigns.
     case pasteImageToFinder
     /// Space switching with a transition (ported from Spacewalk). Default `.off` — the system's own
@@ -138,6 +138,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         case .radialDialSnap: return 40
         case .radialDialTools: return 41
         case .captureArea: return 42
+        case .captureWindow: return 103
         case .pasteImageToFinder: return 43
         case .spaceNext: return 44
         case .spacePrevious: return 45
@@ -222,7 +223,7 @@ enum ShortcutAction: String, CaseIterable, Sendable {
         // Phase 31 radial dial: ⌃⌥R by default for main dial, sub-page shortcuts off by default
         case .radialDial: return .key(ShortcutKey(keyCode: 15, modifiers: ShortcutKey.control | ShortcutKey.option))
         case .radialDialSnap, .radialDialTools: return .off
-        case .notchPageNext, .notchPagePrevious, .captureArea, .pasteImageToFinder: return .off
+        case .notchPageNext, .notchPagePrevious, .captureArea, .captureWindow, .pasteImageToFinder: return .off
         case .spaceNext, .spacePrevious, .peek, .openDictionary, .toggleTerminal, .dictate, .dockFocus,
              .desktopQuickReveal, .desktopToggleHidden: return .off
         case .windowSwitcher: return .key(ShortcutKey(keyCode: 48, modifiers: ShortcutKey.option))

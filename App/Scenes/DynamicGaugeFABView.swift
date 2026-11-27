@@ -143,10 +143,19 @@ struct DrawerCapsuleBackgroundDiscView: View {
             cpuUsage: monitor.snapshot.cpu
         )
         let label = "\(count) \(String(localized: "Background Apps"))"
+        let ramFraction = min(max(Double(metrics.ramPercentage) / 100.0, 0.05), 1.0)
+        let squircleStroke = metrics.pressureLevel == .critical
+            ? Color(red: 1.0, green: 0.32, blue: 0.32)
+            : (metrics.pressureLevel == .warning ? Color(red: 1.0, green: 0.65, blue: 0.20) : Color(red: 0.25, green: 0.85, blue: 0.55))
         ZStack {
-            Circle()
-                .stroke(Color.white.opacity(0.12), style: StrokeStyle(lineWidth: 3 * scale, lineCap: .round))
-                .padding(4 * scale)
+            RoundedRectangle(cornerRadius: 11 * scale, style: .continuous)
+                .stroke(Color.white.opacity(0.12), lineWidth: 2.5 * scale)
+                .padding(3 * scale)
+            RoundedRectangle(cornerRadius: 11 * scale, style: .continuous)
+                .trim(from: 0, to: CGFloat(ramFraction))
+                .stroke(squircleStroke.opacity(0.85), style: StrokeStyle(lineWidth: 2.5 * scale, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .padding(3 * scale)
             VStack(spacing: 1 * scale) {
                 Image(systemName: "square.stack.3d.up.fill")
                     .font(.system(size: 10 * scale, weight: .semibold))

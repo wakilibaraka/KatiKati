@@ -59,6 +59,7 @@ final class EdgeBarPanelController {
     private var labelIndex: Int?
     private var labelWork: DispatchWorkItem?
     private var workspaceTokens: [NSObjectProtocol] = []
+    private var keyMonitor: Any?
 
     init(slotKey: EdgeSlotSet.SlotKey, service: SystemStatusService, notes: @escaping () -> NotesController?,
          notesPeek: @escaping () -> NotesController?,
@@ -138,6 +139,7 @@ final class EdgeBarPanelController {
         popup.dismiss()
         notesPopup.dismiss(notify: false)
         stopTimers()
+        stopKeyMonitor()
         panel?.orderOut(nil)
         isHidden = true
         state = .rest
@@ -510,7 +512,12 @@ final class EdgeBarPanelController {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.45, execute: work)
         }
         if new != .rest, new.expandedID == nil { notesPopup.dismiss(notify: false) }
-        if new == .rest { popup.dismiss() }
+        if new == .rest {
+            popup.dismiss()
+            stopKeyMonitor()
+        } else {
+            startKeyMonitorIfNeeded()
+        }
         updateIdleWatch()
     }
 
@@ -543,6 +550,51 @@ final class EdgeBarPanelController {
         exitWork?.cancel(); exitWork = nil
         shrinkWork?.cancel(); shrinkWork = nil
         revealWork?.cancel(); revealWork = nil
+        stopKeyMonitor()
+    }
+
+    private func startKeyMonitorIfNeeded() {
+        guard keyMonitor == nil else { return }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, self.state != .rest, self.panel?.isVisible == true else { return event }
+            return self.handleDeckKey(event) ? nil : event
+        }
+    }
+
+    private func stopKeyMonitor() {
+        if let keyMonitor {
+            NSEvent.removeMonitor(keyMonitor)
+            self.keyMonitor = nil
+        }
+        model.keyboardSelectionIndex = nil
+    }
+
+    private func handleDeckKey(_ event: NSEvent) -> Bool {
+        let count = model.buttons.count
+        switch event.keyCode {
+        case 53: // Esc
+            apply(.pointerExitConfirmed)
+            return true
+        case 126: // Up
+            guard count > 0 else { return false }
+            let current = model.keyboardSelectionIndex ?? count
+            model.keyboardSelectionIndex = (current - 1 + count) % count
+            lastActivity = Date()
+            return true
+        case 125: // Down
+            guard count > 0 else { return false }
+            let current = model.keyboardSelectionIndex ?? -1
+            model.keyboardSelectionIndex = (current + 1) % count
+            lastActivity = Date()
+            return true
+        case 36, 76: // Return
+            guard let idx = model.keyboardSelectionIndex, model.buttons.indices.contains(idx),
+                  let rect = model.buttonFrames[idx] else { return false }
+            buttonTapped(model.buttons[idx], localRect: rect)
+            return true
+        default:
+            return false
+        }
     }
 
     // MARK: Panel

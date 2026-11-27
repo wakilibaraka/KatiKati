@@ -54,6 +54,7 @@ final class DeckViewModel: ObservableObject {
     /// Pill / tile accent colours when there are no note tabs.
     @Published var accentDashes: [NotePaletteEntry] = []
 
+    @Published var keyboardSelectionIndex: Int? = nil
     /// Tab frames in the panel's top-left view space (published by the tabs themselves); the controller turns the
     /// mouse poll into hover-preview / hover-open from these, so no SwiftUI hover callbacks are needed.
     @Published var tabFrames: [String: CGRect] = [:]
@@ -115,11 +116,27 @@ struct EdgeAppItem: Hashable, Identifiable, Sendable {
 /// Root view of a deck panel: the pill at rest, the fan otherwise.
 struct DeckRootView: View {
     @ObservedObject var model: DeckViewModel
+    @AppStorage("com.katikati.theme.followDockTheme") private var followDockTheme = true
+    @AppStorage("com.katikati.theme.material") private var dockThemeToken = DockThemeStyle.auto.token
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var activeThemeStyle: DockThemeStyle {
+        followDockTheme ? (DockThemeStyle(token: dockThemeToken) ?? .auto) : .auto
+    }
 
     var body: some View {
+        let tokens = DockThemeTokens.resolved(for: colorScheme, style: activeThemeStyle)
         ZStack {
             if model.showsFan { DeckFanView(model: model) } else { DeckPillView(model: model) }
         }
+        .overlay {
+            if followDockTheme, activeThemeStyle.tintsPlate, model.showsFan {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(tokens.styleTokens.rim.color.opacity(0.35), lineWidth: 0.75)
+                    .allowsHitTesting(false)
+            }
+        }
+        .environment(\.dockThemeStyle, activeThemeStyle)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

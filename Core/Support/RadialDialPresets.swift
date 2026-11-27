@@ -248,7 +248,7 @@ enum RadialDialPresets {
             RadialDialItem(id: "util_window", title: "Window Capture", icon: .sfSymbol("macwindow"), accentHex: "#EC4899", action: .captureWindow),
             RadialDialItem(id: "util_element", title: "Element Capture", icon: .sfSymbol("viewfinder"), accentHex: "#8B5CF6", action: .custom(id: "elementCapture", title: "Element Capture")),
             RadialDialItem(id: "util_scroll", title: "Scrolling Capture", icon: .sfSymbol("arrow.up.and.down.text.horizontal"), accentHex: "#6366F1", action: .custom(id: "scrollingCapture", title: "Scrolling Capture")),
-            RadialDialItem(id: "util_color", title: "Color Picker", icon: .sfSymbol("eyedropper.halffull"), accentHex: "#10B981", action: .custom(id: "colorPicker", title: "Color Picker")),
+            RadialDialItem(id: "util_clipboard", title: "Clipboard", icon: .sfSymbol("doc.on.clipboard"), accentHex: "#10B981", action: .clipboard),
             RadialDialItem(id: "util_fullscreen", title: "Fullscreen", icon: .sfSymbol("arrow.up.left.and.arrow.down.right"), accentHex: "#3B82F6", action: .snap(.maximize))
         ]
 

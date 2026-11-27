@@ -443,9 +443,6 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         recentlyClosedItem.submenu = NSMenu()
         recentlyClosedItem.isHidden = true
         menu.addItem(recentlyClosedItem)
-        let pickColorItem = NSMenuItem(title: String(localized: "Pick Color"), action: #selector(pickColor), keyEquivalent: "")
-        pickColorItem.target = self
-        menu.addItem(pickColorItem)
         settingsItem.target = self
         settingsItem.keyEquivalentModifierMask = [.command]
         menu.addItem(settingsItem)
@@ -918,10 +915,6 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     @objc private func restoreClosedApp(_ sender: NSMenuItem) {
         guard let restore = sender.representedObject as? (() -> Void) else { return }
         restore()
-    }
-    @objc private func pickColor() {
-        menu.cancelTrackingWithoutAnimation()
-        DispatchQueue.main.async { [onPickColor] in onPickColor() }
     }
     @objc private func quit() { onQuit() }
 

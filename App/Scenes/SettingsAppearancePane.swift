@@ -48,6 +48,12 @@ struct SettingsAppearancePane: View {
                 if case let .customRGBA(r, g, b, a) = store.themeMaterial {
                     customControls(r: r, g: g, b: b, a: a)
                 }
+                SettingsDivider()
+                SettingsToggleRow(
+                    Text("Follow Dock Theme"),
+                    isOn: Binding(get: { store.followDockTheme }, set: store.setFollowDockTheme),
+                    note: Text("Applies the dock's glass material and tint across Side Deck, Edge Bars, Notch, and Launcher.")
+                )
                 // 12f. Only a pinned preset tints the plate, so on Auto / System these two would be
                 // controls that visibly do nothing — they appear with the theme that has a tint.
                 if store.themeMaterial.tintsPlate {

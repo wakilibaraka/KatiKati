@@ -32,6 +32,7 @@ final class WindowDrawerController: ObservableObject {
     @Published var notificationsUnreadOnly = false
     @Published private(set) var windowSelection = SideDeckSelection()
     @Published private(set) var notificationSelection = SideDeckSelection()
+    @Published private(set) var genericSelection = SideDeckSelection()
 
     private let runtime: AppRuntime
     private let onSearch: () -> Void
@@ -171,6 +172,19 @@ final class WindowDrawerController: ObservableObject {
     private func selectionChanged() {
         windowSelection.clamp(count: filtered.count)
         notificationSelection.clamp(count: visibleNotifications.count)
+        genericSelection.clamp(count: actionItemCount(for: tab))
+    }
+
+    private func actionItemCount(for tab: Tab) -> Int {
+        switch tab {
+        case .downloads: return DownloadManagerService.shared.items.count
+        case .clipboard: return ProductivityServices.shared.clipboard.history.entries.count
+        case .tendedero: return TendederoClotheslineController.shared.store.items.count
+        case .quickAccess: return 2
+        case .layouts: return 4
+        case .dashboard: return 4
+        default: return 0
+        }
     }
 
     var isPinnedOpen: Bool { UserDefaults.standard.bool(forKey: SideDeckPrefs.pinKey) }
@@ -181,7 +195,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: windowSelection.move(by: delta, count: filtered.count)
         case .notifications: notificationSelection.move(by: delta, count: visibleNotifications.count)
-        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        default: genericSelection.move(by: delta, count: actionItemCount(for: tab))
         }
     }
 
@@ -189,7 +203,17 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let item = selectedWindow { activate(item.id) }
         case .notifications: if let entry = selectedNotification { openNotification(entry) }
-        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        case .quickAccess:
+            if genericSelection.index == 0 { runApps() } else { runSearch() }
+        case .clipboard:
+            let entries = ProductivityServices.shared.clipboard.history.entries
+            if entries.indices.contains(genericSelection.index) {
+                ProductivityServices.shared.clipboard.pastePlain(entries[genericSelection.index])
+            }
+        case .dashboard:
+            let targets: [Tab] = [.windows, .notifications, .downloads, .weather]
+            if targets.indices.contains(genericSelection.index) { select(targets[genericSelection.index]) }
+        default: break
         }
     }
 
@@ -197,7 +221,7 @@ final class WindowDrawerController: ObservableObject {
         switch tab {
         case .windows: if let id = selectedWindow?.id { closeWindow(id) }
         case .notifications: if let entry = selectedNotification { dismissNotification(entry) }
-        case .downloads, .dictionary, .dashboard, .storage, .weather, .quickAccess, .aiMissionControl, .layouts, .emoji, .clipboard, .tendedero, .scratchpad, .markets: break
+        default: close()
         }
     }
 
@@ -331,11 +355,16 @@ private struct WindowDrawerView: View {
     @State private var identityStripEnabled = SideDeckConfig.stored().identityStrip
     /// SD-1: which edge the deck is docked to, so the foot chevron can point away from it.
     @State private var deckSide = SideDeckConfig.stored().side
+    @AppStorage("com.katikati.theme.followDockTheme") private var followDockTheme = true
+    @AppStorage("com.katikati.theme.material") private var dockThemeToken = DockThemeStyle.auto.token
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var searchFocused: Bool
 
     private var density: WidgetHUDDensityMode { WidgetHUDDensityMode.parse(densityRaw) }
     private var textScale: WidgetTextScale { WidgetTextScale.parse(textScaleRaw) }
+    private var activeDockTheme: DockThemeStyle { followDockTheme ? (DockThemeStyle(token: dockThemeToken) ?? .auto) : .auto }
+    private var themeTokens: DockThemeTokens { .resolved(for: colorScheme, style: activeDockTheme) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -362,7 +391,17 @@ private struct WindowDrawerView: View {
             }
         }
         // SD-1: one radius for the whole shell, the sanctioned deck glass radius (26).
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: EdgeStyleTokens.glassRadius, style: .continuous))
+        .background {
+            let shape = RoundedRectangle(cornerRadius: EdgeStyleTokens.glassRadius, style: .continuous)
+            ZStack {
+                shape.fill(.regularMaterial)
+                if followDockTheme, activeDockTheme.tintsPlate {
+                    shape.fill(themeTokens.styleTokens.baseTint.color.opacity(colorScheme == .dark ? 0.34 : 0.24))
+                    shape.strokeBorder(themeTokens.styleTokens.rim.color.opacity(0.28), lineWidth: 0.75)
+                }
+            }
+        }
+        .environment(\.dockThemeStyle, activeDockTheme)
         // SD-1: entry motion — the deck spring, a 0.98 → 1 scale and a fade. Reduce Motion keeps the fade.
         .scaleEffect(appeared ? 1 : SideDeckConfig.entryScale(reduceMotion: reduceMotion))
         .opacity(appeared ? 1 : 0)
@@ -518,6 +557,7 @@ private struct WindowDrawerView: View {
                         .foregroundStyle(selected ? Color.black.opacity(0.78) : Color.secondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
             }
             Menu {
                 ForEach(SideDeckTab.allCases, id: \.self) { tab in

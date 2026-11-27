@@ -362,6 +362,8 @@ final class AppSettingsStore: ObservableObject {
     @Published private(set) var edgeMargin: CGFloat
     /// 材质主题。默认 auto (亮色 roseQuartz / 暗色 obsidianDark)。
     @Published private(set) var themeMaterial: DockThemeStyle
+    /// Whether Side Deck, Edge Bars, Notch, and Launcher follow the dock's glass theme/tint.
+    @Published private(set) var followDockTheme: Bool
     /// Phase 12 —— Appearance 页的两个底板旋钮。默认值就是滑块出现前的观感（
     /// `ThemeTuning.identity`），所以从没碰过它们的人看到的底板逐像素不变。
     @Published private(set) var themeVibrancy: CGFloat
@@ -777,6 +779,7 @@ final class AppSettingsStore: ObservableObject {
         }
         
         themeMaterial = DockThemeStyle(token: defaults.string(forKey: Keys.themeMaterial) ?? "") ?? .auto
+        followDockTheme = defaults.object(forKey: Keys.followDockTheme) as? Bool ?? true
         // Both knobs go through the same clamp the setters use, so a hand-edited key cannot put the
         // plate somewhere the sliders cannot.
         themeVibrancy = ThemeTuning.resolved(
@@ -1337,6 +1340,12 @@ final class AppSettingsStore: ObservableObject {
         guard themeMaterial != value else { return }
         themeMaterial = value
         defaults.set(value.token, forKey: Keys.themeMaterial)
+    }
+
+    func setFollowDockTheme(_ enabled: Bool) {
+        guard followDockTheme != enabled else { return }
+        followDockTheme = enabled
+        defaults.set(enabled, forKey: Keys.followDockTheme)
     }
 
     func setThemeVibrancy(_ value: CGFloat) {
@@ -2607,6 +2616,7 @@ private enum Keys {
     static let edgeMargin = "com.katikati.edge.margin"
     static let iconSet = "com.katikati.iconSet"
     static let themeMaterial = "com.katikati.theme.material"
+    static let followDockTheme = "com.katikati.theme.followDockTheme"
     static let themeVibrancy = "com.katikati.theme.vibrancy"
     static let themeContrast = "com.katikati.theme.contrast"
     static let themeTranslucency = "com.katikati.theme.translucency"

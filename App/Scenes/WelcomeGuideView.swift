@@ -186,6 +186,8 @@ struct WelcomeGuideLayoutContext {
     var onPickAppIconPreset: (AppIconPresentationPreset) -> Void = { _ in }
     var initialTrailingCapsule: DockSlotItem? = .controlCenter
     var onPickTrailingCapsule: (DockSlotItem?) -> Void = { _ in }
+    var initialStarterAppGroup = false
+    var onToggleStarterAppGroup: (Bool) -> Void = { _ in }
 }
 
 struct WelcomeGuideView: View {
@@ -210,6 +212,7 @@ struct WelcomeGuideView: View {
     @State private var launcherOn: Bool?
     @State private var toastOn: Bool?
     @State private var notchOn: Bool?
+    @State private var starterAppGroupOn: Bool?
     @State private var visibleSections: Set<BarSection>?
     @State private var wingsConfig: DockWingsConfiguration?
     @State private var practiceTaps = 0
@@ -584,6 +587,10 @@ struct WelcomeGuideView: View {
             Toggle(String(localized: "Show the Dynamic Notch"), isOn: Binding(
                 get: { notchOn ?? layout.notchEnabled },
                 set: { notchOn = $0; layout.onNotchToggle($0) }
+            ))
+            Toggle(String(localized: "Create Starter App Group"), isOn: Binding(
+                get: { starterAppGroupOn ?? layout.initialStarterAppGroup },
+                set: { starterAppGroupOn = $0; layout.onToggleStarterAppGroup($0) }
             ))
         }
     }

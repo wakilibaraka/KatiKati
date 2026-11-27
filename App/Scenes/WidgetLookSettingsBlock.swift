@@ -247,6 +247,7 @@ struct WidgetWingsSettingsBlock: View {
 struct AppIconsSettingsBlock: View {
     @ObservedObject var store: AppSettingsStore
     @ObservedObject private var appGroupStore = DockAppGroupStore.shared
+    @State private var newGroupName = ""
     @AppStorage(DockHoverAnimationStyle.defaultsKey) private var hoverAnimationRaw = DockHoverAnimationStyle.none.rawValue
     @AppStorage(DockPressAnimationStyle.defaultsKey) private var pressAnimationRaw = DockPressAnimationStyle.tactileSquish.rawValue
     @AppStorage(DockRunningIndicatorStyle.defaultsKey) private var runningIndicatorRaw = DockRunningIndicatorStyle.macDot.rawValue
@@ -339,6 +340,72 @@ struct AppIconsSettingsBlock: View {
                     note: Text("Organizes installed apps into Dock folders by category.")
                 ) {
                     appGroupStore.autoGroupInstalledApps()
+                }
+                SettingsDivider()
+                HStack(spacing: 8) {
+                    TextField(String(localized: "New group name"), text: $newGroupName)
+                        .textFieldStyle(.roundedBorder)
+                    Button(String(localized: "Add Group")) {
+                        let name = newGroupName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        appGroupStore.createGroup(name: name.isEmpty ? String(localized: "Workspace") : name)
+                        newGroupName = ""
+                    }
+                    .controlSize(.small)
+                }
+                ForEach(appGroupStore.groups) { group in
+                    SettingsDivider()
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 8) {
+                            TextField(
+                                String(localized: "Group Name"),
+                                text: Binding(
+                                    get: { group.name },
+                                    set: { appGroupStore.renameGroup(group.id, to: $0) }
+                                )
+                            )
+                            .textFieldStyle(.roundedBorder)
+                            .frame(maxWidth: 160)
+                            Picker(String(localized: "Icon Grid"), selection: Binding(
+                                get: { group.iconGrid },
+                                set: { appGroupStore.setIconGrid($0, for: group.id) }
+                            )) {
+                                Text(verbatim: "2×2").tag(DockAppGroupIconGrid.grid2x2)
+                                Text(verbatim: "3×3").tag(DockAppGroupIconGrid.grid3x3)
+                            }
+                            .labelsHidden().pickerStyle(.segmented).fixedSize()
+                            Spacer(minLength: 4)
+                            Button(role: .destructive) {
+                                appGroupStore.deleteGroup(group.id)
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(Text("Delete Group"))
+                        }
+                        if !group.appIDs.isEmpty {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 6) {
+                                    ForEach(group.appIDs, id: \.self) { appID in
+                                        HStack(spacing: 4) {
+                                            Text(verbatim: appID.components(separatedBy: ".").last ?? appID)
+                                                .font(.caption2)
+                                            Button {
+                                                appGroupStore.removeApp(appID, from: group.id)
+                                            } label: {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                        .padding(.horizontal, 7)
+                                        .padding(.vertical, 3)
+                                        .background(Capsule().fill(Color.primary.opacity(0.08)))
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

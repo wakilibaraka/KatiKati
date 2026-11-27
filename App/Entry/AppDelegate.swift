@@ -538,6 +538,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .notchPageNext: self.notchPanel.stepPage(forward: true)
                 case .notchPagePrevious: self.notchPanel.stepPage(forward: false)
                 case .captureArea: CaptureController.captureAreaToClipboard()
+                case .captureWindow: CaptureController.captureWindowToClipboard()
                 case .pasteImageToFinder:
                     // 53g: the toast is the whole report — the file appearing in Finder is the success case.
                     switch ClipboardImagePaster.paste() {
@@ -1159,7 +1160,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             initialAppIconPreset: settingsStore.appIconPreset,
             onPickAppIconPreset: { [weak self] preset in self?.settingsStore.setAppIconPreset(preset) },
             initialTrailingCapsule: settingsStore.dockSlotLayout.trailingCapsule,
-            onPickTrailingCapsule: { [weak self] item in self?.settingsStore.setTrailingCapsule(item) }
+            onPickTrailingCapsule: { [weak self] item in self?.settingsStore.setTrailingCapsule(item) },
+            initialStarterAppGroup: !DockAppGroupStore.shared.groups.isEmpty,
+            onToggleStarterAppGroup: { on in
+                if on, DockAppGroupStore.shared.groups.isEmpty {
+                    DockAppGroupStore.shared.createGroup(
+                        name: String(localized: "Productivity"),
+                        appIDs: ["com.apple.Safari", "com.apple.Notes", "com.apple.mail"]
+                    )
+                }
+            }
         )
         let content = WelcomeGuideWindowContent(
             layout: layoutContext,

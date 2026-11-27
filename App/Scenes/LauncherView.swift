@@ -71,6 +71,13 @@ struct LauncherView: View {
     @State private var holdsTelemetry = false
     @State private var hoverCategoryTask: Task<Void, Never>?
     @AppStorage("com.katikati.launcher.drawerStyle") private var drawerStyleRaw: String = LauncherDrawerViewStyle.grid.rawValue
+    @AppStorage("com.katikati.theme.followDockTheme") private var followDockTheme = true
+    @AppStorage("com.katikati.theme.material") private var dockThemeToken = DockThemeStyle.auto.token
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var activeDockTheme: DockThemeStyle {
+        followDockTheme ? (DockThemeStyle(token: dockThemeToken) ?? .auto) : .auto
+    }
 
     private enum LauncherDrawerViewStyle: String { case grid, list }
     private var drawerStyle: LauncherDrawerViewStyle {
@@ -141,6 +148,15 @@ struct LauncherView: View {
             hoverCategoryTask = nil
             syncTelemetrySampling(false)
         }
+        .background {
+            if followDockTheme, activeDockTheme.tintsPlate {
+                let tokens = DockThemeTokens.resolved(for: colorScheme, style: activeDockTheme)
+                tokens.styleTokens.baseTint.color.opacity(colorScheme == .dark ? 0.22 : 0.14)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+            }
+        }
+        .environment(\.dockThemeStyle, activeDockTheme)
         .accessibilityLabel(Text("Launcher"))
     }
 
