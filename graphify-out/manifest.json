@@ -888,9 +888,9 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795751318.2021852,
-    "seen": 1795751359.331122,
-    "ast_hash": "a6b0551037a2b6228c8eaf8ac57a6bb2",
+    "mtime": 1795751635.5690691,
+    "seen": 1795751882.270242,
+    "ast_hash": "429945f1d50a21dad5170c069d9458f7",
     "semantic_hash": ""
   },
   "App/Scenes/Edge/SystemMonitorFlyoutView.swift": {
@@ -4374,9 +4374,9 @@
     "semantic_hash": "c761a1854048312afb1b02410e3a9c6e"
   },
   "Tests/Unit/WindowSnapTests.swift": {
-    "mtime": 1795748793.737973,
-    "seen": 1795749580.171596,
-    "ast_hash": "43571198cf7ab7e39edf2aac10343153",
+    "mtime": 1795751843.5158432,
+    "seen": 1795751882.272197,
+    "ast_hash": "bbfce2ce9ec3e412b983085dee1277e5",
     "semantic_hash": ""
   },
   "Tests/Unit/WindowSubscriptionLedgerTests.swift": {
@@ -5418,15 +5418,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1795535065.0227876,
-    "seen": 1795606909.623439,
-    "ast_hash": "dab5c74945e0c34ca6e56897fe866b15",
+    "mtime": 1795751560.5442176,
+    "seen": 1795751882.2725198,
+    "ast_hash": "e99b07b278f8c66771eb2380b00b7992",
     "semantic_hash": ""
   },
   "README.zh-CN.md": {
-    "mtime": 1795535065.0230708,
-    "seen": 1795606909.623441,
-    "ast_hash": "e3fcbc30d4bf801a998f41e4787d0e02",
+    "mtime": 1795751560.5446587,
+    "seen": 1795751882.272522,
+    "ast_hash": "4a77b9f73428eb4642defe144b89c504",
     "semantic_hash": ""
   },
   "STANDING_RULES.md": {
@@ -8004,15 +8004,15 @@
     "semantic_hash": ""
   },
   "Docs/Plans/CODEBASE_GAP_AND_CAPABILITY_AUDIT.md": {
-    "mtime": 1795471018.8284516,
-    "seen": 1795606909.62341,
-    "ast_hash": "d1191734c750e619c1997bd067243bf1",
+    "mtime": 1795751683.5798056,
+    "seen": 1795751882.272494,
+    "ast_hash": "75de2610cfd6b74a38b85b60ebb16f19",
     "semantic_hash": ""
   },
   "Docs/Plans/CONSOLIDATION_WISHLIST_PLAN.md": {
-    "mtime": 1795515723.1023078,
-    "seen": 1795606909.623412,
-    "ast_hash": "b945789f3d677c2dc877f20af3137a35",
+    "mtime": 1795751683.57862,
+    "seen": 1795751882.2724962,
+    "ast_hash": "354b5794866112bfc2ceff2af24abaa0",
     "semantic_hash": ""
   },
   "Docs/Plans/LIQUID_NOTCH_PORT_PLAN.md": {
@@ -8028,15 +8028,15 @@
     "semantic_hash": ""
   },
   "Docs/Plans/MUSIC_WALLPAPER_LOCKSCREEN_PLAN.md": {
-    "mtime": 1795531679.0185423,
-    "seen": 1795606909.623422,
-    "ast_hash": "88cbe3649bd4de239eeecf2af61eff7e",
+    "mtime": 1795751683.5757341,
+    "seen": 1795751882.272507,
+    "ast_hash": "d22020df373cfb393735c401ce44bb38",
     "semantic_hash": ""
   },
   "Docs/Plans/ICON_STUDIO_LIVE_ICONS_PLAN.md": {
-    "mtime": 1795534615.1939397,
-    "seen": 1795606909.623416,
-    "ast_hash": "62e4281fa808c9e5e4941dcd09ba7200",
+    "mtime": 1795751683.574178,
+    "seen": 1795751882.2725,
+    "ast_hash": "797a51ba22d55d8add06c00d461221c9",
     "semantic_hash": ""
   },
   "Core/Support/Desktop/MusicDesktopWidgetPlacement.swift": {
@@ -8562,9 +8562,9 @@
     "semantic_hash": ""
   },
   "Docs/Plans/SIDEDECK_REPLATFORM_PLAN.md": {
-    "mtime": 1795621476.7923634,
-    "seen": 1795621495.9943092,
-    "ast_hash": "5eb4c2b4b42c999f5ede7d5ceb7d3a6d",
+    "mtime": 1795751683.5775607,
+    "seen": 1795751882.272508,
+    "ast_hash": "b811bba0c0bf9d226ba81ad31506e696",
     "semantic_hash": ""
   },
   "Docs/Archive/Planning/evidence/2026-11-25-cc-menubar-undo/README.md": {
@@ -9492,9 +9492,9 @@
     "semantic_hash": ""
   },
   "App/Entry/SnapPickerController.swift": {
-    "mtime": 1795750476.5936995,
-    "seen": 1795750523.8015099,
-    "ast_hash": "799941b1e250f0351ef5b4810aec1e87",
+    "mtime": 1795751838.480797,
+    "seen": 1795751882.270035,
+    "ast_hash": "c970470a595603793c021e949a95cfd9",
     "semantic_hash": ""
   },
   "App/Entry/WindowInspectorController.swift": {
@@ -9510,21 +9510,27 @@
     "semantic_hash": ""
   },
   "Platform/Display/DisplayModeService.swift": {
-    "mtime": 1795750052.310199,
-    "seen": 1795750523.80221,
-    "ast_hash": "51377d4d794d90d82679ff2bdd2d7f0b",
+    "mtime": 1795751607.494294,
+    "seen": 1795751882.2715468,
+    "ast_hash": "44950f7030a5f638c4926f00a8399627",
     "semantic_hash": ""
   },
   "Tests/Unit/DisplayModeCatalogTests.swift": {
-    "mtime": 1795751206.704206,
-    "seen": 1795751359.3320692,
-    "ast_hash": "5d4ed641a25098e9640329dc4b9ba86e",
+    "mtime": 1795751636.7319117,
+    "seen": 1795751882.271803,
+    "ast_hash": "e1757631d8603b305d1337db0ac0a9d2",
     "semantic_hash": ""
   },
   "Docs/Plans/HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md": {
-    "mtime": 1795751334.1971025,
-    "seen": 1795751359.332714,
-    "ast_hash": "66a1e7b450b15a656c6211acd1e4f8f5",
+    "mtime": 1795751692.4199855,
+    "seen": 1795751882.2724988,
+    "ast_hash": "5cbbe75cb4ab3c03e68058ea2af07712",
+    "semantic_hash": ""
+  },
+  "Core/Support/DisplayArrangement.swift": {
+    "mtime": 1795751607.016406,
+    "seen": 1795751882.270741,
+    "ast_hash": "54b9ec557024cd3ec7070b9b5faf72ab",
     "semantic_hash": ""
   }
 }
