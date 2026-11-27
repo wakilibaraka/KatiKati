@@ -126,10 +126,10 @@
     "semantic_hash": "c84fb33438a81505f3f392f06a84bb7f"
   },
   "App/Composition/DownloadManagerService.swift": {
-    "mtime": 1795750648.44752,
-    "seen": 1795752234.504877,
-    "ast_hash": "e18304ed3273be3a0aa075a755cb7049",
-    "semantic_hash": "e18304ed3273be3a0aa075a755cb7049"
+    "mtime": 1795772835.7593472,
+    "seen": 1795773767.703381,
+    "ast_hash": "fb1f78826b4440431f55c71ad33e5e91",
+    "semantic_hash": ""
   },
   "App/Composition/DownloadsMonitor.swift": {
     "mtime": 1792038729.1629326,
@@ -2700,10 +2700,10 @@
     "semantic_hash": "541486d1fb1222cbf60e7cadc0fd8adf"
   },
   "Platform/Clipboard/ClipboardMonitor.swift": {
-    "mtime": 1795750459.1869333,
-    "seen": 1795752234.522486,
-    "ast_hash": "28e58353d2df687bfd0b34bc80246076",
-    "semantic_hash": "28e58353d2df687bfd0b34bc80246076"
+    "mtime": 1795772839.7945225,
+    "seen": 1795773767.7045171,
+    "ast_hash": "7c90bdff0064da0e966f25beb6fc2d7f",
+    "semantic_hash": ""
   },
   "Platform/CoreGraphics/CoreGraphicsSource.swift": {
     "mtime": 1791999130.9109762,
@@ -2814,10 +2814,10 @@
     "semantic_hash": "489f2cd35aed40513a7d3b6b7bbfba4f"
   },
   "Platform/Notes/FileNoteKeyProvider.swift": {
-    "mtime": 1795750435.7220123,
-    "seen": 1795752234.523307,
-    "ast_hash": "0826901a88740301f4f48bb09814d313",
-    "semantic_hash": "0826901a88740301f4f48bb09814d313"
+    "mtime": 1795772774.264024,
+    "seen": 1795773767.704581,
+    "ast_hash": "419ac2467f041358624ea94d230d4638",
+    "semantic_hash": ""
   },
   "Platform/Notes/KeychainNoteKeyProvider.swift": {
     "mtime": 1791999130.9209206,
@@ -3283,10 +3283,10 @@
     "semantic_hash": "4dce96370bef93d769de0f2f7b5a184e"
   },
   "Tests/Unit/ClipboardHistoryTests.swift": {
-    "mtime": 1795444438.984974,
-    "seen": 1795752234.525835,
-    "ast_hash": "f808b00f43525a556280c3a5fe704305",
-    "semantic_hash": "f808b00f43525a556280c3a5fe704305"
+    "mtime": 1795772841.970881,
+    "seen": 1795773767.7047591,
+    "ast_hash": "525140ba68ee77e0e1a8ecda8aaf0530",
+    "semantic_hash": ""
   },
   "Tests/Unit/ClipboardPlusTests.swift": {
     "mtime": 1795513725.249672,
@@ -3403,10 +3403,10 @@
     "semantic_hash": "e08effb34589eadcd21fc39644e435ba"
   },
   "Tests/Unit/DownloadManagerTests.swift": {
-    "mtime": 1795443274.0481129,
-    "seen": 1795752234.5269032,
-    "ast_hash": "878a928fa3261e124602d267eabb14a5",
-    "semantic_hash": "878a928fa3261e124602d267eabb14a5"
+    "mtime": 1795772858.2452946,
+    "seen": 1795773767.704843,
+    "ast_hash": "07509b9ae99cf5f1f5f251c2206ead2a",
+    "semantic_hash": ""
   },
   "Tests/Unit/DragCarrierGeometryTests.swift": {
     "mtime": 1791999130.9276106,
@@ -6941,10 +6941,10 @@
     "semantic_hash": "4eb374d3b58c9942732433146ba9487b"
   },
   "Core/Support/SettingsBackup.swift": {
-    "mtime": 1795750418.0756621,
-    "seen": 1795752234.5197482,
-    "ast_hash": "eeaabc77f457535c7c66718e894546e9",
-    "semantic_hash": "eeaabc77f457535c7c66718e894546e9"
+    "mtime": 1795772765.4354308,
+    "seen": 1795773767.7043378,
+    "ast_hash": "18271504e102704be4acd6c5b7527c1d",
+    "semantic_hash": ""
   },
   "Platform/Accessibility/AppMenuSearchReader.swift": {
     "mtime": 1793190233.6226902,
@@ -6953,10 +6953,10 @@
     "semantic_hash": "93ac24b77d1a2c11f404a7c9f8f9a973"
   },
   "Platform/Backup/SettingsBackupService.swift": {
-    "mtime": 1795470727.3191948,
-    "seen": 1795752234.522378,
-    "ast_hash": "13779c7f45a8feaf87fc96562409bafe",
-    "semantic_hash": "13779c7f45a8feaf87fc96562409bafe"
+    "mtime": 1795772774.9250333,
+    "seen": 1795773767.704509,
+    "ast_hash": "dd37b778bafc35897ae260cf004ac4dd",
+    "semantic_hash": ""
   },
   "Scripts/bench_katikati.sh": {
     "mtime": 1795613531.6866515,
@@ -7019,10 +7019,10 @@
     "semantic_hash": "df343c4f3646e7832460430e8e200316"
   },
   "Tests/Unit/SettingsBackupTests.swift": {
-    "mtime": 1795750418.0761638,
-    "seen": 1795752234.530455,
-    "ast_hash": "ad3b27bf0ddce17cbaa50ac93597c367",
-    "semantic_hash": "ad3b27bf0ddce17cbaa50ac93597c367"
+    "mtime": 1795773062.550315,
+    "seen": 1795773767.7050722,
+    "ast_hash": "328361b24bbd6c1387df00f9038da899",
+    "semantic_hash": ""
   },
   "Tools/Bench/benchtool.swift": {
     "mtime": 1793190233.6358829,
@@ -7259,10 +7259,10 @@
     "semantic_hash": "d608980cfdcbc425fad68c46ecda58d6"
   },
   "Core/Support/HydrationController.swift": {
-    "mtime": 1795443412.1548777,
-    "seen": 1795752234.517507,
-    "ast_hash": "0e296b2c24ea92cd4135257a94763b18",
-    "semantic_hash": "0e296b2c24ea92cd4135257a94763b18"
+    "mtime": 1795772766.844423,
+    "seen": 1795773767.704177,
+    "ast_hash": "67a2a85417b81381fc9f7ba7a2823ee3",
+    "semantic_hash": ""
   },
   "Core/Support/NutritionController.swift": {
     "mtime": 1795443413.947087,
@@ -7271,10 +7271,10 @@
     "semantic_hash": "2bf815bda4dc9ba07d3850b0aa14e091"
   },
   "Tests/Unit/SydedockControllersTests.swift": {
-    "mtime": 1795443520.4310226,
-    "seen": 1795752234.53121,
-    "ast_hash": "7344ffad2494c60dbb351cd4d3acecc9",
-    "semantic_hash": "7344ffad2494c60dbb351cd4d3acecc9"
+    "mtime": 1795772767.575246,
+    "seen": 1795773767.705122,
+    "ast_hash": "4a010ff11332890830486bf784d85fb6",
+    "semantic_hash": ""
   },
   "App/Composition/IdleAppNotifier.swift": {
     "mtime": 1794999809.5465646,
@@ -8507,10 +8507,10 @@
     "semantic_hash": "f408842a96e9f88ad946aa5091804ea2"
   },
   "Core/Support/DownloadManager/DownloadEnginePolicy.swift": {
-    "mtime": 1795598775.9266784,
-    "seen": 1795752234.516696,
-    "ast_hash": "f70b491a9c7ea846eb8af7fb7db35f55",
-    "semantic_hash": "f70b491a9c7ea846eb8af7fb7db35f55"
+    "mtime": 1795772754.3438306,
+    "seen": 1795773767.704127,
+    "ast_hash": "e4680134b9bce0c43225630b962580bd",
+    "semantic_hash": ""
   },
   "Core/Support/DownloadManager/DownloadEngineState.swift": {
     "mtime": 1795598775.9267974,
@@ -9305,10 +9305,10 @@
     "semantic_hash": "857119ee451803c01e2dbfcecda049b6"
   },
   "App/Composition/WorkspaceControlServer.swift": {
-    "mtime": 1795751203.984634,
-    "seen": 1795752234.507263,
-    "ast_hash": "4afb2659fa7f4d383edfc9d7a4ca181b",
-    "semantic_hash": "4afb2659fa7f4d383edfc9d7a4ca181b"
+    "mtime": 1795773623.6278067,
+    "seen": 1795773767.7035258,
+    "ast_hash": "862773897f407f0a81024a76861b3700",
+    "semantic_hash": ""
   },
   "App/Entry/WorkspaceHUDController.swift": {
     "mtime": 1795738387.2288318,
@@ -9431,10 +9431,10 @@
     "semantic_hash": "ee18e44f31915a83246746442579c8fe"
   },
   "Tests/Unit/WorkspaceControlServerTests.swift": {
-    "mtime": 1795739889.5404615,
-    "seen": 1795752234.5325282,
-    "ast_hash": "c2a2067ff3dd6545343884d44943b68d",
-    "semantic_hash": "c2a2067ff3dd6545343884d44943b68d"
+    "mtime": 1795772841.2090638,
+    "seen": 1795773767.705206,
+    "ast_hash": "18015706599533e761b2c5927929724a",
+    "semantic_hash": ""
   },
   "App/Composition/MusicQueueFetcher.swift": {
     "mtime": 1795744896.242352,
