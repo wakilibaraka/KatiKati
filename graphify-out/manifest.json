@@ -234,9 +234,9 @@
     "semantic_hash": "761f91a72515dcc8e2a715f91e72e03b"
   },
   "App/Composition/KeyGuardService.swift": {
-    "mtime": 1795779281.3203952,
-    "seen": 1795780194.633054,
-    "ast_hash": "40a24013391252e7321c0b84c54bee9d",
+    "mtime": 1795780729.4157853,
+    "seen": 1795781057.212692,
+    "ast_hash": "be7e9e3b3416891d60343a76d2c30103",
     "semantic_hash": ""
   },
   "App/Composition/LaunchAtLoginService.swift": {
@@ -714,10 +714,10 @@
     "semantic_hash": "12cd1551b6e625ea172af6c8a788e53d"
   },
   "App/Scenes/ChipView.swift": {
-    "mtime": 1795583813.638373,
-    "seen": 1795752234.508696,
-    "ast_hash": "e496a289690dbced42c34d7df520b542",
-    "semantic_hash": "e496a289690dbced42c34d7df520b542"
+    "mtime": 1795780760.710787,
+    "seen": 1795781057.2128158,
+    "ast_hash": "e2c7ea84c38f6ccc5968579b04a9a11b",
+    "semantic_hash": ""
   },
   "App/Scenes/ClockChip.swift": {
     "mtime": 1795019138.436564,
@@ -786,10 +786,10 @@
     "semantic_hash": "bf3e7dcc03668d92636b8a7792d5b48e"
   },
   "App/Scenes/DockStripView.swift": {
-    "mtime": 1795706020.061632,
-    "seen": 1795752234.509438,
-    "ast_hash": "201ab55ca208d8002504276f3263c25a",
-    "semantic_hash": "201ab55ca208d8002504276f3263c25a"
+    "mtime": 1795780707.1362023,
+    "seen": 1795781057.2128482,
+    "ast_hash": "33e92481b2eb5c6602f07805c7843bf1",
+    "semantic_hash": ""
   },
   "App/Scenes/DockTheme.swift": {
     "mtime": 1795544681.1182241,
@@ -930,10 +930,10 @@
     "semantic_hash": "9d992ab85a214779d42e5ea8e6fbd07f"
   },
   "App/Scenes/LauncherChip.swift": {
-    "mtime": 1795596767.9473057,
-    "seen": 1795752234.510829,
-    "ast_hash": "087f40ae5120e8f871bee65339a944db",
-    "semantic_hash": "087f40ae5120e8f871bee65339a944db"
+    "mtime": 1795780762.02955,
+    "seen": 1795781057.212904,
+    "ast_hash": "5c8919eaad31297fc27c3715b5cd51fd",
+    "semantic_hash": ""
   },
   "App/Scenes/LauncherFABView.swift": {
     "mtime": 1794993960.4811852,
@@ -1284,10 +1284,10 @@
     "semantic_hash": "3fc7a4304ff53d5a70e9710631e40ec1"
   },
   "App/Scenes/WeatherChip.swift": {
-    "mtime": 1795429882.9894583,
-    "seen": 1795752234.51358,
-    "ast_hash": "d44da3c7ce66935ffd62ec443f07c26f",
-    "semantic_hash": "d44da3c7ce66935ffd62ec443f07c26f"
+    "mtime": 1795780706.2089086,
+    "seen": 1795781057.213006,
+    "ast_hash": "53ef93f997074ad010407e09060b9f95",
+    "semantic_hash": ""
   },
   "App/Scenes/WeatherGlanceView.swift": {
     "mtime": 1795545391.5286603,
@@ -1902,10 +1902,10 @@
     "semantic_hash": "404da9ec110c1e60f2a8212e29c24679"
   },
   "Core/Support/KeyGuard.swift": {
-    "mtime": 1795750179.7353811,
-    "seen": 1795752234.517835,
-    "ast_hash": "c522e9143fbe1be9f7526051c892e56a",
-    "semantic_hash": "c522e9143fbe1be9f7526051c892e56a"
+    "mtime": 1795780712.4747043,
+    "seen": 1795781057.213173,
+    "ast_hash": "5d0aa372d1e3095487c79eb24d2a93de",
+    "semantic_hash": ""
   },
   "Core/Support/LaunchGateDecision.swift": {
     "mtime": 1791999130.761603,
@@ -3613,10 +3613,10 @@
     "semantic_hash": "c262e994735e3ab275e80dcfe65426fd"
   },
   "Tests/Unit/KeyGuardTests.swift": {
-    "mtime": 1795750214.645336,
-    "seen": 1795752234.5281222,
-    "ast_hash": "733a11ddedbe3865e050c81b993bc61b",
-    "semantic_hash": "733a11ddedbe3865e050c81b993bc61b"
+    "mtime": 1795780714.7129009,
+    "seen": 1795781057.213601,
+    "ast_hash": "3d534d34acc92b0f6f13a98f6f83f20c",
+    "semantic_hash": ""
   },
   "Tests/Unit/LaunchAtLoginServiceTests.swift": {
     "mtime": 1792077665.156281,
@@ -6719,16 +6719,16 @@
     "semantic_hash": "ba388c9930ab8b77f6be6908df2991f7"
   },
   "App/Scenes/DockWidgets/CalendarDockWidget.swift": {
-    "mtime": 1795745689.419397,
-    "seen": 1795752234.509522,
-    "ast_hash": "3f3aef72f045cffb9384735881c4aa2b",
-    "semantic_hash": "3f3aef72f045cffb9384735881c4aa2b"
+    "mtime": 1795780709.1406398,
+    "seen": 1795781057.212852,
+    "ast_hash": "6959ad217d498a497d4ca05ce302f162",
+    "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DevicesDockWidget.swift": {
-    "mtime": 1795747630.7796412,
-    "seen": 1795752234.509546,
-    "ast_hash": "acd0fb24f4bfb36ac566c4e018916334",
-    "semantic_hash": "acd0fb24f4bfb36ac566c4e018916334"
+    "mtime": 1795780711.1153219,
+    "seen": 1795781057.212853,
+    "ast_hash": "604ff2e48ee1223e257b4361fb4a7931",
+    "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/DockWidgetKit.swift": {
     "mtime": 1795314648.5995333,
@@ -6737,10 +6737,10 @@
     "semantic_hash": "519c6b02af1eb5eb8d197b4dfcc12a92"
   },
   "App/Scenes/DockWidgets/SystemDockWidget.swift": {
-    "mtime": 1795745627.3434954,
-    "seen": 1795752234.509841,
-    "ast_hash": "041a924f4263226748cd50b1e0fb0662",
-    "semantic_hash": "041a924f4263226748cd50b1e0fb0662"
+    "mtime": 1795780708.2061822,
+    "seen": 1795781057.212866,
+    "ast_hash": "48cbf1b73760b6506b50fd4154e3e4b9",
+    "semantic_hash": ""
   },
   "App/Scenes/DockWidgets/WeatherPreviewCard.swift": {
     "mtime": 1792928619.5133,
@@ -7061,10 +7061,10 @@
     "semantic_hash": "2cf7e993c671462fe64a1d2141746046"
   },
   "App/Composition/WindowDrawerController.swift": {
-    "mtime": 1795717622.9689875,
-    "seen": 1795752234.5071309,
-    "ast_hash": "d3161049d28c63b3187261dd22cbf665",
-    "semantic_hash": "d3161049d28c63b3187261dd22cbf665"
+    "mtime": 1795780700.9535537,
+    "seen": 1795781057.2127519,
+    "ast_hash": "c1f562cef7a540d9d7e3f9b5b61d07a1",
+    "semantic_hash": ""
   },
   "App/Composition/WindowStripController.swift": {
     "mtime": 1795195385.6513674,
@@ -8471,10 +8471,10 @@
     "semantic_hash": "aefbf868e5eb62d896dc667ae14686fb"
   },
   "App/Scenes/Edge/SideDeckHandleWindow.swift": {
-    "mtime": 1795598775.917691,
-    "seen": 1795752234.5105128,
-    "ast_hash": "0f3b6671ccd09f751996d0764d8cb67f",
-    "semantic_hash": "0f3b6671ccd09f751996d0764d8cb67f"
+    "mtime": 1795780703.2128696,
+    "seen": 1795781057.2128918,
+    "ast_hash": "58d7d9bd4cbef430644cc0f2a5d5eebd",
+    "semantic_hash": ""
   },
   "App/Scenes/SettingsSideDeckPane.swift": {
     "mtime": 1795598775.9246361,
