@@ -1,0 +1,7 @@
+App/Composition/TilingEngine.swift
+Core/Support/LayoutCatalog.swift
+Core/Support/TilingLayout.swift
+Tests/Unit/LayoutCatalogTests.swift
+Tests/Unit/TilingLayoutTests.swift
+App/Composition/TilingEngine+Workspaces.swift
+Tests/Unit/WorkspaceRulesTests.swift

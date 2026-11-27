@@ -19,12 +19,14 @@ final class ShortcutService {
     private var cancelMonitors: (global: Any?, local: Any?) = (nil, nil)
     private var cancelDisarmWork: DispatchWorkItem?
     private var menuObservers: [NSObjectProtocol] = []
-    private var applied: [ShortcutAction: ShortcutTrigger]?
+    private var applied: (bindings: [ShortcutAction: ShortcutTrigger], unavailable: Set<ShortcutAction>)?
     private let log = Logger(subsystem: "com.katikati.app", category: "hotkey")
 
-    func apply(_ bindings: [ShortcutAction: ShortcutTrigger]) {
-        guard bindings != applied else { return }
-        applied = bindings
+    /// Registers the bindings that are on, leaving out `unavailable`: an action whose feature is off
+    /// must not claim its chord, or the key is swallowed and nothing happens.
+    func apply(_ bindings: [ShortcutAction: ShortcutTrigger], unavailable: Set<ShortcutAction> = []) {
+        guard applied?.bindings != bindings || applied?.unavailable != unavailable else { return }
+        applied = (bindings, unavailable)
         var failed: [ShortcutAction: String] = [:]
         hotKeys.values.forEach { $0.stop() }
         hotKeys = [:]
@@ -33,7 +35,7 @@ final class ShortcutService {
         holdActions = [:]
         cancelHold()
         policy.detector.reset()
-        for action in ShortcutAction.allCases where action != .windowSwitcher {
+        for action in ShortcutAction.allCases where action != .windowSwitcher && !unavailable.contains(action) {
             switch bindings[action] ?? .off {
             case .off: break
             case .chord(let chord):

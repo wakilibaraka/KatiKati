@@ -354,6 +354,22 @@ enum ShortcutAction: String, CaseIterable, Sendable {
     }
 }
 
+/// Which actions KatiKati must not claim right now.
+///
+/// A chord that is registered while its feature is off is worse than an unused chord: the app
+/// swallows the key and nothing happens. The workspace actions are the sharp case — they default to
+/// ⌃⌥1–0 / ⌃⌥⇧1–0 while `workspacesEnabled` and tiling both default to off, and every engine entry
+/// point guards on those flags.
+enum ShortcutAvailability {
+    /// The actions whose chord should stay unregistered while the features they need are off.
+    static func unavailable(workspacesEnabled: Bool, tilingEnabled: Bool) -> Set<ShortcutAction> {
+        guard !(workspacesEnabled && tilingEnabled) else { return [] }
+        return Set(ShortcutAction.allCases.filter {
+            $0.workspaceSwitchTarget != nil || $0.workspaceMoveTarget != nil || $0.workspaceStepOffset != nil
+        })
+    }
+}
+
 /// A key chord on Space. Four alternatives per the owner's brief, plus ⌃⌥Space (Control Center) and ⌘Space.
 /// `commandSpace` stays selectable for people who turned Spotlight off, but it is never a default:
 /// macOS delivers it to Spotlight before any app-level hot key (see `isReservedBySystem`).

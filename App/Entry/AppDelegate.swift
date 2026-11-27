@@ -174,6 +174,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var dragShakeWatcher = DragShakeWatcher(shelf: shelfStore)
     private var shelfShakeSubscription: AnyCancellable?
     private var shortcutSubscription: AnyCancellable?
+    private var shortcutAvailabilitySubscription: AnyCancellable?
     private let screenTimeAlerts = ScreenTimeAlertPresenter()
     /// Phase 16g: the Control Center side panel (wifi deck button + the Quick Settings shortcut).
     private lazy var controlCenterPanel: ControlCenterPanelController = {
@@ -360,6 +361,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// permission, and the app relaunches itself once the grant lands (window management needs a fresh process).
     private var isLimitedMode = false
     private var limitedModeTimer: Timer?
+    /// Applies the user's bindings, leaving out the actions whose feature is off so their chords
+    /// reach the frontmost app instead of being swallowed by KatiKati.
+    private func applyShortcuts(_ bindings: [ShortcutAction: ShortcutTrigger]) {
+        let engine = TilingEngine.shared
+        shortcutService.apply(
+            bindings,
+            unavailable: ShortcutAvailability.unavailable(
+                workspacesEnabled: engine.workspacesEnabled,
+                tilingEnabled: engine.isEnabled
+            )
+        )
+        ShortcutCheatSheetService.shared.setKatiKatiBindings(bindings)
+    }
+
     private var skipsPermissionGate: Bool { isLimitedMode || DebugSwitch.devSkipPermissions.isEnabled() }
     private let permissionLogger = Logger(subsystem: "com.katikati.app", category: "permissions")
     private lazy var statusMenuController = StatusMenuController(
@@ -689,8 +704,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             shortcutSubscription = settingsStore.$shortcutBindings
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] in
-                    self?.shortcutService.apply($0)
-                    ShortcutCheatSheetService.shared.setKatiKatiBindings($0)
+                    self?.applyShortcuts($0)
+                }
+            // Toggling workspaces or tiling changes which chords may be registered, so the binding
+            // set has to be re-applied (`apply` is idempotent and compares the pair).
+            shortcutAvailabilitySubscription = TilingEngine.shared.$isEnabled
+                .combineLatest(TilingEngine.shared.$workspacesEnabled)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _, _ in
+                    guard let self else { return }
+                    self.applyShortcuts(self.settingsStore.shortcutBindings)
                 }
             pinchSubscription = settingsStore.$launcherPinch
                 .receive(on: DispatchQueue.main)

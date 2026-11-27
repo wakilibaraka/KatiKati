@@ -17,6 +17,22 @@ final class ShortcutsTests: XCTestCase {
         XCTAssertEqual(ShortcutChord.controlOptionSpace.glyphs, "⌃⌥Space")
     }
 
+    func testWorkspaceChordsStayUnregisteredUntilTilingAndWorkspacesAreOn() {
+        let off = ShortcutAvailability.unavailable(workspacesEnabled: false, tilingEnabled: false)
+        XCTAssertEqual(off.count, 24)
+        XCTAssertTrue(off.contains(.workspace1))
+        XCTAssertTrue(off.contains(.workspaceMove10))
+        XCTAssertTrue(off.contains(.workspaceNext))
+        XCTAssertFalse(off.contains(.snapLeftHalf))
+
+        // Either flag alone still leaves the workspace engine paths guarded and inert.
+        XCTAssertTrue(ShortcutAvailability.unavailable(workspacesEnabled: true, tilingEnabled: false)
+            .contains(.workspace3))
+        XCTAssertTrue(ShortcutAvailability.unavailable(workspacesEnabled: false, tilingEnabled: true)
+            .contains(.workspace3))
+        XCTAssertTrue(ShortcutAvailability.unavailable(workspacesEnabled: true, tilingEnabled: true).isEmpty)
+    }
+
     func testDefaultsAreDistinct() {
         let b = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map { ($0, $0.defaultTrigger) })
         XCTAssertTrue(ShortcutConflicts.duplicated(b).isEmpty)
