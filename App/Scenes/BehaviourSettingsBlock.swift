@@ -494,10 +494,18 @@ struct WindowManagementSettingsPane: View {
                     Text("Clicking the green button"),
                     selection: Binding(get: { store.greenButtonBehavior },
                                        set: store.setGreenButtonBehavior),
-                    note: Text("Option-click always keeps the native full-screen behaviour.")
+                    note: Text("Option-click uses the native macOS Zoom behaviour.")
                 ) {
                     Text("Native Full Screen").tag(GreenButtonBehavior.nativeFullscreen)
                     Text("Maximize in Current Space").tag(GreenButtonBehavior.maximizeInCurrentSpace)
+                }
+                // SN-5: maximize-in-place is the one setting that arms a global click tap, so the
+                // caveat sits where the choice is made instead of in a release note.
+                if store.greenButtonBehavior == .maximizeInCurrentSpace {
+                    Text("This mode watches the green button through a global click observer. If a click ever feels delayed, switch back to Native Full Screen.")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             SettingsCard {

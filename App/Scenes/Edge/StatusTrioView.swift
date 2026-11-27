@@ -1936,6 +1936,37 @@ struct MenuBarCreativeHubView: View {
         }
     }
 
+    /// SN-6: the modes the panel really advertises, HiDPI rows included. Each apply is provisional for
+    /// fifteen seconds, so a mode the screen cannot show reverts on its own.
+    private var displayModeRow: some View {
+        Menu {
+            let screen = NSScreen.main
+            let displayID = screen.flatMap { DisplayModeService.displayID(for: $0) }
+            let options = displayID.map { id in
+                DisplayModeService.modes(for: id).map { DisplayModeService.option(for: $0) }
+            } ?? []
+            ForEach(DisplayModeCatalog.sorted(options)) { option in
+                Button(option.label) {
+                    guard let screen else { return }
+                    DisplayModeSwitcher.shared.apply(option, on: screen)
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "display").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(palette.primaryAccent).frame(width: 18)
+                Text("Display Mode").font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(inkSoft)
+            }
+            .padding(.horizontal, 9).padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+            .contentShape(Rectangle())
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+    }
+
     /// Opens the layout grid next to the Hub's own caret, then gets out of its way.
     private var snapPickerRow: some View {
         Button {
