@@ -384,10 +384,10 @@
     "semantic_hash": "979a2b6c51bf87a47373a308b5086228"
   },
   "App/Composition/ShortcutService.swift": {
-    "mtime": 1795557657.203599,
-    "seen": 1795752234.5065112,
-    "ast_hash": "e4cb3b3ff4c343077edd375b38a077b9",
-    "semantic_hash": "e4cb3b3ff4c343077edd375b38a077b9"
+    "mtime": 1795807555.2248604,
+    "seen": 1795808588.987983,
+    "ast_hash": "44d13013b2af6b4416f3483a3cfdc79d",
+    "semantic_hash": ""
   },
   "App/Composition/SparkleUpdateService.swift": {
     "mtime": 1791999130.8033164,
@@ -426,9 +426,9 @@
     "semantic_hash": "6a7dbeaf4505ff3d30dec7758537a75a"
   },
   "App/Composition/TilingEngine.swift": {
-    "mtime": 1795806589.959335,
-    "seen": 1795806770.922078,
-    "ast_hash": "da04b0af6d94e6d7eea2667ef1d7fbad",
+    "mtime": 1795807576.7175417,
+    "seen": 1795808588.988022,
+    "ast_hash": "c914dc0328c17226c48a34c0e9c07897",
     "semantic_hash": ""
   },
   "App/Composition/TorrentEngine.swift": {
@@ -486,9 +486,9 @@
     "semantic_hash": "006f3210e94895b15a8de8624a03a4cc"
   },
   "App/Entry/AppDelegate.swift": {
-    "mtime": 1795803844.6485531,
-    "seen": 1795804367.89081,
-    "ast_hash": "6e27b636704890adfb3f1673c26da947",
+    "mtime": 1795807555.6857555,
+    "seen": 1795808588.9880562,
+    "ast_hash": "9ae84f5d79aa206ad0eb81177cd71bac",
     "semantic_hash": ""
   },
   "App/Entry/ChipPanelController.swift": {
@@ -2244,9 +2244,9 @@
     "semantic_hash": "5dbcbf6d7d5751f32dba56cf8aa4602d"
   },
   "Core/Support/Shortcuts.swift": {
-    "mtime": 1795782245.8049753,
-    "seen": 1795786510.3030322,
-    "ast_hash": "b5406695ea8a795caef9c13b55403ebb",
+    "mtime": 1795807554.3561563,
+    "seen": 1795808588.9892411,
+    "ast_hash": "17ef8229ad41fabeaeee576d6a6fe023",
     "semantic_hash": ""
   },
   "Core/Support/SkyPalette.swift": {
@@ -2394,16 +2394,16 @@
     "semantic_hash": "d8709440a1e4e2f3de8ce0caae7ee1f3"
   },
   "Core/Support/TilingGaps.swift": {
-    "mtime": 1795737907.3818896,
-    "seen": 1795752234.520729,
-    "ast_hash": "01d173da8094577451298fc6a4d9739a",
-    "semantic_hash": "01d173da8094577451298fc6a4d9739a"
+    "mtime": 1795807087.0902727,
+    "seen": 1795808588.98932,
+    "ast_hash": "7e58ffe1ce37323b268820ab8e4c9d05",
+    "semantic_hash": ""
   },
   "Core/Support/TilingLayout.swift": {
-    "mtime": 1795217502.7789137,
-    "seen": 1795752234.5207481,
-    "ast_hash": "52b8240058b083f7353e8d38467c1800",
-    "semantic_hash": "52b8240058b083f7353e8d38467c1800"
+    "mtime": 1795807097.0212674,
+    "seen": 1795808588.989323,
+    "ast_hash": "d021c82f94866bb5da573567ab09326a",
+    "semantic_hash": ""
   },
   "Core/Support/TilingPolicy.swift": {
     "mtime": 1792414648.5672326,
@@ -4051,9 +4051,9 @@
     "semantic_hash": "f1eff661f2afe9a33a028a91fac58b0b"
   },
   "Tests/Unit/ShortcutsTests.swift": {
-    "mtime": 1795782249.7975094,
-    "seen": 1795786510.3033779,
-    "ast_hash": "c2247b0c52eb2684eaf84bbc2728bb2e",
+    "mtime": 1795807556.5437424,
+    "seen": 1795808588.9906611,
+    "ast_hash": "9da8f0b85743f6d4ef4aae067e04cde2",
     "semantic_hash": ""
   },
   "Tests/Unit/SkyPaletteTests.swift": {
@@ -4225,10 +4225,10 @@
     "semantic_hash": "afffa1afc3e79b6011f58862e979ac29"
   },
   "Tests/Unit/TilingLayoutTests.swift": {
-    "mtime": 1795217599.413449,
-    "seen": 1795752234.5316212,
-    "ast_hash": "66baf04fe5192c7886adeff351388880",
-    "semantic_hash": "66baf04fe5192c7886adeff351388880"
+    "mtime": 1795807068.2045205,
+    "seen": 1795808588.990765,
+    "ast_hash": "3eea7f86d31c16e43eb2fdcf0a66ebe1",
+    "semantic_hash": ""
   },
   "Tests/Unit/TilingTreeTests.swift": {
     "mtime": 1795217554.4823332,
@@ -7043,16 +7043,16 @@
     "semantic_hash": "c840bf1cf96cd540592ef2816c50ba1c"
   },
   "Core/Support/LayoutCatalog.swift": {
-    "mtime": 1795196225.8399425,
-    "seen": 1795752234.518137,
-    "ast_hash": "2fc8a63791cb9b809dfda5d06d74b063",
-    "semantic_hash": "2fc8a63791cb9b809dfda5d06d74b063"
+    "mtime": 1795807429.791978,
+    "seen": 1795808588.989046,
+    "ast_hash": "96feaae47facc540cf5a5f3930dd946f",
+    "semantic_hash": ""
   },
   "Tests/Unit/LayoutCatalogTests.swift": {
-    "mtime": 1793830137.5034935,
-    "seen": 1795752234.528526,
-    "ast_hash": "8201f714667f8f690d8843e1ba0b8bc5",
-    "semantic_hash": "8201f714667f8f690d8843e1ba0b8bc5"
+    "mtime": 1795807431.106,
+    "seen": 1795808588.99041,
+    "ast_hash": "4d7f8ded255b73c6274050af949cb31a",
+    "semantic_hash": ""
   },
   "App/Composition/CommandTabTakeover.swift": {
     "mtime": 1795557934.428254,
@@ -9383,16 +9383,16 @@
     "semantic_hash": "8aefa9410419b6112ae94e95b8d317a0"
   },
   "Tests/Unit/WorkspaceModelTests.swift": {
-    "mtime": 1795746634.7177386,
-    "seen": 1795752234.5325482,
-    "ast_hash": "e5648163d5ef795987ec0e084027514d",
-    "semantic_hash": "e5648163d5ef795987ec0e084027514d"
+    "mtime": 1795807067.6616898,
+    "seen": 1795808588.991227,
+    "ast_hash": "ab9ec445189c53a4e4a536529daac872",
+    "semantic_hash": ""
   },
   "Tests/Unit/WorkspaceRulesTests.swift": {
-    "mtime": 1795737078.21269,
-    "seen": 1795752234.5325692,
-    "ast_hash": "e225b6c9d052117c1fac92dc2f9057bf",
-    "semantic_hash": "e225b6c9d052117c1fac92dc2f9057bf"
+    "mtime": 1795807431.5434318,
+    "seen": 1795808588.991232,
+    "ast_hash": "f4e215d6c75f371b8b93abf80991ec55",
+    "semantic_hash": ""
   },
   "Tools/katikati-ctl": {
     "mtime": 1795738723.3381112,
@@ -9401,22 +9401,22 @@
     "semantic_hash": "3bcdf734babd3303bbd272a87cfbbe10"
   },
   "App/Composition/TilingEngine+WorkspacePersistence.swift": {
-    "mtime": 1795746612.9955623,
-    "seen": 1795752234.506848,
-    "ast_hash": "e5e9014c5635be4c4a9e057ee7ec0e9d",
-    "semantic_hash": "e5e9014c5635be4c4a9e057ee7ec0e9d"
+    "mtime": 1795807519.9400074,
+    "seen": 1795808588.9880152,
+    "ast_hash": "f266912fad4a618cf25a2165eddb8fea",
+    "semantic_hash": ""
   },
   "App/Composition/TilingEngine+WorkspaceTransitions.swift": {
-    "mtime": 1795748148.9184208,
-    "seen": 1795752234.506871,
-    "ast_hash": "bcbd56892275777855be7fd674c28dff",
-    "semantic_hash": "bcbd56892275777855be7fd674c28dff"
+    "mtime": 1795806953.6702049,
+    "seen": 1795808588.988018,
+    "ast_hash": "783b424ce962a4cd634cb91f040ffb67",
+    "semantic_hash": ""
   },
   "App/Composition/TilingEngine+Workspaces.swift": {
-    "mtime": 1795746612.4892886,
-    "seen": 1795752234.506895,
-    "ast_hash": "ee18e44f31915a83246746442579c8fe",
-    "semantic_hash": "ee18e44f31915a83246746442579c8fe"
+    "mtime": 1795807519.32616,
+    "seen": 1795808588.98802,
+    "ast_hash": "60069de9bb037f2a0d104d7a8eb8c3c5",
+    "semantic_hash": ""
   },
   "Tests/Unit/WorkspaceControlServerTests.swift": {
     "mtime": 1795778520.428809,
