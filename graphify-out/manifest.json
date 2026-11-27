@@ -888,8 +888,8 @@
     "semantic_hash": ""
   },
   "App/Scenes/Edge/StatusTrioView.swift": {
-    "mtime": 1795750127.2650278,
-    "seen": 1795750523.801624,
+    "mtime": 1795751318.2021852,
+    "seen": 1795751359.331122,
     "ast_hash": "a6b0551037a2b6228c8eaf8ac57a6bb2",
     "semantic_hash": ""
   },
@@ -7926,9 +7926,9 @@
     "semantic_hash": ""
   },
   "Tests/Unit/WebDAVPerformanceTests.swift": {
-    "mtime": 1795750214.6484365,
-    "seen": 1795750523.8026319,
-    "ast_hash": "f6c99e46d09605a9567d11344f76b323",
+    "mtime": 1795751229.7343094,
+    "seen": 1795751359.332375,
+    "ast_hash": "bade3b8f2ae823eb7563c877d772d7b8",
     "semantic_hash": ""
   },
   "Tests/Unit/WebDAVClientTests.swift": {
@@ -9282,9 +9282,9 @@
     "semantic_hash": ""
   },
   "App/Composition/WorkspaceControlServer.swift": {
-    "mtime": 1795750937.4031756,
-    "seen": 1795751139.453888,
-    "ast_hash": "ca8edcd16e00dbcea761f15b7cbe2574",
+    "mtime": 1795751203.984634,
+    "seen": 1795751359.330933,
+    "ast_hash": "4afb2659fa7f4d383edfc9d7a4ca181b",
     "semantic_hash": ""
   },
   "App/Entry/WorkspaceHUDController.swift": {
@@ -9516,15 +9516,15 @@
     "semantic_hash": ""
   },
   "Tests/Unit/DisplayModeCatalogTests.swift": {
-    "mtime": 1795750071.4946597,
-    "seen": 1795750523.8023849,
-    "ast_hash": "14228f56b3447b0ae8cf43c18caf02f8",
+    "mtime": 1795751206.704206,
+    "seen": 1795751359.3320692,
+    "ast_hash": "5d4ed641a25098e9640329dc4b9ba86e",
     "semantic_hash": ""
   },
   "Docs/Plans/HYBRID_REMEDIATION_AND_WISHLIST_PLAN.md": {
-    "mtime": 1795750805.2515721,
-    "seen": 1795751139.45694,
-    "ast_hash": "3a0c1643738a861cf19ba176c67d7e62",
+    "mtime": 1795751334.1971025,
+    "seen": 1795751359.332714,
+    "ast_hash": "66a1e7b450b15a656c6211acd1e4f8f5",
     "semantic_hash": ""
   }
 }
