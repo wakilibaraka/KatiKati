@@ -85,14 +85,14 @@ struct DesktopWindowSettingsBlock: View {
             SettingsToggleRow(
                 Text("Keep the window box on the desktop"),
                 isOn: $boxEnabled,
-                note: Text("A glass card listing your open windows, drawn on the desktop underneath every app so it never covers one. Click a window to bring it forward. Press ⌃⌥W for the full window drawer.")
+                note: Text("A glass card listing your open windows, drawn on the desktop underneath every app so it never covers one. Click a window to bring it forward. Press ⌃⌥W for the full Side Deck.")
             )
 
             SettingsDivider()
             SettingsToggleRow(
-                Text("Open Window Drawer at Screen Edge"),
+                Text("Open Side Deck at Screen Edge"),
                 isOn: $edgeHoverEnabled,
-                note: Text("Rest the pointer on the left edge of a display for a moment to open the drawer. ⌃⌥W always works.")
+                note: Text("Rest the pointer on the left edge of a display for a moment to open the Side Deck. ⌃⌥W always works.")
             )
         }
     }

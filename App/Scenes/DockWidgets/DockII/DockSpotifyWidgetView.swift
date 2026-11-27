@@ -46,6 +46,25 @@ struct DockSpotifyWidgetView: View {
                     }
                 }
                 .padding(.vertical, 6).padding(.horizontal, 4)
+            } else if size == .small {
+                Button {
+                    if hasTrack { feed.togglePlayPause() } else { showDetail.toggle() }
+                } label: {
+                    ZStack(alignment: .bottomTrailing) {
+                        artworkThumbnail(state: state, isSpotify: isSpotify)
+                        Circle()
+                            .fill(Color.white.opacity(0.92))
+                            .frame(width: 14, height: 14)
+                            .overlay(
+                                Image(systemName: state.isPlaying ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 7, weight: .bold))
+                                    .foregroundStyle(Color.black)
+                            )
+                            .offset(x: 3, y: 3)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(state.isPlaying ? Text("Pause") : Text("Play"))
             } else {
                 HStack(spacing: 8) {
                     artworkThumbnail(state: state, isSpotify: isSpotify)

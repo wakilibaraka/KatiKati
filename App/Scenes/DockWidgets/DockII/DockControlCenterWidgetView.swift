@@ -75,13 +75,19 @@ struct DockControlCenterWidgetView: View {
     }
 
     private func horizontalBody(wifiOn: Bool, btOn: Bool, vol: Double) -> some View {
-        HStack(spacing: size == .small ? 8 : 11) {
-            if size != .small {
-                glyphButton(symbol: "airplayaudio", tint: airplayGreen, helpText: String(localized: "Display Settings")) {
-                    toggles.perform(.screenMirroring)
-                }
-                .accessibilityLabel(Text("Screen Mirroring"))
+        if size == .small {
+            return AnyView(
+                brightnessButton
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 6)
+            )
+        }
+        return AnyView(
+        HStack(spacing: 11) {
+            glyphButton(symbol: "airplayaudio", tint: airplayGreen, helpText: String(localized: "Display Settings")) {
+                toggles.perform(.screenMirroring)
             }
+            .accessibilityLabel(Text("Screen Mirroring"))
             brightnessButton
             wifiButton(wifiOn)
             if size == .large { bluetoothButton(btOn) }
@@ -89,6 +95,7 @@ struct DockControlCenterWidgetView: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
+        )
     }
 
     private var brightnessButton: some View {

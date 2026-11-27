@@ -450,42 +450,17 @@ struct SettingsWallpaperPane: View {
     private var musicCard: some View {
         SettingsCard(
             Text("Music"),
-            note: Text("Album art on the desktop, the glass card on the lock screen, and the desktop Now Playing widget.")
+            note: Text("Desktop Now Playing lives on Music; experimental Album Art Wallpaper and Lock Screen Card live in Experimental.")
         ) {
-            HStack(spacing: 8) {
-                Text("The desktop music widget, its presets and the lock-screen card now live on their own page.")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
+            SettingsRow(Text("Desktop Music Widget")) {
                 Button("Open Music") { tabState?.selected = .music }
                     .buttonStyle(SettingsGelButtonStyle())
             }
             SettingsDivider()
-            SettingsToggleRow(Text("Album Art Wallpaper"), isOn: Binding(get: { musicWallpaper }, set: { on in
-                musicWallpaper = on
-                if on {
-                    MusicWallpaperController.shared.start(service: DesktopWidgetServices.nowPlaying)
-                } else {
-                    MusicWallpaperController.shared.stop()
-                }
-                MusicSurfaceConfig.notifyChange()
-            }))
-            SettingsDivider()
-            SettingsToggleRow(Text("Classic Static Backdrop"), isOn: Binding(get: { musicClassic }, set: { on in
-                musicClassic = on
-                UserDefaults.standard.set(on, forKey: MusicSurfaceConfig.wallpaperClassicKey)
-            }), note: Text("One cached frame per track, no timers — no idle CPU."))
-            SettingsDivider()
-            SettingsToggleRow(Text("Animated Album Art"), isOn: Binding(get: { musicAnimated }, set: { on in
-                musicAnimated = on
-                UserDefaults.standard.set(on, forKey: MusicSurfaceConfig.wallpaperAnimatedKey)
-                MusicSurfaceConfig.notifyChange()
-            }), note: Text("Slides and zooms the art on a slow loop. Frames are pre-rendered once per track, so playback stays cheap and pausing stops all of it."))
-            SettingsDivider()
-            SettingsToggleRow(Text("Lock Screen Card"), isOn: Binding(get: { lockScreenCard }, set: { on in
-                lockScreenCard = on
-                if on { LockScreenMusicCardController.shared.start() } else { LockScreenMusicCardController.shared.stop() }
-            }), note: Text("Uses a private macOS space; hidden automatically when the system does not allow it."))
+            SettingsRow(Text("Album Art Wallpaper & Lock Screen")) {
+                Button("Open Experimental") { tabState?.selected = .experimental }
+                    .buttonStyle(SettingsGelButtonStyle())
+            }
             SettingsDivider()
             SettingsSegmentedRow(Text("Theme"), selection: Binding(
                 get: { musicTheme },
@@ -1097,42 +1072,21 @@ struct SettingsMusicPane: View {
             }
 
             SettingsCard(
-                Text("Music Card"),
-                note: Text("The same glass card on every surface: themes, layout and lyrics live on Widget Wings.")
+                Text("Experimental Music Surfaces"),
+                note: Text("Album Art Wallpaper and Lock Screen Card moved to Experimental.")
             ) {
                 SettingsToggleRow(Text("Desktop Now Playing Widget"), isOn: $widgetEnabled,
                                   note: Text("The card inside the desktop boxes, unchanged."))
                 SettingsDivider()
-                SettingsToggleRow(Text("Lock Screen Card"), isOn: Binding(
-                    get: { lockScreenCard },
-                    set: { on in
-                        lockScreenCard = on
-                        if on { LockScreenMusicCardController.shared.start() } else { LockScreenMusicCardController.shared.stop() }
-                    }
-                ), note: Text("340 × 224 with the volume row, 208 without, 316 for the hero layout."))
-                SettingsDivider()
-                SettingsRow(Text("Styles, Layout & Lyrics")) {
-                    Button("Open Widget Wings") { tabState.selected = .widgets }
+                SettingsRow(Text("Album Art Wallpaper & Lock Screen")) {
+                    Button("Open Experimental") { tabState.selected = .experimental }
                         .buttonStyle(SettingsGelButtonStyle())
                 }
-            }
-
-            SettingsCard(
-                Text("Album Art Wallpaper"),
-                note: Text("Uses your desktop picture. The widget above is recommended; this stays for anyone who wants the full wash.")
-            ) {
-                SettingsToggleRow(Text("Album Art Wallpaper"), isOn: Binding(
-                    get: { wallpaperEnabled },
-                    set: { on in
-                        wallpaperEnabled = on
-                        if on {
-                            MusicWallpaperController.shared.start(service: DesktopWidgetServices.nowPlaying)
-                        } else {
-                            MusicWallpaperController.shared.stop()
-                        }
-                        MusicSurfaceConfig.notifyChange()
-                    }
-                ))
+                SettingsDivider()
+                SettingsRow(Text("Flanking Dock Wings")) {
+                    Button("Open Dock Layout") { tabState.selected = .dockItems }
+                        .buttonStyle(SettingsGelButtonStyle())
+                }
                 SettingsDivider()
                 SettingsRow(Text("Backdrop, animation & theme")) {
                     Button("Open Wallpaper") { tabState.selected = .wallpaper }

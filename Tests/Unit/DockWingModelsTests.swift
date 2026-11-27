@@ -75,8 +75,12 @@ final class DockWingModelsTests: XCTestCase {
         XCTAssertEqual(perSide.left, .size(.large))
         XCTAssertEqual(perSide.right, .size(.medium))
 
-        // Under `.small` there is still a rung: the icon pillar, not an instant vanish.
-        let pillow = DockWingLadder.resolve(config: config, availableLeft: 100, availableRight: 100)
+        // Under `.small` (56 pt) there is still a rung: the icon pillar (52 pt), not an instant vanish.
+        let compactSmall = DockWingLadder.resolve(config: config, availableLeft: 100, availableRight: 100)
+        XCTAssertEqual(compactSmall.left, .size(.small))
+        XCTAssertEqual(compactSmall.right, .size(.small))
+
+        let pillow = DockWingLadder.resolve(config: config, availableLeft: 53, availableRight: 53)
         XCTAssertEqual(pillow.left, .iconPillar)
         XCTAssertEqual(pillow.right, .iconPillar)
         XCTAssertEqual(DockWingLadder.width(of: .iconPillar, preset: .spotify, scale: 1), 52, accuracy: 0.01)
@@ -108,8 +112,8 @@ final class DockWingModelsTests: XCTestCase {
                 frame: CGRect(x: 0, y: 0, width: screenWidth, height: 900),
                 visibleFrame: CGRect(x: 0, y: 0, width: screenWidth, height: 875),
                 safeAreaTop: 0)
-            // Dock sits near the left edge: 58 pt of left flank (pillar, not full wing), roomy right flank.
-            let plate = CGRect(x: 80, y: 2, width: chipSpan, height: metrics.panelHeight)
+            // Dock sits near the left edge: 54 pt of left flank (between 52 pt pillar and 56 pt compact small), roomy right flank.
+            let plate = CGRect(x: 76, y: 2, width: chipSpan, height: metrics.panelHeight)
             let dockFrame = plate.insetBy(dx: -pad, dy: -pad)
             let config = DockWingsConfiguration(
                 left: DockWingSlotConfig(preset: .spotify, size: .large),
@@ -267,6 +271,7 @@ final class DockWingModelsTests: XCTestCase {
 
         let store = AppSettingsStore(defaults: defaults)
         XCTAssertEqual(store.dockWings, .recommendedDefault)
+        XCTAssertFalse(store.dockWings.hasAnyActiveWing)
         XCTAssertFalse(store.dockWingGeoIPEnabled)
         XCTAssertFalse(store.dockWingSpotifyOAuthEnabled)
         XCTAssertFalse(store.dockWingTelemetryIOHIDEnabled)
@@ -282,8 +287,36 @@ final class DockWingModelsTests: XCTestCase {
         XCTAssertTrue(reloaded.dockWingGeoIPEnabled)
     }
 
+    func testV2DefaultOffMigrationRunsOnceAndPreservesLaterSelections() {
+        let suiteName = "com.katikati.tests.dockWings.migration.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let legacy = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .telemetry, size: .medium),
+            right: DockWingSlotConfig(preset: .ram, size: .medium),
+            gap: 10
+        )
+        defaults.set(legacy.encoded(), forKey: DockWingsConfiguration.defaultsKey)
+
+        let migrated = DockWingsConfiguration.resolvedInitialConfig(defaults: defaults)
+        XCTAssertFalse(migrated.hasAnyActiveWing)
+        XCTAssertEqual(migrated.gap, 6)
+        XCTAssertTrue(defaults.bool(forKey: DockWingsConfiguration.wingsDefaultOffMigrationKey))
+
+        let custom = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .battery, size: .small),
+            right: DockWingSlotConfig(preset: .none, size: .medium),
+            gap: 6
+        )
+        defaults.set(custom.encoded(), forKey: DockWingsConfiguration.defaultsKey)
+        let persisted = DockWingsConfiguration.resolvedInitialConfig(defaults: defaults)
+        XCTAssertEqual(persisted.left.preset, .battery)
+        XCTAssertEqual(persisted.left.size, .small)
+    }
+
     func testAIPresetDimensionsAndPerDisplayUUIDResolution() throws {
-        XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .small), 112)
+        XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .small), 56)
         XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .medium), 184)
         XCTAssertEqual(DockWingDimensions.nativeWidth(for: .ai, size: .large), 244)
         XCTAssertEqual(DockWidgetPresetType.ai.symbolName, "sparkles")
@@ -309,8 +342,9 @@ final class DockWingModelsTests: XCTestCase {
 
     func testRecommendedDefaultAndTelemetryWingMetrics() {
         let rec = DockWingsConfiguration.recommendedDefault
-        XCTAssertEqual(rec.left.preset, .telemetry)
-        XCTAssertEqual(rec.right.preset, .ram)
+        XCTAssertEqual(rec, .default)
+        XCTAssertFalse(rec.hasAnyActiveWing)
+        XCTAssertEqual(rec.gap, 6)
 
         XCTAssertEqual(DockWidgetPresetType.ram.symbolName, "memorychip")
         XCTAssertEqual(DockWidgetPresetType.network.symbolName, "network")
@@ -350,7 +384,10 @@ final class DockWingModelsTests: XCTestCase {
         )
         let metrics = PanelLayoutMetrics.tungstenEdge
         let pad = metrics.shadowPadding
-        let config = DockWingsConfiguration.recommendedDefault
+        let config = DockWingsConfiguration(
+            left: DockWingSlotConfig(preset: .telemetry, size: .medium),
+            right: DockWingSlotConfig(preset: .ram, size: .medium)
+        )
 
         for placement in StripPlacement.allCases {
             for mode in BarLayoutMode.allCases {

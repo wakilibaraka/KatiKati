@@ -2351,6 +2351,7 @@ final class AppSettingsStore: ObservableObject {
     }
 
     func setDockWings(_ next: DockWingsConfiguration) {
+        defaults.set(true, forKey: DockWingsConfiguration.wingsDefaultOffMigrationKey)
         guard dockWings != next else { return }
         dockWings = next
         defaults.set(next.encoded(), forKey: DockWingsConfiguration.defaultsKey)

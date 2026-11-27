@@ -15,7 +15,7 @@ extension SettingsLayoutPane {
     var edgeBarSections: some View {
         SettingsCard(
             Text("Edge Bars"),
-            note: Text(verbatim: "Slim bar on the right screen edge for ExtraDock apps, notes, productivity tools and system status. Left edge stays free for the Window Drawer.")
+            note: Text("Slim bar on the right screen edge for ExtraDock apps, notes, productivity tools and system status. Left edge stays free for the Side Deck.")
         ) {
             SettingsPickerRow(Text("Edge Bars"), selection: Binding(
                 get: { store.edgeBarPreset },

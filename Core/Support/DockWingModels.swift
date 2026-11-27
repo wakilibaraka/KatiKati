@@ -113,7 +113,7 @@ struct DockWingSlotConfig: Codable, Equatable, Sendable {
 /// Persisted left & right Dock II wing configuration (with optional per-display UUID overrides).
 struct DockWingsConfiguration: Codable, Equatable, Sendable {
     static let defaultsKey = "com.katikati.dockII.wings.v1"
-    static let defaultGap: CGFloat = 10
+    static let defaultGap: CGFloat = 6
     static let minGap: CGFloat = 4
     static let maxGap: CGFloat = 24
 
@@ -147,11 +147,9 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
     }
 
     static let `default` = DockWingsConfiguration()
-    static let recommendedDefault = DockWingsConfiguration(
-        left: DockWingSlotConfig(preset: .telemetry, size: .medium),
-        right: DockWingSlotConfig(preset: .ram, size: .medium)
-    )
+    static let recommendedDefault = DockWingsConfiguration.default
     static let cpuRamMigrationKey = "com.katikati.dockII.wings.defaultCpuRamMigrated.v1"
+    static let wingsDefaultOffMigrationKey = "com.katikati.dockII.wings.defaultOffMigrated.v2"
 
     var hasAnyActiveWing: Bool {
         left.preset.isAssigned || right.preset.isAssigned
@@ -253,16 +251,14 @@ struct DockWingsConfiguration: Codable, Equatable, Sendable {
     static func resolvedInitialConfig(defaults: UserDefaults) -> DockWingsConfiguration {
         guard let stored = decode(defaults.data(forKey: defaultsKey)) else {
             defaults.set(true, forKey: cpuRamMigrationKey)
+            defaults.set(true, forKey: wingsDefaultOffMigrationKey)
             return .recommendedDefault
         }
-        if !defaults.bool(forKey: cpuRamMigrationKey) {
+        if !defaults.bool(forKey: wingsDefaultOffMigrationKey) {
             defaults.set(true, forKey: cpuRamMigrationKey)
-            let isLegacyDefault = !stored.hasAnyActiveWing
-                || (stored.right.preset == .vpn && (stored.left.preset == .telemetry || stored.left.preset == .none))
-            if isLegacyDefault {
-                defaults.set(recommendedDefault.encoded(), forKey: defaultsKey)
-                return .recommendedDefault
-            }
+            defaults.set(true, forKey: wingsDefaultOffMigrationKey)
+            defaults.set(recommendedDefault.encoded(), forKey: defaultsKey)
+            return .recommendedDefault
         }
         return stored
     }
@@ -279,72 +275,72 @@ enum DockWingDimensions {
     static func nativeWidth(for preset: DockWidgetPresetType, size: WidgetSize) -> CGFloat {
         switch (preset, size) {
         case (.none, _): return 0
-        case (.spotify, .small): return 112
+        case (.spotify, .small): return 56
         case (.spotify, .medium): return 188
         case (.spotify, .large): return 248
-        case (.controlCenter, .small): return 124
+        case (.controlCenter, .small): return 56
         case (.controlCenter, .medium): return 188
         case (.controlCenter, .large): return 240
-        case (.vpn, .small): return 116
+        case (.vpn, .small): return 54
         case (.vpn, .medium): return 184
         case (.vpn, .large): return 244
-        case (.friends, .small): return 104
+        case (.friends, .small): return 56
         case (.friends, .medium): return 176
         case (.friends, .large): return 232
-        case (.telemetry, .small): return 112
+        case (.telemetry, .small): return 56
         case (.telemetry, .medium): return 180
         case (.telemetry, .large): return 240
-        case (.ram, .small): return 112
+        case (.ram, .small): return 56
         case (.ram, .medium): return 180
         case (.ram, .large): return 240
-        case (.network, .small): return 116
+        case (.network, .small): return 56
         case (.network, .medium): return 184
         case (.network, .large): return 240
-        case (.disk, .small): return 108
+        case (.disk, .small): return 54
         case (.disk, .medium): return 172
         case (.disk, .large): return 228
-        case (.battery, .small): return 108
+        case (.battery, .small): return 54
         case (.battery, .medium): return 168
         case (.battery, .large): return 220
-        case (.ai, .small): return 112
+        case (.ai, .small): return 56
         case (.ai, .medium): return 184
         case (.ai, .large): return 244
-        case (.pause, .small): return 112
+        case (.pause, .small): return 54
         case (.pause, .medium): return 188
         case (.pause, .large): return 244
-        case (.hydrate, .small): return 108
+        case (.hydrate, .small): return 54
         case (.hydrate, .medium): return 176
         // Was 232: the ring, the day total and three serving pills need ~234 pt at dock scale, so at
         // 232 the first two pills wrapped to two lines while the third stayed on one.
         case (.hydrate, .large): return 276
-        case (.musicAtmospheric, .small): return 120
+        case (.musicAtmospheric, .small): return 56
         case (.musicAtmospheric, .medium): return 200
         case (.musicAtmospheric, .large): return 264
-        case (.musicLyrics, .small): return 116
+        case (.musicLyrics, .small): return 56
         case (.musicLyrics, .medium): return 208
         case (.musicLyrics, .large): return 272
-        case (.musicQueue, .small): return 112
+        case (.musicQueue, .small): return 56
         case (.musicQueue, .medium): return 196
         case (.musicQueue, .large): return 256
-        case (.wordOfTheDay, .small): return 112
+        case (.wordOfTheDay, .small): return 54
         case (.wordOfTheDay, .medium): return 192
         case (.wordOfTheDay, .large): return 248
-        case (.yearProgress, .small): return 112
+        case (.yearProgress, .small): return 54
         case (.yearProgress, .medium): return 188
         case (.yearProgress, .large): return 236
-        case (.keepAwake, .small): return 104
+        case (.keepAwake, .small): return 54
         case (.keepAwake, .medium): return 168
         case (.keepAwake, .large): return 208
-        case (.habitStreak, .small): return 104
+        case (.habitStreak, .small): return 54
         case (.habitStreak, .medium): return 168
         case (.habitStreak, .large): return 208
-        case (.storageGlance, .small): return 112
+        case (.storageGlance, .small): return 54
         case (.storageGlance, .medium): return 180
         case (.storageGlance, .large): return 220
-        case (.pinnedNote, .small): return 108
+        case (.pinnedNote, .small): return 54
         case (.pinnedNote, .medium): return 176
         case (.pinnedNote, .large): return 220
-        case (.quickPasteClipboard, .small): return 112
+        case (.quickPasteClipboard, .small): return 54
         case (.quickPasteClipboard, .medium): return 184
         case (.quickPasteClipboard, .large): return 228
         }

@@ -713,6 +713,10 @@
 		ED0000000000000000000013 /* StatusTrioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000012 /* StatusTrioView.swift */; };
 		ED0000000000000000000902 /* MenuBarCreativeHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000901 /* MenuBarCreativeHubView.swift */; };
 		ED0000000000000000000904 /* TendederoClotheslineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000903 /* TendederoClotheslineController.swift */; };
+		ED0000000000000000000906 /* SettingsSearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000905 /* SettingsSearchIndex.swift */; };
+		ED0000000000000000000907 /* SettingsSearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000905 /* SettingsSearchIndex.swift */; };
+		ED0000000000000000000909 /* ExperimentalSettingsBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000908 /* ExperimentalSettingsBlock.swift */; };
+		ED0000000000000000000911 /* SettingsSearchIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000910 /* SettingsSearchIndexTests.swift */; };
 		ED0000000000000000000015 /* EdgeFlyoutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000014 /* EdgeFlyoutController.swift */; };
 		ED0000000000000000000021 /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* NotesModel.swift */; };
 		ED0000000000000000000022 /* NotesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* NotesModel.swift */; };
@@ -2085,6 +2089,9 @@
 		ED0000000000000000000012 /* StatusTrioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusTrioView.swift; path = App/Scenes/Edge/StatusTrioView.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000901 /* MenuBarCreativeHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarCreativeHubView.swift; path = App/Scenes/Edge/MenuBarCreativeHubView.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000903 /* TendederoClotheslineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TendederoClotheslineController.swift; path = App/Composition/TendederoClotheslineController.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000905 /* SettingsSearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsSearchIndex.swift; path = Core/Support/SettingsSearchIndex.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000908 /* ExperimentalSettingsBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExperimentalSettingsBlock.swift; path = App/Scenes/ExperimentalSettingsBlock.swift; sourceTree = SOURCE_ROOT; };
+		ED0000000000000000000910 /* SettingsSearchIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsSearchIndexTests.swift; path = Tests/Unit/SettingsSearchIndexTests.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000014 /* EdgeFlyoutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EdgeFlyoutController.swift; path = App/Entry/EdgeFlyoutController.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000020 /* NotesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NotesModel.swift; path = Core/Support/NotesModel.swift; sourceTree = SOURCE_ROOT; };
 		ED0000000000000000000023 /* NoteDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteDocument.swift; path = Core/Support/NoteDocument.swift; sourceTree = SOURCE_ROOT; };
@@ -3147,6 +3154,7 @@
 				BB0000000000000000000007 /* BarLayoutModeTests.swift */,
 				FA10A1000000000000000011 /* WidgetLayoutModelTests.swift */,
 				D211A0000000000000000011 /* DockWingModelsTests.swift */,
+				ED0000000000000000000910 /* SettingsSearchIndexTests.swift */,
 				D211A0000000000000000091 /* DockWingServicesTests.swift */,
 				FA10A1000000000000000041 /* LiveIdleActionTests.swift */,
 				FA10A1000000000000000031 /* WidgetPresetTests.swift */,
@@ -3378,6 +3386,8 @@
 				BB0000000000000000000003 /* BarSection.swift */,
 				FA10A1000000000000000001 /* WidgetLayoutModel.swift */,
 				D211A0000000000000000001 /* DockWingModels.swift */,
+				ED0000000000000000000905 /* SettingsSearchIndex.swift */,
+				ED0000000000000000000908 /* ExperimentalSettingsBlock.swift */,
 				FA10A1000000000000000021 /* WidgetPreset.swift */,
 				FA10A1000000000000000081 /* SkyPalette.swift */,
 				FA10A1000000000000000111 /* BackgroundAppClassifier.swift */,
@@ -4099,6 +4109,8 @@
 				ED0000000000000000000013 /* StatusTrioView.swift in Sources */,
 				ED0000000000000000000902 /* MenuBarCreativeHubView.swift in Sources */,
 				ED0000000000000000000904 /* TendederoClotheslineController.swift in Sources */,
+				ED0000000000000000000906 /* SettingsSearchIndex.swift in Sources */,
+				ED0000000000000000000909 /* ExperimentalSettingsBlock.swift in Sources */,
 				ED0000000000000000000015 /* EdgeFlyoutController.swift in Sources */,
 				7D1000000000000000000002 /* NowPlayingService.swift in Sources */,
 				7D2000000000000000000002 /* NowPlayingChip.swift in Sources */,
@@ -4876,6 +4888,8 @@
 				BB0000000000000000000008 /* BarLayoutModeTests.swift in Sources */,
 				FA10A1000000000000000012 /* WidgetLayoutModelTests.swift in Sources */,
 				D211A0000000000000000012 /* DockWingModelsTests.swift in Sources */,
+				ED0000000000000000000907 /* SettingsSearchIndex.swift in Sources */,
+				ED0000000000000000000911 /* SettingsSearchIndexTests.swift in Sources */,
 				D211A0000000000000000092 /* DockWingServicesTests.swift in Sources */,
 				FA10A1000000000000000042 /* LiveIdleActionTests.swift in Sources */,
 				FA10A1000000000000000032 /* WidgetPresetTests.swift in Sources */,

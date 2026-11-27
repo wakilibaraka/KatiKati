@@ -253,7 +253,7 @@ struct SettingsLayoutPane: View {
         case .spacePrevious: return String(localized: "Previous Space")
         case .windowSwitcher: return String(localized: "Window Switcher")
         case .peek: return String(localized: "Peek")
-        case .windowDrawer: return String(localized: "Window Drawer")
+        case .windowDrawer: return String(localized: "Side Deck")
         case .openDictionary: return String(localized: "Open Dictionary")
         case .toggleTerminal: return String(localized: "Toggle Terminal")
         case .dictate: return String(localized: "Hold or Toggle Dictation")

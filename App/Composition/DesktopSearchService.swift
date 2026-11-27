@@ -156,11 +156,8 @@ final class DesktopSearchService: ObservableObject {
     }
 
     private func settingResults(_ query: String) -> [DesktopSearchResult] {
-        let needle = query.lowercased()
-        return SettingsTab.allCases.compactMap { tab in
-            let haystack = [tab.title, tab.subtitle, tab.searchTerms].joined(separator: " ").lowercased()
-            guard haystack.contains(needle) else { return nil }
-            return DesktopSearchResult(
+        SettingsSearchIndex.matchingTabs(for: query, in: SettingsTab.allCases).map { tab in
+            DesktopSearchResult(
                 id: "setting:\(tab.rawValue)",
                 provider: .setting,
                 title: tab.title,

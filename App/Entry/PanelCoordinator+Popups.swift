@@ -174,7 +174,7 @@ extension PanelCoordinator {
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
                 isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true },
                 settingsStore: self?.settingsStore,
-                onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) }
+                onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .dockItems) }
             ).environment(\.dockBadgesByBundleID, self?.badgeStore.badgesByBundleID ?? [:])
              .environment(\.dockThemeStyle, settingsStore.themeMaterial)
              .environment(\.themeTuning, settingsStore.themeTuning))
@@ -294,7 +294,7 @@ extension PanelCoordinator {
                 onPinFolder: { [weak self] url in self?.pinnedFolderStore.add(url.path) },
                 isFolderPinned: { [weak self] url in self?.pinnedFolderStore.contains(url.path) ?? true },
                 settingsStore: self?.settingsStore,
-                onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) }
+                onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .dockItems) }
             ).environment(\.dockBadgesByBundleID, self?.badgeStore.badgesByBundleID ?? [:])
              .environment(\.dockThemeStyle, store.theme ?? settingsStore.themeMaterial)
              .environment(\.themeTuning, settingsStore.themeTuning))

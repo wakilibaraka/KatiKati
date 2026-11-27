@@ -13,7 +13,6 @@ enum SettingsTab: String, CaseIterable {
     case appIcons
     case shelf
     case barWidgets
-    case widgets
     case desktop
     case weather
     case music
@@ -23,7 +22,6 @@ enum SettingsTab: String, CaseIterable {
     case edgeBars
     case tiling
     case windowManagement
-    case missionControl
     case launcher
     case commandBar
     case controlCenter
@@ -38,6 +36,7 @@ enum SettingsTab: String, CaseIterable {
     case downloads
     case clipboard
     case tools
+    case experimental
     case advanced
 
     init?(rawValue: String) {
@@ -46,12 +45,11 @@ enum SettingsTab: String, CaseIterable {
         case "menuBar": self = .menuBar
         case "appearance": self = .appearance
         case "wallpaper": self = .wallpaper
-        case "dockItems": self = .dockItems
+        case "dockItems", "widgets": self = .dockItems
         case "appIcons": self = .appIcons
         case "drawer": self = .launcher
         case "shelf", "drawerShelf": self = .shelf
         case "barWidgets": self = .barWidgets
-        case "widgets": self = .widgets
         case "desktop": self = .desktop
         case "weather": self = .weather
         case "music": self = .music
@@ -61,7 +59,7 @@ enum SettingsTab: String, CaseIterable {
         case "edgeBars": self = .edgeBars
         case "tiling": self = .tiling
         case "windowManagement": self = .windowManagement
-        case "missionControl", "mission-control": self = .missionControl
+        case "missionControl", "mission-control", "experimental": self = .experimental
         case "launcher": self = .launcher
         case "commandBar": self = .commandBar
         case "controlCenter": self = .controlCenter
@@ -92,7 +90,6 @@ enum SettingsTab: String, CaseIterable {
         case .appIcons: return String(localized: "App Icons & Hover")
         case .shelf: return String(localized: "Shelf")
         case .barWidgets: return String(localized: "Bar Widgets")
-        case .widgets: return String(localized: "Widget Wings")
         case .desktop: return String(localized: "Desktop")
         case .weather: return String(localized: "Weather")
         case .music: return String(localized: "Music")
@@ -102,7 +99,6 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return String(localized: "Edge Bars")
         case .tiling: return String(localized: "Tiling")
         case .windowManagement: return String(localized: "Window Management")
-        case .missionControl: return String(localized: "Mission Control")
         case .launcher: return String(localized: "Launcher")
         case .commandBar: return String(localized: "Command Bar")
         case .controlCenter: return String(localized: "Control Center")
@@ -117,6 +113,7 @@ enum SettingsTab: String, CaseIterable {
         case .downloads: return String(localized: "Downloads")
         case .clipboard: return String(localized: "Clipboard")
         case .tools: return String(localized: "Tools")
+        case .experimental: return String(localized: "Experimental")
         case .advanced: return String(localized: "Advanced")
         }
     }
@@ -129,21 +126,19 @@ enum SettingsTab: String, CaseIterable {
         case .menuBar: return String(localized: "System metrics, drive capacity, and status items.")
         case .appearance: return String(localized: "Themes, icons, and bar layout.")
         case .wallpaper: return String(localized: "Dynamic scenes, daylight and weather, and the dock accent.")
-        case .dockItems: return String(localized: "Dock position, modular slots, detached capsule, and utilities.")
+        case .dockItems: return String(localized: "Dock position, modular slots, detached capsule, utilities, and flanking wings.")
         case .appIcons: return String(localized: "Instance presets, spacing, dynamic resizing, app groups, and hover feedback.")
         case .shelf: return String(localized: "Floating card stack, shake-to-shelf, Notch File Tray, and space pinning.")
         case .barWidgets: return String(localized: "In-dock widgets: Weather, Now Playing, Clock, styles, and order.")
-        case .widgets: return String(localized: "Left and right flanking wings, Battery & Peripherals, and floating stack.")
         case .desktop: return String(localized: "Folder boxes, to-dos, notes, and glanceable widgets on your desktop.")
         case .weather: return String(localized: "Weather units, layout, and warnings.")
-        case .music: return String(localized: "The desktop music widget, its preset, the lock card, and album art.")
+        case .music: return String(localized: "The desktop music widget, its preset, and playback style.")
         case .notch: return String(localized: "The Dynamic Notch: skin, pages, size, and alerts.")
         case .notifications: return String(localized: "Battery, charging, peripherals, and banner placement.")
         case .sideDeck: return String(localized: "Placement, width, and how the deck opens.")
         case .edgeBars: return String(localized: "Side bars: preset, placement, widgets, and size.")
         case .tiling: return String(localized: "Auto-tiling, presets, gaps, and floating apps.")
         case .windowManagement: return String(localized: "Window chips and window behaviors.")
-        case .missionControl: return String(localized: "Space names, focus and state borders, colour rules, and hover actions over the overview.")
         case .launcher: return String(localized: "Search, results, and hidden apps.")
         case .commandBar: return String(localized: "Command hints and the command bar.")
         case .controlCenter: return String(localized: "Tiles, quick settings, and placement.")
@@ -158,6 +153,7 @@ enum SettingsTab: String, CaseIterable {
         case .downloads: return String(localized: "Torrents: speed, schedule, and quiet hours.")
         case .clipboard: return String(localized: "History, privacy, storage, and the popup.")
         case .tools: return String(localized: "Commands, snippets, and the shortcut cheat sheet.")
+        case .experimental: return String(localized: "Mission Control overlay, Lock Screen Card, Album Art Wallpaper, and private macOS APIs.")
         case .advanced: return String(localized: "Rarely touched switches that need extra powers.")
         }
     }
@@ -172,7 +168,6 @@ enum SettingsTab: String, CaseIterable {
         case .appIcons: return "app.badge"
         case .shelf: return "tray.and.arrow.down"
         case .barWidgets: return "rectangle.3.offgrid"
-        case .widgets: return "square.grid.2x2"
         case .desktop: return "macwindow.on.rectangle"
         case .weather: return "cloud.sun"
         case .music: return "music.note"
@@ -182,7 +177,6 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return "sidebar.right"
         case .tiling: return "rectangle.split.2x2"
         case .windowManagement: return "macwindow"
-        case .missionControl: return "rectangle.3.group"
         case .launcher: return "magnifyingglass"
         case .commandBar: return "terminal"
         case .controlCenter: return "switch.2"
@@ -197,6 +191,7 @@ enum SettingsTab: String, CaseIterable {
         case .downloads: return "arrow.down.circle"
         case .clipboard: return "doc.on.clipboard"
         case .tools: return "hammer"
+        case .experimental: return "flask"
         case .advanced: return "wrench.and.screwdriver"
         }
     }
@@ -212,7 +207,6 @@ enum SettingsTab: String, CaseIterable {
         case .appIcons: return (0.92, 0.48, 0.15)
         case .shelf: return (0.48, 0.36, 0.88)
         case .barWidgets: return (0.44, 0.52, 0.96)
-        case .widgets: return (0.58, 0.40, 0.93)
         case .desktop: return (0.20, 0.60, 0.86)
         case .weather: return (0.30, 0.72, 0.78)
         case .music: return (0.86, 0.30, 0.56)
@@ -222,7 +216,6 @@ enum SettingsTab: String, CaseIterable {
         case .edgeBars: return (0.10, 0.70, 0.66)
         case .tiling: return (0.20, 0.52, 0.98)
         case .windowManagement: return (0.25, 0.35, 0.65)
-        case .missionControl: return (0.56, 0.42, 0.96)
         case .launcher: return (0.38, 0.36, 0.90)
         case .commandBar: return (0.85, 0.35, 0.35)
         case .controlCenter: return (1.00, 0.55, 0.15)
@@ -237,7 +230,47 @@ enum SettingsTab: String, CaseIterable {
         case .downloads: return (0.12, 0.72, 0.88)
         case .clipboard: return (0.95, 0.62, 0.20)
         case .tools: return (0.20, 0.78, 0.35)
+        case .experimental: return (0.74, 0.36, 0.68)
         case .advanced: return (0.42, 0.46, 0.54)
+        }
+    }
+
+    /// Words a reader might search for besides the title (not localized; matched as typed).
+    var searchTerms: String {
+        switch self {
+        case .general: return "launch login language updates about permissions reset"
+        case .menuBar: return "menu bar cpu memory gpu storage battery network disk drives"
+        case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
+        case .wallpaper: return "wallpaper dynamic time solar daylight weather terrain city countryside mountains coast gradient mesh accent scene"
+        case .dockItems: return "dock layout position slots detached capsule utilities background activity wings battery peripherals telemetry ram network disk floating stack"
+        case .appIcons: return "app icons hover presets spacing dynamic resizing groups keep in dock"
+        case .shelf: return "shelf file tray notch card stack shake storage expire unpinned system dock spaces"
+        case .barWidgets: return "bar widgets weather now playing clock styles presets order"
+        case .desktop: return "desktop boxes folder todo to-do quick capture glance weather vinyl music capsule dock edge quick reveal panorama displays display identify default edid topology pin layout how to"
+        case .weather: return "units temperature wind forecast warnings hero animations"
+        case .music: return "music now playing album art widget poster stage card strip desktop"
+        case .notch: return "island skin style open panel"
+        case .notifications: return "battery charging low power peripheral bluetooth history banners"
+        case .sideDeck: return "side deck edge width hover activation dwell identity strip weather handle swap"
+        case .edgeBars: return "dock side bar auto hide edge"
+        case .tiling: return "tiling snap gaps preset layout bsp monocle"
+        case .windowManagement: return "window chips floating apps behaviour"
+        case .launcher: return "search apps files spotlight"
+        case .commandBar: return "command bar hints script commands"
+        case .controlCenter: return "panel tiles toggles anchor width"
+        case .shortcuts: return "hotkey keyboard keys record snap tiling hold time"
+        case .keyboard: return "hyper super caps lock caps protect finder keys pause cleaning visualizer input monitoring"
+        case .keyVisualizer: return "key visualizer overlay typed keystrokes recording filter style linger font position mouse clicks"
+        case .mouse: return "pointer focus follows mouse scroll direction clicks wheel"
+        case .mouseGestures: return "trackpad gesture swipe pinch tap multitouch conflict mission control"
+        case .quitApps: return "quit close confirmation hold command q idle apps rules"
+        case .radialDial: return "pie menu wheel theme"
+        case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
+        case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
+        case .clipboard: return "clipboard history pin paste plain privacy ignore retention popup shortcuts"
+        case .tools: return "color picker teleprompter calculator snippets keycastr keyclu visualizer cheat sheet"
+        case .experimental: return "experimental mission control overview spaces names labels badges borders colours colors tint wash hover close minimize zoom hide quit actions lock screen album art wallpaper private api"
+        case .advanced: return "reset debug permissions accessibility screen recording"
         }
     }
 }

@@ -188,7 +188,7 @@ extension PanelCoordinator {
                        appMembershipController: appMembershipController,
                        settingsStore: settingsStore,
                        badgeStore: badgeStore,
-                       onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) })
+                       onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .dockItems) })
     }
 
     /// 抽屉面板 + SwiftUI 宿主，**只建一次**；之后只在行列上限变了才换 rootView。

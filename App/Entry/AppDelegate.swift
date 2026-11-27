@@ -1725,7 +1725,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setDesktopCanvasEnabled(true)
         desktopCanvasCoordinator?.presentAutoOrganizeSheet()
     }
-    func openDesktopBoxesSettings() { openSettings(selecting: .widgets) }
+    func openDesktopBoxesSettings() { openSettings(selecting: .desktop) }
 
     /// Settings › Fixed Space Order (54d): the Dock's own `mru-spaces` state, nil when unreadable.
     func fixedSpaceOrderState() async -> Bool? {

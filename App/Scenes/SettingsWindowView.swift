@@ -113,8 +113,11 @@ struct SettingsWindowContent: View {
             case .appearance: SettingsAppearancePane(store: store)
             case .wallpaper: SettingsWallpaperPane(store: store, tabState: tabState)
             case .dockItems:
-                SettingsLayoutPane(store: store, mode: .widgets)
-                    .background(SettingsPageHeightProbe(tab: .dockItems))
+                VStack(alignment: .leading, spacing: SettingsMetrics.sectionSpacing) {
+                    SettingsLayoutPane(store: store, mode: .widgets)
+                    WidgetWingsSettingsBlock(store: store)
+                }
+                .background(SettingsPageHeightProbe(tab: .dockItems))
             case .appIcons:
                 AppIconsSettingsBlock(store: store)
             case .shelf:
@@ -123,8 +126,6 @@ struct SettingsWindowContent: View {
             case .barWidgets:
                 SettingsLayoutPane(store: store, mode: .barWidgets)
                 WidgetLookSettingsBlock(store: store)
-            case .widgets:
-                WidgetWingsSettingsBlock(store: store)
             case .desktop:
                 DesktopSettingsBlock(store: store)
             case .weather: weatherPane
@@ -135,7 +136,6 @@ struct SettingsWindowContent: View {
             case .edgeBars: SettingsLayoutPane(store: store, mode: .edgeBars)
             case .tiling: SettingsTilingPane(store: store)
             case .windowManagement: windowManagementPane
-            case .missionControl: SettingsMissionControlPane(spaces: Self.missionControlSpaces())
             case .launcher: launcherPane
             case .commandBar: commandBarPane
             case .controlCenter: controlCenterPane
@@ -152,6 +152,9 @@ struct SettingsWindowContent: View {
             case .downloads: TorrentSettingsBlock()
             case .clipboard: ClipboardSettingsPane(store: store)
             case .tools: toolsPane
+            case .experimental:
+                ExperimentalSettingsBlock(tabState: tabState)
+                SettingsMissionControlPane(spaces: Self.missionControlSpaces())
             case .advanced: advancedPane
             }
         }

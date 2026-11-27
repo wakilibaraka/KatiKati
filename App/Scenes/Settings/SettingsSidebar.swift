@@ -4,48 +4,6 @@ extension SettingsTab {
     var hueColor: Color { Color(red: hue.red, green: hue.green, blue: hue.blue) }
 }
 
-extension SettingsTab {
-    /// Words a reader might search for besides the title (not localized; matched as typed).
-    var searchTerms: String {
-        switch self {
-        case .general: return "launch login language updates about permissions reset"
-        case .menuBar: return "menu bar cpu memory gpu storage battery network disk drives"
-        case .appearance: return "theme layout mode position bar height spacing icons dark light colour accent"
-        case .wallpaper: return "wallpaper dynamic time solar daylight weather terrain city countryside mountains coast gradient mesh accent scene"
-        case .dockItems: return "dock layout position slots detached capsule utilities background activity"
-        case .appIcons: return "app icons hover presets spacing dynamic resizing groups keep in dock"
-        case .shelf: return "shelf file tray notch card stack shake storage expire unpinned system dock spaces"
-        case .barWidgets: return "bar widgets weather now playing clock styles presets order"
-        case .widgets: return "wings battery peripherals telemetry ram network disk floating stack"
-        case .desktop: return "desktop boxes folder todo to-do quick capture glance weather vinyl music capsule dock edge quick reveal panorama displays display identify default edid topology pin layout how to"
-        case .weather: return "units temperature wind forecast warnings hero animations"
-        case .music: return "music now playing album art widget poster stage card strip desktop lock screen lyrics volume wallpaper"
-        case .notch: return "island skin style open panel"
-        case .notifications: return "battery charging low power peripheral bluetooth history banners"
-        case .sideDeck: return "side deck edge width hover activation dwell identity strip weather handle swap"
-        case .edgeBars: return "dock side bar auto hide edge"
-        case .tiling: return "tiling snap gaps preset layout bsp monocle"
-        case .windowManagement: return "window chips floating apps behaviour"
-        case .missionControl: return "mission control overview spaces names labels badges borders colours colors tint wash hover close minimize zoom hide quit actions keys mouse filter"
-        case .launcher: return "search apps files spotlight"
-        case .commandBar: return "command bar hints script commands"
-        case .controlCenter: return "panel tiles toggles anchor width"
-        case .shortcuts: return "hotkey keyboard keys record snap tiling hold time"
-        case .keyboard: return "hyper super caps lock caps protect finder keys pause cleaning visualizer input monitoring"
-        case .keyVisualizer: return "key visualizer overlay typed keystrokes recording filter style linger font position mouse clicks"
-        case .mouse: return "pointer focus follows mouse scroll direction clicks wheel"
-        case .mouseGestures: return "trackpad gesture swipe pinch tap multitouch conflict mission control"
-        case .quitApps: return "quit close confirmation hold command q idle apps rules"
-        case .radialDial: return "pie menu wheel theme"
-        case .aiTracking: return "ai agent claude codex token budget tracking approval hook"
-        case .downloads: return "torrent bittorrent seed upload quiet hours aria2"
-        case .clipboard: return "clipboard history pin paste plain privacy ignore retention popup shortcuts"
-        case .tools: return "color picker teleprompter calculator snippets keycastr keyclu visualizer cheat sheet"
-        case .advanced: return "reset debug permissions accessibility screen recording"
-        }
-    }
-}
-
 private enum SidebarSection: Identifiable {
     case system([SettingsTab])
     case surfaces([SettingsTab])
@@ -105,17 +63,15 @@ struct SettingsSidebar: View {
 
     private static let sections: [SidebarSection] = [
         .system([.general, .menuBar, .appearance, .wallpaper, .dockItems, .appIcons]),
-        .surfaces([.barWidgets, .widgets, .shelf, .desktop, .weather, .music, .notch, .notifications, .sideDeck, .edgeBars]),
-        .workspace([.tiling, .windowManagement, .missionControl, .launcher, .commandBar, .controlCenter]),
+        .surfaces([.barWidgets, .shelf, .desktop, .weather, .music, .notch, .notifications, .sideDeck, .edgeBars]),
+        .workspace([.tiling, .windowManagement, .launcher, .commandBar, .controlCenter]),
         .input([.shortcuts, .keyboard, .keyVisualizer, .mouse, .mouseGestures, .radialDial, .quitApps]),
         .productivity([.aiTracking, .downloads, .clipboard, .tools]),
-        .advanced([.advanced])
+        .advanced([.experimental, .advanced])
     ]
 
     private var visibleTabs: [SettingsTab] {
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty else { return SettingsTab.allCases }
-        return SettingsTab.allCases.filter { $0.title.localizedCaseInsensitiveContains(q) || $0.searchTerms.localizedCaseInsensitiveContains(q) }
+        SettingsSearchIndex.matchingTabs(for: query, in: SettingsTab.allCases)
     }
 
     var body: some View {
@@ -256,7 +212,7 @@ struct SettingsSidebar: View {
     }
 
     private func open(_ tab: SettingsTab) {
-        tabState.findQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        tabState.findQuery = SettingsSearchIndex.resolvedRowQuery(for: tab, userQuery: query)
         tabState.selected = tab
     }
 

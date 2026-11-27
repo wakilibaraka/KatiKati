@@ -40,6 +40,18 @@ struct DockTelemetryWidgetView: View {
                 batteryPeripheralsWingBody(spec: spec)
             } else if isVertical {
                 verticalBody(spec: spec, sparkValues: sparkValues)
+            } else if size == .small {
+                VStack(spacing: 1) {
+                    Image(systemName: preset.symbolName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(spec.trailingColor)
+                    Text(verbatim: verticalPrimaryMetric(for: feed.state))
+                        .font(.system(size: 9.5, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(DockWidgetStyle.ink)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+                .padding(.horizontal, 4)
             } else {
                 ZStack(alignment: .bottom) {
                     ThermalSparklineCanvas(
@@ -160,8 +172,20 @@ struct DockTelemetryWidgetView: View {
                 .padding(.vertical, 6)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+        } else if size == .small {
+            VStack(spacing: 1) {
+                Image(systemName: macBatterySymbol(percent: overview.macPercent, charging: overview.macCharging))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(macTint)
+                Text(verbatim: overview.macPercent.map { "\($0)%" } ?? "AC")
+                    .font(.system(size: 9.5, weight: .bold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(DockWidgetStyle.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .padding(.horizontal, 4)
         } else {
-            let tops = overview.topBatteryPeripherals(limit: size == .small ? 1 : (size == .medium ? 2 : 3))
+            let tops = overview.topBatteryPeripherals(limit: size == .medium ? 2 : 3)
             ZStack(alignment: .bottom) {
                 ThermalSparklineCanvas(values: [macFrac, macFrac, macFrac], fillColors: fillColors, strokeColors: strokeColors)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

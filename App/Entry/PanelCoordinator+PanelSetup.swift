@@ -348,7 +348,7 @@ extension PanelCoordinator {
             placement: placement,
             usesLiquidGlass: usesLiquidGlass,
             sizeModel: sizeModel,
-            onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) }
+            onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .dockItems) }
         )
         .environmentObject(settingsStore)
         .environmentObject(badgeStore)
@@ -380,7 +380,7 @@ extension PanelCoordinator {
         configurePanel(panel, backgroundColor: NSColor(white: 1.0, alpha: 0.0), appliesLevelOverride: false)
         let root = DockFloatingWidgetStackView(
             usesLiquidGlass: usesLiquidGlass,
-            onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .widgets) },
+            onOpenSettings: { AppDelegate.shared?.openSettings(selecting: .dockItems) },
             onDragFinished: { [weak self] origin in
                 self?.settingsStore.setFloatingWidgetStackOrigin(origin)
             }

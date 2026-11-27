@@ -10,24 +10,23 @@ import XCTest
 
 final class SettingsTabTests: XCTestCase {
     func testTheSidebarIsThirtyThreeTabsWithOneIdentityEach() {
-        // 2026-11-25 (SD-8): the Side Deck became a page of its own beside Edge Bars.
-        XCTAssertEqual(SettingsTab.allCases.count, 34, "thirty-four sidebar pages")
-        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 34,
+        XCTAssertEqual(SettingsTab.allCases.count, 33, "thirty-three sidebar pages")
+        XCTAssertEqual(Set(SettingsTab.allCases.map(\.rawValue)).count, 33,
                        "two tabs sharing a raw value share one toolbar identifier")
         XCTAssertEqual(SettingsTab.allCases.first, .general)
         XCTAssertEqual(SettingsTab.allCases.last, .advanced,
-                       "the page visited once sits at the end; Tools is one before it")
-        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .tools, "Tools sits just before Advanced")
-        XCTAssertEqual(SettingsTab.allCases.dropLast(2).last, .clipboard, "Clipboard sits just above Tools")
+                       "the page visited once sits at the end; Experimental is one before it")
+        XCTAssertEqual(SettingsTab.allCases.dropLast().last, .experimental, "Experimental sits just before Advanced")
+        XCTAssertEqual(SettingsTab.allCases.dropLast(2).last, .tools, "Tools sits just above Experimental")
+        XCTAssertEqual(SettingsTab.allCases.dropLast(3).last, .clipboard, "Clipboard sits just above Tools")
         XCTAssertEqual(SettingsTab(rawValue: "clipboard"), .clipboard)
-        // 2026-10-20 split: the toolbar identifier "tiling" now names the Tiling page itself;
-        // Window Management moved to its own identifier.
         XCTAssertEqual(SettingsTab(rawValue: "tiling"), .tiling,
                        "a stored toolbar identifier must keep resolving after a split")
         XCTAssertEqual(SettingsTab(rawValue: "windowManagement"), .windowManagement)
-        XCTAssertEqual(SettingsTab(rawValue: "missionControl"), .missionControl)
-        XCTAssertEqual(SettingsTab.allCases[SettingsTab.allCases.firstIndex(of: .windowManagement)! + 1],
-                       .missionControl, "Mission Control sits beside the window pages")
+        XCTAssertEqual(SettingsTab(rawValue: "missionControl"), .experimental)
+        XCTAssertEqual(SettingsTab(rawValue: "mission-control"), .experimental)
+        XCTAssertEqual(SettingsTab(rawValue: "experimental"), .experimental)
+        XCTAssertEqual(SettingsTab(rawValue: "widgets"), .dockItems)
         XCTAssertEqual(SettingsTab(rawValue: "controlCenter"), .controlCenter)
         XCTAssertEqual(SettingsTab(rawValue: "notifications"), .notifications)
         // SD-8: the deck's page sits beside the Edge Bars it swaps edges with.
@@ -50,7 +49,7 @@ final class SettingsTabTests: XCTestCase {
         XCTAssertEqual(SettingsTab.dockItems.title, "Dock Layout")
         XCTAssertEqual(SettingsTab.appIcons.title, "App Icons & Hover")
         XCTAssertEqual(SettingsTab.barWidgets.title, "Bar Widgets")
-        XCTAssertEqual(SettingsTab.widgets.title, "Widget Wings")
+        XCTAssertEqual(SettingsTab.experimental.title, "Experimental")
         XCTAssertEqual(SettingsTab(rawValue: "shelf"), .shelf)
         XCTAssertEqual(SettingsTab(rawValue: "drawerShelf"), .shelf)
         XCTAssertEqual(SettingsTab(rawValue: "aiTracking"), .aiTracking)
