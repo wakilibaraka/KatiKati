@@ -64,6 +64,43 @@ enum DisplayModeService {
     }
 }
 
+extension DisplayModeService {
+    /// Captures where every connected display sits right now, keyed by display UUID.
+    @MainActor
+    static func captureArrangement(named name: String) -> DisplayArrangement? {
+        let screens = NSScreen.screens
+        guard let primary = screens.first else { return nil }
+        let entries = screens.compactMap { screen -> DisplayArrangementEntry? in
+            guard let key = DisplayIdentity.uuidString(for: screen) else { return nil }
+            return DisplayArrangementGeometry.entry(displayKey: key,
+                                                    cocoaFrame: screen.frame,
+                                                    primaryMaxY: primary.frame.maxY)
+        }
+        guard !entries.isEmpty else { return nil }
+        return DisplayArrangement(name: name, entries: DisplayArrangementGeometry.normalized(entries))
+    }
+
+    /// Puts every display back where the preset says. Refuses a preset that names a display which is no
+    /// longer connected, so a partial match cannot shuffle the panels that are.
+    @MainActor
+    @discardableResult
+    static func applyArrangement(_ arrangement: DisplayArrangement) -> Bool {
+        let screens = NSScreen.screens
+        let keyed = Dictionary(uniqueKeysWithValues: screens.compactMap { screen in
+            DisplayIdentity.uuidString(for: screen).map { ($0, screen) }
+        })
+        guard DisplayArrangementGeometry.isComplete(arrangement, liveKeys: Set(keyed.keys)) else { return false }
+        var config: CGDisplayConfigRef?
+        guard CGBeginDisplayConfiguration(&config) == .success, let config else { return false }
+        for entry in arrangement.entries {
+            guard let screen = keyed[entry.displayKey], let displayID = displayID(for: screen) else { continue }
+            CGConfigureDisplayOrigin(config, displayID,
+                                     Int32(entry.originX.rounded()), Int32(entry.originY.rounded()))
+        }
+        return CGCompleteDisplayConfiguration(config, .permanently) == .success
+    }
+}
+
 /// Asks the user to keep a mode and reverts automatically if they do not answer within `seconds`.
 /// The prompt is deliberately modal: while it is up the screen may be unusable, and one keystroke has to
 /// be enough to get the old mode back.

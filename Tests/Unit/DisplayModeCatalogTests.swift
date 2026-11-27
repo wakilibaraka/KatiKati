@@ -54,4 +54,73 @@ final class DisplayModeCatalogTests: XCTestCase {
         XCTAssertTrue(DisplayModeCatalog.isSamePicture(mode(1920, 1920, refresh: 60), mode(1920, 1920, refresh: 120)))
         XCTAssertFalse(DisplayModeCatalog.isSamePicture(mode(1920, 1920), mode(960, 1920)))
     }
+
+    // MARK: - Arrangement presets (SN-6)
+
+    func testQuartzOriginFlipsAroundThePrimaryHeight() {
+        // Primary: 1710×1112 at the Cocoa origin, so it sits at Quartz 0,0.
+        XCTAssertEqual(DisplayArrangementGeometry.quartzOrigin(cocoaFrame: CGRect(x: 0, y: 0, width: 1710, height: 1112),
+                                                              primaryMaxY: 1112),
+                       CGPoint(x: 0, y: 0))
+        // A panel physically above it: Cocoa y starts at the primary's top edge, Quartz y goes negative.
+        XCTAssertEqual(DisplayArrangementGeometry.quartzOrigin(cocoaFrame: CGRect(x: -164, y: 1112, width: 1920, height: 1080),
+                                                              primaryMaxY: 1112),
+                       CGPoint(x: -164, y: -1080))
+        // A panel to the right of the primary keeps the primary's height in the flip.
+        XCTAssertEqual(DisplayArrangementGeometry.quartzOrigin(cocoaFrame: CGRect(x: 1710, y: 0, width: 1280, height: 720),
+                                                              primaryMaxY: 1112),
+                       CGPoint(x: 1710, y: 392))
+    }
+
+    func testEntryKeepsTheDisplayKeyNotTheIndex() {
+        let entry = DisplayArrangementGeometry.entry(displayKey: "402CE39A",
+                                                     cocoaFrame: CGRect(x: 10, y: 20, width: 100, height: 50),
+                                                     primaryMaxY: 1112)
+        XCTAssertEqual(entry.displayKey, "402CE39A")
+        XCTAssertEqual(entry.originX, 10)
+        XCTAssertEqual(entry.originY, 1042)
+    }
+
+    func testNormalizedKeepsTheFirstEntryPerDisplay() {
+        let a = DisplayArrangementEntry(displayKey: "A", originX: 0, originY: 0)
+        let duplicateA = DisplayArrangementEntry(displayKey: "A", originX: 99, originY: 99)
+        let b = DisplayArrangementEntry(displayKey: "B", originX: 5, originY: 5)
+        XCTAssertEqual(DisplayArrangementGeometry.normalized([a, duplicateA, b]), [a, b])
+    }
+
+    func testArrangementIsCompleteOnlyWhenEveryDisplayIsConnected() {
+        let preset = DisplayArrangement(name: "Desk", entries: [
+            DisplayArrangementEntry(displayKey: "A", originX: 0, originY: 0),
+            DisplayArrangementEntry(displayKey: "B", originX: 1710, originY: 0),
+        ])
+        XCTAssertTrue(DisplayArrangementGeometry.isComplete(preset, liveKeys: ["A", "B"]))
+        XCTAssertTrue(DisplayArrangementGeometry.isComplete(preset, liveKeys: ["A", "B", "C"]),
+                      "an extra connected display does not invalidate the preset")
+        XCTAssertFalse(DisplayArrangementGeometry.isComplete(preset, liveKeys: ["A"]),
+                       "a missing display would leave its neighbour somewhere nobody chose")
+        XCTAssertEqual(DisplayArrangementGeometry.matchCount(preset, liveKeys: ["A", "C"]), 1)
+        XCTAssertFalse(DisplayArrangementGeometry.isComplete(DisplayArrangement(name: "Empty", entries: []),
+                                                             liveKeys: ["A"]))
+    }
+
+    func testArrangementRoundTripsThroughCodable() throws {
+        let preset = DisplayArrangement(name: "Desk", entries: [
+            DisplayArrangementEntry(displayKey: "A", originX: 0, originY: 0),
+            DisplayArrangementEntry(displayKey: "B", originX: -164, originY: -1080),
+        ])
+        let decoded = try JSONDecoder().decode(DisplayArrangement.self, from: JSONEncoder().encode(preset))
+        XCTAssertEqual(decoded, preset)
+    }
+
+    func testArrangementStoreSavesAndLoads() throws {
+        let suite = try XCTUnwrap(UserDefaults(suiteName: "DisplayArrangementTests"))
+        suite.removePersistentDomain(forName: "DisplayArrangementTests")
+        XCTAssertTrue(DisplayArrangementStore.load(defaults: suite).isEmpty)
+        let preset = DisplayArrangement(name: "Arrangement 1", entries: [
+            DisplayArrangementEntry(displayKey: "A", originX: 0, originY: 0),
+        ])
+        DisplayArrangementStore.save([preset], defaults: suite)
+        XCTAssertEqual(DisplayArrangementStore.load(defaults: suite), [preset])
+        suite.removePersistentDomain(forName: "DisplayArrangementTests")
+    }
 }

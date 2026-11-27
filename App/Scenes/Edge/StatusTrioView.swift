@@ -1695,6 +1695,8 @@ struct MenuBarCreativeHubView: View {
     /// Tier B: empty (the default) keeps every opt-in module out of the tree entirely.
     @AppStorage(HubModule.storageKey) private var modulesRaw = ""
     @State private var showUninstaller = false
+    /// SN-6: saved display arrangements, loaded once per open.
+    @State private var arrangements: [DisplayArrangement] = []
     @State private var calendarMonth = Date()
     @AppStorage(HubActionLayout.widthsKey) private var boxWidthsRaw = "half,half,half,half"
     @ObservedObject private var keepAwake = KeepAwakeService.shared
@@ -1745,6 +1747,7 @@ struct MenuBarCreativeHubView: View {
         .sheet(isPresented: $showUninstaller) { HubUninstallerSheet() }
         .onAppear {
             engine.refresh(); status.acquire(); boxSlots = HubActionSlotID.slots()
+            arrangements = DisplayArrangementStore.load()
             if !tabs.contains(selectedTab), let first = tabs.first { selectedTab = first }
             // MD-5: the external panel's own volume, read once per open (nil hides the slider).
             displayVolume = DisplayBrightness.volumeForCursorScreen()
@@ -1910,6 +1913,7 @@ struct MenuBarCreativeHubView: View {
                 // keeps the one consolidated icon this app settled on.
                 snapPickerRow
                 displayModeRow
+                arrangementRow
                 keepAwakeCard
                 pageSearchField
                 if let buds = btAudioDevices.first, let level = buds.lowestBattery {
@@ -1965,6 +1969,38 @@ struct MenuBarCreativeHubView: View {
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
+    }
+
+    /// SN-6: where the displays sit, saved and re-applied by display UUID.
+    private var arrangementRow: some View {
+        Menu {
+            Button("Save Current Arrangement") { saveArrangement() }
+            if !arrangements.isEmpty {
+                Divider()
+                ForEach(arrangements) { preset in
+                    Button(preset.name) { DisplayModeService.applyArrangement(preset) }
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "rectangle.3.group").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(palette.primaryAccent).frame(width: 18)
+                Text("Arrangements").font(.system(size: 11.5, weight: .medium)).foregroundStyle(ink)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(inkSoft)
+            }
+            .padding(.horizontal, 9).padding(.vertical, 7)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(cardFill))
+            .contentShape(Rectangle())
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+    }
+
+    private func saveArrangement() {
+        guard let preset = DisplayModeService.captureArrangement(named: "Arrangement \(arrangements.count + 1)") else { return }
+        arrangements.append(preset)
+        DisplayArrangementStore.save(arrangements)
     }
 
     /// Opens the layout grid next to the Hub's own caret, then gets out of its way.
